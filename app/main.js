@@ -17,6 +17,12 @@ class FizzBuzz {
     }
     return number.toString();
   }
+
+  static printNumbers() {
+    for (let i = 1; i <= 100; i++) {
+      console.log(this.generate(i));
+    }
+  }
 }
 
 module.exports = { greeting, FizzBuzz };

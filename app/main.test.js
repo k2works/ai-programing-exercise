@@ -32,4 +32,19 @@ describe('FizzBuzz', () => {
   test('15を渡したら文字列FizzBuzzを返す', () => {
     expect(fizzbuzz.generate(15)).toBe('FizzBuzz');
   });
+
+  test('1から100まで数をプリントする', () => {
+    const spy = jest.spyOn(console, 'log').mockImplementation();
+    fizzbuzz.printNumbers();
+    
+    expect(spy).toHaveBeenCalledTimes(100);
+    expect(spy).toHaveBeenNthCalledWith(1, '1');
+    expect(spy).toHaveBeenNthCalledWith(2, '2');
+    expect(spy).toHaveBeenNthCalledWith(3, 'Fizz');
+    expect(spy).toHaveBeenNthCalledWith(4, '4');
+    expect(spy).toHaveBeenNthCalledWith(5, 'Buzz');
+    expect(spy).toHaveBeenNthCalledWith(15, 'FizzBuzz');
+    
+    spy.mockRestore();
+  });
 });
