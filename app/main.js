@@ -3,4 +3,11 @@ function greeting() {
   return 'hello world';
 }
 
-module.exports = { greeting };
+// FizzBuzzクラス
+class FizzBuzz {
+  static generate(n) {
+    return n.toString();
+  }
+}
+
+module.exports = { greeting, FizzBuzz };
