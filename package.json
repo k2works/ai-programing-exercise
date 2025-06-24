@@ -1,0 +1,31 @@
+{
+  "name": "ai-programing-exercise",
+  "version": "1.0.0",
+  "description": "AIプログラミングの実践的な学習と開発のためのプロジェクト",
+  "main": "index.js",
+  "scripts": {
+    "journal": "gulp journal:generate",
+    "docs:serve": "gulp mkdocs:serve",
+    "docs:stop": "gulp mkdocs:stop",
+    "docs:build": "gulp mkdocs:build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/k2works/ai-programing-exercise.git"
+  },
+  "keywords": [
+    "ai",
+    "programming",
+    "learning"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/k2works/ai-programing-exercise/issues"
+  },
+  "homepage": "https://github.com/k2works/ai-programing-exercise#readme",
+  "type": "module",
+  "dependencies": {
+    "gulp": "^4.0.2"
+  }
+}
