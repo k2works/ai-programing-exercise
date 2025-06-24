@@ -4,8 +4,10 @@
   "description": "AIプログラミングの実践的な学習と開発のためのプロジェクト",
   "main": "index.js",
   "scripts": {
-    "gulp": "gulp",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "journal": "gulp journal:generate",
+    "docs:serve": "gulp mkdocs:serve",
+    "docs:stop": "gulp mkdocs:stop",
+    "docs:build": "gulp mkdocs:build"
   },
   "repository": {
     "type": "git",
@@ -22,6 +24,7 @@
     "url": "https://github.com/k2works/ai-programing-exercise/issues"
   },
   "homepage": "https://github.com/k2works/ai-programing-exercise#readme",
+  "type": "module",
   "dependencies": {
     "gulp": "^4.0.2"
   }
