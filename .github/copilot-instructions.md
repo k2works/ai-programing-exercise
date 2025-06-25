@@ -1,5 +1,22 @@
 # GitHub Copilot プロジェクト指示書
 
+## プロジェクト情報
+
+- プロジェクト名: 実践 AIプログラミング
+- GitHubリポジトリ: https://github.com/k2works/ai-programing-exercise
+- 対象ユーザー名: k2works
+- 対象リポジトリ名: ai-programing-exercise
+- プロジェクトの目的: AIプログラミングの実践的な学習と開発のためのプロジェクトです
+- プロジェクトの構成:
+    - `app/`: アプリケーション
+    - `src/`: ソースコード
+    - `docs/`: ドキュメント
+    - `scripts/`: スクリプト
+    - `README.md`: プロジェクトの概要とセットアップ手順
+    - `mkdocs.yml`: ドキュメント生成の設定ファイル
+    - `package.json`: プロジェクトの依存関係とスクリプト
+
+
 ## ドキュメント作成フロー
 
 ```plantuml
