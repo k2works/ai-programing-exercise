@@ -58,3 +58,4 @@ plugins:
 nav:
   - Home: index.md
   - Architecture: architecture.md
+  - Implementation: implementation.md
