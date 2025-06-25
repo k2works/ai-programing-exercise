@@ -169,6 +169,48 @@ ai-programing-exercise/
 
 生成された作業履歴は `docs/journal/` ディレクトリに保存され、各ファイルには指定された日付のコミット情報が含まれます。
 
+#### GitHub Container Registry
+
+このプロジェクトでは、GitHub Container Registry（GHCR）を使用してコンテナイメージを管理しています。
+
+##### 自動ビルド・プッシュ
+
+タグをプッシュすると、GitHub Actionsが自動的にコンテナイメージをビルドし、GHCRにプッシュします。
+
+```bash
+# タグを作成してプッシュ
+git tag 0.0.1
+git push origin 0.0.1
+```
+
+##### イメージの取得・実行
+
+GHCRからイメージを取得して実行するには：
+
+```bash
+# イメージをプル
+docker pull ghcr.io/k2works/ai-programing-exercise/ai-programing-exercise:0.0.1
+
+```
+
+認証が必要な場合は、以下のコマンドでログインします：
+
+```bash
+# GitHub Personal Access Tokenでログイン
+echo $GITHUB_TOKEN | docker login ghcr.io -u <username> --password-stdin
+```
+
+##### 権限設定
+
+- リポジトリの設定で「Actions」の権限を適切に設定する必要があります
+- `GITHUB_TOKEN`に`packages: write`権限が付与されています
+
+##### イメージの管理
+
+- プライベートリポジトリの場合、イメージもプライベートになります
+- パッケージの可視性はリポジトリ設定から変更可能です
+- 古いイメージは手動で削除する必要があります
+
 **[⬆ back to top](#構成)**
 
 ### 開発
