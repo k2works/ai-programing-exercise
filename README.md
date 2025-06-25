@@ -30,24 +30,7 @@ AIプログラミングの実践的な学習と開発のためのプロジェク
 
 ### 構築
 
-#### 開発環境
-
-プロジェクトは以下の開発環境を提供します：
-
-- **ベースOS**: Ubuntu 22.04
-- **言語環境**:
-  - Java 21.0.2 (via SDKMAN)
-  - Maven 3.9.4 / Gradle 8.10.2
-  - Node.js 22 (via NVM)
-  - Ruby 3.4.4 (via rbenv)
-  - Python 3.12 (システムパッケージ)
-  - uv (最新バージョン、Pythonパッケージマネージャー)
-- **ドキュメント環境**:
-  - MkDocs (Python 3.11ベース)
-  - Material for MkDocsテーマ
-  - PlantUML / Mermaidによる図表サポート
-
-### Quick Start
+#### Quick Start
 
 1. リポジトリをクローン
    ```
@@ -64,6 +47,23 @@ AIプログラミングの実践的な学習と開発のためのプロジェク
    ```
    http://localhost:8000
    ```
+
+#### 開発環境
+
+プロジェクトは以下の開発環境を提供します：
+
+- **ベースOS**: Ubuntu 22.04
+- **言語環境**:
+  - Java 21.0.2 (via SDKMAN)
+  - Maven 3.9.4 / Gradle 8.10.2
+  - Node.js 22 (via NVM)
+  - Ruby 3.4.4 (via rbenv)
+  - Python 3.12 (システムパッケージ)
+  - uv (最新バージョン、Pythonパッケージマネージャー)
+- **ドキュメント環境**:
+  - MkDocs (Python 3.11ベース)
+  - Material for MkDocsテーマ
+  - PlantUML / Mermaidによる図表サポート
 
 #### プロジェクト構造
 
