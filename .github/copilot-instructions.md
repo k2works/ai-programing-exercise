@@ -341,3 +341,338 @@ gh issue create --title "Issue Title" --body "Issue description"
 ...
 ```
 
+## テスト駆動開発（TDD）標準手順
+
+### テスト駆動開発の基本サイクル
+
+テスト駆動開発は以下の3つのステップを繰り返すサイクルです：
+
+1. **レッド（Red）**: 失敗するテストを書く
+2. **グリーン（Green）**: テストを通す最小限のコードを書く
+3. **リファクタリング（Refactoring）**: コードの品質を向上させる
+
+```plantuml
+@startuml
+start
+:TODOリストの作成;
+note right: 仕様を小さなタスクに分解
+
+repeat
+  :失敗するテストを作成;
+  note right: レッド - テストファースト
+  
+  :テストを通す最小限の実装;
+  note right: グリーン - 仮実装から始める
+  
+  if (複数の例が必要?) then (はい)
+    :三角測量で一般化;
+    note right: 2つ以上の例で実装を洗練
+  else (いいえ)
+    :明白な実装;
+    note right: 解決策が明確な場合
+  endif
+  
+  :リファクタリング;
+  note right: 重複除去・可読性向上
+  
+  :コミット;
+  note right: 小さなステップでバージョン管理
+  
+repeat while (TODOリストに残りがある?)
+
+:プリント機能の実装;
+:最終テスト実行;
+:完成;
+stop
+@enduml
+```
+
+### 1. プロジェクトセットアップフェーズ
+
+#### 1.1 開発環境の準備
+
+言語に応じたテスティングフレームワークをセットアップします：
+
+**Python の場合:**
+```bash
+# pytestのインストール
+pip install pytest
+
+# テストファイルの作成（main.py）
+# テストクラスまたは関数ベースでテストを作成
+```
+
+**JavaScript/Node.js の場合:**
+```bash
+# Jestのインストール
+npm install --save-dev jest
+
+# package.jsonにテストスクリプトを追加
+```
+
+**Ruby の場合:**
+```bash
+# Minitestの使用（Ruby標準ライブラリ）
+gem install minitest-reporters  # オプション
+```
+
+#### 1.2 初期テストの作成
+
+まず動作確認用の簡単なテストを作成してテスティングフレームワークが正常に動作することを確認します。
+
+```python
+# Python例
+def test_setup():
+    assert greeting() == 'hello world'
+
+def greeting():
+    return 'hello world'
+```
+
+#### 1.3 バージョン管理の初期化
+
+```bash
+git add .
+git commit -m 'test: セットアップ'
+```
+
+### 2. TODOリスト作成フェーズ
+
+#### 2.1 仕様の分析
+
+要求仕様を以下の観点で分析します：
+- 入力と出力の関係
+- エッジケース
+- ビジネスルール
+
+#### 2.2 TODOリストの作成
+
+仕様を小さな実装可能なタスクに分解します：
+
+```markdown
+TODOリスト:
+- [ ] 基本機能
+  - [ ] 具体的なケース1
+  - [ ] 具体的なケース2
+- [ ] 例外処理
+- [ ] 境界値テスト
+- [ ] 統合機能
+```
+
+**例（FizzBuzz）:**
+```markdown
+TODOリスト:
+- [ ] 数を文字列にして返す
+  - [ ] 1を渡したら文字列"1"を返す
+  - [ ] 2を渡したら文字列"2"を返す
+- [ ] 3の倍数のときは数の代わりに「Fizz」と返す
+- [ ] 5の倍数のときは「Buzz」と返す
+- [ ] 3と5両方の倍数の場合には「FizzBuzz」と返す
+- [ ] 1から100までの数
+- [ ] プリントする
+```
+
+### 3. レッド-グリーン-リファクタリングサイクル
+
+#### 3.1 レッドフェーズ（失敗するテストを書く）
+
+**アサートファースト**の原則に従い、まずアサーションから書きます：
+
+```python
+def test_1を渡したら文字列1を返す():
+    assert FizzBuzz.generate(1) == '1'
+```
+
+テストを実行して失敗することを確認します：
+```bash
+pytest main.py -v
+# 期待結果: FAILED
+```
+
+#### 3.2 グリーンフェーズ（テストを通す）
+
+最初は**仮実装**でテストを通します：
+
+```python
+class FizzBuzz:
+    @staticmethod
+    def generate(number):
+        return '1'  # ベタ書きの値を返す
+```
+
+テストが通ることを確認：
+```bash
+pytest main.py -v
+# 期待結果: PASSED
+```
+
+#### 3.3 三角測量による一般化
+
+2つ目のテストを追加して一般化を促します：
+
+```python
+def test_2を渡したら文字列2を返す():
+    assert FizzBuzz.generate(2) == '2'
+```
+
+テストが失敗することを確認し、一般的な実装に変更：
+
+```python
+class FizzBuzz:
+    @staticmethod
+    def generate(number):
+        return str(number)  # 一般的な実装
+```
+
+#### 3.4 リファクタリングフェーズ
+
+テストが通った状態で、コードの品質を向上させます：
+
+**よく適用するリファクタリング:**
+- メソッドの抽出
+- 変数名の変更
+- 重複コードの除去
+- クラス構造の整理
+
+```python
+# リファクタリング例：テストの共通化
+class TestFizzBuzz:
+    def setup_method(self):
+        self.fizzbuzz = FizzBuzz
+    
+    def test_1を渡したら文字列1を返す(self):
+        assert self.fizzbuzz.generate(1) == '1'
+```
+
+各ステップ後にテストを実行して機能が壊れていないことを確認します。
+
+#### 3.5 コミット
+
+各サイクル完了時にコミットします：
+
+```bash
+git add .
+git commit -m 'test: 数を文字列にして返す'
+
+git add .
+git commit -m 'refactor: メソッドの抽出'
+```
+
+### 4. 明白な実装フェーズ
+
+実装方法が明確な場合は、**明白な実装**を適用します：
+
+```python
+def test_3を渡したら文字列Fizzを返す():
+    assert FizzBuzz.generate(3) == 'Fizz'
+
+# 明白な実装
+class FizzBuzz:
+    @staticmethod
+    def generate(number):
+        if number % 3 == 0:
+            return 'Fizz'
+        return str(number)
+```
+
+### 5. コミットメッセージの規約
+
+プロジェクトで統一したコミットメッセージ形式を使用します：
+
+```bash
+# 機能追加
+git commit -m 'feat: 新機能の説明'
+
+# テスト追加
+git commit -m 'test: テスト内容の説明'
+
+# リファクタリング
+git commit -m 'refactor: リファクタリング内容'
+
+# バグ修正
+git commit -m 'fix: 修正内容'
+
+# ドキュメント更新
+git commit -m 'docs: ドキュメント更新内容'
+```
+
+### 6. 完成フェーズ
+
+#### 6.1 統合機能の実装
+
+個別機能が完成したら、統合機能を実装します：
+
+```python
+@staticmethod
+def generate_list():
+    return [FizzBuzz.generate(i) for i in range(1, 101)]
+
+@staticmethod
+def print_fizzbuzz():
+    result = FizzBuzz.generate_list()
+    for item in result:
+        print(item)
+```
+
+#### 6.2 実行機能の追加
+
+プログラムとして実行できるようにメイン部分を実装：
+
+```python
+if __name__ == '__main__':
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == 'test':
+        pytest.main([__file__])
+    else:
+        FizzBuzz.print_fizzbuzz()
+```
+
+#### 6.3 最終テストとコミット
+
+```bash
+# 全テストの実行
+pytest main.py -v
+
+# 実際の実行確認
+python main.py | head -20
+
+# 最終コミット
+git add .
+git commit -m 'feat: 完全なFizzBuzz実装完成'
+```
+
+### 7. 品質保証のチェックリスト
+
+実装完了前に以下を確認します：
+
+- [ ] すべてのテストが通っている
+- [ ] TODOリストがすべて完了している
+- [ ] リファクタリングが適切に行われている
+- [ ] コミット履歴が適切に記録されている
+- [ ] コードの可読性が確保されている
+- [ ] 実際の動作確認ができている
+
+### 8. プロジェクト固有の考慮事項
+
+各プロジェクトで以下を検討します：
+
+#### 8.1 技術スタック固有の設定
+
+- テスティングフレームワークの選択
+- CI/CDパイプラインとの統合
+- コードカバレッジの測定
+
+#### 8.2 チーム開発での考慮事項
+
+- ペアプログラミング/モブプログラミングの適用
+- コードレビューのタイミング
+- ブランチ戦略との調整
+
+#### 8.3 ドキュメント化
+
+- 実装の判断根拠の記録
+- 学んだことの共有
+- 次回改善点の記録
+
+この手順に従うことで、品質の高いコードを段階的かつ安全に実装することができます。
+
