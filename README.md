@@ -40,6 +40,8 @@ AIプログラミングの実践的な学習と開発のためのプロジェク
   - Maven 3.9.4 / Gradle 8.10.2
   - Node.js 22 (via NVM)
   - Ruby 3.4.4 (via rbenv)
+  - Python 3.12 (システムパッケージ)
+  - uv (最新バージョン、Pythonパッケージマネージャー)
 - **ドキュメント環境**:
   - MkDocs (Python 3.11ベース)
   - Material for MkDocsテーマ
@@ -183,6 +185,8 @@ ai-programing-exercise/
    - Java: `java -version`
    - Node.js: `node -v`
    - Ruby: `ruby -v`
+   - Python: `python3 --version`
+   - uv: `uv --version`
 
 #### ドキュメント作成
 
@@ -201,3 +205,4 @@ ai-programing-exercise/
 - [SDKMAN](https://sdkman.io/)
 - [rbenv](https://github.com/rbenv/rbenv)
 - [NVM](https://github.com/nvm-sh/nvm)
+- [uv](https://github.com/astral-sh/uv)

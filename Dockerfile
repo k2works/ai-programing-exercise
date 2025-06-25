@@ -11,7 +11,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
     GRADLE_VER=8.10.2 \
     NODE_VER=22 \
     RUBY_VER=3.4.4 \
-    BUNDLER_VER=2.6.7
+    BUNDLER_VER=2.6.7 \
+    PYTHON_VER=3.12
 
 # ロケールのセットアップ
 RUN apt-get update && apt-get install -y \
@@ -76,6 +77,20 @@ RUN git clone https://github.com/sstephenson/rbenv ~/.rbenv \
        && eval "$(rbenv init -)" \
        && rbenv install $RUBY_VER \
        && rbenv global $RUBY_VER'
+
+# Pythonの依存パッケージをインストール
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    python3-dev \
+    python3-venv \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# uvパッケージマネージャーのインストール
+RUN pip3 install --upgrade pip \
+    && pip3 install uv \
+    && uv --version
 
 # パスの設定
 ENV PATH="/root/.sdkman/candidates/java/current/bin:/root/.sdkman/candidates/maven/current/bin:/root/.sdkman/candidates/gradle/current/bin:/root/.rbenv/shims:$PATH"
