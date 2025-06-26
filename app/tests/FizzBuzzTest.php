@@ -25,4 +25,9 @@ class FizzBuzzTest extends TestCase
     {
         $this->assertSame('Buzz', fizzBuzz(5));
     }
+
+    public function test_15を渡したら文字列FizzBuzzを返す(): void
+    {
+        $this->assertSame('FizzBuzz', fizzBuzz(15));
+    }
 }
