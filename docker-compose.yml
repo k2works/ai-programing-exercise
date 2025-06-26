@@ -1,6 +1,6 @@
 services:
   app:
-    image: ghcr.io/k2works/ai-programing-exercise/ai-programing-exercise:0.0.2
+    image: ghcr.io/k2works/ai-programing-exercise/ai-programing-exercise:0.0.5
     volumes:
       - ./:/srv
     command: bash
