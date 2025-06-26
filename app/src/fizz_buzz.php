@@ -2,5 +2,5 @@
 
 function fizzBuzz(int $number): string
 {
-    return '1';
+    return (string)$number;
 }
