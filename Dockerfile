@@ -13,7 +13,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
     RUBY_VER=3.4.4 \
     BUNDLER_VER=2.6.7 \
     PYTHON_VER=3.12 \
-    PHP_VER=8.1
+    PHP_VER=8.1 \
+    GHC_VER=9.4.8
 
 # ロケールのセットアップ
 RUN apt-get update && apt-get install -y \
@@ -123,8 +124,24 @@ RUN apt-get update && apt-get install -y \
 # Composerのインストール
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
+# Haskellのインストール
+RUN apt-get update && apt-get install -y \
+    libffi-dev \
+    libgmp-dev \
+    libtinfo-dev \
+    zlib1g-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | BOOTSTRAP_HASKELL_NONINTERACTIVE=1 sh \
+    && . /root/.ghcup/env \
+    && ghcup install ghc $GHC_VER \
+    && ghcup set ghc $GHC_VER \
+    && ghcup install cabal latest \
+    && ghcup install stack latest \
+    && ghcup install hls latest
+
 # パスの設定
-ENV PATH="/root/.sdkman/candidates/java/current/bin:/root/.sdkman/candidates/maven/current/bin:/root/.sdkman/candidates/gradle/current/bin:/root/.rbenv/shims:/usr/local/bin:$PATH"
+ENV PATH="/root/.ghcup/bin:/root/.sdkman/candidates/java/current/bin:/root/.sdkman/candidates/maven/current/bin:/root/.sdkman/candidates/gradle/current/bin:/root/.rbenv/shims:/usr/local/bin:$PATH"
 
 # 作業ディレクトリの設定
 WORKDIR /srv

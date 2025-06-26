@@ -63,6 +63,7 @@ AIプログラミングの実践的な学習と開発のためのプロジェク
   - uv (最新バージョン、Pythonパッケージマネージャー)
   - PHP 8.1 (via Ondrej PPA)
   - Composer (PHPパッケージマネージャー)
+  - Haskell 9.4.8 (via GHCup)
 - **ドキュメント環境**:
   - MkDocs (Python 3.11ベース)
   - Material for MkDocsテーマ
@@ -235,10 +236,10 @@ echo $GITHUB_TOKEN | docker login ghcr.io -u <username> --password-stdin
    - uv: `uv --version`
    - PHP: `php -v`
    - Composer: `composer --version`
+   - Haskell: `ghc --version`
 
 #### ドキュメント作成
 
-- `docs/wiki/テンプレート/` ディレクトリにある各種テンプレートを活用
 - PlantUMLやMermaidを使用して図表を作成可能
 - Markdownで記述し、MkDocsでプレビュー
 
@@ -255,3 +256,5 @@ echo $GITHUB_TOKEN | docker login ghcr.io -u <username> --password-stdin
 - [rbenv](https://github.com/rbenv/rbenv)
 - [NVM](https://github.com/nvm-sh/nvm)
 - [uv](https://github.com/astral-sh/uv)
+- [Haskell](https://www.haskell.org/)
+- [GHCup](https://www.haskell.org/ghcup/)
