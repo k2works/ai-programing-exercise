@@ -25,3 +25,26 @@ func Test2を渡したら文字列2を返す(t *testing.T) {
 func Test3を渡したらFizzを返す(t *testing.T) {
 	assertGenerate(t, 3, "Fizz")
 }
+
+// テスト関数：5を渡したら文字列"Buzz"を返す
+func Test5を渡したらBuzzを返す(t *testing.T) {
+	assertGenerate(t, 5, "Buzz")
+}
+
+// テスト関数：15を渡したら文字列"FizzBuzz"を返す
+func Test15を渡したらFizzBuzzを返す(t *testing.T) {
+	assertGenerate(t, 15, "FizzBuzz")
+}
+
+// 追加のテストケース
+func Test6を渡したらFizzを返す(t *testing.T) {
+	assertGenerate(t, 6, "Fizz")
+}
+
+func Test10を渡したらBuzzを返す(t *testing.T) {
+	assertGenerate(t, 10, "Buzz")
+}
+
+func Test30を渡したらFizzBuzzを返す(t *testing.T) {
+	assertGenerate(t, 30, "FizzBuzz")
+}
