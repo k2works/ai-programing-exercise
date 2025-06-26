@@ -57,3 +57,5 @@ plugins:
 
 nav:
   - Home: index.md
+  - アーキテクチャ:
+    - アプリケーション概要: app-architecture.md
