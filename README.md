@@ -80,13 +80,7 @@ ai-programing-exercise/
 ├── docs/                   # ドキュメントディレクトリ
 │   ├── Dockerfile          # MkDocs用Dockerfile
 │   ├── assets/             # CSS/JSアセット
-│   ├── index.md            # メインドキュメントページ
-│   └── wiki/               # Wikiコンテンツ
-│       ├── README.md       # Wiki概要
-│       ├── テンプレート/    # 各種ドキュメントテンプレート
-│       ├── 参照/           # 参照情報
-│       ├── 記事/           # 技術記事
-│       └── 読書メモ/       # 書籍の読書メモ
+│   └── index.md            # メインドキュメントページ
 └── mkdocs.yml              # MkDocs設定ファイル
 ```
 
