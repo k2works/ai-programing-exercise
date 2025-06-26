@@ -45,7 +45,7 @@ app/
 @startuml
 package "app" {
   package "src" {
-    [fizz_buzz.php] as src
+    [fizz_buzz.php] as src1
   }
   
   package "tests" {
