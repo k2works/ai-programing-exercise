@@ -14,7 +14,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
     BUNDLER_VER=2.6.7 \
     PYTHON_VER=3.12 \
     PHP_VER=8.1 \
-    GHC_VER=9.4.8
+    GHC_VER=9.4.8 \
+    GO_VER=1.22.0
 
 # ロケールのセットアップ
 RUN apt-get update && apt-get install -y \
@@ -140,8 +141,14 @@ RUN apt-get update && apt-get install -y \
     && ghcup install stack latest \
     && ghcup install hls latest
 
+# Goのインストール
+RUN wget https://golang.org/dl/go${GO_VER}.linux-amd64.tar.gz \
+    && tar -C /usr/local -xzf go${GO_VER}.linux-amd64.tar.gz \
+    && rm go${GO_VER}.linux-amd64.tar.gz \
+    && echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
+
 # パスの設定
-ENV PATH="/root/.ghcup/bin:/root/.sdkman/candidates/java/current/bin:/root/.sdkman/candidates/maven/current/bin:/root/.sdkman/candidates/gradle/current/bin:/root/.rbenv/shims:/usr/local/bin:$PATH"
+ENV PATH="/usr/local/go/bin:/root/.ghcup/bin:/root/.sdkman/candidates/java/current/bin:/root/.sdkman/candidates/maven/current/bin:/root/.sdkman/candidates/gradle/current/bin:/root/.rbenv/shims:/usr/local/bin:$PATH"
 
 # 作業ディレクトリの設定
 WORKDIR /srv
