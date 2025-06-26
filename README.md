@@ -2,12 +2,12 @@
 
 ## 概要
 
-AIプログラミングの実践的な学習と開発のためのプロジェクトです。複数のプログラミング言語（Java、Node.js、Ruby）をサポートする開発環境と、MkDocsを使用したドキュメント管理システムを提供します。
+AIプログラミングの実践的な学習と開発のためのプロジェクトです。複数のプログラミング言語（Java、Node.js、Ruby、Python、PHP）をサポートする開発環境と、MkDocsを使用したドキュメント管理システムを提供します。
 
 ### 目的
 
 - AIプログラミングの実践的な学習環境の提供
-- 複数言語（Java、Node.js、Ruby）での開発サポート
+- 複数言語（Java、Node.js、Ruby、Python、PHP）での開発サポート
 - ドキュメント駆動開発の促進
 - プログラミング学習リソースの集約
 
@@ -60,6 +60,8 @@ AIプログラミングの実践的な学習と開発のためのプロジェク
   - Ruby 3.4.4 (via rbenv)
   - Python 3.12 (システムパッケージ)
   - uv (最新バージョン、Pythonパッケージマネージャー)
+  - PHP 8.1 (via Ondrej PPA)
+  - Composer (PHPパッケージマネージャー)
 - **ドキュメント環境**:
   - MkDocs (Python 3.11ベース)
   - Material for MkDocsテーマ
@@ -229,6 +231,8 @@ echo $GITHUB_TOKEN | docker login ghcr.io -u <username> --password-stdin
    - Ruby: `ruby -v`
    - Python: `python3 --version`
    - uv: `uv --version`
+   - PHP: `php -v`
+   - Composer: `composer --version`
 
 #### ドキュメント作成
 

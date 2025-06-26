@@ -12,7 +12,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
     NODE_VER=22 \
     RUBY_VER=3.4.4 \
     BUNDLER_VER=2.6.7 \
-    PYTHON_VER=3.12
+    PYTHON_VER=3.12 \
+    PHP_VER=8.1
 
 # ロケールのセットアップ
 RUN apt-get update && apt-get install -y \
@@ -92,9 +93,31 @@ RUN pip3 install --upgrade pip \
     && pip3 install uv \
     && uv --version
 
+# PHPのインストール
+RUN apt-get update && apt-get install -y \
+    software-properties-common \
+    && add-apt-repository -y ppa:ondrej/php \
+    && apt-get update \
+    && apt-get install -y \
+    php${PHP_VER} \
+    php${PHP_VER}-cli \
+    php${PHP_VER}-fpm \
+    php${PHP_VER}-common \
+    php${PHP_VER}-mysql \
+    php${PHP_VER}-zip \
+    php${PHP_VER}-gd \
+    php${PHP_VER}-mbstring \
+    php${PHP_VER}-curl \
+    php${PHP_VER}-xml \
+    php${PHP_VER}-bcmath \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Composerのインストール
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
 # パスの設定
 ENV PATH="/root/.sdkman/candidates/java/current/bin:/root/.sdkman/candidates/maven/current/bin:/root/.sdkman/candidates/gradle/current/bin:/root/.rbenv/shims:$PATH"
 
 # 作業ディレクトリの設定
 WORKDIR /srv
-
