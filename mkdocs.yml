@@ -59,3 +59,4 @@ nav:
   - Home: index.md
   - アーキテクチャ:
     - アプリケーション概要: app-architecture.md
+    - 実装詳細: app-implementation.md
