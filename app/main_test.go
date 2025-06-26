@@ -48,3 +48,25 @@ func Test10を渡したらBuzzを返す(t *testing.T) {
 func Test30を渡したらFizzBuzzを返す(t *testing.T) {
 	assertGenerate(t, 30, "FizzBuzz")
 }
+
+// テスト関数：1から100までのFizzBuzzを返す
+func Test1から100までのFizzBuzzを返す(t *testing.T) {
+	results := GenerateList(1, 100)
+
+	// いくつかのキーポイントをテスト
+	if results[0] != "1" {
+		t.Errorf("results[0] = %v, want 1", results[0])
+	}
+	if results[2] != "Fizz" { // 3番目の要素（3）
+		t.Errorf("results[2] = %v, want Fizz", results[2])
+	}
+	if results[4] != "Buzz" { // 5番目の要素（5）
+		t.Errorf("results[4] = %v, want Buzz", results[4])
+	}
+	if results[14] != "FizzBuzz" { // 15番目の要素（15）
+		t.Errorf("results[14] = %v, want FizzBuzz", results[14])
+	}
+	if len(results) != 100 {
+		t.Errorf("len(results) = %v, want 100", len(results))
+	}
+}
