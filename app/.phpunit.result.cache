@@ -1,1 +1,1 @@
-{"version":1,"defects":{"Tests\\HelloTest::testGreeting":7},"times":{"Tests\\HelloTest::testGreeting":0.408}}
+{"version":1,"defects":{"Tests\\HelloTest::testGreeting":7,"FizzBuzzTest::test_1\u3092\u6e21\u3057\u305f\u3089\u6587\u5b57\u52171\u3092\u8fd4\u3059":8},"times":{"Tests\\HelloTest::testGreeting":0.408,"FizzBuzzTest::test_1\u3092\u6e21\u3057\u305f\u3089\u6587\u5b57\u52171\u3092\u8fd4\u3059":0.129}}
