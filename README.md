@@ -56,6 +56,7 @@ AIプログラミングの実践的な学習と開発のためのプロジェク
 - **言語環境**:
   - Java 21.0.2 (via SDKMAN)
   - Maven 3.9.4 / Gradle 8.10.2
+  - Clojure 1.12.1 (via 公式インストーラー)
   - Node.js 22 (via NVM)
   - Ruby 3.4.4 (via rbenv)
   - Python 3.12 (システムパッケージ)
@@ -181,8 +182,8 @@ ai-programing-exercise/
 
 ```bash
 # タグを作成してプッシュ
-git tag 0.0.1
-git push origin 0.0.1
+git tag 0.0.x
+git push origin 0.0.x
 ```
 
 ##### イメージの取得・実行
@@ -191,7 +192,7 @@ GHCRからイメージを取得して実行するには：
 
 ```bash
 # イメージをプル
-docker pull ghcr.io/k2works/ai-programing-exercise/ai-programing-exercise:0.0.1
+docker pull ghcr.io/k2works/ai-programing-exercise/ai-programing-exercise:0.0.x
 
 ```
 
@@ -228,6 +229,7 @@ echo $GITHUB_TOKEN | docker login ghcr.io -u <username> --password-stdin
 2. 各言語環境を利用
    - Java: `java -version`
    - Node.js: `node -v`
+   - Clojure: `clojure -version`
    - Ruby: `ruby -v`
    - Python: `python3 --version`
    - uv: `uv --version`
@@ -249,6 +251,7 @@ echo $GITHUB_TOKEN | docker login ghcr.io -u <username> --password-stdin
 - [PlantUML](https://plantuml.com/)
 - [Mermaid](https://mermaid-js.github.io/mermaid/)
 - [SDKMAN](https://sdkman.io/)
+- [Clojure](https://clojure.org/)
 - [rbenv](https://github.com/rbenv/rbenv)
 - [NVM](https://github.com/nvm-sh/nvm)
 - [uv](https://github.com/astral-sh/uv)

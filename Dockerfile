@@ -45,6 +45,13 @@ RUN apt-get update && apt-get install -y bash && apt-get clean \
        && sdk install maven "$MAVEN_VER" \
        && sdk install gradle "$GRADLE_VER"'
 
+# Clojureのインストール
+RUN apt-get update && apt-get install -y curl bash rlwrap && apt-get clean \
+    && curl -L -O https://github.com/clojure/brew-install/releases/latest/download/linux-install.sh \
+    && chmod +x linux-install.sh \
+    && ./linux-install.sh \
+    && rm linux-install.sh
+
 # Node.jsのインストール
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs \
@@ -117,7 +124,7 @@ RUN apt-get update && apt-get install -y \
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # パスの設定
-ENV PATH="/root/.sdkman/candidates/java/current/bin:/root/.sdkman/candidates/maven/current/bin:/root/.sdkman/candidates/gradle/current/bin:/root/.rbenv/shims:$PATH"
+ENV PATH="/root/.sdkman/candidates/java/current/bin:/root/.sdkman/candidates/maven/current/bin:/root/.sdkman/candidates/gradle/current/bin:/root/.rbenv/shims:/usr/local/bin:$PATH"
 
 # 作業ディレクトリの設定
 WORKDIR /srv
