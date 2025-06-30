@@ -2,12 +2,12 @@
 
 ## 概要
 
-AIプログラミングの実践的な学習と開発のためのプロジェクトです。複数のプログラミング言語（Java、Node.js、Ruby、Python、PHP、Go）をサポートする開発環境と、MkDocsを使用したドキュメント管理システムを提供します。
+AIプログラミングの実践的な学習と開発のためのプロジェクトです。複数のプログラミング言語（Java、Node.js、Ruby、Python、PHP、Go、Rust）をサポートする開発環境と、MkDocsを使用したドキュメント管理システムを提供します。
 
 ### 目的
 
 - AIプログラミングの実践的な学習環境の提供
-- 複数言語（Java、Node.js、Ruby、Python、PHP、Go）での開発サポート
+- 複数言語（Java、Node.js、Ruby、Python、PHP、Go、Rust）での開発サポート
 - ドキュメント駆動開発の促進
 - プログラミング学習リソースの集約
 
@@ -65,6 +65,7 @@ AIプログラミングの実践的な学習と開発のためのプロジェク
   - Composer (PHPパッケージマネージャー)
   - Haskell 9.4.8 (via GHCup)
   - Go 1.22.0 (via 公式バイナリ)
+  - Rust stable (via rustup)
 - **ドキュメント環境**:
   - MkDocs (Python 3.11ベース)
   - Material for MkDocsテーマ
@@ -233,6 +234,7 @@ echo $GITHUB_TOKEN | docker login ghcr.io -u <username> --password-stdin
    - Composer: `composer --version`
    - Haskell: `ghc --version`
    - Go: `go version`
+   - Rust: `rustc --version`
 
 #### ドキュメント作成
 
@@ -254,3 +256,5 @@ echo $GITHUB_TOKEN | docker login ghcr.io -u <username> --password-stdin
 - [uv](https://github.com/astral-sh/uv)
 - [Haskell](https://www.haskell.org/)
 - [GHCup](https://www.haskell.org/ghcup/)
+- [Rust](https://www.rust-lang.org/)
+- [rustup](https://rustup.rs/)

@@ -15,7 +15,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PYTHON_VER=3.12 \
     PHP_VER=8.1 \
     GHC_VER=9.4.8 \
-    GO_VER=1.22.0
+    GO_VER=1.22.0 \
+    RUST_VER=stable
 
 # ロケールのセットアップ
 RUN apt-get update && apt-get install -y \
@@ -147,8 +148,16 @@ RUN wget https://golang.org/dl/go${GO_VER}.linux-amd64.tar.gz \
     && rm go${GO_VER}.linux-amd64.tar.gz \
     && echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
 
+# Rustのインストール
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain $RUST_VER \
+    && echo 'source $HOME/.cargo/env' >> ~/.bashrc
+
 # パスの設定
-ENV PATH="/usr/local/go/bin:/root/.ghcup/bin:/root/.sdkman/candidates/java/current/bin:/root/.sdkman/candidates/maven/current/bin:/root/.sdkman/candidates/gradle/current/bin:/root/.rbenv/shims:/usr/local/bin:$PATH"
+ENV PATH="/root/.cargo/bin:/usr/local/go/bin:/root/.ghcup/bin:/root/.sdkman/candidates/java/current/bin:/root/.sdkman/candidates/maven/current/bin:/root/.sdkman/candidates/gradle/current/bin:/root/.rbenv/shims:/usr/local/bin:$PATH"
 
 # 作業ディレクトリの設定
 WORKDIR /srv
