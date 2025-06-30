@@ -189,7 +189,7 @@ GHCRからイメージを取得して実行するには：
 
 ```bash
 # イメージをプル
-docker pull ghcr.io/k2works/ai-programing-exercise/ai-programing-exercise:0.0.x
+docker pull ghcr.io/k2works/ai-programing-exercise/core:0.0.x
 
 ```
 
