@@ -7,17 +7,15 @@ help: ## ヘルプを表示
 
 setup: ## 依存関係のセットアップ
 	@echo "依存関係を確認中..."
-	@clojure -M:test --help > /dev/null 2>&1 || echo "test-runner設定確認完了"
-	@clojure -M:lint --help > /dev/null 2>&1 || echo "clj-kondo設定確認完了"
-	@clojure -M:format --help > /dev/null 2>&1 || echo "cljfmt設定確認完了"
+	@lein deps
 
 test: ## テストを実行
 	@echo "テストを実行中..."
-	@clojure -M:test
+	@lein test
 
 lint: ## 静的コード解析を実行
 	@echo "静的コード解析を実行中..."
-	@clojure -M:lint
+	@lein lint
 
 format: ## コードフォーマットをチェック
 	@echo "コードフォーマットをチェック中..."
@@ -29,13 +27,21 @@ format-fix: ## コードフォーマットを自動修正
 
 run: ## アプリケーションを実行
 	@echo "FizzBuzzアプリケーションを実行中..."
-	@clojure -M -m fizz-buzz-clj.core
+	@lein run
 
-check: lint format test ## 全ての品質チェックを実行
+check: ## 全ての品質チェックを実行
+	@echo "全ての品質チェックを実行中..."
+	@lein lint
+	@clojure -M:format
+	@lein test
 
-auto: ## ファイル監視と自動テスト実行（要: entr）
+coverage: ## コードカバレッジを実行
+	@echo "コードカバレッジを実行中..."
+	@lein coverage
+
+auto: ## ファイル監視と自動テスト実行
 	@echo "ファイル監視を開始（Ctrl+Cで終了）..."
-	@find src test -name "*.clj" | entr -c make test
+	@lein guard
 
 clean: ## 生成されたファイルをクリーンアップ
 	@echo "クリーンアップ中..."

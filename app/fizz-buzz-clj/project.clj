@@ -6,5 +6,14 @@
   :dependencies [[org.clojure/clojure "1.11.1"]]
   :main ^:skip-aot fizz-buzz-clj.core
   :target-path "target/%s"
+  :plugins [[lein-cloverage "1.2.4"]
+            [jonase/eastwood "1.4.2"]  
+            [lein-kibit "0.1.8"]
+            [lein-auto "0.1.3"]]
   :profiles {:uberjar {:aot :all
-                       :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}})
+                       :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}
+             :dev {:dependencies [[cloverage "1.2.4"]]}}
+  :aliases {"check" ["do" ["test"] ["eastwood"] ["kibit"]]
+            "lint" ["do" ["eastwood"] ["kibit"]]
+            "coverage" ["cloverage"]
+            "guard" ["auto" "test"]})
