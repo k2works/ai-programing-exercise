@@ -53,7 +53,10 @@ RUN apt-get update && apt-get install -y curl bash rlwrap && apt-get clean \
     && curl -L -O https://github.com/clojure/brew-install/releases/latest/download/linux-install.sh \
     && chmod +x linux-install.sh \
     && ./linux-install.sh \
-    && rm linux-install.sh
+    && rm linux-install.sh \
+    && bash -c 'source "$HOME/.sdkman/bin/sdkman-init.sh" \
+       && sdk selfupdate \
+       && sdk install leiningen "$LEININGEN_VER"'
 
 # Node.jsのインストール
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
