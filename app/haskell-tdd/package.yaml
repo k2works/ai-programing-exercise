@@ -1,0 +1,50 @@
+name:                haskell-tdd
+version:             0.1.0.0
+github:              "k2works/haskell-tdd"
+license:             BSD3
+author:              "k2works"
+maintainer:          "k2works@example.com"
+copyright:           "2025 k2works"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+synopsis:            テスト駆動開発から始めるHaskell入門
+category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/k2works/haskell-tdd#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- hspec
+- hspec-discover
+
+library:
+  source-dirs: src
+
+executables:
+  haskell-tdd-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - haskell-tdd
+
+tests:
+  haskell-tdd-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - haskell-tdd

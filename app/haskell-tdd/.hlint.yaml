@@ -1,0 +1,6 @@
+- ignore: {name: "Use camelCase"}
+- ignore: {name: "Redundant do"}
+- ignore: {name: "Redundant bracket"}
+- warn: {lhs: "head (filter f xs)", rhs: "find f xs"}
+- warn: {lhs: "filter f xs /= []", rhs: "any f xs"}
+- warn: {lhs: "map f (map g xs)", rhs: "map (f . g) xs"}

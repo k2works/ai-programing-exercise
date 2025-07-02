@@ -1,0 +1,8 @@
+.stack-work/
+*~
+*.cabal
+.ghci
+.DS_Store
+dist/
+dist-newstyle/
+.HTF/
