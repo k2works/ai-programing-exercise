@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- テストクラスの特定の警告を除外 -->
+    <Match>
+        <Class name="~.*Test"/>
+        <Bug pattern="DM_NUMBER_CTOR"/>
+    </Match>
+    
+    <!-- メインクラスのSystem.out.printlnを許可 -->
+    <Match>
+        <Class name="FizzBuzz"/>
+        <Method name="main"/>
+        <Bug pattern="DM_EXIT"/>
+    </Match>
+    
+    <!-- 学習目的のため、一部の警告を許可 -->
+    <Match>
+        <Bug pattern="SE_BAD_FIELD"/>
+    </Match>
+</FindBugsFilter>

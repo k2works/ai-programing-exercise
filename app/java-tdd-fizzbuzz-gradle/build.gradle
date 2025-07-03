@@ -1,0 +1,117 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'jacoco'
+    id 'checkstyle'
+    id 'pmd'
+    id 'com.github.spotbugs' version '6.0.7'
+}
+
+group = 'com.example'
+version = '1.0-SNAPSHOT'
+sourceCompatibility = '11'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // テスト関連
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.10.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.1'
+    testImplementation 'org.assertj:assertj-core:3.24.2'
+    
+    // SpotBugs関連
+    spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.12.0'
+}
+
+// アプリケーションのメインクラス設定
+application {
+    mainClass = 'FizzBuzz'
+}
+
+// テスト設定
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+// JaCoCo（コードカバレッジ）設定
+jacoco {
+    toolVersion = "0.8.11"
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = false
+        csv.required = false
+        html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
+    }
+}
+
+// Checkstyle設定
+checkstyle {
+    toolVersion = '10.12.4'
+    configFile = file('config/checkstyle/checkstyle.xml')
+}
+
+// PMD設定
+pmd {
+    toolVersion = '6.55.0'
+    ruleSetFiles = files('config/pmd/ruleset.xml')
+}
+
+// SpotBugs設定
+spotbugs {
+    toolVersion = '4.8.3'
+    excludeFilter = file('config/spotbugs/exclude.xml')
+}
+
+spotbugsMain {
+    reports {
+        html {
+            required = true
+        }
+    }
+}
+
+spotbugsTest {
+    reports {
+        html {
+            required = true
+        }
+    }
+}
+
+// カスタムタスク：TDD用の継続的テスト実行
+task tdd(type: Test) {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+    }
+    outputs.upToDateWhen { false }
+}
+
+// カスタムタスク：品質チェック全実行
+task qualityCheck {
+    dependsOn 'checkstyleMain', 'checkstyleTest', 'pmdMain', 'pmdTest', 'spotbugsMain', 'spotbugsTest'
+    description 'Run all quality checks'
+    group 'verification'
+}
+
+// カスタムタスク：すべてのチェックとテストを実行
+task fullCheck {
+    dependsOn 'test', 'qualityCheck', 'jacocoTestReport'
+    description 'Run all tests and quality checks'
+    group 'verification'
+}
+
+// ビルド時に品質チェックを実行
+build {
+    dependsOn 'fullCheck'
+}
