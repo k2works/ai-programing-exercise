@@ -1,0 +1,13 @@
+# tarpaulin.toml
+# コードカバレッジ設定
+
+[report]
+out = ["Html", "Xml"]
+output-dir = "coverage"
+
+[coverage]
+ignore-tests = true
+ignore-panics = true
+line = true
+branch = true
+ignored-files = []
