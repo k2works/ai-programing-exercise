@@ -15,6 +15,12 @@ export class FizzBuzz {
         return result
       case 2:
         return number.toString()
+      case 3:
+        if (number % 3 === 0 && number % 5 === 0) {
+          return 'FizzBuzz'
+        } else {
+          return number.toString()
+        }
       default:
         return number.toString()
     }
