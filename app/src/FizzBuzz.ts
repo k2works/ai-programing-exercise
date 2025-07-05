@@ -1,7 +1,7 @@
-import { FizzBuzzType, FizzBuzzType01, FizzBuzzType02 } from './FizzBuzzType'
-import { FizzBuzzValue } from './FizzBuzzValue'
-import { FizzBuzzList } from './FizzBuzzList'
-import { FizzBuzzValueCommand, FizzBuzzListCommand } from './FizzBuzzCommand'
+import { FizzBuzzType, FizzBuzzType01, FizzBuzzType02 } from './domain/type/FizzBuzzType'
+import { FizzBuzzValue } from './domain/model/FizzBuzzValue'
+import { FizzBuzzList } from './domain/model/FizzBuzzList'
+import { FizzBuzzValueCommand, FizzBuzzListCommand } from './application/FizzBuzzCommand'
 
 export class FizzBuzz {
   private list: FizzBuzzList = new FizzBuzzList()

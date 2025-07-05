@@ -1,6 +1,6 @@
-import { FizzBuzzValue } from './FizzBuzzValue'
-import { FizzBuzzList } from './FizzBuzzList'
-import { FizzBuzzType } from './FizzBuzzType'
+import { FizzBuzzValue } from '../domain/model/FizzBuzzValue'
+import { FizzBuzzList } from '../domain/model/FizzBuzzList'
+import { FizzBuzzType } from '../domain/type/FizzBuzzType'
 
 export interface FizzBuzzCommand {
   execute(): FizzBuzzValue | FizzBuzzList

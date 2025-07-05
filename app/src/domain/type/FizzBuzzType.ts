@@ -1,4 +1,4 @@
-import { FizzBuzzValue } from './FizzBuzzValue'
+import { FizzBuzzValue } from '../model/FizzBuzzValue'
 
 export abstract class FizzBuzzType {
   static readonly TYPE_01 = 1
@@ -14,7 +14,7 @@ export abstract class FizzBuzzType {
       case FizzBuzzType.TYPE_03:
         return new FizzBuzzType03()
       default:
-        throw new Error('該当するタイプは存在しません')
+        return new FizzBuzzTypeNotDefined()
     }
   }
 
@@ -56,5 +56,11 @@ export class FizzBuzzType03 extends FizzBuzzType {
     } else {
       return new FizzBuzzValue(number.toString())
     }
+  }
+}
+
+export class FizzBuzzTypeNotDefined extends FizzBuzzType {
+  generate(_number: number): FizzBuzzValue {
+    throw new Error('該当するタイプは存在しません')
   }
 }

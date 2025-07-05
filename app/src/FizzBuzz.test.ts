@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { FizzBuzz } from './FizzBuzz'
-import { FizzBuzzType, FizzBuzzType01, FizzBuzzType02, FizzBuzzType03 } from './FizzBuzzType'
+import { FizzBuzzType, FizzBuzzType01, FizzBuzzType02, FizzBuzzType03 } from './domain/type/FizzBuzzType'
 
 describe('FizzBuzz', () => {
   let fizzBuzz: FizzBuzz
@@ -122,7 +122,8 @@ describe('FizzBuzz', () => {
 
     describe('それ以外のタイプの場合', () => {
       it('例外を投げる', () => {
-        expect(() => FizzBuzzType.create(4)).toThrow('該当するタイプは存在しません')
+        const fb = new FizzBuzz(FizzBuzzType.create(4))
+        expect(() => fb.generate(1)).toThrow('該当するタイプは存在しません')
       })
     })
 
