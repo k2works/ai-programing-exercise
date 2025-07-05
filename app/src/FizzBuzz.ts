@@ -1,5 +1,6 @@
 export class FizzBuzz {
   generate(number: number): string {
-    return number.toString()
+    let result = number.toString()
+    return result
   }
 }
