@@ -35,4 +35,17 @@ describe('FizzBuzz', () => {
       expect(fizzBuzz.generate(15)).toBe('FizzBuzz')
     })
   })
+
+  describe('1から100までの数をプリントする', () => {
+    it('1から100までの数を配列で返す', () => {
+      const result = fizzBuzz.generateList(1, 100)
+      expect(result).toHaveLength(100)
+      expect(result[0]).toBe('1')
+      expect(result[1]).toBe('2')
+      expect(result[2]).toBe('Fizz')
+      expect(result[4]).toBe('Buzz')
+      expect(result[14]).toBe('FizzBuzz')
+      expect(result[99]).toBe('Buzz')
+    })
+  })
 })

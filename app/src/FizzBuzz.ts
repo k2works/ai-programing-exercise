@@ -12,4 +12,12 @@ export class FizzBuzz {
     
     return result
   }
+
+  generateList(start: number, end: number): string[] {
+    const result: string[] = []
+    for (let i = start; i <= end; i++) {
+      result.push(this.generate(i))
+    }
+    return result
+  }
 }
