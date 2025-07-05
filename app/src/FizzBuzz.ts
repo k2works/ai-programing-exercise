@@ -1,28 +1,15 @@
-import { FizzBuzzType, FizzBuzzType01, FizzBuzzType02, FizzBuzzType03 } from './FizzBuzzType'
+import { FizzBuzzType, FizzBuzzType01, FizzBuzzType02 } from './FizzBuzzType'
 
 export class FizzBuzz {
   private list: string[] = []
   private fizzBuzzType: FizzBuzzType
 
-  constructor(type: number = 1) {
-    this.fizzBuzzType = FizzBuzz.createFizzBuzzType(type)
-  }
-
-  static createFizzBuzzType(type: number): FizzBuzzType {
-    switch (type) {
-      case 1:
-        return new FizzBuzzType01()
-      case 2:
-        return new FizzBuzzType02()
-      case 3:
-        return new FizzBuzzType03()
-      default:
-        throw new Error('該当するタイプは存在しません')
-    }
+  constructor(fizzBuzzType: FizzBuzzType) {
+    this.fizzBuzzType = fizzBuzzType
   }
 
   static create(type: number): FizzBuzz {
-    return new FizzBuzz(type)
+    return new FizzBuzz(FizzBuzzType.create(type))
   }
 
   generate(number: number): string {
@@ -42,7 +29,8 @@ export class FizzBuzz {
   }
 
   getType(): number {
-    return this.fizzBuzzType instanceof FizzBuzzType01 ? 1 :
-           this.fizzBuzzType instanceof FizzBuzzType02 ? 2 : 3
+    return this.fizzBuzzType instanceof FizzBuzzType01 ? FizzBuzzType.TYPE_01 :
+           this.fizzBuzzType instanceof FizzBuzzType02 ? FizzBuzzType.TYPE_02 : 
+           FizzBuzzType.TYPE_03
   }
 }

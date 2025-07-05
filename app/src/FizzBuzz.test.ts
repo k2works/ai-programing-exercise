@@ -1,11 +1,12 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { FizzBuzz } from './FizzBuzz'
+import { FizzBuzzType, FizzBuzzType01, FizzBuzzType02, FizzBuzzType03 } from './FizzBuzzType'
 
 describe('FizzBuzz', () => {
   let fizzBuzz: FizzBuzz
 
   beforeEach(() => {
-    fizzBuzz = new FizzBuzz()
+    fizzBuzz = new FizzBuzz(new FizzBuzzType01())
   })
 
   describe('数を文字列にして返す', () => {
@@ -52,7 +53,7 @@ describe('FizzBuzz', () => {
   describe('タイプごとに出力を切り替えることができる', () => {
     describe('タイプ1の場合', () => {
       beforeEach(() => {
-        fizzBuzz = new FizzBuzz(1)
+        fizzBuzz = new FizzBuzz(new FizzBuzzType01())
       })
 
       it('1を渡したら文字列"1"を返す', () => {
@@ -67,7 +68,7 @@ describe('FizzBuzz', () => {
 
     describe('タイプ2の場合', () => {
       beforeEach(() => {
-        fizzBuzz = new FizzBuzz(2)
+        fizzBuzz = new FizzBuzz(new FizzBuzzType02())
       })
 
       it('1を渡したら文字列"1"を返す', () => {
@@ -94,7 +95,7 @@ describe('FizzBuzz', () => {
 
     describe('タイプ3の場合', () => {
       beforeEach(() => {
-        fizzBuzz = new FizzBuzz(3)
+        fizzBuzz = new FizzBuzz(new FizzBuzzType03())
       })
 
       it('1を渡したら文字列"1"を返す', () => {
@@ -121,7 +122,27 @@ describe('FizzBuzz', () => {
 
     describe('それ以外のタイプの場合', () => {
       it('例外を投げる', () => {
-        expect(() => new FizzBuzz(4)).toThrow('該当するタイプは存在しません')
+        expect(() => FizzBuzzType.create(4)).toThrow('該当するタイプは存在しません')
+      })
+    })
+
+    describe('ファクトリメソッド経由での作成', () => {
+      it('タイプ1を指定してFizzBuzzを作成できる', () => {
+        const fb = FizzBuzz.create(FizzBuzzType.TYPE_01)
+        expect(fb.generate(15)).toBe('FizzBuzz')
+        expect(fb.getType()).toBe(FizzBuzzType.TYPE_01)
+      })
+
+      it('タイプ2を指定してFizzBuzzを作成できる', () => {
+        const fb = FizzBuzz.create(FizzBuzzType.TYPE_02)
+        expect(fb.generate(15)).toBe('15')
+        expect(fb.getType()).toBe(FizzBuzzType.TYPE_02)
+      })
+
+      it('タイプ3を指定してFizzBuzzを作成できる', () => {
+        const fb = FizzBuzz.create(FizzBuzzType.TYPE_03)
+        expect(fb.generate(15)).toBe('FizzBuzz')
+        expect(fb.getType()).toBe(FizzBuzzType.TYPE_03)
       })
     })
   })

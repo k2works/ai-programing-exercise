@@ -1,4 +1,21 @@
 export abstract class FizzBuzzType {
+  static readonly TYPE_01 = 1
+  static readonly TYPE_02 = 2
+  static readonly TYPE_03 = 3
+
+  static create(type: number): FizzBuzzType {
+    switch (type) {
+      case FizzBuzzType.TYPE_01:
+        return new FizzBuzzType01()
+      case FizzBuzzType.TYPE_02:
+        return new FizzBuzzType02()
+      case FizzBuzzType.TYPE_03:
+        return new FizzBuzzType03()
+      default:
+        throw new Error('該当するタイプは存在しません')
+    }
+  }
+
   abstract generate(number: number): string
 
   protected fizz(number: number): boolean {
