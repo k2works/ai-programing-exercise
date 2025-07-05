@@ -22,7 +22,7 @@ export class FizzBuzz {
           return number.toString()
         }
       default:
-        return number.toString()
+        throw new Error('該当するタイプは存在しません')
     }
   }
 

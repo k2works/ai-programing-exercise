@@ -91,5 +91,11 @@ describe('FizzBuzz', () => {
         expect(fizzBuzz.generate(15, 3)).toBe('FizzBuzz')
       })
     })
+
+    describe('それ以外のタイプの場合', () => {
+      it('例外を投げる', () => {
+        expect(() => fizzBuzz.generate(1, 4)).toThrow('該当するタイプは存在しません')
+      })
+    })
   })
 })
