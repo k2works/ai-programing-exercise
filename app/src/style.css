@@ -94,3 +94,55 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+.fizzbuzz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 8px;
+  margin-top: 2rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.fizzbuzz-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #333;
+  background-color: #1a1a1a;
+  transition: all 0.2s ease;
+}
+
+.fizzbuzz-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.fizzbuzz-item.fizz {
+  background-color: #2d4a2d;
+  border-color: #4a7c4a;
+}
+
+.fizzbuzz-item.buzz {
+  background-color: #4a2d2d;
+  border-color: #7c4a4a;
+}
+
+.fizzbuzz-item.fizzbuzz {
+  background-color: #4a4a2d;
+  border-color: #7c7c4a;
+}
+
+.fizzbuzz-item .number {
+  font-size: 0.8em;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+.fizzbuzz-item .result {
+  font-size: 1.1em;
+  font-weight: bold;
+}
