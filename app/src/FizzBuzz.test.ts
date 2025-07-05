@@ -17,4 +17,10 @@ describe('FizzBuzz', () => {
       expect(fizzBuzz.generate(2)).toBe('2')
     })
   })
+
+  describe('3の倍数の場合', () => {
+    it('3を渡したら文字列"Fizz"を返す', () => {
+      expect(fizzBuzz.generate(3)).toBe('Fizz')
+    })
+  })
 })
