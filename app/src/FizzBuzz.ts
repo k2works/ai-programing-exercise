@@ -1,41 +1,38 @@
+import { FizzBuzzType, FizzBuzzType01, FizzBuzzType02, FizzBuzzType03 } from './FizzBuzzType'
+
 export class FizzBuzz {
   private list: string[] = []
   private type: number
+  private fizzBuzzType: FizzBuzzType
 
   constructor(type: number = 1) {
     if (type < 1 || type > 3) {
       throw new Error('該当するタイプは存在しません')
     }
     this.type = type
+    this.fizzBuzzType = this.createFizzBuzzType(type)
   }
 
-  generate(number: number, type?: number): string {
-    const typeToUse = type ?? this.type
-    
-    switch (typeToUse) {
+  private createFizzBuzzType(type: number): FizzBuzzType {
+    switch (type) {
       case 1:
-        let result = number.toString()
-
-        if (number % 3 === 0 && number % 5 === 0) {
-          result = 'FizzBuzz'
-        } else if (number % 3 === 0) {
-          result = 'Fizz'
-        } else if (number % 5 === 0) {
-          result = 'Buzz'
-        }
-
-        return result
+        return new FizzBuzzType01()
       case 2:
-        return number.toString()
+        return new FizzBuzzType02()
       case 3:
-        if (number % 3 === 0 && number % 5 === 0) {
-          return 'FizzBuzz'
-        } else {
-          return number.toString()
-        }
+        return new FizzBuzzType03()
       default:
         throw new Error('該当するタイプは存在しません')
     }
+  }
+
+  generate(number: number, type?: number): string {
+    if (type !== undefined) {
+      const tempFizzBuzzType = this.createFizzBuzzType(type)
+      return tempFizzBuzzType.generate(number)
+    }
+    
+    return this.fizzBuzzType.generate(number)
   }
 
   generateList(start: number = 1, end: number = 100): string[] {
@@ -48,5 +45,9 @@ export class FizzBuzz {
 
   getList(): string[] {
     return this.list
+  }
+
+  getType(): number {
+    return this.type
   }
 }
