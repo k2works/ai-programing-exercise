@@ -21,12 +21,16 @@ generateBtn.addEventListener('click', () => {
   resultDiv.innerHTML = `
     <h2>結果:</h2>
     <div class="fizzbuzz-grid">
-      ${results.map((value, index) => `
+      ${results
+        .map(
+          (value, index) => `
         <div class="fizzbuzz-item ${getFizzBuzzClass(value)}">
           <span class="number">${index + 1}</span>
           <span class="result">${value}</span>
         </div>
-      `).join('')}
+      `
+        )
+        .join('')}
     </div>
   `
 })
