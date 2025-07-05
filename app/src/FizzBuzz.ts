@@ -13,6 +13,8 @@ export class FizzBuzz {
         }
 
         return result
+      case 2:
+        return number.toString()
       default:
         return number.toString()
     }

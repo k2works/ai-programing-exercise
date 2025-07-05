@@ -55,5 +55,23 @@ describe('FizzBuzz', () => {
         expect(fizzBuzz.generate(1, 1)).toBe('1')
       })
     })
+
+    describe('タイプ2の場合', () => {
+      it('1を渡したら文字列"1"を返す', () => {
+        expect(fizzBuzz.generate(1, 2)).toBe('1')
+      })
+
+      it('3を渡したら文字列"3"を返す', () => {
+        expect(fizzBuzz.generate(3, 2)).toBe('3')
+      })
+
+      it('5を渡したら文字列"5"を返す', () => {
+        expect(fizzBuzz.generate(5, 2)).toBe('5')
+      })
+
+      it('15を渡したら文字列"15"を返す', () => {
+        expect(fizzBuzz.generate(15, 2)).toBe('15')
+      })
+    })
   })
 })
