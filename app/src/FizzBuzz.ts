@@ -1,6 +1,7 @@
 import { FizzBuzzType, FizzBuzzType01, FizzBuzzType02 } from './FizzBuzzType'
 import { FizzBuzzValue } from './FizzBuzzValue'
 import { FizzBuzzList } from './FizzBuzzList'
+import { FizzBuzzValueCommand, FizzBuzzListCommand } from './FizzBuzzCommand'
 
 export class FizzBuzz {
   private list: FizzBuzzList = new FizzBuzzList()
@@ -15,15 +16,13 @@ export class FizzBuzz {
   }
 
   generate(number: number): FizzBuzzValue {
-    return this.fizzBuzzType.generate(number)
+    const command = new FizzBuzzValueCommand(this.fizzBuzzType, number)
+    return command.execute()
   }
 
   generateList(start: number = 1, end: number = 100): FizzBuzzList {
-    let newList = new FizzBuzzList()
-    for (let i = start; i <= end; i++) {
-      newList = newList.add(this.generate(i))
-    }
-    this.list = newList
+    const command = new FizzBuzzListCommand(this.fizzBuzzType, start, end)
+    this.list = command.execute()
     return this.list
   }
 
