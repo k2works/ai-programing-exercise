@@ -51,50 +51,77 @@ describe('FizzBuzz', () => {
 
   describe('タイプごとに出力を切り替えることができる', () => {
     describe('タイプ1の場合', () => {
+      beforeEach(() => {
+        fizzBuzz = new FizzBuzz(1)
+      })
+
       it('1を渡したら文字列"1"を返す', () => {
-        expect(fizzBuzz.generate(1, 1)).toBe('1')
+        expect(fizzBuzz.generate(1)).toBe('1')
+      })
+
+      it('配列の状態を保持する', () => {
+        const result = fizzBuzz.generateList(1, 100)
+        expect(fizzBuzz.getList()).toEqual(result)
       })
     })
 
     describe('タイプ2の場合', () => {
+      beforeEach(() => {
+        fizzBuzz = new FizzBuzz(2)
+      })
+
       it('1を渡したら文字列"1"を返す', () => {
-        expect(fizzBuzz.generate(1, 2)).toBe('1')
+        expect(fizzBuzz.generate(1)).toBe('1')
       })
 
       it('3を渡したら文字列"3"を返す', () => {
-        expect(fizzBuzz.generate(3, 2)).toBe('3')
+        expect(fizzBuzz.generate(3)).toBe('3')
       })
 
       it('5を渡したら文字列"5"を返す', () => {
-        expect(fizzBuzz.generate(5, 2)).toBe('5')
+        expect(fizzBuzz.generate(5)).toBe('5')
       })
 
       it('15を渡したら文字列"15"を返す', () => {
-        expect(fizzBuzz.generate(15, 2)).toBe('15')
+        expect(fizzBuzz.generate(15)).toBe('15')
+      })
+
+      it('配列の状態を保持する', () => {
+        const result = fizzBuzz.generateList(1, 100)
+        expect(fizzBuzz.getList()).toEqual(result)
       })
     })
 
     describe('タイプ3の場合', () => {
+      beforeEach(() => {
+        fizzBuzz = new FizzBuzz(3)
+      })
+
       it('1を渡したら文字列"1"を返す', () => {
-        expect(fizzBuzz.generate(1, 3)).toBe('1')
+        expect(fizzBuzz.generate(1)).toBe('1')
       })
 
       it('3を渡したら文字列"3"を返す', () => {
-        expect(fizzBuzz.generate(3, 3)).toBe('3')
+        expect(fizzBuzz.generate(3)).toBe('3')
       })
 
       it('5を渡したら文字列"5"を返す', () => {
-        expect(fizzBuzz.generate(5, 3)).toBe('5')
+        expect(fizzBuzz.generate(5)).toBe('5')
       })
 
       it('15を渡したら文字列"FizzBuzz"を返す', () => {
-        expect(fizzBuzz.generate(15, 3)).toBe('FizzBuzz')
+        expect(fizzBuzz.generate(15)).toBe('FizzBuzz')
+      })
+
+      it('配列の状態を保持する', () => {
+        const result = fizzBuzz.generateList(1, 100)
+        expect(fizzBuzz.getList()).toEqual(result)
       })
     })
 
     describe('それ以外のタイプの場合', () => {
       it('例外を投げる', () => {
-        expect(() => fizzBuzz.generate(1, 4)).toThrow('該当するタイプは存在しません')
+        expect(() => new FizzBuzz(4)).toThrow('該当するタイプは存在しません')
       })
     })
   })

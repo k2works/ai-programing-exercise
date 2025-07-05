@@ -1,6 +1,18 @@
 export class FizzBuzz {
-  generate(number: number, type: number = 1): string {
-    switch (type) {
+  private list: string[] = []
+  private type: number
+
+  constructor(type: number = 1) {
+    if (type < 1 || type > 3) {
+      throw new Error('該当するタイプは存在しません')
+    }
+    this.type = type
+  }
+
+  generate(number: number, type?: number): string {
+    const typeToUse = type ?? this.type
+    
+    switch (typeToUse) {
       case 1:
         let result = number.toString()
 
@@ -26,11 +38,15 @@ export class FizzBuzz {
     }
   }
 
-  generateList(start: number, end: number): string[] {
-    const result: string[] = []
+  generateList(start: number = 1, end: number = 100): string[] {
+    this.list = []
     for (let i = start; i <= end; i++) {
-      result.push(this.generate(i))
+      this.list.push(this.generate(i))
     }
-    return result
+    return this.list
+  }
+
+  getList(): string[] {
+    return this.list
   }
 }
