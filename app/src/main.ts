@@ -1,7 +1,8 @@
 import './style.css'
 import { FizzBuzz } from './FizzBuzz'
+import { FizzBuzzType01 } from './domain/type/FizzBuzzType'
 
-const fizzBuzz = new FizzBuzz()
+const fizzBuzz = new FizzBuzz(new FizzBuzzType01())
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div>
@@ -18,10 +19,11 @@ const resultDiv = document.querySelector<HTMLDivElement>('#result')!
 
 generateBtn.addEventListener('click', () => {
   const results = fizzBuzz.generateList(1, 100)
+  const resultsArray = results.toStringArray()
   resultDiv.innerHTML = `
     <h2>結果:</h2>
     <div class="fizzbuzz-grid">
-      ${results
+      ${resultsArray
         .map(
           (value, index) => `
         <div class="fizzbuzz-item ${getFizzBuzzClass(value)}">
