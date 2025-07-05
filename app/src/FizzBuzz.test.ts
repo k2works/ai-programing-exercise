@@ -48,4 +48,12 @@ describe('FizzBuzz', () => {
       expect(result[99]).toBe('Buzz')
     })
   })
+
+  describe('タイプごとに出力を切り替えることができる', () => {
+    describe('タイプ1の場合', () => {
+      it('1を渡したら文字列"1"を返す', () => {
+        expect(fizzBuzz.generate(1, 1)).toBe('1')
+      })
+    })
+  })
 })
