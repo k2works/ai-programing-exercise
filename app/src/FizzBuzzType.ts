@@ -1,20 +1,26 @@
 export abstract class FizzBuzzType {
   abstract generate(number: number): string
+
+  protected fizz(number: number): boolean {
+    return number % 3 === 0
+  }
+
+  protected buzz(number: number): boolean {
+    return number % 5 === 0
+  }
 }
 
 export class FizzBuzzType01 extends FizzBuzzType {
   generate(number: number): string {
-    let result = number.toString()
-
-    if (number % 3 === 0 && number % 5 === 0) {
-      result = 'FizzBuzz'
-    } else if (number % 3 === 0) {
-      result = 'Fizz'
-    } else if (number % 5 === 0) {
-      result = 'Buzz'
+    if (this.fizz(number) && this.buzz(number)) {
+      return 'FizzBuzz'
+    } else if (this.fizz(number)) {
+      return 'Fizz'
+    } else if (this.buzz(number)) {
+      return 'Buzz'
     }
 
-    return result
+    return number.toString()
   }
 }
 
@@ -26,7 +32,7 @@ export class FizzBuzzType02 extends FizzBuzzType {
 
 export class FizzBuzzType03 extends FizzBuzzType {
   generate(number: number): string {
-    if (number % 3 === 0 && number % 5 === 0) {
+    if (this.fizz(number) && this.buzz(number)) {
       return 'FizzBuzz'
     } else {
       return number.toString()
