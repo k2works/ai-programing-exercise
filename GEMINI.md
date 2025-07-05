@@ -1,0 +1,1 @@
+.github/copilot-instructions.mdの内容を参照してください。
