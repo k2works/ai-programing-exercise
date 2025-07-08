@@ -1,8 +1,10 @@
 services:
   app:
-    image: ghcr.io/k2works/ai-programing-exercise/core:0.0.7
+    image: ghcr.io/k2works/ai-programing-exercise/core:0.0.8
     volumes:
-      - ./:/srv
+      - ./:/srv/app
+      - ~/.ssh/id_rsa:/root/.ssh/id_rsa
+      - ~/.ssh/id_rsa.pub:/root/.ssh/id_rsa.pub
     command: bash
     tty: true
     stdin_open: true

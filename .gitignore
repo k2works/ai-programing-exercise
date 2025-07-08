@@ -7,3 +7,5 @@ build
 .gradle
 target
 .env
+targetf
+.env
