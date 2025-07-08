@@ -5,5 +5,5 @@ coverage
 .cpcache
 build
 .gradle
-targetf
+target
 .env
