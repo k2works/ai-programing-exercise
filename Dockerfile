@@ -36,6 +36,7 @@ RUN apt-get update && apt-get install -y \
             curl \
             wget \
             vim \
+            tmux \
             && apt-get clean \
             && rm -rf /var/lib/apt/lists/*
 
@@ -158,6 +159,12 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/* \
     && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain $RUST_VER \
     && echo 'source $HOME/.cargo/env' >> ~/.bashrc
+
+# Gemini CLIのインストール
+RUN npm install -g @google/gemini-cli
+
+# Claude Codeのインストール
+RUN npm install -g @anthropic-ai/claude-code
 
 # パスの設定
 ENV PATH="/root/.cargo/bin:/usr/local/go/bin:/root/.ghcup/bin:/root/.sdkman/candidates/java/current/bin:/root/.sdkman/candidates/maven/current/bin:/root/.sdkman/candidates/gradle/current/bin:/root/.rbenv/shims:/usr/local/bin:$PATH"
