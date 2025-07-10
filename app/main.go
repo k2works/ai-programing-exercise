@@ -1,11 +1,7 @@
 package main
 
-import "fmt"
+import "strconv"
 
-func greeting() string {
-    return "hello world"
-}
-
-func main() {
-    fmt.Println(greeting())
+func Generate(number int) string {
+    return strconv.Itoa(number)
 }
