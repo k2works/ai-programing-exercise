@@ -81,7 +81,7 @@ func (f FizzBuzzTypeBase) Create(fizzBuzzType int) FizzBuzzType {
 	case TYPE_03:
 		return FizzBuzzType03{}
 	default:
-		panic("該当するタイプは存在しません")
+		return FizzBuzzTypeNotDefined{}
 	}
 }
 
@@ -138,6 +138,19 @@ func (f FizzBuzzType03) Generate(number int) FizzBuzzValue {
 	return NewFizzBuzzValue(number, strconv.Itoa(number))
 }
 
+// FizzBuzzTypeNotDefined 未定義タイプの実装（Null Objectパターン）
+type FizzBuzzTypeNotDefined struct {
+	FizzBuzzTypeBase
+}
+
+func (f FizzBuzzTypeNotDefined) Generate(number int) FizzBuzzValue {
+	return NewFizzBuzzValue(number, "")
+}
+
+func (f FizzBuzzTypeNotDefined) String() string {
+	return "未定義"
+}
+
 // FizzBuzz構造体
 type FizzBuzz struct {
 	list         *FizzBuzzList // FizzBuzzListを保持するフィールド
@@ -150,9 +163,15 @@ func NewFizzBuzz(fizzBuzzType int) *FizzBuzz {
 	base := FizzBuzzTypeBase{}
 	typeImpl := base.Create(fizzBuzzType)
 
+	// 未定義タイプの場合は-1を設定
+	actualType := fizzBuzzType
+	if _, ok := typeImpl.(FizzBuzzTypeNotDefined); ok {
+		actualType = -1
+	}
+
 	return &FizzBuzz{
 		list:         NewFizzBuzzList([]FizzBuzzValue{}),
-		fizzBuzzType: fizzBuzzType,
+		fizzBuzzType: actualType,
 		typeImpl:     typeImpl,
 	}
 }
@@ -168,8 +187,10 @@ func NewFizzBuzzWithType(typeImpl FizzBuzzType) *FizzBuzz {
 		fizzBuzzType = TYPE_02
 	case FizzBuzzType03:
 		fizzBuzzType = TYPE_03
+	case FizzBuzzTypeNotDefined:
+		fizzBuzzType = -1 // 未定義タイプを示すデフォルト値
 	default:
-		panic("該当するタイプは存在しません")
+		fizzBuzzType = -1 // 未定義タイプを示すデフォルト値
 	}
 
 	return &FizzBuzz{

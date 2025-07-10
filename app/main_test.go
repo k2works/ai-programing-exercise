@@ -107,31 +107,34 @@ func Test15を渡したら文字列FizzBuzzを返す_タイプ3(t *testing.T) {
 }
 
 // それ以外のタイプの場合
-func TestGenerateByType_それ以外のタイプで例外が発生する(t *testing.T) {
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("FizzBuzzTypeBase.Create(4) should panic")
-		}
-	}()
+func TestGenerateByType_それ以外のタイプで未定義のタイプを返す(t *testing.T) {
 	base := FizzBuzzTypeBase{}
-	base.Create(4)
+	typeImpl := base.Create(4)
+	
+	// String()メソッドをテスト
+	if notDefined, ok := typeImpl.(FizzBuzzTypeNotDefined); ok {
+		got := notDefined.String()
+		expected := "未定義"
+		if got != expected {
+			t.Errorf("FizzBuzzTypeNotDefined.String() = %v, want %v", got, expected)
+		}
+	} else {
+		t.Error("Expected FizzBuzzTypeNotDefined type")
+	}
 }
 
 // それ以外のタイプの場合
-func Test該当しないタイプを指定した場合例外を返す(t *testing.T) {
-	defer func() {
-		if r := recover(); r != nil {
-			expected := "該当するタイプは存在しません"
-			if r != expected {
-				t.Errorf("Expected panic message %v, got %v", expected, r)
-			}
-		} else {
-			t.Error("Expected panic but no panic occurred")
-		}
-	}()
+func Test該当しないタイプを指定した場合未定義のタイプを返す(t *testing.T) {
+	fizzbuzz := NewFizzBuzz(4)
+	if fizzbuzz.Type() != -1 {
+		t.Errorf("Expected type -1 for undefined type, got %v", fizzbuzz.Type())
+	}
 	
-	// タイプ4（存在しないタイプ）を指定
-	NewFizzBuzz(4)
+	// Generate メソッドで空文字列が返されることを確認
+	result := fizzbuzz.Generate(1)
+	if result.Value() != "" {
+		t.Errorf("Expected empty string for undefined type, got %v", result.Value())
+	}
 }
 
 // 値オブジェクトのテスト
