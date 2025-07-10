@@ -8,8 +8,8 @@ func assertGenerateByType(t *testing.T, number, fizzBuzzType int, expected strin
 	typeImpl := base.Create(fizzBuzzType)
 	fizzbuzz := NewFizzBuzzWithType(typeImpl)
 	got := fizzbuzz.Generate(number)
-	if got != expected {
-		t.Errorf("FizzBuzz.Generate(%d) with type %d = %v, want %v", number, fizzBuzzType, got, expected)
+	if got.Value() != expected {
+		t.Errorf("FizzBuzz.Generate(%d) with type %d = %v, want %v", number, fizzBuzzType, got.Value(), expected)
 	}
 }
 
@@ -49,17 +49,17 @@ func Test1から100までのFizzBuzzを返す_タイプ1(t *testing.T) {
 	}
 
 	// 具体的な値を確認
-	if results[0] != "1" {
-		t.Errorf("results[0] = %s, want 1", results[0])
+	if results[0].Value() != "1" {
+		t.Errorf("results[0] = %s, want 1", results[0].Value())
 	}
-	if results[2] != "Fizz" {
-		t.Errorf("results[2] = %s, want Fizz", results[2])
+	if results[2].Value() != "Fizz" {
+		t.Errorf("results[2] = %s, want Fizz", results[2].Value())
 	}
-	if results[4] != "Buzz" {
-		t.Errorf("results[4] = %s, want Buzz", results[4])
+	if results[4].Value() != "Buzz" {
+		t.Errorf("results[4] = %s, want Buzz", results[4].Value())
 	}
-	if results[14] != "FizzBuzz" {
-		t.Errorf("results[14] = %s, want FizzBuzz", results[14])
+	if results[14].Value() != "FizzBuzz" {
+		t.Errorf("results[14] = %s, want FizzBuzz", results[14].Value())
 	}
 }
 
@@ -123,8 +123,8 @@ func Test値オブジェクトを使用したFizzBuzz_タイプ1(t *testing.T) {
 	typeInstance := FizzBuzzType01{}
 	fizzbuzz := NewFizzBuzzWithType(typeInstance)
 	got := fizzbuzz.Generate(3)
-	if got != "Fizz" {
-		t.Errorf("FizzBuzz with value object type = %v, want Fizz", got)
+	if got.Value() != "Fizz" {
+		t.Errorf("FizzBuzz with value object type = %v, want Fizz", got.Value())
 	}
 }
 
@@ -132,8 +132,8 @@ func Test値オブジェクトを使用したFizzBuzz_タイプ2(t *testing.T) {
 	typeInstance := FizzBuzzType02{}
 	fizzbuzz := NewFizzBuzzWithType(typeInstance)
 	got := fizzbuzz.Generate(3)
-	if got != "3" {
-		t.Errorf("FizzBuzz with value object type = %v, want 3", got)
+	if got.Value() != "3" {
+		t.Errorf("FizzBuzz with value object type = %v, want 3", got.Value())
 	}
 }
 
@@ -141,7 +141,7 @@ func Test値オブジェクトを使用したFizzBuzz_タイプ3(t *testing.T) {
 	typeInstance := FizzBuzzType03{}
 	fizzbuzz := NewFizzBuzzWithType(typeInstance)
 	got := fizzbuzz.Generate(15)
-	if got != "FizzBuzz" {
-		t.Errorf("FizzBuzz with value object type = %v, want FizzBuzz", got)
+	if got.Value() != "FizzBuzz" {
+		t.Errorf("FizzBuzz with value object type = %v, want FizzBuzz", got.Value())
 	}
 }
