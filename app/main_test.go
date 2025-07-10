@@ -185,13 +185,13 @@ func TestFizzBuzzList新しいインスタンスが作られる(t *testing.T) {
 func Test値は正の値のみ許可する_FizzBuzzValueCommand(t *testing.T) {
 	defer func() {
 		if r := recover(); r != nil {
-			if err, ok := r.(AssertionFailedError); ok {
+			if err, ok := r.(InvalidValueError); ok {
 				expected := "値は正の値のみ許可"
 				if err.Error() != expected {
 					t.Errorf("Expected panic message %v, got %v", expected, err.Error())
 				}
 			} else {
-				t.Errorf("Expected AssertionFailedError but got %v", r)
+				t.Errorf("Expected InvalidValueError but got %v", r)
 			}
 		} else {
 			t.Error("Expected panic but no panic occurred")
@@ -208,13 +208,13 @@ func Test値は正の値のみ許可する_FizzBuzzValueCommand(t *testing.T) {
 func Test100より多い数を許可しない_FizzBuzzListCommand(t *testing.T) {
 	defer func() {
 		if r := recover(); r != nil {
-			if err, ok := r.(AssertionFailedError); ok {
+			if err, ok := r.(InvalidValueError); ok {
 				expected := "100より多い数を許可しない"
 				if err.Error() != expected {
 					t.Errorf("Expected panic message %v, got %v", expected, err.Error())
 				}
 			} else {
-				t.Errorf("Expected AssertionFailedError but got %v", r)
+				t.Errorf("Expected InvalidValueError but got %v", r)
 			}
 		} else {
 			t.Error("Expected panic but no panic occurred")

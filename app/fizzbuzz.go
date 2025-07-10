@@ -5,25 +5,18 @@ import (
 	"strconv"
 )
 
-// AssertionFailedError カスタムエラー型
-type AssertionFailedError struct {
+// InvalidValueError 不正な値エラー
+type InvalidValueError struct {
 	message string
 }
 
-func (e AssertionFailedError) Error() string {
+func (e InvalidValueError) Error() string {
 	return e.message
 }
 
-// NewAssertionFailedError コンストラクタ
-func NewAssertionFailedError(message string) AssertionFailedError {
-	return AssertionFailedError{message: message}
-}
-
-// Assert アサーション関数
-func Assert(condition bool, message string) {
-	if !condition {
-		panic(NewAssertionFailedError(message))
-	}
+// NewInvalidValueError コンストラクタ
+func NewInvalidValueError(message string) InvalidValueError {
+	return InvalidValueError{message: message}
 }
 
 // FizzBuzzValue 値オブジェクト
@@ -34,7 +27,9 @@ type FizzBuzzValue struct {
 
 // NewFizzBuzzValue コンストラクタ
 func NewFizzBuzzValue(number int, value string) FizzBuzzValue {
-	Assert(number >= 0, "値は正の値のみ許可")
+	if number < 0 {
+		panic(NewInvalidValueError("値は正の値のみ許可"))
+	}
 	return FizzBuzzValue{
 		number: number,
 		value:  value,
@@ -287,7 +282,9 @@ func NewFizzBuzzListCommand(typeImpl FizzBuzzType) *FizzBuzzListCommand {
 
 // Execute 指定した数までのFizzBuzzリストを生成して返す
 func (c *FizzBuzzListCommand) Execute(number int) interface{} {
-	Assert(number <= 100, "100より多い数を許可しない")
+	if number > 100 {
+		panic(NewInvalidValueError("100より多い数を許可しない"))
+	}
 	values := make([]FizzBuzzValue, 0, number)
 	for i := 1; i <= number; i++ {
 		values = append(values, c.typeImpl.Generate(i))
