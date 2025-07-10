@@ -2,43 +2,39 @@ package main
 
 import "testing"
 
-func assertGenerate(t *testing.T, input int, expected string) {
+func assertGenerateByType(t *testing.T, number, fizzBuzzType int, expected string) {
 	t.Helper()
-	got := Generate(input)
+	got := GenerateByType(number, fizzBuzzType)
 	if got != expected {
-		t.Errorf("Generate(%d) = %v, want %v", input, got, expected)
+		t.Errorf("GenerateByType(%d, %d) = %v, want %v", number, fizzBuzzType, got, expected)
 	}
 }
 
-func Test1を渡したら文字列1を返す(t *testing.T) {
-	assertGenerate(t, 1, "1")
+// 数を文字列にして返す
+// タイプ1の場合
+
+// 三の倍数の場合
+func Test3を渡したら文字列Fizzを返す_タイプ1(t *testing.T) {
+	assertGenerateByType(t, 3, 1, "Fizz")
 }
 
-func Test2を渡したら文字列2を返す(t *testing.T) {
-	assertGenerate(t, 2, "2")
+// 五の倍数の場合
+func Test5を渡したら文字列Buzzを返す_タイプ1(t *testing.T) {
+	assertGenerateByType(t, 5, 1, "Buzz")
 }
 
-func Test3を渡したらFizzを返す(t *testing.T) {
-	assertGenerate(t, 3, "Fizz")
+// 三と五の倍数の場合
+func Test15を渡したら文字列FizzBuzzを返す_タイプ1(t *testing.T) {
+	assertGenerateByType(t, 15, 1, "FizzBuzz")
 }
 
-func Test6を渡したらFizzを返す(t *testing.T) {
-	assertGenerate(t, 6, "Fizz")
+// その他の場合
+func Test1を渡したら文字列1を返す_タイプ1(t *testing.T) {
+	assertGenerateByType(t, 1, 1, "1")
 }
 
-func Test5を渡したらBuzzを返す(t *testing.T) {
-	assertGenerate(t, 5, "Buzz")
-}
-
-func Test10を渡したらBuzzを返す(t *testing.T) {
-	assertGenerate(t, 10, "Buzz")
-}
-
-func Test15を渡したらFizzBuzzを返す(t *testing.T) {
-	assertGenerate(t, 15, "FizzBuzz")
-}
-
-func Test1から100までのFizzBuzzを返す(t *testing.T) {
+// 1から100までのFizzBuzzの配列を返す
+func Test1から100までのFizzBuzzを返す_タイプ1(t *testing.T) {
 	results := GenerateList(1, 100)
 
 	// いくつかの値を確認
@@ -58,15 +54,5 @@ func Test1から100までのFizzBuzzを返す(t *testing.T) {
 	}
 	if results[14] != "FizzBuzz" {
 		t.Errorf("results[14] = %s, want FizzBuzz", results[14])
-	}
-}
-
-// タイプごとに出力を切り替えることができる
-// タイプ1の場合
-func Test1を渡したら文字列1を返す_タイプ1(t *testing.T) {
-	got := GenerateByType(1, 1)
-	expected := "1"
-	if got != expected {
-		t.Errorf("GenerateByType(1, 1) = %v, want %v", got, expected)
 	}
 }
