@@ -47,7 +47,7 @@ func GenerateByType(number, fizzBuzzType int) string {
         }
         return strconv.Itoa(number)
     default:
-        return ""
+        panic("未定義のタイプです")
     }
 }
 

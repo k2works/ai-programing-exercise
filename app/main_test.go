@@ -100,3 +100,13 @@ func Test5を渡したら文字列5を返す_タイプ3(t *testing.T) {
 func Test15を渡したら文字列FizzBuzzを返す_タイプ3(t *testing.T) {
 	assertGenerateByType(t, 15, 3, "FizzBuzz")
 }
+
+// それ以外のタイプの場合
+func TestGenerateByType_それ以外のタイプで例外が発生する(t *testing.T) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("GenerateByType(1, 4) should panic")
+		}
+	}()
+	GenerateByType(1, 4)
+}
