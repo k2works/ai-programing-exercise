@@ -87,10 +87,32 @@ type FizzBuzz struct {
 	typeImpl    FizzBuzzType  // タイプ実装
 }
 
-// NewFizzBuzz コンストラクタ
+// NewFizzBuzz コンストラクタ（プリミティブ型を受け取る）
 func NewFizzBuzz(fizzBuzzType int) *FizzBuzz {
 	base := FizzBuzzTypeBase{}
 	typeImpl := base.Create(fizzBuzzType)
+	
+	return &FizzBuzz{
+		list:        make([]string, 0),
+		fizzBuzzType: fizzBuzzType,
+		typeImpl:    typeImpl,
+	}
+}
+
+// NewFizzBuzzWithType コンストラクタ（値オブジェクトを受け取る）
+func NewFizzBuzzWithType(typeImpl FizzBuzzType) *FizzBuzz {
+	// タイプを逆算（実際の実装では避けるべきですが、ここでは後方互換性のため）
+	var fizzBuzzType int
+	switch typeImpl.(type) {
+	case FizzBuzzType01:
+		fizzBuzzType = 1
+	case FizzBuzzType02:
+		fizzBuzzType = 2
+	case FizzBuzzType03:
+		fizzBuzzType = 3
+	default:
+		panic("該当するタイプは存在しません")
+	}
 	
 	return &FizzBuzz{
 		list:        make([]string, 0),

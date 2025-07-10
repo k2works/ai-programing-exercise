@@ -114,3 +114,31 @@ func TestGenerateByType_それ以外のタイプで例外が発生する(t *test
 	fizzbuzz := NewFizzBuzz(4)
 	fizzbuzz.Generate(1)
 }
+
+// 値オブジェクトのテスト
+func Test値オブジェクトを使用したFizzBuzz_タイプ1(t *testing.T) {
+	typeInstance := FizzBuzzType01{}
+	fizzbuzz := NewFizzBuzzWithType(typeInstance)
+	got := fizzbuzz.Generate(3)
+	if got != "Fizz" {
+		t.Errorf("FizzBuzz with value object type = %v, want Fizz", got)
+	}
+}
+
+func Test値オブジェクトを使用したFizzBuzz_タイプ2(t *testing.T) {
+	typeInstance := FizzBuzzType02{}
+	fizzbuzz := NewFizzBuzzWithType(typeInstance)
+	got := fizzbuzz.Generate(3)
+	if got != "3" {
+		t.Errorf("FizzBuzz with value object type = %v, want 3", got)
+	}
+}
+
+func Test値オブジェクトを使用したFizzBuzz_タイプ3(t *testing.T) {
+	typeInstance := FizzBuzzType03{}
+	fizzbuzz := NewFizzBuzzWithType(typeInstance)
+	got := fizzbuzz.Generate(15)
+	if got != "FizzBuzz" {
+		t.Errorf("FizzBuzz with value object type = %v, want FizzBuzz", got)
+	}
+}
