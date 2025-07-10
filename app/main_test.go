@@ -4,9 +4,10 @@ import "testing"
 
 func assertGenerateByType(t *testing.T, number, fizzBuzzType int, expected string) {
 	t.Helper()
-	got := GenerateByType(number, fizzBuzzType)
+	fizzbuzz := NewFizzBuzz()
+	got := fizzbuzz.Generate(number, fizzBuzzType)
 	if got != expected {
-		t.Errorf("GenerateByType(%d, %d) = %v, want %v", number, fizzBuzzType, got, expected)
+		t.Errorf("FizzBuzz.Generate(%d, %d) = %v, want %v", number, fizzBuzzType, got, expected)
 	}
 }
 
@@ -35,7 +36,8 @@ func Test1を渡したら文字列1を返す_タイプ1(t *testing.T) {
 
 // 1から100までのFizzBuzzの配列を返す
 func Test1から100までのFizzBuzzを返す_タイプ1(t *testing.T) {
-	results := GenerateList(1, 100)
+	fizzbuzz := NewFizzBuzz()
+	results := fizzbuzz.GenerateList(1, 100)
 
 	// いくつかの値を確認
 	if len(results) != 100 {
@@ -105,8 +107,9 @@ func Test15を渡したら文字列FizzBuzzを返す_タイプ3(t *testing.T) {
 func TestGenerateByType_それ以外のタイプで例外が発生する(t *testing.T) {
 	defer func() {
 		if r := recover(); r == nil {
-			t.Errorf("GenerateByType(1, 4) should panic")
+			t.Errorf("FizzBuzz.Generate(1, 4) should panic")
 		}
 	}()
-	GenerateByType(1, 4)
+	fizzbuzz := NewFizzBuzz()
+	fizzbuzz.Generate(1, 4)
 }
