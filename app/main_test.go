@@ -56,3 +56,47 @@ func Test1から100までのFizzBuzzを返す_タイプ1(t *testing.T) {
 		t.Errorf("results[14] = %s, want FizzBuzz", results[14])
 	}
 }
+
+// タイプ2の場合
+
+// その他の場合
+func Test1を渡したら文字列1を返す_タイプ2(t *testing.T) {
+	assertGenerateByType(t, 1, 2, "1")
+}
+
+// 3の倍数のときは数を文字列にして返す
+func Test3を渡したら文字列3を返す_タイプ2(t *testing.T) {
+	assertGenerateByType(t, 3, 2, "3")
+}
+
+// 5の倍数のときは数を文字列にして返す
+func Test5を渡したら文字列5を返す_タイプ2(t *testing.T) {
+	assertGenerateByType(t, 5, 2, "5")
+}
+
+// 3と5両方の倍数の場合には数を文字列にして返す
+func Test15を渡したら文字列15を返す_タイプ2(t *testing.T) {
+	assertGenerateByType(t, 15, 2, "15")
+}
+
+// タイプ3の場合
+
+// その他の場合
+func Test1を渡したら文字列1を返す_タイプ3(t *testing.T) {
+	assertGenerateByType(t, 1, 3, "1")
+}
+
+// 3の倍数のときは数を文字列にして返す
+func Test3を渡したら文字列3を返す_タイプ3(t *testing.T) {
+	assertGenerateByType(t, 3, 3, "3")
+}
+
+// 5の倍数のときは数を文字列にして返す
+func Test5を渡したら文字列5を返す_タイプ3(t *testing.T) {
+	assertGenerateByType(t, 5, 3, "5")
+}
+
+// 3と5両方の倍数の場合にはFizzBuzzと返す
+func Test15を渡したら文字列FizzBuzzを返す_タイプ3(t *testing.T) {
+	assertGenerateByType(t, 15, 3, "FizzBuzz")
+}
