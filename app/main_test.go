@@ -166,15 +166,63 @@ func Test値オブジェクトを使用したFizzBuzz_タイプ3(t *testing.T) {
 func TestFizzBuzzList新しいインスタンスが作られる(t *testing.T) {
 	typeInstance := FizzBuzzType01{}
 	fizzbuzz := NewFizzBuzzWithType(typeInstance)
-	fizzbuzz.GenerateList(1, 100)
+	fizzbuzz.GenerateList(1, 50)
 	
 	list1 := fizzbuzz.list
 	list2 := list1.Add(list1.Value())
 	
-	if list1.Count() != 100 {
-		t.Errorf("list1.Count() = %d, want 100", list1.Count())
+	if list1.Count() != 50 {
+		t.Errorf("list1.Count() = %d, want 50", list1.Count())
 	}
-	if list2.Count() != 200 {
-		t.Errorf("list2.Count() = %d, want 200", list2.Count())
+	if list2.Count() != 100 {
+		t.Errorf("list2.Count() = %d, want 100", list2.Count())
 	}
+}
+
+// 例外ケース
+
+// 値は正の値のみ許可する
+func Test値は正の値のみ許可する_FizzBuzzValueCommand(t *testing.T) {
+	defer func() {
+		if r := recover(); r != nil {
+			if err, ok := r.(AssertionFailedError); ok {
+				expected := "値は正の値のみ許可"
+				if err.Error() != expected {
+					t.Errorf("Expected panic message %v, got %v", expected, err.Error())
+				}
+			} else {
+				t.Errorf("Expected AssertionFailedError but got %v", r)
+			}
+		} else {
+			t.Error("Expected panic but no panic occurred")
+		}
+	}()
+	
+	base := FizzBuzzTypeBase{}
+	typeImpl := base.Create(TYPE_01)
+	command := NewFizzBuzzValueCommand(typeImpl)
+	command.Execute(-1)
+}
+
+// 100より多い数を許可しない
+func Test100より多い数を許可しない_FizzBuzzListCommand(t *testing.T) {
+	defer func() {
+		if r := recover(); r != nil {
+			if err, ok := r.(AssertionFailedError); ok {
+				expected := "100より多い数を許可しない"
+				if err.Error() != expected {
+					t.Errorf("Expected panic message %v, got %v", expected, err.Error())
+				}
+			} else {
+				t.Errorf("Expected AssertionFailedError but got %v", r)
+			}
+		} else {
+			t.Error("Expected panic but no panic occurred")
+		}
+	}()
+	
+	base := FizzBuzzTypeBase{}
+	typeImpl := base.Create(TYPE_01)
+	command := NewFizzBuzzListCommand(typeImpl)
+	command.Execute(101)
 }
