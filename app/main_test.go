@@ -209,7 +209,7 @@ func Test100より多い数を許可しない_FizzBuzzListCommand(t *testing.T) 
 	defer func() {
 		if r := recover(); r != nil {
 			if err, ok := r.(InvalidValueError); ok {
-				expected := "100より多い数を許可しない"
+				expected := "100 より多い数を許可しない"
 				if err.Error() != expected {
 					t.Errorf("Expected panic message %v, got %v", expected, err.Error())
 				}

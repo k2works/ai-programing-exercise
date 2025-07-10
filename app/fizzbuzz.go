@@ -282,8 +282,9 @@ func NewFizzBuzzListCommand(typeImpl FizzBuzzType) *FizzBuzzListCommand {
 
 // Execute 指定した数までのFizzBuzzリストを生成して返す
 func (c *FizzBuzzListCommand) Execute(number int) interface{} {
-	if number > 100 {
-		panic(NewInvalidValueError("100より多い数を許可しない"))
+	const MaxCount = 100
+	if number > MaxCount {
+		panic(NewInvalidValueError(fmt.Sprintf("%d より多い数を許可しない", MaxCount)))
 	}
 	values := make([]FizzBuzzValue, 0, number)
 	for i := 1; i <= number; i++ {
