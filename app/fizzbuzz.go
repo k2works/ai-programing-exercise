@@ -123,9 +123,9 @@ func (f FizzBuzzType03) Generate(number int) FizzBuzzValue {
 
 // FizzBuzz構造体
 type FizzBuzz struct {
-	list         []FizzBuzzValue // FizzBuzz配列を保持するフィールド
-	fizzBuzzType int             // FizzBuzzのタイプを保持するフィールド
-	typeImpl     FizzBuzzType    // タイプ実装
+	list         *FizzBuzzList // FizzBuzzListを保持するフィールド
+	fizzBuzzType int           // FizzBuzzのタイプを保持するフィールド
+	typeImpl     FizzBuzzType  // タイプ実装
 }
 
 // NewFizzBuzz コンストラクタ（プリミティブ型を受け取る）
@@ -134,7 +134,7 @@ func NewFizzBuzz(fizzBuzzType int) *FizzBuzz {
 	typeImpl := base.Create(fizzBuzzType)
 
 	return &FizzBuzz{
-		list:         make([]FizzBuzzValue, 0),
+		list:         NewFizzBuzzList([]FizzBuzzValue{}),
 		fizzBuzzType: fizzBuzzType,
 		typeImpl:     typeImpl,
 	}
@@ -156,7 +156,7 @@ func NewFizzBuzzWithType(typeImpl FizzBuzzType) *FizzBuzz {
 	}
 
 	return &FizzBuzz{
-		list:         make([]FizzBuzzValue, 0),
+		list:         NewFizzBuzzList([]FizzBuzzValue{}),
 		fizzBuzzType: fizzBuzzType,
 		typeImpl:     typeImpl,
 	}
@@ -174,15 +174,59 @@ func (f *FizzBuzz) Type() int {
 
 // List FizzBuzz配列を取得
 func (f *FizzBuzz) List() []FizzBuzzValue {
-	return f.list
+	return f.list.Value()
 }
 
 // GenerateList 範囲指定してFizzBuzzのリストを作成し、インスタンス変数に保存
 func (f *FizzBuzz) GenerateList(start, end int) {
-	f.list = make([]FizzBuzzValue, 0, end-start+1)
+	values := make([]FizzBuzzValue, 0, end-start+1)
 	for i := start; i <= end; i++ {
-		f.list = append(f.list, f.Generate(i))
+		values = append(values, f.Generate(i))
 	}
+	f.list = f.list.Add(values)
+}
+
+// FizzBuzzList ファーストクラスコレクション
+type FizzBuzzList struct {
+	value []FizzBuzzValue
+}
+
+// NewFizzBuzzList コンストラクタ
+func NewFizzBuzzList(values []FizzBuzzValue) *FizzBuzzList {
+	// イミュータブルにするため新しいスライスを作成
+	newValues := make([]FizzBuzzValue, len(values))
+	copy(newValues, values)
+	return &FizzBuzzList{
+		value: newValues,
+	}
+}
+
+// Value 値を取得（読み取り専用）
+func (f *FizzBuzzList) Value() []FizzBuzzValue {
+	// 外部からの変更を防ぐためコピーを返す
+	result := make([]FizzBuzzValue, len(f.value))
+	copy(result, f.value)
+	return result
+}
+
+// String 文字列表現
+func (f *FizzBuzzList) String() string {
+	return fmt.Sprintf("%v", f.value)
+}
+
+// Add 新しい要素を追加した新しいFizzBuzzListを返す（イミュータブル）
+func (f *FizzBuzzList) Add(values []FizzBuzzValue) *FizzBuzzList {
+	newValues := make([]FizzBuzzValue, len(f.value)+len(values))
+	copy(newValues, f.value)
+	copy(newValues[len(f.value):], values)
+	return &FizzBuzzList{
+		value: newValues,
+	}
+}
+
+// Count 要素数を取得
+func (f *FizzBuzzList) Count() int {
+	return len(f.value)
 }
 
 
