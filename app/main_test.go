@@ -60,3 +60,13 @@ func Test1から100までのFizzBuzzを返す(t *testing.T) {
 		t.Errorf("results[14] = %s, want FizzBuzz", results[14])
 	}
 }
+
+// タイプごとに出力を切り替えることができる
+// タイプ1の場合
+func Test1を渡したら文字列1を返す_タイプ1(t *testing.T) {
+	got := GenerateByType(1, 1)
+	expected := "1"
+	if got != expected {
+		t.Errorf("GenerateByType(1, 1) = %v, want %v", got, expected)
+	}
+}
