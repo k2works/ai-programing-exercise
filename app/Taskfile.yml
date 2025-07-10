@@ -1,0 +1,101 @@
+version: '3'
+
+vars:
+  BINARY_NAME: go-tdd-tutorial
+  BUILD_DIR: bin
+
+tasks:
+  default:
+    desc: ヘルプを表示
+    cmds:
+      - task --list
+
+  test:
+    desc: テストを実行
+    cmds:
+      - echo "テストを実行中..."
+      - go test -v ./...
+
+  test-coverage:
+    desc: テストカバレッジを実行
+    cmds:
+      - echo "テストカバレッジを実行中..."
+      - go test -coverprofile=coverage.out ./...
+      - go tool cover -html=coverage.out -o coverage.html
+      - echo "カバレッジレポートが coverage.html に作成されました"
+
+  lint:
+    desc: 静的解析を実行
+    cmds:
+      - echo "静的解析を実行中..."
+      - cmd: command -v golangci-lint >/dev/null 2>&1
+        ignore_error: true
+      - export PATH=$PATH:$(go env GOPATH)/bin && golangci-lint run
+
+  fmt:
+    desc: コードフォーマットを実行
+    cmds:
+      - echo "コードフォーマットを実行中..."
+      - go fmt ./...
+
+  vet:
+    desc: go vetを実行
+    cmds:
+      - echo "go vetを実行中..."
+      - go vet ./...
+
+  build:
+    desc: アプリケーションをビルド
+    cmds:
+      - echo "アプリケーションをビルド中..."
+      - mkdir -p {{.BUILD_DIR}}
+      - go build -o {{.BUILD_DIR}}/{{.BINARY_NAME}} .
+
+  run:
+    desc: アプリケーションを実行
+    cmds:
+      - echo "アプリケーションを実行中..."
+      - go run .
+
+  clean:
+    desc: クリーンアップ
+    cmds:
+      - echo "クリーンアップ中..."
+      - go clean
+      - rm -rf {{.BUILD_DIR}}
+      - rm -f coverage.out coverage.html
+
+  check:
+    desc: 品質チェック（フォーマット、vet、lint、テスト）
+    deps: [fmt, vet, lint, test]
+
+  fix:
+    desc: 自動修正（フォーマット）
+    deps: [fmt]
+
+  deps:
+    desc: 依存関係のダウンロード
+    cmds:
+      - echo "依存関係をダウンロード中..."
+      - go mod download
+      - go mod tidy
+
+  watch:
+    desc: ファイル監視による自動チェック
+    cmds:
+      - echo "ファイル監視による自動チェックを開始..."
+      - task: watch-test
+
+  watch-test:
+    desc: テストのwatch実行
+    cmds:
+      - echo "テストのwatch実行を開始..."
+      - |
+        if command -v fswatch >/dev/null 2>&1; then
+          fswatch -o . | xargs -n1 -I{} task test
+        else
+          echo "fswatch がインストールされていません。"
+          echo "Ubuntu/Debian: sudo apt-get install fswatch"
+          echo "macOS: brew install fswatch"
+          exit 1
+        fi
