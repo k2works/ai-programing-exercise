@@ -48,6 +48,11 @@ func (f *FizzBuzz) Generate(number int) string {
 	}
 }
 
+// Type FizzBuzzタイプを取得
+func (f *FizzBuzz) Type() int {
+	return f.fizzBuzzType
+}
+
 // List FizzBuzz配列を取得
 func (f *FizzBuzz) List() []string {
 	return f.list
