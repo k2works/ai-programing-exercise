@@ -185,24 +185,4 @@ func (f *FizzBuzz) GenerateList(start, end int) {
 	}
 }
 
-// 後方互換性のためのラッパー関数
-func Generate(number int) string {
-	fizzbuzz := NewFizzBuzz(1)
-	return fizzbuzz.Generate(number).Value()
-}
 
-func GenerateByType(number, fizzBuzzType int) string {
-	fizzbuzz := NewFizzBuzz(fizzBuzzType)
-	return fizzbuzz.Generate(number).Value()
-}
-
-func GenerateList(start, end int) []string {
-	fizzbuzz := NewFizzBuzz(1)
-	fizzbuzz.GenerateList(start, end)
-	results := fizzbuzz.List()
-	strResults := make([]string, len(results))
-	for i, result := range results {
-		strResults[i] = result.Value()
-	}
-	return strResults
-}
