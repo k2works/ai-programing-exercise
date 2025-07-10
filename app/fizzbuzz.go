@@ -229,4 +229,47 @@ func (f *FizzBuzzList) Count() int {
 	return len(f.value)
 }
 
+// FizzBuzzCommand Commandパターンのインターフェース
+type FizzBuzzCommand interface {
+	Execute(number int) interface{}
+}
+
+// FizzBuzzValueCommand 値オブジェクトを返すコマンド
+type FizzBuzzValueCommand struct {
+	typeImpl FizzBuzzType
+}
+
+// NewFizzBuzzValueCommand コンストラクタ
+func NewFizzBuzzValueCommand(typeImpl FizzBuzzType) *FizzBuzzValueCommand {
+	return &FizzBuzzValueCommand{
+		typeImpl: typeImpl,
+	}
+}
+
+// Execute 値オブジェクトの値部分を返す
+func (c *FizzBuzzValueCommand) Execute(number int) interface{} {
+	return c.typeImpl.Generate(number).Value()
+}
+
+// FizzBuzzListCommand ファーストクラスコレクションを返すコマンド
+type FizzBuzzListCommand struct {
+	typeImpl FizzBuzzType
+}
+
+// NewFizzBuzzListCommand コンストラクタ
+func NewFizzBuzzListCommand(typeImpl FizzBuzzType) *FizzBuzzListCommand {
+	return &FizzBuzzListCommand{
+		typeImpl: typeImpl,
+	}
+}
+
+// Execute 指定した数までのFizzBuzzリストを生成して返す
+func (c *FizzBuzzListCommand) Execute(number int) interface{} {
+	values := make([]FizzBuzzValue, 0, number)
+	for i := 1; i <= number; i++ {
+		values = append(values, c.typeImpl.Generate(i))
+	}
+	return NewFizzBuzzList(values).Value()
+}
+
 

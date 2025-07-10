@@ -6,10 +6,10 @@ func assertGenerateByType(t *testing.T, number, fizzBuzzType int, expected strin
 	t.Helper()
 	base := FizzBuzzTypeBase{}
 	typeImpl := base.Create(fizzBuzzType)
-	fizzbuzz := NewFizzBuzzWithType(typeImpl)
-	got := fizzbuzz.Generate(number)
-	if got.Value() != expected {
-		t.Errorf("FizzBuzz.Generate(%d) with type %d = %v, want %v", number, fizzBuzzType, got.Value(), expected)
+	command := NewFizzBuzzValueCommand(typeImpl)
+	got := command.Execute(number).(string)
+	if got != expected {
+		t.Errorf("FizzBuzzValueCommand.Execute(%d) with type %d = %v, want %v", number, fizzBuzzType, got, expected)
 	}
 }
 
@@ -39,9 +39,8 @@ func Test1を渡したら文字列1を返す_タイプ1(t *testing.T) {
 // 1から100までのFizzBuzzの配列を返す
 func Test1から100までのFizzBuzzを返す_タイプ1(t *testing.T) {
 	typeImpl := FizzBuzzType01{}
-	fizzbuzz := NewFizzBuzzWithType(typeImpl)
-	fizzbuzz.GenerateList(1, 100)
-	results := fizzbuzz.List()
+	command := NewFizzBuzzListCommand(typeImpl)
+	results := command.Execute(100).([]FizzBuzzValue)
 
 	// いくつかの値を確認
 	if len(results) != 100 {
