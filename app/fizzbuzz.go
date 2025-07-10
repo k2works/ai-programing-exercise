@@ -10,12 +10,25 @@ type FizzBuzzType interface {
 	Generate(number int) string
 }
 
+// FizzBuzzTypeBase 共通処理を提供する基底構造体
+type FizzBuzzTypeBase struct{}
+
+func (f FizzBuzzTypeBase) IsFizz(number int) bool {
+	return number%3 == 0
+}
+
+func (f FizzBuzzTypeBase) IsBuzz(number int) bool {
+	return number%5 == 0
+}
+
 // FizzBuzzType01 タイプ1の実装
-type FizzBuzzType01 struct{}
+type FizzBuzzType01 struct {
+	FizzBuzzTypeBase
+}
 
 func (f FizzBuzzType01) Generate(number int) string {
-	isFizz := number%3 == 0
-	isBuzz := number%5 == 0
+	isFizz := f.IsFizz(number)
+	isBuzz := f.IsBuzz(number)
 
 	if isFizz && isBuzz {
 		return "FizzBuzz"
@@ -30,18 +43,22 @@ func (f FizzBuzzType01) Generate(number int) string {
 }
 
 // FizzBuzzType02 タイプ2の実装
-type FizzBuzzType02 struct{}
+type FizzBuzzType02 struct {
+	FizzBuzzTypeBase
+}
 
 func (f FizzBuzzType02) Generate(number int) string {
 	return strconv.Itoa(number)
 }
 
 // FizzBuzzType03 タイプ3の実装
-type FizzBuzzType03 struct{}
+type FizzBuzzType03 struct {
+	FizzBuzzTypeBase
+}
 
 func (f FizzBuzzType03) Generate(number int) string {
-	isFizz := number%3 == 0
-	isBuzz := number%5 == 0
+	isFizz := f.IsFizz(number)
+	isBuzz := f.IsBuzz(number)
 
 	if isFizz && isBuzz {
 		return "FizzBuzz"
