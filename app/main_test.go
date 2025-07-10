@@ -37,7 +37,8 @@ func Test1を渡したら文字列1を返す_タイプ1(t *testing.T) {
 // 1から100までのFizzBuzzの配列を返す
 func Test1から100までのFizzBuzzを返す_タイプ1(t *testing.T) {
 	fizzbuzz := NewFizzBuzz()
-	results := fizzbuzz.GenerateList(1, 100)
+	fizzbuzz.GenerateList(1, 100)
+	results := fizzbuzz.List()
 
 	// いくつかの値を確認
 	if len(results) != 100 {

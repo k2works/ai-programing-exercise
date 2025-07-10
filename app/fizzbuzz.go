@@ -6,11 +6,15 @@ import (
 )
 
 // FizzBuzz構造体
-type FizzBuzz struct{}
+type FizzBuzz struct {
+	list []string // FizzBuzz配列を保持するフィールド
+}
 
 // NewFizzBuzz コンストラクタ
 func NewFizzBuzz() *FizzBuzz {
-	return &FizzBuzz{}
+	return &FizzBuzz{
+		list: make([]string, 0),
+	}
 }
 
 // Generate 数を文字列に変換してFizzBuzzルールを適用
@@ -39,13 +43,17 @@ func (f *FizzBuzz) Generate(number, fizzBuzzType int) string {
 	}
 }
 
-// GenerateList 範囲指定してFizzBuzzのリストを作成
-func (f *FizzBuzz) GenerateList(start, end int) []string {
-	results := make([]string, 0, end-start+1)
+// List FizzBuzz配列を取得
+func (f *FizzBuzz) List() []string {
+	return f.list
+}
+
+// GenerateList 範囲指定してFizzBuzzのリストを作成し、インスタンス変数に保存
+func (f *FizzBuzz) GenerateList(start, end int) {
+	f.list = make([]string, 0, end-start+1)
 	for i := start; i <= end; i++ {
-		results = append(results, f.Generate(i, 1)) // デフォルトはタイプ1
+		f.list = append(f.list, f.Generate(i, 1)) // デフォルトはタイプ1
 	}
-	return results
 }
 
 // 後方互換性のためのラッパー関数
@@ -61,13 +69,15 @@ func GenerateByType(number, fizzBuzzType int) string {
 
 func GenerateList(start, end int) []string {
 	fizzbuzz := NewFizzBuzz()
-	return fizzbuzz.GenerateList(start, end)
+	fizzbuzz.GenerateList(start, end)
+	return fizzbuzz.List()
 }
 
 func main() {
 	fmt.Println("FizzBuzz Game:")
 	fizzbuzz := NewFizzBuzz()
-	results := fizzbuzz.GenerateList(1, 100)
+	fizzbuzz.GenerateList(1, 100)
+	results := fizzbuzz.List()
 	for _, result := range results {
 		fmt.Println(result)
 	}
