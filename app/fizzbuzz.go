@@ -314,4 +314,33 @@ func (c *FizzBuzzListCommand) Execute(number int) interface{} {
 	return NewFizzBuzzList(values).Value()
 }
 
+// BasicFizzBuzzGenerate 基本的なFizzBuzz生成関数（ドキュメントの初期バージョン）
+func BasicFizzBuzzGenerate(number, fizzBuzzType int) string {
+	isFizz := number%3 == 0
+	isBuzz := number%5 == 0
+
+	switch fizzBuzzType {
+	case 1:
+		if isFizz && isBuzz {
+			return "FizzBuzz"
+		}
+		if isFizz {
+			return "Fizz"
+		}
+		if isBuzz {
+			return "Buzz"
+		}
+		return strconv.Itoa(number)
+	case 2:
+		return strconv.Itoa(number)
+	case 3:
+		if isFizz && isBuzz {
+			return "FizzBuzz"
+		}
+		return strconv.Itoa(number)
+	default:
+		panic("該当するタイプは存在しません")
+	}
+}
+
 

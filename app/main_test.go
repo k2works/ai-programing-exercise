@@ -229,3 +229,20 @@ func Test100より多い数を許可しない_FizzBuzzListCommand(t *testing.T) 
 	command := NewFizzBuzzListCommand(typeImpl)
 	command.Execute(101)
 }
+
+// 基本的な例外処理テスト - ドキュメントの手順に従った実装
+func Test基本例外処理_それ以外のタイプの場合(t *testing.T) {
+	defer func() {
+		if r := recover(); r != nil {
+			expected := "該当するタイプは存在しません"
+			if r != expected {
+				t.Errorf("Expected panic message %v, got %v", expected, r)
+			}
+		} else {
+			t.Error("Expected panic but no panic occurred")
+		}
+	}()
+	
+	// 存在しないタイプ4を指定
+	BasicFizzBuzzGenerate(1, 4)
+}
