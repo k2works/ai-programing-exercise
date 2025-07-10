@@ -13,14 +13,21 @@ type FizzBuzzType interface {
 // FizzBuzzTypeBase 共通処理を提供する基底構造体
 type FizzBuzzTypeBase struct{}
 
+// タイプ定数
+const (
+	TYPE_01 = 1
+	TYPE_02 = 2
+	TYPE_03 = 3
+)
+
 // Create ファクトリメソッド
 func (f FizzBuzzTypeBase) Create(fizzBuzzType int) FizzBuzzType {
 	switch fizzBuzzType {
-	case 1:
+	case TYPE_01:
 		return FizzBuzzType01{}
-	case 2:
+	case TYPE_02:
 		return FizzBuzzType02{}
-	case 3:
+	case TYPE_03:
 		return FizzBuzzType03{}
 	default:
 		panic("該当するタイプは存在しません")
@@ -105,11 +112,11 @@ func NewFizzBuzzWithType(typeImpl FizzBuzzType) *FizzBuzz {
 	var fizzBuzzType int
 	switch typeImpl.(type) {
 	case FizzBuzzType01:
-		fizzBuzzType = 1
+		fizzBuzzType = TYPE_01
 	case FizzBuzzType02:
-		fizzBuzzType = 2
+		fizzBuzzType = TYPE_02
 	case FizzBuzzType03:
-		fizzBuzzType = 3
+		fizzBuzzType = TYPE_03
 	default:
 		panic("該当するタイプは存在しません")
 	}
