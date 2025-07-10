@@ -13,11 +13,11 @@ type FizzBuzzType interface {
 // FizzBuzzTypeBase 共通処理を提供する基底構造体
 type FizzBuzzTypeBase struct{}
 
-func (f FizzBuzzTypeBase) IsFizz(number int) bool {
+func (f FizzBuzzTypeBase) Fizz(number int) bool {
 	return number%3 == 0
 }
 
-func (f FizzBuzzTypeBase) IsBuzz(number int) bool {
+func (f FizzBuzzTypeBase) Buzz(number int) bool {
 	return number%5 == 0
 }
 
@@ -27,8 +27,8 @@ type FizzBuzzType01 struct {
 }
 
 func (f FizzBuzzType01) Generate(number int) string {
-	isFizz := f.IsFizz(number)
-	isBuzz := f.IsBuzz(number)
+	isFizz := f.Fizz(number)
+	isBuzz := f.Buzz(number)
 
 	if isFizz && isBuzz {
 		return "FizzBuzz"
@@ -57,8 +57,8 @@ type FizzBuzzType03 struct {
 }
 
 func (f FizzBuzzType03) Generate(number int) string {
-	isFizz := f.IsFizz(number)
-	isBuzz := f.IsBuzz(number)
+	isFizz := f.Fizz(number)
+	isBuzz := f.Buzz(number)
 
 	if isFizz && isBuzz {
 		return "FizzBuzz"
