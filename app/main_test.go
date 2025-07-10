@@ -118,6 +118,23 @@ func TestGenerateByType_それ以外のタイプで例外が発生する(t *test
 	base.Create(4)
 }
 
+// それ以外のタイプの場合
+func Test該当しないタイプを指定した場合例外を返す(t *testing.T) {
+	defer func() {
+		if r := recover(); r != nil {
+			expected := "該当するタイプは存在しません"
+			if r != expected {
+				t.Errorf("Expected panic message %v, got %v", expected, r)
+			}
+		} else {
+			t.Error("Expected panic but no panic occurred")
+		}
+	}()
+	
+	// タイプ4（存在しないタイプ）を指定
+	NewFizzBuzz(4)
+}
+
 // 値オブジェクトのテスト
 func Test値オブジェクトを使用したFizzBuzz_タイプ1(t *testing.T) {
 	typeInstance := FizzBuzzType01{}
