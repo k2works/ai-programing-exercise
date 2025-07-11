@@ -59,22 +59,9 @@ class FizzBuzz:
         # Use instance type if no type parameter is provided
         fizz_type = type if type is not None else self._type
         
-        if fizz_type == 1:
-            if number % 15 == 0:
-                return "FizzBuzz"
-            if number % 3 == 0:
-                return 'Fizz'
-            if number % 5 == 0:
-                return 'Buzz'
-            return str(number)
-        elif fizz_type == 2:
-            return str(number)
-        elif fizz_type == 3:
-            if number % 15 == 0:
-                return "FizzBuzz"
-            return str(number)
-        else:
-            raise RuntimeError('該当するタイプは存在しません')
+        # Create type object and delegate to it
+        type_obj = self.create(fizz_type)
+        return type_obj.generate(number)
     
     def generate_list(self) -> List[str]:
         """Generate FizzBuzz list from 1 to MAX_NUMBER."""
