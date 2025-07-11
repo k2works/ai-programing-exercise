@@ -1,5 +1,5 @@
 """FizzBuzz implementation module."""
-from typing import List
+from typing import List, Optional
 
 
 class FizzBuzz:
@@ -7,8 +7,16 @@ class FizzBuzz:
     
     MAX_NUMBER: int = 100
 
-    @classmethod
-    def generate(cls, number: int, type: int = 1) -> str:
+    def __init__(self) -> None:
+        """Initialize FizzBuzz instance."""
+        self._list: Optional[List[str]] = None
+
+    @property
+    def list(self) -> Optional[List[str]]:
+        """Get the generated FizzBuzz list."""
+        return self._list
+
+    def generate(self, number: int, type: int = 1) -> str:
         """Generate FizzBuzz result for a given number.
 
         Args:
@@ -36,14 +44,7 @@ class FizzBuzz:
                 return "FizzBuzz"
             return str(number)
     
-    @classmethod
-    def generate_list(cls) -> List[str]:
+    def generate_list(self) -> List[str]:
         """Generate FizzBuzz list from 1 to MAX_NUMBER."""
-        return [cls.generate(i) for i in range(1, cls.MAX_NUMBER + 1)]
-    
-    @classmethod
-    def print_fizzbuzz(cls) -> None:
-        """Print FizzBuzz results to stdout."""
-        result = cls.generate_list()
-        for item in result:
-            print(item)
+        self._list = [self.generate(i) for i in range(1, self.MAX_NUMBER + 1)]
+        return self._list
