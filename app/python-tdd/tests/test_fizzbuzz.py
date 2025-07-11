@@ -226,3 +226,60 @@ class TestFizzBuzz:
             value = self.fizzbuzz.generate(3)
             
             assert str(value) == "3:Fizz"
+    
+    class TestFizzBuzzList:
+        """Test FizzBuzzList first-class collection - ファーストクラスコレクション学習用テスト."""
+        
+        def setup_method(self):
+            """Setup method for each test."""
+            self.fizzbuzz = FizzBuzz(1)
+            self.fizzbuzz.generate_list()
+            self.fizzbuzz_list = self.fizzbuzz.list
+        
+        def test_不変オブジェクトである(self):
+            """Test that FizzBuzzList is immutable."""
+            from src.fizzbuzz import FizzBuzzValue
+            
+            # 元のvalueプロパティを取得
+            original_values = self.fizzbuzz_list.value
+            original_length = len(original_values)
+            
+            # valueプロパティから取得したリストを変更
+            original_values.append(FizzBuzzValue(101, "101"))
+            
+            # 元のFizzBuzzListは変更されていないことを確認
+            assert len(self.fizzbuzz_list) == original_length
+            assert len(self.fizzbuzz_list.value) == original_length
+        
+        def test_addメソッド(self):
+            """Test add method returns new FizzBuzzList."""
+            from src.fizzbuzz import FizzBuzzValue
+            
+            # 新しい値を追加
+            new_values = [FizzBuzzValue(101, "101"), FizzBuzzValue(102, "Fizz")]
+            new_list = self.fizzbuzz_list.add(new_values)
+            
+            # 元のリストは変更されていない
+            assert len(self.fizzbuzz_list) == 100
+            
+            # 新しいリストには追加された値が含まれている
+            assert len(new_list) == 102
+            assert new_list[100].value == "101"
+            assert new_list[101].value == "Fizz"
+        
+        def test_インデクサアクセス(self):
+            """Test index access."""
+            # インデクサでアクセスできることを確認
+            assert self.fizzbuzz_list[0].value == "1"
+            assert self.fizzbuzz_list[2].value == "Fizz"
+            assert self.fizzbuzz_list[4].value == "Buzz"
+            assert self.fizzbuzz_list[14].value == "FizzBuzz"
+        
+        def test_イテレーション(self):
+            """Test iteration."""
+            # イテレーションできることを確認
+            count = 0
+            for value in self.fizzbuzz_list:
+                count += 1
+            
+            assert count == 100

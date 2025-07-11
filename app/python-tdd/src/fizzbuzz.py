@@ -40,6 +40,31 @@ class FizzBuzzValue:
         return hash((self._number, self._value))
 
 
+class FizzBuzzList:
+    """First-class collection for FizzBuzzValue objects."""
+    def __init__(self, values: List[FizzBuzzValue]) -> None:
+        self._values = values.copy()  # 防御的コピー
+    
+    @property
+    def value(self) -> List[FizzBuzzValue]:
+        return self._values.copy()
+    
+    def __getitem__(self, index: int) -> FizzBuzzValue:
+        return self._values[index]
+    
+    def __len__(self) -> int:
+        return len(self._values)
+    
+    def __iter__(self):
+        return iter(self._values)
+    
+    def add(self, values: List[FizzBuzzValue]) -> 'FizzBuzzList':
+        return FizzBuzzList(self._values + values)
+    
+    def __str__(self) -> str:
+        return str([str(v) for v in self._values])
+
+
 class FizzBuzz:
     """FizzBuzz generator class."""
     
@@ -52,7 +77,7 @@ class FizzBuzz:
             type: The type of FizzBuzz (1: normal, 2: numbers only, 3: FizzBuzz only)
         """
         self._type = self.create(type)
-        self._list: Optional[List[FizzBuzzValue]] = None
+        self._list: Optional[FizzBuzzList] = None
 
     @classmethod
     def create(cls, type: int) -> 'FizzBuzz':
@@ -77,7 +102,7 @@ class FizzBuzz:
             raise RuntimeError('該当するタイプは存在しません')
 
     @property
-    def list(self) -> Optional[List[FizzBuzzValue]]:
+    def list(self) -> Optional[FizzBuzzList]:
         """Get the generated FizzBuzz list."""
         return self._list
 
@@ -93,9 +118,10 @@ class FizzBuzz:
         """
         return self._type.generate(number)
     
-    def generate_list(self) -> List[FizzBuzzValue]:
+    def generate_list(self) -> FizzBuzzList:
         """Generate FizzBuzz list from 1 to MAX_NUMBER."""
-        self._list = [self.generate(i) for i in range(1, self.MAX_NUMBER + 1)]
+        values = [self.generate(i) for i in range(1, self.MAX_NUMBER + 1)]
+        self._list = FizzBuzzList(values)
         return self._list
 
 
