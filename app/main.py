@@ -8,6 +8,16 @@ class FizzBuzz:
         if number % 5 == 0:
             return 'Buzz'
         return str(number)
+    
+    @staticmethod
+    def generate_list():
+        return [FizzBuzz.generate(i) for i in range(1, 101)]
+    
+    @staticmethod
+    def print_fizzbuzz():
+        result = FizzBuzz.generate_list()
+        for item in result:
+            print(item)
 
 class TestFizzBuzz:
     def setup_method(self):
@@ -27,3 +37,20 @@ class TestFizzBuzz:
     
     def test_15を渡したら文字列FizzBuzzを返す(self):
         assert self.fizzbuzz.generate(15) == 'FizzBuzz'
+    
+    def test_1から100までの数を生成する(self):
+        result = self.fizzbuzz.generate_list()
+        assert len(result) == 100
+        assert result[0] == '1'
+        assert result[2] == 'Fizz'
+        assert result[4] == 'Buzz'
+        assert result[14] == 'FizzBuzz'
+
+# プログラムとして実行する場合
+if __name__ == '__main__':
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == 'test':
+        import pytest
+        pytest.main([__file__])
+    else:
+        FizzBuzz.print_fizzbuzz()
