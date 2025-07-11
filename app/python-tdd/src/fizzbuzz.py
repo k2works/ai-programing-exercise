@@ -13,7 +13,7 @@ class FizzBuzz:
         Args:
             type: The type of FizzBuzz (1: normal, 2: numbers only, 3: FizzBuzz only)
         """
-        self._type = type
+        self._type = self.create(type)
         self._list: Optional[List[str]] = None
 
     @classmethod
@@ -65,7 +65,7 @@ class FizzBuzz:
     
     def generate_list(self) -> List[str]:
         """Generate FizzBuzz list from 1 to MAX_NUMBER."""
-        self._list = [self.generate(i) for i in range(1, self.MAX_NUMBER + 1)]
+        self._list = [self._type.generate(i) for i in range(1, self.MAX_NUMBER + 1)]
         return self._list
 
 
