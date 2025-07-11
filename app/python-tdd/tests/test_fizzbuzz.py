@@ -17,14 +17,14 @@ class TestFizzBuzz:
             
             def setup_method(self):
                 """Setup method for each test."""
-                self.fizzbuzz = FizzBuzz.create(1)
+                self.fizzbuzz = FizzBuzz(1)
                 
             class TestMultiplesOfThree:
                 """Test multiples of three - 三の倍数の場合."""
                 
                 def setup_method(self):
                     """Setup method for each test."""
-                    self.fizzbuzz = FizzBuzz.create(1)
+                    self.fizzbuzz = FizzBuzz(1)
                 
                 def test_3を渡したら文字列fizzを返す(self):
                     """Test that 3 returns 'Fizz'."""
@@ -35,7 +35,7 @@ class TestFizzBuzz:
                 
                 def setup_method(self):
                     """Setup method for each test."""
-                    self.fizzbuzz = FizzBuzz.create(1)
+                    self.fizzbuzz = FizzBuzz(1)
                 
                 def test_5を渡したら文字列buzzを返す(self):
                     """Test that 5 returns 'Buzz'."""
@@ -46,7 +46,7 @@ class TestFizzBuzz:
                 
                 def setup_method(self):
                     """Setup method for each test."""
-                    self.fizzbuzz = FizzBuzz.create(1)
+                    self.fizzbuzz = FizzBuzz(1)
                 
                 def test_15を渡したら文字列fizzbuzzを返す(self):
                     """Test that 15 returns 'FizzBuzz'."""
@@ -57,7 +57,7 @@ class TestFizzBuzz:
                 
                 def setup_method(self):
                     """Setup method for each test."""
-                    self.fizzbuzz = FizzBuzz.create(1)
+                    self.fizzbuzz = FizzBuzz(1)
                 
                 def test_1を渡したら文字列1を返す(self):
                     """Test that 1 returns '1'."""
@@ -97,14 +97,14 @@ class TestFizzBuzz:
             
             def setup_method(self):
                 """Setup method for each test."""
-                self.fizzbuzz = FizzBuzz.create(2)
+                self.fizzbuzz = FizzBuzz(2)
                 
             class TestMultiplesOfThree:
                 """Test multiples of three - 三の倍数の場合."""
                 
                 def setup_method(self):
                     """Setup method for each test."""
-                    self.fizzbuzz = FizzBuzz.create(2)
+                    self.fizzbuzz = FizzBuzz(2)
                 
                 def test_3を渡したら文字列3を返す(self):
                     """Test that 3 returns '3' for type 2."""
@@ -115,7 +115,7 @@ class TestFizzBuzz:
                 
                 def setup_method(self):
                     """Setup method for each test."""
-                    self.fizzbuzz = FizzBuzz.create(2)
+                    self.fizzbuzz = FizzBuzz(2)
                 
                 def test_5を渡したら文字列5を返す(self):
                     """Test that 5 returns '5' for type 2."""
@@ -126,7 +126,7 @@ class TestFizzBuzz:
                 
                 def setup_method(self):
                     """Setup method for each test."""
-                    self.fizzbuzz = FizzBuzz.create(2)
+                    self.fizzbuzz = FizzBuzz(2)
                 
                 def test_15を渡したら文字列15を返す(self):
                     """Test that 15 returns '15' for type 2."""
@@ -137,7 +137,7 @@ class TestFizzBuzz:
                 
                 def setup_method(self):
                     """Setup method for each test."""
-                    self.fizzbuzz = FizzBuzz.create(2)
+                    self.fizzbuzz = FizzBuzz(2)
                 
                 def test_1を渡したら文字列1を返す(self):
                     """Test that 1 returns '1' for type 2."""
@@ -148,14 +148,14 @@ class TestFizzBuzz:
             
             def setup_method(self):
                 """Setup method for each test."""
-                self.fizzbuzz = FizzBuzz.create(3)
+                self.fizzbuzz = FizzBuzz(3)
                 
             class TestMultiplesOfThree:
                 """Test multiples of three - 三の倍数の場合."""
                 
                 def setup_method(self):
                     """Setup method for each test."""
-                    self.fizzbuzz = FizzBuzz.create(3)
+                    self.fizzbuzz = FizzBuzz(3)
                 
                 def test_3を渡したら文字列3を返す(self):
                     """Test that 3 returns '3' for type 3."""
@@ -166,7 +166,7 @@ class TestFizzBuzz:
                 
                 def setup_method(self):
                     """Setup method for each test."""
-                    self.fizzbuzz = FizzBuzz.create(3)
+                    self.fizzbuzz = FizzBuzz(3)
                 
                 def test_5を渡したら文字列5を返す(self):
                     """Test that 5 returns '5' for type 3."""
@@ -177,7 +177,7 @@ class TestFizzBuzz:
                 
                 def setup_method(self):
                     """Setup method for each test."""
-                    self.fizzbuzz = FizzBuzz.create(3)
+                    self.fizzbuzz = FizzBuzz(3)
                 
                 def test_15を渡したら文字列fizzbuzzを返す(self):
                     """Test that 15 returns 'FizzBuzz' for type 3."""
@@ -188,7 +188,7 @@ class TestFizzBuzz:
                 
                 def setup_method(self):
                     """Setup method for each test."""
-                    self.fizzbuzz = FizzBuzz.create(3)
+                    self.fizzbuzz = FizzBuzz(3)
                 
                 def test_1を渡したら文字列1を返す(self):
                     """Test that 1 returns '1' for type 3."""
@@ -205,4 +205,4 @@ class TestFizzBuzz:
             """Test that invalid type raises RuntimeError."""
             import pytest
             with pytest.raises(RuntimeError, match='該当するタイプは存在しません'):
-                FizzBuzz.create(4)
+                FizzBuzz(4)

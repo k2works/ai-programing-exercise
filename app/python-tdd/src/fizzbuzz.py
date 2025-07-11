@@ -56,16 +56,11 @@ class FizzBuzz:
             'Buzz' if divisible by 5,
             string representation of the number otherwise
         """
-        # Use instance type if no type parameter is provided
-        fizz_type = type if type is not None else self._type
-        
-        # Create type object and delegate to it
-        type_obj = self.create(fizz_type)
-        return type_obj.generate(number)
+        return self._type.generate(number)
     
     def generate_list(self) -> List[str]:
         """Generate FizzBuzz list from 1 to MAX_NUMBER."""
-        self._list = [self._type.generate(i) for i in range(1, self.MAX_NUMBER + 1)]
+        self._list = [self.generate(i) for i in range(1, self.MAX_NUMBER + 1)]
         return self._list
 
 
