@@ -64,21 +64,40 @@ class FizzBuzz:
         return self._list
 
 
-class FizzBuzzType01:
+class FizzBuzzType:
+    """Base class for FizzBuzz type implementations."""
+    
+    def generate(self, number: int) -> str:
+        """Generate FizzBuzz result for a given number.
+        
+        This is a base implementation that should be overridden by subclasses.
+        """
+        raise NotImplementedError("Subclasses must implement generate method")
+    
+    def is_fizz(self, number: int) -> bool:
+        """Check if number is divisible by 3."""
+        return number % 3 == 0
+    
+    def is_buzz(self, number: int) -> bool:
+        """Check if number is divisible by 5."""
+        return number % 5 == 0
+
+
+class FizzBuzzType01(FizzBuzzType):
     """Type 1 FizzBuzz implementation."""
     
     def generate(self, number: int) -> str:
         """Generate Type 1 FizzBuzz result for a given number."""
-        if number % 15 == 0:
+        if self.is_fizz(number) and self.is_buzz(number):
             return "FizzBuzz"
-        if number % 3 == 0:
+        if self.is_fizz(number):
             return 'Fizz'
-        if number % 5 == 0:
+        if self.is_buzz(number):
             return 'Buzz'
         return str(number)
 
 
-class FizzBuzzType02:
+class FizzBuzzType02(FizzBuzzType):
     """Type 2 FizzBuzz implementation."""
     
     def generate(self, number: int) -> str:
@@ -86,11 +105,11 @@ class FizzBuzzType02:
         return str(number)
 
 
-class FizzBuzzType03:
+class FizzBuzzType03(FizzBuzzType):
     """Type 3 FizzBuzz implementation."""
     
     def generate(self, number: int) -> str:
         """Generate Type 3 FizzBuzz result for a given number."""
-        if number % 15 == 0:
+        if self.is_fizz(number) and self.is_buzz(number):
             return "FizzBuzz"
         return str(number)
