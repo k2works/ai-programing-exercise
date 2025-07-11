@@ -3,6 +3,8 @@ class FizzBuzz:
     def generate(number):
         if number % 3 == 0:
             return 'Fizz'
+        if number % 5 == 0:
+            return 'Buzz'
         return str(number)
 
 class TestFizzBuzz:
@@ -17,3 +19,6 @@ class TestFizzBuzz:
     
     def test_3を渡したら文字列Fizzを返す(self):
         assert self.fizzbuzz.generate(3) == 'Fizz'
+    
+    def test_5を渡したら文字列Buzzを返す(self):
+        assert self.fizzbuzz.generate(5) == 'Buzz'
