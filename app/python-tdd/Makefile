@@ -1,7 +1,7 @@
 .PHONY: help install install-dev test test-watch coverage lint format type-check clean all
 
 # Default target
-.DEFAULT_GOAL := help
+.DEFAULT_GOAL := test-watch
 
 help: ## Show this help message
 	@echo 'Usage: make [target]'
@@ -24,5 +24,8 @@ type-check: ## Run type checking with mypy
 
 coverage: ## Generate coverage report
 	pytest --cov=src --cov-report=html --cov-report=term
+
+test-watch: ## Run tests in watch mode
+	ptw --runner "pytest --cov=src --cov-report=term-missing"
 
 all: format lint type-check test ## Run all checks and tests
