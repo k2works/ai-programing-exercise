@@ -16,6 +16,41 @@ theme:
     - search.suggest
     - search.highlight
 
+nav:
+  - ホーム: index.md
+  - Go FizzBuzz:
+    - アプリケーション概要: Go-FizzBuzz-アプリケーション概要.md
+    - アーキテクチャ概要: Go-FizzBuzz-アーキテクチャ概要.md
+    - 実装詳細: Go-FizzBuzz-実装詳細.md
+  - Wiki:
+    - ホーム: wiki/home.md
+    - 開発プロセス標準: wiki/開発プロセス標準.md
+    - テンプレート:
+      - ADR: wiki/テンプレート/ADR.md
+      - インセプションデッキ: wiki/テンプレート/インセプションデッキ.md
+      - ドキュメント: wiki/テンプレート/ドキュメント.md
+      - ユーザーストーリー: wiki/テンプレート/ユーザーストーリー.md
+    - 記事:
+      - FizzBuzzの実装: wiki/記事/FizzBuzzの実装.md
+      - アーキテクチャ: wiki/記事/アーキテクチャ.md
+      - テスト駆動開発: wiki/記事/テスト駆動開発から始めるGo入門1.md
+    - 参照:
+      - MCP: wiki/参照/mcp.md
+      - Wiki: wiki/参照/Wiki.md
+      - プロンプト: wiki/参照/プロンプト.md
+  - 開発日誌:
+    - 2025年07月:
+      - 7月10日: journal/20250710.md
+      - 7月8日: journal/20250708.md
+      - 7月5日: journal/20250705.md
+      - 7月3日: journal/20250703.md
+      - 7月2日: journal/20250702.md
+    - 2025年06月:
+      - 6月30日: journal/20250630.md
+      - 6月26日: journal/20250626.md
+      - 6月25日: journal/20250625.md
+      - 6月24日: journal/20250624.md
+
 extra_css:
   - docs/mkdocs/assets/css/extra.css
 
@@ -54,6 +89,3 @@ extra:
 
 plugins:
   - search
-
-nav:
-  - Home: index.md
