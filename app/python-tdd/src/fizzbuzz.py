@@ -29,6 +29,12 @@ class FizzBuzz:
             if number % 5 == 0:
                 return 'Buzz'
             return str(number)
+        elif type == 2:
+            return str(number)
+        elif type == 3:
+            if number % 15 == 0:
+                return "FizzBuzz"
+            return str(number)
     
     @classmethod
     def generate_list(cls) -> List[str]:
