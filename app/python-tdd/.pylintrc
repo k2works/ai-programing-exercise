@@ -1,0 +1,31 @@
+[MESSAGES CONTROL]
+# Disable specific warnings
+disable=
+    C0103,  # Invalid name
+    C0111,  # Missing docstring
+    R0903,  # Too few public methods
+    W0613,  # Unused argument
+    C2401,  # Non-ASCII name (for Japanese test method names)
+    W0201,  # Attribute defined outside __init__ (for pytest setup_method)
+    C0415,  # Import outside toplevel (for imports in test methods)
+    W0611,  # Unused import
+
+[FORMAT]
+max-line-length=88
+
+[BASIC]
+# Good variable names which should always be accepted, separated by a comma
+good-names=i,j,k,ex,Run,_,cls
+
+[SIMILARITIES]
+# Minimum lines number of a similarity.
+min-similarity-lines=4
+
+# Ignore comments when computing similarities.
+ignore-comments=yes
+
+# Ignore docstrings when computing similarities.
+ignore-docstrings=yes
+
+# Ignore imports when computing similarities.
+ignore-imports=no
