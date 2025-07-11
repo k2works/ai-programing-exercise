@@ -1,6 +1,8 @@
 class FizzBuzz:
     @staticmethod
     def generate(number):
+        if number % 3 == 0:
+            return 'Fizz'
         return str(number)
 
 class TestFizzBuzz:
@@ -12,3 +14,6 @@ class TestFizzBuzz:
     
     def test_2を渡したら文字列2を返す(self):
         assert self.fizzbuzz.generate(2) == '2'
+    
+    def test_3を渡したら文字列Fizzを返す(self):
+        assert self.fizzbuzz.generate(3) == 'Fizz'
