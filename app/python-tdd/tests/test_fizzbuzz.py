@@ -1,5 +1,5 @@
 """Tests for FizzBuzz class."""
-from src.fizzbuzz import FizzBuzz
+from src.fizzbuzz import FizzBuzz, FizzBuzzValueCommand
 
 
 class TestFizzBuzz:
@@ -201,11 +201,19 @@ class TestFizzBuzz:
             """Setup method for each test."""
             pass
         
-        def test_例外を返す(self):
-            """Test that invalid type raises RuntimeError."""
-            import pytest
-            with pytest.raises(RuntimeError, match='該当するタイプは存在しません'):
-                FizzBuzz(4)
+        def test_未定義のタイプを返す(self):
+            """Test that invalid type returns undefined type."""
+            fizzbuzz = FizzBuzz(4)
+            fizzbuzz_type = fizzbuzz._type
+            
+            assert str(fizzbuzz_type) == '未定義'
+        
+        def test_空の文字列を返す(self):
+            """Test that undefined type returns empty string."""
+            fizzbuzz = FizzBuzz(4)
+            result = fizzbuzz.generate(3)
+            
+            assert result.value == ''
     
     class TestFizzBuzzValue:
         """Test FizzBuzzValue value object - 値オブジェクト学習用テスト."""
@@ -329,3 +337,14 @@ class TestFizzBuzz:
             assert value_command_type2.execute(3) == '3'  # Type2は数字のみ
             assert value_command_type2.execute(5) == '5'
             assert value_command_type2.execute(15) == '15'
+        
+        def test_未定義タイプでのcommand実行(self):
+            """Test command execution with undefined type."""
+            from src.fizzbuzz import FizzBuzzType
+            
+            # 未定義タイプを取得
+            undefined_type = FizzBuzzType.create(4)
+            value_command = FizzBuzzValueCommand(undefined_type)
+            
+            # 空の文字列が返されることを確認
+            assert value_command.execute(3) == ''

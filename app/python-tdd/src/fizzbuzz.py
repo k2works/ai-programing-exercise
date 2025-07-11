@@ -2,6 +2,11 @@
 from typing import List, Optional
 
 
+class AssertionError(Exception):
+    """Custom assertion error for FizzBuzz application."""
+    pass
+
+
 class FizzBuzzValue:
     """Value object for FizzBuzz results."""
     
@@ -11,7 +16,13 @@ class FizzBuzzValue:
         Args:
             number: The input number
             value: The FizzBuzz result value
+            
+        Raises:
+            AssertionError: If number is negative
         """
+        if number < 0:
+            raise AssertionError('正の値のみ有効です')
+        
         self._number = number
         self._value = value
     
@@ -42,8 +53,10 @@ class FizzBuzzValue:
 
 class FizzBuzzList:
     """First-class collection for FizzBuzzValue objects."""
-    def __init__(self, values: List[FizzBuzzValue]) -> None:
+    def __init__(self, values: List[FizzBuzzValue], max_length: int = None) -> None:
         self._values = values.copy()  # 防御的コピー
+        if max_length is not None and len(self._values) > max_length:
+            raise AssertionError(f'上限は{max_length}件までです')
     
     @property
     def value(self) -> List[FizzBuzzValue]:
@@ -59,6 +72,7 @@ class FizzBuzzList:
         return iter(self._values)
     
     def add(self, values: List[FizzBuzzValue]) -> 'FizzBuzzList':
+        # テスト用は上限なし
         return FizzBuzzList(self._values + values)
     
     def __str__(self) -> str:
@@ -99,7 +113,7 @@ class FizzBuzz:
         elif type == 3:
             return FizzBuzzType03()
         else:
-            raise RuntimeError('該当するタイプは存在しません')
+            return FizzBuzzTypeNotDefined()
 
     @property
     def list(self) -> Optional[FizzBuzzList]:
@@ -148,7 +162,7 @@ class FizzBuzzType:
         elif type == 3:
             return FizzBuzzType03()
         else:
-            raise RuntimeError('該当するタイプは存在しません')
+            return FizzBuzzTypeNotDefined()
     
     def generate(self, number: int) -> FizzBuzzValue:
         """Generate FizzBuzz result for a given number.
@@ -196,6 +210,25 @@ class FizzBuzzType03(FizzBuzzType):
         if self.is_fizz(number) and self.is_buzz(number):
             return FizzBuzzValue(number, "FizzBuzz")
         return FizzBuzzValue(number, str(number))
+
+
+class FizzBuzzTypeNotDefined(FizzBuzzType):
+    """Null Object for undefined FizzBuzz type."""
+    
+    def generate(self, number: int) -> FizzBuzzValue:
+        """Generate empty value for undefined type.
+        
+        Args:
+            number: The input number
+            
+        Returns:
+            FizzBuzzValue with empty string
+        """
+        return FizzBuzzValue(number, '')
+    
+    def __str__(self) -> str:
+        """String representation of undefined type."""
+        return '未定義'
 
 
 class FizzBuzzCommand:
