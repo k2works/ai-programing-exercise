@@ -17,14 +17,14 @@ class TestFizzBuzz:
             
             def setup_method(self):
                 """Setup method for each test."""
-                self.fizzbuzz = FizzBuzz()
+                self.fizzbuzz = FizzBuzz(1)
                 
             class TestMultiplesOfThree:
                 """Test multiples of three - 三の倍数の場合."""
                 
                 def setup_method(self):
                     """Setup method for each test."""
-                    self.fizzbuzz = FizzBuzz()
+                    self.fizzbuzz = FizzBuzz(1)
                 
                 def test_3を渡したら文字列fizzを返す(self):
                     """Test that 3 returns 'Fizz'."""
@@ -35,7 +35,7 @@ class TestFizzBuzz:
                 
                 def setup_method(self):
                     """Setup method for each test."""
-                    self.fizzbuzz = FizzBuzz()
+                    self.fizzbuzz = FizzBuzz(1)
                 
                 def test_5を渡したら文字列buzzを返す(self):
                     """Test that 5 returns 'Buzz'."""
@@ -46,7 +46,7 @@ class TestFizzBuzz:
                 
                 def setup_method(self):
                     """Setup method for each test."""
-                    self.fizzbuzz = FizzBuzz()
+                    self.fizzbuzz = FizzBuzz(1)
                 
                 def test_15を渡したら文字列fizzbuzzを返す(self):
                     """Test that 15 returns 'FizzBuzz'."""
@@ -57,7 +57,7 @@ class TestFizzBuzz:
                 
                 def setup_method(self):
                     """Setup method for each test."""
-                    self.fizzbuzz = FizzBuzz()
+                    self.fizzbuzz = FizzBuzz(1)
                 
                 def test_1を渡したら文字列1を返す(self):
                     """Test that 1 returns '1'."""
@@ -68,7 +68,7 @@ class TestFizzBuzz:
                 
                 def setup_method(self):
                     """Setup method for each test."""
-                    fizzbuzz = FizzBuzz()
+                    fizzbuzz = FizzBuzz(1)
                     fizzbuzz.generate_list()
                     self.result = fizzbuzz.list
                 
