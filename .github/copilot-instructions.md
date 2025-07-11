@@ -37,24 +37,22 @@ partition "ドキュメント作成フェーズ" {
   note right: システム構成、コンポーネント詳細、データフローを記述
   
   if (図表が必要か?) then (はい)
-    :Mermaidで図表を作成;
+    :Plantumlで図表を作成;
     note right: システム構造図、クラス図などを作成
   else (いいえ)
     :テキストのみで記述;
   endif
 }
 
-partition "図表変換フェーズ" {
-  :Mermaid図表をPlantUMLに変換;
-  note right: システム構造図とクラス図を変換
-  
-  :データフロー図をPlantUMLで作成;
-  note right: シーケンス図形式で作成
-}
-
 partition "詳細ドキュメント作成フェーズ" {
   :アプリケーション詳細の作成;
   note right: 実装詳細、クラス構造、初期化プロセス、ゲームループを記述
+  
+  :PlantUMLでユースケース図を作成;
+  note right: 各ユースケースの関連を記述
+  
+  :PlantUMLでコンポーネント図を作成;
+  note right: 各コンポーネントの関連を記述
   
   :PlantUMLでクラス図を作成;
   note right: 各クラスの属性とメソッドを詳細に記述
