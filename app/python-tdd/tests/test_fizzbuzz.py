@@ -283,3 +283,49 @@ class TestFizzBuzz:
                 count += 1
             
             assert count == 100
+    
+    class TestFizzBuzzCommand:
+        """Test FizzBuzzCommand pattern implementation - Commandパターン学習用テスト."""
+        
+        def setup_method(self):
+            """Setup method for each test."""
+            from src.fizzbuzz import FizzBuzzType01, FizzBuzzType02, FizzBuzzValueCommand, FizzBuzzListCommand
+            self.type01 = FizzBuzzType01()
+            self.type02 = FizzBuzzType02()
+            self.value_command = FizzBuzzValueCommand(self.type01)
+            self.list_command = FizzBuzzListCommand(self.type01)
+        
+        def test_value_commandの実行(self):
+            """Test FizzBuzzValueCommand execution."""
+            # Type1でのテスト
+            assert self.value_command.execute(1) == '1'
+            assert self.value_command.execute(3) == 'Fizz'
+            assert self.value_command.execute(5) == 'Buzz'
+            assert self.value_command.execute(15) == 'FizzBuzz'
+        
+        def test_list_commandの実行(self):
+            """Test FizzBuzzListCommand execution."""
+            result = self.list_command.execute()
+            
+            # FizzBuzzListが返されることを確認
+            from src.fizzbuzz import FizzBuzzList
+            assert isinstance(result, FizzBuzzList)
+            
+            # リストの長さが100であることを確認
+            assert len(result) == 100
+            
+            # 特定の位置の値を確認
+            assert result[0].value == '1'
+            assert result[2].value == 'Fizz'
+            assert result[4].value == 'Buzz'
+            assert result[14].value == 'FizzBuzz'
+        
+        def test_異なるタイプでのcommand実行(self):
+            """Test command execution with different types."""
+            from src.fizzbuzz import FizzBuzzValueCommand
+            
+            # Type2でのValueCommand
+            value_command_type2 = FizzBuzzValueCommand(self.type02)
+            assert value_command_type2.execute(3) == '3'  # Type2は数字のみ
+            assert value_command_type2.execute(5) == '5'
+            assert value_command_type2.execute(15) == '15'

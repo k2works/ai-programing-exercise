@@ -196,3 +196,55 @@ class FizzBuzzType03(FizzBuzzType):
         if self.is_fizz(number) and self.is_buzz(number):
             return FizzBuzzValue(number, "FizzBuzz")
         return FizzBuzzValue(number, str(number))
+
+
+class FizzBuzzCommand:
+    """Base class for FizzBuzz command implementations (Command pattern)."""
+    
+    def execute(self, *args):
+        """Execute the command."""
+        raise NotImplementedError("Subclasses must implement execute method")
+
+
+class FizzBuzzValueCommand(FizzBuzzCommand):
+    """Command to generate single FizzBuzz value."""
+    
+    def __init__(self, type: 'FizzBuzzType') -> None:
+        """Initialize with FizzBuzz type.
+        
+        Args:
+            type: FizzBuzzType instance
+        """
+        self._type = type
+    
+    def execute(self, number: int) -> str:
+        """Execute command to generate FizzBuzz value.
+        
+        Args:
+            number: Input number
+            
+        Returns:
+            String value of FizzBuzz result
+        """
+        return self._type.generate(number).value
+
+
+class FizzBuzzListCommand(FizzBuzzCommand):
+    """Command to generate FizzBuzz list."""
+    
+    def __init__(self, type: 'FizzBuzzType') -> None:
+        """Initialize with FizzBuzz type.
+        
+        Args:
+            type: FizzBuzzType instance
+        """
+        self._type = type
+    
+    def execute(self) -> FizzBuzzList:
+        """Execute command to generate FizzBuzz list.
+        
+        Returns:
+            FizzBuzzList containing all values from 1 to 100
+        """
+        values = [self._type.generate(i) for i in range(1, 101)]
+        return FizzBuzzList(values)
