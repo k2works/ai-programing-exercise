@@ -1,6 +1,6 @@
 services:
   app:
-    image: ghcr.io/k2works/ai-programing-exercise/core:0.0.8
+    image: ghcr.io/k2works/ai-programing-exercise/core:0.0.9
     volumes:
       - ./:/srv/app
       - ~/.ssh/id_rsa:/root/.ssh/id_rsa
