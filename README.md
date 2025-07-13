@@ -2,12 +2,12 @@
 
 ## 概要
 
-AIプログラミングの実践的な学習と開発のためのプロジェクトです。複数のプログラミング言語（Java、Node.js、Ruby、Python、PHP、Go、Rust）をサポートする開発環境と、MkDocsを使用したドキュメント管理システムを提供します。
+AIプログラミングの実践的な学習と開発のためのプロジェクトです。複数のプログラミング言語（Java、Node.js、Ruby、Python、PHP、Go、Rust、.NET）をサポートする開発環境と、MkDocsを使用したドキュメント管理システムを提供します。
 
 ### 目的
 
 - AIプログラミングの実践的な学習環境の提供
-- 複数言語（Java、Node.js、Ruby、Python、PHP、Go、Rust）での開発サポート
+- 複数言語（Java、Node.js、Ruby、Python、PHP、Go、Rust、.NET）での開発サポート
 - ドキュメント駆動開発の促進
 - プログラミング学習リソースの集約
 
@@ -66,6 +66,7 @@ AIプログラミングの実践的な学習と開発のためのプロジェク
   - Haskell 9.4.8 (via GHCup)
   - Go 1.22.0 (via 公式バイナリ)
   - Rust stable (via rustup)
+  - .NET 8.0 (via Microsoft パッケージリポジトリ)
 - **ドキュメント環境**:
   - MkDocs (Python 3.11ベース)
   - Material for MkDocsテーマ
@@ -235,6 +236,7 @@ echo $GITHUB_TOKEN | docker login ghcr.io -u <username> --password-stdin
    - Haskell: `ghc --version`
    - Go: `go version`
    - Rust: `rustc --version`
+   - .NET: `dotnet --version`
 
 #### ドキュメント作成
 

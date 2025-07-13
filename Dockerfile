@@ -160,6 +160,18 @@ RUN apt-get update && apt-get install -y \
     && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain $RUST_VER \
     && echo 'source $HOME/.cargo/env' >> ~/.bashrc
 
+# .NET SDKのインストール
+RUN apt-get update && apt-get install -y \
+    wget \
+    apt-transport-https \
+    && wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb \
+    && dpkg -i packages-microsoft-prod.deb \
+    && rm packages-microsoft-prod.deb \
+    && apt-get update \
+    && apt-get install -y dotnet-sdk-8.0 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 # Gemini CLIのインストール
 RUN npm install -g @google/gemini-cli
 
@@ -167,7 +179,7 @@ RUN npm install -g @google/gemini-cli
 RUN npm install -g @anthropic-ai/claude-code
 
 # パスの設定
-ENV PATH="/root/.cargo/bin:/usr/local/go/bin:/root/.ghcup/bin:/root/.sdkman/candidates/java/current/bin:/root/.sdkman/candidates/maven/current/bin:/root/.sdkman/candidates/gradle/current/bin:/root/.rbenv/shims:/usr/local/bin:$PATH"
+ENV PATH="/root/.cargo/bin:/usr/local/go/bin:/root/.ghcup/bin:/root/.sdkman/candidates/java/current/bin:/root/.sdkman/candidates/maven/current/bin:/root/.sdkman/candidates/gradle/current/bin:/root/.rbenv/shims:/usr/share/dotnet:/usr/share/dotnet/tools:/usr/local/bin:$PATH"
 
 # 作業ディレクトリの設定
 WORKDIR /srv
