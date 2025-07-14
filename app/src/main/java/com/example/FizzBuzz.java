@@ -5,7 +5,6 @@ import com.example.domain.model.FizzBuzzValue;
 import com.example.domain.type.FizzBuzzType;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
 
 public class FizzBuzz {
   public static final int MAX_NUMBER = 100;
@@ -18,29 +17,14 @@ public class FizzBuzz {
   }
 
   public List<String> getList() {
-    return list.getValue().stream()
-        .map(FizzBuzzValue::getValue)
-        .collect(java.util.stream.Collectors.toList());
+    return list.getValue().stream().map(FizzBuzzValue::getValue).toList();
   }
 
   public FizzBuzzType getType() {
     return type;
   }
 
-  public String generate(int number, int typeCode) {
+  public String generate(int number) {
     return type.generate(number).getValue();
-  }
-
-  public static String generate(int number) {
-    FizzBuzz fizzbuzz = new FizzBuzz(1);
-    return fizzbuzz.generate(number, 1);
-  }
-
-  public void generateList() {
-    List<FizzBuzzValue> values =
-        IntStream.rangeClosed(1, MAX_NUMBER)
-            .mapToObj(type::generate)
-            .collect(java.util.stream.Collectors.toList());
-    list = list.add(values);
   }
 }

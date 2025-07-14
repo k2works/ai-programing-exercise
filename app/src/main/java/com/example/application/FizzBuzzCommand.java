@@ -9,6 +9,6 @@ public interface FizzBuzzCommand {
   }
 
   default List<FizzBuzzValue> executeList(int number) {
-    return null;
+    return List.of();
   }
 }
