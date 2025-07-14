@@ -89,8 +89,8 @@ class FizzBuzzTest {
       class 三の倍数の場合 {
         @Test
         void test_3を渡したら文字列3を返す() {
-          FizzBuzz fizzbuzz = new FizzBuzz(2);
-          assertEquals("3", fizzbuzz.generate(3, 2));
+          FizzBuzzValueCommand fizzbuzz = new FizzBuzzValueCommand(new FizzBuzzType02());
+          assertEquals("3", fizzbuzz.execute(3));
         }
       }
 
@@ -98,8 +98,8 @@ class FizzBuzzTest {
       class 五の倍数の場合 {
         @Test
         void test_5を渡したら文字列5を返す() {
-          FizzBuzz fizzbuzz = new FizzBuzz(2);
-          assertEquals("5", fizzbuzz.generate(5, 2));
+          FizzBuzzValueCommand fizzbuzz = new FizzBuzzValueCommand(new FizzBuzzType02());
+          assertEquals("5", fizzbuzz.execute(5));
         }
       }
 
@@ -107,8 +107,8 @@ class FizzBuzzTest {
       class 三と五の倍数の場合 {
         @Test
         void test_15を渡したら文字列15を返す() {
-          FizzBuzz fizzbuzz = new FizzBuzz(2);
-          assertEquals("15", fizzbuzz.generate(15, 2));
+          FizzBuzzValueCommand fizzbuzz = new FizzBuzzValueCommand(new FizzBuzzType02());
+          assertEquals("15", fizzbuzz.execute(15));
         }
       }
 
@@ -116,8 +116,8 @@ class FizzBuzzTest {
       class その他の場合 {
         @Test
         void test_1を渡したら文字列1を返す() {
-          FizzBuzz fizzbuzz = new FizzBuzz(2);
-          assertEquals("1", fizzbuzz.generate(1, 2));
+          FizzBuzzValueCommand fizzbuzz = new FizzBuzzValueCommand(new FizzBuzzType02());
+          assertEquals("1", fizzbuzz.execute(1));
         }
       }
     }
@@ -129,8 +129,8 @@ class FizzBuzzTest {
       class 三の倍数の場合 {
         @Test
         void test_3を渡したら文字列3を返す() {
-          FizzBuzz fizzbuzz = new FizzBuzz(3);
-          assertEquals("3", fizzbuzz.generate(3, 3));
+          FizzBuzzValueCommand fizzbuzz = new FizzBuzzValueCommand(new FizzBuzzType03());
+          assertEquals("3", fizzbuzz.execute(3));
         }
       }
 
@@ -138,8 +138,8 @@ class FizzBuzzTest {
       class 五の倍数の場合 {
         @Test
         void test_5を渡したら文字列5を返す() {
-          FizzBuzz fizzbuzz = new FizzBuzz(3);
-          assertEquals("5", fizzbuzz.generate(5, 3));
+          FizzBuzzValueCommand fizzbuzz = new FizzBuzzValueCommand(new FizzBuzzType03());
+          assertEquals("5", fizzbuzz.execute(5));
         }
       }
 
@@ -147,8 +147,8 @@ class FizzBuzzTest {
       class 三と五の倍数の場合 {
         @Test
         void test_15を渡したら文字列FizzBuzzを返す() {
-          FizzBuzz fizzbuzz = new FizzBuzz(3);
-          assertEquals("FizzBuzz", fizzbuzz.generate(15, 3));
+          FizzBuzzValueCommand fizzbuzz = new FizzBuzzValueCommand(new FizzBuzzType03());
+          assertEquals("FizzBuzz", fizzbuzz.execute(15));
         }
       }
 
@@ -156,8 +156,8 @@ class FizzBuzzTest {
       class その他の場合 {
         @Test
         void test_1を渡したら文字列1を返す() {
-          FizzBuzz fizzbuzz = new FizzBuzz(3);
-          assertEquals("1", fizzbuzz.generate(1, 3));
+          FizzBuzzValueCommand fizzbuzz = new FizzBuzzValueCommand(new FizzBuzzType03());
+          assertEquals("1", fizzbuzz.execute(1));
         }
       }
     }
