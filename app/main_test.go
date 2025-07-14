@@ -59,7 +59,7 @@ func Test1から100までのFizzBuzz配列を返す(t *testing.T) {
 	for i := 1; i <= 100; i++ {
 		result[i-1] = fizzbuzz(i)
 	}
-	
+
 	// 最初の数項と特定の値をテスト
 	if result[0] != "1" {
 		t.Errorf("Expected result[0] to be '1', but got '%s'", result[0])

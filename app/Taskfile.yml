@@ -1,0 +1,68 @@
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  default:
+    cmds:
+      - task: test
+
+  hello:
+    desc: Say hello
+    cmds:
+      - echo "{{.GREETING}}"
+      - echo "Available tasks:"
+      - ~/go/bin/task --list
+
+  build:
+    desc: Build the application
+    cmds:
+      - go build -o bin/fizzbuzz .
+
+  test:
+    desc: Run tests
+    cmds:
+      - go test -v
+
+  test-coverage:
+    desc: Run tests with coverage
+    cmds:
+      - go test -cover -coverprofile=coverage.out
+      - go tool cover -html=coverage.out -o coverage.html
+      - echo "Coverage report generated{{":"}} coverage.html"
+
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - rm -rf bin/
+      - rm -f coverage.out coverage.html
+
+  lint:
+    desc: Run linter
+    cmds:
+      - ~/go/bin/golangci-lint run
+
+  lint-install:
+    desc: Install golangci-lint
+    cmds:
+      - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.54.2
+
+  fmt:
+    desc: Format code
+    cmds:
+      - go fmt ./...
+
+  run:
+    desc: Run the application
+    deps: [build]
+    cmds:
+      - ./bin/fizzbuzz
+
+  check:
+    desc: Run all checks (test, lint, format)
+    deps: [fmt, lint, test-coverage]
+
+  ci:
+    desc: Continuous Integration tasks
+    deps: [clean, check]
