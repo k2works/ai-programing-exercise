@@ -1,6 +1,15 @@
 package main
 
-import "strconv"
+import (
+	"fmt"
+	"strconv"
+)
+
+func main() {
+	for i := 1; i <= 100; i++ {
+		fmt.Println(FizzBuzzGenerate(i))
+	}
+}
 
 func FizzBuzzGenerate(number int) string {
 	result := strconv.Itoa(number)
