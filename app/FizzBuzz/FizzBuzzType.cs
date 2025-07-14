@@ -2,7 +2,7 @@ namespace FizzBuzz;
 
 public abstract class FizzBuzzType
 {
-    public abstract string Generate(Number number);
+    public abstract FizzBuzzValue Generate(Number number);
 
     protected bool IsFizz(Number number)
     {
@@ -22,56 +22,56 @@ public abstract class FizzBuzzType
 
 public class FizzBuzzType01 : FizzBuzzType
 {
-    public override string Generate(Number number)
+    public override FizzBuzzValue Generate(Number number)
     {
         if (IsFizzBuzz(number))
         {
-            return "FizzBuzz";
+            return FizzBuzzValue.FizzBuzz();
         }
         if (IsFizz(number))
         {
-            return "Fizz";
+            return FizzBuzzValue.Fizz();
         }
         if (IsBuzz(number))
         {
-            return "Buzz";
+            return FizzBuzzValue.Buzz();
         }
-        return number.ToString();
+        return FizzBuzzValue.Number(number.Value);
     }
 }
 
 public class FizzBuzzType02 : FizzBuzzType
 {
-    public override string Generate(Number number)
+    public override FizzBuzzValue Generate(Number number)
     {
-        return number.ToString();
+        return FizzBuzzValue.Number(number.Value);
     }
 }
 
 public class FizzBuzzType03 : FizzBuzzType
 {
-    public override string Generate(Number number)
+    public override FizzBuzzValue Generate(Number number)
     {
         if (IsFizzBuzz(number))
         {
-            return "FizzBuzz";
+            return FizzBuzzValue.FizzBuzz();
         }
         if (IsFizz(number))
         {
-            return number.ToString();
+            return FizzBuzzValue.Number(number.Value);
         }
         if (IsBuzz(number))
         {
-            return number.ToString();
+            return FizzBuzzValue.Number(number.Value);
         }
-        return number.ToString();
+        return FizzBuzzValue.Number(number.Value);
     }
 }
 
 public class NullFizzBuzzType : FizzBuzzType
 {
-    public override string Generate(Number number)
+    public override FizzBuzzValue Generate(Number number)
     {
-        return "";
+        return FizzBuzzValue.Empty();
     }
 }

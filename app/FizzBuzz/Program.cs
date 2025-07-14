@@ -5,13 +5,14 @@ class Program
 {
     static void Main(string[] args)
     {
-        var fizzbuzz = new FizzBuzz.FizzBuzz(1);
-        
-        fizzbuzz.GenerateList();
-        
-        foreach (string result in fizzbuzz.List)
+        try
         {
-            Console.WriteLine(result);
+            var app = new FizzBuzzApplication(1);
+            app.Run();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"エラーが発生しました: {ex.Message}");
         }
     }
 }

@@ -35,7 +35,7 @@ public class FizzBuzz
 
 	public string Generate(int number)
 	{
-		return _type.Generate(new Number(number));
+		return _type.Generate(new Number(number)).ToString();
 	}
 
 	public void GenerateList()

@@ -2,7 +2,7 @@ namespace FizzBuzz;
 
 public interface IFizzBuzzCommand
 {
-    string Execute(Number number);
+    FizzBuzzValue Execute(Number number);
 }
 
 public class FizzBuzzCommand : IFizzBuzzCommand
@@ -14,7 +14,7 @@ public class FizzBuzzCommand : IFizzBuzzCommand
         _type = type;
     }
 
-    public string Execute(Number number)
+    public FizzBuzzValue Execute(Number number)
     {
         return _type.Generate(number);
     }
