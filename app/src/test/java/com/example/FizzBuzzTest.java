@@ -74,5 +74,41 @@ class FizzBuzzTest {
         }
       }
     }
+
+    @Nested
+    class タイプ2の場合 {
+
+      @Nested
+      class 三の倍数の場合 {
+        @Test
+        void test_3を渡したら文字列3を返す() {
+          assertEquals("3", FizzBuzz.generate(3, 2));
+        }
+      }
+
+      @Nested
+      class 五の倍数の場合 {
+        @Test
+        void test_5を渡したら文字列5を返す() {
+          assertEquals("5", FizzBuzz.generate(5, 2));
+        }
+      }
+
+      @Nested
+      class 三と五の倍数の場合 {
+        @Test
+        void test_15を渡したら文字列15を返す() {
+          assertEquals("15", FizzBuzz.generate(15, 2));
+        }
+      }
+
+      @Nested
+      class その他の場合 {
+        @Test
+        void test_1を渡したら文字列1を返す() {
+          assertEquals("1", FizzBuzz.generate(1, 2));
+        }
+      }
+    }
   }
 }

@@ -26,6 +26,8 @@ public class FizzBuzz {
           return "Buzz";
         }
         return String.valueOf(number);
+      case 2:
+        return String.valueOf(number);
       default:
         return null;
     }
