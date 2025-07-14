@@ -2,7 +2,14 @@
 
 public class FizzBuzz
 {
-    public static string Generate(int number, int type = 1)
+    private List<string> _list = new List<string>();
+
+    public List<string> List
+    {
+        get { return _list; }
+    }
+
+    public string Generate(int number, int type = 1)
     {
         bool isFizz = number % 3 == 0;
         bool isBuzz = number % 5 == 0;
@@ -33,6 +40,15 @@ public class FizzBuzz
                 return number.ToString();
             default:
                 throw new ArgumentException("無効なタイプです");
+        }
+    }
+
+    public void GenerateList()
+    {
+        _list = new List<string>();
+        for (int i = 1; i <= 100; i++)
+        {
+            _list.Add(Generate(i));
         }
     }
 }
