@@ -57,3 +57,13 @@ plugins:
 
 nav:
   - Home: index.md
+  - Wiki:
+    - ホーム: wiki/home.md
+    - 記事:
+      - テスト駆動開発から始めるJava入門3: wiki/記事/テスト駆動開発から始めるJava入門3.md
+      - テスト駆動開発から始めるJava入門_作業計画: wiki/記事/テスト駆動開発から始めるJava入門_作業計画.md
+      - FizzBuzzの実装: wiki/記事/FizzBuzzの実装.md
+    - テンプレート:
+      - 日誌: wiki/テンプレート/日誌.md
+    - 参照:
+      - アジャイル: wiki/参照/アジャイル.md

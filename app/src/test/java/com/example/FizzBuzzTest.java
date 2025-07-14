@@ -175,7 +175,7 @@ class FizzBuzzTest {
       assertThrows(
           IllegalArgumentException.class,
           () -> {
-            new FizzBuzz(4);
+            new FizzBuzzValueCommand(null);
           });
     }
   }
