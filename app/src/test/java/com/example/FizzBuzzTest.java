@@ -18,7 +18,7 @@ class FizzBuzzTest {
       class 三と五の倍数の場合 {
         @Test
         void test_15を渡したら文字列FizzBuzzを返す() {
-          FizzBuzz fizzbuzz = new FizzBuzz();
+          FizzBuzz fizzbuzz = new FizzBuzz(1);
           assertEquals("FizzBuzz", fizzbuzz.generate(15, 1));
         }
       }
@@ -27,7 +27,7 @@ class FizzBuzzTest {
       class 三の倍数の場合 {
         @Test
         void test_3を渡したら文字列Fizzを返す() {
-          FizzBuzz fizzbuzz = new FizzBuzz();
+          FizzBuzz fizzbuzz = new FizzBuzz(1);
           assertEquals("Fizz", fizzbuzz.generate(3, 1));
         }
       }
@@ -36,7 +36,7 @@ class FizzBuzzTest {
       class 五の倍数の場合 {
         @Test
         void test_5を渡したら文字列Buzzを返す() {
-          FizzBuzz fizzbuzz = new FizzBuzz();
+          FizzBuzz fizzbuzz = new FizzBuzz(1);
           assertEquals("Buzz", fizzbuzz.generate(5, 1));
         }
       }
@@ -45,13 +45,13 @@ class FizzBuzzTest {
       class その他の場合 {
         @Test
         void test_1を渡したら文字列1を返す() {
-          FizzBuzz fizzbuzz = new FizzBuzz();
+          FizzBuzz fizzbuzz = new FizzBuzz(1);
           assertEquals("1", fizzbuzz.generate(1, 1));
         }
 
         @Test
         void test_2を渡したら文字列2を返す() {
-          FizzBuzz fizzbuzz = new FizzBuzz();
+          FizzBuzz fizzbuzz = new FizzBuzz(1);
           assertEquals("2", fizzbuzz.generate(2, 1));
         }
       }
@@ -60,7 +60,7 @@ class FizzBuzzTest {
       class 配列や繰り返し処理を理解する {
         @Test
         void test_1から100まで数えて返す() {
-          FizzBuzz fizzbuzz = new FizzBuzz();
+          FizzBuzz fizzbuzz = new FizzBuzz(1);
           fizzbuzz.generateList();
           List<String> result = fizzbuzz.getList();
           assertEquals("1", result.get(0));
@@ -89,7 +89,7 @@ class FizzBuzzTest {
       class 三の倍数の場合 {
         @Test
         void test_3を渡したら文字列3を返す() {
-          FizzBuzz fizzbuzz = new FizzBuzz();
+          FizzBuzz fizzbuzz = new FizzBuzz(2);
           assertEquals("3", fizzbuzz.generate(3, 2));
         }
       }
@@ -98,7 +98,7 @@ class FizzBuzzTest {
       class 五の倍数の場合 {
         @Test
         void test_5を渡したら文字列5を返す() {
-          FizzBuzz fizzbuzz = new FizzBuzz();
+          FizzBuzz fizzbuzz = new FizzBuzz(2);
           assertEquals("5", fizzbuzz.generate(5, 2));
         }
       }
@@ -107,7 +107,7 @@ class FizzBuzzTest {
       class 三と五の倍数の場合 {
         @Test
         void test_15を渡したら文字列15を返す() {
-          FizzBuzz fizzbuzz = new FizzBuzz();
+          FizzBuzz fizzbuzz = new FizzBuzz(2);
           assertEquals("15", fizzbuzz.generate(15, 2));
         }
       }
@@ -116,7 +116,7 @@ class FizzBuzzTest {
       class その他の場合 {
         @Test
         void test_1を渡したら文字列1を返す() {
-          FizzBuzz fizzbuzz = new FizzBuzz();
+          FizzBuzz fizzbuzz = new FizzBuzz(2);
           assertEquals("1", fizzbuzz.generate(1, 2));
         }
       }
@@ -129,7 +129,7 @@ class FizzBuzzTest {
       class 三の倍数の場合 {
         @Test
         void test_3を渡したら文字列3を返す() {
-          FizzBuzz fizzbuzz = new FizzBuzz();
+          FizzBuzz fizzbuzz = new FizzBuzz(3);
           assertEquals("3", fizzbuzz.generate(3, 3));
         }
       }
@@ -138,7 +138,7 @@ class FizzBuzzTest {
       class 五の倍数の場合 {
         @Test
         void test_5を渡したら文字列5を返す() {
-          FizzBuzz fizzbuzz = new FizzBuzz();
+          FizzBuzz fizzbuzz = new FizzBuzz(3);
           assertEquals("5", fizzbuzz.generate(5, 3));
         }
       }
@@ -147,7 +147,7 @@ class FizzBuzzTest {
       class 三と五の倍数の場合 {
         @Test
         void test_15を渡したら文字列FizzBuzzを返す() {
-          FizzBuzz fizzbuzz = new FizzBuzz();
+          FizzBuzz fizzbuzz = new FizzBuzz(3);
           assertEquals("FizzBuzz", fizzbuzz.generate(15, 3));
         }
       }
@@ -156,7 +156,7 @@ class FizzBuzzTest {
       class その他の場合 {
         @Test
         void test_1を渡したら文字列1を返す() {
-          FizzBuzz fizzbuzz = new FizzBuzz();
+          FizzBuzz fizzbuzz = new FizzBuzz(3);
           assertEquals("1", fizzbuzz.generate(1, 3));
         }
       }
@@ -167,7 +167,7 @@ class FizzBuzzTest {
   class それ以外のタイプの場合 {
     @Test
     void test_4を渡したらnullを返す() {
-      FizzBuzz fizzbuzz = new FizzBuzz();
+      FizzBuzz fizzbuzz = new FizzBuzz(4);
       assertNull(fizzbuzz.generate(1, 4));
     }
   }

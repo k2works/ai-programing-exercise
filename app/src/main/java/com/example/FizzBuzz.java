@@ -6,9 +6,18 @@ import java.util.List;
 public class FizzBuzz {
   public static final int MAX_NUMBER = 100;
   private List<String> list;
+  private int type;
+
+  public FizzBuzz(int type) {
+    this.type = type;
+  }
 
   public List<String> getList() {
     return list;
+  }
+
+  public int getType() {
+    return type;
   }
 
   public String generate(int number, int type) {
@@ -40,14 +49,14 @@ public class FizzBuzz {
   }
 
   public static String generate(int number) {
-    FizzBuzz fizzbuzz = new FizzBuzz();
+    FizzBuzz fizzbuzz = new FizzBuzz(1);
     return fizzbuzz.generate(number, 1);
   }
 
   public void generateList() {
     list = new ArrayList<>();
     for (int i = 1; i <= MAX_NUMBER; i++) {
-      list.add(generate(i, 1));
+      list.add(generate(i, type));
     }
   }
 }
