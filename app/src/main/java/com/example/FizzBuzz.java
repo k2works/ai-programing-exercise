@@ -12,6 +12,19 @@ public class FizzBuzz {
     this.type = type;
   }
 
+  public static Object create(int type) {
+    switch (type) {
+      case 1:
+        return new FizzBuzzType01();
+      case 2:
+        return new FizzBuzzType02();
+      case 3:
+        return new FizzBuzzType03();
+      default:
+        throw new IllegalArgumentException("該当するタイプは存在しません");
+    }
+  }
+
   public List<String> getList() {
     return list;
   }
