@@ -2,7 +2,7 @@ package com.example;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.jupiter.api.BeforeEach;
+import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -10,18 +10,12 @@ class FizzBuzzTest {
 
   @Nested
   class FizzBuzz_テスト {
-    private FizzBuzz fizzbuzz;
-
-    @BeforeEach
-    void setup() {
-      fizzbuzz = new FizzBuzz();
-    }
 
     @Nested
     class 三と五の倍数の場合 {
       @Test
       void test_15を渡したら文字列FizzBuzzを返す() {
-        assertEquals("FizzBuzz", fizzbuzz.generate(15));
+        assertEquals("FizzBuzz", FizzBuzz.generate(15));
       }
     }
 
@@ -29,7 +23,7 @@ class FizzBuzzTest {
     class 三の倍数の場合 {
       @Test
       void test_3を渡したら文字列Fizzを返す() {
-        assertEquals("Fizz", fizzbuzz.generate(3));
+        assertEquals("Fizz", FizzBuzz.generate(3));
       }
     }
 
@@ -37,7 +31,7 @@ class FizzBuzzTest {
     class 五の倍数の場合 {
       @Test
       void test_5を渡したら文字列Buzzを返す() {
-        assertEquals("Buzz", fizzbuzz.generate(5));
+        assertEquals("Buzz", FizzBuzz.generate(5));
       }
     }
 
@@ -45,13 +39,36 @@ class FizzBuzzTest {
     class その他の場合 {
       @Test
       void test_1を渡したら文字列1を返す() {
-        assertEquals("1", fizzbuzz.generate(1));
+        assertEquals("1", FizzBuzz.generate(1));
       }
 
       @Test
       void test_2を渡したら文字列2を返す() {
-        assertEquals("2", fizzbuzz.generate(2));
+        assertEquals("2", FizzBuzz.generate(2));
       }
+    }
+  }
+
+  @Nested
+  class 配列や繰り返し処理を理解する {
+    @Test
+    void test_1から100まで数えて返す() {
+      List<String> result = FizzBuzz.generateList();
+      assertEquals("1", result.get(0));
+      assertEquals("2", result.get(1));
+      assertEquals("Fizz", result.get(2));
+      assertEquals("4", result.get(3));
+      assertEquals("Buzz", result.get(4));
+      assertEquals("Fizz", result.get(5));
+      assertEquals("7", result.get(6));
+      assertEquals("8", result.get(7));
+      assertEquals("Fizz", result.get(8));
+      assertEquals("Buzz", result.get(9));
+      assertEquals("11", result.get(10));
+      assertEquals("Fizz", result.get(11));
+      assertEquals("13", result.get(12));
+      assertEquals("14", result.get(13));
+      assertEquals("FizzBuzz", result.get(14));
     }
   }
 }
