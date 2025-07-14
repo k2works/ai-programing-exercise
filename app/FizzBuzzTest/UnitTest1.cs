@@ -22,4 +22,22 @@ public class FizzBuzzTest
     {
         Assert.Equal("2", _fizzbuzz.Generate(2));
     }
+
+    [Fact]
+    public void Test_3を渡したら文字列Fizzを返す()
+    {
+        Assert.Equal("Fizz", _fizzbuzz.Generate(3));
+    }
+
+    [Fact]
+    public void Test_5を渡したら文字列Buzzを返す()
+    {
+        Assert.Equal("Buzz", _fizzbuzz.Generate(5));
+    }
+
+    [Fact]
+    public void Test_15を渡したら文字列FizzBuzzを返す()
+    {
+        Assert.Equal("FizzBuzz", _fizzbuzz.Generate(15));
+    }
 }
