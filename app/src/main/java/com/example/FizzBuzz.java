@@ -5,12 +5,13 @@ import java.util.List;
 
 public class FizzBuzz {
   public static final int MAX_NUMBER = 100;
+  private List<String> list;
 
-  public static String generate(int number) {
-    return generate(number, 1);
+  public List<String> getList() {
+    return list;
   }
 
-  public static String generate(int number, int type) {
+  public String generate(int number, int type) {
     boolean isFizz = number % 3 == 0;
     boolean isBuzz = number % 5 == 0;
 
@@ -38,11 +39,15 @@ public class FizzBuzz {
     }
   }
 
-  public static List<String> generateList() {
-    List<String> result = new ArrayList<>();
+  public static String generate(int number) {
+    FizzBuzz fizzbuzz = new FizzBuzz();
+    return fizzbuzz.generate(number, 1);
+  }
+
+  public void generateList() {
+    list = new ArrayList<>();
     for (int i = 1; i <= MAX_NUMBER; i++) {
-      result.add(generate(i));
+      list.add(generate(i, 1));
     }
-    return result;
   }
 }
