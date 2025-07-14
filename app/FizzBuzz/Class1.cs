@@ -1,25 +1,32 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace FizzBuzz;
 
 public class FizzBuzz
 {
 	private List<string> _list = new List<string>();
+	private int _type;
+
+	public FizzBuzz(int type)
+	{
+		_type = type;
+	}
 
 	public List<string> List
 	{
 		get { return _list; }
 	}
 
-	public string Generate(int number, int type = 1)
+	public string Generate(int number)
 	{
 		bool isFizz = number % 3 == 0;
-		bool isBuzz = number % 5 == 0;
+		bool iBuzz = number % 5 == 0;
 
-		switch (type)
+		switch (_type)
 		{
 			case 1:
-				if (isFizz && isBuzz)
+				if (isFizz && iBuzz)
 				{
 					return "FizzBuzz";
 				}
@@ -27,7 +34,7 @@ public class FizzBuzz
 				{
 					return "Fizz";
 				}
-				if (isBuzz)
+				if (iBuzz)
 				{
 					return "Buzz";
 				}
@@ -35,7 +42,7 @@ public class FizzBuzz
 			case 2:
 				return number.ToString();
 			case 3:
-				if (isFizz && isBuzz)
+				if (isFizz && iBuzz)
 				{
 					return "FizzBuzz";
 				}
