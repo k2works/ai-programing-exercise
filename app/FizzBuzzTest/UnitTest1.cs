@@ -128,17 +128,10 @@ public class FizzBuzzTest
 
         public class それ以外のタイプの場合
         {
-            private readonly FizzBuzz.FizzBuzz _fizzbuzz;
-
-            public それ以外のタイプの場合()
-            {
-                _fizzbuzz = new FizzBuzz.FizzBuzz(4);
-            }
-
             [Fact]
             public void Test_例外を返す()
             {
-                var exception = Assert.Throws<ArgumentException>(() => _fizzbuzz.Generate(1));
+                var exception = Assert.Throws<ArgumentException>(() => new FizzBuzz.FizzBuzz(4));
                 Assert.Equal("無効なタイプです", exception.Message);
             }
         }

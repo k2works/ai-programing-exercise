@@ -6,11 +6,11 @@ namespace FizzBuzz;
 public class FizzBuzz
 {
 	private List<string> _list = new List<string>();
-	private int _type;
+	private FizzBuzzType _type;
 
 	public FizzBuzz(int type)
 	{
-		_type = type;
+		_type = Create(type);
 	}
 
 	public List<string> List
@@ -18,38 +18,24 @@ public class FizzBuzz
 		get { return _list; }
 	}
 
-	public string Generate(int number)
+	public static FizzBuzzType Create(int type)
 	{
-		bool isFizz = number % 3 == 0;
-		bool iBuzz = number % 5 == 0;
-
-		switch (_type)
+		switch (type)
 		{
 			case 1:
-				if (isFizz && iBuzz)
-				{
-					return "FizzBuzz";
-				}
-				if (isFizz)
-				{
-					return "Fizz";
-				}
-				if (iBuzz)
-				{
-					return "Buzz";
-				}
-				return number.ToString();
+				return new FizzBuzzType01();
 			case 2:
-				return number.ToString();
+				return new FizzBuzzType02();
 			case 3:
-				if (isFizz && iBuzz)
-				{
-					return "FizzBuzz";
-				}
-				return number.ToString();
+				return new FizzBuzzType03();
 			default:
 				throw new ArgumentException("無効なタイプです");
 		}
+	}
+
+	public string Generate(int number)
+	{
+		return _type.Generate(number);
 	}
 
 	public void GenerateList()
