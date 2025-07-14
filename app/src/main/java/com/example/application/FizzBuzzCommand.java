@@ -1,5 +1,6 @@
-package com.example;
+package com.example.application;
 
+import com.example.domain.model.FizzBuzzValue;
 import java.util.List;
 
 public interface FizzBuzzCommand {

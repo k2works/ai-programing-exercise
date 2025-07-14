@@ -1,5 +1,8 @@
 package com.example;
 
+import com.example.domain.type.FizzBuzzType;
+import com.example.domain.model.FizzBuzzList;
+import com.example.domain.model.FizzBuzzValue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -10,7 +13,7 @@ public class FizzBuzz {
   private FizzBuzzType type;
 
   public FizzBuzz(int type) {
-    this.type = create(type);
+    this.type = FizzBuzzType.create(type);
     this.list = new FizzBuzzList(new ArrayList<>());
   }
 
@@ -22,19 +25,6 @@ public class FizzBuzz {
 
   public FizzBuzzType getType() {
     return type;
-  }
-
-  public static FizzBuzzType create(int type) {
-    switch (type) {
-      case 1:
-        return new FizzBuzzType01();
-      case 2:
-        return new FizzBuzzType02();
-      case 3:
-        return new FizzBuzzType03();
-      default:
-        throw new IllegalArgumentException("該当するタイプは存在しません");
-    }
   }
 
   public String generate(int number, int typeCode) {

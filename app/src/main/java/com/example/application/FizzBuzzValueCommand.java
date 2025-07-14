@@ -1,4 +1,6 @@
-package com.example;
+package com.example.application;
+
+import com.example.domain.type.FizzBuzzType;
 
 public class FizzBuzzValueCommand implements FizzBuzzCommand {
   private FizzBuzzType type;
