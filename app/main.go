@@ -2,6 +2,6 @@ package main
 
 import "strconv"
 
-func FizzBuzzGenerate(n int) string {
-	return strconv.Itoa(n)
+func FizzBuzzGenerate(number int) string {
+	return strconv.Itoa(number)
 }
