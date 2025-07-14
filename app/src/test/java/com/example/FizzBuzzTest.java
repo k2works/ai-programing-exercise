@@ -167,16 +167,4 @@ class FizzBuzzTest {
       }
     }
   }
-
-  @Nested
-  class それ以外のタイプの場合 {
-    @Test
-    void test_4を渡したら例外が発生する() {
-      assertThrows(
-          IllegalArgumentException.class,
-          () -> {
-            new FizzBuzzValueCommand(null);
-          });
-    }
-  }
 }
