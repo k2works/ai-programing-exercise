@@ -147,4 +147,12 @@ class FizzBuzzTest {
       }
     }
   }
+
+  @Nested
+  class それ以外のタイプの場合 {
+    @Test
+    void test_4を渡したらnullを返す() {
+      assertNull(FizzBuzz.generate(1, 4));
+    }
+  }
 }

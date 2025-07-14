@@ -11,11 +11,11 @@ public class FizzBuzz {
   }
 
   public static String generate(int number, int type) {
+    boolean isFizz = number % 3 == 0;
+    boolean isBuzz = number % 5 == 0;
+
     switch (type) {
       case 1:
-        boolean isFizz = number % 3 == 0;
-        boolean isBuzz = number % 5 == 0;
-
         if (isFizz && isBuzz) {
           return "FizzBuzz";
         }
@@ -29,10 +29,7 @@ public class FizzBuzz {
       case 2:
         return String.valueOf(number);
       case 3:
-        boolean isFizz3 = number % 3 == 0;
-        boolean isBuzz3 = number % 5 == 0;
-
-        if (isFizz3 && isBuzz3) {
+        if (isFizz && isBuzz) {
           return "FizzBuzz";
         }
         return String.valueOf(number);
