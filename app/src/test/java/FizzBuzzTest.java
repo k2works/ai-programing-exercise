@@ -15,6 +15,14 @@ class FizzBuzzTest {
         }
         
         @Nested
+        class 三と五の倍数の場合 {
+            @Test
+            void test_15を渡したら文字列FizzBuzzを返す() {
+                assertEquals("FizzBuzz", fizzbuzz.generate(15));
+            }
+        }
+        
+        @Nested
         class 三の倍数の場合 {
             @Test
             void test_3を渡したら文字列Fizzを返す() {
