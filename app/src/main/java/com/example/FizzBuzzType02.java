@@ -1,7 +1,7 @@
 package com.example;
 
-public class FizzBuzzType02 implements FizzBuzzType {
-  public String generate(int number) {
-    return String.valueOf(number);
+public class FizzBuzzType02 extends FizzBuzzType {
+  public FizzBuzzValue generate(int number) {
+    return new FizzBuzzValue(number, String.valueOf(number));
   }
 }

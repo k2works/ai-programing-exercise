@@ -34,7 +34,7 @@ public class FizzBuzz {
   }
 
   public String generate(int number, int typeCode) {
-    return type.generate(number);
+    return type.generate(number).getValue();
   }
 
   public static String generate(int number) {
@@ -45,7 +45,7 @@ public class FizzBuzz {
   public void generateList() {
     list = new ArrayList<>();
     for (int i = 1; i <= MAX_NUMBER; i++) {
-      list.add(type.generate(i));
+      list.add(type.generate(i).getValue());
     }
   }
 }

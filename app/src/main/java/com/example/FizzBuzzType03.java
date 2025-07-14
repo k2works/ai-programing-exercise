@@ -1,13 +1,10 @@
 package com.example;
 
-public class FizzBuzzType03 implements FizzBuzzType {
-  public String generate(int number) {
-    boolean isFizz = number % 3 == 0;
-    boolean isBuzz = number % 5 == 0;
-
-    if (isFizz && isBuzz) {
-      return "FizzBuzz";
+public class FizzBuzzType03 extends FizzBuzzType {
+  public FizzBuzzValue generate(int number) {
+    if (fizz(number) && buzz(number)) {
+      return new FizzBuzzValue(number, "FizzBuzz");
     }
-    return String.valueOf(number);
+    return new FizzBuzzValue(number, String.valueOf(number));
   }
 }
