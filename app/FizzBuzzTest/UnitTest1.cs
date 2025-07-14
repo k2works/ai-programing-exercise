@@ -2,16 +2,24 @@ using Xunit;
 
 namespace FizzBuzzTest;
 
-public class HelloTest
+public class FizzBuzzTest
 {
-    [Fact]
-    public void Test_Greeting()
+    private FizzBuzz.FizzBuzz _fizzbuzz;
+
+    public FizzBuzzTest()
     {
-        Assert.Equal("hello world", Greeting());
+        _fizzbuzz = new FizzBuzz.FizzBuzz();
     }
-    
-    private string Greeting()
+
+    [Fact]
+    public void Test_1を渡したら文字列1を返す()
     {
-        return "hello world";
+        Assert.Equal("1", _fizzbuzz.Generate(1));
+    }
+
+    [Fact]
+    public void Test_2を渡したら文字列2を返す()
+    {
+        Assert.Equal("2", _fizzbuzz.Generate(2));
     }
 }

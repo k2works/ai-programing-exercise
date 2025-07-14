@@ -1,6 +1,9 @@
 ﻿namespace FizzBuzz;
 
-public class Class1
+public class FizzBuzz
 {
-
+    public string Generate(int number)
+    {
+        return number.ToString();
+    }
 }
