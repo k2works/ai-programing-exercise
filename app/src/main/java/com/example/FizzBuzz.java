@@ -1,8 +1,8 @@
 package com.example;
 
-import com.example.domain.type.FizzBuzzType;
 import com.example.domain.model.FizzBuzzList;
 import com.example.domain.model.FizzBuzzValue;
+import com.example.domain.type.FizzBuzzType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -19,8 +19,8 @@ public class FizzBuzz {
 
   public List<String> getList() {
     return list.getValue().stream()
-               .map(FizzBuzzValue::getValue)
-               .collect(java.util.stream.Collectors.toList());
+        .map(FizzBuzzValue::getValue)
+        .collect(java.util.stream.Collectors.toList());
   }
 
   public FizzBuzzType getType() {
@@ -37,9 +37,10 @@ public class FizzBuzz {
   }
 
   public void generateList() {
-    List<FizzBuzzValue> values = IntStream.rangeClosed(1, MAX_NUMBER)
-                                          .mapToObj(type::generate)
-                                          .collect(java.util.stream.Collectors.toList());
+    List<FizzBuzzValue> values =
+        IntStream.rangeClosed(1, MAX_NUMBER)
+            .mapToObj(type::generate)
+            .collect(java.util.stream.Collectors.toList());
     list = list.add(values);
   }
 }

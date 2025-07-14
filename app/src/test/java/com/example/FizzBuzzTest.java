@@ -2,12 +2,12 @@ package com.example;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.example.application.FizzBuzzValueCommand;
 import com.example.application.FizzBuzzListCommand;
+import com.example.application.FizzBuzzValueCommand;
+import com.example.domain.model.FizzBuzzValue;
 import com.example.domain.type.FizzBuzzType01;
 import com.example.domain.type.FizzBuzzType02;
 import com.example.domain.type.FizzBuzzType03;
-import com.example.domain.model.FizzBuzzValue;
 import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -172,9 +172,11 @@ class FizzBuzzTest {
   class それ以外のタイプの場合 {
     @Test
     void test_4を渡したら例外が発生する() {
-      assertThrows(IllegalArgumentException.class, () -> {
-        new FizzBuzz(4);
-      });
+      assertThrows(
+          IllegalArgumentException.class,
+          () -> {
+            new FizzBuzz(4);
+          });
     }
   }
 }
