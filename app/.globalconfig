@@ -1,0 +1,16 @@
+# Global .NET Analyzer configuration
+is_global = true
+
+# Enable all .NET code analysis rules
+dotnet_analyzer_diagnostic.category-security.severity = error
+dotnet_analyzer_diagnostic.category-performance.severity = warning
+dotnet_analyzer_diagnostic.category-reliability.severity = warning
+dotnet_analyzer_diagnostic.category-maintainability.severity = suggestion
+
+# StyleCop.Analyzers rules
+dotnet_diagnostic.SA1633.severity = none  # File header is missing or empty
+dotnet_diagnostic.SA1200.severity = none  # Using directives should be placed correctly
+
+# Disable some overly strict rules for learning purposes
+dotnet_diagnostic.SA1101.severity = none  # Prefix local calls with this
+dotnet_diagnostic.SA1309.severity = none  # Field names should not begin with underscore

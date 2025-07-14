@@ -1,15 +1,15 @@
 using System;
 using FizzBuzz;
 
-class Program
+sealed class Program
 {
     static void Main(string[] args)
     {
         var fizzbuzz = new FizzBuzz.FizzBuzz();
-        
+
         for (int i = 1; i <= 100; i++)
         {
-            Console.WriteLine(fizzbuzz.Generate(i));
+            Console.WriteLine(FizzBuzz.FizzBuzz.Generate(i));
         }
     }
 }
