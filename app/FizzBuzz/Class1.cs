@@ -32,7 +32,7 @@ public class FizzBuzz
                 }
                 return number.ToString();
             default:
-                return number.ToString();
+                throw new ArgumentException("無効なタイプです");
         }
     }
 }
