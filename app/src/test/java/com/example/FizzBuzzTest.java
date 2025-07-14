@@ -50,6 +50,17 @@ class FizzBuzzTest {
   }
 
   @Nested
+  class タイプごとに出力を切り替えることができる {
+    @Nested
+    class タイプ1の場合 {
+      @Test
+      void test_1を渡したら文字列1を返す() {
+        assertEquals("1", FizzBuzz.generate(1, 1));
+      }
+    }
+  }
+
+  @Nested
   class 配列や繰り返し処理を理解する {
     @Test
     void test_1から100まで数えて返す() {

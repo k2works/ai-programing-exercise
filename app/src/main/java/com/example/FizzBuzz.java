@@ -7,19 +7,28 @@ public class FizzBuzz {
   public static final int MAX_NUMBER = 100;
 
   public static String generate(int number) {
-    boolean isFizz = number % 3 == 0;
-    boolean isBuzz = number % 5 == 0;
+    return generate(number, 1);
+  }
 
-    if (isFizz && isBuzz) {
-      return "FizzBuzz";
+  public static String generate(int number, int type) {
+    switch (type) {
+      case 1:
+        boolean isFizz = number % 3 == 0;
+        boolean isBuzz = number % 5 == 0;
+
+        if (isFizz && isBuzz) {
+          return "FizzBuzz";
+        }
+        if (isFizz) {
+          return "Fizz";
+        }
+        if (isBuzz) {
+          return "Buzz";
+        }
+        return String.valueOf(number);
+      default:
+        return null;
     }
-    if (isFizz) {
-      return "Fizz";
-    }
-    if (isBuzz) {
-      return "Buzz";
-    }
-    return String.valueOf(number);
   }
 
   public static List<String> generateList() {
