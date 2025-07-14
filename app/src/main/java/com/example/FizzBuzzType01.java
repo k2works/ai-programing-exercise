@@ -1,6 +1,6 @@
 package com.example;
 
-public class FizzBuzzType01 {
+public class FizzBuzzType01 implements FizzBuzzType {
   public String generate(int number) {
     boolean isFizz = number % 3 == 0;
     boolean isBuzz = number % 5 == 0;

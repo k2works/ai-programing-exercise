@@ -166,9 +166,10 @@ class FizzBuzzTest {
   @Nested
   class それ以外のタイプの場合 {
     @Test
-    void test_4を渡したらnullを返す() {
-      FizzBuzz fizzbuzz = new FizzBuzz(4);
-      assertNull(fizzbuzz.generate(1, 4));
+    void test_4を渡したら例外が発生する() {
+      assertThrows(IllegalArgumentException.class, () -> {
+        new FizzBuzz(4);
+      });
     }
   }
 }
