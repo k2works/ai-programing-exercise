@@ -2,20 +2,37 @@
 
 public class FizzBuzz
 {
-    public static string Generate(int number)
+    public static string Generate(int number, int type = 1)
     {
-        if (number % 3 == 0 && number % 5 == 0)
+        bool isFizz = number % 3 == 0;
+        bool isBuzz = number % 5 == 0;
+
+        switch (type)
         {
-            return "FizzBuzz";
+            case 1:
+                if (isFizz && isBuzz)
+                {
+                    return "FizzBuzz";
+                }
+                if (isFizz)
+                {
+                    return "Fizz";
+                }
+                if (isBuzz)
+                {
+                    return "Buzz";
+                }
+                return number.ToString();
+            case 2:
+                return number.ToString();
+            case 3:
+                if (isFizz && isBuzz)
+                {
+                    return "FizzBuzz";
+                }
+                return number.ToString();
+            default:
+                return number.ToString();
         }
-        if (number % 3 == 0)
-        {
-            return "Fizz";
-        }
-        if (number % 5 == 0)
-        {
-            return "Buzz";
-        }
-        return number.ToString();
     }
 }
