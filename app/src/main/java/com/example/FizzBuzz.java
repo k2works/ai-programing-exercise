@@ -28,6 +28,14 @@ public class FizzBuzz {
         return String.valueOf(number);
       case 2:
         return String.valueOf(number);
+      case 3:
+        boolean isFizz3 = number % 3 == 0;
+        boolean isBuzz3 = number % 5 == 0;
+
+        if (isFizz3 && isBuzz3) {
+          return "FizzBuzz";
+        }
+        return String.valueOf(number);
       default:
         return null;
     }
