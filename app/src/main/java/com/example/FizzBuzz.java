@@ -2,18 +2,22 @@ package com.example;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 public class FizzBuzz {
   public static final int MAX_NUMBER = 100;
-  private List<String> list;
+  private FizzBuzzList list;
   private FizzBuzzType type;
 
   public FizzBuzz(int type) {
     this.type = create(type);
+    this.list = new FizzBuzzList(new ArrayList<>());
   }
 
   public List<String> getList() {
-    return list;
+    return list.getValue().stream()
+               .map(FizzBuzzValue::getValue)
+               .collect(java.util.stream.Collectors.toList());
   }
 
   public FizzBuzzType getType() {
@@ -43,9 +47,9 @@ public class FizzBuzz {
   }
 
   public void generateList() {
-    list = new ArrayList<>();
-    for (int i = 1; i <= MAX_NUMBER; i++) {
-      list.add(type.generate(i).getValue());
-    }
+    List<FizzBuzzValue> values = IntStream.rangeClosed(1, MAX_NUMBER)
+                                          .mapToObj(type::generate)
+                                          .collect(java.util.stream.Collectors.toList());
+    list = list.add(values);
   }
 }
