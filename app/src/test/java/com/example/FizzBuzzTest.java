@@ -60,24 +60,23 @@ class FizzBuzzTest {
       class 配列や繰り返し処理を理解する {
         @Test
         void test_1から100まで数えて返す() {
-          FizzBuzz fizzbuzz = new FizzBuzz(1);
-          fizzbuzz.generateList();
-          List<String> result = fizzbuzz.getList();
-          assertEquals("1", result.get(0));
-          assertEquals("2", result.get(1));
-          assertEquals("Fizz", result.get(2));
-          assertEquals("4", result.get(3));
-          assertEquals("Buzz", result.get(4));
-          assertEquals("Fizz", result.get(5));
-          assertEquals("7", result.get(6));
-          assertEquals("8", result.get(7));
-          assertEquals("Fizz", result.get(8));
-          assertEquals("Buzz", result.get(9));
-          assertEquals("11", result.get(10));
-          assertEquals("Fizz", result.get(11));
-          assertEquals("13", result.get(12));
-          assertEquals("14", result.get(13));
-          assertEquals("FizzBuzz", result.get(14));
+          FizzBuzzListCommand fizzbuzz = new FizzBuzzListCommand(new FizzBuzzType01());
+          List<FizzBuzzValue> result = fizzbuzz.executeList(100);
+          assertEquals("1", result.get(0).getValue());
+          assertEquals("2", result.get(1).getValue());
+          assertEquals("Fizz", result.get(2).getValue());
+          assertEquals("4", result.get(3).getValue());
+          assertEquals("Buzz", result.get(4).getValue());
+          assertEquals("Fizz", result.get(5).getValue());
+          assertEquals("7", result.get(6).getValue());
+          assertEquals("8", result.get(7).getValue());
+          assertEquals("Fizz", result.get(8).getValue());
+          assertEquals("Buzz", result.get(9).getValue());
+          assertEquals("11", result.get(10).getValue());
+          assertEquals("Fizz", result.get(11).getValue());
+          assertEquals("13", result.get(12).getValue());
+          assertEquals("14", result.get(13).getValue());
+          assertEquals("FizzBuzz", result.get(14).getValue());
         }
       }
     }
