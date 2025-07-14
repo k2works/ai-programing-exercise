@@ -3,5 +3,9 @@ package main
 import "strconv"
 
 func FizzBuzzGenerate(number int) string {
-	return strconv.Itoa(number)
+	result := strconv.Itoa(number)
+	if number%3 == 0 {
+		result = "Fizz"
+	}
+	return result
 }
