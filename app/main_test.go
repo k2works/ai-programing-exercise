@@ -34,3 +34,12 @@ func Test3を渡したら文字列Fizzを返す(t *testing.T) {
 		t.Errorf("Expected %s, but got %s", expected, actual)
 	}
 }
+
+func Test5を渡したら文字列Buzzを返す(t *testing.T) {
+	setup()
+	expected := "Buzz"
+	actual := fizzbuzz(5)
+	if actual != expected {
+		t.Errorf("Expected %s, but got %s", expected, actual)
+	}
+}
