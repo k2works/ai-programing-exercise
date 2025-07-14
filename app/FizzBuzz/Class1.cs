@@ -29,13 +29,13 @@ public class FizzBuzz
 			case 3:
 				return new FizzBuzzType03();
 			default:
-				throw new ArgumentException("無効なタイプです");
+				return new NullFizzBuzzType();
 		}
 	}
 
 	public string Generate(int number)
 	{
-		return _type.Generate(number);
+		return _type.Generate(new Number(number));
 	}
 
 	public void GenerateList()

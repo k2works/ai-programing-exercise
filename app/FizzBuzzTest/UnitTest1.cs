@@ -129,10 +129,10 @@ public class FizzBuzzTest
         public class それ以外のタイプの場合
         {
             [Fact]
-            public void Test_例外を返す()
+            public void Test_空文字を返す()
             {
-                var exception = Assert.Throws<ArgumentException>(() => new FizzBuzz.FizzBuzz(4));
-                Assert.Equal("無効なタイプです", exception.Message);
+                var fizzbuzz = new FizzBuzz.FizzBuzz(4);
+                Assert.Equal("", fizzbuzz.Generate(1));
             }
         }
     }

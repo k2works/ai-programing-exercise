@@ -2,24 +2,29 @@ namespace FizzBuzz;
 
 public abstract class FizzBuzzType
 {
-    public abstract string Generate(int number);
+    public abstract string Generate(Number number);
 
-    protected bool IsFizz(int number)
+    protected bool IsFizz(Number number)
     {
-        return number % 3 == 0;
+        return number.IsFizz();
     }
 
-    protected bool IsBuzz(int number)
+    protected bool IsBuzz(Number number)
     {
-        return number % 5 == 0;
+        return number.IsBuzz();
+    }
+
+    protected bool IsFizzBuzz(Number number)
+    {
+        return number.IsFizzBuzz();
     }
 }
 
 public class FizzBuzzType01 : FizzBuzzType
 {
-    public override string Generate(int number)
+    public override string Generate(Number number)
     {
-        if (IsFizz(number) && IsBuzz(number))
+        if (IsFizzBuzz(number))
         {
             return "FizzBuzz";
         }
@@ -37,7 +42,7 @@ public class FizzBuzzType01 : FizzBuzzType
 
 public class FizzBuzzType02 : FizzBuzzType
 {
-    public override string Generate(int number)
+    public override string Generate(Number number)
     {
         return number.ToString();
     }
@@ -45,9 +50,9 @@ public class FizzBuzzType02 : FizzBuzzType
 
 public class FizzBuzzType03 : FizzBuzzType
 {
-    public override string Generate(int number)
+    public override string Generate(Number number)
     {
-        if (IsFizz(number) && IsBuzz(number))
+        if (IsFizzBuzz(number))
         {
             return "FizzBuzz";
         }
@@ -60,5 +65,13 @@ public class FizzBuzzType03 : FizzBuzzType
             return number.ToString();
         }
         return number.ToString();
+    }
+}
+
+public class NullFizzBuzzType : FizzBuzzType
+{
+    public override string Generate(Number number)
+    {
+        return "";
     }
 }
