@@ -8,6 +8,7 @@ AIプログラミングの実践的な学習と開発のためのプロジェク
 
 - AIプログラミングの実践的な学習環境の提供
 - 複数言語（Java、Node.js、Ruby、Python、PHP、Go、Rust、.NET）での開発サポート
+- テスト駆動開発（TDD）の実践（特にJavaプロジェクト）
 - ドキュメント駆動開発の促進
 - プログラミング学習リソースの集約
 
@@ -79,6 +80,10 @@ ai-programing-exercise/
 ├── Dockerfile              # 開発環境のDockerfile
 ├── README.md               # このファイル
 ├── docker-compose.yml      # Docker Compose設定
+├── app/                    # Java TDDプロジェクト
+│   ├── build.gradle        # Gradleビルド設定
+│   ├── src/                # Javaソースコード
+│   └── README.md          # Javaプロジェクトの詳細
 ├── docs/                   # ドキュメントディレクトリ
 │   ├── Dockerfile          # MkDocs用Dockerfile
 │   ├── assets/             # CSS/JSアセット
