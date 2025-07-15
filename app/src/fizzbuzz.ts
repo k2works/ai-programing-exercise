@@ -21,7 +21,7 @@ export class FizzBuzz {
         }
         return n.toString();
       default:
-        return n.toString();
+        throw new Error('タイプが未指定です');
     }
   }
 

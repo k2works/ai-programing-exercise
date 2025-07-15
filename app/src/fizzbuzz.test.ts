@@ -129,5 +129,11 @@ describe('FizzBuzz', () => {
         });
       });
     });
+
+    describe('それ以外のタイプの場合', () => {
+      it('1を渡したら例外を返す', () => {
+        expect(() => fizzbuzz.generate(1, 4)).toThrow('タイプが未指定です');
+      });
+    });
   });
 });
