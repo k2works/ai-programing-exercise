@@ -89,5 +89,11 @@ describe('FizzBuzz', () => {
         expect(fizzbuzz.generate(15, 3)).toBe('FizzBuzz');
       });
     });
+
+    describe('それ以外のタイプの場合', () => {
+      test('存在しないタイプを指定した場合はエラーを返す', () => {
+        expect(() => fizzbuzz.generate(1, 4)).toThrow();
+      });
+    });
   });
 });

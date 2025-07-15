@@ -23,7 +23,7 @@ class FizzBuzz {
         }
         return number.toString();
       default:
-        return number.toString();
+        throw new Error(`Unknown type: ${type}`);
     }
   }
 
