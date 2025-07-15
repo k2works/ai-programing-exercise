@@ -1,3 +1,65 @@
+// ファーストクラスコレクション
+export class FizzBuzzList {
+  private readonly values: readonly FizzBuzzValue[];
+
+  constructor(values: FizzBuzzValue[] = []) {
+    // 防御的コピーによる不変性確保
+    this.values = Object.freeze([...values]);
+  }
+
+  // 要素の追加（新しいインスタンスを返す）
+  add(value: FizzBuzzValue): FizzBuzzList {
+    return new FizzBuzzList([...this.values, value]);
+  }
+
+  // 複数要素の追加
+  addAll(values: FizzBuzzValue[]): FizzBuzzList {
+    return new FizzBuzzList([...this.values, ...values]);
+  }
+
+  // 要素の取得
+  get(index: number): FizzBuzzValue {
+    if (index < 0 || index >= this.values.length) {
+      throw new Error('Index out of bounds');
+    }
+    return this.values[index];
+  }
+
+  // 安全な要素取得（Optional的な動作）
+  tryGet(index: number): FizzBuzzValue | undefined {
+    if (index < 0 || index >= this.values.length) {
+      return undefined;
+    }
+    return this.values[index];
+  }
+
+  // 長さ
+  get length(): number {
+    return this.values.length;
+  }
+
+  // 文字列配列として取得（後方互換性のため）
+  toStringArray(): string[] {
+    return this.values.map(v => v.value);
+  }
+
+  // iterator
+  *[Symbol.iterator](): Generator<FizzBuzzValue, void, unknown> {
+    for (const value of this.values) {
+      yield value;
+    }
+  }
+
+  // 範囲で作成（ファクトリメソッド）
+  static createRange(fizzBuzzType: FizzBuzzType, start: number = 1, end: number = 100): FizzBuzzList {
+    const values: FizzBuzzValue[] = [];
+    for (let i = start; i <= end; i++) {
+      values.push(fizzBuzzType.generate(i));
+    }
+    return new FizzBuzzList(values);
+  }
+}
+
 // 値オブジェクト
 export class FizzBuzzValue {
   private readonly _value: string;
@@ -67,7 +129,7 @@ class FizzBuzzType03 extends FizzBuzzType {
 }
 
 export class FizzBuzz {
-  private _list: string[] = [];
+  private _list: FizzBuzzList = new FizzBuzzList();
   private readonly _type: FizzBuzzType;
 
   constructor(type: number = 1) {
@@ -88,7 +150,12 @@ export class FizzBuzz {
   }
 
   get list(): string[] {
-    return [...this._list]; // 防御的コピーを返す
+    return this._list.toStringArray(); // 文字列配列として返す（後方互換性）
+  }
+
+  // FizzBuzzListとして取得する新しいアクセサ
+  get fizzBuzzList(): FizzBuzzList {
+    return this._list;
   }
 
   get type(): FizzBuzzType {
@@ -108,13 +175,8 @@ export class FizzBuzz {
   }
 
   generateList(): void {
-    // 新しい配列を作成してから割り当て
-    const newList: string[] = [];
-    for (let i = 1; i <= 100; i++) {
-      newList.push(this._type.generate(i).value); // ポリモーフィズムを活用
-    }
-    this._list.length = 0; // 既存の配列をクリア
-    this._list.push(...newList); // 新しい要素を追加
+    // FizzBuzzListを使って新しいリストを作成
+    this._list = FizzBuzzList.createRange(this._type, 1, 100);
   }
 
   // 後方互換性のための静的メソッド
