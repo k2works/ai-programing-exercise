@@ -2,7 +2,7 @@
 abstract class FizzBuzzType {
   abstract generate(n: number): string;
 
-  // 共通メソッドをスーパークラスに移動
+  // 共通メソッドをスーパークラスに移動（メソッド名を変更）
   protected isFizz(n: number): boolean {
     return n % 3 === 0;
   }
@@ -10,12 +10,16 @@ abstract class FizzBuzzType {
   protected isBuzz(n: number): boolean {
     return n % 5 === 0;
   }
+
+  protected isFizzBuzz(n: number): boolean {
+    return this.isFizz(n) && this.isBuzz(n);
+  }
 }
 
 // タイプクラス
 class FizzBuzzType01 extends FizzBuzzType {
   generate(n: number): string {
-    if (this.isFizz(n) && this.isBuzz(n)) {
+    if (this.isFizzBuzz(n)) {
       return 'FizzBuzz';
     } else if (this.isFizz(n)) {
       return 'Fizz';
@@ -34,7 +38,7 @@ class FizzBuzzType02 extends FizzBuzzType {
 
 class FizzBuzzType03 extends FizzBuzzType {
   generate(n: number): string {
-    if (this.isFizz(n) && this.isBuzz(n)) {
+    if (this.isFizzBuzz(n)) {
       return 'FizzBuzz';
     }
     return n.toString();
