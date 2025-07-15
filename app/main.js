@@ -36,9 +36,32 @@ class FizzBuzz {
   printRange(min, max) {
     const results = [];
     for (let i = min; i <= max; i++) {
-      results.push(this.generate(i));
+      results.push(this.generate(i).value);
     }
     return results.join('\n');
+  }
+}
+
+class FizzBuzzValue {
+  constructor(number, value) {
+    this._number = number;
+    this._value = value;
+  }
+
+  get number() {
+    return this._number;
+  }
+
+  get value() {
+    return this._value;
+  }
+
+  toString() {
+    return `${this._number}:${this._value}`;
+  }
+
+  equals(other) {
+    return this._number === other.number && this._value === other.value;
   }
 }
 
@@ -54,34 +77,33 @@ class FizzBuzzType {
 
 class FizzBuzzType01 extends FizzBuzzType {
   generate(number) {
-    let result = number.toString();
     if (this.isFizz(number) && this.isBuzz(number)) {
-      result = 'FizzBuzz';
+      return new FizzBuzzValue(number, 'FizzBuzz');
     } else if (this.isFizz(number)) {
-      result = 'Fizz';
+      return new FizzBuzzValue(number, 'Fizz');
     } else if (this.isBuzz(number)) {
-      result = 'Buzz';
+      return new FizzBuzzValue(number, 'Buzz');
     }
-    return result;
+    return new FizzBuzzValue(number, number.toString());
   }
 }
 
 class FizzBuzzType02 extends FizzBuzzType {
   generate(number) {
-    return number.toString();
+    return new FizzBuzzValue(number, number.toString());
   }
 }
 
 class FizzBuzzType03 extends FizzBuzzType {
   generate(number) {
     if (this.isFizz(number) && this.isBuzz(number)) {
-      return 'FizzBuzz';
+      return new FizzBuzzValue(number, 'FizzBuzz');
     } else if (this.isFizz(number)) {
-      return 'Fizz';
+      return new FizzBuzzValue(number, 'Fizz');
     } else if (this.isBuzz(number)) {
-      return 'Buzz';
+      return new FizzBuzzValue(number, 'Buzz');
     }
-    return number.toString();
+    return new FizzBuzzValue(number, number.toString());
   }
 }
 

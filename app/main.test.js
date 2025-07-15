@@ -10,29 +10,29 @@ describe('FizzBuzz', () => {
 
     describe('三の倍数の場合', () => {
       test('3を渡したら文字列Fizzを返す', () => {
-        expect(fizzbuzz.generate(3)).toBe('Fizz');
+        expect(fizzbuzz.generate(3).value).toBe('Fizz');
       });
     });
 
     describe('五の倍数の場合', () => {
       test('5を渡したら文字列Buzzを返す', () => {
-        expect(fizzbuzz.generate(5)).toBe('Buzz');
+        expect(fizzbuzz.generate(5).value).toBe('Buzz');
       });
     });
 
     describe('三と五の倍数の場合', () => {
       test('15を渡したら文字列FizzBuzzを返す', () => {
-        expect(fizzbuzz.generate(15)).toBe('FizzBuzz');
+        expect(fizzbuzz.generate(15).value).toBe('FizzBuzz');
       });
     });
 
     describe('その他の場合', () => {
       test('1を渡したら文字列1を返す', () => {
-        expect(fizzbuzz.generate(1)).toBe('1');
+        expect(fizzbuzz.generate(1).value).toBe('1');
       });
 
       test('2を渡したら文字列2を返す', () => {
-        expect(fizzbuzz.generate(2)).toBe('2');
+        expect(fizzbuzz.generate(2).value).toBe('2');
       });
     });
 
@@ -54,10 +54,10 @@ describe('FizzBuzz', () => {
       test('1から100までのFizzBuzz配列を返す', () => {
         fizzbuzz.generateList();
         const result = fizzbuzz.list;
-        expect(result[0]).toBe('1');
-        expect(result[1]).toBe('2');
-        expect(result[2]).toBe('Fizz');
-        expect(result[14]).toBe('FizzBuzz');
+        expect(result[0].value).toBe('1');
+        expect(result[1].value).toBe('2');
+        expect(result[2].value).toBe('Fizz');
+        expect(result[14].value).toBe('FizzBuzz');
         expect(result.length).toBe(100);
       });
     });
@@ -72,25 +72,25 @@ describe('FizzBuzz', () => {
 
     describe('三の倍数の場合', () => {
       test('3を渡したら文字列3を返す', () => {
-        expect(fizzbuzz.generate(3)).toBe('3');
+        expect(fizzbuzz.generate(3).value).toBe('3');
       });
     });
 
     describe('五の倍数の場合', () => {
       test('5を渡したら文字列5を返す', () => {
-        expect(fizzbuzz.generate(5)).toBe('5');
+        expect(fizzbuzz.generate(5).value).toBe('5');
       });
     });
 
     describe('三と五の倍数の場合', () => {
       test('15を渡したら文字列15を返す', () => {
-        expect(fizzbuzz.generate(15)).toBe('15');
+        expect(fizzbuzz.generate(15).value).toBe('15');
       });
     });
 
     describe('その他の場合', () => {
       test('1を渡したら文字列1を返す', () => {
-        expect(fizzbuzz.generate(1)).toBe('1');
+        expect(fizzbuzz.generate(1).value).toBe('1');
       });
     });
   });
@@ -104,25 +104,25 @@ describe('FizzBuzz', () => {
 
     describe('三の倍数の場合', () => {
       test('3を渡したら文字列Fizzを返す', () => {
-        expect(fizzbuzz.generate(3)).toBe('Fizz');
+        expect(fizzbuzz.generate(3).value).toBe('Fizz');
       });
     });
 
     describe('五の倍数の場合', () => {
       test('5を渡したら文字列Buzzを返す', () => {
-        expect(fizzbuzz.generate(5)).toBe('Buzz');
+        expect(fizzbuzz.generate(5).value).toBe('Buzz');
       });
     });
 
     describe('三と五の倍数の場合', () => {
       test('15を渡したら文字列FizzBuzzを返す', () => {
-        expect(fizzbuzz.generate(15)).toBe('FizzBuzz');
+        expect(fizzbuzz.generate(15).value).toBe('FizzBuzz');
       });
     });
 
     describe('その他の場合', () => {
       test('1を渡したら文字列1を返す', () => {
-        expect(fizzbuzz.generate(1)).toBe('1');
+        expect(fizzbuzz.generate(1).value).toBe('1');
       });
     });
   });
