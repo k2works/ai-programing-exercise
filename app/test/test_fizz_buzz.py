@@ -138,6 +138,12 @@ class TestFizzBuzz:
     def test_タイプ3_その他の場合(self) -> None:
         """Test type 3 for other cases."""
         assert self.fizzbuzz.generate(1, 3) == "1"
+        
+    def test_それ以外のタイプの場合_例外を返す(self) -> None:
+        """Test exception for unsupported types."""
+        import pytest
+        with pytest.raises(RuntimeError, match="該当するタイプは存在しません"):
+            self.fizzbuzz.generate(1, 4)
 
 
 class TestArrayAndIteration:

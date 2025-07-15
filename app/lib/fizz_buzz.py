@@ -39,8 +39,8 @@ class FizzBuzz:
                 return "FizzBuzz"
 
             return str(number)
-        
-        return str(number)  # その他のタイプの場合（後で実装）
+        else:
+            raise RuntimeError("該当するタイプは存在しません")
 
     @classmethod
     def generate_list(cls) -> list[str]:
