@@ -209,4 +209,22 @@ describe('FizzBuzz', () => {
       });
     });
   });
+
+  describe('例外ケース', () => {
+    test('値は正の値のみ許可する', () => {
+      expect(() => {
+        new FizzBuzzValueCommand(new FizzBuzzType01()).execute(-1);
+      }).toThrow('number should be positive');
+    });
+  });
+
+  describe('範囲チェック', () => {
+    describe('FizzBuzzListCommand', () => {
+      test('100より多い数を許可しない', () => {
+        expect(() => {
+          new FizzBuzzListCommand(new FizzBuzzType01()).execute(101);
+        }).toThrow('list size should be 100 or less');
+      });
+    });
+  });
 });

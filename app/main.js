@@ -1,3 +1,11 @@
+class Assertions {
+  static assert(condition, message = 'Assertion Failed') {
+    if (!condition) {
+      throw new Error(message);
+    }
+  }
+}
+
 class FizzBuzz {
   constructor(type = 1) {
     this.MAX_NUMBER = 100;
@@ -45,6 +53,7 @@ class FizzBuzz {
 
 class FizzBuzzValue {
   constructor(number, value) {
+    Assertions.assert(number >= 0, 'number should be positive');
     this._number = number;
     this._value = value;
   }
@@ -68,6 +77,7 @@ class FizzBuzzValue {
 
 class FizzBuzzList {
   constructor(list) {
+    Assertions.assert(list.length <= 100, 'list size should be 100 or less');
     this._value = list;
   }
 
@@ -163,5 +173,6 @@ module.exports = {
   FizzBuzzType01,
   FizzBuzzType02, 
   FizzBuzzType03,
-  FizzBuzzListCommand
+  FizzBuzzListCommand,
+  Assertions
 };
