@@ -7,26 +7,30 @@ class FizzBuzz:
     MAX_NUMBER: int = 100
 
     @classmethod
-    def generate(cls, number: int) -> str:
+    def generate(cls, number: int, type_: int = 1) -> str:
         """Generate FizzBuzz string for a given number.
 
         Args:
             number: The number to convert to FizzBuzz
+            type_: The type of conversion (default: 1)
 
         Returns:
             The FizzBuzz string representation
         """
-        is_fizz = number % 3 == 0
-        is_buzz = number % 5 == 0
+        if type_ == 1:
+            is_fizz = number % 3 == 0
+            is_buzz = number % 5 == 0
 
-        if is_fizz and is_buzz:
-            return "FizzBuzz"
-        if is_fizz:
-            return "Fizz"
-        if is_buzz:
-            return "Buzz"
+            if is_fizz and is_buzz:
+                return "FizzBuzz"
+            if is_fizz:
+                return "Fizz"
+            if is_buzz:
+                return "Buzz"
 
-        return str(number)
+            return str(number)
+        
+        return str(number)  # その他のタイプの場合（後で実装）
 
     @classmethod
     def generate_list(cls) -> list[str]:

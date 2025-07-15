@@ -64,6 +64,50 @@ class TestFizzBuzz:
         assert result[4] == "Buzz"
         assert result[14] == "FizzBuzz"
 
+    def test_配列や繰り返し処理を理解する(self) -> None:
+        """Test understanding of array and iteration processing."""
+        # プリント出力をキャプチャ
+        captured_output = io.StringIO()
+        sys.stdout = captured_output
+
+        # FizzBuzzリストを出力
+        fizzbuzz_list = self.fizzbuzz.generate_list()
+        for item in fizzbuzz_list:
+            print(item)
+
+        # 標準出力を復元
+        sys.stdout = sys.__stdout__
+
+        # 出力結果を取得
+        output = captured_output.getvalue()
+
+        # 最初の15個をチェック
+        lines = output.strip().split("\n")
+        expected = [
+            "1",
+            "2",
+            "Fizz",
+            "4",
+            "Buzz",
+            "Fizz",
+            "7",
+            "8",
+            "Fizz",
+            "Buzz",
+            "11",
+            "Fizz",
+            "13",
+            "14",
+            "FizzBuzz",
+        ]
+        for i, expected_value in enumerate(expected):
+            assert lines[i] == expected_value
+
+    def test_タイプごとに出力を切り替えることができる(self) -> None:
+        """Test that output can be switched by type."""
+        # タイプ1の場合：数を文字列にして返す
+        assert self.fizzbuzz.generate(1, 1) == "1"
+
 
 class TestArrayAndIteration:
     """Test class for learning array and iteration methods."""
