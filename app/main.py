@@ -1,6 +1,6 @@
-#!/usr/bin/env python3
+def main():
+    print("Hello from app!")
 
-from fizzbuzz import FizzBuzz
 
-if __name__ == '__main__':
-    FizzBuzz.print_fizzbuzz()
+if __name__ == "__main__":
+    main()
