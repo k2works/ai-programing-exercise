@@ -6,7 +6,7 @@ const {
   FizzBuzzValueCommand,
   FizzBuzzListCommand,
   FizzBuzzType01 
-} = require('./main');
+} = require('./index');
 
 describe('FizzBuzz', () => {
   describe('タイプ1の場合', () => {
