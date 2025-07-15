@@ -14,4 +14,8 @@ describe('FizzBuzzTest', () => {
   test('2を渡したら文字列2を返す', () => {
     expect(fizzbuzz.generate(2)).toBe('2');
   });
+
+  test('3を渡したら文字列Fizzを返す', () => {
+    expect(fizzbuzz.generate(3)).toBe('Fizz');
+  });
 });

@@ -1,6 +1,10 @@
 class FizzBuzz {
   static generate(number: number): string {
-    return number.toString();
+    let result = number.toString();
+    if (number % 3 === 0) {
+      result = 'Fizz';
+    }
+    return result;
   }
 }
 
