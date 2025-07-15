@@ -47,6 +47,7 @@ func FizzBuzzGenerateWithType(number int, fizzBuzzType int) string {
 			return "FizzBuzz"
 		}
 		return strconv.Itoa(number)
+	default:
+		panic("不正なタイプです")
 	}
-	return ""
 }

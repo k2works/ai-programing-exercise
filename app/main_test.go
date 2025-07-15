@@ -166,3 +166,16 @@ func Test1から100までのFizzBuzz配列を返す(t *testing.T) {
 		t.Errorf("Expected result[99] to be 'Buzz', but got '%s'", result[99])
 	}
 }
+
+// それ以外のタイプの場合（例外処理）
+func Test_それ以外のタイプの場合_例外を返す(t *testing.T) {
+	// Go では panic/recover を使って例外処理をテストします
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("Expected panic for invalid type, but no panic occurred")
+		}
+	}()
+
+	// 不正なタイプ4を渡すとpanicが発生することを期待
+	FizzBuzzGenerateWithType(1, 4)
+}
