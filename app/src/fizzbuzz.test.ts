@@ -77,5 +77,31 @@ describe('FizzBuzz', () => {
         expect(fizzbuzz.generate(1, 1)).toBe('1');
       });
     });
+
+    describe('タイプ2の場合', () => {
+      describe('3の倍数の場合', () => {
+        it('3を渡したら文字列"3"を返す', () => {
+          expect(fizzbuzz.generate(3, 2)).toBe('3');
+        });
+      });
+
+      describe('5の倍数の場合', () => {
+        it('5を渡したら文字列"5"を返す', () => {
+          expect(fizzbuzz.generate(5, 2)).toBe('5');
+        });
+      });
+
+      describe('3と5両方の倍数の場合', () => {
+        it('15を渡したら文字列"15"を返す', () => {
+          expect(fizzbuzz.generate(15, 2)).toBe('15');
+        });
+      });
+
+      describe('その他の場合', () => {
+        it('1を渡したら文字列"1"を返す', () => {
+          expect(fizzbuzz.generate(1, 2)).toBe('1');
+        });
+      });
+    });
   });
 });

@@ -10,6 +10,8 @@ export class FizzBuzz {
           return 'Buzz';
         }
         return n.toString();
+      case 2:
+        return n.toString();
       default:
         return n.toString();
     }
