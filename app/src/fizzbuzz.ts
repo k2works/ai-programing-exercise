@@ -77,30 +77,9 @@ export class FizzBuzz {
   generate(n: number, type?: number): string {
     if (type !== undefined) {
       // 後方互換性のために type パラメータが指定された場合の処理
-      const isFizz = n % 3 === 0;
-      const isBuzz = n % 5 === 0;
-      const targetType = type;
-
-      switch (targetType) {
-        case 1:
-          if (isFizz && isBuzz) {
-            return 'FizzBuzz';
-          } else if (isFizz) {
-            return 'Fizz';
-          } else if (isBuzz) {
-            return 'Buzz';
-          }
-          return n.toString();
-        case 2:
-          return n.toString();
-        case 3:
-          if (isFizz && isBuzz) {
-            return 'FizzBuzz';
-          }
-          return n.toString();
-        default:
-          throw new Error('タイプが未指定です');
-      }
+      // 新しいポリモーフィズムの仕組みを使って簡素化
+      const fizzBuzzType = FizzBuzz.create(type);
+      return fizzBuzzType.generate(n);
     }
     
     // ポリモーフィズムを活用した処理
