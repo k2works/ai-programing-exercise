@@ -1,4 +1,7 @@
 class FizzBuzz:
     @staticmethod
     def generate(number):
-        return str(number)
+        result = str(number)
+        if number % 3 == 0:
+            result = 'Fizz'
+        return result

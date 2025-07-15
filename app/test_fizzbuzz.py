@@ -12,6 +12,9 @@ class FizzBuzzTest(unittest.TestCase):
     def test_2を渡したら文字列2を返す(self):
         self.assertEqual('2', self.fizzbuzz.generate(2))
 
+    def test_3を渡したら文字列Fizzを返す(self):
+        self.assertEqual('Fizz', self.fizzbuzz.generate(3))
+
 
 if __name__ == '__main__':
     unittest.main()
