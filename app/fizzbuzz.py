@@ -16,3 +16,8 @@ class FizzBuzz:
         for i in range(1, 101):
             result.append(FizzBuzz.generate(i))
         return result
+
+    @staticmethod
+    def print_fizzbuzz():
+        for i in range(1, 101):
+            print(FizzBuzz.generate(i))
