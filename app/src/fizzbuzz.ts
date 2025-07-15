@@ -1,5 +1,10 @@
+// 基底クラス
+abstract class FizzBuzzType {
+  abstract generate(n: number): string;
+}
+
 // タイプクラス
-class FizzBuzzType01 {
+class FizzBuzzType01 extends FizzBuzzType {
   generate(n: number): string {
     const isFizz = n % 3 === 0;
     const isBuzz = n % 5 === 0;
@@ -15,13 +20,13 @@ class FizzBuzzType01 {
   }
 }
 
-class FizzBuzzType02 {
+class FizzBuzzType02 extends FizzBuzzType {
   generate(n: number): string {
     return n.toString();
   }
 }
 
-class FizzBuzzType03 {
+class FizzBuzzType03 extends FizzBuzzType {
   generate(n: number): string {
     const isFizz = n % 3 === 0;
     const isBuzz = n % 5 === 0;
@@ -35,13 +40,13 @@ class FizzBuzzType03 {
 
 export class FizzBuzz {
   private _list: string[] = [];
-  private readonly _type: FizzBuzzType01 | FizzBuzzType02 | FizzBuzzType03;
+  private readonly _type: FizzBuzzType;
 
   constructor(type: number = 1) {
     this._type = FizzBuzz.create(type);
   }
 
-  static create(type: number): FizzBuzzType01 | FizzBuzzType02 | FizzBuzzType03 {
+  static create(type: number): FizzBuzzType {
     switch (type) {
       case 1:
         return new FizzBuzzType01();
@@ -58,7 +63,7 @@ export class FizzBuzz {
     return [...this._list]; // 防御的コピーを返す
   }
 
-  get type(): FizzBuzzType01 | FizzBuzzType02 | FizzBuzzType03 {
+  get type(): FizzBuzzType {
     return this._type;
   }
 
