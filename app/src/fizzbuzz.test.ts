@@ -103,5 +103,31 @@ describe('FizzBuzz', () => {
         });
       });
     });
+
+    describe('タイプ3の場合', () => {
+      describe('3の倍数の場合', () => {
+        it('3を渡したら文字列"3"を返す', () => {
+          expect(fizzbuzz.generate(3, 3)).toBe('3');
+        });
+      });
+
+      describe('5の倍数の場合', () => {
+        it('5を渡したら文字列"5"を返す', () => {
+          expect(fizzbuzz.generate(5, 3)).toBe('5');
+        });
+      });
+
+      describe('3と5両方の倍数の場合', () => {
+        it('15を渡したら文字列"FizzBuzz"を返す', () => {
+          expect(fizzbuzz.generate(15, 3)).toBe('FizzBuzz');
+        });
+      });
+
+      describe('その他の場合', () => {
+        it('1を渡したら文字列"1"を返す', () => {
+          expect(fizzbuzz.generate(1, 3)).toBe('1');
+        });
+      });
+    });
   });
 });
