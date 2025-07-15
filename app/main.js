@@ -1,14 +1,19 @@
 class FizzBuzz {
-  static generate(number) {
-    let result = number.toString();
-    if (number % 3 === 0 && number % 5 === 0) {
-      result = 'FizzBuzz';
-    } else if (number % 3 === 0) {
-      result = 'Fizz';
-    } else if (number % 5 === 0) {
-      result = 'Buzz';
+  static generate(number, type = 1) {
+    switch (type) {
+      case 1:
+        let result = number.toString();
+        if (number % 3 === 0 && number % 5 === 0) {
+          result = 'FizzBuzz';
+        } else if (number % 3 === 0) {
+          result = 'Fizz';
+        } else if (number % 5 === 0) {
+          result = 'Buzz';
+        }
+        return result;
+      default:
+        return number.toString();
     }
-    return result;
   }
 
   static printRange(min, max) {
