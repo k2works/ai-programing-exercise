@@ -1,6 +1,12 @@
-import { FizzBuzzValue } from '../value-objects/fizzbuzz-value';
-import { FizzBuzzType } from '../types/fizzbuzz-type';
-import { IndexOutOfRangeError } from '../exceptions/custom-errors';
+import { FizzBuzzValue } from './FizzBuzzValue';
+
+// カスタム例外クラス
+export class IndexOutOfRangeError extends Error {
+  constructor(index: number, length: number) {
+    super(`インデックスが範囲外です: ${index} (配列サイズ: ${length})`);
+    this.name = 'IndexOutOfRangeError';
+  }
+}
 
 // ファーストクラスコレクション
 export class FizzBuzzList {
@@ -52,15 +58,6 @@ export class FizzBuzzList {
     for (const value of this.values) {
       yield value;
     }
-  }
-
-  // 範囲で作成（ファクトリメソッド）
-  static createRange(fizzBuzzType: FizzBuzzType, start: number = 1, end: number = 100): FizzBuzzList {
-    const values: FizzBuzzValue[] = [];
-    for (let i = start; i <= end; i++) {
-      values.push(fizzBuzzType.generate(i));
-    }
-    return new FizzBuzzList(values);
   }
 
   // 統計情報を取得

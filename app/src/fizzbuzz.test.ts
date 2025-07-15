@@ -1,225 +1,94 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { FizzBuzz, FizzBuzzValue, FizzBuzzList, InvalidTypeError } from './fizzbuzz';
+import { FizzBuzz } from './domain/model/FizzBuzz';
+import { FizzBuzzCommand } from './application/FizzBuzzCommand';
+import { InvalidTypeError } from './domain/type/FizzBuzzType';
 
-describe('FizzBuzz', () => {
-  let fizzbuzz: FizzBuzz;
-
-  beforeEach(() => {
-    fizzbuzz = new FizzBuzz();
-  });
-
-  describe('数を文字列にして返す', () => {
-    describe('タイプ1の場合', () => {
-      beforeEach(() => {
-        fizzbuzz = new FizzBuzz(1);
-      });
-
-      describe('その他の場合', () => {
-        it('1を渡したら文字列"1"を返す', () => {
-          expect(fizzbuzz.generate(1)).toBe('1');
-        });
-
-        it('2を渡したら文字列"2"を返す', () => {
-          expect(fizzbuzz.generate(2)).toBe('2');
-        });
-      });
-
-      describe('3の倍数の場合', () => {
-        it('3を渡したら文字列"Fizz"を返す', () => {
-          expect(fizzbuzz.generate(3)).toBe('Fizz');
-        });
-
-        it('6を渡したら文字列"Fizz"を返す', () => {
-          expect(fizzbuzz.generate(6)).toBe('Fizz');
-        });
-      });
-
-      describe('5の倍数の場合', () => {
-        it('5を渡したら文字列"Buzz"を返す', () => {
-          expect(fizzbuzz.generate(5)).toBe('Buzz');
-        });
-      });
-
-      describe('3と5両方の倍数の場合', () => {
-        it('15を渡したら文字列"FizzBuzz"を返す', () => {
-          expect(fizzbuzz.generate(15)).toBe('FizzBuzz');
-        });
-      });
-
-      describe('1から100までのFizzBuzzの配列を返す', () => {
-        let result: string[];
-
-        beforeEach(() => {
-          const fb = new FizzBuzz(1);
-          fb.generateList();
-          result = fb.list;
-        });
-
-        it('配列の初めは文字列の1を返す', () => {
-          expect(result[0]).toBe('1');
-        });
-
-        it('配列の最後は文字列のBuzzを返す', () => {
-          expect(result[99]).toBe('Buzz'); // 100番目の要素
-        });
-
-        it('配列の3番目は文字列のFizzを返す', () => {
-          expect(result[2]).toBe('Fizz'); // 3番目の要素
-        });
-
-        it('配列の5番目は文字列のBuzzを返す', () => {
-          expect(result[4]).toBe('Buzz'); // 5番目の要素
-        });
-
-        it('配列の15番目は文字列のFizzBuzzを返す', () => {
-          expect(result[14]).toBe('FizzBuzz'); // 15番目の要素
-        });
-      });
-    });
-  });
-
-  describe('タイプごとに出力を切り替えることができる', () => {
-    describe('タイプ1の場合', () => {
-      beforeEach(() => {
-        fizzbuzz = new FizzBuzz(1);
-      });
-
-      it('1を渡したら文字列"1"を返す', () => {
-        expect(fizzbuzz.generate(1)).toBe('1');
-      });
-    });
-
-    describe('タイプ2の場合', () => {
-      beforeEach(() => {
-        fizzbuzz = new FizzBuzz(2);
-      });
-
-      describe('3の倍数の場合', () => {
-        it('3を渡したら文字列"3"を返す', () => {
-          expect(fizzbuzz.generate(3)).toBe('3');
-        });
-      });
-
-      describe('5の倍数の場合', () => {
-        it('5を渡したら文字列"5"を返す', () => {
-          expect(fizzbuzz.generate(5)).toBe('5');
-        });
-      });
-
-      describe('3と5両方の倍数の場合', () => {
-        it('15を渡したら文字列"15"を返す', () => {
-          expect(fizzbuzz.generate(15)).toBe('15');
-        });
-      });
-
-      describe('その他の場合', () => {
-        it('1を渡したら文字列"1"を返す', () => {
-          expect(fizzbuzz.generate(1)).toBe('1');
-        });
-      });
-    });
-
-    describe('タイプ3の場合', () => {
-      beforeEach(() => {
-        fizzbuzz = new FizzBuzz(3);
-      });
-
-      describe('3の倍数の場合', () => {
-        it('3を渡したら文字列"3"を返す', () => {
-          expect(fizzbuzz.generate(3)).toBe('3');
-        });
-      });
-
-      describe('5の倍数の場合', () => {
-        it('5を渡したら文字列"5"を返す', () => {
-          expect(fizzbuzz.generate(5)).toBe('5');
-        });
-      });
-
-      describe('3と5両方の倍数の場合', () => {
-        it('15を渡したら文字列"FizzBuzz"を返す', () => {
-          expect(fizzbuzz.generate(15)).toBe('FizzBuzz');
-        });
-      });
-
-      describe('その他の場合', () => {
-        it('1を渡したら文字列"1"を返す', () => {
-          expect(fizzbuzz.generate(1)).toBe('1');
-        });
-      });
-    });
-
-    describe('それ以外のタイプの場合', () => {
-      it('4を渡したら InvalidTypeError を返す', () => {
-        expect(() => FizzBuzz.create(4)).toThrow(InvalidTypeError);
-        expect(() => FizzBuzz.create(4)).toThrow('無効なタイプです: 4');
-      });
-    });
-  });
-});
-
-describe('FizzBuzzValue', () => {
-  describe('ユーティリティメソッド', () => {
-    it('isFizz() - Fizzの場合にtrueを返す', () => {
-      const value = new FizzBuzzValue('Fizz');
-      expect(value.isFizz()).toBe(true);
-      expect(value.isBuzz()).toBe(false);
-      expect(value.isFizzBuzz()).toBe(false);
-      expect(value.isNumber()).toBe(false);
-    });
-
-    it('isBuzz() - Buzzの場合にtrueを返す', () => {
-      const value = new FizzBuzzValue('Buzz');
-      expect(value.isFizz()).toBe(false);
-      expect(value.isBuzz()).toBe(true);
-      expect(value.isFizzBuzz()).toBe(false);
-      expect(value.isNumber()).toBe(false);
-    });
-
-    it('isFizzBuzz() - FizzBuzzの場合にtrueを返す', () => {
-      const value = new FizzBuzzValue('FizzBuzz');
-      expect(value.isFizz()).toBe(false);
-      expect(value.isBuzz()).toBe(false);
-      expect(value.isFizzBuzz()).toBe(true);
-      expect(value.isNumber()).toBe(false);
-    });
-
-    it('isNumber() - 数値の場合にtrueを返す', () => {
-      const value = new FizzBuzzValue('1');
-      expect(value.isFizz()).toBe(false);
-      expect(value.isBuzz()).toBe(false);
-      expect(value.isFizzBuzz()).toBe(false);
-      expect(value.isNumber()).toBe(true);
-    });
-  });
-});
-
-describe('FizzBuzzList', () => {
-  describe('統計情報', () => {
-    it('getStatistics() - 統計情報を正しく取得する', () => {
-      const fizzbuzz = new FizzBuzz(1);
-      fizzbuzz.generateList();
-      const list = fizzbuzz.fizzBuzzList;
-      const stats = list.getStatistics();
+/**
+ * 統合テスト
+ * 各層（Application, Domain）が正しく連携することを確認
+ */
+describe('FizzBuzz Integration Test', () => {
+  describe('Application層とDomain層の連携', () => {
+    it('FizzBuzzCommandがFizzBuzzドメインを正しく使用する', () => {
+      const command = new FizzBuzzCommand(1);
       
-      expect(stats.fizz).toBe(27); // 3の倍数（15の倍数を除く）
-      expect(stats.buzz).toBe(14); // 5の倍数（15の倍数を除く）
-      expect(stats.fizzBuzz).toBe(6); // 15の倍数
-      expect(stats.numbers).toBe(53); // その他の数値
+      expect(command.execute(1)).toBe('1');
+      expect(command.execute(3)).toBe('Fizz');
+      expect(command.execute(5)).toBe('Buzz');
+      expect(command.execute(15)).toBe('FizzBuzz');
+    });
+
+    it('異なるタイプでの動作確認', () => {
+      const type1Command = new FizzBuzzCommand(1);
+      const type2Command = new FizzBuzzCommand(2);
+      const type3Command = new FizzBuzzCommand(3);
+      
+      // タイプ1: 標準的なFizzBuzz
+      expect(type1Command.execute(15)).toBe('FizzBuzz');
+      
+      // タイプ2: すべて数値
+      expect(type2Command.execute(15)).toBe('15');
+      
+      // タイプ3: 15の倍数のみFizzBuzz
+      expect(type3Command.execute(15)).toBe('FizzBuzz');
+      expect(type3Command.execute(3)).toBe('3');
+      expect(type3Command.execute(5)).toBe('5');
+    });
+
+    it('リスト生成とフィルタリングの統合', () => {
+      const command = new FizzBuzzCommand(1);
+      command.executeList(15);
+      
+      const stats = command.getStatistics();
+      expect(stats.fizz + stats.buzz + stats.fizzBuzz + stats.numbers).toBe(15);
+      
+      const fizzBuzzOnly = command.getFizzBuzzOnly();
+      expect(fizzBuzzOnly.every((value: string) => value === 'FizzBuzz')).toBe(true);
     });
   });
 
-  describe('フィルタリング', () => {
-    it('onlyFizzBuzz() - FizzBuzzのみを取得する', () => {
+  describe('エラーハンドリングの統合', () => {
+    it('無効なタイプでコマンド作成時にエラー', () => {
+      expect(() => new FizzBuzzCommand(99)).toThrow(InvalidTypeError);
+    });
+
+    it('FizzBuzz.createでのエラーハンドリング', () => {
+      expect(() => FizzBuzz.create(4)).toThrow(InvalidTypeError);
+      expect(() => FizzBuzz.create(4)).toThrow('無効なタイプです: 4');
+    });
+  });
+
+  describe('後方互換性テスト', () => {
+    it('従来のFizzBuzzクラス直接使用', () => {
       const fizzbuzz = new FizzBuzz(1);
-      fizzbuzz.generateList();
-      const list = fizzbuzz.fizzBuzzList;
-      const fizzBuzzOnly = list.onlyFizzBuzz();
       
-      expect(fizzBuzzOnly.length).toBe(6);
-      for (let i = 0; i < fizzBuzzOnly.length; i++) {
-        expect(fizzBuzzOnly.get(i).isFizzBuzz()).toBe(true);
-      }
+      expect(fizzbuzz.generate(1)).toBe('1');
+      expect(fizzbuzz.generate(3)).toBe('Fizz');
+      expect(fizzbuzz.generate(5)).toBe('Buzz');
+      expect(fizzbuzz.generate(15)).toBe('FizzBuzz');
+    });
+
+    it('静的メソッドの動作確認', () => {
+      expect(FizzBuzz.generate(3, 1)).toBe('Fizz');
+      expect(FizzBuzz.generate(15, 2)).toBe('15');
+      
+      const range = FizzBuzz.generateRange(1, 5);
+      expect(range).toEqual(['1', '2', 'Fizz', '4', 'Buzz']);
+    });
+  });
+
+  describe('パフォーマンステスト', () => {
+    it('大きなリストの処理', () => {
+      const command = new FizzBuzzCommand(1);
+      
+      const start = Date.now();
+      command.executeList(10000);
+      const end = Date.now();
+      
+      expect(end - start).toBeLessThan(1000); // 1秒以内に完了
+      
+      const stats = command.getStatistics();
+      expect(stats.fizz + stats.buzz + stats.fizzBuzz + stats.numbers).toBe(10000);
     });
   });
 });
