@@ -9,3 +9,10 @@ class FizzBuzz:
         elif number % 5 == 0:
             result = 'Buzz'
         return result
+
+    @staticmethod
+    def print_1_to_100():
+        result = []
+        for i in range(1, 101):
+            result.append(FizzBuzz.generate(i))
+        return result

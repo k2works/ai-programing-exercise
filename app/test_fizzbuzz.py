@@ -21,6 +21,14 @@ class FizzBuzzTest(unittest.TestCase):
     def test_15を渡したら文字列FizzBuzzを返す(self):
         self.assertEqual('FizzBuzz', self.fizzbuzz.generate(15))
 
+    def test_配列の初めは文字列の1を返す(self):
+        result = self.fizzbuzz.print_1_to_100()
+        self.assertEqual('1', result[0])
+
+    def test_配列の最後は文字列の100を返す(self):
+        result = self.fizzbuzz.print_1_to_100()
+        self.assertEqual('Buzz', result[-1])
+
 
 if __name__ == '__main__':
     unittest.main()
