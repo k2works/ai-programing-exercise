@@ -1,9 +1,27 @@
+// タイプクラス
+class FizzBuzzType01 {}
+class FizzBuzzType02 {}
+class FizzBuzzType03 {}
+
 export class FizzBuzz {
   private _list: string[] = [];
   private readonly _type: number;
 
   constructor(type: number = 1) {
     this._type = type;
+  }
+
+  static create(type: number): FizzBuzzType01 | FizzBuzzType02 | FizzBuzzType03 {
+    switch (type) {
+      case 1:
+        return new FizzBuzzType01();
+      case 2:
+        return new FizzBuzzType02();
+      case 3:
+        return new FizzBuzzType03();
+      default:
+        throw new Error('該当するタイプは存在しません');
+    }
   }
 
   get list(): string[] {
