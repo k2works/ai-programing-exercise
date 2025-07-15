@@ -15,6 +15,9 @@ class FizzBuzzTest(unittest.TestCase):
     def test_3を渡したら文字列Fizzを返す(self):
         self.assertEqual('Fizz', self.fizzbuzz.generate(3))
 
+    def test_5を渡したら文字列Buzzを返す(self):
+        self.assertEqual('Buzz', self.fizzbuzz.generate(5))
+
 
 if __name__ == '__main__':
     unittest.main()
