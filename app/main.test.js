@@ -18,4 +18,8 @@ describe('FizzBuzz', () => {
   test('3を渡したら文字列Fizzを返す', () => {
     expect(fizzbuzz.generate(3)).toBe('Fizz');
   });
+
+  test('5を渡したら文字列Buzzを返す', () => {
+    expect(fizzbuzz.generate(5)).toBe('Buzz');
+  });
 });
