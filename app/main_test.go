@@ -244,3 +244,99 @@ func Test_FizzBuzz構造体_配列を返す(t *testing.T) {
 		t.Errorf("Expected result[99] to be 'Buzz', but got '%s'", result[99])
 	}
 }
+
+// Commandパターンのテスト（FizzBuzzValueCommand）
+func Test_FizzBuzzValueCommand_タイプ1_1を渡したら文字列1を返す(t *testing.T) {
+	command := NewFizzBuzzValueCommand(&FizzBuzzType01{})
+	expected := "1"
+	actual := command.Execute(1)
+	if actual != expected {
+		t.Errorf("Expected %s, but got %s", expected, actual)
+	}
+}
+
+func Test_FizzBuzzValueCommand_タイプ1_3を渡したら文字列Fizzを返す(t *testing.T) {
+	command := NewFizzBuzzValueCommand(&FizzBuzzType01{})
+	expected := "Fizz"
+	actual := command.Execute(3)
+	if actual != expected {
+		t.Errorf("Expected %s, but got %s", expected, actual)
+	}
+}
+
+func Test_FizzBuzzValueCommand_タイプ2_3を渡したら文字列3を返す(t *testing.T) {
+	command := NewFizzBuzzValueCommand(&FizzBuzzType02{})
+	expected := "3"
+	actual := command.Execute(3)
+	if actual != expected {
+		t.Errorf("Expected %s, but got %s", expected, actual)
+	}
+}
+
+func Test_FizzBuzzValueCommand_タイプ3_15を渡したら文字列FizzBuzzを返す(t *testing.T) {
+	command := NewFizzBuzzValueCommand(&FizzBuzzType03{})
+	expected := "FizzBuzz"
+	actual := command.Execute(15)
+	if actual != expected {
+		t.Errorf("Expected %s, but got %s", expected, actual)
+	}
+}
+
+// Commandパターンのテスト（FizzBuzzListCommand）
+func Test_FizzBuzzListCommand_タイプ1_100までの配列を返す(t *testing.T) {
+	command := NewFizzBuzzListCommand(&FizzBuzzType01{})
+	result := command.Execute(100)
+
+	// 配列の長さをテスト
+	if len(result) != 100 {
+		t.Errorf("Expected length 100, but got %d", len(result))
+	}
+
+	// 最初の数項と特定の値をテスト
+	if result[0] != "1" {
+		t.Errorf("Expected result[0] to be '1', but got '%s'", result[0])
+	}
+	if result[2] != "Fizz" {
+		t.Errorf("Expected result[2] to be 'Fizz', but got '%s'", result[2])
+	}
+	if result[4] != "Buzz" {
+		t.Errorf("Expected result[4] to be 'Buzz', but got '%s'", result[4])
+	}
+	if result[14] != "FizzBuzz" {
+		t.Errorf("Expected result[14] to be 'FizzBuzz', but got '%s'", result[14])
+	}
+	if result[99] != "Buzz" {
+		t.Errorf("Expected result[99] to be 'Buzz', but got '%s'", result[99])
+	}
+}
+
+// Value Objectのテスト
+func Test_FizzBuzzValue_値オブジェクトの生成(t *testing.T) {
+	value := NewFizzBuzzValue(3, "Fizz")
+
+	if value.Number() != 3 {
+		t.Errorf("Expected number 3, but got %d", value.Number())
+	}
+
+	if value.Value() != "Fizz" {
+		t.Errorf("Expected value 'Fizz', but got '%s'", value.Value())
+	}
+
+	if value.ToString() != "Fizz" {
+		t.Errorf("Expected toString 'Fizz', but got '%s'", value.ToString())
+	}
+}
+
+func Test_FizzBuzzValue_等価性の比較(t *testing.T) {
+	value1 := NewFizzBuzzValue(3, "Fizz")
+	value2 := NewFizzBuzzValue(3, "Fizz")
+	value3 := NewFizzBuzzValue(5, "Buzz")
+
+	if !value1.Equal(value2) {
+		t.Errorf("Expected value1 and value2 to be equal")
+	}
+
+	if value1.Equal(value3) {
+		t.Errorf("Expected value1 and value3 to be different")
+	}
+}

@@ -62,7 +62,8 @@ func (f *FizzBuzz) List() []string {
 
 // Generate インスタンスメソッド（ポリモーフィズムを使用）
 func (f *FizzBuzz) Generate(number int) string {
-	return f.fizzBuzzType.Generate(number)
+	value := f.fizzBuzzType.Generate(number)
+	return value.Value()
 }
 
 // GenerateList 1から100までのFizzBuzz配列を生成
@@ -104,7 +105,7 @@ func FizzBuzzGenerateWithType(number int, fizzBuzzType int) string {
 
 // FizzBuzzタイプインターフェース（ポリモーフィズム）
 type FizzBuzzType interface {
-	Generate(number int) string
+	Generate(number int) *FizzBuzzValue
 }
 
 // FizzBuzzTypeBase 共通メソッドを提供する基底構造体
@@ -123,17 +124,17 @@ type FizzBuzzType01 struct {
 	FizzBuzzTypeBase
 }
 
-func (f *FizzBuzzType01) Generate(number int) string {
+func (f *FizzBuzzType01) Generate(number int) *FizzBuzzValue {
 	if f.IsFizz(number) && f.IsBuzz(number) {
-		return "FizzBuzz"
+		return NewFizzBuzzValue(number, "FizzBuzz")
 	}
 	if f.IsFizz(number) {
-		return "Fizz"
+		return NewFizzBuzzValue(number, "Fizz")
 	}
 	if f.IsBuzz(number) {
-		return "Buzz"
+		return NewFizzBuzzValue(number, "Buzz")
 	}
-	return strconv.Itoa(number)
+	return NewFizzBuzzValue(number, strconv.Itoa(number))
 }
 
 // FizzBuzzType02 タイプ2（数字のみ）
@@ -141,8 +142,8 @@ type FizzBuzzType02 struct {
 	FizzBuzzTypeBase
 }
 
-func (f *FizzBuzzType02) Generate(number int) string {
-	return strconv.Itoa(number)
+func (f *FizzBuzzType02) Generate(number int) *FizzBuzzValue {
+	return NewFizzBuzzValue(number, strconv.Itoa(number))
 }
 
 // FizzBuzzType03 タイプ3（FizzBuzzのみ）
@@ -150,9 +151,81 @@ type FizzBuzzType03 struct {
 	FizzBuzzTypeBase
 }
 
-func (f *FizzBuzzType03) Generate(number int) string {
+func (f *FizzBuzzType03) Generate(number int) *FizzBuzzValue {
 	if f.IsFizz(number) && f.IsBuzz(number) {
-		return "FizzBuzz"
+		return NewFizzBuzzValue(number, "FizzBuzz")
 	}
-	return strconv.Itoa(number)
+	return NewFizzBuzzValue(number, strconv.Itoa(number))
+}
+
+// FizzBuzzCommand Commandパターンのインターフェース
+type FizzBuzzCommand interface {
+	Execute(number int) string
+}
+
+// FizzBuzzValueCommand 値オブジェクトを返すコマンド
+type FizzBuzzValueCommand struct {
+	fizzBuzzType FizzBuzzType
+}
+
+// NewFizzBuzzValueCommand FizzBuzzValueCommandのコンストラクタ
+func NewFizzBuzzValueCommand(fizzBuzzType FizzBuzzType) *FizzBuzzValueCommand {
+	return &FizzBuzzValueCommand{fizzBuzzType: fizzBuzzType}
+}
+
+// Execute 値オブジェクトを生成して値を返す
+func (cmd *FizzBuzzValueCommand) Execute(number int) string {
+	value := cmd.fizzBuzzType.Generate(number)
+	return value.Value()
+}
+
+// FizzBuzzListCommand リストを返すコマンド
+type FizzBuzzListCommand struct {
+	fizzBuzzType FizzBuzzType
+}
+
+// NewFizzBuzzListCommand FizzBuzzListCommandのコンストラクタ
+func NewFizzBuzzListCommand(fizzBuzzType FizzBuzzType) *FizzBuzzListCommand {
+	return &FizzBuzzListCommand{fizzBuzzType: fizzBuzzType}
+}
+
+// Execute リストを生成して返す
+func (cmd *FizzBuzzListCommand) Execute(maxNumber int) []string {
+	result := make([]string, maxNumber)
+	for i := 1; i <= maxNumber; i++ {
+		value := cmd.fizzBuzzType.Generate(i)
+		result[i-1] = value.Value()
+	}
+	return result
+}
+
+// FizzBuzzValue 値オブジェクト（Value Object パターン）
+type FizzBuzzValue struct {
+	number int
+	value  string
+}
+
+// NewFizzBuzzValue FizzBuzzValueのコンストラクタ
+func NewFizzBuzzValue(number int, value string) *FizzBuzzValue {
+	return &FizzBuzzValue{number: number, value: value}
+}
+
+// Number ゲッターメソッド
+func (fv *FizzBuzzValue) Number() int {
+	return fv.number
+}
+
+// Value ゲッターメソッド
+func (fv *FizzBuzzValue) Value() string {
+	return fv.value
+}
+
+// ToString 文字列表現を返す
+func (fv *FizzBuzzValue) ToString() string {
+	return fv.value
+}
+
+// Equal 等価性を比較
+func (fv *FizzBuzzValue) Equal(other *FizzBuzzValue) bool {
+	return fv.number == other.number && fv.value == other.value
 }
