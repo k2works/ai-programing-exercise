@@ -1,3 +1,33 @@
+// コマンドパターンの実装
+export interface Command<T> {
+  execute(): T;
+}
+
+// FizzBuzz値生成コマンド
+export class FizzBuzzValueCommand implements Command<FizzBuzzValue> {
+  constructor(
+    private readonly fizzBuzzType: FizzBuzzType,
+    private readonly number: number
+  ) {}
+
+  execute(): FizzBuzzValue {
+    return this.fizzBuzzType.generate(this.number);
+  }
+}
+
+// FizzBuzzリスト生成コマンド
+export class FizzBuzzListCommand implements Command<FizzBuzzList> {
+  constructor(
+    private readonly fizzBuzzType: FizzBuzzType,
+    private readonly start: number,
+    private readonly end: number
+  ) {}
+
+  execute(): FizzBuzzList {
+    return FizzBuzzList.createRange(this.fizzBuzzType, this.start, this.end);
+  }
+}
+
 // ファーストクラスコレクション
 export class FizzBuzzList {
   private readonly values: readonly FizzBuzzValue[];
@@ -58,6 +88,54 @@ export class FizzBuzzList {
     }
     return new FizzBuzzList(values);
   }
+
+  // 統計情報を取得
+  getStatistics(): { fizz: number; buzz: number; fizzBuzz: number; numbers: number } {
+    const stats = { fizz: 0, buzz: 0, fizzBuzz: 0, numbers: 0 };
+    for (const value of this.values) {
+      if (value.isFizzBuzz()) stats.fizzBuzz++;
+      else if (value.isFizz()) stats.fizz++;
+      else if (value.isBuzz()) stats.buzz++;
+      else stats.numbers++;
+    }
+    return stats;
+  }
+
+  // フィルタリング
+  filter(predicate: (value: FizzBuzzValue) => boolean): FizzBuzzList {
+    return new FizzBuzzList(this.values.filter(predicate));
+  }
+
+  // FizzBuzzのみを取得
+  onlyFizzBuzz(): FizzBuzzList {
+    return this.filter(value => value.isFizzBuzz());
+  }
+
+  // 文字列表現
+  toString(): string {
+    return this.values.map(v => v.toString()).join(', ');
+  }
+
+  // JSON表現
+  toJSON(): string[] {
+    return this.values.map(v => v.toJSON());
+  }
+
+  // 等価性
+  equals(other: FizzBuzzList): boolean {
+    if (!(other instanceof FizzBuzzList)) {
+      return false;
+    }
+    if (this.length !== other.length) {
+      return false;
+    }
+    for (let i = 0; i < this.length; i++) {
+      if (!this.get(i).equals(other.get(i))) {
+        return false;
+      }
+    }
+    return true;
+  }
 }
 
 // 値オブジェクト
@@ -77,6 +155,28 @@ export class FizzBuzzValue {
   }
 
   toString(): string {
+    return this._value;
+  }
+
+  // 追加のユーティリティメソッド
+  isFizz(): boolean {
+    return this._value === 'Fizz';
+  }
+
+  isBuzz(): boolean {
+    return this._value === 'Buzz';
+  }
+
+  isFizzBuzz(): boolean {
+    return this._value === 'FizzBuzz';
+  }
+
+  isNumber(): boolean {
+    return !this.isFizz() && !this.isBuzz() && !this.isFizzBuzz();
+  }
+
+  // JSON表現
+  toJSON(): string {
     return this._value;
   }
 }
@@ -165,18 +265,21 @@ export class FizzBuzz {
   generate(n: number, type?: number): string {
     if (type !== undefined) {
       // 後方互換性のために type パラメータが指定された場合の処理
-      // 新しいポリモーフィズムの仕組みを使って簡素化
+      // コマンドパターンを使って実装
       const fizzBuzzType = FizzBuzz.create(type);
-      return fizzBuzzType.generate(n).value;
+      const command = new FizzBuzzValueCommand(fizzBuzzType, n);
+      return command.execute().value;
     }
     
-    // ポリモーフィズムを活用した処理
-    return this._type.generate(n).value;
+    // コマンドパターンを活用した処理
+    const command = new FizzBuzzValueCommand(this._type, n);
+    return command.execute().value;
   }
 
   generateList(): void {
-    // FizzBuzzListを使って新しいリストを作成
-    this._list = FizzBuzzList.createRange(this._type, 1, 100);
+    // コマンドパターンを使ってリスト生成
+    const command = new FizzBuzzListCommand(this._type, 1, 100);
+    this._list = command.execute();
   }
 
   // 後方互換性のための静的メソッド

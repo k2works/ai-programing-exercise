@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { FizzBuzz } from './fizzbuzz';
+import { FizzBuzz, FizzBuzzValue, FizzBuzzList } from './fizzbuzz';
 
 describe('FizzBuzz', () => {
   let fizzbuzz: FizzBuzz;
@@ -153,6 +153,72 @@ describe('FizzBuzz', () => {
       it('1を渡したら例外を返す', () => {
         expect(() => FizzBuzz.create(4)).toThrow('該当するタイプは存在しません');
       });
+    });
+  });
+});
+
+describe('FizzBuzzValue', () => {
+  describe('ユーティリティメソッド', () => {
+    it('isFizz() - Fizzの場合にtrueを返す', () => {
+      const value = new FizzBuzzValue('Fizz');
+      expect(value.isFizz()).toBe(true);
+      expect(value.isBuzz()).toBe(false);
+      expect(value.isFizzBuzz()).toBe(false);
+      expect(value.isNumber()).toBe(false);
+    });
+
+    it('isBuzz() - Buzzの場合にtrueを返す', () => {
+      const value = new FizzBuzzValue('Buzz');
+      expect(value.isFizz()).toBe(false);
+      expect(value.isBuzz()).toBe(true);
+      expect(value.isFizzBuzz()).toBe(false);
+      expect(value.isNumber()).toBe(false);
+    });
+
+    it('isFizzBuzz() - FizzBuzzの場合にtrueを返す', () => {
+      const value = new FizzBuzzValue('FizzBuzz');
+      expect(value.isFizz()).toBe(false);
+      expect(value.isBuzz()).toBe(false);
+      expect(value.isFizzBuzz()).toBe(true);
+      expect(value.isNumber()).toBe(false);
+    });
+
+    it('isNumber() - 数値の場合にtrueを返す', () => {
+      const value = new FizzBuzzValue('1');
+      expect(value.isFizz()).toBe(false);
+      expect(value.isBuzz()).toBe(false);
+      expect(value.isFizzBuzz()).toBe(false);
+      expect(value.isNumber()).toBe(true);
+    });
+  });
+});
+
+describe('FizzBuzzList', () => {
+  describe('統計情報', () => {
+    it('getStatistics() - 統計情報を正しく取得する', () => {
+      const fizzbuzz = new FizzBuzz(1);
+      fizzbuzz.generateList();
+      const list = fizzbuzz.fizzBuzzList;
+      const stats = list.getStatistics();
+      
+      expect(stats.fizz).toBe(27); // 3の倍数（15の倍数を除く）
+      expect(stats.buzz).toBe(14); // 5の倍数（15の倍数を除く）
+      expect(stats.fizzBuzz).toBe(6); // 15の倍数
+      expect(stats.numbers).toBe(53); // その他の数値
+    });
+  });
+
+  describe('フィルタリング', () => {
+    it('onlyFizzBuzz() - FizzBuzzのみを取得する', () => {
+      const fizzbuzz = new FizzBuzz(1);
+      fizzbuzz.generateList();
+      const list = fizzbuzz.fizzBuzzList;
+      const fizzBuzzOnly = list.onlyFizzBuzz();
+      
+      expect(fizzBuzzOnly.length).toBe(6);
+      for (let i = 0; i < fizzBuzzOnly.length; i++) {
+        expect(fizzBuzzOnly.get(i).isFizzBuzz()).toBe(true);
+      }
     });
   });
 });
