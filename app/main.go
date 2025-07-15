@@ -40,6 +40,8 @@ func FizzBuzzGenerateWithType(number int, fizzBuzzType int) string {
 			return "Buzz"
 		}
 		return strconv.Itoa(number)
+	case 2:
+		return strconv.Itoa(number)
 	}
 	return ""
 }
