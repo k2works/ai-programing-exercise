@@ -214,17 +214,13 @@ describe('FizzBuzz', () => {
     test('値は正の値のみ許可する', () => {
       expect(() => {
         new FizzBuzzValueCommand(new FizzBuzzType01()).execute(-1);
-      }).toThrow('number should be positive');
+      }).toThrow('正の値のみ有効です');
     });
-  });
 
-  describe('範囲チェック', () => {
-    describe('FizzBuzzListCommand', () => {
-      test('100より多い数を許可しない', () => {
-        expect(() => {
-          new FizzBuzzListCommand(new FizzBuzzType01()).execute(101);
-        }).toThrow('list size should be 100 or less');
-      });
+    test('100より多い数を許可しない', () => {
+      expect(() => {
+        new FizzBuzzListCommand(new FizzBuzzType01()).execute(101);
+      }).toThrow('上限は100件までです');
     });
   });
 });

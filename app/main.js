@@ -53,7 +53,9 @@ class FizzBuzz {
 
 class FizzBuzzValue {
   constructor(number, value) {
-    Assertions.assert(number >= 0, 'number should be positive');
+    if (number < 0) {
+      throw new Error('正の値のみ有効です');
+    }
     this._number = number;
     this._value = value;
   }
@@ -77,7 +79,9 @@ class FizzBuzzValue {
 
 class FizzBuzzList {
   constructor(list) {
-    Assertions.assert(list.length <= 100, 'list size should be 100 or less');
+    if (list.length > 100) {
+      throw new Error('上限は100件までです');
+    }
     this._value = list;
   }
 
@@ -173,6 +177,5 @@ module.exports = {
   FizzBuzzType01,
   FizzBuzzType02, 
   FizzBuzzType03,
-  FizzBuzzListCommand,
-  Assertions
+  FizzBuzzListCommand
 };
