@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { FizzBuzz, FizzBuzzValue, FizzBuzzList } from './fizzbuzz';
+import { FizzBuzz, FizzBuzzValue, FizzBuzzList, InvalidTypeError } from './fizzbuzz';
 
 describe('FizzBuzz', () => {
   let fizzbuzz: FizzBuzz;
@@ -150,8 +150,9 @@ describe('FizzBuzz', () => {
     });
 
     describe('それ以外のタイプの場合', () => {
-      it('1を渡したら例外を返す', () => {
-        expect(() => FizzBuzz.create(4)).toThrow('該当するタイプは存在しません');
+      it('4を渡したら InvalidTypeError を返す', () => {
+        expect(() => FizzBuzz.create(4)).toThrow(InvalidTypeError);
+        expect(() => FizzBuzz.create(4)).toThrow('無効なタイプです: 4');
       });
     });
   });

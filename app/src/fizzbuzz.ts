@@ -1,3 +1,18 @@
+// カスタム例外クラス
+export class InvalidTypeError extends Error {
+  constructor(type: number) {
+    super(`無効なタイプです: ${type}`);
+    this.name = 'InvalidTypeError';
+  }
+}
+
+export class IndexOutOfRangeError extends Error {
+  constructor(index: number, length: number) {
+    super(`インデックスが範囲外です: ${index} (配列サイズ: ${length})`);
+    this.name = 'IndexOutOfRangeError';
+  }
+}
+
 // コマンドパターンの実装
 export interface Command<T> {
   execute(): T;
@@ -50,7 +65,7 @@ export class FizzBuzzList {
   // 要素の取得
   get(index: number): FizzBuzzValue {
     if (index < 0 || index >= this.values.length) {
-      throw new Error('Index out of bounds');
+      throw new IndexOutOfRangeError(index, this.values.length);
     }
     return this.values[index];
   }
@@ -245,7 +260,7 @@ export class FizzBuzz {
       case 3:
         return new FizzBuzzType03();
       default:
-        throw new Error('該当するタイプは存在しません');
+        throw new InvalidTypeError(type);
     }
   }
 
