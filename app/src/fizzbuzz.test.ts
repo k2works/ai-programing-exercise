@@ -27,4 +27,10 @@ describe('FizzBuzz', () => {
       expect(fizzbuzz.generate(6)).toBe('Fizz')
     })
   })
+
+  describe('5の倍数の場合', () => {
+    it('5を渡したら文字列"Buzz"を返す', () => {
+      expect(fizzbuzz.generate(5)).toBe('Buzz')
+    })
+  })
 })
