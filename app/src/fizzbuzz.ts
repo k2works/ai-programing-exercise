@@ -9,4 +9,18 @@ export class FizzBuzz {
     }
     return n.toString()
   }
+
+  static generateRange(start: number, end: number): string[] {
+    const result: string[] = []
+    for (let i = start; i <= end; i++) {
+      result.push(this.generate(i))
+    }
+    return result
+  }
+
+  static printRange(start: number, end: number): void {
+    for (let i = start; i <= end; i++) {
+      console.log(this.generate(i))
+    }
+  }
 }
