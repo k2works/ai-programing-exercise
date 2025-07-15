@@ -9,7 +9,7 @@ const MaxNumber = 100
 
 // FizzBuzz構造体（クラス相当）
 type FizzBuzz struct {
-	list         []string
+	list         *FizzBuzzList
 	fizzBuzzType FizzBuzzType
 }
 
@@ -33,12 +33,18 @@ func FizzBuzzGenerate(number int) string {
 
 // NewFizzBuzz コンストラクタ（タイプを指定）
 func NewFizzBuzz(fizzBuzzType int) *FizzBuzz {
-	return &FizzBuzz{fizzBuzzType: createFizzBuzzType(fizzBuzzType)}
+	return &FizzBuzz{
+		fizzBuzzType: createFizzBuzzType(fizzBuzzType), 
+		list: NewFizzBuzzListEmpty(),
+	}
 }
 
 // NewFizzBuzzDefault デフォルトコンストラクタ（タイプ1）
 func NewFizzBuzzDefault() *FizzBuzz {
-	return &FizzBuzz{fizzBuzzType: createFizzBuzzType(1)}
+	return &FizzBuzz{
+		fizzBuzzType: createFizzBuzzType(1),
+		list: NewFizzBuzzListEmpty(),
+	}
 }
 
 // createFizzBuzzType ファクトリメソッド
@@ -57,7 +63,11 @@ func createFizzBuzzType(typeNum int) FizzBuzzType {
 
 // List ゲッターメソッド（フィールドのカプセル化）
 func (f *FizzBuzz) List() []string {
-	return f.list
+	result := make([]string, f.list.Count())
+	for i := 0; i < f.list.Count(); i++ {
+		result[i] = f.list.Get(i).Value()
+	}
+	return result
 }
 
 // Generate インスタンスメソッド（ポリモーフィズムを使用）
@@ -68,10 +78,11 @@ func (f *FizzBuzz) Generate(number int) string {
 
 // GenerateList 1から100までのFizzBuzz配列を生成
 func (f *FizzBuzz) GenerateList() {
-	f.list = make([]string, MaxNumber)
+	values := make([]*FizzBuzzValue, MaxNumber)
 	for i := 1; i <= MaxNumber; i++ {
-		f.list[i-1] = f.Generate(i) // インスタンスのタイプを使用
+		values[i-1] = f.fizzBuzzType.Generate(i)
 	}
+	f.list = f.list.Add(values)
 }
 
 // タイプごとに出力を切り替える関数（従来の関数、後で削除予定）
@@ -191,10 +202,14 @@ func NewFizzBuzzListCommand(fizzBuzzType FizzBuzzType) *FizzBuzzListCommand {
 
 // Execute リストを生成して返す
 func (cmd *FizzBuzzListCommand) Execute(maxNumber int) []string {
-	result := make([]string, maxNumber)
+	values := make([]*FizzBuzzValue, maxNumber)
 	for i := 1; i <= maxNumber; i++ {
-		value := cmd.fizzBuzzType.Generate(i)
-		result[i-1] = value.Value()
+		values[i-1] = cmd.fizzBuzzType.Generate(i)
+	}
+	list := NewFizzBuzzList(values)
+	result := make([]string, list.Count())
+	for i := 0; i < list.Count(); i++ {
+		result[i] = list.Get(i).Value()
 	}
 	return result
 }
@@ -228,4 +243,54 @@ func (fv *FizzBuzzValue) ToString() string {
 // Equal 等価性を比較
 func (fv *FizzBuzzValue) Equal(other *FizzBuzzValue) bool {
 	return fv.number == other.number && fv.value == other.value
+}
+
+// FizzBuzzList ファーストクラスコレクション（コレクションのカプセル化）
+type FizzBuzzList struct {
+	values []*FizzBuzzValue
+}
+
+// NewFizzBuzzList FizzBuzzListのコンストラクタ
+func NewFizzBuzzList(values []*FizzBuzzValue) *FizzBuzzList {
+	return &FizzBuzzList{values: values}
+}
+
+// NewFizzBuzzListEmpty 空のFizzBuzzListのコンストラクタ
+func NewFizzBuzzListEmpty() *FizzBuzzList {
+	return &FizzBuzzList{values: make([]*FizzBuzzValue, 0)}
+}
+
+// Values ゲッターメソッド
+func (fl *FizzBuzzList) Values() []*FizzBuzzValue {
+	return fl.values
+}
+
+// ToString 文字列表現を返す
+func (fl *FizzBuzzList) ToString() string {
+	result := make([]string, len(fl.values))
+	for i, value := range fl.values {
+		result[i] = value.Value()
+	}
+	return fmt.Sprintf("%v", result)
+}
+
+// Add 新しい値を追加した新しいFizzBuzzListを返す（イミュータブル）
+func (fl *FizzBuzzList) Add(values []*FizzBuzzValue) *FizzBuzzList {
+	newValues := make([]*FizzBuzzValue, len(fl.values)+len(values))
+	copy(newValues, fl.values)
+	copy(newValues[len(fl.values):], values)
+	return NewFizzBuzzList(newValues)
+}
+
+// Count リストの要素数を返す
+func (fl *FizzBuzzList) Count() int {
+	return len(fl.values)
+}
+
+// Get 指定したインデックスの要素を返す
+func (fl *FizzBuzzList) Get(index int) *FizzBuzzValue {
+	if index < 0 || index >= len(fl.values) {
+		panic("インデックスが範囲外です")
+	}
+	return fl.values[index]
 }

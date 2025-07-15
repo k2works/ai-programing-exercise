@@ -340,3 +340,56 @@ func Test_FizzBuzzValue_等価性の比較(t *testing.T) {
 		t.Errorf("Expected value1 and value3 to be different")
 	}
 }
+
+// ファーストクラスコレクションのテスト
+func Test_FizzBuzzList_新しいインスタンスが作られる(t *testing.T) {
+	// 初期リスト作成
+	values1 := []*FizzBuzzValue{
+		NewFizzBuzzValue(1, "1"),
+		NewFizzBuzzValue(3, "Fizz"),
+	}
+	list1 := NewFizzBuzzList(values1)
+
+	// 新しい要素を追加
+	values2 := []*FizzBuzzValue{
+		NewFizzBuzzValue(5, "Buzz"),
+		NewFizzBuzzValue(15, "FizzBuzz"),
+	}
+	list2 := list1.Add(values2)
+
+	// 元のリストは変更されていないこと
+	if list1.Count() != 2 {
+		t.Errorf("Expected list1 count 2, but got %d", list1.Count())
+	}
+
+	// 新しいリストには全ての要素が含まれていること
+	if list2.Count() != 4 {
+		t.Errorf("Expected list2 count 4, but got %d", list2.Count())
+	}
+
+	// 要素の値が正しいこと
+	if list2.Get(0).Value() != "1" {
+		t.Errorf("Expected first element '1', but got '%s'", list2.Get(0).Value())
+	}
+	if list2.Get(3).Value() != "FizzBuzz" {
+		t.Errorf("Expected last element 'FizzBuzz', but got '%s'", list2.Get(3).Value())
+	}
+}
+
+func Test_FizzBuzzList_空のリストからの追加(t *testing.T) {
+	emptyList := NewFizzBuzzListEmpty()
+
+	values := []*FizzBuzzValue{
+		NewFizzBuzzValue(1, "1"),
+		NewFizzBuzzValue(3, "Fizz"),
+	}
+	newList := emptyList.Add(values)
+
+	if emptyList.Count() != 0 {
+		t.Errorf("Expected empty list count 0, but got %d", emptyList.Count())
+	}
+
+	if newList.Count() != 2 {
+		t.Errorf("Expected new list count 2, but got %d", newList.Count())
+	}
+}
