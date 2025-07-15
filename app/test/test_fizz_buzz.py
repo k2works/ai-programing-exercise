@@ -122,6 +122,22 @@ class TestFizzBuzz:
     def test_タイプ2_三と五の倍数の場合(self) -> None:
         """Test type 2 for multiples of both 3 and 5."""
         assert self.fizzbuzz.generate(15, 2) == "15"
+        
+    def test_タイプ3_三の倍数の場合(self) -> None:
+        """Test type 3 for multiples of 3."""
+        assert self.fizzbuzz.generate(3, 3) == "3"
+        
+    def test_タイプ3_五の倍数の場合(self) -> None:
+        """Test type 3 for multiples of 5."""
+        assert self.fizzbuzz.generate(5, 3) == "5"
+        
+    def test_タイプ3_三と五の倍数の場合(self) -> None:
+        """Test type 3 for multiples of both 3 and 5."""
+        assert self.fizzbuzz.generate(15, 3) == "FizzBuzz"
+        
+    def test_タイプ3_その他の場合(self) -> None:
+        """Test type 3 for other cases."""
+        assert self.fizzbuzz.generate(1, 3) == "1"
 
 
 class TestArrayAndIteration:

@@ -31,6 +31,14 @@ class FizzBuzz:
             return str(number)
         elif type_ == 2:
             return str(number)
+        elif type_ == 3:
+            is_fizz = number % 3 == 0
+            is_buzz = number % 5 == 0
+
+            if is_fizz and is_buzz:
+                return "FizzBuzz"
+
+            return str(number)
         
         return str(number)  # その他のタイプの場合（後で実装）
 
