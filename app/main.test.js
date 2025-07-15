@@ -1,4 +1,4 @@
-const FizzBuzz = require('./main');
+const { FizzBuzz, FizzBuzzValue, FizzBuzzList } = require('./main');
 
 describe('FizzBuzz', () => {
   describe('タイプ1の場合', () => {
@@ -103,14 +103,14 @@ describe('FizzBuzz', () => {
     });
 
     describe('三の倍数の場合', () => {
-      test('3を渡したら文字列Fizzを返す', () => {
-        expect(fizzbuzz.generate(3).value).toBe('Fizz');
+      test('3を渡したら文字列3を返す', () => {
+        expect(fizzbuzz.generate(3).value).toBe('3');
       });
     });
 
     describe('五の倍数の場合', () => {
-      test('5を渡したら文字列Buzzを返す', () => {
-        expect(fizzbuzz.generate(5).value).toBe('Buzz');
+      test('5を渡したら文字列5を返す', () => {
+        expect(fizzbuzz.generate(5).value).toBe('5');
       });
     });
 
@@ -133,6 +133,32 @@ describe('FizzBuzz', () => {
         const fizzbuzz = new FizzBuzz(4);
         fizzbuzz.generate(1);
       }).toThrow('該当するタイプは存在しません');
+    });
+  });
+
+  describe('ファーストクラスコレクション', () => {
+    describe('FizzBuzzList', () => {
+      test('空のリストを作成できる', () => {
+        const emptyList = new FizzBuzzList([]);
+        expect(emptyList.value).toEqual([]);
+      });
+
+      test('要素を追加できる', () => {
+        const fizzbuzz = new FizzBuzz(1);
+        fizzbuzz.generateList();
+        const list = fizzbuzz.list;
+        expect(list.length).toBe(100);
+      });
+
+      test('リストの内容を確認できる', () => {
+        const fizzbuzz = new FizzBuzz(1);
+        fizzbuzz.generateList();
+        const list = fizzbuzz.list;
+        expect(list[0].value).toBe('1');
+        expect(list[2].value).toBe('Fizz');
+        expect(list[4].value).toBe('Buzz');
+        expect(list[14].value).toBe('FizzBuzz');
+      });
     });
   });
 });

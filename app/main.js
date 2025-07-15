@@ -2,11 +2,11 @@ class FizzBuzz {
   constructor(type = 1) {
     this.MAX_NUMBER = 100;
     this._type = FizzBuzz.create(type);
-    this._list = [];
+    this._list = new FizzBuzzList([]);
   }
 
   get list() {
-    return this._list;
+    return this._list.value;
   }
 
   static create(type) {
@@ -27,10 +27,11 @@ class FizzBuzz {
   }
 
   generateList() {
-    this._list = [];
+    const newList = [];
     for (let i = 1; i <= this.MAX_NUMBER; i++) {
-      this._list.push(this._type.generate(i));
+      newList.push(this._type.generate(i));
     }
+    this._list = this._list.add(newList);
   }
 
   printRange(min, max) {
@@ -62,6 +63,24 @@ class FizzBuzzValue {
 
   equals(other) {
     return this._number === other.number && this._value === other.value;
+  }
+}
+
+class FizzBuzzList {
+  constructor(list) {
+    this._value = list;
+  }
+
+  get value() {
+    return this._value;
+  }
+
+  toString() {
+    return this._value.toString();
+  }
+
+  add(values) {
+    return new FizzBuzzList(this._value.concat(values));
   }
 }
 
@@ -98,13 +117,9 @@ class FizzBuzzType03 extends FizzBuzzType {
   generate(number) {
     if (this.isFizz(number) && this.isBuzz(number)) {
       return new FizzBuzzValue(number, 'FizzBuzz');
-    } else if (this.isFizz(number)) {
-      return new FizzBuzzValue(number, 'Fizz');
-    } else if (this.isBuzz(number)) {
-      return new FizzBuzzValue(number, 'Buzz');
     }
     return new FizzBuzzValue(number, number.toString());
   }
 }
 
-module.exports = FizzBuzz;
+module.exports = { FizzBuzz, FizzBuzzValue, FizzBuzzList };
