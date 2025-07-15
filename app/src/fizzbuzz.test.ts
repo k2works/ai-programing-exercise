@@ -40,6 +40,14 @@ describe('FizzBuzz', () => {
     });
   });
 
+  describe('タイプごとに出力を切り替えることができる', () => {
+    describe('タイプ1の場合', () => {
+      it('1を渡したら文字列"1"を返す', () => {
+        expect(fizzbuzz.generate(1, 1)).toBe('1');
+      });
+    });
+  });
+
   describe('1から100までの数', () => {
     it('1から100までのFizzBuzz配列を返す', () => {
       const result = fizzbuzz.generateRange(1, 100);
