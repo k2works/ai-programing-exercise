@@ -1,7 +1,37 @@
 // タイプクラス
-class FizzBuzzType01 {}
-class FizzBuzzType02 {}
-class FizzBuzzType03 {}
+class FizzBuzzType01 {
+  generate(n: number): string {
+    const isFizz = n % 3 === 0;
+    const isBuzz = n % 5 === 0;
+
+    if (isFizz && isBuzz) {
+      return 'FizzBuzz';
+    } else if (isFizz) {
+      return 'Fizz';
+    } else if (isBuzz) {
+      return 'Buzz';
+    }
+    return n.toString();
+  }
+}
+
+class FizzBuzzType02 {
+  generate(n: number): string {
+    return n.toString();
+  }
+}
+
+class FizzBuzzType03 {
+  generate(n: number): string {
+    const isFizz = n % 3 === 0;
+    const isBuzz = n % 5 === 0;
+
+    if (isFizz && isBuzz) {
+      return 'FizzBuzz';
+    }
+    return n.toString();
+  }
+}
 
 export class FizzBuzz {
   private _list: string[] = [];
