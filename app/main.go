@@ -25,11 +25,11 @@ func FizzBuzzGenerate(number int) string {
 
 // タイプごとに出力を切り替える関数（デフォルト引数の代わりにオーバーロード）
 func FizzBuzzGenerateWithType(number int, fizzBuzzType int) string {
+	isFizz := number%3 == 0
+	isBuzz := number%5 == 0
+
 	switch fizzBuzzType {
 	case 1:
-		isFizz := number%3 == 0
-		isBuzz := number%5 == 0
-
 		if isFizz && isBuzz {
 			return "FizzBuzz"
 		}
@@ -43,9 +43,6 @@ func FizzBuzzGenerateWithType(number int, fizzBuzzType int) string {
 	case 2:
 		return strconv.Itoa(number)
 	case 3:
-		isFizz := number%3 == 0
-		isBuzz := number%5 == 0
-
 		if isFizz && isBuzz {
 			return "FizzBuzz"
 		}
