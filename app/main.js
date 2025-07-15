@@ -1,7 +1,7 @@
 class FizzBuzz {
   constructor(type = 1) {
     this.MAX_NUMBER = 100;
-    this._type = type;
+    this._type = FizzBuzz.create(type);
     this._list = [];
   }
 
@@ -23,37 +23,13 @@ class FizzBuzz {
   }
 
   generate(number) {
-    switch (this._type) {
-      case 1:
-        let result = number.toString();
-        if (number % 3 === 0 && number % 5 === 0) {
-          result = 'FizzBuzz';
-        } else if (number % 3 === 0) {
-          result = 'Fizz';
-        } else if (number % 5 === 0) {
-          result = 'Buzz';
-        }
-        return result;
-      case 2:
-        return number.toString();
-      case 3:
-        if (number % 3 === 0 && number % 5 === 0) {
-          return 'FizzBuzz';
-        } else if (number % 3 === 0) {
-          return 'Fizz';
-        } else if (number % 5 === 0) {
-          return 'Buzz';
-        }
-        return number.toString();
-      default:
-        throw new Error('該当するタイプは存在しません');
-    }
+    return this._type.generate(number);
   }
 
   generateList() {
     this._list = [];
     for (let i = 1; i <= this.MAX_NUMBER; i++) {
-      this._list.push(this.generate(i));
+      this._list.push(this._type.generate(i));
     }
   }
 
