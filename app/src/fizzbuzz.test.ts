@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect} from 'vitest';
 import { FizzBuzz } from './domain/model/FizzBuzz';
 import { FizzBuzzCommand } from './application/FizzBuzzCommand';
 import { InvalidTypeError } from './domain/type/FizzBuzzType';
