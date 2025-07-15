@@ -4,7 +4,7 @@ describe('FizzBuzz', () => {
   let fizzbuzz;
 
   beforeEach(() => {
-    fizzbuzz = FizzBuzz;
+    fizzbuzz = new FizzBuzz();
   });
 
   describe('三の倍数の場合', () => {
@@ -38,6 +38,16 @@ describe('FizzBuzz', () => {
       expect(result).toContain('8');
       expect(result).toContain('Fizz');
       expect(result).toContain('Buzz');
+    });
+
+    test('1から100までのFizzBuzz配列を返す', () => {
+      fizzbuzz.generateList();
+      const result = fizzbuzz.list;
+      expect(result[0]).toBe('1');
+      expect(result[1]).toBe('2');
+      expect(result[2]).toBe('Fizz');
+      expect(result[14]).toBe('FizzBuzz');
+      expect(result.length).toBe(100);
     });
   });
 

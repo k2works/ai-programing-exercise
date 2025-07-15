@@ -1,5 +1,14 @@
 class FizzBuzz {
-  static generate(number, type = 1) {
+  constructor() {
+    this.MAX_NUMBER = 100;
+    this._list = [];
+  }
+
+  get list() {
+    return this._list;
+  }
+
+  generate(number, type = 1) {
     switch (type) {
       case 1:
         let result = number.toString();
@@ -27,7 +36,14 @@ class FizzBuzz {
     }
   }
 
-  static printRange(min, max) {
+  generateList() {
+    this._list = [];
+    for (let i = 1; i <= this.MAX_NUMBER; i++) {
+      this._list.push(this.generate(i));
+    }
+  }
+
+  printRange(min, max) {
     const results = [];
     for (let i = min; i <= max; i++) {
       results.push(this.generate(i));
