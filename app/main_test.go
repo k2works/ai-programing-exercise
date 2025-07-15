@@ -69,6 +69,39 @@ func Test_タイプ2_15を渡したら文字列15を返す(t *testing.T) {
 	}
 }
 
+// タイプ3の場合（FizzBuzzのみ）
+func Test_タイプ3_1を渡したら文字列1を返す(t *testing.T) {
+	expected := "1"
+	actual := FizzBuzzGenerateWithType(1, 3)
+	if actual != expected {
+		t.Errorf("Expected %s, but got %s", expected, actual)
+	}
+}
+
+func Test_タイプ3_3を渡したら文字列3を返す(t *testing.T) {
+	expected := "3"
+	actual := FizzBuzzGenerateWithType(3, 3)
+	if actual != expected {
+		t.Errorf("Expected %s, but got %s", expected, actual)
+	}
+}
+
+func Test_タイプ3_5を渡したら文字列5を返す(t *testing.T) {
+	expected := "5"
+	actual := FizzBuzzGenerateWithType(5, 3)
+	if actual != expected {
+		t.Errorf("Expected %s, but got %s", expected, actual)
+	}
+}
+
+func Test_タイプ3_15を渡したら文字列FizzBuzzを返す(t *testing.T) {
+	expected := "FizzBuzz"
+	actual := FizzBuzzGenerateWithType(15, 3)
+	if actual != expected {
+		t.Errorf("Expected %s, but got %s", expected, actual)
+	}
+}
+
 // 既存のテスト（後で移行）
 func Test1を渡したら文字列1を返す(t *testing.T) {
 	expected := "1"

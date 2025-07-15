@@ -42,6 +42,14 @@ func FizzBuzzGenerateWithType(number int, fizzBuzzType int) string {
 		return strconv.Itoa(number)
 	case 2:
 		return strconv.Itoa(number)
+	case 3:
+		isFizz := number%3 == 0
+		isBuzz := number%5 == 0
+
+		if isFizz && isBuzz {
+			return "FizzBuzz"
+		}
+		return strconv.Itoa(number)
 	}
 	return ""
 }
