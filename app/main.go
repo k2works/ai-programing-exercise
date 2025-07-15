@@ -107,40 +107,51 @@ type FizzBuzzType interface {
 	Generate(number int) string
 }
 
+// FizzBuzzTypeBase 共通メソッドを提供する基底構造体
+type FizzBuzzTypeBase struct{}
+
+func (f *FizzBuzzTypeBase) IsFizz(number int) bool {
+	return number%3 == 0
+}
+
+func (f *FizzBuzzTypeBase) IsBuzz(number int) bool {
+	return number%5 == 0
+}
+
 // FizzBuzzType01 タイプ1（通常のFizzBuzz）
-type FizzBuzzType01 struct{}
+type FizzBuzzType01 struct {
+	FizzBuzzTypeBase
+}
 
 func (f *FizzBuzzType01) Generate(number int) string {
-	isFizz := number%3 == 0
-	isBuzz := number%5 == 0
-
-	if isFizz && isBuzz {
+	if f.IsFizz(number) && f.IsBuzz(number) {
 		return "FizzBuzz"
 	}
-	if isFizz {
+	if f.IsFizz(number) {
 		return "Fizz"
 	}
-	if isBuzz {
+	if f.IsBuzz(number) {
 		return "Buzz"
 	}
 	return strconv.Itoa(number)
 }
 
 // FizzBuzzType02 タイプ2（数字のみ）
-type FizzBuzzType02 struct{}
+type FizzBuzzType02 struct {
+	FizzBuzzTypeBase
+}
 
 func (f *FizzBuzzType02) Generate(number int) string {
 	return strconv.Itoa(number)
 }
 
 // FizzBuzzType03 タイプ3（FizzBuzzのみ）
-type FizzBuzzType03 struct{}
+type FizzBuzzType03 struct {
+	FizzBuzzTypeBase
+}
 
 func (f *FizzBuzzType03) Generate(number int) string {
-	isFizz := number%3 == 0
-	isBuzz := number%5 == 0
-
-	if isFizz && isBuzz {
+	if f.IsFizz(number) && f.IsBuzz(number) {
 		return "FizzBuzz"
 	}
 	return strconv.Itoa(number)
