@@ -10,6 +10,14 @@ class FizzBuzz {
     }
     return result;
   }
+
+  static printRange(min, max) {
+    const results = [];
+    for (let i = min; i <= max; i++) {
+      results.push(this.generate(i));
+    }
+    return results.join('\n');
+  }
 }
 
 module.exports = FizzBuzz;
