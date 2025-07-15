@@ -136,11 +136,9 @@ describe('FizzBuzz', () => {
   });
 
   describe('それ以外のタイプの場合', () => {
-    test('存在しないタイプを指定した場合はエラーを返す', () => {
-      expect(() => {
-        const fizzbuzz = new FizzBuzz(4);
-        fizzbuzz.generate(1);
-      }).toThrow('該当するタイプは存在しません');
+    test('未定義のタイプを返す', () => {
+      const fizzbuzz = new FizzBuzz(4);
+      expect(fizzbuzz.generate(1).value).toBe('未定義');
     });
   });
 

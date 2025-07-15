@@ -26,7 +26,7 @@ class FizzBuzz {
       case 3:
         return new FizzBuzzType03();
       default:
-        throw new Error('該当するタイプは存在しません');
+        return new FizzBuzzTypeNotDefined();
     }
   }
 
@@ -133,6 +133,16 @@ class FizzBuzzType03 extends FizzBuzzType {
       return new FizzBuzzValue(number, 'FizzBuzz');
     }
     return new FizzBuzzValue(number, number.toString());
+  }
+}
+
+class FizzBuzzTypeNotDefined extends FizzBuzzType {
+  generate(number) {
+    return new FizzBuzzValue(number, '未定義');
+  }
+
+  toString() {
+    return '未定義';
   }
 }
 
