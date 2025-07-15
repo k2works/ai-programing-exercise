@@ -1,0 +1,16 @@
+{
+  "name": "fizzbuzz-js",
+  "version": "1.0.0",
+  "description": "FizzBuzz implementation with TDD in JavaScript",
+  "main": "main.js",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "keywords": ["fizzbuzz", "tdd", "javascript"],
+  "author": "k2works",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^29.0.0"
+  }
+}
