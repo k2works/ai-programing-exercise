@@ -11,6 +11,8 @@ class FizzBuzz {
           result = 'Buzz';
         }
         return result;
+      case 2:
+        return number.toString();
       default:
         return number.toString();
     }

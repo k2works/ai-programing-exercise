@@ -57,5 +57,19 @@ describe('FizzBuzz', () => {
         expect(fizzbuzz.generate(1, 1)).toBe('1');
       });
     });
+
+    describe('タイプ2の場合', () => {
+      test('1を渡したら文字列1を返す', () => {
+        expect(fizzbuzz.generate(1, 2)).toBe('1');
+      });
+
+      test('3を渡したら文字列3を返す', () => {
+        expect(fizzbuzz.generate(3, 2)).toBe('3');
+      });
+
+      test('5を渡したら文字列5を返す', () => {
+        expect(fizzbuzz.generate(5, 2)).toBe('5');
+      });
+    });
   });
 });
