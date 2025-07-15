@@ -42,33 +42,43 @@ class FizzBuzz {
   }
 }
 
-class FizzBuzzType01 {
+class FizzBuzzType {
+  isFizz(number) {
+    return number % 3 === 0;
+  }
+
+  isBuzz(number) {
+    return number % 5 === 0;
+  }
+}
+
+class FizzBuzzType01 extends FizzBuzzType {
   generate(number) {
     let result = number.toString();
-    if (number % 3 === 0 && number % 5 === 0) {
+    if (this.isFizz(number) && this.isBuzz(number)) {
       result = 'FizzBuzz';
-    } else if (number % 3 === 0) {
+    } else if (this.isFizz(number)) {
       result = 'Fizz';
-    } else if (number % 5 === 0) {
+    } else if (this.isBuzz(number)) {
       result = 'Buzz';
     }
     return result;
   }
 }
 
-class FizzBuzzType02 {
+class FizzBuzzType02 extends FizzBuzzType {
   generate(number) {
     return number.toString();
   }
 }
 
-class FizzBuzzType03 {
+class FizzBuzzType03 extends FizzBuzzType {
   generate(number) {
-    if (number % 3 === 0 && number % 5 === 0) {
+    if (this.isFizz(number) && this.isBuzz(number)) {
       return 'FizzBuzz';
-    } else if (number % 3 === 0) {
+    } else if (this.isFizz(number)) {
       return 'Fizz';
-    } else if (number % 5 === 0) {
+    } else if (this.isBuzz(number)) {
       return 'Buzz';
     }
     return number.toString();
