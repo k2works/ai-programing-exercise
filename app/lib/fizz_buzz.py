@@ -29,6 +29,8 @@ class FizzBuzz:
                 return "Buzz"
 
             return str(number)
+        elif type_ == 2:
+            return str(number)
         
         return str(number)  # その他のタイプの場合（後で実装）
 

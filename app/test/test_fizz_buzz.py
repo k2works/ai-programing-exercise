@@ -107,6 +107,21 @@ class TestFizzBuzz:
         """Test that output can be switched by type."""
         # タイプ1の場合：数を文字列にして返す
         assert self.fizzbuzz.generate(1, 1) == "1"
+        
+        # タイプ2の場合：数を文字列にして返す（その他の場合）
+        assert self.fizzbuzz.generate(1, 2) == "1"
+        
+    def test_タイプ2_三の倍数の場合(self) -> None:
+        """Test type 2 for multiples of 3."""
+        assert self.fizzbuzz.generate(3, 2) == "3"
+        
+    def test_タイプ2_五の倍数の場合(self) -> None:
+        """Test type 2 for multiples of 5."""
+        assert self.fizzbuzz.generate(5, 2) == "5"
+        
+    def test_タイプ2_三と五の倍数の場合(self) -> None:
+        """Test type 2 for multiples of both 3 and 5."""
+        assert self.fizzbuzz.generate(15, 2) == "15"
 
 
 class TestArrayAndIteration:
