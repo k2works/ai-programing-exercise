@@ -11,7 +11,7 @@ describe('FizzBuzz', () => {
   describe('数を文字列にして返す', () => {
     describe('タイプ1の場合', () => {
       beforeEach(() => {
-        fizzbuzz = FizzBuzz.create(1) as any;
+        fizzbuzz = new FizzBuzz(1);
       });
 
       describe('その他の場合', () => {
@@ -81,7 +81,7 @@ describe('FizzBuzz', () => {
   describe('タイプごとに出力を切り替えることができる', () => {
     describe('タイプ1の場合', () => {
       beforeEach(() => {
-        fizzbuzz = FizzBuzz.create(1) as any;
+        fizzbuzz = new FizzBuzz(1);
       });
 
       it('1を渡したら文字列"1"を返す', () => {
@@ -91,7 +91,7 @@ describe('FizzBuzz', () => {
 
     describe('タイプ2の場合', () => {
       beforeEach(() => {
-        fizzbuzz = FizzBuzz.create(2) as any;
+        fizzbuzz = new FizzBuzz(2);
       });
 
       describe('3の倍数の場合', () => {
@@ -121,7 +121,7 @@ describe('FizzBuzz', () => {
 
     describe('タイプ3の場合', () => {
       beforeEach(() => {
-        fizzbuzz = FizzBuzz.create(3) as any;
+        fizzbuzz = new FizzBuzz(3);
       });
 
       describe('3の倍数の場合', () => {

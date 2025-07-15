@@ -1,6 +1,27 @@
+// 値オブジェクト
+export class FizzBuzzValue {
+  private readonly _value: string;
+
+  constructor(value: string) {
+    this._value = value;
+  }
+
+  get value(): string {
+    return this._value;
+  }
+
+  equals(other: FizzBuzzValue): boolean {
+    return this._value === other._value;
+  }
+
+  toString(): string {
+    return this._value;
+  }
+}
+
 // 基底クラス
 abstract class FizzBuzzType {
-  abstract generate(n: number): string;
+  abstract generate(n: number): FizzBuzzValue;
 
   // 共通メソッドをスーパークラスに移動（メソッド名を変更）
   protected isFizz(n: number): boolean {
@@ -18,30 +39,30 @@ abstract class FizzBuzzType {
 
 // タイプクラス
 class FizzBuzzType01 extends FizzBuzzType {
-  generate(n: number): string {
+  generate(n: number): FizzBuzzValue {
     if (this.isFizzBuzz(n)) {
-      return 'FizzBuzz';
+      return new FizzBuzzValue('FizzBuzz');
     } else if (this.isFizz(n)) {
-      return 'Fizz';
+      return new FizzBuzzValue('Fizz');
     } else if (this.isBuzz(n)) {
-      return 'Buzz';
+      return new FizzBuzzValue('Buzz');
     }
-    return n.toString();
+    return new FizzBuzzValue(n.toString());
   }
 }
 
 class FizzBuzzType02 extends FizzBuzzType {
-  generate(n: number): string {
-    return n.toString();
+  generate(n: number): FizzBuzzValue {
+    return new FizzBuzzValue(n.toString());
   }
 }
 
 class FizzBuzzType03 extends FizzBuzzType {
-  generate(n: number): string {
+  generate(n: number): FizzBuzzValue {
     if (this.isFizzBuzz(n)) {
-      return 'FizzBuzz';
+      return new FizzBuzzValue('FizzBuzz');
     }
-    return n.toString();
+    return new FizzBuzzValue(n.toString());
   }
 }
 
@@ -79,18 +100,18 @@ export class FizzBuzz {
       // 後方互換性のために type パラメータが指定された場合の処理
       // 新しいポリモーフィズムの仕組みを使って簡素化
       const fizzBuzzType = FizzBuzz.create(type);
-      return fizzBuzzType.generate(n);
+      return fizzBuzzType.generate(n).value;
     }
     
     // ポリモーフィズムを活用した処理
-    return this._type.generate(n);
+    return this._type.generate(n).value;
   }
 
   generateList(): void {
     // 新しい配列を作成してから割り当て
     const newList: string[] = [];
     for (let i = 1; i <= 100; i++) {
-      newList.push(this._type.generate(i)); // ポリモーフィズムを活用
+      newList.push(this._type.generate(i).value); // ポリモーフィズムを活用
     }
     this._list.length = 0; // 既存の配列をクリア
     this._list.push(...newList); // 新しい要素を追加
