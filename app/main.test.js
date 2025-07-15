@@ -1,4 +1,12 @@
-const { FizzBuzz, FizzBuzzValue, FizzBuzzList } = require('./main');
+const { 
+  FizzBuzz, 
+  FizzBuzzValue, 
+  FizzBuzzList, 
+  FizzBuzzCommand, 
+  FizzBuzzValueCommand,
+  FizzBuzzListCommand,
+  FizzBuzzType01 
+} = require('./main');
 
 describe('FizzBuzz', () => {
   describe('タイプ1の場合', () => {
@@ -158,6 +166,46 @@ describe('FizzBuzz', () => {
         expect(list[2].value).toBe('Fizz');
         expect(list[4].value).toBe('Buzz');
         expect(list[14].value).toBe('FizzBuzz');
+      });
+    });
+  });
+
+  describe('CommandパターンによるFizzBuzzValueCommand', () => {
+    describe('タイプ1の場合', () => {
+      let fizzbuzzCommand;
+
+      beforeEach(() => {
+        fizzbuzzCommand = new FizzBuzzValueCommand(new FizzBuzzType01());
+      });
+
+      test('3を渡したら文字列Fizzを返す', () => {
+        expect(fizzbuzzCommand.execute(3)).toBe('Fizz');
+      });
+
+      test('5を渡したら文字列Buzzを返す', () => {
+        expect(fizzbuzzCommand.execute(5)).toBe('Buzz');
+      });
+
+      test('15を渡したら文字列FizzBuzzを返す', () => {
+        expect(fizzbuzzCommand.execute(15)).toBe('FizzBuzz');
+      });
+
+      test('1を渡したら文字列1を返す', () => {
+        expect(fizzbuzzCommand.execute(1)).toBe('1');
+      });
+    });
+  });
+
+  describe('CommandパターンによるFizzBuzzListCommand', () => {
+    describe('タイプ1の場合', () => {
+      test('100までのFizzBuzz配列を返す', () => {
+        const fizzbuzzListCommand = new FizzBuzzListCommand(new FizzBuzzType01());
+        const result = fizzbuzzListCommand.execute(100);
+        expect(result.length).toBe(100);
+        expect(result[0].value).toBe('1');
+        expect(result[2].value).toBe('Fizz');
+        expect(result[4].value).toBe('Buzz');
+        expect(result[14].value).toBe('FizzBuzz');
       });
     });
   });

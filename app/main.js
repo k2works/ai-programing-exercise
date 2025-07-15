@@ -122,4 +122,46 @@ class FizzBuzzType03 extends FizzBuzzType {
   }
 }
 
-module.exports = { FizzBuzz, FizzBuzzValue, FizzBuzzList };
+class FizzBuzzCommand {
+  execute() {
+    throw new Error('execute method must be implemented');
+  }
+}
+
+class FizzBuzzValueCommand extends FizzBuzzCommand {
+  constructor(type) {
+    super();
+    this._type = type;
+  }
+
+  execute(number) {
+    return this._type.generate(number).value;
+  }
+}
+
+class FizzBuzzListCommand extends FizzBuzzCommand {
+  constructor(type) {
+    super();
+    this._type = type;
+  }
+
+  execute(number) {
+    const values = [];
+    for (let i = 1; i <= number; i++) {
+      values.push(this._type.generate(i));
+    }
+    return new FizzBuzzList(values).value;
+  }
+}
+
+module.exports = { 
+  FizzBuzz, 
+  FizzBuzzValue, 
+  FizzBuzzList, 
+  FizzBuzzCommand, 
+  FizzBuzzValueCommand,
+  FizzBuzzType01,
+  FizzBuzzType02, 
+  FizzBuzzType03,
+  FizzBuzzListCommand
+};
