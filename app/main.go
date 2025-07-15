@@ -22,3 +22,24 @@ func FizzBuzzGenerate(number int) string {
 	}
 	return result
 }
+
+// タイプごとに出力を切り替える関数（デフォルト引数の代わりにオーバーロード）
+func FizzBuzzGenerateWithType(number int, fizzBuzzType int) string {
+	switch fizzBuzzType {
+	case 1:
+		isFizz := number%3 == 0
+		isBuzz := number%5 == 0
+
+		if isFizz && isBuzz {
+			return "FizzBuzz"
+		}
+		if isFizz {
+			return "Fizz"
+		}
+		if isBuzz {
+			return "Buzz"
+		}
+		return strconv.Itoa(number)
+	}
+	return ""
+}
