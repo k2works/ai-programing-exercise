@@ -1,13 +1,17 @@
 export class FizzBuzz {
   private _list: string[] = [];
-  private _type: number;
+  private readonly _type: number;
 
   constructor(type: number = 1) {
     this._type = type;
   }
 
   get list(): string[] {
-    return this._list;
+    return [...this._list]; // 防御的コピーを返す
+  }
+
+  get type(): number {
+    return this._type;
   }
 
   generate(n: number, type?: number): string {
@@ -38,10 +42,13 @@ export class FizzBuzz {
   }
 
   generateList(): void {
-    this._list = [];
+    // 新しい配列を作成してから割り当て
+    const newList: string[] = [];
     for (let i = 1; i <= 100; i++) {
-      this._list.push(this.generate(i));
+      newList.push(this.generate(i));
     }
+    this._list.length = 0; // 既存の配列をクリア
+    this._list.push(...newList); // 新しい要素を追加
   }
 
   // 後方互換性のための静的メソッド
