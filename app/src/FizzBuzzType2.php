@@ -4,8 +4,8 @@ namespace App;
 
 class FizzBuzzType2 implements FizzBuzzType
 {
-    public function generate(int $number): string
+    public function generate(int $number): FizzBuzzValue
     {
-        return (string) $number;
+        return new FizzBuzzValue($number, (string) $number);
     }
 }

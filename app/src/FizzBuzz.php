@@ -23,7 +23,8 @@ class FizzBuzz
     {
         // 後方互換性のために type パラメータをサポート
         $typeObject = $this->getTypeObject($type);
-        return $typeObject->generate($number);
+        $value = $typeObject->generate($number);
+        return $value->getValue();
     }
 
     private function getTypeObject(int $type): FizzBuzzType
@@ -40,7 +41,7 @@ class FizzBuzz
         }
     }
 
-    public function generateWithType(int $number): string
+    public function generateWithType(int $number): FizzBuzzValue
     {
         return $this->type->generate($number);
     }
@@ -49,10 +50,31 @@ class FizzBuzz
     {
         $result = [];
         for ($i = 1; $i <= $this->maxNumber; $i++) {
+            $value = $this->type->generate($i);
+            $result[] = $value->getValue();
+        }
+
+        return $result;
+    }
+
+    public function generateValueList(): array
+    {
+        $result = [];
+        for ($i = 1; $i <= $this->maxNumber; $i++) {
             $result[] = $this->type->generate($i);
         }
 
         return $result;
+    }
+
+    public function generateValueListAsCollection(): FizzBuzzList
+    {
+        $values = [];
+        for ($i = 1; $i <= $this->maxNumber; $i++) {
+            $values[] = $this->type->generate($i);
+        }
+
+        return new FizzBuzzList($values);
     }
 
     public function printFizzBuzz(): void

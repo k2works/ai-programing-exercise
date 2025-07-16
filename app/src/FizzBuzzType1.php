@@ -4,17 +4,16 @@ namespace App;
 
 class FizzBuzzType1 implements FizzBuzzType
 {
-    public function generate(int $number): string
+    public function generate(int $number): FizzBuzzValue
     {
-        $result = (string) $number;
         if ($number % 3 === 0 && $number % 5 === 0) {
-            $result = 'FizzBuzz';
+            return new FizzBuzzValue($number, 'FizzBuzz');
         } elseif ($number % 3 === 0) {
-            $result = 'Fizz';
+            return new FizzBuzzValue($number, 'Fizz');
         } elseif ($number % 5 === 0) {
-            $result = 'Buzz';
+            return new FizzBuzzValue($number, 'Buzz');
         }
 
-        return $result;
+        return new FizzBuzzValue($number, (string) $number);
     }
 }

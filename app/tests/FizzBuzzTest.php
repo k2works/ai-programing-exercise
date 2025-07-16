@@ -210,10 +210,15 @@ class FizzBuzzTest extends TestCase
         $type1 = new \App\FizzBuzzType1();
         $fizzbuzz = new FizzBuzz(100, $type1);
         
-        $this->assertEquals('1', $fizzbuzz->generateWithType(1));
-        $this->assertEquals('Fizz', $fizzbuzz->generateWithType(3));
-        $this->assertEquals('Buzz', $fizzbuzz->generateWithType(5));
-        $this->assertEquals('FizzBuzz', $fizzbuzz->generateWithType(15));
+        $value1 = $fizzbuzz->generateWithType(1);
+        $value3 = $fizzbuzz->generateWithType(3);
+        $value5 = $fizzbuzz->generateWithType(5);
+        $value15 = $fizzbuzz->generateWithType(15);
+        
+        $this->assertEquals('1', $value1->getValue());
+        $this->assertEquals('Fizz', $value3->getValue());
+        $this->assertEquals('Buzz', $value5->getValue());
+        $this->assertEquals('FizzBuzz', $value15->getValue());
     }
 
     public function testType2オブジェクトで数値のみを生成する(): void
@@ -221,10 +226,15 @@ class FizzBuzzTest extends TestCase
         $type2 = new \App\FizzBuzzType2();
         $fizzbuzz = new FizzBuzz(100, $type2);
         
-        $this->assertEquals('1', $fizzbuzz->generateWithType(1));
-        $this->assertEquals('3', $fizzbuzz->generateWithType(3));
-        $this->assertEquals('5', $fizzbuzz->generateWithType(5));
-        $this->assertEquals('15', $fizzbuzz->generateWithType(15));
+        $value1 = $fizzbuzz->generateWithType(1);
+        $value3 = $fizzbuzz->generateWithType(3);
+        $value5 = $fizzbuzz->generateWithType(5);
+        $value15 = $fizzbuzz->generateWithType(15);
+        
+        $this->assertEquals('1', $value1->getValue());
+        $this->assertEquals('3', $value3->getValue());
+        $this->assertEquals('5', $value5->getValue());
+        $this->assertEquals('15', $value15->getValue());
     }
 
     public function testType3オブジェクトで15のときのみFizzBuzzを生成する(): void
@@ -232,10 +242,15 @@ class FizzBuzzTest extends TestCase
         $type3 = new \App\FizzBuzzType3();
         $fizzbuzz = new FizzBuzz(100, $type3);
         
-        $this->assertEquals('1', $fizzbuzz->generateWithType(1));
-        $this->assertEquals('3', $fizzbuzz->generateWithType(3));
-        $this->assertEquals('5', $fizzbuzz->generateWithType(5));
-        $this->assertEquals('FizzBuzz', $fizzbuzz->generateWithType(15));
+        $value1 = $fizzbuzz->generateWithType(1);
+        $value3 = $fizzbuzz->generateWithType(3);
+        $value5 = $fizzbuzz->generateWithType(5);
+        $value15 = $fizzbuzz->generateWithType(15);
+        
+        $this->assertEquals('1', $value1->getValue());
+        $this->assertEquals('3', $value3->getValue());
+        $this->assertEquals('5', $value5->getValue());
+        $this->assertEquals('FizzBuzz', $value15->getValue());
     }
 
     public function testGenerateListでタイプオブジェクトを使用する(): void
@@ -275,5 +290,77 @@ class FizzBuzzTest extends TestCase
         $this->assertEquals('FizzBuzz', $result3[14]);
         $this->assertEquals('100', $result3[99]);
         $this->assertEquals(100, count($result3));
+    }
+
+    // 値オブジェクトのテスト
+    public function testFizzBuzzValueクラスで値オブジェクトを作成する(): void
+    {
+        $value = new \App\FizzBuzzValue(3, 'Fizz');
+        
+        $this->assertEquals(3, $value->getNumber());
+        $this->assertEquals('Fizz', $value->getValue());
+        $this->assertEquals('3:Fizz', (string) $value);
+    }
+
+    public function test値オブジェクトの等価性を確認する(): void
+    {
+        $value1 = new \App\FizzBuzzValue(3, 'Fizz');
+        $value2 = new \App\FizzBuzzValue(3, 'Fizz');
+        $value3 = new \App\FizzBuzzValue(5, 'Buzz');
+        
+        $this->assertTrue($value1->equals($value2));
+        $this->assertFalse($value1->equals($value3));
+    }
+
+    public function test値オブジェクトを使ったFizzBuzz生成(): void
+    {
+        $type1 = new \App\FizzBuzzType1();
+        $fizzbuzz = new FizzBuzz(15, $type1);
+        
+        $valueList = $fizzbuzz->generateValueList();
+        
+        $this->assertEquals(3, $valueList[2]->getNumber());
+        $this->assertEquals('Fizz', $valueList[2]->getValue());
+        $this->assertEquals(15, $valueList[14]->getNumber());
+        $this->assertEquals('FizzBuzz', $valueList[14]->getValue());
+    }
+
+    // ファーストクラスコレクションのテスト
+    public function testFizzBuzzListクラスでコレクションを作成する(): void
+    {
+        $value1 = new \App\FizzBuzzValue(1, '1');
+        $value2 = new \App\FizzBuzzValue(3, 'Fizz');
+        $list = new \App\FizzBuzzList([$value1, $value2]);
+        
+        $this->assertEquals(2, $list->count());
+        $this->assertEquals($value1, $list->get(0));
+        $this->assertEquals($value2, $list->get(1));
+    }
+
+    public function testコレクションに要素を追加する(): void
+    {
+        $value1 = new \App\FizzBuzzValue(1, '1');
+        $value2 = new \App\FizzBuzzValue(3, 'Fizz');
+        $value3 = new \App\FizzBuzzValue(5, 'Buzz');
+        
+        $list1 = new \App\FizzBuzzList([$value1]);
+        $list2 = $list1->add([$value2, $value3]);
+        
+        $this->assertEquals(1, $list1->count());
+        $this->assertEquals(3, $list2->count());
+        $this->assertEquals($value3, $list2->get(2));
+    }
+
+    public function testファーストクラスコレクションを使ったFizzBuzz生成(): void
+    {
+        $type1 = new \App\FizzBuzzType1();
+        $fizzbuzz = new FizzBuzz(15, $type1);
+        
+        $list = $fizzbuzz->generateValueListAsCollection();
+        
+        $this->assertEquals(15, $list->count());
+        $this->assertEquals('Fizz', $list->get(2)->getValue());
+        $this->assertEquals('Buzz', $list->get(4)->getValue());
+        $this->assertEquals('FizzBuzz', $list->get(14)->getValue());
     }
 }
