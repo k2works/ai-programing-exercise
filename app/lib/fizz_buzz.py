@@ -6,8 +6,20 @@ class FizzBuzz:
 
     MAX_NUMBER: int = 100
 
-    @classmethod
-    def generate(cls, number: int, type_: int = 1) -> str:
+    def __init__(self) -> None:
+        """Initialize FizzBuzz instance."""
+        self._list: list[str] = []
+
+    @property
+    def fizz_buzz_list(self) -> list[str]:
+        """Get the FizzBuzz list.
+
+        Returns:
+            The FizzBuzz list
+        """
+        return self._list
+
+    def generate(self, number: int, type_: int = 1) -> str:
         """Generate FizzBuzz value for a given number.
 
         Args:
@@ -37,8 +49,7 @@ class FizzBuzz:
         else:
             raise RuntimeError("該当するタイプは存在しません")
 
-    @classmethod
-    def generate_list(cls, type_: int = 1) -> list[str]:
+    def generate_list(self, type_: int = 1) -> list[str]:
         """Generate FizzBuzz list from 1 to MAX_NUMBER.
 
         Args:
@@ -47,4 +58,5 @@ class FizzBuzz:
         Returns:
             List of FizzBuzz string values
         """
-        return [cls.generate(n, type_) for n in range(1, cls.MAX_NUMBER + 1)]
+        self._list = [self.generate(n, type_) for n in range(1, self.MAX_NUMBER + 1)]
+        return self._list

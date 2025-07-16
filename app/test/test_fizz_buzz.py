@@ -9,51 +9,57 @@ from lib.fizz_buzz import FizzBuzz
 class TestFizzBuzz:
     """Test class for FizzBuzz."""
 
+    def setup_method(self) -> None:
+        """Set up test fixtures."""
+        self.fizzbuzz = FizzBuzz()
+
     def test_3を渡したら文字列Fizzを返す(self) -> None:
         """Test that 3 returns 'Fizz'."""
-        assert FizzBuzz.generate(3, 1) == "Fizz"
+        assert self.fizzbuzz.generate(3, 1) == "Fizz"
 
     def test_5を渡したら文字列Buzzを返す(self) -> None:
         """Test that 5 returns 'Buzz'."""
-        assert FizzBuzz.generate(5, 1) == "Buzz"
+        assert self.fizzbuzz.generate(5, 1) == "Buzz"
 
     def test_15を渡したら文字列FizzBuzzを返す(self) -> None:
         """Test that 15 returns 'FizzBuzz'."""
-        assert FizzBuzz.generate(15, 1) == "FizzBuzz"
+        assert self.fizzbuzz.generate(15, 1) == "FizzBuzz"
 
     def test_1を渡したら文字列1を返す(self) -> None:
         """Test that 1 returns '1'."""
-        assert FizzBuzz.generate(1, 1) == "1"
+        assert self.fizzbuzz.generate(1, 1) == "1"
 
     def test_三の倍数の場合にFizzを返す(self) -> None:
         """Test that multiples of 3 return 'Fizz'."""
-        assert FizzBuzz.generate(6, 1) == "Fizz"
-        assert FizzBuzz.generate(9, 1) == "Fizz"
-        assert FizzBuzz.generate(12, 1) == "Fizz"
+        assert self.fizzbuzz.generate(6, 1) == "Fizz"
+        assert self.fizzbuzz.generate(9, 1) == "Fizz"
+        assert self.fizzbuzz.generate(12, 1) == "Fizz"
 
     def test_五の倍数の場合にBuzzを返す(self) -> None:
         """Test that multiples of 5 return 'Buzz'."""
-        assert FizzBuzz.generate(10, 1) == "Buzz"
-        assert FizzBuzz.generate(20, 1) == "Buzz"
-        assert FizzBuzz.generate(25, 1) == "Buzz"
+        assert self.fizzbuzz.generate(10, 1) == "Buzz"
+        assert self.fizzbuzz.generate(20, 1) == "Buzz"
+        assert self.fizzbuzz.generate(25, 1) == "Buzz"
 
     def test_十五の倍数の場合にFizzBuzzを返す(self) -> None:
         """Test that multiples of 15 return 'FizzBuzz'."""
-        assert FizzBuzz.generate(30, 1) == "FizzBuzz"
-        assert FizzBuzz.generate(45, 1) == "FizzBuzz"
-        assert FizzBuzz.generate(60, 1) == "FizzBuzz"
+        assert self.fizzbuzz.generate(30, 1) == "FizzBuzz"
+        assert self.fizzbuzz.generate(45, 1) == "FizzBuzz"
+        assert self.fizzbuzz.generate(60, 1) == "FizzBuzz"
 
     def test_三と五の倍数ではない場合に数字の文字列を返す(self) -> None:
         """Test that non-multiples of 3 and 5 return the number as string."""
-        assert FizzBuzz.generate(1, 1) == "1"
-        assert FizzBuzz.generate(2, 1) == "2"
-        assert FizzBuzz.generate(4, 1) == "4"
-        assert FizzBuzz.generate(7, 1) == "7"
-        assert FizzBuzz.generate(8, 1) == "8"
+        assert self.fizzbuzz.generate(1, 1) == "1"
+        assert self.fizzbuzz.generate(2, 1) == "2"
+        assert self.fizzbuzz.generate(4, 1) == "4"
+        assert self.fizzbuzz.generate(7, 1) == "7"
+        assert self.fizzbuzz.generate(8, 1) == "8"
 
     def test_1から100までのFizzBuzz配列を返す(self) -> None:
         """Test that generate_list returns 100 elements."""
-        result = FizzBuzz.generate_list(1)
+        fizzbuzz = FizzBuzz()
+        fizzbuzz.generate_list(1)
+        result = fizzbuzz.fizz_buzz_list
         assert len(result) == 100
         assert result[0] == "1"
         assert result[2] == "Fizz"
@@ -67,7 +73,8 @@ class TestFizzBuzz:
         sys.stdout = captured_output
 
         # FizzBuzzリストを出力
-        fizzbuzz_list = FizzBuzz.generate_list(1)
+        fizzbuzz = FizzBuzz()
+        fizzbuzz_list = fizzbuzz.generate_list(1)
         for item in fizzbuzz_list:
             print(item)
 
@@ -102,44 +109,44 @@ class TestFizzBuzz:
     def test_タイプごとに出力を切り替えることができる(self) -> None:
         """Test that output can be switched by type."""
         # タイプ1の場合：数を文字列にして返す
-        assert FizzBuzz.generate(1, 1) == "1"
+        assert self.fizzbuzz.generate(1, 1) == "1"
         
         # タイプ2の場合：数を文字列にして返す（その他の場合）
-        assert FizzBuzz.generate(1, 2) == "1"
+        assert self.fizzbuzz.generate(1, 2) == "1"
         
     def test_タイプ2_三の倍数の場合(self) -> None:
         """Test type 2 for multiples of 3."""
-        assert FizzBuzz.generate(3, 2) == "3"
+        assert self.fizzbuzz.generate(3, 2) == "3"
         
     def test_タイプ2_五の倍数の場合(self) -> None:
         """Test type 2 for multiples of 5."""
-        assert FizzBuzz.generate(5, 2) == "5"
+        assert self.fizzbuzz.generate(5, 2) == "5"
         
     def test_タイプ2_三と五の倍数の場合(self) -> None:
         """Test type 2 for multiples of both 3 and 5."""
-        assert FizzBuzz.generate(15, 2) == "15"
+        assert self.fizzbuzz.generate(15, 2) == "15"
         
     def test_タイプ3_三の倍数の場合(self) -> None:
         """Test type 3 for multiples of 3."""
-        assert FizzBuzz.generate(3, 3) == "3"
+        assert self.fizzbuzz.generate(3, 3) == "3"
         
     def test_タイプ3_五の倍数の場合(self) -> None:
         """Test type 3 for multiples of 5."""
-        assert FizzBuzz.generate(5, 3) == "5"
+        assert self.fizzbuzz.generate(5, 3) == "5"
         
     def test_タイプ3_三と五の倍数の場合(self) -> None:
         """Test type 3 for multiples of both 3 and 5."""
-        assert FizzBuzz.generate(15, 3) == "FizzBuzz"
+        assert self.fizzbuzz.generate(15, 3) == "FizzBuzz"
         
     def test_タイプ3_その他の場合(self) -> None:
         """Test type 3 for other cases."""
-        assert FizzBuzz.generate(1, 3) == "1"
+        assert self.fizzbuzz.generate(1, 3) == "1"
         
     def test_それ以外のタイプの場合_例外を返す(self) -> None:
         """Test exception for unsupported types."""
         import pytest
         with pytest.raises(RuntimeError, match="該当するタイプは存在しません"):
-            FizzBuzz.generate(1, 4)
+            self.fizzbuzz.generate(1, 4)
 
     def test_collectメソッドで新しい要素の配列を返す(self) -> None:
         """Test mapping elements to new values using map."""
