@@ -1,5 +1,3 @@
-use fizzbuzz::greeting;
-
 fn main() {
-    println!("{}", greeting());
+    println!("Hello, FizzBuzz!");
 }
