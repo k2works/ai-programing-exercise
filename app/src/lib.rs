@@ -90,6 +90,16 @@ mod tests {
                 assert_eq!("FizzBuzz", FizzBuzz::generate_with_type(15, 3));
             }
         }
+
+        mod それ以外のタイプの場合 {
+            use super::*;
+
+            #[test]
+            #[should_panic(expected = "該当するタイプは存在しません")]
+            fn test_例外を返す() {
+                FizzBuzz::generate_with_type(1, 4);
+            }
+        }
     }
 }
 
