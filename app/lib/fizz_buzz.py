@@ -24,6 +24,15 @@ class FizzBuzz:
         """
         return self._list
 
+    @property
+    def type(self) -> int:
+        """Get the FizzBuzz type.
+        
+        Returns:
+            The FizzBuzz type
+        """
+        return self._type
+
     def generate(self, number: int) -> str:
         """Generate FizzBuzz string for a given number.
 
