@@ -61,3 +61,37 @@ class FizzBuzz:
         """
         self._list = [self.generate(n) for n in range(1, self.MAX_NUMBER + 1)]
         return self._list
+
+    @classmethod
+    def create(cls, type_: int):
+        """Factory method to create FizzBuzz type instances.
+
+        Args:
+            type_: The type of FizzBuzz conversion
+
+        Returns:
+            Instance of the appropriate FizzBuzz type class
+        """
+        if type_ == 1:
+            return FizzBuzzType01()
+        elif type_ == 2:
+            return FizzBuzzType02()
+        elif type_ == 3:
+            return FizzBuzzType03()
+        else:
+            raise RuntimeError("該当するタイプは存在しません")
+
+
+class FizzBuzzType01:
+    """FizzBuzz Type 1 implementation."""
+    pass
+
+
+class FizzBuzzType02:
+    """FizzBuzz Type 2 implementation."""
+    pass
+
+
+class FizzBuzzType03:
+    """FizzBuzz Type 3 implementation."""
+    pass
