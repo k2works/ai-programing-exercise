@@ -226,9 +226,62 @@ class TestFizzBuzz:
         assert result == 15
 
     def test_reduceメソッドで畳み込み演算を行う(self) -> None:
-        """Test reduce operation without initial value."""
+        """Test reduce method for folding operations."""
+        result = [fizzbuzz_value.value for fizzbuzz_value in FizzBuzz().generate_list()]
+
+        # Pythonでreduceを使った例（合計）
         from functools import reduce
 
-        numbers = [1, 2, 3, 4, 5]
-        result = reduce(lambda total, n: total + n, numbers)
-        assert result == 15
+        # 数値に変換可能な文字列のみ取得して合計
+        numbers = [
+            int(val) for val in result[:10] if val not in ["Fizz", "Buzz", "FizzBuzz"]
+        ]
+        sum_result = reduce(lambda acc, x: acc + x, numbers, 0)
+        assert sum_result == 22  # 1+2+4+7+8 = 22
+
+    def test_FizzBuzzValue_同じ値である(self) -> None:
+        """Test that FizzBuzzValue equality works correctly."""
+        fizzbuzz = FizzBuzz(1)
+        value1 = fizzbuzz.generate(1)
+        value2 = fizzbuzz.generate(1)
+
+        assert value1 == value2
+
+    def test_FizzBuzzValue_to_stringメソッド(self) -> None:
+        """Test FizzBuzzValue string representation."""
+        fizzbuzz = FizzBuzz(1)
+        value = fizzbuzz.generate(3)
+
+        assert str(value) == "3:Fizz"
+
+    def test_FizzBuzzList_新しいインスタンスが作られる(self) -> None:
+        """Test that FizzBuzzList creates new instances when adding."""
+        from lib.fizz_buzz import FizzBuzzList, FizzBuzzValue
+
+        # 空のリストを作成
+        list1 = FizzBuzzList([])
+
+        # 値を追加して新しいリストを作成
+        values = [FizzBuzzValue(1, "1"), FizzBuzzValue(2, "2")]
+        list2 = list1.add(values)
+
+        # 異なるインスタンスであることを確認
+        assert list1 is not list2
+        assert len(list1.value) == 0
+        assert len(list2.value) == 2
+
+    def test_FizzBuzzList_イミュータブルである(self) -> None:
+        """Test that FizzBuzzList is immutable."""
+        from lib.fizz_buzz import FizzBuzzList, FizzBuzzValue
+
+        values = [FizzBuzzValue(1, "1"), FizzBuzzValue(2, "2")]
+        fizz_buzz_list = FizzBuzzList(values)
+
+        # 元の配列を変更しても影響を受けない
+        values.append(FizzBuzzValue(3, "Fizz"))
+        assert len(fizz_buzz_list.value) == 2
+
+        # valueプロパティから取得した配列を変更しても影響を受けない
+        retrieved_list = fizz_buzz_list.value
+        retrieved_list.append(FizzBuzzValue(4, "4"))
+        assert len(fizz_buzz_list.value) == 2

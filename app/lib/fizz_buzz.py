@@ -64,6 +64,46 @@ class FizzBuzzValue:
         return hash((self._number, self._value))
 
 
+class FizzBuzzList:
+    """First-class collection for FizzBuzz values."""
+
+    def __init__(self, list_: list[FizzBuzzValue]) -> None:
+        """Initialize FizzBuzzList instance.
+
+        Args:
+            list_: List of FizzBuzzValue objects
+        """
+        self._value = list_.copy()  # イミュータブルにするため、コピーを作成
+
+    @property
+    def value(self) -> list[FizzBuzzValue]:
+        """Get the FizzBuzz value list.
+
+        Returns:
+            List of FizzBuzz values
+        """
+        return self._value.copy()  # イミュータブルにするため、コピーを返す
+
+    def __str__(self) -> str:
+        """Return string representation.
+
+        Returns:
+            String representation of the list
+        """
+        return str([str(item) for item in self._value])
+
+    def add(self, values: list[FizzBuzzValue]) -> "FizzBuzzList":
+        """Add values and return a new FizzBuzzList instance.
+
+        Args:
+            values: List of FizzBuzzValue objects to add
+
+        Returns:
+            New FizzBuzzList instance with added values
+        """
+        return FizzBuzzList(self._value + values)
+
+
 class FizzBuzz:
     """FizzBuzz class for generating FizzBuzz sequences."""
 
@@ -75,7 +115,7 @@ class FizzBuzz:
         Args:
             type_: The type of FizzBuzz conversion (default: 1)
         """
-        self._list: list[FizzBuzzValue] = []
+        self._list: FizzBuzzList = FizzBuzzList([])
         self._type_instance = FizzBuzzType.create(type_)
 
     @property
@@ -85,7 +125,7 @@ class FizzBuzz:
         Returns:
             The FizzBuzz list
         """
-        return self._list
+        return self._list.value
 
     def generate(self, number: int) -> FizzBuzzValue:
         """Generate FizzBuzz value for a given number.
@@ -104,8 +144,9 @@ class FizzBuzz:
         Returns:
             List of FizzBuzz value objects
         """
-        self._list = [self.generate(n) for n in range(1, self.MAX_NUMBER + 1)]
-        return self._list
+        values = [self.generate(n) for n in range(1, self.MAX_NUMBER + 1)]
+        self._list = self._list.add(values)
+        return self._list.value
 
     @classmethod
     def create(cls, type_: int) -> "FizzBuzzType":
