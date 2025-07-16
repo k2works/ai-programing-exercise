@@ -3,6 +3,14 @@
 namespace Tests;
 
 use App\FizzBuzz;
+use App\Domain\Type\FizzBuzzType1;
+use App\Domain\Type\FizzBuzzType2;
+use App\Domain\Type\FizzBuzzType3;
+use App\Domain\Model\FizzBuzzValue;
+use App\Domain\Model\FizzBuzzList;
+use App\Application\FizzBuzzCommand;
+use App\Application\FizzBuzzValueCommand;
+use App\Application\FizzBuzzListCommand;
 use PHPUnit\Framework\TestCase;
 
 class FizzBuzzTest extends TestCase
@@ -207,7 +215,7 @@ class FizzBuzzTest extends TestCase
     // ポリモーフィズムのテスト
     public function testType1オブジェクトでFizzBuzzを生成する(): void
     {
-        $type1 = new \App\FizzBuzzType1();
+        $type1 = new FizzBuzzType1();
         $fizzbuzz = new FizzBuzz(100, $type1);
         
         $value1 = $fizzbuzz->generateWithType(1);
@@ -223,7 +231,7 @@ class FizzBuzzTest extends TestCase
 
     public function testType2オブジェクトで数値のみを生成する(): void
     {
-        $type2 = new \App\FizzBuzzType2();
+        $type2 = new FizzBuzzType2();
         $fizzbuzz = new FizzBuzz(100, $type2);
         
         $value1 = $fizzbuzz->generateWithType(1);
@@ -239,7 +247,7 @@ class FizzBuzzTest extends TestCase
 
     public function testType3オブジェクトで15のときのみFizzBuzzを生成する(): void
     {
-        $type3 = new \App\FizzBuzzType3();
+        $type3 = new FizzBuzzType3();
         $fizzbuzz = new FizzBuzz(100, $type3);
         
         $value1 = $fizzbuzz->generateWithType(1);
@@ -255,7 +263,7 @@ class FizzBuzzTest extends TestCase
 
     public function testGenerateListでタイプオブジェクトを使用する(): void
     {
-        $type1 = new \App\FizzBuzzType1();
+        $type1 = new FizzBuzzType1();
         $fizzbuzz1 = new FizzBuzz(100, $type1);
         $result1 = $fizzbuzz1->generateList();
         $this->assertEquals('1', $result1[0]);
@@ -267,7 +275,7 @@ class FizzBuzzTest extends TestCase
         $this->assertEquals('Buzz', $result1[99]);
         $this->assertEquals(100, count($result1));
 
-        $type2 = new \App\FizzBuzzType2();
+        $type2 = new FizzBuzzType2();
         $fizzbuzz2 = new FizzBuzz(100, $type2);
         $result2 = $fizzbuzz2->generateList();
         $this->assertEquals('1', $result2[0]);
@@ -279,7 +287,7 @@ class FizzBuzzTest extends TestCase
         $this->assertEquals('99', $result2[98]);
         $this->assertEquals(100, count($result2));
 
-        $type3 = new \App\FizzBuzzType3();
+        $type3 = new FizzBuzzType3();
         $fizzbuzz3 = new FizzBuzz(100, $type3);
         $result3 = $fizzbuzz3->generateList();
         $this->assertEquals('1', $result3[0]);
@@ -314,7 +322,7 @@ class FizzBuzzTest extends TestCase
 
     public function test値オブジェクトを使ったFizzBuzz生成(): void
     {
-        $type1 = new \App\FizzBuzzType1();
+        $type1 = new FizzBuzzType1();
         $fizzbuzz = new FizzBuzz(15, $type1);
         
         $valueList = $fizzbuzz->generateValueList();
@@ -353,7 +361,7 @@ class FizzBuzzTest extends TestCase
 
     public function testファーストクラスコレクションを使ったFizzBuzz生成(): void
     {
-        $type1 = new \App\FizzBuzzType1();
+        $type1 = new FizzBuzzType1();
         $fizzbuzz = new FizzBuzz(15, $type1);
         
         $list = $fizzbuzz->generateValueListAsCollection();
@@ -367,8 +375,8 @@ class FizzBuzzTest extends TestCase
     // Commandパターンのテスト
     public function testFizzBuzzValueCommandで値を生成する(): void
     {
-        $type1 = new \App\FizzBuzzType1();
-        $command = new \App\FizzBuzzValueCommand($type1);
+        $type1 = new FizzBuzzType1();
+        $command = new FizzBuzzValueCommand($type1);
         
         $this->assertEquals('1', $command->execute(1));
         $this->assertEquals('Fizz', $command->execute(3));
@@ -378,8 +386,8 @@ class FizzBuzzTest extends TestCase
 
     public function testFizzBuzzListCommandでリストを生成する(): void
     {
-        $type1 = new \App\FizzBuzzType1();
-        $command = new \App\FizzBuzzListCommand($type1, 15);
+        $type1 = new FizzBuzzType1();
+        $command = new FizzBuzzListCommand($type1, 15);
         
         $list = $command->execute();
         
@@ -392,9 +400,9 @@ class FizzBuzzTest extends TestCase
 
     public function test異なるタイプでCommandパターンを使用する(): void
     {
-        $type2 = new \App\FizzBuzzType2();
-        $valueCommand = new \App\FizzBuzzValueCommand($type2);
-        $listCommand = new \App\FizzBuzzListCommand($type2, 5);
+        $type2 = new FizzBuzzType2();
+        $valueCommand = new FizzBuzzValueCommand($type2);
+        $listCommand = new FizzBuzzListCommand($type2, 5);
         
         $this->assertEquals('3', $valueCommand->execute(3));
         $this->assertEquals('15', $valueCommand->execute(15));
@@ -421,10 +429,10 @@ class FizzBuzzTest extends TestCase
     public function testStrategyパターンが適用されている(): void
     {
         // 異なる戦略（タイプ）を注入できる
-        $context = new \App\FizzBuzz(5, new \App\FizzBuzzType1());
+        $context = new FizzBuzz(5, new FizzBuzzType1());
         $result1 = $context->generateValueList();
         
-        $context2 = new \App\FizzBuzz(5, new \App\FizzBuzzType2());
+        $context2 = new FizzBuzz(5, new FizzBuzzType2());
         $result2 = $context2->generateValueList();
         
         $this->assertEquals('Fizz', $result1[2]->getValue());
@@ -434,8 +442,8 @@ class FizzBuzzTest extends TestCase
     public function testCommandパターンが適用されている(): void
     {
         // コマンドオブジェクトによる処理の実行
-        $command1 = new \App\FizzBuzzValueCommand(new \App\FizzBuzzType1());
-        $command2 = new \App\FizzBuzzListCommand(new \App\FizzBuzzType1(), 3);
+        $command1 = new FizzBuzzValueCommand(new FizzBuzzType1());
+        $command2 = new FizzBuzzListCommand(new FizzBuzzType1(), 3);
         
         $this->assertEquals('Fizz', $command1->execute(3));
         
@@ -457,19 +465,19 @@ class FizzBuzzTest extends TestCase
         $this->expectException(\App\AssertionFailedException::class);
         $this->expectExceptionMessage('最大値は100以下である必要があります');
         
-        $type = new \App\FizzBuzzType1();
-        new \App\FizzBuzzListCommand($type, 101);
+        $type = new FizzBuzzType1();
+        new FizzBuzzListCommand($type, 101);
     }
 
     public function testアサーションが正常に動作する(): void
     {
         // 正の値は許可される
-        $value = new \App\FizzBuzzValue(1, '1');
+        $value = new FizzBuzzValue(1, '1');
         $this->assertEquals(1, $value->getNumber());
         
         // 100以下は許可される
-        $type = new \App\FizzBuzzType1();
-        $command = new \App\FizzBuzzListCommand($type, 100);
+        $type = new FizzBuzzType1();
+        $command = new FizzBuzzListCommand($type, 100);
         $list = $command->execute();
         $this->assertEquals(100, $list->count());
     }

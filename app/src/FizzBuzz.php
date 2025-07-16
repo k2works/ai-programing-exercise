@@ -2,6 +2,13 @@
 
 namespace App;
 
+use App\Domain\Type\FizzBuzzType;
+use App\Domain\Type\FizzBuzzType1;
+use App\Domain\Type\FizzBuzzType2;
+use App\Domain\Type\FizzBuzzType3;
+use App\Domain\Model\FizzBuzzValue;
+use App\Domain\Model\FizzBuzzList;
+
 require_once 'FizzBuzzExceptions.php';
 
 class FizzBuzz
