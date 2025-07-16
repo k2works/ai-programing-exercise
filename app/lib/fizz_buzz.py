@@ -6,9 +6,14 @@ class FizzBuzz:
 
     MAX_NUMBER: int = 100
 
-    def __init__(self) -> None:
-        """Initialize FizzBuzz instance."""
+    def __init__(self, type_: int = 1) -> None:
+        """Initialize FizzBuzz instance.
+
+        Args:
+            type_: The type of FizzBuzz conversion (default: 1)
+        """
         self._list: list[str] = []
+        self._type = type_
 
     @property
     def fizz_buzz_list(self) -> list[str]:
@@ -19,12 +24,11 @@ class FizzBuzz:
         """
         return self._list
 
-    def generate(self, number: int, type_: int = 1) -> str:
+    def generate(self, number: int) -> str:
         """Generate FizzBuzz value for a given number.
 
         Args:
             number: The number to convert to FizzBuzz
-            type_: The type of FizzBuzz conversion (default: 1)
 
         Returns:
             The FizzBuzz string value
@@ -32,7 +36,7 @@ class FizzBuzz:
         is_fizz = number % 3 == 0
         is_buzz = number % 5 == 0
 
-        if type_ == 1:
+        if self._type == 1:
             if is_fizz and is_buzz:
                 return "FizzBuzz"
             if is_fizz:
@@ -40,23 +44,20 @@ class FizzBuzz:
             if is_buzz:
                 return "Buzz"
             return str(number)
-        elif type_ == 2:
+        elif self._type == 2:
             return str(number)
-        elif type_ == 3:
+        elif self._type == 3:
             if is_fizz and is_buzz:
                 return "FizzBuzz"
             return str(number)
         else:
             raise RuntimeError("該当するタイプは存在しません")
 
-    def generate_list(self, type_: int = 1) -> list[str]:
+    def generate_list(self) -> list[str]:
         """Generate FizzBuzz list from 1 to MAX_NUMBER.
-
-        Args:
-            type_: The type of FizzBuzz conversion (default: 1)
 
         Returns:
             List of FizzBuzz string values
         """
-        self._list = [self.generate(n, type_) for n in range(1, self.MAX_NUMBER + 1)]
+        self._list = [self.generate(n) for n in range(1, self.MAX_NUMBER + 1)]
         return self._list
