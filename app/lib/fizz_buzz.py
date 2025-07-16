@@ -13,7 +13,7 @@ class FizzBuzz:
             type_: The type of FizzBuzz conversion (default: 1)
         """
         self._list: list[str] = []
-        self._type = FizzBuzz.create(type_)
+        self._type = FizzBuzzType.create(type_)
 
     @property
     def items(self) -> list[str]:
@@ -32,25 +32,6 @@ class FizzBuzz:
             The FizzBuzz type instance
         """
         return self._type
-
-    @classmethod
-    def create(cls, type_: int):
-        """Factory method to create FizzBuzz type instances.
-
-        Args:
-            type_: The type of FizzBuzz conversion
-
-        Returns:
-            Instance of the appropriate FizzBuzz type class
-        """
-        if type_ == 1:
-            return FizzBuzzType01()
-        elif type_ == 2:
-            return FizzBuzzType02()
-        elif type_ == 3:
-            return FizzBuzzType03()
-        else:
-            raise RuntimeError("該当するタイプは存在しません")
 
     def generate(self, number: int) -> str:
         """Generate FizzBuzz string for a given number.
@@ -75,6 +56,25 @@ class FizzBuzz:
 
 class FizzBuzzType:
     """Base class for FizzBuzz type implementations."""
+
+    @classmethod
+    def create(cls, type_: int):
+        """Factory method to create FizzBuzz type instances.
+
+        Args:
+            type_: The type of FizzBuzz conversion
+
+        Returns:
+            Instance of the appropriate FizzBuzz type class
+        """
+        if type_ == 1:
+            return FizzBuzzType01()
+        elif type_ == 2:
+            return FizzBuzzType02()
+        elif type_ == 3:
+            return FizzBuzzType03()
+        else:
+            raise RuntimeError("該当するタイプは存在しません")
 
     def fizz(self, number: int) -> bool:
         """Check if number is divisible by 3.
