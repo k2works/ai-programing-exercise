@@ -126,7 +126,7 @@ mod tests {
             let mut fizz_buzz = FizzBuzz::new(1);
             fizz_buzz.generate_list();
             let result = fizz_buzz.list();
-            assert_eq!("Fizz", result[2].value());
+            assert_eq!("Fizz", result.get(2).unwrap().value());
         }
 
         #[test]
@@ -134,7 +134,7 @@ mod tests {
             let mut fizz_buzz = FizzBuzz::new(1);
             fizz_buzz.generate_list();
             let result = fizz_buzz.list();
-            assert_eq!("Buzz", result[4].value());
+            assert_eq!("Buzz", result.get(4).unwrap().value());
         }
 
         #[test]
@@ -142,7 +142,7 @@ mod tests {
             let mut fizz_buzz = FizzBuzz::new(1);
             fizz_buzz.generate_list();
             let result = fizz_buzz.list();
-            assert_eq!("FizzBuzz", result[14].value());
+            assert_eq!("FizzBuzz", result.get(14).unwrap().value());
         }
     }
 
@@ -214,6 +214,46 @@ mod tests {
             assert_eq!("FizzBuzz", result.value());
         }
     }
+
+    mod ファーストクラスコレクションのテスト {
+        use super::*;
+
+        #[test]
+        fn test_ファーストクラスコレクションの作成() {
+            let fizz_buzz_value1 = FizzBuzzValue::new(1, "1".to_string());
+            let fizz_buzz_value2 = FizzBuzzValue::new(2, "2".to_string());
+            let list = FizzBuzzList::new(vec![fizz_buzz_value1, fizz_buzz_value2]);
+            
+            assert_eq!(2, list.len());
+            assert_eq!("1", list.first().unwrap().value());
+            assert_eq!("2", list.last().unwrap().value());
+        }
+
+        #[test]
+        fn test_ファーストクラスコレクションの追加() {
+            let fizz_buzz_value1 = FizzBuzzValue::new(1, "1".to_string());
+            let list1 = FizzBuzzList::new(vec![fizz_buzz_value1]);
+            
+            let fizz_buzz_value2 = FizzBuzzValue::new(2, "2".to_string());
+            let list2 = list1.add(vec![fizz_buzz_value2]);
+            
+            assert_eq!(1, list1.len()); // 元のリストは変更されない
+            assert_eq!(2, list2.len()); // 新しいリストが作成される
+        }
+
+        #[test]
+        fn test_ファーストクラスコレクションのアクセス() {
+            let fizz_buzz_value1 = FizzBuzzValue::new(3, "Fizz".to_string());
+            let fizz_buzz_value2 = FizzBuzzValue::new(5, "Buzz".to_string());
+            let fizz_buzz_value3 = FizzBuzzValue::new(15, "FizzBuzz".to_string());
+            let list = FizzBuzzList::new(vec![fizz_buzz_value1, fizz_buzz_value2, fizz_buzz_value3]);
+            
+            assert_eq!("Fizz", list.get(0).unwrap().value());
+            assert_eq!("Buzz", list.get(1).unwrap().value());
+            assert_eq!("FizzBuzz", list.get(2).unwrap().value());
+            assert!(list.get(3).is_none()); // 範囲外アクセスはNone
+        }
+    }
 }
 
 // 値オブジェクト
@@ -240,6 +280,50 @@ impl FizzBuzzValue {
 impl std::fmt::Display for FizzBuzzValue {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}:{}", self.number, self.value)
+    }
+}
+
+// ファーストクラスコレクション
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FizzBuzzList {
+    value: Vec<FizzBuzzValue>,
+}
+
+impl FizzBuzzList {
+    pub fn new(list: Vec<FizzBuzzValue>) -> Self {
+        FizzBuzzList { value: list }
+    }
+    
+    pub fn value(&self) -> &Vec<FizzBuzzValue> {
+        &self.value
+    }
+    
+    pub fn add(&self, new_list: Vec<FizzBuzzValue>) -> FizzBuzzList {
+        let mut combined = self.value.clone();
+        combined.extend(new_list);
+        FizzBuzzList::new(combined)
+    }
+    
+    pub fn get(&self, index: usize) -> Option<&FizzBuzzValue> {
+        self.value.get(index)
+    }
+    
+    pub fn first(&self) -> Option<&FizzBuzzValue> {
+        self.value.first()
+    }
+    
+    pub fn last(&self) -> Option<&FizzBuzzValue> {
+        self.value.last()
+    }
+    
+    pub fn len(&self) -> usize {
+        self.value.len()
+    }
+}
+
+impl std::fmt::Display for FizzBuzzList {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self.value)
     }
 }
 
@@ -302,7 +386,7 @@ impl FizzBuzzType for FizzBuzzType03 {
 
 pub struct FizzBuzz {
     fizz_buzz_type: Box<dyn FizzBuzzType>,
-    list: Vec<FizzBuzzValue>,
+    list: FizzBuzzList,
 }
 
 impl FizzBuzz {
@@ -318,11 +402,11 @@ impl FizzBuzz {
 
         FizzBuzz {
             fizz_buzz_type,
-            list: Vec::new(),
+            list: FizzBuzzList::new(Vec::new()),
         }
     }
 
-    pub fn list(&self) -> &Vec<FizzBuzzValue> {
+    pub fn list(&self) -> &FizzBuzzList {
         &self.list
     }
 
@@ -363,10 +447,11 @@ impl FizzBuzz {
         self.fizz_buzz_type.generate(number)
     }
 
-    pub fn generate_list(&mut self) -> &Vec<FizzBuzzValue> {
-        self.list = (1..=Self::MAX_NUMBER)
+    pub fn generate_list(&mut self) -> &FizzBuzzList {
+        let new_list: Vec<FizzBuzzValue> = (1..=Self::MAX_NUMBER)
             .map(|n| self.generate_instance(n))
             .collect();
+        self.list = self.list.add(new_list);
         &self.list
     }
 }
