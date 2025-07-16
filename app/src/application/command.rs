@@ -1,7 +1,7 @@
 // Commandパターンの実装
 
-use super::model::{FizzBuzzList};
-use super::types::{create_fizz_buzz_type};
+use crate::domain::model::{FizzBuzzList};
+use crate::domain::types::{create_fizz_buzz_type};
 
 /// 値オブジェクトを生成するコマンド
 pub struct FizzBuzzValueCommand {
@@ -13,7 +13,7 @@ impl FizzBuzzValueCommand {
         Self { type_number }
     }
 
-    pub fn execute(&self, number: i32) -> Result<super::model::FizzBuzzValue, &'static str> {
+    pub fn execute(&self, number: i32) -> Result<crate::domain::model::FizzBuzzValue, &'static str> {
         let fizz_buzz_type = create_fizz_buzz_type(self.type_number)?;
         fizz_buzz_type.generate(number)
     }

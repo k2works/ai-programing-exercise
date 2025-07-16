@@ -1,8 +1,10 @@
 // モジュール定義
 pub mod domain;
+pub mod application;
 
 // 外部公開用の再エクスポート
 pub use domain::*;
+pub use application::*;
 
 #[cfg(test)]
 mod tests {
