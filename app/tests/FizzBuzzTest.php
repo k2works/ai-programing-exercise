@@ -303,7 +303,7 @@ class FizzBuzzTest extends TestCase
     // 値オブジェクトのテスト
     public function testFizzBuzzValueクラスで値オブジェクトを作成する(): void
     {
-        $value = new \App\FizzBuzzValue(3, 'Fizz');
+        $value = new FizzBuzzValue(3, 'Fizz');
         
         $this->assertEquals(3, $value->getNumber());
         $this->assertEquals('Fizz', $value->getValue());
@@ -312,9 +312,9 @@ class FizzBuzzTest extends TestCase
 
     public function test値オブジェクトの等価性を確認する(): void
     {
-        $value1 = new \App\FizzBuzzValue(3, 'Fizz');
-        $value2 = new \App\FizzBuzzValue(3, 'Fizz');
-        $value3 = new \App\FizzBuzzValue(5, 'Buzz');
+        $value1 = new FizzBuzzValue(3, 'Fizz');
+        $value2 = new FizzBuzzValue(3, 'Fizz');
+        $value3 = new FizzBuzzValue(5, 'Buzz');
         
         $this->assertTrue($value1->equals($value2));
         $this->assertFalse($value1->equals($value3));
@@ -336,9 +336,9 @@ class FizzBuzzTest extends TestCase
     // ファーストクラスコレクションのテスト
     public function testFizzBuzzListクラスでコレクションを作成する(): void
     {
-        $value1 = new \App\FizzBuzzValue(1, '1');
-        $value2 = new \App\FizzBuzzValue(3, 'Fizz');
-        $list = new \App\FizzBuzzList([$value1, $value2]);
+        $value1 = new FizzBuzzValue(1, '1');
+        $value2 = new FizzBuzzValue(3, 'Fizz');
+        $list = new FizzBuzzList([$value1, $value2]);
         
         $this->assertEquals(2, $list->count());
         $this->assertEquals($value1, $list->get(0));
@@ -347,11 +347,11 @@ class FizzBuzzTest extends TestCase
 
     public function testコレクションに要素を追加する(): void
     {
-        $value1 = new \App\FizzBuzzValue(1, '1');
-        $value2 = new \App\FizzBuzzValue(3, 'Fizz');
-        $value3 = new \App\FizzBuzzValue(5, 'Buzz');
+        $value1 = new FizzBuzzValue(1, '1');
+        $value2 = new FizzBuzzValue(3, 'Fizz');
+        $value3 = new FizzBuzzValue(5, 'Buzz');
         
-        $list1 = new \App\FizzBuzzList([$value1]);
+        $list1 = new FizzBuzzList([$value1]);
         $list2 = $list1->add([$value2, $value3]);
         
         $this->assertEquals(1, $list1->count());
@@ -415,14 +415,14 @@ class FizzBuzzTest extends TestCase
     // デザインパターンのテスト
     public function testValueObjectパターンが適用されている(): void
     {
-        $value = new \App\FizzBuzzValue(3, 'Fizz');
+        $value = new FizzBuzzValue(3, 'Fizz');
         
         // イミュータブルな値オブジェクト
         $this->assertEquals(3, $value->getNumber());
         $this->assertEquals('Fizz', $value->getValue());
         
         // 等価性チェック
-        $value2 = new \App\FizzBuzzValue(3, 'Fizz');
+        $value2 = new FizzBuzzValue(3, 'Fizz');
         $this->assertTrue($value->equals($value2));
     }
 
@@ -457,7 +457,7 @@ class FizzBuzzTest extends TestCase
         $this->expectException(\App\AssertionFailedException::class);
         $this->expectExceptionMessage('数値は0以上である必要があります');
         
-        new \App\FizzBuzzValue(-1, 'invalid');
+        new FizzBuzzValue(-1, 'invalid');
     }
 
     public function test最大値は100以下である必要がある(): void
