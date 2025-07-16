@@ -106,6 +106,28 @@ class FizzBuzzType(ABC):
         """
         return self._list
 
+    def is_fizz(self, number: int) -> bool:
+        """Check if number is divisible by 3.
+
+        Args:
+            number: The number to check
+
+        Returns:
+            True if number is divisible by 3
+        """
+        return number % 3 == 0
+
+    def is_buzz(self, number: int) -> bool:
+        """Check if number is divisible by 5.
+
+        Args:
+            number: The number to check
+
+        Returns:
+            True if number is divisible by 5
+        """
+        return number % 5 == 0
+
     @abstractmethod
     def generate(self, number: int) -> str:
         """Generate FizzBuzz value for a given number.
@@ -140,14 +162,11 @@ class FizzBuzzType01(FizzBuzzType):
         Returns:
             The FizzBuzz string value
         """
-        is_fizz = number % 3 == 0
-        is_buzz = number % 5 == 0
-
-        if is_fizz and is_buzz:
+        if self.is_fizz(number) and self.is_buzz(number):
             return "FizzBuzz"
-        if is_fizz:
+        if self.is_fizz(number):
             return "Fizz"
-        if is_buzz:
+        if self.is_buzz(number):
             return "Buzz"
         return str(number)
 
@@ -179,9 +198,6 @@ class FizzBuzzType03(FizzBuzzType):
         Returns:
             The FizzBuzz string value
         """
-        is_fizz = number % 3 == 0
-        is_buzz = number % 5 == 0
-
-        if is_fizz and is_buzz:
+        if self.is_fizz(number) and self.is_buzz(number):
             return "FizzBuzz"
         return str(number)
