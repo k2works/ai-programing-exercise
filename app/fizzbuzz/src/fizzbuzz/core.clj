@@ -1,6 +1,6 @@
 (ns fizzbuzz.core)
 
-(defn greeting
-  "Say hello world"
-  []
-  "hello world")
+(defn generate
+  "Generate fizz buzz number"
+  [n]
+  (str n))
