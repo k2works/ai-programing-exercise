@@ -13,4 +13,7 @@
     (is (= "Fizz" (generate 3))))
   
   (testing "5を渡したら文字列Buzzを返す"
-    (is (= "Buzz" (generate 5)))))
+    (is (= "Buzz" (generate 5))))
+  
+  (testing "15を渡したら文字列FizzBuzzを返す"
+    (is (= "FizzBuzz" (generate 15)))))
