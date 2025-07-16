@@ -19,19 +19,26 @@ mod tests {
         fn test_15を渡したら文字列fizzbuzzを返す() {
             assert_eq!("FizzBuzz", FizzBuzz::generate(15));
         }
+
+        #[test]
+        fn test_1を渡したら文字列1を返す() {
+            assert_eq!("1", FizzBuzz::generate(1));
+        }
     }
 }
 
 pub struct FizzBuzz;
 
 impl FizzBuzz {
-    pub fn generate(number: i32) -> &'static str {
+    pub fn generate(number: i32) -> String {
         if number % 15 == 0 {
-            "FizzBuzz"
+            "FizzBuzz".to_string()
         } else if number % 5 == 0 {
-            "Buzz"
+            "Buzz".to_string()
+        } else if number % 3 == 0 {
+            "Fizz".to_string()
         } else {
-            "Fizz"
+            number.to_string()
         }
     }
 }
