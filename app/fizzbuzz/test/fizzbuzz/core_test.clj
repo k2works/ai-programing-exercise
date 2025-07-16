@@ -17,3 +17,7 @@
   
   (testing "15を渡したら文字列FizzBuzzを返す"
     (is (= "FizzBuzz" (generate 15)))))
+
+(deftest print-fizzbuzz-test
+  (testing "1から100までの数をプリントする"
+    (is (= 100 (count (print-fizzbuzz))))))
