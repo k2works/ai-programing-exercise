@@ -1,6 +1,6 @@
 (ns fizzbuzz.core)
 
-(defn- divisible-by? 
+(defn- divisible-by?
   "Check if n is divisible by divisor"
   [divisor n]
   (zero? (mod n divisor)))
