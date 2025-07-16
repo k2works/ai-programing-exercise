@@ -4,40 +4,52 @@ namespace App;
 
 class FizzBuzz
 {
+    public const MAX_NUMBER = 100;
+    private int $maxNumber;
+    private FizzBuzzType $type;
+
+    public function __construct(int $maxNumber = self::MAX_NUMBER, FizzBuzzType $type = null)
+    {
+        $this->maxNumber = $maxNumber;
+        $this->type = $type ?? new FizzBuzzType1();
+    }
+
+    public function getMaxNumber(): int
+    {
+        return $this->maxNumber;
+    }
+
     public function generate(int $number, int $type = 1): string
     {
-        if ($type === 2) {
-            return (string) $number;
-        }
-        
-        if ($type === 3) {
-            if ($number % 3 === 0 && $number % 5 === 0) {
-                return 'FizzBuzz';
-            }
-            return (string) $number;
-        }
-        
-        if ($type !== 1) {
-            throw new \InvalidArgumentException('タイプは1、2、3のいずれかを指定してください');
-        }
-        
-        $result = (string) $number;
-        if ($number % 3 === 0 && $number % 5 === 0) {
-            $result = 'FizzBuzz';
-        } elseif ($number % 3 === 0) {
-            $result = 'Fizz';
-        } elseif ($number % 5 === 0) {
-            $result = 'Buzz';
-        }
+        // 後方互換性のために type パラメータをサポート
+        $typeObject = $this->getTypeObject($type);
+        return $typeObject->generate($number);
+    }
 
-        return $result;
+    private function getTypeObject(int $type): FizzBuzzType
+    {
+        switch ($type) {
+            case 1:
+                return new FizzBuzzType1();
+            case 2:
+                return new FizzBuzzType2();
+            case 3:
+                return new FizzBuzzType3();
+            default:
+                throw new \InvalidArgumentException('タイプは1、2、3のいずれかを指定してください');
+        }
+    }
+
+    public function generateWithType(int $number): string
+    {
+        return $this->type->generate($number);
     }
 
     public function generateList(): array
     {
         $result = [];
-        for ($i = 1; $i <= 100; $i++) {
-            $result[] = $this->generate($i);
+        for ($i = 1; $i <= $this->maxNumber; $i++) {
+            $result[] = $this->type->generate($i);
         }
 
         return $result;

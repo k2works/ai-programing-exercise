@@ -112,6 +112,20 @@ class FizzBuzzTest extends TestCase
         $this->fizzbuzz->generate(1, 4);
     }
 
+    // カプセル化のテスト
+    public function testgetMaxNumberでプライベートフィールドの値を取得する(): void
+    {
+        $this->assertEquals(100, $this->fizzbuzz->getMaxNumber());
+    }
+
+    public function test最大値を指定してFizzBuzzの一覧を作成する(): void
+    {
+        $fizzbuzz = new FizzBuzz(15);
+        $result = $fizzbuzz->generateList();
+        $this->assertEquals(15, count($result));
+        $this->assertEquals('FizzBuzz', $result[14]); // 15番目がFizzBuzz
+    }
+
     // 配列とループ処理の学習用テスト
     public function test配列の繰り返し処理(): void
     {
@@ -188,5 +202,78 @@ class FizzBuzzTest extends TestCase
         // 5番目以降を取得
         $result2 = array_slice($values, 5);
         $this->assertEquals([6, 7, 8, 9], $result2);
+    }
+
+    // ポリモーフィズムのテスト
+    public function testType1オブジェクトでFizzBuzzを生成する(): void
+    {
+        $type1 = new \App\FizzBuzzType1();
+        $fizzbuzz = new FizzBuzz(100, $type1);
+        
+        $this->assertEquals('1', $fizzbuzz->generateWithType(1));
+        $this->assertEquals('Fizz', $fizzbuzz->generateWithType(3));
+        $this->assertEquals('Buzz', $fizzbuzz->generateWithType(5));
+        $this->assertEquals('FizzBuzz', $fizzbuzz->generateWithType(15));
+    }
+
+    public function testType2オブジェクトで数値のみを生成する(): void
+    {
+        $type2 = new \App\FizzBuzzType2();
+        $fizzbuzz = new FizzBuzz(100, $type2);
+        
+        $this->assertEquals('1', $fizzbuzz->generateWithType(1));
+        $this->assertEquals('3', $fizzbuzz->generateWithType(3));
+        $this->assertEquals('5', $fizzbuzz->generateWithType(5));
+        $this->assertEquals('15', $fizzbuzz->generateWithType(15));
+    }
+
+    public function testType3オブジェクトで15のときのみFizzBuzzを生成する(): void
+    {
+        $type3 = new \App\FizzBuzzType3();
+        $fizzbuzz = new FizzBuzz(100, $type3);
+        
+        $this->assertEquals('1', $fizzbuzz->generateWithType(1));
+        $this->assertEquals('3', $fizzbuzz->generateWithType(3));
+        $this->assertEquals('5', $fizzbuzz->generateWithType(5));
+        $this->assertEquals('FizzBuzz', $fizzbuzz->generateWithType(15));
+    }
+
+    public function testGenerateListでタイプオブジェクトを使用する(): void
+    {
+        $type1 = new \App\FizzBuzzType1();
+        $fizzbuzz1 = new FizzBuzz(100, $type1);
+        $result1 = $fizzbuzz1->generateList();
+        $this->assertEquals('1', $result1[0]);
+        $this->assertEquals('2', $result1[1]);
+        $this->assertEquals('Fizz', $result1[2]);
+        $this->assertEquals('4', $result1[3]);
+        $this->assertEquals('Buzz', $result1[4]);
+        $this->assertEquals('FizzBuzz', $result1[14]);
+        $this->assertEquals('Buzz', $result1[99]);
+        $this->assertEquals(100, count($result1));
+
+        $type2 = new \App\FizzBuzzType2();
+        $fizzbuzz2 = new FizzBuzz(100, $type2);
+        $result2 = $fizzbuzz2->generateList();
+        $this->assertEquals('1', $result2[0]);
+        $this->assertEquals('2', $result2[1]);
+        $this->assertEquals('3', $result2[2]);
+        $this->assertEquals('4', $result2[3]);
+        $this->assertEquals('5', $result2[4]);
+        $this->assertEquals('15', $result2[14]);
+        $this->assertEquals('99', $result2[98]);
+        $this->assertEquals(100, count($result2));
+
+        $type3 = new \App\FizzBuzzType3();
+        $fizzbuzz3 = new FizzBuzz(100, $type3);
+        $result3 = $fizzbuzz3->generateList();
+        $this->assertEquals('1', $result3[0]);
+        $this->assertEquals('2', $result3[1]);
+        $this->assertEquals('3', $result3[2]);
+        $this->assertEquals('4', $result3[3]);
+        $this->assertEquals('5', $result3[4]);
+        $this->assertEquals('FizzBuzz', $result3[14]);
+        $this->assertEquals('100', $result3[99]);
+        $this->assertEquals(100, count($result3));
     }
 }
