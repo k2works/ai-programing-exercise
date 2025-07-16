@@ -20,23 +20,25 @@
         "psr-4": {
             "Tests\\": "tests/"
         }
-		},
-		"scripts": {
-			"test": "vendor/bin/phpunit",
-			"test:coverage": "vendor/bin/phpunit --coverage-html coverage",
-			"cs:check": "vendor/bin/php-cs-fixer fix --dry-run --diff",
-			"cs:fix": "vendor/bin/php-cs-fixer fix",
-			"phpmd": "vendor/bin/phpmd src text cleancode,codesize,controversial,design,naming,unusedcode",
-			"cpd": "vendor/bin/phpcpd src",
-			"quality": [
-				"@test",
-				"@cs:check",
-				"@phpmd",
-				"@cpd"
-			],
-			"dev": [
-				"@cs:fix",
-				"@test:coverage"
-			]
+		},    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test:coverage": "vendor/bin/phpunit --coverage-html coverage",
+        "cs:check": "vendor/bin/php-cs-fixer fix --dry-run --diff",
+        "cs:fix": "vendor/bin/php-cs-fixer fix",
+        "phpmd": "vendor/bin/phpmd src text cleancode,codesize,controversial,design,naming,unusedcode",
+        "cpd": "vendor/bin/phpcpd src",
+        "quality": [
+            "@test",
+            "@cs:check",
+            "@phpmd",
+            "@cpd"
+        ],
+        "dev": [
+            "@cs:fix",
+            "@test:coverage"
+        ],
+        "watch": "php watch.php",
+        "watch:test": "php watch.php 'composer test'",
+        "watch:quality": "php watch.php 'composer quality'"
     }
 }
