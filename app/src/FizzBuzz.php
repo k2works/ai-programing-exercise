@@ -16,4 +16,21 @@ class FizzBuzz
         }
         return $result;
     }
+
+    public function generateList(): array
+    {
+        $result = [];
+        for ($i = 1; $i <= 100; $i++) {
+            $result[] = $this->generate($i);
+        }
+        return $result;
+    }
+
+    public function printFizzBuzz(): void
+    {
+        $list = $this->generateList();
+        foreach ($list as $item) {
+            echo $item . "\n";
+        }
+    }
 }
