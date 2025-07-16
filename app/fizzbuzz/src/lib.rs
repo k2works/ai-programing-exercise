@@ -1,7 +1,11 @@
 pub struct FizzBuzz;
 
 impl FizzBuzz {
-    pub fn generate(n: i32) -> String {
-        n.to_string()
+    pub fn generate(number: i32) -> String {
+        if number % 3 == 0 {
+            "Fizz".to_string()
+        } else {
+            number.to_string()
+        }
     }
 }

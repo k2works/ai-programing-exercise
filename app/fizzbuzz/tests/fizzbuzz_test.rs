@@ -9,3 +9,8 @@ fn test_1を渡したら文字列1を返す() {
 fn test_2を渡したら文字列2を返す() {
     assert_eq!("2", FizzBuzz::generate(2));
 }
+
+#[test]
+fn test_3を渡したら文字列fizzを返す() {
+    assert_eq!("Fizz", FizzBuzz::generate(3));
+}
