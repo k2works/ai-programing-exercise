@@ -4,6 +4,7 @@
   "Generate fizz buzz number"
   [n]
   (let [result (str n)]
-    (if (zero? (mod n 3))
-      "Fizz"
-      result)))
+    (cond
+      (zero? (mod n 3)) "Fizz"
+      (zero? (mod n 5)) "Buzz"
+      :else result)))

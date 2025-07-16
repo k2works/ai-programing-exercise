@@ -10,4 +10,7 @@
     (is (= "2" (generate 2))))
   
   (testing "3を渡したら文字列Fizzを返す"
-    (is (= "Fizz" (generate 3)))))
+    (is (= "Fizz" (generate 3))))
+  
+  (testing "5を渡したら文字列Buzzを返す"
+    (is (= "Buzz" (generate 5)))))
