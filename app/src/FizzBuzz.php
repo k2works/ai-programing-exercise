@@ -6,6 +6,10 @@ class FizzBuzz
 {
     public function generate(int $number): string
     {
-        return (string) $number;
+        $result = (string) $number;
+        if ($number % 3 === 0) {
+            $result = 'Fizz';
+        }
+        return $result;
     }
 }

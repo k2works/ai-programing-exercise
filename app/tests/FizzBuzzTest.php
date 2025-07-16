@@ -23,4 +23,9 @@ class FizzBuzzTest extends TestCase
     {
         $this->assertEquals('2', $this->fizzbuzz->generate(2));
     }
+
+    public function test3を渡したら文字列Fizzを返す(): void
+    {
+        $this->assertEquals('Fizz', $this->fizzbuzz->generate(3));
+    }
 }
