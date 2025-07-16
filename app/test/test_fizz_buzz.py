@@ -151,9 +151,8 @@ class TestFizzBuzz:
     def test_それ以外のタイプの場合_例外を返す(self) -> None:
         """Test exception for unsupported types."""
         import pytest
-        fizzbuzz_invalid = FizzBuzz(4)
         with pytest.raises(RuntimeError, match="該当するタイプは存在しません"):
-            fizzbuzz_invalid.generate(1)
+            FizzBuzz(4)
 
 
 class TestArrayAndIteration:

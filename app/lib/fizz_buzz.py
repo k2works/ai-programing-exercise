@@ -13,7 +13,7 @@ class FizzBuzz:
             type_: The type of FizzBuzz conversion (default: 1)
         """
         self._list: list[str] = []
-        self._type = type_
+        self._type = FizzBuzz.create(type_)
 
     @property
     def items(self) -> list[str]:
@@ -25,11 +25,11 @@ class FizzBuzz:
         return self._list
 
     @property
-    def type(self) -> int:
+    def type(self):
         """Get the FizzBuzz type.
         
         Returns:
-            The FizzBuzz type
+            The FizzBuzz type instance
         """
         return self._type
 
@@ -61,30 +61,7 @@ class FizzBuzz:
         Returns:
             The FizzBuzz string representation
         """
-        if self._type == 1:
-            is_fizz = number % 3 == 0
-            is_buzz = number % 5 == 0
-
-            if is_fizz and is_buzz:
-                return "FizzBuzz"
-            if is_fizz:
-                return "Fizz"
-            if is_buzz:
-                return "Buzz"
-
-            return str(number)
-        elif self._type == 2:
-            return str(number)
-        elif self._type == 3:
-            is_fizz = number % 3 == 0
-            is_buzz = number % 5 == 0
-
-            if is_fizz and is_buzz:
-                return "FizzBuzz"
-
-            return str(number)
-        else:
-            raise RuntimeError("該当するタイプは存在しません")
+        return self._type.generate(number)
 
     def generate_list(self) -> list[str]:
         """Generate FizzBuzz list from 1 to MAX_NUMBER.
