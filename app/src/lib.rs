@@ -254,6 +254,59 @@ mod tests {
             assert!(list.get(3).is_none()); // 範囲外アクセスはNone
         }
     }
+
+    mod commandパターンのテスト {
+        use super::*;
+
+        #[test]
+        fn test_fizzbuzzvaluecommandでタイプ01を実行() {
+            let command = FizzBuzzValueCommand::new(Box::new(FizzBuzzType01));
+            assert_eq!("Fizz", command.execute(3));
+            assert_eq!("Buzz", command.execute(5));
+            assert_eq!("FizzBuzz", command.execute(15));
+            assert_eq!("1", command.execute(1));
+        }
+
+        #[test]
+        fn test_fizzbuzzvaluecommandでタイプ02を実行() {
+            let command = FizzBuzzValueCommand::new(Box::new(FizzBuzzType02));
+            assert_eq!("3", command.execute(3));
+            assert_eq!("5", command.execute(5));
+            assert_eq!("15", command.execute(15));
+            assert_eq!("1", command.execute(1));
+        }
+
+        #[test]
+        fn test_fizzbuzzvaluecommandでタイプ03を実行() {
+            let command = FizzBuzzValueCommand::new(Box::new(FizzBuzzType03));
+            assert_eq!("3", command.execute(3));
+            assert_eq!("5", command.execute(5));
+            assert_eq!("FizzBuzz", command.execute(15));
+            assert_eq!("1", command.execute(1));
+        }
+
+        #[test]
+        fn test_fizzbuzzlistcommandでリスト生成() {
+            let command = FizzBuzzListCommand::new(Box::new(FizzBuzzType01));
+            let list = command.execute();
+            
+            assert_eq!(100, list.len());
+            assert_eq!("1", list.first().unwrap().value());
+            assert_eq!("Buzz", list.last().unwrap().value());
+            assert_eq!("Fizz", list.get(2).unwrap().value());
+            assert_eq!("FizzBuzz", list.get(14).unwrap().value());
+        }
+
+        #[test]
+        fn test_複数のcommandで異なるタイプを実行() {
+            let command1 = FizzBuzzValueCommand::new(Box::new(FizzBuzzType01));
+            let command2 = FizzBuzzValueCommand::new(Box::new(FizzBuzzType02));
+            
+            // 同じ数値でも異なるタイプなら異なる結果
+            assert_eq!("Fizz", command1.execute(3));
+            assert_eq!("3", command2.execute(3));
+        }
+    }
 }
 
 // 値オブジェクト
@@ -327,6 +380,46 @@ impl std::fmt::Display for FizzBuzzList {
     }
 }
 
+// Commandパターンのトレイト定義
+pub trait FizzBuzzCommand {
+    fn execute(&self, number: i32) -> String;
+}
+
+// FizzBuzzValueを生成するCommand
+pub struct FizzBuzzValueCommand {
+    fizz_buzz_type: Box<dyn FizzBuzzType>,
+}
+
+impl FizzBuzzValueCommand {
+    pub fn new(fizz_buzz_type: Box<dyn FizzBuzzType>) -> Self {
+        FizzBuzzValueCommand { fizz_buzz_type }
+    }
+}
+
+impl FizzBuzzCommand for FizzBuzzValueCommand {
+    fn execute(&self, number: i32) -> String {
+        self.fizz_buzz_type.generate(number).value().to_string()
+    }
+}
+
+// FizzBuzzListを生成するCommand
+pub struct FizzBuzzListCommand {
+    fizz_buzz_type: Box<dyn FizzBuzzType>,
+}
+
+impl FizzBuzzListCommand {
+    pub fn new(fizz_buzz_type: Box<dyn FizzBuzzType>) -> Self {
+        FizzBuzzListCommand { fizz_buzz_type }
+    }
+    
+    pub fn execute(&self) -> FizzBuzzList {
+        let list: Vec<FizzBuzzValue> = (1..=100)
+            .map(|n| self.fizz_buzz_type.generate(n))
+            .collect();
+        FizzBuzzList::new(list)
+    }
+}
+
 // ポリモーフィズムのためのトレイト定義
 pub trait FizzBuzzType {
     fn generate(&self, number: i32) -> FizzBuzzValue;
@@ -385,23 +478,19 @@ impl FizzBuzzType for FizzBuzzType03 {
 }
 
 pub struct FizzBuzz {
-    fizz_buzz_type: Box<dyn FizzBuzzType>,
+    type_number: i32,
     list: FizzBuzzList,
 }
 
 impl FizzBuzz {
-    const MAX_NUMBER: i32 = 100;
-
     pub fn new(type_number: i32) -> Self {
-        let fizz_buzz_type: Box<dyn FizzBuzzType> = match type_number {
-            1 => Box::new(FizzBuzzType01),
-            2 => Box::new(FizzBuzzType02),
-            3 => Box::new(FizzBuzzType03),
+        match type_number {
+            1 | 2 | 3 => {},
             _ => panic!("該当するタイプは存在しません"),
         };
 
         FizzBuzz {
-            fizz_buzz_type,
+            type_number,
             list: FizzBuzzList::new(Vec::new()),
         }
     }
@@ -410,8 +499,17 @@ impl FizzBuzz {
         &self.list
     }
 
-    pub fn fizz_buzz_type(&self) -> &dyn FizzBuzzType {
-        self.fizz_buzz_type.as_ref()
+    fn create_fizz_buzz_type(&self) -> Box<dyn FizzBuzzType> {
+        match self.type_number {
+            1 => Box::new(FizzBuzzType01),
+            2 => Box::new(FizzBuzzType02),
+            3 => Box::new(FizzBuzzType03),
+            _ => panic!("該当するタイプは存在しません"),
+        }
+    }
+
+    pub fn fizz_buzz_type(&self) -> Box<dyn FizzBuzzType> {
+        self.create_fizz_buzz_type()
     }
 
     pub fn generate(number: i32) -> String {
@@ -444,14 +542,14 @@ impl FizzBuzz {
     }
 
     pub fn generate_instance(&self, number: i32) -> FizzBuzzValue {
-        self.fizz_buzz_type.generate(number)
+        let command = FizzBuzzValueCommand::new(self.create_fizz_buzz_type());
+        let value_string = command.execute(number);
+        FizzBuzzValue::new(number, value_string)
     }
 
     pub fn generate_list(&mut self) -> &FizzBuzzList {
-        let new_list: Vec<FizzBuzzValue> = (1..=Self::MAX_NUMBER)
-            .map(|n| self.generate_instance(n))
-            .collect();
-        self.list = self.list.add(new_list);
+        let command = FizzBuzzListCommand::new(self.create_fizz_buzz_type());
+        self.list = command.execute();
         &self.list
     }
 }
