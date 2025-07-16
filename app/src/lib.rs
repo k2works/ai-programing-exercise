@@ -101,11 +101,62 @@ mod tests {
             }
         }
     }
+
+    mod fizz_buzzの配列を返す {
+        use super::*;
+
+        #[test]
+        fn test_配列の初めは文字列の1を返す() {
+            let fizz_buzz = FizzBuzz::new(1);
+            let result = fizz_buzz.generate_list();
+            assert_eq!("1", result.first().unwrap());
+        }
+
+        #[test]
+        fn test_配列の最後は文字列のbuzzを返す() {
+            let fizz_buzz = FizzBuzz::new(1);
+            let result = fizz_buzz.generate_list();
+            assert_eq!("Buzz", result.last().unwrap());
+        }
+
+        #[test]
+        fn test_配列の2番目は文字列のfizzを返す() {
+            let fizz_buzz = FizzBuzz::new(1);
+            let result = fizz_buzz.generate_list();
+            assert_eq!("Fizz", &result[2]);
+        }
+
+        #[test]
+        fn test_配列の4番目は文字列のbuzzを返す() {
+            let fizz_buzz = FizzBuzz::new(1);
+            let result = fizz_buzz.generate_list();
+            assert_eq!("Buzz", &result[4]);
+        }
+
+        #[test]
+        fn test_配列の14番目は文字列のfizzbuzzを返す() {
+            let fizz_buzz = FizzBuzz::new(1);
+            let result = fizz_buzz.generate_list();
+            assert_eq!("FizzBuzz", &result[14]);
+        }
+    }
 }
 
-pub struct FizzBuzz;
+pub struct FizzBuzz {
+    fizz_buzz_type: i32,
+    list: Vec<String>,
+}
 
 impl FizzBuzz {
+    const MAX_NUMBER: i32 = 100;
+
+    pub fn new(fizz_buzz_type: i32) -> Self {
+        FizzBuzz {
+            fizz_buzz_type,
+            list: Vec::new(),
+        }
+    }
+
     pub fn generate(number: i32) -> String {
         Self::generate_with_type(number, 1)
     }
@@ -133,5 +184,15 @@ impl FizzBuzz {
             }
             _ => panic!("該当するタイプは存在しません"),
         }
+    }
+
+    pub fn generate_instance(&self, number: i32) -> String {
+        Self::generate_with_type(number, self.fizz_buzz_type)
+    }
+
+    pub fn generate_list(&self) -> Vec<String> {
+        (1..=Self::MAX_NUMBER)
+            .map(|n| self.generate_instance(n))
+            .collect()
     }
 }
