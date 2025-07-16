@@ -107,36 +107,41 @@ mod tests {
 
         #[test]
         fn test_配列の初めは文字列の1を返す() {
-            let fizz_buzz = FizzBuzz::new(1);
-            let result = fizz_buzz.generate_list();
+            let mut fizz_buzz = FizzBuzz::new(1);
+            fizz_buzz.generate_list();
+            let result = fizz_buzz.list();
             assert_eq!("1", result.first().unwrap());
         }
 
         #[test]
         fn test_配列の最後は文字列のbuzzを返す() {
-            let fizz_buzz = FizzBuzz::new(1);
-            let result = fizz_buzz.generate_list();
+            let mut fizz_buzz = FizzBuzz::new(1);
+            fizz_buzz.generate_list();
+            let result = fizz_buzz.list();
             assert_eq!("Buzz", result.last().unwrap());
         }
 
         #[test]
         fn test_配列の2番目は文字列のfizzを返す() {
-            let fizz_buzz = FizzBuzz::new(1);
-            let result = fizz_buzz.generate_list();
+            let mut fizz_buzz = FizzBuzz::new(1);
+            fizz_buzz.generate_list();
+            let result = fizz_buzz.list();
             assert_eq!("Fizz", &result[2]);
         }
 
         #[test]
         fn test_配列の4番目は文字列のbuzzを返す() {
-            let fizz_buzz = FizzBuzz::new(1);
-            let result = fizz_buzz.generate_list();
+            let mut fizz_buzz = FizzBuzz::new(1);
+            fizz_buzz.generate_list();
+            let result = fizz_buzz.list();
             assert_eq!("Buzz", &result[4]);
         }
 
         #[test]
         fn test_配列の14番目は文字列のfizzbuzzを返す() {
-            let fizz_buzz = FizzBuzz::new(1);
-            let result = fizz_buzz.generate_list();
+            let mut fizz_buzz = FizzBuzz::new(1);
+            fizz_buzz.generate_list();
+            let result = fizz_buzz.list();
             assert_eq!("FizzBuzz", &result[14]);
         }
     }
@@ -155,6 +160,14 @@ impl FizzBuzz {
             fizz_buzz_type,
             list: Vec::new(),
         }
+    }
+
+    pub fn list(&self) -> &Vec<String> {
+        &self.list
+    }
+
+    pub fn fizz_buzz_type(&self) -> i32 {
+        self.fizz_buzz_type
     }
 
     pub fn generate(number: i32) -> String {
@@ -190,9 +203,10 @@ impl FizzBuzz {
         Self::generate_with_type(number, self.fizz_buzz_type)
     }
 
-    pub fn generate_list(&self) -> Vec<String> {
-        (1..=Self::MAX_NUMBER)
+    pub fn generate_list(&mut self) -> &Vec<String> {
+        self.list = (1..=Self::MAX_NUMBER)
             .map(|n| self.generate_instance(n))
-            .collect()
+            .collect();
+        &self.list
     }
 }
