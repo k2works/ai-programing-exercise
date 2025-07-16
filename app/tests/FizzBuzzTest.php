@@ -59,6 +59,59 @@ class FizzBuzzTest extends TestCase
         $this->fizzbuzz->printFizzBuzz();
     }
 
+    // タイプごとに出力を切り替えることができる
+    public function testタイプ1の場合_1を渡したら文字列1を返す(): void
+    {
+        $this->assertEquals('1', $this->fizzbuzz->generate(1, 1));
+    }
+
+    public function testタイプ2の場合_1を渡したら文字列1を返す(): void
+    {
+        $this->assertEquals('1', $this->fizzbuzz->generate(1, 2));
+    }
+
+    public function testタイプ2の場合_3を渡したら文字列3を返す(): void
+    {
+        $this->assertEquals('3', $this->fizzbuzz->generate(3, 2));
+    }
+
+    public function testタイプ2の場合_5を渡したら文字列5を返す(): void
+    {
+        $this->assertEquals('5', $this->fizzbuzz->generate(5, 2));
+    }
+
+    public function testタイプ2の場合_15を渡したら文字列15を返す(): void
+    {
+        $this->assertEquals('15', $this->fizzbuzz->generate(15, 2));
+    }
+
+    public function testタイプ3の場合_1を渡したら文字列1を返す(): void
+    {
+        $this->assertEquals('1', $this->fizzbuzz->generate(1, 3));
+    }
+
+    public function testタイプ3の場合_3を渡したら文字列3を返す(): void
+    {
+        $this->assertEquals('3', $this->fizzbuzz->generate(3, 3));
+    }
+
+    public function testタイプ3の場合_5を渡したら文字列5を返す(): void
+    {
+        $this->assertEquals('5', $this->fizzbuzz->generate(5, 3));
+    }
+
+    public function testタイプ3の場合_15を渡したら文字列FizzBuzzを返す(): void
+    {
+        $this->assertEquals('FizzBuzz', $this->fizzbuzz->generate(15, 3));
+    }
+
+    public function testそれ以外のタイプの場合_例外が発生する(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('タイプは1、2、3のいずれかを指定してください');
+        $this->fizzbuzz->generate(1, 4);
+    }
+
     // 配列とループ処理の学習用テスト
     public function test配列の繰り返し処理(): void
     {

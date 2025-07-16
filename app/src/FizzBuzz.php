@@ -4,8 +4,23 @@ namespace App;
 
 class FizzBuzz
 {
-    public function generate(int $number): string
+    public function generate(int $number, int $type = 1): string
     {
+        if ($type === 2) {
+            return (string) $number;
+        }
+        
+        if ($type === 3) {
+            if ($number % 3 === 0 && $number % 5 === 0) {
+                return 'FizzBuzz';
+            }
+            return (string) $number;
+        }
+        
+        if ($type !== 1) {
+            throw new \InvalidArgumentException('タイプは1、2、3のいずれかを指定してください');
+        }
+        
         $result = (string) $number;
         if ($number % 3 === 0 && $number % 5 === 0) {
             $result = 'FizzBuzz';
