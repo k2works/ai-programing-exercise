@@ -12,7 +12,13 @@ class FizzBuzzValue:
         Args:
             number: The original number
             value: The FizzBuzz converted value
+
+        Raises:
+            ValueError: If number is negative
         """
+        if number < 0:
+            raise ValueError("正の値のみ有効です")
+
         self._number = number
         self._value = value
 
@@ -72,7 +78,13 @@ class FizzBuzzList:
 
         Args:
             list_: List of FizzBuzzValue objects
+
+        Raises:
+            ValueError: If list has more than 100 items
         """
+        if len(list_) > 100:
+            raise ValueError("上限は100件までです")
+
         self._value = list_.copy()  # イミュータブルにするため、コピーを作成
 
     @property
@@ -102,6 +114,69 @@ class FizzBuzzList:
             New FizzBuzzList instance with added values
         """
         return FizzBuzzList(self._value + values)
+
+
+class FizzBuzzCommand(ABC):
+    """Abstract base class for FizzBuzz commands."""
+
+    @abstractmethod
+    def execute(self, number: int) -> object:
+        """Execute the command.
+
+        Args:
+            number: The number to process
+
+        Returns:
+            Result of the command execution
+        """
+        pass
+
+
+class FizzBuzzValueCommand(FizzBuzzCommand):
+    """Command for generating FizzBuzz values."""
+
+    def __init__(self, type_instance: "FizzBuzzType") -> None:
+        """Initialize FizzBuzzValueCommand instance.
+
+        Args:
+            type_instance: The FizzBuzzType instance to use
+        """
+        self._type = type_instance
+
+    def execute(self, number: int) -> str:
+        """Execute the command to generate FizzBuzz value.
+
+        Args:
+            number: The number to convert to FizzBuzz
+
+        Returns:
+            The FizzBuzz string value
+        """
+        return self._type.generate(number).value
+
+
+class FizzBuzzListCommand(FizzBuzzCommand):
+    """Command for generating FizzBuzz lists."""
+
+    def __init__(self, type_instance: "FizzBuzzType") -> None:
+        """Initialize FizzBuzzListCommand instance.
+
+        Args:
+            type_instance: The FizzBuzzType instance to use
+        """
+        self._type = type_instance
+
+    def execute(self, number: int) -> list[FizzBuzzValue]:
+        """Execute the command to generate FizzBuzz list.
+
+        Args:
+            number: The maximum number for the range (1 to number)
+
+        Returns:
+            List of FizzBuzz values
+        """
+        values = [self._type.generate(i) for i in range(1, number + 1)]
+        return FizzBuzzList(values).value
 
 
 class FizzBuzz:
@@ -165,7 +240,7 @@ class FizzBuzz:
         elif type_ == 3:
             return FizzBuzzType03()
         else:
-            raise RuntimeError("該当するタイプは存在しません")
+            return FizzBuzzTypeNotDefined()
 
 
 class FizzBuzzType(ABC):
@@ -194,7 +269,7 @@ class FizzBuzzType(ABC):
         elif type_ == 3:
             return FizzBuzzType03()
         else:
-            raise RuntimeError("該当するタイプは存在しません")
+            return FizzBuzzTypeNotDefined()
 
     @property
     def fizz_buzz_list(self) -> list[FizzBuzzValue]:
@@ -300,3 +375,26 @@ class FizzBuzzType03(FizzBuzzType):
         if self.is_fizz(number) and self.is_buzz(number):
             return FizzBuzzValue(number, "FizzBuzz")
         return FizzBuzzValue(number, str(number))
+
+
+class FizzBuzzTypeNotDefined(FizzBuzzType):
+    """FizzBuzz Type Not Defined implementation."""
+
+    def __str__(self) -> str:
+        """Return string representation.
+
+        Returns:
+            String representation of undefined type
+        """
+        return "未定義"
+
+    def generate(self, number: int) -> FizzBuzzValue:
+        """Generate FizzBuzz value for a given number.
+
+        Args:
+            number: The number to convert to FizzBuzz
+
+        Returns:
+            The FizzBuzz value object with undefined value
+        """
+        return FizzBuzzValue(number, "未定義")

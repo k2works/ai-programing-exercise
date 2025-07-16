@@ -151,13 +151,12 @@ class TestFizzBuzz:
         fizzbuzz_type3 = FizzBuzz(3)
         assert fizzbuzz_type3.generate(1).value == "1"
 
-    def test_それ以外のタイプの場合_例外を返す(self) -> None:
-        """Test exception for unsupported types."""
-        import pytest
+    def test_それ以外のタイプの場合_未定義のタイプを返す(self) -> None:
+        """Test that other types return an undefined type."""
+        from lib.fizz_buzz import FizzBuzzType
 
-        with pytest.raises(RuntimeError, match="該当するタイプは存在しません"):
-            fizzbuzz_type4 = FizzBuzz(4)
-            fizzbuzz_type4.generate(1)
+        fizzbuzz_type = FizzBuzzType.create(4)
+        assert str(fizzbuzz_type) == "未定義"
 
     def test_collectメソッドで新しい要素の配列を返す(self) -> None:
         """Test mapping elements to new values using map."""
@@ -285,3 +284,49 @@ class TestFizzBuzz:
         retrieved_list = fizz_buzz_list.value
         retrieved_list.append(FizzBuzzValue(4, "4"))
         assert len(fizz_buzz_list.value) == 2
+
+    def test_FizzBuzzValueCommand_実行(self) -> None:
+        """Test FizzBuzzValueCommand execution."""
+        from lib.fizz_buzz import FizzBuzzType01, FizzBuzzValueCommand
+
+        command = FizzBuzzValueCommand(FizzBuzzType01())
+        assert command.execute(3) == "Fizz"
+        assert command.execute(5) == "Buzz"
+        assert command.execute(15) == "FizzBuzz"
+        assert command.execute(1) == "1"
+
+    def test_FizzBuzzListCommand_実行(self) -> None:
+        """Test FizzBuzzListCommand execution."""
+        from lib.fizz_buzz import FizzBuzzListCommand, FizzBuzzType01
+
+        command = FizzBuzzListCommand(FizzBuzzType01())
+        result = command.execute(15)
+        assert len(result) == 15
+        assert result[0].value == "1"
+        assert result[2].value == "Fizz"
+        assert result[4].value == "Buzz"
+        assert result[14].value == "FizzBuzz"
+
+
+class TestFizzBuzzExceptionCases:
+    """Test class for FizzBuzz exception cases."""
+
+    def test_値は正の値のみ許可する(self) -> None:
+        """Test that only positive values are allowed."""
+        import pytest
+
+        from lib.fizz_buzz import FizzBuzzType01, FizzBuzzValueCommand
+
+        command = FizzBuzzValueCommand(FizzBuzzType01())
+        with pytest.raises(ValueError, match="正の値のみ有効です"):
+            command.execute(-1)
+
+    def test_上限は100件までです(self) -> None:
+        """Test that the upper limit is 100 items."""
+        import pytest
+
+        from lib.fizz_buzz import FizzBuzzList, FizzBuzzValue
+
+        values = [FizzBuzzValue(i, str(i)) for i in range(1, 102)]  # 101個の値
+        with pytest.raises(ValueError, match="上限は100件までです"):
+            FizzBuzzList(values)
