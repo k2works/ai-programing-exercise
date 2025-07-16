@@ -55,20 +55,6 @@ impl FizzBuzzType for FizzBuzzType03 {
     }
 }
 
-pub struct FizzBuzzTypeNotDefined;
-
-impl FizzBuzzType for FizzBuzzTypeNotDefined {
-    fn generate(&self, number: i32) -> Result<FizzBuzzValue, &'static str> {
-        FizzBuzzValue::new(number, "".to_string())
-    }
-}
-
-impl std::fmt::Display for FizzBuzzTypeNotDefined {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "未定義")
-    }
-}
-
 pub fn create_fizz_buzz_type(type_number: i32) -> Result<Box<dyn FizzBuzzType>, &'static str> {
     match type_number {
         1 => Ok(Box::new(FizzBuzzType01)),

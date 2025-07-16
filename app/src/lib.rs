@@ -4,11 +4,6 @@ pub mod domain;
 // 外部公開用の再エクスポート
 pub use domain::*;
 
-// ヘルパー関数
-fn create_fizz_buzz_list() -> Result<FizzBuzzList, &'static str> {
-    FizzBuzzList::new(100)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -238,8 +233,8 @@ mod tests {
 
         #[test]
         fn test_ファーストクラスコレクションの作成() {
-            let fizz_buzz_value1 = FizzBuzzValue::new(1, "1".to_string()).unwrap();
-            let fizz_buzz_value2 = FizzBuzzValue::new(2, "2".to_string()).unwrap();
+            let _fizz_buzz_value1 = FizzBuzzValue::new(1, "1".to_string()).unwrap();
+            let _fizz_buzz_value2 = FizzBuzzValue::new(2, "2".to_string()).unwrap();
             let list = FizzBuzzList::new(2).unwrap();
             
             assert_eq!(2, list.count());
@@ -247,7 +242,7 @@ mod tests {
 
         #[test]
         fn test_ファーストクラスコレクションの要素取得() {
-            let list = create_fizz_buzz_list().unwrap();
+            let list = FizzBuzzList::new(100).unwrap();
             let element = list.get(0).unwrap();
             assert_eq!(1, element.number());
             assert_eq!("1", element.value());
@@ -259,13 +254,13 @@ mod tests {
 
         #[test]
         fn test_ファーストクラスコレクションの要素数() {
-            let list = create_fizz_buzz_list().unwrap();
+            let list = FizzBuzzList::new(100).unwrap();
             assert_eq!(100, list.count());
         }
 
         #[test]
         fn test_ファーストクラスコレクションの印字() {
-            let list = create_fizz_buzz_list().unwrap();
+            let list = FizzBuzzList::new(100).unwrap();
             let result = list.print_list();
             assert!(result.contains("1:1"));
             assert!(result.contains("3:Fizz"));
