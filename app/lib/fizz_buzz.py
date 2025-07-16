@@ -76,7 +76,7 @@ class FizzBuzz:
 class FizzBuzzType:
     """Base class for FizzBuzz type implementations."""
 
-    def is_fizz(self, number: int) -> bool:
+    def fizz(self, number: int) -> bool:
         """Check if number is divisible by 3.
 
         Args:
@@ -87,7 +87,7 @@ class FizzBuzzType:
         """
         return number % 3 == 0
 
-    def is_buzz(self, number: int) -> bool:
+    def buzz(self, number: int) -> bool:
         """Check if number is divisible by 5.
 
         Args:
@@ -111,8 +111,8 @@ class FizzBuzzType01(FizzBuzzType):
         Returns:
             The FizzBuzz string representation
         """
-        is_fizz = self.is_fizz(number)
-        is_buzz = self.is_buzz(number)
+        is_fizz = self.fizz(number)
+        is_buzz = self.buzz(number)
 
         if is_fizz and is_buzz:
             return "FizzBuzz"
@@ -151,8 +151,8 @@ class FizzBuzzType03(FizzBuzzType):
         Returns:
             The FizzBuzz string representation
         """
-        is_fizz = self.is_fizz(number)
-        is_buzz = self.is_buzz(number)
+        is_fizz = self.fizz(number)
+        is_buzz = self.buzz(number)
 
         if is_fizz and is_buzz:
             return "FizzBuzz"
