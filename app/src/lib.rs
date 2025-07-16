@@ -30,20 +30,42 @@ mod tests {
             assert_eq!("2", FizzBuzz::generate(2));
         }
     }
+
+    mod タイプごとに出力を切り替えることができる {
+        use super::*;
+
+        mod タイプ1の場合 {
+            use super::*;
+
+            #[test]
+            fn test_1を渡したら文字列1を返す() {
+                assert_eq!("1", FizzBuzz::generate_with_type(1, 1));
+            }
+        }
+    }
 }
 
 pub struct FizzBuzz;
 
 impl FizzBuzz {
     pub fn generate(number: i32) -> String {
-        if number % 15 == 0 {
-            "FizzBuzz".to_string()
-        } else if number % 5 == 0 {
-            "Buzz".to_string()
-        } else if number % 3 == 0 {
-            "Fizz".to_string()
-        } else {
-            number.to_string()
+        Self::generate_with_type(number, 1)
+    }
+
+    pub fn generate_with_type(number: i32, fizz_buzz_type: i32) -> String {
+        match fizz_buzz_type {
+            1 => {
+                if number % 15 == 0 {
+                    "FizzBuzz".to_string()
+                } else if number % 5 == 0 {
+                    "Buzz".to_string()
+                } else if number % 3 == 0 {
+                    "Fizz".to_string()
+                } else {
+                    number.to_string()
+                }
+            }
+            _ => panic!("該当するタイプは存在しません"),
         }
     }
 }
