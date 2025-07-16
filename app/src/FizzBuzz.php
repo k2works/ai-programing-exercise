@@ -14,6 +14,7 @@ class FizzBuzz
         } elseif ($number % 5 === 0) {
             $result = 'Buzz';
         }
+
         return $result;
     }
 
@@ -23,6 +24,7 @@ class FizzBuzz
         for ($i = 1; $i <= 100; $i++) {
             $result[] = $this->generate($i);
         }
+
         return $result;
     }
 
