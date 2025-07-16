@@ -3,4 +3,7 @@
 (defn generate
   "Generate fizz buzz number"
   [n]
-  (str n))
+  (let [result (str n)]
+    (if (zero? (mod n 3))
+      "Fizz"
+      result)))
