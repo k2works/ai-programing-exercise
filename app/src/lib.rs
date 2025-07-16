@@ -145,11 +145,58 @@ mod tests {
             assert_eq!("FizzBuzz", &result[14]);
         }
     }
+
+    mod 継承による共通メソッドのテスト {
+        use super::*;
+
+        #[test]
+        fn test_fizzbuzzタイプ01のis_fizzメソッド() {
+            let fizz_buzz_type = FizzBuzzType01;
+            assert!(fizz_buzz_type.is_fizz(3));
+            assert!(!fizz_buzz_type.is_fizz(2));
+        }
+
+        #[test]
+        fn test_fizzbuzzタイプ01のis_buzzメソッド() {
+            let fizz_buzz_type = FizzBuzzType01;
+            assert!(fizz_buzz_type.is_buzz(5));
+            assert!(!fizz_buzz_type.is_buzz(2));
+        }
+
+        #[test]
+        fn test_fizzbuzzタイプ01のis_fizz_buzzメソッド() {
+            let fizz_buzz_type = FizzBuzzType01;
+            assert!(fizz_buzz_type.is_fizz_buzz(15));
+            assert!(!fizz_buzz_type.is_fizz_buzz(3));
+            assert!(!fizz_buzz_type.is_fizz_buzz(5));
+        }
+
+        #[test]
+        fn test_fizzbuzzタイプ03でも共通メソッドが利用可能() {
+            let fizz_buzz_type = FizzBuzzType03;
+            assert!(fizz_buzz_type.is_fizz_buzz(15));
+            assert!(fizz_buzz_type.is_fizz(9));
+            assert!(fizz_buzz_type.is_buzz(10));
+        }
+    }
 }
 
 // ポリモーフィズムのためのトレイト定義
 pub trait FizzBuzzType {
     fn generate(&self, number: i32) -> String;
+    
+    // 継承の概念：デフォルト実装を提供
+    fn is_fizz(&self, number: i32) -> bool {
+        number % 3 == 0
+    }
+    
+    fn is_buzz(&self, number: i32) -> bool {
+        number % 5 == 0
+    }
+    
+    fn is_fizz_buzz(&self, number: i32) -> bool {
+        self.is_fizz(number) && self.is_buzz(number)
+    }
 }
 
 // タイプ1の実装
@@ -157,11 +204,11 @@ pub struct FizzBuzzType01;
 
 impl FizzBuzzType for FizzBuzzType01 {
     fn generate(&self, number: i32) -> String {
-        if number % 15 == 0 {
+        if self.is_fizz_buzz(number) {
             "FizzBuzz".to_string()
-        } else if number % 5 == 0 {
+        } else if self.is_buzz(number) {
             "Buzz".to_string()
-        } else if number % 3 == 0 {
+        } else if self.is_fizz(number) {
             "Fizz".to_string()
         } else {
             number.to_string()
@@ -183,7 +230,7 @@ pub struct FizzBuzzType03;
 
 impl FizzBuzzType for FizzBuzzType03 {
     fn generate(&self, number: i32) -> String {
-        if number % 15 == 0 {
+        if self.is_fizz_buzz(number) {
             "FizzBuzz".to_string()
         } else {
             number.to_string()
