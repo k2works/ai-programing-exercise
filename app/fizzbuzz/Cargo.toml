@@ -1,0 +1,14 @@
+[package]
+name = "fizzbuzz"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "fizzbuzz"
+path = "src/lib.rs"
+
+[[bin]]
+name = "fizzbuzz"
+path = "src/main.rs"
+
+[dependencies]
