@@ -110,7 +110,7 @@ mod tests {
             let mut fizz_buzz = FizzBuzz::new(1);
             fizz_buzz.generate_list();
             let result = fizz_buzz.list();
-            assert_eq!("1", result.first().unwrap());
+            assert_eq!("1", result.first().unwrap().value());
         }
 
         #[test]
@@ -118,7 +118,7 @@ mod tests {
             let mut fizz_buzz = FizzBuzz::new(1);
             fizz_buzz.generate_list();
             let result = fizz_buzz.list();
-            assert_eq!("Buzz", result.last().unwrap());
+            assert_eq!("Buzz", result.last().unwrap().value());
         }
 
         #[test]
@@ -126,7 +126,7 @@ mod tests {
             let mut fizz_buzz = FizzBuzz::new(1);
             fizz_buzz.generate_list();
             let result = fizz_buzz.list();
-            assert_eq!("Fizz", &result[2]);
+            assert_eq!("Fizz", result[2].value());
         }
 
         #[test]
@@ -134,7 +134,7 @@ mod tests {
             let mut fizz_buzz = FizzBuzz::new(1);
             fizz_buzz.generate_list();
             let result = fizz_buzz.list();
-            assert_eq!("Buzz", &result[4]);
+            assert_eq!("Buzz", result[4].value());
         }
 
         #[test]
@@ -142,7 +142,7 @@ mod tests {
             let mut fizz_buzz = FizzBuzz::new(1);
             fizz_buzz.generate_list();
             let result = fizz_buzz.list();
-            assert_eq!("FizzBuzz", &result[14]);
+            assert_eq!("FizzBuzz", result[14].value());
         }
     }
 
@@ -179,11 +179,73 @@ mod tests {
             assert!(fizz_buzz_type.is_buzz(10));
         }
     }
+
+    mod 値オブジェクトのテスト {
+        use super::*;
+
+        #[test]
+        fn test_値オブジェクトの作成() {
+            let fizz_buzz_value = FizzBuzzValue::new(1, "1".to_string());
+            assert_eq!(1, fizz_buzz_value.number());
+            assert_eq!("1", fizz_buzz_value.value());
+        }
+
+        #[test]
+        fn test_値オブジェクトの文字列表示() {
+            let fizz_buzz_value = FizzBuzzValue::new(3, "Fizz".to_string());
+            assert_eq!("3:Fizz", fizz_buzz_value.to_string());
+        }
+
+        #[test]
+        fn test_値オブジェクトの等価性() {
+            let fizz_buzz_value1 = FizzBuzzValue::new(5, "Buzz".to_string());
+            let fizz_buzz_value2 = FizzBuzzValue::new(5, "Buzz".to_string());
+            let fizz_buzz_value3 = FizzBuzzValue::new(5, "5".to_string());
+            
+            assert_eq!(fizz_buzz_value1, fizz_buzz_value2);
+            assert_ne!(fizz_buzz_value1, fizz_buzz_value3);
+        }
+
+        #[test]
+        fn test_値オブジェクトを生成するタイプ01() {
+            let fizz_buzz_type = FizzBuzzType01;
+            let result = fizz_buzz_type.generate(15);
+            assert_eq!(15, result.number());
+            assert_eq!("FizzBuzz", result.value());
+        }
+    }
+}
+
+// 値オブジェクト
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FizzBuzzValue {
+    number: i32,
+    value: String,
+}
+
+impl FizzBuzzValue {
+    pub fn new(number: i32, value: String) -> Self {
+        FizzBuzzValue { number, value }
+    }
+    
+    pub fn number(&self) -> i32 {
+        self.number
+    }
+    
+    pub fn value(&self) -> &str {
+        &self.value
+    }
+}
+
+impl std::fmt::Display for FizzBuzzValue {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}:{}", self.number, self.value)
+    }
 }
 
 // ポリモーフィズムのためのトレイト定義
 pub trait FizzBuzzType {
-    fn generate(&self, number: i32) -> String;
+    fn generate(&self, number: i32) -> FizzBuzzValue;
     
     // 継承の概念：デフォルト実装を提供
     fn is_fizz(&self, number: i32) -> bool {
@@ -203,15 +265,15 @@ pub trait FizzBuzzType {
 pub struct FizzBuzzType01;
 
 impl FizzBuzzType for FizzBuzzType01 {
-    fn generate(&self, number: i32) -> String {
+    fn generate(&self, number: i32) -> FizzBuzzValue {
         if self.is_fizz_buzz(number) {
-            "FizzBuzz".to_string()
+            FizzBuzzValue::new(number, "FizzBuzz".to_string())
         } else if self.is_buzz(number) {
-            "Buzz".to_string()
+            FizzBuzzValue::new(number, "Buzz".to_string())
         } else if self.is_fizz(number) {
-            "Fizz".to_string()
+            FizzBuzzValue::new(number, "Fizz".to_string())
         } else {
-            number.to_string()
+            FizzBuzzValue::new(number, number.to_string())
         }
     }
 }
@@ -220,8 +282,8 @@ impl FizzBuzzType for FizzBuzzType01 {
 pub struct FizzBuzzType02;
 
 impl FizzBuzzType for FizzBuzzType02 {
-    fn generate(&self, number: i32) -> String {
-        number.to_string()
+    fn generate(&self, number: i32) -> FizzBuzzValue {
+        FizzBuzzValue::new(number, number.to_string())
     }
 }
 
@@ -229,18 +291,18 @@ impl FizzBuzzType for FizzBuzzType02 {
 pub struct FizzBuzzType03;
 
 impl FizzBuzzType for FizzBuzzType03 {
-    fn generate(&self, number: i32) -> String {
+    fn generate(&self, number: i32) -> FizzBuzzValue {
         if self.is_fizz_buzz(number) {
-            "FizzBuzz".to_string()
+            FizzBuzzValue::new(number, "FizzBuzz".to_string())
         } else {
-            number.to_string()
+            FizzBuzzValue::new(number, number.to_string())
         }
     }
 }
 
 pub struct FizzBuzz {
     fizz_buzz_type: Box<dyn FizzBuzzType>,
-    list: Vec<String>,
+    list: Vec<FizzBuzzValue>,
 }
 
 impl FizzBuzz {
@@ -260,7 +322,7 @@ impl FizzBuzz {
         }
     }
 
-    pub fn list(&self) -> &Vec<String> {
+    pub fn list(&self) -> &Vec<FizzBuzzValue> {
         &self.list
     }
 
@@ -297,11 +359,11 @@ impl FizzBuzz {
         }
     }
 
-    pub fn generate_instance(&self, number: i32) -> String {
+    pub fn generate_instance(&self, number: i32) -> FizzBuzzValue {
         self.fizz_buzz_type.generate(number)
     }
 
-    pub fn generate_list(&mut self) -> &Vec<String> {
+    pub fn generate_list(&mut self) -> &Vec<FizzBuzzValue> {
         self.list = (1..=Self::MAX_NUMBER)
             .map(|n| self.generate_instance(n))
             .collect();
