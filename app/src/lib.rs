@@ -1,3 +1,14 @@
+// モジュール定義
+pub mod domain;
+
+// 外部公開用の再エクスポート
+pub use domain::*;
+
+// ヘルパー関数
+fn create_fizz_buzz_list() -> Result<FizzBuzzList, &'static str> {
+    FizzBuzzList::new(100)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -107,40 +118,40 @@ mod tests {
 
         #[test]
         fn test_配列の初めは文字列の1を返す() {
-            let mut fizz_buzz = FizzBuzz::new(1);
-            fizz_buzz.generate_list();
+            let mut fizz_buzz = FizzBuzz::new(1).unwrap();
+            fizz_buzz.generate_list().unwrap();
             let result = fizz_buzz.list();
             assert_eq!("1", result.first().unwrap().value());
         }
 
         #[test]
         fn test_配列の最後は文字列のbuzzを返す() {
-            let mut fizz_buzz = FizzBuzz::new(1);
-            fizz_buzz.generate_list();
+            let mut fizz_buzz = FizzBuzz::new(1).unwrap();
+            fizz_buzz.generate_list().unwrap();
             let result = fizz_buzz.list();
             assert_eq!("Buzz", result.last().unwrap().value());
         }
 
         #[test]
         fn test_配列の2番目は文字列のfizzを返す() {
-            let mut fizz_buzz = FizzBuzz::new(1);
-            fizz_buzz.generate_list();
+            let mut fizz_buzz = FizzBuzz::new(1).unwrap();
+            fizz_buzz.generate_list().unwrap();
             let result = fizz_buzz.list();
             assert_eq!("Fizz", result.get(2).unwrap().value());
         }
 
         #[test]
         fn test_配列の4番目は文字列のbuzzを返す() {
-            let mut fizz_buzz = FizzBuzz::new(1);
-            fizz_buzz.generate_list();
+            let mut fizz_buzz = FizzBuzz::new(1).unwrap();
+            fizz_buzz.generate_list().unwrap();
             let result = fizz_buzz.list();
             assert_eq!("Buzz", result.get(4).unwrap().value());
         }
 
         #[test]
         fn test_配列の14番目は文字列のfizzbuzzを返す() {
-            let mut fizz_buzz = FizzBuzz::new(1);
-            fizz_buzz.generate_list();
+            let mut fizz_buzz = FizzBuzz::new(1).unwrap();
+            fizz_buzz.generate_list().unwrap();
             let result = fizz_buzz.list();
             assert_eq!("FizzBuzz", result.get(14).unwrap().value());
         }
@@ -185,22 +196,22 @@ mod tests {
 
         #[test]
         fn test_値オブジェクトの作成() {
-            let fizz_buzz_value = FizzBuzzValue::new(1, "1".to_string());
+            let fizz_buzz_value = FizzBuzzValue::new(1, "1".to_string()).unwrap();
             assert_eq!(1, fizz_buzz_value.number());
             assert_eq!("1", fizz_buzz_value.value());
         }
 
         #[test]
         fn test_値オブジェクトの文字列表示() {
-            let fizz_buzz_value = FizzBuzzValue::new(3, "Fizz".to_string());
+            let fizz_buzz_value = FizzBuzzValue::new(3, "Fizz".to_string()).unwrap();
             assert_eq!("3:Fizz", fizz_buzz_value.to_string());
         }
 
         #[test]
         fn test_値オブジェクトの等価性() {
-            let fizz_buzz_value1 = FizzBuzzValue::new(5, "Buzz".to_string());
-            let fizz_buzz_value2 = FizzBuzzValue::new(5, "Buzz".to_string());
-            let fizz_buzz_value3 = FizzBuzzValue::new(5, "5".to_string());
+            let fizz_buzz_value1 = FizzBuzzValue::new(5, "Buzz".to_string()).unwrap();
+            let fizz_buzz_value2 = FizzBuzzValue::new(5, "Buzz".to_string()).unwrap();
+            let fizz_buzz_value3 = FizzBuzzValue::new(5, "5".to_string()).unwrap();
             
             assert_eq!(fizz_buzz_value1, fizz_buzz_value2);
             assert_ne!(fizz_buzz_value1, fizz_buzz_value3);
@@ -209,9 +220,16 @@ mod tests {
         #[test]
         fn test_値オブジェクトを生成するタイプ01() {
             let fizz_buzz_type = FizzBuzzType01;
-            let result = fizz_buzz_type.generate(15);
+            let result = fizz_buzz_type.generate(15).unwrap();
             assert_eq!(15, result.number());
             assert_eq!("FizzBuzz", result.value());
+        }
+
+        #[test]
+        fn test_値オブジェクトのエラーハンドリング() {
+            let result = FizzBuzzValue::new(-1, "invalid".to_string());
+            assert!(result.is_err());
+            assert_eq!("正の値のみ有効です", result.unwrap_err());
         }
     }
 
@@ -220,38 +238,46 @@ mod tests {
 
         #[test]
         fn test_ファーストクラスコレクションの作成() {
-            let fizz_buzz_value1 = FizzBuzzValue::new(1, "1".to_string());
-            let fizz_buzz_value2 = FizzBuzzValue::new(2, "2".to_string());
-            let list = FizzBuzzList::new(vec![fizz_buzz_value1, fizz_buzz_value2]);
+            let fizz_buzz_value1 = FizzBuzzValue::new(1, "1".to_string()).unwrap();
+            let fizz_buzz_value2 = FizzBuzzValue::new(2, "2".to_string()).unwrap();
+            let list = FizzBuzzList::new(2).unwrap();
             
-            assert_eq!(2, list.len());
-            assert_eq!("1", list.first().unwrap().value());
-            assert_eq!("2", list.last().unwrap().value());
+            assert_eq!(2, list.count());
         }
 
         #[test]
-        fn test_ファーストクラスコレクションの追加() {
-            let fizz_buzz_value1 = FizzBuzzValue::new(1, "1".to_string());
-            let list1 = FizzBuzzList::new(vec![fizz_buzz_value1]);
+        fn test_ファーストクラスコレクションの要素取得() {
+            let list = create_fizz_buzz_list().unwrap();
+            let element = list.get(0).unwrap();
+            assert_eq!(1, element.number());
+            assert_eq!("1", element.value());
             
-            let fizz_buzz_value2 = FizzBuzzValue::new(2, "2".to_string());
-            let list2 = list1.add(vec![fizz_buzz_value2]);
-            
-            assert_eq!(1, list1.len()); // 元のリストは変更されない
-            assert_eq!(2, list2.len()); // 新しいリストが作成される
+            let element = list.get(2).unwrap(); // 3番目の要素（Fizz）
+            assert_eq!(3, element.number());
+            assert_eq!("Fizz", element.value());
         }
 
         #[test]
-        fn test_ファーストクラスコレクションのアクセス() {
-            let fizz_buzz_value1 = FizzBuzzValue::new(3, "Fizz".to_string());
-            let fizz_buzz_value2 = FizzBuzzValue::new(5, "Buzz".to_string());
-            let fizz_buzz_value3 = FizzBuzzValue::new(15, "FizzBuzz".to_string());
-            let list = FizzBuzzList::new(vec![fizz_buzz_value1, fizz_buzz_value2, fizz_buzz_value3]);
-            
-            assert_eq!("Fizz", list.get(0).unwrap().value());
-            assert_eq!("Buzz", list.get(1).unwrap().value());
-            assert_eq!("FizzBuzz", list.get(2).unwrap().value());
-            assert!(list.get(3).is_none()); // 範囲外アクセスはNone
+        fn test_ファーストクラスコレクションの要素数() {
+            let list = create_fizz_buzz_list().unwrap();
+            assert_eq!(100, list.count());
+        }
+
+        #[test]
+        fn test_ファーストクラスコレクションの印字() {
+            let list = create_fizz_buzz_list().unwrap();
+            let result = list.print_list();
+            assert!(result.contains("1:1"));
+            assert!(result.contains("3:Fizz"));
+            assert!(result.contains("5:Buzz"));
+            assert!(result.contains("15:FizzBuzz"));
+        }
+
+        #[test]
+        fn test_ファーストクラスコレクションの容量制限() {
+            let result = FizzBuzzList::new(101);
+            assert!(result.is_err());
+            assert_eq!("リストのサイズは100を超えることはできません", result.unwrap_err());
         }
     }
 
@@ -260,258 +286,89 @@ mod tests {
 
         #[test]
         fn test_fizzbuzzvaluecommandでタイプ01を実行() {
-            let command = FizzBuzzValueCommand::new(Box::new(FizzBuzzType01));
-            assert_eq!("Fizz", command.execute(3));
-            assert_eq!("Buzz", command.execute(5));
-            assert_eq!("FizzBuzz", command.execute(15));
-            assert_eq!("1", command.execute(1));
+            let command = FizzBuzzValueCommand::new(1);
+            assert_eq!("3:Fizz", command.execute(3).unwrap().to_string());
+            assert_eq!("5:Buzz", command.execute(5).unwrap().to_string());
+            assert_eq!("15:FizzBuzz", command.execute(15).unwrap().to_string());
+            assert_eq!("1:1", command.execute(1).unwrap().to_string());
         }
 
         #[test]
         fn test_fizzbuzzvaluecommandでタイプ02を実行() {
-            let command = FizzBuzzValueCommand::new(Box::new(FizzBuzzType02));
-            assert_eq!("3", command.execute(3));
-            assert_eq!("5", command.execute(5));
-            assert_eq!("15", command.execute(15));
-            assert_eq!("1", command.execute(1));
+            let command = FizzBuzzValueCommand::new(2);
+            assert_eq!("3:3", command.execute(3).unwrap().to_string());
+            assert_eq!("5:5", command.execute(5).unwrap().to_string());
+            assert_eq!("15:15", command.execute(15).unwrap().to_string());
+            assert_eq!("1:1", command.execute(1).unwrap().to_string());
         }
 
         #[test]
         fn test_fizzbuzzvaluecommandでタイプ03を実行() {
-            let command = FizzBuzzValueCommand::new(Box::new(FizzBuzzType03));
-            assert_eq!("3", command.execute(3));
-            assert_eq!("5", command.execute(5));
-            assert_eq!("FizzBuzz", command.execute(15));
-            assert_eq!("1", command.execute(1));
+            let command = FizzBuzzValueCommand::new(3);
+            assert_eq!("3:3", command.execute(3).unwrap().to_string());
+            assert_eq!("5:5", command.execute(5).unwrap().to_string());
+            assert_eq!("15:FizzBuzz", command.execute(15).unwrap().to_string());
+            assert_eq!("1:1", command.execute(1).unwrap().to_string());
         }
 
         #[test]
         fn test_fizzbuzzlistcommandでリスト生成() {
-            let command = FizzBuzzListCommand::new(Box::new(FizzBuzzType01));
-            let list = command.execute();
+            let command = FizzBuzzListCommand::new(100);
+            let list = command.execute().unwrap();
             
-            assert_eq!(100, list.len());
-            assert_eq!("1", list.first().unwrap().value());
-            assert_eq!("Buzz", list.last().unwrap().value());
-            assert_eq!("Fizz", list.get(2).unwrap().value());
-            assert_eq!("FizzBuzz", list.get(14).unwrap().value());
+            assert_eq!(100, list.count());
+            assert_eq!("1:1", list.get(0).unwrap().to_string());
+            assert_eq!("100:Buzz", list.get(99).unwrap().to_string());
+            assert_eq!("3:Fizz", list.get(2).unwrap().to_string());
+            assert_eq!("15:FizzBuzz", list.get(14).unwrap().to_string());
         }
 
         #[test]
         fn test_複数のcommandで異なるタイプを実行() {
-            let command1 = FizzBuzzValueCommand::new(Box::new(FizzBuzzType01));
-            let command2 = FizzBuzzValueCommand::new(Box::new(FizzBuzzType02));
+            let command1 = FizzBuzzValueCommand::new(1);
+            let command2 = FizzBuzzValueCommand::new(2);
             
             // 同じ数値でも異なるタイプなら異なる結果
-            assert_eq!("Fizz", command1.execute(3));
-            assert_eq!("3", command2.execute(3));
+            assert_eq!("3:Fizz", command1.execute(3).unwrap().to_string());
+            assert_eq!("3:3", command2.execute(3).unwrap().to_string());
+        }
+
+        #[test]
+        fn test_コマンドのエラーハンドリング() {
+            let command = FizzBuzzValueCommand::new(1);
+            let result = command.execute(-1);
+            assert!(result.is_err());
         }
     }
 }
 
-// 値オブジェクト
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct FizzBuzzValue {
-    number: i32,
-    value: String,
-}
-
-impl FizzBuzzValue {
-    pub fn new(number: i32, value: String) -> Self {
-        FizzBuzzValue { number, value }
-    }
-    
-    pub fn number(&self) -> i32 {
-        self.number
-    }
-    
-    pub fn value(&self) -> &str {
-        &self.value
-    }
-}
-
-impl std::fmt::Display for FizzBuzzValue {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}:{}", self.number, self.value)
-    }
-}
-
-// ファーストクラスコレクション
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct FizzBuzzList {
-    value: Vec<FizzBuzzValue>,
-}
-
-impl FizzBuzzList {
-    pub fn new(list: Vec<FizzBuzzValue>) -> Self {
-        FizzBuzzList { value: list }
-    }
-    
-    pub fn value(&self) -> &Vec<FizzBuzzValue> {
-        &self.value
-    }
-    
-    pub fn add(&self, new_list: Vec<FizzBuzzValue>) -> FizzBuzzList {
-        let mut combined = self.value.clone();
-        combined.extend(new_list);
-        FizzBuzzList::new(combined)
-    }
-    
-    pub fn get(&self, index: usize) -> Option<&FizzBuzzValue> {
-        self.value.get(index)
-    }
-    
-    pub fn first(&self) -> Option<&FizzBuzzValue> {
-        self.value.first()
-    }
-    
-    pub fn last(&self) -> Option<&FizzBuzzValue> {
-        self.value.last()
-    }
-    
-    pub fn len(&self) -> usize {
-        self.value.len()
-    }
-}
-
-impl std::fmt::Display for FizzBuzzList {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self.value)
-    }
-}
-
-// Commandパターンのトレイト定義
-pub trait FizzBuzzCommand {
-    fn execute(&self, number: i32) -> String;
-}
-
-// FizzBuzzValueを生成するCommand
-pub struct FizzBuzzValueCommand {
-    fizz_buzz_type: Box<dyn FizzBuzzType>,
-}
-
-impl FizzBuzzValueCommand {
-    pub fn new(fizz_buzz_type: Box<dyn FizzBuzzType>) -> Self {
-        FizzBuzzValueCommand { fizz_buzz_type }
-    }
-}
-
-impl FizzBuzzCommand for FizzBuzzValueCommand {
-    fn execute(&self, number: i32) -> String {
-        self.fizz_buzz_type.generate(number).value().to_string()
-    }
-}
-
-// FizzBuzzListを生成するCommand
-pub struct FizzBuzzListCommand {
-    fizz_buzz_type: Box<dyn FizzBuzzType>,
-}
-
-impl FizzBuzzListCommand {
-    pub fn new(fizz_buzz_type: Box<dyn FizzBuzzType>) -> Self {
-        FizzBuzzListCommand { fizz_buzz_type }
-    }
-    
-    pub fn execute(&self) -> FizzBuzzList {
-        let list: Vec<FizzBuzzValue> = (1..=100)
-            .map(|n| self.fizz_buzz_type.generate(n))
-            .collect();
-        FizzBuzzList::new(list)
-    }
-}
-
-// ポリモーフィズムのためのトレイト定義
-pub trait FizzBuzzType {
-    fn generate(&self, number: i32) -> FizzBuzzValue;
-    
-    // 継承の概念：デフォルト実装を提供
-    fn is_fizz(&self, number: i32) -> bool {
-        number % 3 == 0
-    }
-    
-    fn is_buzz(&self, number: i32) -> bool {
-        number % 5 == 0
-    }
-    
-    fn is_fizz_buzz(&self, number: i32) -> bool {
-        self.is_fizz(number) && self.is_buzz(number)
-    }
-}
-
-// タイプ1の実装
-pub struct FizzBuzzType01;
-
-impl FizzBuzzType for FizzBuzzType01 {
-    fn generate(&self, number: i32) -> FizzBuzzValue {
-        if self.is_fizz_buzz(number) {
-            FizzBuzzValue::new(number, "FizzBuzz".to_string())
-        } else if self.is_buzz(number) {
-            FizzBuzzValue::new(number, "Buzz".to_string())
-        } else if self.is_fizz(number) {
-            FizzBuzzValue::new(number, "Fizz".to_string())
-        } else {
-            FizzBuzzValue::new(number, number.to_string())
-        }
-    }
-}
-
-// タイプ2の実装
-pub struct FizzBuzzType02;
-
-impl FizzBuzzType for FizzBuzzType02 {
-    fn generate(&self, number: i32) -> FizzBuzzValue {
-        FizzBuzzValue::new(number, number.to_string())
-    }
-}
-
-// タイプ3の実装
-pub struct FizzBuzzType03;
-
-impl FizzBuzzType for FizzBuzzType03 {
-    fn generate(&self, number: i32) -> FizzBuzzValue {
-        if self.is_fizz_buzz(number) {
-            FizzBuzzValue::new(number, "FizzBuzz".to_string())
-        } else {
-            FizzBuzzValue::new(number, number.to_string())
-        }
-    }
-}
-
+// アプリケーションファサード
 pub struct FizzBuzz {
     type_number: i32,
     list: FizzBuzzList,
 }
 
 impl FizzBuzz {
-    pub fn new(type_number: i32) -> Self {
+    pub fn new(type_number: i32) -> Result<Self, &'static str> {
         match type_number {
             1 | 2 | 3 => {},
-            _ => panic!("該当するタイプは存在しません"),
+            _ => return Err("該当するタイプは存在しません"),
         };
 
-        FizzBuzz {
+        let command = FizzBuzzListCommand::new(100);
+        let list = command.execute()?;
+
+        Ok(FizzBuzz {
             type_number,
-            list: FizzBuzzList::new(Vec::new()),
-        }
+            list,
+        })
     }
 
     pub fn list(&self) -> &FizzBuzzList {
         &self.list
     }
 
-    fn create_fizz_buzz_type(&self) -> Box<dyn FizzBuzzType> {
-        match self.type_number {
-            1 => Box::new(FizzBuzzType01),
-            2 => Box::new(FizzBuzzType02),
-            3 => Box::new(FizzBuzzType03),
-            _ => panic!("該当するタイプは存在しません"),
-        }
-    }
-
-    pub fn fizz_buzz_type(&self) -> Box<dyn FizzBuzzType> {
-        self.create_fizz_buzz_type()
-    }
-
+    // 後方互換性のための静的メソッド
     pub fn generate(number: i32) -> String {
         Self::generate_with_type(number, 1)
     }
@@ -541,15 +398,14 @@ impl FizzBuzz {
         }
     }
 
-    pub fn generate_instance(&self, number: i32) -> FizzBuzzValue {
-        let command = FizzBuzzValueCommand::new(self.create_fizz_buzz_type());
-        let value_string = command.execute(number);
-        FizzBuzzValue::new(number, value_string)
+    pub fn generate_instance(&self, number: i32) -> Result<FizzBuzzValue, &'static str> {
+        let command = FizzBuzzValueCommand::new(self.type_number);
+        command.execute(number)
     }
 
-    pub fn generate_list(&mut self) -> &FizzBuzzList {
-        let command = FizzBuzzListCommand::new(self.create_fizz_buzz_type());
-        self.list = command.execute();
-        &self.list
+    pub fn generate_list(&mut self) -> Result<&FizzBuzzList, &'static str> {
+        let command = FizzBuzzListCommand::new(100);
+        self.list = command.execute()?;
+        Ok(&self.list)
     }
 }
