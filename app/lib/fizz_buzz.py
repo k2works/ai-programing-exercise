@@ -73,7 +73,33 @@ class FizzBuzz:
         return self._list
 
 
-class FizzBuzzType01:
+class FizzBuzzType:
+    """Base class for FizzBuzz type implementations."""
+
+    def is_fizz(self, number: int) -> bool:
+        """Check if number is divisible by 3.
+
+        Args:
+            number: The number to check
+
+        Returns:
+            True if number is divisible by 3, False otherwise
+        """
+        return number % 3 == 0
+
+    def is_buzz(self, number: int) -> bool:
+        """Check if number is divisible by 5.
+
+        Args:
+            number: The number to check
+
+        Returns:
+            True if number is divisible by 5, False otherwise
+        """
+        return number % 5 == 0
+
+
+class FizzBuzzType01(FizzBuzzType):
     """FizzBuzz Type 1 implementation."""
 
     def generate(self, number: int) -> str:
@@ -85,8 +111,8 @@ class FizzBuzzType01:
         Returns:
             The FizzBuzz string representation
         """
-        is_fizz = number % 3 == 0
-        is_buzz = number % 5 == 0
+        is_fizz = self.is_fizz(number)
+        is_buzz = self.is_buzz(number)
 
         if is_fizz and is_buzz:
             return "FizzBuzz"
@@ -98,7 +124,7 @@ class FizzBuzzType01:
         return str(number)
 
 
-class FizzBuzzType02:
+class FizzBuzzType02(FizzBuzzType):
     """FizzBuzz Type 2 implementation."""
 
     def generate(self, number: int) -> str:
@@ -113,7 +139,7 @@ class FizzBuzzType02:
         return str(number)
 
 
-class FizzBuzzType03:
+class FizzBuzzType03(FizzBuzzType):
     """FizzBuzz Type 3 implementation."""
 
     def generate(self, number: int) -> str:
@@ -125,8 +151,8 @@ class FizzBuzzType03:
         Returns:
             The FizzBuzz string representation
         """
-        is_fizz = number % 3 == 0
-        is_buzz = number % 5 == 0
+        is_fizz = self.is_fizz(number)
+        is_buzz = self.is_buzz(number)
 
         if is_fizz and is_buzz:
             return "FizzBuzz"
