@@ -1,0 +1,36 @@
+[config]
+default_to_workspace = false
+
+[tasks.test]
+command = "cargo"
+args = ["test"]
+
+[tasks.lint]
+command = "cargo"
+args = ["clippy", "--", "-D", "warnings"]
+
+[tasks.format]
+command = "cargo"
+args = ["fmt"]
+
+[tasks.format-check]
+command = "cargo"
+args = ["fmt", "--", "--check"]
+
+[tasks.coverage]
+command = "cargo"
+args = ["tarpaulin", "--out", "Html"]
+
+[tasks.check-all]
+dependencies = ["format-check", "lint", "test"]
+
+[tasks.fix]
+dependencies = ["format", "lint"]
+
+[tasks.watch]
+command = "cargo"
+args = ["watch", "-x", "test", "-x", "clippy", "-x", "fmt"]
+install_crate = "cargo-watch"
+
+[tasks.default]
+alias = "watch"
