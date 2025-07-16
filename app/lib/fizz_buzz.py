@@ -3,6 +3,67 @@
 from abc import ABC, abstractmethod
 
 
+class FizzBuzzValue:
+    """Value object for FizzBuzz values."""
+
+    def __init__(self, number: int, value: str) -> None:
+        """Initialize FizzBuzzValue instance.
+
+        Args:
+            number: The original number
+            value: The FizzBuzz converted value
+        """
+        self._number = number
+        self._value = value
+
+    @property
+    def number(self) -> int:
+        """Get the original number.
+
+        Returns:
+            The original number
+        """
+        return self._number
+
+    @property
+    def value(self) -> str:
+        """Get the FizzBuzz value.
+
+        Returns:
+            The FizzBuzz value
+        """
+        return self._value
+
+    def __str__(self) -> str:
+        """Return string representation.
+
+        Returns:
+            String representation in format "number:value"
+        """
+        return f"{self._number}:{self._value}"
+
+    def __eq__(self, other: object) -> bool:
+        """Check equality with another FizzBuzzValue.
+
+        Args:
+            other: Object to compare with
+
+        Returns:
+            True if equal, False otherwise
+        """
+        if isinstance(other, FizzBuzzValue):
+            return self._number == other._number and self._value == other._value
+        return False
+
+    def __hash__(self) -> int:
+        """Return hash value.
+
+        Returns:
+            Hash value based on number and value
+        """
+        return hash((self._number, self._value))
+
+
 class FizzBuzz:
     """FizzBuzz class for generating FizzBuzz sequences."""
 
@@ -14,31 +75,11 @@ class FizzBuzz:
         Args:
             type_: The type of FizzBuzz conversion (default: 1)
         """
-        self._list: list[str] = []
-        self._type_instance = self._create_type_instance(type_)
-
-    def _create_type_instance(
-        self, type_: int
-    ) -> "FizzBuzzType":
-        """Create appropriate type instance.
-
-        Args:
-            type_: The type of FizzBuzz conversion
-
-        Returns:
-            Instance of the appropriate FizzBuzz type class
-        """
-        if type_ == 1:
-            return FizzBuzzType01()
-        elif type_ == 2:
-            return FizzBuzzType02()
-        elif type_ == 3:
-            return FizzBuzzType03()
-        else:
-            raise RuntimeError("該当するタイプは存在しません")
+        self._list: list[FizzBuzzValue] = []
+        self._type_instance = FizzBuzzType.create(type_)
 
     @property
-    def fizz_buzz_list(self) -> list[str]:
+    def fizz_buzz_list(self) -> list[FizzBuzzValue]:
         """Get the FizzBuzz list.
 
         Returns:
@@ -46,30 +87,28 @@ class FizzBuzz:
         """
         return self._list
 
-    def generate(self, number: int) -> str:
+    def generate(self, number: int) -> FizzBuzzValue:
         """Generate FizzBuzz value for a given number.
 
         Args:
             number: The number to convert to FizzBuzz
 
         Returns:
-            The FizzBuzz string value
+            The FizzBuzz value object
         """
         return self._type_instance.generate(number)
 
-    def generate_list(self) -> list[str]:
+    def generate_list(self) -> list[FizzBuzzValue]:
         """Generate FizzBuzz list from 1 to MAX_NUMBER.
 
         Returns:
-            List of FizzBuzz string values
+            List of FizzBuzz value objects
         """
         self._list = [self.generate(n) for n in range(1, self.MAX_NUMBER + 1)]
         return self._list
 
     @classmethod
-    def create(
-        cls, type_: int
-    ) -> "FizzBuzzType":
+    def create(cls, type_: int) -> "FizzBuzzType":
         """Factory method to create FizzBuzz type instances.
 
         Args:
@@ -95,10 +134,29 @@ class FizzBuzzType(ABC):
 
     def __init__(self) -> None:
         """Initialize FizzBuzzType instance."""
-        self._list: list[str] = []
+        self._list: list[FizzBuzzValue] = []
+
+    @classmethod
+    def create(cls, type_: int) -> "FizzBuzzType":
+        """Factory method to create FizzBuzz type instances.
+
+        Args:
+            type_: The type of FizzBuzz conversion
+
+        Returns:
+            Instance of the appropriate FizzBuzz type class
+        """
+        if type_ == 1:
+            return FizzBuzzType01()
+        elif type_ == 2:
+            return FizzBuzzType02()
+        elif type_ == 3:
+            return FizzBuzzType03()
+        else:
+            raise RuntimeError("該当するタイプは存在しません")
 
     @property
-    def fizz_buzz_list(self) -> list[str]:
+    def fizz_buzz_list(self) -> list[FizzBuzzValue]:
         """Get the FizzBuzz list.
 
         Returns:
@@ -129,22 +187,22 @@ class FizzBuzzType(ABC):
         return number % 5 == 0
 
     @abstractmethod
-    def generate(self, number: int) -> str:
+    def generate(self, number: int) -> FizzBuzzValue:
         """Generate FizzBuzz value for a given number.
 
         Args:
             number: The number to convert to FizzBuzz
 
         Returns:
-            The FizzBuzz string value
+            The FizzBuzz value object
         """
         pass
 
-    def generate_list(self) -> list[str]:
+    def generate_list(self) -> list[FizzBuzzValue]:
         """Generate FizzBuzz list from 1 to MAX_NUMBER.
 
         Returns:
-            List of FizzBuzz string values
+            List of FizzBuzz value objects
         """
         self._list = [self.generate(n) for n in range(1, self.MAX_NUMBER + 1)]
         return self._list
@@ -153,51 +211,51 @@ class FizzBuzzType(ABC):
 class FizzBuzzType01(FizzBuzzType):
     """FizzBuzz Type 1 implementation."""
 
-    def generate(self, number: int) -> str:
+    def generate(self, number: int) -> FizzBuzzValue:
         """Generate FizzBuzz value for a given number.
 
         Args:
             number: The number to convert to FizzBuzz
 
         Returns:
-            The FizzBuzz string value
+            The FizzBuzz value object
         """
         if self.is_fizz(number) and self.is_buzz(number):
-            return "FizzBuzz"
+            return FizzBuzzValue(number, "FizzBuzz")
         if self.is_fizz(number):
-            return "Fizz"
+            return FizzBuzzValue(number, "Fizz")
         if self.is_buzz(number):
-            return "Buzz"
-        return str(number)
+            return FizzBuzzValue(number, "Buzz")
+        return FizzBuzzValue(number, str(number))
 
 
 class FizzBuzzType02(FizzBuzzType):
     """FizzBuzz Type 2 implementation."""
 
-    def generate(self, number: int) -> str:
+    def generate(self, number: int) -> FizzBuzzValue:
         """Generate FizzBuzz value for a given number.
 
         Args:
             number: The number to convert to FizzBuzz
 
         Returns:
-            The FizzBuzz string value
+            The FizzBuzz value object
         """
-        return str(number)
+        return FizzBuzzValue(number, str(number))
 
 
 class FizzBuzzType03(FizzBuzzType):
     """FizzBuzz Type 3 implementation."""
 
-    def generate(self, number: int) -> str:
+    def generate(self, number: int) -> FizzBuzzValue:
         """Generate FizzBuzz value for a given number.
 
         Args:
             number: The number to convert to FizzBuzz
 
         Returns:
-            The FizzBuzz string value
+            The FizzBuzz value object
         """
         if self.is_fizz(number) and self.is_buzz(number):
-            return "FizzBuzz"
-        return str(number)
+            return FizzBuzzValue(number, "FizzBuzz")
+        return FizzBuzzValue(number, str(number))
