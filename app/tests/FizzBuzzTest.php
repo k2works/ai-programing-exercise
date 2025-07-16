@@ -363,4 +363,83 @@ class FizzBuzzTest extends TestCase
         $this->assertEquals('Buzz', $list->get(4)->getValue());
         $this->assertEquals('FizzBuzz', $list->get(14)->getValue());
     }
+
+    // Commandパターンのテスト
+    public function testFizzBuzzValueCommandで値を生成する(): void
+    {
+        $type1 = new \App\FizzBuzzType1();
+        $command = new \App\FizzBuzzValueCommand($type1);
+        
+        $this->assertEquals('1', $command->execute(1));
+        $this->assertEquals('Fizz', $command->execute(3));
+        $this->assertEquals('Buzz', $command->execute(5));
+        $this->assertEquals('FizzBuzz', $command->execute(15));
+    }
+
+    public function testFizzBuzzListCommandでリストを生成する(): void
+    {
+        $type1 = new \App\FizzBuzzType1();
+        $command = new \App\FizzBuzzListCommand($type1, 15);
+        
+        $list = $command->execute();
+        
+        $this->assertEquals(15, $list->count());
+        $this->assertEquals('1', $list->get(0)->getValue());
+        $this->assertEquals('Fizz', $list->get(2)->getValue());
+        $this->assertEquals('Buzz', $list->get(4)->getValue());
+        $this->assertEquals('FizzBuzz', $list->get(14)->getValue());
+    }
+
+    public function test異なるタイプでCommandパターンを使用する(): void
+    {
+        $type2 = new \App\FizzBuzzType2();
+        $valueCommand = new \App\FizzBuzzValueCommand($type2);
+        $listCommand = new \App\FizzBuzzListCommand($type2, 5);
+        
+        $this->assertEquals('3', $valueCommand->execute(3));
+        $this->assertEquals('15', $valueCommand->execute(15));
+        
+        $list = $listCommand->execute();
+        $this->assertEquals('3', $list->get(2)->getValue());
+        $this->assertEquals('5', $list->get(4)->getValue());
+    }
+
+    // デザインパターンのテスト
+    public function testValueObjectパターンが適用されている(): void
+    {
+        $value = new \App\FizzBuzzValue(3, 'Fizz');
+        
+        // イミュータブルな値オブジェクト
+        $this->assertEquals(3, $value->getNumber());
+        $this->assertEquals('Fizz', $value->getValue());
+        
+        // 等価性チェック
+        $value2 = new \App\FizzBuzzValue(3, 'Fizz');
+        $this->assertTrue($value->equals($value2));
+    }
+
+    public function testStrategyパターンが適用されている(): void
+    {
+        // 異なる戦略（タイプ）を注入できる
+        $context = new \App\FizzBuzz(5, new \App\FizzBuzzType1());
+        $result1 = $context->generateValueList();
+        
+        $context2 = new \App\FizzBuzz(5, new \App\FizzBuzzType2());
+        $result2 = $context2->generateValueList();
+        
+        $this->assertEquals('Fizz', $result1[2]->getValue());
+        $this->assertEquals('3', $result2[2]->getValue());
+    }
+
+    public function testCommandパターンが適用されている(): void
+    {
+        // コマンドオブジェクトによる処理の実行
+        $command1 = new \App\FizzBuzzValueCommand(new \App\FizzBuzzType1());
+        $command2 = new \App\FizzBuzzListCommand(new \App\FizzBuzzType1(), 3);
+        
+        $this->assertEquals('Fizz', $command1->execute(3));
+        
+        $list = $command2->execute();
+        $this->assertEquals(3, $list->count());
+    }
 }
