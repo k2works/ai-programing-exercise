@@ -66,6 +66,30 @@ mod tests {
                 assert_eq!("15", FizzBuzz::generate_with_type(15, 2));
             }
         }
+
+        mod タイプ3の場合 {
+            use super::*;
+
+            #[test]
+            fn test_1を渡したら文字列1を返す() {
+                assert_eq!("1", FizzBuzz::generate_with_type(1, 3));
+            }
+
+            #[test]
+            fn test_3を渡したら文字列3を返す() {
+                assert_eq!("3", FizzBuzz::generate_with_type(3, 3));
+            }
+
+            #[test]
+            fn test_5を渡したら文字列5を返す() {
+                assert_eq!("5", FizzBuzz::generate_with_type(5, 3));
+            }
+
+            #[test]
+            fn test_15を渡したら文字列fizzbuzzを返す() {
+                assert_eq!("FizzBuzz", FizzBuzz::generate_with_type(15, 3));
+            }
+        }
     }
 }
 
@@ -90,6 +114,13 @@ impl FizzBuzz {
                 }
             }
             2 => number.to_string(),
+            3 => {
+                if number % 15 == 0 {
+                    "FizzBuzz".to_string()
+                } else {
+                    number.to_string()
+                }
+            }
             _ => panic!("該当するタイプは存在しません"),
         }
     }
