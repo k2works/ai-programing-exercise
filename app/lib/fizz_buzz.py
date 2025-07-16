@@ -8,7 +8,7 @@ class FizzBuzz:
 
     def __init__(self, type_: int = 1) -> None:
         """Initialize FizzBuzz instance.
-        
+
         Args:
             type_: The type of FizzBuzz conversion (default: 1)
         """
@@ -18,7 +18,7 @@ class FizzBuzz:
     @property
     def items(self) -> list[str]:
         """Get the FizzBuzz list.
-        
+
         Returns:
             The FizzBuzz list
         """
@@ -27,7 +27,7 @@ class FizzBuzz:
     @property
     def type(self):
         """Get the FizzBuzz type.
-        
+
         Returns:
             The FizzBuzz type instance
         """
@@ -36,10 +36,10 @@ class FizzBuzz:
     @classmethod
     def create(cls, type_: int):
         """Factory method to create FizzBuzz type instances.
-        
+
         Args:
             type_: The type of FizzBuzz conversion
-            
+
         Returns:
             Instance of the appropriate FizzBuzz type class
         """
@@ -75,13 +75,13 @@ class FizzBuzz:
 
 class FizzBuzzType01:
     """FizzBuzz Type 1 implementation."""
-    
+
     def generate(self, number: int) -> str:
         """Generate FizzBuzz string for Type 1.
-        
+
         Args:
             number: The number to convert
-            
+
         Returns:
             The FizzBuzz string representation
         """
@@ -100,13 +100,13 @@ class FizzBuzzType01:
 
 class FizzBuzzType02:
     """FizzBuzz Type 2 implementation."""
-    
+
     def generate(self, number: int) -> str:
         """Generate FizzBuzz string for Type 2.
-        
+
         Args:
             number: The number to convert
-            
+
         Returns:
             The number as string
         """
@@ -115,13 +115,13 @@ class FizzBuzzType02:
 
 class FizzBuzzType03:
     """FizzBuzz Type 3 implementation."""
-    
+
     def generate(self, number: int) -> str:
         """Generate FizzBuzz string for Type 3.
-        
+
         Args:
             number: The number to convert
-            
+
         Returns:
             The FizzBuzz string representation
         """
