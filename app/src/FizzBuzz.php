@@ -2,6 +2,8 @@
 
 namespace App;
 
+require_once 'FizzBuzzExceptions.php';
+
 class FizzBuzz
 {
     public const MAX_NUMBER = 100;
@@ -37,7 +39,7 @@ class FizzBuzz
             case 3:
                 return new FizzBuzzType3();
             default:
-                throw new \InvalidArgumentException('タイプは1、2、3のいずれかを指定してください');
+                throw new FizzBuzzTypeNotFoundException($type);
         }
     }
 

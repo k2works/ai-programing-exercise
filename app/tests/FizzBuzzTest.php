@@ -107,8 +107,8 @@ class FizzBuzzTest extends TestCase
 
     public function testそれ以外のタイプの場合_例外が発生する(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('タイプは1、2、3のいずれかを指定してください');
+        $this->expectException(\App\FizzBuzzTypeNotFoundException::class);
+        $this->expectExceptionMessage('該当するタイプは存在しません: 4');
         $this->fizzbuzz->generate(1, 4);
     }
 
@@ -441,5 +441,36 @@ class FizzBuzzTest extends TestCase
         
         $list = $command2->execute();
         $this->assertEquals(3, $list->count());
+    }
+
+    // 例外処理のテスト
+    public function test値は正の値のみ許可する(): void
+    {
+        $this->expectException(\App\AssertionFailedException::class);
+        $this->expectExceptionMessage('数値は0以上である必要があります');
+        
+        new \App\FizzBuzzValue(-1, 'invalid');
+    }
+
+    public function test最大値は100以下である必要がある(): void
+    {
+        $this->expectException(\App\AssertionFailedException::class);
+        $this->expectExceptionMessage('最大値は100以下である必要があります');
+        
+        $type = new \App\FizzBuzzType1();
+        new \App\FizzBuzzListCommand($type, 101);
+    }
+
+    public function testアサーションが正常に動作する(): void
+    {
+        // 正の値は許可される
+        $value = new \App\FizzBuzzValue(1, '1');
+        $this->assertEquals(1, $value->getNumber());
+        
+        // 100以下は許可される
+        $type = new \App\FizzBuzzType1();
+        $command = new \App\FizzBuzzListCommand($type, 100);
+        $list = $command->execute();
+        $this->assertEquals(100, $list->count());
     }
 }

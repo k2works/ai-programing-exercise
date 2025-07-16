@@ -4,11 +4,14 @@ namespace App;
 
 class FizzBuzzValue
 {
+    use Assertions;
+    
     private int $number;
     private string $value;
 
     public function __construct(int $number, string $value)
     {
+        $this->assert(fn() => $number >= 0, '数値は0以上である必要があります');
         $this->number = $number;
         $this->value = $value;
     }
