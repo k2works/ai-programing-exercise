@@ -147,15 +147,66 @@ mod tests {
     }
 }
 
+// ポリモーフィズムのためのトレイト定義
+pub trait FizzBuzzType {
+    fn generate(&self, number: i32) -> String;
+}
+
+// タイプ1の実装
+pub struct FizzBuzzType01;
+
+impl FizzBuzzType for FizzBuzzType01 {
+    fn generate(&self, number: i32) -> String {
+        if number % 15 == 0 {
+            "FizzBuzz".to_string()
+        } else if number % 5 == 0 {
+            "Buzz".to_string()
+        } else if number % 3 == 0 {
+            "Fizz".to_string()
+        } else {
+            number.to_string()
+        }
+    }
+}
+
+// タイプ2の実装
+pub struct FizzBuzzType02;
+
+impl FizzBuzzType for FizzBuzzType02 {
+    fn generate(&self, number: i32) -> String {
+        number.to_string()
+    }
+}
+
+// タイプ3の実装
+pub struct FizzBuzzType03;
+
+impl FizzBuzzType for FizzBuzzType03 {
+    fn generate(&self, number: i32) -> String {
+        if number % 15 == 0 {
+            "FizzBuzz".to_string()
+        } else {
+            number.to_string()
+        }
+    }
+}
+
 pub struct FizzBuzz {
-    fizz_buzz_type: i32,
+    fizz_buzz_type: Box<dyn FizzBuzzType>,
     list: Vec<String>,
 }
 
 impl FizzBuzz {
     const MAX_NUMBER: i32 = 100;
 
-    pub fn new(fizz_buzz_type: i32) -> Self {
+    pub fn new(type_number: i32) -> Self {
+        let fizz_buzz_type: Box<dyn FizzBuzzType> = match type_number {
+            1 => Box::new(FizzBuzzType01),
+            2 => Box::new(FizzBuzzType02),
+            3 => Box::new(FizzBuzzType03),
+            _ => panic!("該当するタイプは存在しません"),
+        };
+
         FizzBuzz {
             fizz_buzz_type,
             list: Vec::new(),
@@ -166,8 +217,8 @@ impl FizzBuzz {
         &self.list
     }
 
-    pub fn fizz_buzz_type(&self) -> i32 {
-        self.fizz_buzz_type
+    pub fn fizz_buzz_type(&self) -> &dyn FizzBuzzType {
+        self.fizz_buzz_type.as_ref()
     }
 
     pub fn generate(number: i32) -> String {
@@ -200,7 +251,7 @@ impl FizzBuzz {
     }
 
     pub fn generate_instance(&self, number: i32) -> String {
-        Self::generate_with_type(number, self.fizz_buzz_type)
+        self.fizz_buzz_type.generate(number)
     }
 
     pub fn generate_list(&mut self) -> &Vec<String> {
