@@ -98,14 +98,60 @@ class FizzBuzz:
 
 class FizzBuzzType01:
     """FizzBuzz Type 1 implementation."""
-    pass
+    
+    def generate(self, number: int) -> str:
+        """Generate FizzBuzz string for Type 1.
+        
+        Args:
+            number: The number to convert
+            
+        Returns:
+            The FizzBuzz string representation
+        """
+        is_fizz = number % 3 == 0
+        is_buzz = number % 5 == 0
+
+        if is_fizz and is_buzz:
+            return "FizzBuzz"
+        if is_fizz:
+            return "Fizz"
+        if is_buzz:
+            return "Buzz"
+
+        return str(number)
 
 
 class FizzBuzzType02:
     """FizzBuzz Type 2 implementation."""
-    pass
+    
+    def generate(self, number: int) -> str:
+        """Generate FizzBuzz string for Type 2.
+        
+        Args:
+            number: The number to convert
+            
+        Returns:
+            The number as string
+        """
+        return str(number)
 
 
 class FizzBuzzType03:
     """FizzBuzz Type 3 implementation."""
-    pass
+    
+    def generate(self, number: int) -> str:
+        """Generate FizzBuzz string for Type 3.
+        
+        Args:
+            number: The number to convert
+            
+        Returns:
+            The FizzBuzz string representation
+        """
+        is_fizz = number % 3 == 0
+        is_buzz = number % 5 == 0
+
+        if is_fizz and is_buzz:
+            return "FizzBuzz"
+
+        return str(number)
