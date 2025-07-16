@@ -931,4 +931,4 @@ Cargo.lock
 .idea
 *.iml
 
-/vendor
+/app/vendor
