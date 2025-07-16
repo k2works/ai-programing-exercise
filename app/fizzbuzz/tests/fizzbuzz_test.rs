@@ -14,3 +14,8 @@ fn test_2を渡したら文字列2を返す() {
 fn test_3を渡したら文字列fizzを返す() {
     assert_eq!("Fizz", FizzBuzz::generate(3));
 }
+
+#[test]
+fn test_5を渡したら文字列buzzを返す() {
+    assert_eq!("Buzz", FizzBuzz::generate(5));
+}
