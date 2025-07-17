@@ -36,13 +36,8 @@ export class Player {
   puyoStatus: PuyoStatus = { x: 0, y: 0, left: 0, top: 0, dx: 0, dy: 0, rotation: 0 }
   groundFrame: number = 0
   keyStatus: KeyStatus = { left: false, right: false, down: false, up: false }
-  touchPoint: TouchPoint = { x: 0, y: 0 }
-  private actionStartFrame: number = 0
-  private moveSource: number = 0
-  private moveDestination: number = 0
-  private rotateFromRotation: number = 0
-  private rotateAfterLeft: number = 0
-  private rotateBeforeLeft: number = 0
+	private previousKeyStatus: KeyStatus = { left: false, right: false, down: false, up: false }
+	touchPoint: TouchPoint = { x: 0, y: 0 }
 
   constructor(config: Config) {
     this.config = config
@@ -139,8 +134,24 @@ export class Player {
     return 'playing'
   }
 
-  public playing(frame: number): GameMode {
+	public playing(_frame: number): GameMode {
     if (this.stage === undefined) throw new Error('stage is undefined')
+
+		// 左右移動の処理（連続入力を許可）
+		if (this.keyStatus.left && this.canMove(-1)) {
+			this.move(-1)
+		}
+		if (this.keyStatus.right && this.canMove(1)) {
+			this.move(1)
+		}
+
+		// 回転の処理（一回だけ）
+		if (this.keyStatus.up && !this.previousKeyStatus.up && this.canRotate()) {
+			this.rotate()
+		}
+
+		// 前フレームのキー状態を記録
+		this.previousKeyStatus = { ...this.keyStatus }
 
     // まず自由落下を確認する
     if (this.falling(this.keyStatus.down)) {
@@ -163,9 +174,8 @@ export class Player {
     if (this.stage === undefined) throw new Error('stage is undefined')
 
     // 現状の場所の下にブロックがあるかどうか確認する
-    let x = this.puyoStatus.x
-    let y = this.puyoStatus.y
-    let rotation = this.puyoStatus.rotation
+		const x = this.puyoStatus.x
+		const y = this.puyoStatus.y
 
     // 中心ぷよの確認
     if (
@@ -180,7 +190,7 @@ export class Player {
     }
 
     // 落下速度の計算
-    let fallSpeed = isDownPressed
+		const fallSpeed = isDownPressed
       ? this.config.playerDownSpeed
       : this.config.playerFallSpeed
 
@@ -269,13 +279,108 @@ export class Player {
     }
   }
 
-  moving(frame: number): boolean {
+	moving(_frame: number): boolean {
     // 移動処理の実装（簡略版）
     return false
   }
 
-  rotating(frame: number): boolean {
+	rotating(_frame: number): boolean {
     // 回転処理の実装（簡略版）
     return false
   }
+
+	private canMove(direction: number): boolean {
+		if (this.stage === undefined) return false
+
+		const newX = this.puyoStatus.x + direction
+		const y = this.puyoStatus.y
+		const rotation = this.puyoStatus.rotation
+
+		// ステージの境界チェック
+		if (newX < 0 || newX >= this.config.stageCols) {
+			return false
+		}
+
+		// 中心ぷよの衝突チェック
+		if (this.stage.board[y][newX] !== 0) {
+			return false
+		}
+
+		// 動くぷよの衝突チェック
+		let movablePuyoX = newX
+		let movablePuyoY = y - 1
+
+		if (rotation === 90) {
+			movablePuyoX = newX - 1
+			movablePuyoY = y
+		} else if (rotation === 180) {
+			movablePuyoX = newX
+			movablePuyoY = y + 1
+		} else if (rotation === 270) {
+			movablePuyoX = newX + 1
+			movablePuyoY = y
+		}
+
+		// 動くぷよの位置チェック
+		if (
+			movablePuyoX < 0 ||
+			movablePuyoX >= this.config.stageCols ||
+			movablePuyoY >= this.config.stageRows ||
+			(movablePuyoY >= 0 && this.stage.board[movablePuyoY][movablePuyoX] !== 0)
+		) {
+			return false
+		}
+
+		return true
+	}
+
+	private move(direction: number): void {
+		this.puyoStatus.x += direction
+		this.puyoStatus.left = this.puyoStatus.x * this.config.puyoImageWidth
+		this.draw()
+	}
+
+	private canRotate(): boolean {
+		if (this.stage === undefined) return false
+
+		const x = this.puyoStatus.x
+		const y = this.puyoStatus.y
+		const newRotation = (this.puyoStatus.rotation + 90) % 360
+
+		// 新しい回転位置での動くぷよの位置を計算
+		let movablePuyoX = x
+		let movablePuyoY = y - 1
+
+		if (newRotation === 90) {
+			movablePuyoX = x - 1
+			movablePuyoY = y
+		} else if (newRotation === 180) {
+			movablePuyoX = x
+			movablePuyoY = y + 1
+		} else if (newRotation === 270) {
+			movablePuyoX = x + 1
+			movablePuyoY = y
+		}
+
+		// 境界チェック
+		if (
+			movablePuyoX < 0 ||
+			movablePuyoX >= this.config.stageCols ||
+			movablePuyoY >= this.config.stageRows
+		) {
+			return false
+		}
+
+		// 衝突チェック（上側は除外）
+		if (movablePuyoY >= 0 && this.stage.board[movablePuyoY][movablePuyoX] !== 0) {
+			return false
+		}
+
+		return true
+	}
+
+	private rotate(): void {
+		this.puyoStatus.rotation = (this.puyoStatus.rotation + 90) % 360
+		this.draw()
+	}
 }
