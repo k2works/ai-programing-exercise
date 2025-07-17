@@ -5,17 +5,20 @@
 (defprotocol FizzBuzzType
   (execute [this number]))
 
+; 抽象基底クラス的な共通機能
+(defn fizz? [number] (zero? (mod number 3)))
+(defn buzz? [number] (zero? (mod number 5)))
+(defn fizz-buzz? [number] (and (fizz? number) (buzz? number)))
+
 ; FizzBuzzの通常パターン実装
 (defrecord FizzBuzzType01 []
   FizzBuzzType
   (execute [this number]
-    (let [fizz? (zero? (mod number 3))
-          buzz? (zero? (mod number 5))]
-      (cond
-        (and fizz? buzz?) "FizzBuzz"
-        fizz? "Fizz"
-        buzz? "Buzz"
-        :else (str number)))))
+    (cond
+      (fizz-buzz? number) "FizzBuzz"
+      (fizz? number) "Fizz"
+      (buzz? number) "Buzz"
+      :else (str number))))
 
 ; 数字のみ実装
 (defrecord FizzBuzzType02 []
@@ -27,11 +30,9 @@
 (defrecord FizzBuzzType03 []
   FizzBuzzType
   (execute [this number]
-    (let [fizz? (zero? (mod number 3))
-          buzz? (zero? (mod number 5))]
-      (if (and fizz? buzz?)
-        "FizzBuzz"
-        (str number)))))
+    (if (fizz-buzz? number)
+      "FizzBuzz"
+      (str number))))
 
 ; TypeFactoryメソッド
 (defn create-type [type-id]
