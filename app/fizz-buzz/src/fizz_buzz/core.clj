@@ -4,16 +4,14 @@
 (defn generate 
   ([number] (generate number 1))
   ([number type]
-   (cond
-     (= type 2) (str number)
-     (= type 3) (let [fizz? (zero? (mod number 3))
-                      buzz? (zero? (mod number 5))]
-                  (if (and fizz? buzz?)
+   (let [fizz? (zero? (mod number 3))
+         buzz? (zero? (mod number 5))]
+     (cond
+       (= type 2) (str number)
+       (= type 3) (if (and fizz? buzz?)
                     "FizzBuzz"
-                    (str number)))
-     :else
-     (let [fizz? (zero? (mod number 3))
-           buzz? (zero? (mod number 5))]
+                    (str number))
+       :else
        (cond
          (and fizz? buzz?) "FizzBuzz"
          fizz? "Fizz"
