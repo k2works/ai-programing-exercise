@@ -14,10 +14,18 @@ class FizzBuzzTest < Minitest::Test
   def test_2を渡したら文字列2を返す
     assert_equal '2', @fizzbuzz.generate(2)
   end
+
+  def test_3を渡したら文字列Fizzを返す
+    assert_equal 'Fizz', @fizzbuzz.generate(3)
+  end
 end
 
 class FizzBuzz
   def self.generate(number)
-    number.to_s
+    result = number.to_s
+    if number % 3 == 0
+       result = 'Fizz'
+    end
+    result
   end
 end
