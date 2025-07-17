@@ -5,8 +5,8 @@
 (defprotocol FizzBuzzType
   (execute [this number]))
 
-; Type1の実装
-(defrecord Type1 []
+; FizzBuzzの通常パターン実装
+(defrecord FizzBuzzType01 []
   FizzBuzzType
   (execute [this number]
     (let [fizz? (zero? (mod number 3))
@@ -17,14 +17,14 @@
         buzz? "Buzz"
         :else (str number)))))
 
-; Type2の実装 
-(defrecord Type2 []
+; 数字のみ実装
+(defrecord FizzBuzzType02 []
   FizzBuzzType
   (execute [this number]
     (str number)))
 
-; Type3の実装
-(defrecord Type3 []
+; FizzBuzzのみ実装
+(defrecord FizzBuzzType03 []
   FizzBuzzType
   (execute [this number]
     (let [fizz? (zero? (mod number 3))
@@ -36,9 +36,9 @@
 ; TypeFactoryメソッド
 (defn create-type [type-id]
   (case type-id
-    1 (->Type1)
-    2 (->Type2)
-    3 (->Type3)
+    1 (->FizzBuzzType01)
+    2 (->FizzBuzzType02)
+    3 (->FizzBuzzType03)
     (throw (Exception. "不正なタイプです"))))
 
 (defrecord FizzBuzz [number type-obj])
