@@ -9,3 +9,6 @@ main = hspec $ do
     describe "その他の場合" $ do
       it "1を渡したら文字列\"1\"を返す" $ do
         generate 1 `shouldBe` "1"
+      
+      it "2を渡したら文字列\"2\"を返す" $ do
+        generate 2 `shouldBe` "2"
