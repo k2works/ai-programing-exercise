@@ -1,16 +1,5 @@
 {
-  "  "scripts": {"test": "vitest run",
-  "test:watch": "vitest",
-  "test:coverage": "c8 vitest run",
-  "lint": "eslint . --ext .ts,.tsx",
-  "lint:fix": "eslint . --ext .ts,.tsx --fix",
-  "format": "prettier --write .",
-  "format:check": "prettier --check .",
-  "build": "tsc && vite build",
-  "dev": "vite",
-  "guard": "gulp guard"
-},
-,
+  "name": "app",
   "version": "0.0.0",
   "type": "module",
   "main": "index.js",
