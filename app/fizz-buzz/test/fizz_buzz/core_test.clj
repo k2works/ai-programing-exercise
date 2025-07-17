@@ -63,11 +63,11 @@
 (deftest fizz-buzz-record-test
   (testing "FizzBuzzレコードのテスト"
     (testing "タイプ1の場合"
-      (let [fizz-buzz (->FizzBuzz 1 1)]
+      (let [fizz-buzz (create-fizz-buzz 1 1)]
         (is (= "1" (fizz-buzz-generate fizz-buzz))))
-      (let [fizz-buzz (->FizzBuzz 3 1)]
+      (let [fizz-buzz (create-fizz-buzz 3 1)]
         (is (= "Fizz" (fizz-buzz-generate fizz-buzz))))
-      (let [fizz-buzz (->FizzBuzz 5 1)]
+      (let [fizz-buzz (create-fizz-buzz 5 1)]
         (is (= "Buzz" (fizz-buzz-generate fizz-buzz))))
-      (let [fizz-buzz (->FizzBuzz 15 1)]
+      (let [fizz-buzz (create-fizz-buzz 15 1)]
         (is (= "FizzBuzz" (fizz-buzz-generate fizz-buzz)))))))

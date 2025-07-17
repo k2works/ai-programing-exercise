@@ -3,6 +3,10 @@
 
 (defrecord FizzBuzz [number type])
 
+; ファクトリーメソッド：setterを削除してイミュータブルにする
+(defn create-fizz-buzz [number type]
+  (->FizzBuzz number type))
+
 (defn generate 
   ([number] (generate number 1))
   ([number type]
