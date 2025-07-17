@@ -222,13 +222,13 @@ export class Player {
     let movablePuyoY = y - 1
 
     if (rotation === 90) {
-      movablePuyoX = x - 1
+			movablePuyoX = x + 1
       movablePuyoY = y
     } else if (rotation === 180) {
       movablePuyoX = x
       movablePuyoY = y + 1
     } else if (rotation === 270) {
-      movablePuyoX = x + 1
+			movablePuyoX = x - 1
       movablePuyoY = y
     }
 
@@ -264,13 +264,13 @@ export class Player {
       let movablePuyoTop = this.puyoStatus.top - this.config.puyoImageHeight
 
       if (this.puyoStatus.rotation === 90) {
-        movablePuyoLeft = this.puyoStatus.left - this.config.puyoImageWidth
+				movablePuyoLeft = this.puyoStatus.left + this.config.puyoImageWidth
         movablePuyoTop = this.puyoStatus.top
       } else if (this.puyoStatus.rotation === 180) {
         movablePuyoLeft = this.puyoStatus.left
         movablePuyoTop = this.puyoStatus.top + this.config.puyoImageHeight
       } else if (this.puyoStatus.rotation === 270) {
-        movablePuyoLeft = this.puyoStatus.left + this.config.puyoImageWidth
+				movablePuyoLeft = this.puyoStatus.left - this.config.puyoImageWidth
         movablePuyoTop = this.puyoStatus.top
       }
 
@@ -352,23 +352,24 @@ export class Player {
 		let movablePuyoY = y - 1
 
 		if (newRotation === 90) {
-			movablePuyoX = x - 1
+			movablePuyoX = x + 1
 			movablePuyoY = y
 		} else if (newRotation === 180) {
 			movablePuyoX = x
 			movablePuyoY = y + 1
 		} else if (newRotation === 270) {
-			movablePuyoX = x + 1
+			movablePuyoX = x - 1
 			movablePuyoY = y
 		}
 
-		// 境界チェック
+		// 基本的な境界チェック
 		if (
 			movablePuyoX < 0 ||
 			movablePuyoX >= this.config.stageCols ||
 			movablePuyoY >= this.config.stageRows
 		) {
-			return false
+			// 壁キックを試行
+			return this.canWallKick(newRotation)
 		}
 
 		// 衝突チェック（上側は除外）
@@ -379,8 +380,136 @@ export class Player {
 		return true
 	}
 
+	private canWallKick(newRotation: number): boolean {
+		if (this.stage === undefined) return false
+
+		const x = this.puyoStatus.x
+		const y = this.puyoStatus.y
+
+		// 壁キック候補を試行
+		const kickCandidates = []
+
+		if (newRotation === 90) { // 右側に動くぷよが来る場合
+			if (x > 0) kickCandidates.push(-1) // 左に移動
+		} else if (newRotation === 270) { // 左側に動くぷよが来る場合
+			if (x < this.config.stageCols - 1) kickCandidates.push(1) // 右に移動
+		}
+
+		for (const kickX of kickCandidates) {
+			const newX = x + kickX
+			let movablePuyoX = newX
+			let movablePuyoY = y - 1
+
+			if (newRotation === 90) {
+				movablePuyoX = newX + 1
+				movablePuyoY = y
+			} else if (newRotation === 180) {
+				movablePuyoX = newX
+				movablePuyoY = y + 1
+			} else if (newRotation === 270) {
+				movablePuyoX = newX - 1
+				movablePuyoY = y
+			}
+
+			// 境界チェック
+			if (
+				movablePuyoX >= 0 &&
+				movablePuyoX < this.config.stageCols &&
+				movablePuyoY < this.config.stageRows &&
+				(movablePuyoY < 0 || this.stage.board[movablePuyoY][movablePuyoX] === 0)
+			) {
+				return true // 壁キック可能
+			}
+		}
+
+		return false
+	}
+
 	private rotate(): void {
-		this.puyoStatus.rotation = (this.puyoStatus.rotation + 90) % 360
+		if (this.stage === undefined) return
+
+		const x = this.puyoStatus.x
+		const y = this.puyoStatus.y
+		const newRotation = (this.puyoStatus.rotation + 90) % 360
+
+		// 新しい回転位置での動くぷよの位置を計算
+		let movablePuyoX = x
+		let movablePuyoY = y - 1
+
+		if (newRotation === 90) {
+			movablePuyoX = x + 1
+			movablePuyoY = y
+		} else if (newRotation === 180) {
+			movablePuyoX = x
+			movablePuyoY = y + 1
+		} else if (newRotation === 270) {
+			movablePuyoX = x - 1
+			movablePuyoY = y
+		}
+
+		// 壁キックが必要かチェック
+		if (
+			movablePuyoX < 0 ||
+			movablePuyoX >= this.config.stageCols ||
+			movablePuyoY >= this.config.stageRows
+		) {
+			// 壁キックを実行
+			this.performWallKick(newRotation)
+		} else {
+			// 通常の回転
+			this.puyoStatus.rotation = newRotation
+		}
+
 		this.draw()
+	}
+
+	private performWallKick(newRotation: number): void {
+		if (this.stage === undefined) return
+
+		const x = this.puyoStatus.x
+		const y = this.puyoStatus.y
+
+		// 壁キック候補を試行
+		const kickCandidates = []
+
+		if (newRotation === 90) { // 右側に動くぷよが来る場合
+			if (x > 0) kickCandidates.push(-1) // 左に移動
+		} else if (newRotation === 270) { // 左側に動くぷよが来る場合
+			if (x < this.config.stageCols - 1) kickCandidates.push(1) // 右に移動
+		}
+
+		for (const kickX of kickCandidates) {
+			const newX = x + kickX
+			let movablePuyoX = newX
+			let movablePuyoY = y - 1
+
+			if (newRotation === 90) {
+				movablePuyoX = newX + 1
+				movablePuyoY = y
+			} else if (newRotation === 180) {
+				movablePuyoX = newX
+				movablePuyoY = y + 1
+			} else if (newRotation === 270) {
+				movablePuyoX = newX - 1
+				movablePuyoY = y
+			}
+
+			// 境界チェック
+			if (
+				movablePuyoX >= 0 &&
+				movablePuyoX < this.config.stageCols &&
+				movablePuyoY < this.config.stageRows &&
+				(movablePuyoY < 0 || this.stage.board[movablePuyoY][movablePuyoX] === 0)
+			) {
+				// 壁キック実行
+				this.puyoStatus.x = newX
+				this.puyoStatus.left = newX * this.config.puyoImageWidth
+				this.puyoStatus.rotation = newRotation
+				return
+			}
+		}
+
+		// 壁キックできない場合は回転のみ実行
+		this.puyoStatus.rotation = newRotation
 	}
 }

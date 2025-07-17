@@ -106,6 +106,7 @@ export class Game {
 
       case 'erasing':
         // 消去処理
+        this.stage.eraseBoards()
         this.mode = 'checkFall'
         break
 
