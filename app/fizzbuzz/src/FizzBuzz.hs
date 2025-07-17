@@ -1,4 +1,13 @@
-module FizzBuzz (FizzBuzzType(..), FizzBuzzValue(..), FizzBuzzList(..), FizzBuzzError(..), generate, generateValue, generateList, generateValueSafe, getValues, addToList) where
+module FizzBuzz (
+  -- Types
+  FizzBuzzType(..), FizzBuzzValue(..), FizzBuzzList(..), FizzBuzzError(..),
+  -- Commands
+  FizzBuzzCommand, FizzBuzzValueCommand, FizzBuzzListCommand,
+  -- Basic functions
+  generate, generateValue, generateList, generateValueSafe, getValues, addToList,
+  -- Command functions
+  executeValueCommand, executeListCommand
+) where
 
 data FizzBuzzType = Type1 | Type2 | Type3 | TypeOther Int
   deriving (Show, Eq)
@@ -19,6 +28,21 @@ data FizzBuzzValue = FizzBuzzValue
 -- ファーストクラスコレクション：FizzBuzzValueのリストをカプセル化
 newtype FizzBuzzList = FizzBuzzList [FizzBuzzValue]
   deriving (Show, Eq)
+
+-- Command型の定義（高階関数として表現）
+type FizzBuzzCommand a = FizzBuzzType -> Int -> Either FizzBuzzError a
+
+-- 具体的なCommand型
+type FizzBuzzValueCommand = FizzBuzzCommand FizzBuzzValue
+type FizzBuzzListCommand = FizzBuzzCommand FizzBuzzList
+
+-- Value Command の実装
+executeValueCommand :: FizzBuzzValueCommand
+executeValueCommand = generateValueSafe
+
+-- List Command の実装  
+executeListCommand :: FizzBuzzListCommand
+executeListCommand fizzbuzzType count = generateList fizzbuzzType count
 
 -- スマートコンストラクタ：最大100件の制限
 makeFizzBuzzList :: [FizzBuzzValue] -> Either FizzBuzzError FizzBuzzList

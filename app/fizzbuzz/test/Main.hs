@@ -128,3 +128,38 @@ main = hspec $ do
           Left (InvalidInput _ msg) -> msg `shouldBe` "正の値のみ有効です"
           Left _ -> expectationFailure "異なるエラーが発生しました"
           Right _ -> expectationFailure "エラーが発生すべきでした"
+          
+  describe "Commandパターン" $ do
+    describe "FizzBuzzValueCommandのテスト" $ do
+      it "ValueCommandで値を生成できる" $ do
+        let result = executeValueCommand Type1 3
+        case result of
+          Right val -> do
+            number val `shouldBe` 3
+            value val `shouldBe` "Fizz"
+          Left _ -> expectationFailure "ValueCommand実行が失敗しました"
+          
+      it "ValueCommandでエラーハンドリングができる" $ do
+        let result = executeValueCommand Type1 (-1)
+        case result of
+          Left (InvalidInput _ msg) -> msg `shouldBe` "正の値のみ有効です"
+          Left _ -> expectationFailure "異なるエラーが発生しました"
+          Right _ -> expectationFailure "エラーが発生すべきでした"
+          
+    describe "FizzBuzzListCommandのテスト" $ do
+      it "ListCommandでリストを生成できる" $ do
+        let result = executeListCommand Type1 5
+        case result of
+          Right list -> do
+            let values = getValues list
+            length values `shouldBe` 5
+            value (values !! 0) `shouldBe` "1"
+            value (values !! 2) `shouldBe` "Fizz"
+          Left _ -> expectationFailure "ListCommand実行が失敗しました"
+          
+      it "ListCommandで上限チェックができる" $ do
+        let result = executeListCommand Type1 101
+        case result of
+          Left (OutOfRange _ msg) -> msg `shouldContain` "上限は100件までです"
+          Left _ -> expectationFailure "異なるエラーが発生しました"
+          Right _ -> expectationFailure "エラーが発生すべきでした"
