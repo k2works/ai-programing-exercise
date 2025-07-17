@@ -186,4 +186,116 @@ describe('ステージ', () => {
       expect(stage.board[11][2]).toBe(0)
     })
   })
+
+	describe('イテレーション5: ぷよの消去と落下', () => {
+		it('同じ色のぷよが4つつながっていると、消去対象になる', () => {
+			// ステージにぷよを配置（1は赤ぷよ）
+			// 配置パターン:
+			// 0 0 0 0 0 0
+			// 0 0 0 0 0 0
+			// 0 0 0 0 0 0
+			// 0 0 0 0 0 0
+			// 0 0 0 0 0 0
+			// 0 0 0 0 0 0
+			// 0 0 0 0 0 0
+			// 0 0 0 0 0 0
+			// 0 0 0 0 0 0
+			// 0 0 0 0 0 0
+			// 0 1 1 0 0 0
+			// 0 1 1 0 0 0
+			stage.setPuyo(1, 10, 1)
+			stage.setPuyo(2, 10, 1)
+			stage.setPuyo(1, 11, 1)
+			stage.setPuyo(2, 11, 1)
+
+			// 消去判定
+			const eraseInfo = stage.checkEraseIteration5()
+
+			// 4つのぷよが消去対象になっていることを確認
+			expect(eraseInfo.erasePuyoCount).toBe(4)
+			expect(eraseInfo.eraseInfo.length).toBe(4)
+		})
+
+		it('異なる色のぷよは消去対象にならない', () => {
+			// ステージにぷよを配置（1は赤ぷよ、2は青ぷよ）
+			// 配置パターン:
+			// 0 0 0 0 0 0
+			// 0 0 0 0 0 0
+			// 0 0 0 0 0 0
+			// 0 0 0 0 0 0
+			// 0 0 0 0 0 0
+			// 0 0 0 0 0 0
+			// 0 0 0 0 0 0
+			// 0 0 0 0 0 0
+			// 0 0 0 0 0 0
+			// 0 0 0 0 0 0
+			// 0 1 2 0 0 0
+			// 0 2 1 0 0 0
+			stage.setPuyo(1, 10, 1)
+			stage.setPuyo(2, 10, 2)
+			stage.setPuyo(1, 11, 2)
+			stage.setPuyo(2, 11, 1)
+
+			// 消去判定
+			const eraseInfo = stage.checkEraseIteration5()
+
+			// 消去対象がないことを確認
+			expect(eraseInfo.erasePuyoCount).toBe(0)
+			expect(eraseInfo.eraseInfo.length).toBe(0)
+		})
+
+		it('消去対象のぷよを消去する', () => {
+			// ステージにぷよを配置
+			stage.setPuyo(1, 10, 1)
+			stage.setPuyo(2, 10, 1)
+			stage.setPuyo(1, 11, 1)
+			stage.setPuyo(2, 11, 1)
+
+			// 消去判定
+			const eraseInfo = stage.checkEraseIteration5()
+
+			// 消去実行
+			stage.eraseBoardsIteration5(eraseInfo.eraseInfo)
+
+			// ぷよが消去されていることを確認
+			expect(stage.getPuyo(1, 10)).toBe(0)
+			expect(stage.getPuyo(2, 10)).toBe(0)
+			expect(stage.getPuyo(1, 11)).toBe(0)
+			expect(stage.getPuyo(2, 11)).toBe(0)
+		})
+
+		it('消去後、上にあるぷよが落下する', () => {
+			// ステージにぷよを配置
+			// 配置パターン:
+			// 0 0 0 0 0 0
+			// 0 0 0 0 0 0
+			// 0 0 0 0 0 0
+			// 0 0 0 0 0 0
+			// 0 0 0 0 0 0
+			// 0 0 0 0 0 0
+			// 0 0 0 0 0 0
+			// 0 0 0 0 0 0
+			// 0 0 2 0 0 0
+			// 0 0 2 0 0 0
+			// 0 1 1 0 0 0
+			// 0 1 1 0 0 0
+			stage.setPuyo(1, 10, 1)
+			stage.setPuyo(2, 10, 1)
+			stage.setPuyo(1, 11, 1)
+			stage.setPuyo(2, 11, 1)
+			stage.setPuyo(2, 8, 2)
+			stage.setPuyo(2, 9, 2)
+
+			// 消去判定と実行
+			const eraseInfo = stage.checkEraseIteration5()
+			stage.eraseBoardsIteration5(eraseInfo.eraseInfo)
+
+			// 落下処理
+			stage.fallIteration5()
+
+			// 上にあったぷよが落下していることを確認
+			expect(stage.getPuyo(2, 10)).toBe(2)
+			expect(stage.getPuyo(2, 11)).toBe(2)
+		})
+	})
 })
