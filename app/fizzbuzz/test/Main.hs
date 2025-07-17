@@ -96,7 +96,7 @@ main = hspec $ do
       it "100件を超える場合はエラーを返す" $ do
         let result = generateList Type1 101
         case result of
-          Left (OutOfRange _ msg) -> msg `shouldContain` "上限は100件までです"
+          Left (OutOfRange _ msg) -> msg `shouldContain` "範囲は100件までです"
           Left _ -> expectationFailure "異なるエラーが発生しました"
           Right _ -> expectationFailure "エラーが発生すべきでした"
           
@@ -162,6 +162,6 @@ main = hspec $ do
         let cmd = createOutputCommand 101
         let result = runCommand cmd Type1
         case result of
-          Left (OutOfRange _ msg) -> msg `shouldContain` "上限は100件までです"
+          Left (OutOfRange _ msg) -> msg `shouldContain` "範囲は100件までです"
           Left _ -> expectationFailure "異なるエラーが発生しました"
           Right _ -> expectationFailure "エラーが発生すべきでした"

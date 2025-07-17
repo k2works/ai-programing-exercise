@@ -11,27 +11,21 @@ import FizzBuzz.Domain.Model.FizzBuzzValue
 import FizzBuzz.Domain.Model.FizzBuzzList
 import FizzBuzz.Domain.Generator
 
--- コマンドの型定義
+-- コマンドの型定義：高階関数としてのコマンド
 type Command = FizzBuzzType -> Either FizzBuzzError String
 
--- 生成コマンド作成
+-- 生成コマンド作成：関数合成による純粋な変換パイプライン
 createGenerateCommand :: Int -> Command
-createGenerateCommand num fizzbuzzType = 
-  case generateValueSafe fizzbuzzType num of
-    Right val -> Right (getValue val)
-    Left err -> Left err
+createGenerateCommand num fizzbuzzType = fmap getValue (generateValueSafe fizzbuzzType num)
 
--- リスト出力コマンド作成
+-- リスト出力コマンド作成：モナド変換による関数合成
 createOutputCommand :: Int -> Command
-createOutputCommand count fizzbuzzType = 
-  case generateList fizzbuzzType count of
-    Right list -> Right (formatList list)
-    Left err -> Left err
+createOutputCommand count fizzbuzzType = fmap formatList (generateList fizzbuzzType count)
 
--- コマンド実行
+-- コマンド実行：関数適用の純粋な抽象化
 runCommand :: Command -> FizzBuzzType -> Either FizzBuzzError String
-runCommand cmd fizzbuzzType = cmd fizzbuzzType
+runCommand = id
 
--- ヘルパー関数：リストのフォーマット
+-- ヘルパー関数：関数合成によるリストフォーマット
 formatList :: FizzBuzzList -> String
-formatList list = unlines (map getValue (getValues list))
+formatList = unlines . map getValue . getValues

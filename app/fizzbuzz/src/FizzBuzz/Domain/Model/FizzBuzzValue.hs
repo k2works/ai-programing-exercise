@@ -7,19 +7,22 @@ module FizzBuzz.Domain.Model.FizzBuzzValue (
 
 import FizzBuzz.Domain.Type.FizzBuzzError
 
--- 値オブジェクト：数値と結果文字列をカプセル化
+-- 値オブジェクト：数値と結果文字列の不変データ構造
 data FizzBuzzValue = FizzBuzzValue 
   { number :: Int
   , value :: String
   } deriving (Show, Eq)
 
--- スマートコンストラクタ
+-- スマートコンストラクタ：純粋な検証とデータ構築
 createFizzBuzzValue :: Int -> String -> Either FizzBuzzError FizzBuzzValue
-createFizzBuzzValue num val
-  | num <= 0 = Left (InvalidInput num "正の値のみ有効です")
-  | otherwise = Right (FizzBuzzValue num val)
+createFizzBuzzValue num val = validateInput num >>= constructValue
+  where
+    validateInput n
+      | n <= 0    = Left (InvalidInput n "正の値のみ有効です")
+      | otherwise = Right n
+    constructValue n = Right (FizzBuzzValue n val)
 
--- 安全なアクセサ
+-- レンズ風純粋アクセサ：データ射影の関数抽象化
 getValue :: FizzBuzzValue -> String
 getValue = value
 
