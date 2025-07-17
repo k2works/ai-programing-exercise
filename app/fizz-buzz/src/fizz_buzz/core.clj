@@ -1,12 +1,6 @@
 (ns fizz-buzz.core
   (:gen-class))
 
-(defrecord FizzBuzz [number type])
-
-; ファクトリーメソッド：setterを削除してイミュータブルにする
-(defn create-fizz-buzz [number type]
-  (->FizzBuzz number type))
-
 ; ポリモーフィズムの準備: Typeに対応するプロトコル
 (defprotocol FizzBuzzType
   (execute [this number]))
@@ -47,6 +41,12 @@
     3 (->Type3)
     (throw (Exception. "不正なタイプです"))))
 
+(defrecord FizzBuzz [number type-obj])
+
+; ファクトリーメソッド：setterを削除してイミュータブルにする
+(defn create-fizz-buzz [number type]
+  (->FizzBuzz number (create-type type)))
+
 (defn generate 
   ([number] (generate number 1))
   ([number type]
@@ -54,8 +54,7 @@
      (execute type-obj number))))
 
 (defn fizz-buzz-generate [fb]
-  (let [{:keys [number type]} fb
-        type-obj (create-type type)]
+  (let [{:keys [number type-obj]} fb]
     (execute type-obj number)))
 
 (defn -main
