@@ -55,4 +55,7 @@
       (testing "5を渡したら文字列5を返す"
         (is (= "5" (generate 5 3))))
       (testing "15を渡したら文字列FizzBuzzを返す"
-        (is (= "FizzBuzz" (generate 15 3)))))))
+        (is (= "FizzBuzz" (generate 15 3)))))
+    (testing "それ以外のタイプの場合"
+      (testing "例外を返す"
+        (is (thrown? Exception (generate 1 4)))))))
