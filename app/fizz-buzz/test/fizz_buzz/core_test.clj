@@ -70,4 +70,14 @@
       (let [fizz-buzz (create-fizz-buzz 5 1)]
         (is (= "Buzz" (fizz-buzz-generate fizz-buzz))))
       (let [fizz-buzz (create-fizz-buzz 15 1)]
+        (is (= "FizzBuzz" (fizz-buzz-generate fizz-buzz)))))
+    (testing "タイプ2の場合"
+      (let [fizz-buzz (create-fizz-buzz 3 2)]
+        (is (= "3" (fizz-buzz-generate fizz-buzz))))
+      (let [fizz-buzz (create-fizz-buzz 5 2)]
+        (is (= "5" (fizz-buzz-generate fizz-buzz)))))
+    (testing "タイプ3の場合"
+      (let [fizz-buzz (create-fizz-buzz 3 3)]
+        (is (= "3" (fizz-buzz-generate fizz-buzz))))
+      (let [fizz-buzz (create-fizz-buzz 15 3)]
         (is (= "FizzBuzz" (fizz-buzz-generate fizz-buzz)))))))
