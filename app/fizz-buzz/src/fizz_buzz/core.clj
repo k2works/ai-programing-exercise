@@ -1,14 +1,14 @@
 (ns fizz-buzz.core
   (:gen-class))
 
-; ポリモーフィズムの準備: Typeに対応するプロトコル
-(defprotocol FizzBuzzType
-  (generate-string [this number]))
-
-; 抽象基底クラス的な共通機能
+; 数値判定ユーティリティ関数
 (defn fizz? [number] (zero? (mod number 3)))
 (defn buzz? [number] (zero? (mod number 5)))
 (defn fizz-buzz? [number] (and (fizz? number) (buzz? number)))
+
+; ポリモーフィズムの準備: Typeに対応するプロトコル
+(defprotocol FizzBuzzType
+  (generate-string [this number]))
 
 ; FizzBuzzの通常パターン実装
 (defrecord FizzBuzzType01 []
