@@ -66,11 +66,31 @@ export class Stage {
   }
 
   checkFall(): boolean {
-    // 落下判定の実装（簡略版）
-    return false
+		let hasFallen = false
+
+		// 下から上に向かってチェック
+		for (let y = this.config.stageRows - 2; y >= 0; y--) {
+			for (let x = 0; x < this.config.stageCols; x++) {
+				if (this.board[y][x] !== 0 && this.board[y + 1][x] === 0) {
+					// 下が空いているので落下可能
+					hasFallen = true
+				}
+			}
+		}
+
+		return hasFallen
   }
 
   fall(): void {
-    // 落下処理の実装（簡略版）
+		// 下から上に向かって処理
+		for (let y = this.config.stageRows - 2; y >= 0; y--) {
+			for (let x = 0; x < this.config.stageCols; x++) {
+				if (this.board[y][x] !== 0 && this.board[y + 1][x] === 0) {
+					// ぷよを一段下に移動
+					this.board[y + 1][x] = this.board[y][x]
+					this.board[y][x] = 0
+				}
+			}
+		}
   }
 }
