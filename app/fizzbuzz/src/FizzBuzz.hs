@@ -1,4 +1,4 @@
 module FizzBuzz (generate) where
 
 generate :: Int -> String
-generate n = show n
+generate number = show number
