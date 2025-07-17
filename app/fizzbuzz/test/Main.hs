@@ -63,3 +63,68 @@ main = hspec $ do
     describe "それ以外のタイプの場合" $ do
       it "TypeOther 4を渡したら空文字列を返す" $ do
         generate (TypeOther 4) 3 `shouldBe` ""
+        
+  describe "FizzBuzzValue" $ do
+    describe "値オブジェクトのテスト" $ do
+      it "同じ値である" $ do
+        let value1 = FizzBuzzValue 1 "1"
+        let value2 = FizzBuzzValue 1 "1"
+        value1 `shouldBe` value2
+        
+      it "generateValueで値オブジェクトを返す" $ do
+        let result = generateValue Type1 3
+        number result `shouldBe` 3
+        value result `shouldBe` "Fizz"
+        
+      it "show関数でデバッグ表示ができる" $ do
+        let result = FizzBuzzValue 3 "Fizz"
+        show result `shouldContain` "3"
+        show result `shouldContain` "Fizz"
+        
+  describe "FizzBuzzList" $ do
+    describe "ファーストクラスコレクションのテスト" $ do
+      it "リストを生成できる" $ do
+        let result = generateList Type1 5
+        case result of
+          Right list -> do
+            let values = getValues list
+            length values `shouldBe` 5
+            value (values !! 0) `shouldBe` "1"
+            value (values !! 2) `shouldBe` "Fizz"
+          Left _ -> expectationFailure "リスト生成が失敗しました"
+          
+      it "100件を超える場合はエラーを返す" $ do
+        let result = generateList Type1 101
+        case result of
+          Left (OutOfRange _ msg) -> msg `shouldContain` "上限は100件までです"
+          Left _ -> expectationFailure "異なるエラーが発生しました"
+          Right _ -> expectationFailure "エラーが発生すべきでした"
+          
+      it "リストに値を追加できる" $ do
+        let result1 = generateList Type1 50
+        case result1 of
+          Right list1 -> do
+            let newValues = [generateValue Type1 n | n <- [51..100]]
+            let result2 = addToList list1 newValues
+            case result2 of
+              Right list2 -> do
+                let values = getValues list2
+                length values `shouldBe` 100
+              Left _ -> expectationFailure "リスト追加が失敗しました"
+          Left _ -> expectationFailure "最初のリスト生成が失敗しました"
+          
+  describe "例外ケース" $ do
+    describe "エラーハンドリングのテスト" $ do
+      it "負の値は例外を発生させる" $ do
+        let result = generateValueSafe Type1 (-1)
+        case result of
+          Left (InvalidInput _ msg) -> msg `shouldBe` "正の値のみ有効です"
+          Left _ -> expectationFailure "異なるエラーが発生しました"
+          Right _ -> expectationFailure "エラーが発生すべきでした"
+          
+      it "0は例外を発生させる" $ do
+        let result = generateValueSafe Type1 0
+        case result of
+          Left (InvalidInput _ msg) -> msg `shouldBe` "正の値のみ有効です"
+          Left _ -> expectationFailure "異なるエラーが発生しました"
+          Right _ -> expectationFailure "エラーが発生すべきでした"
