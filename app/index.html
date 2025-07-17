@@ -1,12 +1,129 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ぷよぷよ</title>
-  </head>
-  <body>
-    <div id="app"></div>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        #app {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        #stage {
+            border: 2px solid #333;
+        }
+        #score {
+            border: 1px solid #333;
+        }
+        .hidden {
+            display: none;
+        }
+        .puyo-red { background-color: red; }
+        .puyo-blue { background-color: blue; }
+        .puyo-yellow { background-color: yellow; }
+        .puyo-green { background-color: green; }
+        .puyo-purple { background-color: purple; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div id="score"></div>
+        <div id="stage"></div>
+        <div id="next"></div>
+        <div id="next2"></div>
+    </div>
+    
+    <!-- ぷよ画像（実際のプロジェクトでは画像ファイルを使用） -->
+    <div class="hidden">
+        <canvas id="puyo1" width="40" height="40" class="puyo-red"></canvas>
+        <canvas id="puyo2" width="40" height="40" class="puyo-blue"></canvas>
+        <canvas id="puyo3" width="40" height="40" class="puyo-yellow"></canvas>
+        <canvas id="puyo4" width="40" height="40" class="puyo-green"></canvas>
+        <canvas id="puyo5" width="40" height="40" class="puyo-purple"></canvas>
+        <canvas id="batankyu" width="240" height="480"></canvas>
+        
+        <!-- フォント画像 -->
+        <canvas id="font0" width="24" height="33"></canvas>
+        <canvas id="font1" width="24" height="33"></canvas>
+        <canvas id="font2" width="24" height="33"></canvas>
+        <canvas id="font3" width="24" height="33"></canvas>
+        <canvas id="font4" width="24" height="33"></canvas>
+        <canvas id="font5" width="24" height="33"></canvas>
+        <canvas id="font6" width="24" height="33"></canvas>
+        <canvas id="font7" width="24" height="33"></canvas>
+        <canvas id="font8" width="24" height="33"></canvas>
+        <canvas id="font9" width="24" height="33"></canvas>
+    </div>
+    
+    <script type="module">
+        // Canvas要素に色を描画してぷよの画像として使用
+        function drawPuyo(canvasId, color) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            // 円を描画
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(20, 20, 18, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // 光沢を追加
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.beginPath();
+            ctx.arc(15, 15, 8, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+        
+        function drawFont(canvasId, number) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, 24, 33);
+            
+            ctx.fillStyle = 'black';
+            ctx.font = '20px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(number.toString(), 12, 16);
+        }
+        
+        function drawBatankyu() {
+            const canvas = document.getElementById('batankyu');
+            const ctx = canvas.getContext('2d');
+            
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+            ctx.fillRect(0, 0, 240, 480);
+            
+            ctx.fillStyle = 'red';
+            ctx.font = '48px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('GAME OVER', 120, 240);
+        }
+        
+        // DOM読み込み後に画像を生成
+        document.addEventListener('DOMContentLoaded', () => {
+            drawPuyo('puyo1', '#ff4444');
+            drawPuyo('puyo2', '#4444ff');
+            drawPuyo('puyo3', '#ffff44');
+            drawPuyo('puyo4', '#44ff44');
+            drawPuyo('puyo5', '#ff44ff');
+            drawBatankyu();
+            
+            for (let i = 0; i < 10; i++) {
+                drawFont(`font${i}`, i);
+            }
+        });
+    </script>
     <script type="module" src="/src/main.ts"></script>
-  </body>
+</body>
 </html>
