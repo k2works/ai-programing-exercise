@@ -17,7 +17,7 @@ class FizzBuzzTest < Minitest::Test
 end
 
 class FizzBuzz
-  def self.generate(n)
-    n.to_s
+  def self.generate(number)
+    number.to_s
   end
 end
