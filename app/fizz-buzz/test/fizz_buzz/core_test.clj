@@ -26,3 +26,9 @@
       (is (= "1" (generate 1))))
     (testing "2を渡したら文字列2を返す"
       (is (= "2" (generate 2))))))
+
+(deftest fizz-buzz-type-test
+  (testing "タイプごとに出力を切り替えることができる"
+    (testing "タイプ1の場合"
+      (testing "1を渡したら文字列1を返す"
+        (is (= "1" (generate 1 1)))))))
