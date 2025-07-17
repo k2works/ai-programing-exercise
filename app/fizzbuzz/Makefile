@@ -30,7 +30,7 @@ lint:
 
 # コードフォーマット
 format:
-	/root/.local/bin/stylish-haskell --inplace src/**/*.hs test/**/*.hs app/**/*.hs
+	find src test app -name "*.hs" -exec /root/.local/bin/stylish-haskell --inplace {} \;
 
 # カバレッジ付きテスト
 coverage:
