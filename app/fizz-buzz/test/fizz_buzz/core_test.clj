@@ -31,4 +31,10 @@
   (testing "タイプごとに出力を切り替えることができる"
     (testing "タイプ1の場合"
       (testing "1を渡したら文字列1を返す"
-        (is (= "1" (generate 1 1)))))))
+        (is (= "1" (generate 1 1))))
+      (testing "3を渡したら文字列Fizzを返す"
+        (is (= "Fizz" (generate 3 1))))
+      (testing "5を渡したら文字列Buzzを返す"
+        (is (= "Buzz" (generate 5 1))))
+      (testing "15を渡したら文字列FizzBuzzを返す"
+        (is (= "FizzBuzz" (generate 15 1)))))))
