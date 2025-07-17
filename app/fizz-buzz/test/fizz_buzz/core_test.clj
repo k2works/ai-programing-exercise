@@ -37,4 +37,13 @@
       (testing "5を渡したら文字列Buzzを返す"
         (is (= "Buzz" (generate 5 1))))
       (testing "15を渡したら文字列FizzBuzzを返す"
-        (is (= "FizzBuzz" (generate 15 1)))))))
+        (is (= "FizzBuzz" (generate 15 1)))))
+  (testing "タイプ2の場合"
+    (testing "1を渡したら文字列1を返す"
+      (is (= "1" (generate 1 2))))
+    (testing "3を渡したら文字列3を返す"
+      (is (= "3" (generate 3 2))))
+    (testing "5を渡したら文字列5を返す"
+      (is (= "5" (generate 5 2))))
+    (testing "15を渡したら文字列15を返す"
+      (is (= "15" (generate 15 2)))))))
