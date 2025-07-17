@@ -88,7 +88,7 @@ main = hspec $ do
         case result of
           Right list -> do
             let values = getValues list
-            length values `shouldBe` 5
+            Prelude.length values `shouldBe` 5
             value (values !! 0) `shouldBe` "1"
             value (values !! 2) `shouldBe` "Fizz"
           Left _ -> expectationFailure "リスト生成が失敗しました"
@@ -109,7 +109,7 @@ main = hspec $ do
             case result2 of
               Right list2 -> do
                 let values = getValues list2
-                length values `shouldBe` 100
+                Prelude.length values `shouldBe` 100
               Left _ -> expectationFailure "リスト追加が失敗しました"
           Left _ -> expectationFailure "最初のリスト生成が失敗しました"
           
@@ -130,35 +130,37 @@ main = hspec $ do
           Right _ -> expectationFailure "エラーが発生すべきでした"
           
   describe "Commandパターン" $ do
-    describe "FizzBuzzValueCommandのテスト" $ do
-      it "ValueCommandで値を生成できる" $ do
-        let result = executeValueCommand Type1 3
+    describe "GenerateCommandのテスト" $ do
+      it "GenerateCommandで値を生成できる" $ do
+        let cmd = createGenerateCommand 3
+        let result = runCommand cmd Type1
         case result of
-          Right val -> do
-            number val `shouldBe` 3
-            value val `shouldBe` "Fizz"
-          Left _ -> expectationFailure "ValueCommand実行が失敗しました"
+          Right val -> val `shouldBe` "Fizz"
+          Left _ -> expectationFailure "GenerateCommand実行が失敗しました"
           
-      it "ValueCommandでエラーハンドリングができる" $ do
-        let result = executeValueCommand Type1 (-1)
+      it "GenerateCommandでエラーハンドリングができる" $ do
+        let cmd = createGenerateCommand (-1)
+        let result = runCommand cmd Type1
         case result of
           Left (InvalidInput _ msg) -> msg `shouldBe` "正の値のみ有効です"
           Left _ -> expectationFailure "異なるエラーが発生しました"
           Right _ -> expectationFailure "エラーが発生すべきでした"
           
-    describe "FizzBuzzListCommandのテスト" $ do
-      it "ListCommandでリストを生成できる" $ do
-        let result = executeListCommand Type1 5
+    describe "OutputCommandのテスト" $ do
+      it "OutputCommandでリストを生成できる" $ do
+        let cmd = createOutputCommand 5
+        let result = runCommand cmd Type1
         case result of
-          Right list -> do
-            let values = getValues list
-            length values `shouldBe` 5
-            value (values !! 0) `shouldBe` "1"
-            value (values !! 2) `shouldBe` "Fizz"
-          Left _ -> expectationFailure "ListCommand実行が失敗しました"
+          Right output -> do
+            let lines = Prelude.lines output
+            Prelude.length lines `shouldBe` 5
+            lines !! 0 `shouldBe` "1"
+            lines !! 2 `shouldBe` "Fizz"
+          Left _ -> expectationFailure "OutputCommand実行が失敗しました"
           
-      it "ListCommandで上限チェックができる" $ do
-        let result = executeListCommand Type1 101
+      it "OutputCommandで上限チェックができる" $ do
+        let cmd = createOutputCommand 101
+        let result = runCommand cmd Type1
         case result of
           Left (OutOfRange _ msg) -> msg `shouldContain` "上限は100件までです"
           Left _ -> expectationFailure "異なるエラーが発生しました"
