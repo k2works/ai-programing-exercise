@@ -241,39 +241,46 @@ describe('プレイヤー', () => {
 			player.keyStatus.up = true
 			player.playing(1)
 			player.keyStatus.up = false
+			// キーを離した状態でもう一度実行してpreviousKeyStatusを更新
+			player.playing(1)
 			expect(player.puyoStatus.rotation).toBe(90)
 
 			// 2回目の回転：90 -> 180
 			player.keyStatus.up = true
 			player.playing(2)
 			player.keyStatus.up = false
+			player.playing(2)
 			expect(player.puyoStatus.rotation).toBe(180)
 
 			// 3回目の回転：180 -> 270
 			player.keyStatus.up = true
 			player.playing(3)
 			player.keyStatus.up = false
+			player.playing(3)
 			expect(player.puyoStatus.rotation).toBe(270)
 
 			// 4回目の回転：270 -> 0（循環）
 			player.keyStatus.up = true
 			player.playing(4)
 			player.keyStatus.up = false
+			player.playing(4)
 			expect(player.puyoStatus.rotation).toBe(0)
 		})
 
-		it('回転できない場合は回転しない', () => {
+		it('右端で回転しようとすると壁キックで回転できる', () => {
 			// 右端に移動
 			player.puyoStatus.x = config.stageCols - 1
 			player.puyoStatus.rotation = 0
 
-			// 右側に回転しようとするが、壁があるので回転できない
+			// 右側に回転しようとすると壁キックが実行される
 			const initialRotation = player.puyoStatus.rotation
 			player.keyStatus.up = true
 			player.playing(1)
+			player.keyStatus.up = false
+			player.playing(1)
 
-			// 回転していないことを確認
-			expect(player.puyoStatus.rotation).toBe(initialRotation)
+			// 壁キックで回転が成功することを確認
+			expect(player.puyoStatus.rotation).toBe((initialRotation + 90) % 360)
 		})
 	})
 
@@ -306,10 +313,13 @@ describe('プレイヤー', () => {
 				player.keyStatus.up = true
 				player.playing(i + 1)
 				player.keyStatus.up = false
+				player.playing(i + 1)
 			}
 
 			// 4回目の回転で0度に戻る際の壁キックをテスト
 			player.keyStatus.up = true
+			player.playing(4)
+			player.keyStatus.up = false
 			player.playing(4)
 
 			// 0度回転していることを確認
@@ -380,6 +390,50 @@ describe('プレイヤー', () => {
 			result = player.playing(5)
 			expect(result).toBe('checkFall')
 			expect(player.groundFrame).toBe(0)
+		})
+	})
+
+	describe('イテレーション5: ぷよの消去', () => {
+		it('ぷよの消去判定ができる', () => {
+			// ステージに消去可能なぷよを配置
+			stage.setPuyo(1, 10, 1)
+			stage.setPuyo(2, 10, 1)
+			stage.setPuyo(1, 11, 1)
+			stage.setPuyo(2, 11, 1)
+
+			// 消去判定を実行
+			const eraseInfo = stage.checkEraseIteration5()
+
+			// 4つのぷよが消去対象になることを確認
+			expect(eraseInfo.erasePuyoCount).toBe(4)
+			expect(eraseInfo.eraseInfo.length).toBe(4)
+		})
+
+		it('ぷよの消去と落下が正しく動作する', () => {
+			// ステージにぷよを配置（消去される部分とその上に落下する部分）
+			stage.setPuyo(1, 10, 1) // 消去される赤ぷよ
+			stage.setPuyo(2, 10, 1) // 消去される赤ぷよ
+			stage.setPuyo(1, 11, 1) // 消去される赤ぷよ
+			stage.setPuyo(2, 11, 1) // 消去される赤ぷよ
+			stage.setPuyo(2, 8, 2)  // 落下する青ぷよ
+			stage.setPuyo(2, 9, 2)  // 落下する青ぷよ
+
+			// 消去判定と実行
+			const eraseInfo = stage.checkEraseIteration5()
+			stage.eraseBoardsIteration5(eraseInfo.eraseInfo)
+
+			// 赤ぷよが消去されていることを確認
+			expect(stage.getPuyo(1, 10)).toBe(0)
+			expect(stage.getPuyo(2, 10)).toBe(0)
+			expect(stage.getPuyo(1, 11)).toBe(0)
+			expect(stage.getPuyo(2, 11)).toBe(0)
+
+			// 落下処理を実行
+			stage.fallIteration5()
+
+			// 青ぷよが落下していることを確認
+			expect(stage.getPuyo(2, 10)).toBe(2)
+			expect(stage.getPuyo(2, 11)).toBe(2)
 		})
 	})
 })
