@@ -6,6 +6,11 @@
   ([number type]
    (cond
      (= type 2) (str number)
+     (= type 3) (let [fizz? (zero? (mod number 3))
+                      buzz? (zero? (mod number 5))]
+                  (if (and fizz? buzz?)
+                    "FizzBuzz"
+                    (str number)))
      :else
      (let [fizz? (zero? (mod number 3))
            buzz? (zero? (mod number 5))]
