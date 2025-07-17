@@ -9,6 +9,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
     JAVA_VER=21.0.2-tem \
     MAVEN_VER=3.9.4 \
     GRADLE_VER=8.10.2 \
+    SCALA_VER=3.4.0 \
+    KOTLIN_VER=2.0.0 \
     NODE_VER=22 \
     RUBY_VER=3.4.4 \
     BUNDLER_VER=2.6.7 \
@@ -47,7 +49,9 @@ RUN apt-get update && apt-get install -y bash && apt-get clean \
        && sdk selfupdate \
        && sdk install java "$JAVA_VER" \
        && sdk install maven "$MAVEN_VER" \
-       && sdk install gradle "$GRADLE_VER"'
+       && sdk install gradle "$GRADLE_VER" \
+       && sdk install scala "$SCALA_VER" \
+       && sdk install kotlin "$KOTLIN_VER"'
 
 # Clojureのインストール
 RUN apt-get update && apt-get install -y curl bash rlwrap && apt-get clean \
@@ -179,7 +183,7 @@ RUN npm install -g @google/gemini-cli
 RUN npm install -g @anthropic-ai/claude-code
 
 # パスの設定
-ENV PATH="/root/.cargo/bin:/usr/local/go/bin:/root/.ghcup/bin:/root/.sdkman/candidates/java/current/bin:/root/.sdkman/candidates/maven/current/bin:/root/.sdkman/candidates/gradle/current/bin:/root/.rbenv/shims:/usr/share/dotnet:/usr/share/dotnet/tools:/usr/local/bin:$PATH"
+ENV PATH="/root/.cargo/bin:/usr/local/go/bin:/root/.ghcup/bin:/root/.sdkman/candidates/java/current/bin:/root/.sdkman/candidates/maven/current/bin:/root/.sdkman/candidates/gradle/current/bin:/root/.sdkman/candidates/scala/current/bin:/root/.sdkman/candidates/kotlin/current/bin:/root/.rbenv/shims:/usr/share/dotnet:/usr/share/dotnet/tools:/usr/local/bin:$PATH"
 
 # 作業ディレクトリの設定
 WORKDIR /srv
