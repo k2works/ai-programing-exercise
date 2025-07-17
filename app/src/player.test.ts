@@ -232,5 +232,88 @@ describe('プレイヤー', () => {
       
       expect(player.puyoStatus.rotation).toBe(90)
     })
+
+		it('時計回りに回転すると、回転状態が90度ずつ増える', () => {
+			// 初期状態：0度
+			expect(player.puyoStatus.rotation).toBe(0)
+
+			// 1回目の回転：0 -> 90
+			player.keyStatus.up = true
+			player.playing(1)
+			player.keyStatus.up = false
+			expect(player.puyoStatus.rotation).toBe(90)
+
+			// 2回目の回転：90 -> 180
+			player.keyStatus.up = true
+			player.playing(2)
+			player.keyStatus.up = false
+			expect(player.puyoStatus.rotation).toBe(180)
+
+			// 3回目の回転：180 -> 270
+			player.keyStatus.up = true
+			player.playing(3)
+			player.keyStatus.up = false
+			expect(player.puyoStatus.rotation).toBe(270)
+
+			// 4回目の回転：270 -> 0（循環）
+			player.keyStatus.up = true
+			player.playing(4)
+			player.keyStatus.up = false
+			expect(player.puyoStatus.rotation).toBe(0)
+		})
+
+		it('回転できない場合は回転しない', () => {
+			// 右端に移動
+			player.puyoStatus.x = config.stageCols - 1
+			player.puyoStatus.rotation = 0
+
+			// 右側に回転しようとするが、壁があるので回転できない
+			const initialRotation = player.puyoStatus.rotation
+			player.keyStatus.up = true
+			player.playing(1)
+
+			// 回転していないことを確認
+			expect(player.puyoStatus.rotation).toBe(initialRotation)
+		})
+	})
+
+	describe('壁キック処理', () => {
+		beforeEach(() => {
+			player.createNewPuyo(stage, puyoImage, {})
+		})
+
+		it('右端で回転しようとすると、左に移動して回転する', () => {
+			// 右端から2番目に移動（壁キック可能な位置）
+			player.puyoStatus.x = config.stageCols - 2
+			player.puyoStatus.rotation = 0
+
+			// 回転（右側に動くぷよが来る）
+			player.keyStatus.up = true
+			player.playing(1)
+
+			// 90度回転していることを確認
+			expect(player.puyoStatus.rotation).toBe(90)
+		})
+
+		it('左端で回転しようとすると、右に移動して回転する', () => {
+			// 左端から2番目に移動（壁キック可能な位置）
+			player.puyoStatus.x = 1
+			player.puyoStatus.rotation = 0
+
+			// 回転（左側に動くぷよが来るには270度回転が必要）
+			// まず3回回転して270度にする
+			for (let i = 0; i < 3; i++) {
+				player.keyStatus.up = true
+				player.playing(i + 1)
+				player.keyStatus.up = false
+			}
+
+			// 4回目の回転で0度に戻る際の壁キックをテスト
+			player.keyStatus.up = true
+			player.playing(4)
+
+			// 0度回転していることを確認
+			expect(player.puyoStatus.rotation).toBe(0)
+		})
   })
 })
