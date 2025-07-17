@@ -1,0 +1,11 @@
+{
+  "reporter": ["text", "html", "json"],
+  "checkCoverage": false,
+  "exclude": [
+    "coverage/**",
+    "dist/**",
+    "**/*.test.ts",
+    "**/*.config.*",
+    "**/node_modules/**"
+  ]
+}
