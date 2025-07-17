@@ -116,4 +116,85 @@ describe('ゲーム', () => {
       }
     })
   })
+
+	describe('イテレーション6: ゲームオーバー', () => {
+		it('ステージ上部にぷよがあるとゲームオーバーモードになる', () => {
+			game.initialize()
+
+			// ステージ上部にぷよを配置
+			if (game['stage']) {
+				game['stage'].board[0][2] = 1
+			}
+
+			// 新しいぷよを作成しようとするとゲームオーバーになる
+			game['mode'] = 'newPuyo'
+
+			// requestAnimationFrameのモック
+			const originalRequestAnimationFrame = window.requestAnimationFrame
+			const mockRequestAnimationFrame = vi.fn()
+			window.requestAnimationFrame = mockRequestAnimationFrame
+
+			try {
+				game.loop()
+
+				expect(game['mode']).toBe('gameOver')
+			} finally {
+				window.requestAnimationFrame = originalRequestAnimationFrame
+			}
+		})
+
+		it('ゲームオーバーモードでばたんきゅー画像が表示される', () => {
+			game.initialize()
+			game['mode'] = 'gameOver'
+
+			// requestAnimationFrameのモック
+			const originalRequestAnimationFrame = window.requestAnimationFrame
+			const mockRequestAnimationFrame = vi.fn()
+			window.requestAnimationFrame = mockRequestAnimationFrame
+
+			try {
+				// ゲームオーバー処理を実行
+				game.loop()
+
+				// ばたんきゅー画像がステージに追加されることを確認
+				if (game['puyoImage']) {
+					const batankyuElement = game['puyoImage'].batankyuImage
+					expect(batankyuElement).toBeDefined()
+
+					// ゲームオーバーフレームが増加することを確認
+					expect(game['puyoImage']['gameOverFrame']).toBeGreaterThan(0)
+				}
+			} finally {
+				window.requestAnimationFrame = originalRequestAnimationFrame
+			}
+		})
+
+		it('ゲームオーバー後120フレーム経過でゲーム終了になる', () => {
+			game.initialize()
+			game['mode'] = 'gameOver'
+
+			// requestAnimationFrameのモック
+			const originalRequestAnimationFrame = window.requestAnimationFrame
+			const mockRequestAnimationFrame = vi.fn()
+			window.requestAnimationFrame = mockRequestAnimationFrame
+
+			// console.logのモック
+			const originalConsoleLog = console.log
+			const mockConsoleLog = vi.fn()
+			console.log = mockConsoleLog
+
+			try {
+				// ゲームオーバーフレームを120を超えるまで実行
+				for (let i = 0; i < 121; i++) {
+					game.loop()
+				}
+
+				// "Game Over!"がコンソールに出力されることを確認
+				expect(mockConsoleLog).toHaveBeenCalledWith('Game Over!')
+			} finally {
+				window.requestAnimationFrame = originalRequestAnimationFrame
+				console.log = originalConsoleLog
+			}
+		})
+	})
 })
