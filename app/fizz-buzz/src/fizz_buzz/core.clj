@@ -3,7 +3,7 @@
 
 ; ポリモーフィズムの準備: Typeに対応するプロトコル
 (defprotocol FizzBuzzType
-  (execute [this number]))
+  (generate-string [this number]))
 
 ; 抽象基底クラス的な共通機能
 (defn fizz? [number] (zero? (mod number 3)))
@@ -13,7 +13,7 @@
 ; FizzBuzzの通常パターン実装
 (defrecord FizzBuzzType01 []
   FizzBuzzType
-  (execute [this number]
+  (generate-string [this number]
     (cond
       (fizz-buzz? number) "FizzBuzz"
       (fizz? number) "Fizz"
@@ -23,13 +23,13 @@
 ; 数字のみ実装
 (defrecord FizzBuzzType02 []
   FizzBuzzType
-  (execute [this number]
+  (generate-string [this number]
     (str number)))
 
 ; FizzBuzzのみ実装
 (defrecord FizzBuzzType03 []
   FizzBuzzType
-  (execute [this number]
+  (generate-string [this number]
     (if (fizz-buzz? number)
       "FizzBuzz"
       (str number))))
@@ -52,11 +52,11 @@
   ([number] (generate number 1))
   ([number type]
    (let [type-obj (create-type type)]
-     (execute type-obj number))))
+     (generate-string type-obj number))))
 
 (defn fizz-buzz-generate [fb]
   (let [{:keys [number type-obj]} fb]
-    (execute type-obj number)))
+    (generate-string type-obj number)))
 
 (defn -main
   "I don't do a whole lot ... yet."
