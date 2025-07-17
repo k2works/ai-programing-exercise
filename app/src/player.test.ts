@@ -316,4 +316,70 @@ describe('プレイヤー', () => {
 			expect(player.puyoStatus.rotation).toBe(0)
 		})
   })
+
+	describe('イテレーション4: 高速落下', () => {
+		beforeEach(() => {
+			player.createNewPuyo(stage, puyoImage, {})
+		})
+
+		it('下キーが押されていると、通常よりも早く落下する', () => {
+			const initialDy = player.puyoStatus.dy
+
+			// 下キーを押して落下処理を実行
+			player.keyStatus.down = true
+			player.playing(1)
+
+			// 落下量が通常より大きいことを確認
+			const fallAmount = player.puyoStatus.dy - initialDy
+			expect(fallAmount).toBe(config.playerDownSpeed)
+		})
+
+		it('下キーが押されていない時は、通常速度で落下する', () => {
+			const initialDy = player.puyoStatus.dy
+
+			// 下キーを押さずに落下処理を実行
+			player.keyStatus.down = false
+			player.playing(1)
+
+			// 落下量が通常速度であることを確認
+			const fallAmount = player.puyoStatus.dy - initialDy
+			expect(fallAmount).toBe(config.playerFallSpeed)
+		})
+
+		it('下に障害物があるときは高速落下でも停止する', () => {
+			// ステージの一番下に移動（最下段に設置）
+			player.puyoStatus.y = config.stageRows - 1
+
+			// 下キーを押して落下処理を実行
+			player.keyStatus.down = true
+			player.playing(1)
+
+			// 地面に着いたことを確認
+			expect(player.groundFrame).toBeGreaterThan(0)
+		})
+
+		it('地面に着いたぷよは一定フレーム後に固定される', () => {
+			// ステージの一番下に移動
+			player.puyoStatus.y = config.stageRows - 1
+
+			// 下キーを押して落下処理を実行（地面に着く）
+			player.keyStatus.down = true
+			let result = player.playing(1)
+
+			// グラウンドフレームがセットされ、同フレーム内で1減算されることを確認
+			expect(player.groundFrame).toBe(4)
+			expect(result).toBe('playing')
+
+			// グラウンドフレームを消費
+			for (let i = 0; i < 3; i++) {
+				result = player.playing(i + 2)
+				expect(result).toBe('playing')
+			}
+
+			// 最後のフレームで固定される
+			result = player.playing(5)
+			expect(result).toBe('checkFall')
+			expect(player.groundFrame).toBe(0)
+		})
+	})
 })
