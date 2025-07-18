@@ -23,4 +23,9 @@ class FizzBuzzTest extends AnyFlatSpec with Matchers {
   it should "15を渡したら文字列FizzBuzzを返す" in {
     fizzbuzz.generate(15) shouldEqual "FizzBuzz"
   }
+
+  it should "1から15までのFizzBuzzの配列を返す" in {
+    val expected = Array("1", "2", "Fizz", "4", "Buzz", "Fizz", "7", "8", "Fizz", "Buzz", "11", "Fizz", "13", "14", "FizzBuzz")
+    fizzbuzz.createList(1, 15) should contain theSameElementsInOrderAs expected
+  }
 }

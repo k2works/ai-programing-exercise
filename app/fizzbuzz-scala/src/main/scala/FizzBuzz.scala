@@ -1,6 +1,6 @@
 object FizzBuzz {
   def generate(number: Int): String = {
-    if (number % 3 == 0 && number % 5 == 0) {
+    if (number % 15 == 0) {
       "FizzBuzz"
     } else if (number % 3 == 0) {
       "Fizz"
@@ -9,5 +9,9 @@ object FizzBuzz {
     } else {
       number.toString
     }
+  }
+
+  def createList(start: Int, end: Int): Array[String] = {
+    (start to end).map(generate).toArray
   }
 }
