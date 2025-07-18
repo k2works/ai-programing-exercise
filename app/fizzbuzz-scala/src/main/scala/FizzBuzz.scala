@@ -1,5 +1,6 @@
-object FizzBuzz {
-  def generate(number: Int, fizzBuzzType: Int = 1): String =
+class FizzBuzz(private val fizzBuzzType: Int = 1) {
+  
+  def generate(number: Int): String = 
     fizzBuzzType match {
       case 1 =>
         if (number % 15 == 0) {
@@ -24,5 +25,17 @@ object FizzBuzz {
     }
 
   def createList(start: Int, end: Int): Array[String] =
-    (start to end).map(generate(_, 1)).toArray
+    (start to end).map(generate(_)).toArray
+}
+
+object FizzBuzz {
+  def generate(number: Int, fizzBuzzType: Int = 1): String = {
+    val fizzbuzz = new FizzBuzz(fizzBuzzType)
+    fizzbuzz.generate(number)
+  }
+  
+  def createList(start: Int, end: Int): Array[String] = {
+    val fizzbuzz = new FizzBuzz(1)
+    fizzbuzz.createList(start, end)
+  }
 }
