@@ -131,4 +131,27 @@ class FizzBuzzTest extends AnyFlatSpec with Matchers {
     val result = List(1, 2, 3, 4, 5).reduceOption(_ + _)
     result shouldEqual Some(15)
   }
+
+  "値オブジェクトを理解する" should "同じ数字と値なら等価である" in {
+    val value1 = FizzBuzzValue(1, "1")
+    val value2 = FizzBuzzValue(1, "1")
+    value1 shouldEqual value2
+  }
+
+  it should "異なる数字なら等価でない" in {
+    val value1 = FizzBuzzValue(1, "1")
+    val value2 = FizzBuzzValue(2, "2")
+    value1 should not equal value2
+  }
+
+  it should "異なる値なら等価でない" in {
+    val value1 = FizzBuzzValue(1, "1")
+    val value2 = FizzBuzzValue(1, "Fizz")
+    value1 should not equal value2
+  }
+
+  it should "toString表現が正しい" in {
+    val value = FizzBuzzValue(3, "Fizz")
+    value.toString shouldEqual "3:Fizz"
+  }
 }
