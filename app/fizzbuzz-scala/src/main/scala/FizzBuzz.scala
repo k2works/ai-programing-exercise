@@ -11,6 +11,8 @@ object FizzBuzz {
         } else {
           number.toString
         }
+      case 2 =>
+        number.toString
     }
 
   def createList(start: Int, end: Int): Array[String] =

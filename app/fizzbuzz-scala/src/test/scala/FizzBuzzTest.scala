@@ -34,6 +34,22 @@ class FizzBuzzTest extends AnyFlatSpec with Matchers {
     fizzbuzz.generate(1, 1) shouldEqual "1"
   }
 
+  "タイプ2の場合" should "1を渡したら文字列1を返す" in {
+    fizzbuzz.generate(1, 2) shouldEqual "1"
+  }
+
+  it should "3を渡したら文字列3を返す" in {
+    fizzbuzz.generate(3, 2) shouldEqual "3"
+  }
+
+  it should "5を渡したら文字列5を返す" in {
+    fizzbuzz.generate(5, 2) shouldEqual "5"
+  }
+
+  it should "15を渡したら文字列15を返す" in {
+    fizzbuzz.generate(15, 2) shouldEqual "15"
+  }
+
   "配列やコレクション操作を理解する" should "繰り返し処理" in {
     val results = List(1, 2, 3).map(i => i * i)
     results shouldEqual List(1, 4, 9)
