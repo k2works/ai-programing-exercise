@@ -1,14 +1,18 @@
-trait FizzBuzzType {
+abstract class FizzBuzzType {
   def generate(number: Int): String
+  
+  protected def isFizz(number: Int): Boolean = number % 3 == 0
+  protected def isBuzz(number: Int): Boolean = number % 5 == 0
+  protected def isFizzBuzz(number: Int): Boolean = number % 15 == 0
 }
 
 object FizzBuzzType01 extends FizzBuzzType {
-  def generate(number: Int): String = {
-    if (number % 15 == 0) {
+  override def generate(number: Int): String = {
+    if (isFizzBuzz(number)) {
       "FizzBuzz"
-    } else if (number % 3 == 0) {
+    } else if (isFizz(number)) {
       "Fizz"
-    } else if (number % 5 == 0) {
+    } else if (isBuzz(number)) {
       "Buzz"
     } else {
       number.toString
@@ -17,14 +21,14 @@ object FizzBuzzType01 extends FizzBuzzType {
 }
 
 object FizzBuzzType02 extends FizzBuzzType {
-  def generate(number: Int): String = {
+  override def generate(number: Int): String = {
     number.toString
   }
 }
 
 object FizzBuzzType03 extends FizzBuzzType {
-  def generate(number: Int): String = {
-    if (number % 15 == 0) {
+  override def generate(number: Int): String = {
+    if (isFizzBuzz(number)) {
       "FizzBuzz"
     } else {
       number.toString
