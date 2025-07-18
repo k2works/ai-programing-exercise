@@ -2,8 +2,8 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import java.io.{ByteArrayOutputStream, PrintStream}
 import domain.model.{FizzBuzzValue, FizzBuzzList}
-import domain.types.{FizzBuzzType, FizzBuzzType01, FizzBuzzType02, FizzBuzzType03}
-import application.{FizzBuzzValueCommand, FizzBuzzListCommand}
+import domain.types.FizzBuzzType
+import application.FizzBuzzCommand
 
 class FizzBuzzTest extends AnyFlatSpec with Matchers {
   val fizzbuzz = FizzBuzz
@@ -157,62 +157,106 @@ class FizzBuzzTest extends AnyFlatSpec with Matchers {
   }
 
   "ファーストクラスコレクションを理解する" should "空のリストを作成できる" in {
-    val list = FizzBuzzList(List.empty)
-    list.values shouldBe empty
+    val list = FizzBuzzList.empty
+    list.size shouldBe 0
   }
 
   it should "値を追加できる" in {
-    val list = FizzBuzzList(List.empty)
+    val list = FizzBuzzList.empty
     val value = FizzBuzzValue(1, "1")
     val newList = list.add(value)
-    newList.values should have size 1
+    newList.size shouldEqual 1
     newList.get(0) shouldEqual Some(value)
   }
 
   it should "指定した範囲でリストを作成できる" in {
-    val list = new FizzBuzzList(1, 3, FizzBuzzType01)
-    list.values should have size 3
+    val list = FizzBuzzList.generate(1, 3, FizzBuzzType.Type01)
+    list.size shouldEqual 3
     list.get(0) shouldEqual Some(FizzBuzzValue(1, "1"))
     list.get(1) shouldEqual Some(FizzBuzzValue(2, "2"))
     list.get(2) shouldEqual Some(FizzBuzzValue(3, "Fizz"))
   }
 
   it should "範囲外のインデックスはNoneを返す" in {
-    val list = FizzBuzzList(List.empty)
+    val list = FizzBuzzList.empty
     list.get(0) shouldEqual None
     list.get(-1) shouldEqual None
   }
 
   it should "toString表現が正しい" in {
-    val list = new FizzBuzzList(1, 3, FizzBuzzType01)
+    val list = FizzBuzzList.generate(1, 3, FizzBuzzType.Type01)
     list.toString shouldEqual "1:1,2:2,3:Fizz"
   }
 
-  "Commandパターンを理解する" should "FizzBuzzValueCommandが正しく動作する" in {
-    val command = new FizzBuzzValueCommand(FizzBuzzType01)
-    command.execute(3) shouldEqual "Fizz"
-    command.execute(5) shouldEqual "Buzz"
-    command.execute(15) shouldEqual "FizzBuzz"
-    command.execute(1) shouldEqual "1"
+  // 関数型プログラミングのテスト
+  "高階関数" should "generateWithを使用して特定の型で関数を生成する" in {
+    val generateType1 = fizzbuzz.generateWith(FizzBuzzType.Type01)
+    generateType1(3) shouldEqual "Fizz"
+    generateType1(5) shouldEqual "Buzz"
+    generateType1(15) shouldEqual "FizzBuzz"
   }
 
-  it should "FizzBuzzListCommandが正しく動作する" in {
-    val command = new FizzBuzzListCommand(FizzBuzzType01)
-    val result = command.execute(5)
+  "関数合成" should "transformを使用して変換関数を適用する" in {
+    val lengths = fizzbuzz.transform(1, 5)(_.value.length)
+    lengths shouldEqual List(1, 1, 4, 1, 4) // "1", "2", "Fizz", "4", "Buzz"
+  }
+
+  "Option型" should "safeGenerateで安全な処理を行う" in {
+    fizzbuzz.safeGenerate(3, 1) shouldEqual Some("Fizz")
+    fizzbuzz.safeGenerate(-1, 1) shouldEqual None
+  }
+
+  "Either型" should "generateEitherでエラーハンドリングを行う" in {
+    fizzbuzz.generateEither(3, 1) shouldEqual Right("Fizz")
+    fizzbuzz.generateEither(-1, 1) shouldEqual Left("負の数は処理できません")
+  }
+
+  "遅延評価" should "streamで無限ストリームを生成する" in {
+    val first5 = fizzbuzz.stream(1).take(5).toList
+    first5 shouldEqual List("1", "2", "Fizz", "4", "Buzz")
+  }
+
+  "フィルタリング" should "generateWithFilterで述語に基づいてフィルタリングする" in {
+    val fizzBuzzOnly = fizzbuzz.generateWithFilter(1, 15)(_.value.contains("z"))
+    fizzBuzzOnly shouldEqual List("Fizz", "Buzz", "Fizz", "Fizz", "Buzz", "Fizz", "FizzBuzz")
+  }
+
+  "FizzBuzzCommand関数型" should "generateValueで単一値を生成する" in {
+    val result = FizzBuzzCommand.generateValue(3)(FizzBuzzType.Type01)
+    result shouldEqual "Fizz"
+  }
+
+  it should "generateListでリストを生成する" in {
+    val result = FizzBuzzCommand.generateList(1, 5)(FizzBuzzType.Type01)
     result shouldEqual Array("1", "2", "Fizz", "4", "Buzz")
   }
 
-  it should "異なるタイプのCommandが異なる結果を返す" in {
-    val command1 = new FizzBuzzValueCommand(FizzBuzzType01)
-    val command2 = new FizzBuzzValueCommand(FizzBuzzType02)
-    val command3 = new FizzBuzzValueCommand(FizzBuzzType03)
+  it should "withTypeでパーティアル適用を行う" in {
+    val operations = FizzBuzzCommand.withType(FizzBuzzType.Type01)
+    operations.single(3) shouldEqual "Fizz"
+    operations.range(1, 5) shouldEqual Array("1", "2", "Fizz", "4", "Buzz")
+  }
+
+  "FizzBuzzList関数型" should "builderパターンで構築する" in {
+    val list = FizzBuzzList.builder
+      .add(FizzBuzzValue(1, "1"))
+      .add(FizzBuzzValue(3, "Fizz"))
+      .build
     
-    command1.execute(3) shouldEqual "Fizz"
-    command2.execute(3) shouldEqual "3"
-    command3.execute(3) shouldEqual "3"
+    list.size shouldEqual 2
+    list.get(1) shouldEqual Some(FizzBuzzValue(3, "Fizz"))
+  }
+
+  it should "関数型操作をサポートする" in {
+    val list = FizzBuzzList.generate(1, 5, FizzBuzzType.Type01)
     
-    command1.execute(15) shouldEqual "FizzBuzz"
-    command2.execute(15) shouldEqual "15"
-    command3.execute(15) shouldEqual "FizzBuzz"
+    val lengths = list.map(_.value.length)
+    lengths shouldEqual List(1, 1, 4, 1, 4)
+    
+    val filtered = list.filter(_.value.contains("z"))
+    filtered.size shouldEqual 2 // "Fizz", "Buzz"
+    
+    val sum = list.foldLeft(0)(_ + _.number)
+    sum shouldEqual 15 // 1+2+3+4+5
   }
 }
