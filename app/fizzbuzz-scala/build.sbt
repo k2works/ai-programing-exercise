@@ -4,7 +4,9 @@ ThisBuild / scalaVersion := "3.3.3"
 
 lazy val root = (project in file("."))
   .settings(
-    name := "fizzbuzz-scala"
+    name := "fizzbuzz-scala",
+    // WartRemover設定
+    wartremoverWarnings ++= Warts.unsafe
   )
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.18" % "test"
