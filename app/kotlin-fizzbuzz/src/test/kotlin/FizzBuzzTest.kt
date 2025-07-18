@@ -24,4 +24,9 @@ class FizzBuzzTest {
     fun `test_3を渡したら文字列Fizzを返す`() {
         assertEquals("Fizz", fizzbuzz.generate(3))
     }
+
+    @Test
+    fun `test_5を渡したら文字列Buzzを返す`() {
+        assertEquals("Buzz", fizzbuzz.generate(5))
+    }
 }
