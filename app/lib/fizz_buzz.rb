@@ -1,14 +1,16 @@
 class FizzBuzz
   MAX_NUMBER = 100
 
-  def self.generate(number)
-    if number.modulo(3).zero? && number.modulo(5).zero?
-      'FizzBuzz'
-    elsif number.modulo(3).zero?
-      'Fizz'
-    elsif number.modulo(5).zero?
-      'Buzz'
-    else
+  def self.generate(number, type = 1)
+    case type
+    when 1
+      is_fizz = number.modulo(3).zero?
+      is_buzz = number.modulo(5).zero?
+
+      return 'FizzBuzz' if is_fizz && is_buzz
+      return 'Fizz' if is_fizz
+      return 'Buzz' if is_buzz
+
       number.to_s
     end
   end
