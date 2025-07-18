@@ -34,4 +34,20 @@ class FizzBuzzTest {
     fun `test_15を渡したら文字列FizzBuzzを返す`() {
         assertEquals("FizzBuzz", fizzbuzz.generate(15))
     }
+
+    @Test
+    fun `test_1から3までの配列を返す`() {
+        val result = fizzbuzz.printNumbers(1, 3)
+        assertEquals(listOf("1", "2", "Fizz"), result)
+    }
+
+    @Test
+    fun `test_1から15までの配列を返す`() {
+        val result = fizzbuzz.printNumbers(1, 15)
+        assertEquals(listOf(
+            "1", "2", "Fizz", "4", "Buzz", 
+            "Fizz", "7", "8", "Fizz", "Buzz", 
+            "11", "Fizz", "13", "14", "FizzBuzz"
+        ), result)
+    }
 }

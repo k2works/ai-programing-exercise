@@ -11,5 +11,9 @@ class FizzBuzz {
                 number.toString()
             }
         }
+
+        fun printNumbers(start: Int = 1, end: Int = 100): List<String> {
+            return (start..end).map { generate(it) }
+        }
     }
 }
