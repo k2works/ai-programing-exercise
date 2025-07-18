@@ -1,6 +1,9 @@
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import java.io.{ByteArrayOutputStream, PrintStream}
+import domain.model.{FizzBuzzValue, FizzBuzzList}
+import domain.types.{FizzBuzzType, FizzBuzzType01, FizzBuzzType02, FizzBuzzType03}
+import application.{FizzBuzzValueCommand, FizzBuzzListCommand}
 
 class FizzBuzzTest extends AnyFlatSpec with Matchers {
   val fizzbuzz = FizzBuzz
@@ -66,10 +69,8 @@ class FizzBuzzTest extends AnyFlatSpec with Matchers {
     fizzbuzz.generate(15, 3) shouldEqual "FizzBuzz"
   }
 
-  "それ以外のタイプの場合" should "例外を発生させる" in {
-    assertThrows[RuntimeException] {
-      fizzbuzz.generate(1, 4)
-    }
+  "それ以外のタイプの場合" should "空文字を返す" in {
+    fizzbuzz.generate(1, 4) shouldEqual ""
   }
 
   "配列やコレクション操作を理解する" should "繰り返し処理" in {
