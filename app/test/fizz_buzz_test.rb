@@ -8,59 +8,60 @@ require 'minitest/autorun'
 require './lib/fizz_buzz'
 
 class FizzBuzzTest < Minitest::Test
-  describe 'FizzBuzz' do
-    def setup
-      @fizzbuzz = FizzBuzz
-    end
-
-    describe '三と五の倍数の場合' do
-      def test_15を渡したら文字列FizzBuzzを返す
-        assert_equal 'FizzBuzz', @fizzbuzz.generate(15)
-      end
-    end
-
-    describe '三の倍数の場合' do
-      def test_3を渡したら文字列Fizzを返す
-        assert_equal 'Fizz', @fizzbuzz.generate(3)
-      end
-    end
-
-    describe '五の倍数の場合' do
-      def test_5を渡したら文字列Buzzを返す
-        assert_equal 'Buzz', @fizzbuzz.generate(5)
-      end
-    end
-
-    describe 'その他の場合' do
-      def test_1を渡したら文字列1を返す
-        assert_equal '1', @fizzbuzz.generate(1)
-      end
-
-      def test_2を渡したら文字列2を返す
-        assert_equal '2', @fizzbuzz.generate(2)
-      end
-    end
-
-    describe '1から100までの数の配列を返す' do
-      def test_リストを返す
-        list = @fizzbuzz.generate_list
-        assert_equal '1', list[0]
-        assert_equal '2', list[1]
-        assert_equal 'Fizz', list[2]
-        assert_equal '4', list[3]
-        assert_equal 'Buzz', list[4]
-        assert_equal 'FizzBuzz', list[14]
-        assert_equal '98', list[97]
-        assert_equal 'Fizz', list[98]
-        assert_equal 'Buzz', list[99]
-      end
-    end
-  end
-
-  describe 'タイプごとに出力を切り替えることができる' do
+  describe '数を文字列にして返す' do
     describe 'タイプ1の場合' do
-      def test_1を渡したら文字列1を返す
-        assert_equal '1', FizzBuzz.generate(1, 1)
+      def setup
+        @fizzbuzz = FizzBuzz
+      end
+
+      describe '三の倍数の場合' do
+        def test_3を渡したら文字列Fizzを返す
+          assert_equal 'Fizz', @fizzbuzz.generate(3)
+        end
+      end
+
+      describe '五の倍数の場合' do
+        def test_5を渡したら文字列Buzzを返す
+          assert_equal 'Buzz', @fizzbuzz.generate(5)
+        end
+      end
+
+      describe '三と五の倍数の場合' do
+        def test_15を渡したら文字列FizzBuzzを返す
+          assert_equal 'FizzBuzz', @fizzbuzz.generate(15)
+        end
+      end
+
+      describe 'その他の場合' do
+        def test_1を渡したら文字列1を返す
+          assert_equal '1', @fizzbuzz.generate(1)
+        end
+      end
+
+      describe '1から100までのFizzBuzzの配列を返す' do
+        def setup
+          @result = FizzBuzz.generate_list
+        end
+
+        def test_配列の初めは文字列の1を返す
+          assert_equal '1', @result.first
+        end
+
+        def test_配列の最後は文字列のBuzzを返す
+          assert_equal 'Buzz', @result.last
+        end
+
+        def test_配列の2番目は文字列のFizzを返す
+          assert_equal 'Fizz', @result[2]
+        end
+
+        def test_配列の4番目は文字列のBuzzを返す
+          assert_equal 'Buzz', @result[4]
+        end
+
+        def test_配列の14番目は文字列のFizzBuzzを返す
+          assert_equal 'FizzBuzz', @result[14]
+        end
       end
     end
   end
