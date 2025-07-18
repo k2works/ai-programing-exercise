@@ -1,7 +1,7 @@
 class FizzBuzz {
     companion object {
-        fun generate(n: Int): String {
-            return n.toString()
+        fun generate(number: Int): String {
+            return number.toString()
         }
     }
 }
