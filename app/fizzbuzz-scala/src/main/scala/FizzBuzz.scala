@@ -1,5 +1,5 @@
 object FizzBuzz {
-  def generate(n: Int): String = {
-    n.toString
+  def generate(number: Int): String = {
+    number.toString
   }
 }
