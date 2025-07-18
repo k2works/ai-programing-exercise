@@ -1,13 +1,16 @@
+private const val START_NUMBER = 1
+private const val TEST_END_NUMBER = 15
+
 fun main() {
     println("FizzBuzz Application")
-    
+
     // 1から15までのテスト
-    val result1to15 = FizzBuzz.printNumbers(1, 15)
-    println("1から15まで:")
+    val result1to15 = FizzBuzz.printNumbers(START_NUMBER, TEST_END_NUMBER)
+    println("${START_NUMBER}から${TEST_END_NUMBER}まで:")
     result1to15.forEach { println(it) }
-    
-    println("\n1から100まで:")
+
+    println("\n${START_NUMBER}から${FizzBuzz.DEFAULT_END_NUMBER}まで:")
     // 1から100までの完全なFizzBuzz
-    val result1to100 = FizzBuzz.printNumbers(1, 100)
+    val result1to100 = FizzBuzz.printNumbers(START_NUMBER, FizzBuzz.DEFAULT_END_NUMBER)
     result1to100.forEach { println(it) }
 }
