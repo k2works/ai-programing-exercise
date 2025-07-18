@@ -186,4 +186,32 @@ class FizzBuzzTest extends AnyFlatSpec with Matchers {
     val list = new FizzBuzzList(1, 3, FizzBuzzType01)
     list.toString shouldEqual "1:1,2:2,3:Fizz"
   }
+
+  "Commandパターンを理解する" should "FizzBuzzValueCommandが正しく動作する" in {
+    val command = new FizzBuzzValueCommand(FizzBuzzType01)
+    command.execute(3) shouldEqual "Fizz"
+    command.execute(5) shouldEqual "Buzz"
+    command.execute(15) shouldEqual "FizzBuzz"
+    command.execute(1) shouldEqual "1"
+  }
+
+  it should "FizzBuzzListCommandが正しく動作する" in {
+    val command = new FizzBuzzListCommand(FizzBuzzType01)
+    val result = command.execute(5)
+    result shouldEqual Array("1", "2", "Fizz", "4", "Buzz")
+  }
+
+  it should "異なるタイプのCommandが異なる結果を返す" in {
+    val command1 = new FizzBuzzValueCommand(FizzBuzzType01)
+    val command2 = new FizzBuzzValueCommand(FizzBuzzType02)
+    val command3 = new FizzBuzzValueCommand(FizzBuzzType03)
+    
+    command1.execute(3) shouldEqual "Fizz"
+    command2.execute(3) shouldEqual "3"
+    command3.execute(3) shouldEqual "3"
+    
+    command1.execute(15) shouldEqual "FizzBuzz"
+    command2.execute(15) shouldEqual "15"
+    command3.execute(15) shouldEqual "FizzBuzz"
+  }
 }

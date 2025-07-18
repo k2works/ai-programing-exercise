@@ -1,3 +1,22 @@
+// Commandパターンの基底トレイト
+trait FizzBuzzCommand[T] {
+  def execute(number: Int): T
+}
+
+// 値オブジェクトを返すCommand
+class FizzBuzzValueCommand(fizzBuzzType: FizzBuzzType) extends FizzBuzzCommand[String] {
+  def execute(number: Int): String = 
+    fizzBuzzType.generate(number).value
+}
+
+// ファーストクラスコレクションを返すCommand  
+class FizzBuzzListCommand(fizzBuzzType: FizzBuzzType) extends FizzBuzzCommand[Array[String]] {
+  def execute(number: Int): Array[String] = {
+    val fizzbuzzList = new FizzBuzzList(1, number, fizzBuzzType)
+    fizzbuzzList.toArray
+  }
+}
+
 case class FizzBuzzValue(number: Int, value: String) {
   override def toString: String = s"$number:$value"
 }
@@ -71,12 +90,12 @@ object FizzBuzz {
       case 3 => FizzBuzzType03
       case _ => throw new RuntimeException("引数は1から3までです")
     }
-    val fizzbuzz = new FizzBuzz(typeStrategy)
-    fizzbuzz.generate(number).value
+    val command = new FizzBuzzValueCommand(typeStrategy)
+    command.execute(number)
   }
   
   def createList(start: Int, end: Int): Array[String] = {
-    val fizzbuzz = new FizzBuzz(FizzBuzzType01)
-    fizzbuzz.createList(start, end).toArray
+    val command = new FizzBuzzListCommand(FizzBuzzType01)
+    command.execute(end)
   }
 }
