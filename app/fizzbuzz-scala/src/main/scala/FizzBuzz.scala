@@ -2,6 +2,20 @@ case class FizzBuzzValue(number: Int, value: String) {
   override def toString: String = s"$number:$value"
 }
 
+case class FizzBuzzList(values: List[FizzBuzzValue]) {
+  def this(start: Int, end: Int, fizzBuzzType: FizzBuzzType) = {
+    this((start to end).map(fizzBuzzType.generate(_)).toList)
+  }
+  
+  def add(value: FizzBuzzValue): FizzBuzzList = FizzBuzzList(values :+ value)
+  
+  def get(index: Int): Option[FizzBuzzValue] = values.lift(index)
+  
+  def toArray: Array[String] = values.map(_.value).toArray
+  
+  override def toString: String = values.map(_.toString).mkString(",")
+}
+
 abstract class FizzBuzzType {
   def generate(number: Int): FizzBuzzValue
   
@@ -45,8 +59,8 @@ class FizzBuzz(private val fizzBuzzType: FizzBuzzType) {
   def generate(number: Int): FizzBuzzValue = 
     fizzBuzzType.generate(number)
 
-  def createList(start: Int, end: Int): Array[FizzBuzzValue] =
-    (start to end).map(generate(_)).toArray
+  def createList(start: Int, end: Int): FizzBuzzList =
+    new FizzBuzzList(start, end, fizzBuzzType)
 }
 
 object FizzBuzz {
@@ -63,6 +77,6 @@ object FizzBuzz {
   
   def createList(start: Int, end: Int): Array[String] = {
     val fizzbuzz = new FizzBuzz(FizzBuzzType01)
-    fizzbuzz.createList(start, end).map(_.value)
+    fizzbuzz.createList(start, end).toArray
   }
 }

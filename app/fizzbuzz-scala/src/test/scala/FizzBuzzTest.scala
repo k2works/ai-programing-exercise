@@ -154,4 +154,36 @@ class FizzBuzzTest extends AnyFlatSpec with Matchers {
     val value = FizzBuzzValue(3, "Fizz")
     value.toString shouldEqual "3:Fizz"
   }
+
+  "ファーストクラスコレクションを理解する" should "空のリストを作成できる" in {
+    val list = FizzBuzzList(List.empty)
+    list.values shouldBe empty
+  }
+
+  it should "値を追加できる" in {
+    val list = FizzBuzzList(List.empty)
+    val value = FizzBuzzValue(1, "1")
+    val newList = list.add(value)
+    newList.values should have size 1
+    newList.get(0) shouldEqual Some(value)
+  }
+
+  it should "指定した範囲でリストを作成できる" in {
+    val list = new FizzBuzzList(1, 3, FizzBuzzType01)
+    list.values should have size 3
+    list.get(0) shouldEqual Some(FizzBuzzValue(1, "1"))
+    list.get(1) shouldEqual Some(FizzBuzzValue(2, "2"))
+    list.get(2) shouldEqual Some(FizzBuzzValue(3, "Fizz"))
+  }
+
+  it should "範囲外のインデックスはNoneを返す" in {
+    val list = FizzBuzzList(List.empty)
+    list.get(0) shouldEqual None
+    list.get(-1) shouldEqual None
+  }
+
+  it should "toString表現が正しい" in {
+    val list = new FizzBuzzList(1, 3, FizzBuzzType01)
+    list.toString shouldEqual "1:1,2:2,3:Fizz"
+  }
 }
