@@ -11,4 +11,8 @@ class FizzBuzzTest extends AnyFlatSpec with Matchers {
   it should "2を渡したら文字列2を返す" in {
     fizzbuzz.generate(2) shouldEqual "2"
   }
+
+  it should "3を渡したら文字列Fizzを返す" in {
+    fizzbuzz.generate(3) shouldEqual "Fizz"
+  }
 }

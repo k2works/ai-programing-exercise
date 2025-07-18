@@ -1,5 +1,9 @@
 object FizzBuzz {
   def generate(number: Int): String = {
-    number.toString
+    if (number % 3 == 0) {
+      "Fizz"
+    } else {
+      number.toString
+    }
   }
 }
