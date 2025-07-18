@@ -13,6 +13,12 @@ object FizzBuzz {
         }
       case 2 =>
         number.toString
+      case 3 =>
+        if (number % 15 == 0) {
+          "FizzBuzz"
+        } else {
+          number.toString
+        }
     }
 
   def createList(start: Int, end: Int): Array[String] =
