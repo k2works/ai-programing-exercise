@@ -66,6 +66,12 @@ class FizzBuzzTest extends AnyFlatSpec with Matchers {
     fizzbuzz.generate(15, 3) shouldEqual "FizzBuzz"
   }
 
+  "それ以外のタイプの場合" should "例外を発生させる" in {
+    assertThrows[RuntimeException] {
+      fizzbuzz.generate(1, 4)
+    }
+  }
+
   "配列やコレクション操作を理解する" should "繰り返し処理" in {
     val results = List(1, 2, 3).map(i => i * i)
     results shouldEqual List(1, 4, 9)

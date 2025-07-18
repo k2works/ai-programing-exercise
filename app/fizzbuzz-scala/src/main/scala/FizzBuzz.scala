@@ -19,6 +19,8 @@ object FizzBuzz {
         } else {
           number.toString
         }
+      case _ =>
+        throw new RuntimeException("引数は1から3までです")
     }
 
   def createList(start: Int, end: Int): Array[String] =
