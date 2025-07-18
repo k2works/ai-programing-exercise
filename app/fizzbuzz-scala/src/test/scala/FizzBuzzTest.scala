@@ -26,24 +26,12 @@ class FizzBuzzTest extends AnyFlatSpec with Matchers {
   }
 
   it should "1から15までのFizzBuzzの配列を返す" in {
-    val expected = Array(
-      "1",
-      "2",
-      "Fizz",
-      "4",
-      "Buzz",
-      "Fizz",
-      "7",
-      "8",
-      "Fizz",
-      "Buzz",
-      "11",
-      "Fizz",
-      "13",
-      "14",
-      "FizzBuzz"
-    )
+    val expected = Array("1", "2", "Fizz", "4", "Buzz", "Fizz", "7", "8", "Fizz", "Buzz", "11", "Fizz", "13", "14", "FizzBuzz")
     fizzbuzz.createList(1, 15) should contain theSameElementsInOrderAs expected
+  }
+
+  "タイプごとに出力を切り替えることができる" should "タイプ1で1を渡したら文字列1を返す" in {
+    fizzbuzz.generate(1, 1) shouldEqual "1"
   }
 
   "配列やコレクション操作を理解する" should "繰り返し処理" in {
@@ -82,8 +70,7 @@ class FizzBuzzTest extends AnyFlatSpec with Matchers {
   }
 
   it should "正規表現で配列の中から条件に一致する要素を取得する" in {
-    val result =
-      List("apple", "orange", "pineapple", "strawberry", "apricot").filter(_.startsWith("a"))
+    val result = List("apple", "orange", "pineapple", "strawberry", "apricot").filter(_.startsWith("a"))
     result shouldEqual List("apple", "apricot")
   }
 
