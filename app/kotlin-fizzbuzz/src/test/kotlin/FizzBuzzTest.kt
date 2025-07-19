@@ -103,7 +103,7 @@ class FizzBuzzTest {
     fun `test_配列を作成して取得できる`() {
         val fizzBuzz = FizzBuzz()
         fizzBuzz.generateList()
-        val result = fizzBuzz.getList()
+        val result = fizzBuzz.list
         assertEquals(100, result?.size)
         assertEquals("1", result?.get(0))
         assertEquals("FizzBuzz", result?.get(14))

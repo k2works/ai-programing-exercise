@@ -7,11 +7,8 @@ class FizzBuzz {
         const val DEFAULT_END_NUMBER = 100
     }
 
-    private var list: List<String>? = null
-
-    fun getList(): List<String>? {
-        return list
-    }
+    private var _list: List<String>? = null
+    val list: List<String>? get() = _list
 
     fun generate(number: Int, type: Int = 1): String {
         return when (type) {
@@ -39,8 +36,8 @@ class FizzBuzz {
     }
 
     fun generateList(): List<String> {
-        list = (1..DEFAULT_END_NUMBER).map { generate(it) }
-        return list!!
+        _list = (1..DEFAULT_END_NUMBER).map { generate(it) }
+        return _list!!
     }
 
     fun printNumbers(start: Int = 1, end: Int = DEFAULT_END_NUMBER): List<String> {
