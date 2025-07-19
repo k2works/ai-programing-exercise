@@ -18,7 +18,9 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PHP_VER=8.1 \
     GHC_VER=9.4.8 \
     GO_VER=1.22.0 \
-    RUST_VER=stable
+    RUST_VER=stable \
+    C_VER=11 \
+    CPP_VER=20
 
 # ロケールのセットアップ
 RUN apt-get update && apt-get install -y \
@@ -41,6 +43,26 @@ RUN apt-get update && apt-get install -y \
             tmux \
             && apt-get clean \
             && rm -rf /var/lib/apt/lists/*
+
+ # C/C++言語開発ツールのインストール
+ RUN apt-get update && apt-get install -y \
+     gcc \
+     g++ \
+     gdb \
+     make \
+     cmake \
+     libc6-dev \
+     libncurses5-dev \
+     clang \
+     clang-format \
+     clang-tidy \
+     valgrind \
+     libboost-all-dev \
+     libfmt-dev \
+     libjsoncpp-dev \
+     libgtest-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # SDKMANのインストール
 RUN apt-get update && apt-get install -y bash && apt-get clean \

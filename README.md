@@ -1,14 +1,13 @@
 # 実践 AIプログラミング
-# 実践 AIプログラミング
 
 ## 概要
 
-AIプログラミングの実践的な学習と開発のためのプロジェクトです。複数のプログラミング言語（Java、Scala、Kotlin、Node.js、Ruby、Python、PHP、Go、Rust、.NET）をサポートする開発環境と、MkDocsを使用したドキュメント管理システムを提供します。
+AIプログラミングの実践的な学習と開発のためのプロジェクトです。複数のプログラミング言語（Java、Scala、Kotlin、Node.js、Ruby、Python、PHP、Go、Rust、.NET、C、C++）をサポートする開発環境と、MkDocsを使用したドキュメント管理システムを提供します。
 
 ### 目的
 
 - AIプログラミングの実践的な学習環境の提供
-- 複数言語（Java、Scala、Kotlin、Node.js、Ruby、Python、PHP、Go、Rust、.NET）での開発サポート
+- 複数言語（Java、Scala、Kotlin、Node.js、Ruby、Python、PHP、Go、Rust、.NET、C、C++）での開発サポート
 - ドキュメント駆動開発の促進
 - プログラミング学習リソースの集約
 
@@ -70,6 +69,8 @@ AIプログラミングの実践的な学習と開発のためのプロジェク
   - Go 1.22.0 (via 公式バイナリ)
   - Rust stable (via rustup)
   - .NET 8.0 (via Microsoft パッケージリポジトリ)
+  - C言語 (C11標準, GCC)
+  - C++ (C++20標準, G++, Clang)
 - **ドキュメント環境**:
   - MkDocs (Python 3.11ベース)
   - Material for MkDocsテーマ
@@ -242,6 +243,8 @@ echo $GITHUB_TOKEN | docker login ghcr.io -u <username> --password-stdin
    - Go: `go version`
    - Rust: `rustc --version`
    - .NET: `dotnet --version`
+   - C: `gcc --version`
+   - C++: `g++ --version` または `clang++ --version`
 
 #### ドキュメント作成
 
