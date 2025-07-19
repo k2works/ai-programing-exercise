@@ -11,17 +11,19 @@ void assert_equal(const char* expected, const char* actual, const char* test_nam
     }
 }
 
-const char* greeting() {
-    return "hello world";
+char* fizz_buzz(int n) {
+    static char result[16];
+    sprintf(result, "%d", n);
+    return result;
 }
 
-void test_greeting() {
-    assert_equal("hello world", greeting(), "test_greeting");
+void test_number_to_string() {
+    assert_equal("1", fizz_buzz(1), "test_number_to_string");
 }
 
 int main() {
     printf("Running tests...\n");
-    test_greeting();
+    test_number_to_string();
     printf("All tests passed!\n");
     return 0;
 }
