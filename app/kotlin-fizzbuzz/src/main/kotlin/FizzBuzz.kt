@@ -5,7 +5,7 @@ object FizzBuzz {
     private const val FIZZ_BUZZ_DIVISOR = 15
     const val DEFAULT_END_NUMBER = 100
 
-    fun generate(number: Int): String {
+    fun generate(number: Int, type: Int = 1): String {
         return if (number % FIZZ_BUZZ_DIVISOR == 0) {
             "FizzBuzz"
         } else if (number % FIZZ_DIVISOR == 0) {

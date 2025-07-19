@@ -46,4 +46,11 @@ class FizzBuzzTest {
             result
         )
     }
+
+    // タイプごとに出力を切り替えることができる
+    // タイプ1の場合
+    @Test
+    fun `test_タイプ1_1を渡したら文字列1を返す`() {
+        assertEquals("1", FizzBuzz.generate(1, 1))
+    }
 }
