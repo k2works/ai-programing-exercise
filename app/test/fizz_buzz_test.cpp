@@ -102,7 +102,6 @@ TEST_F(FizzBuzzType3Test, test_2を渡したら空文字列を返す) { EXPECT_E
 // それ以外のタイプの場合
 class FizzBuzzOtherTypeTest : public ::testing::Test {
    protected:
-    FizzBuzz fizzbuzz{4};
     void SetUp() override {
         // Setup code if needed
     }
@@ -111,7 +110,7 @@ class FizzBuzzOtherTypeTest : public ::testing::Test {
 TEST_F(FizzBuzzOtherTypeTest, test_例外を返す) {
     EXPECT_THROW({
         try {
-            fizzbuzz.generate(1);
+            FizzBuzz fizzbuzz{4};
         } catch (const std::runtime_error& e) {
             EXPECT_STREQ("該当するタイプは存在しません", e.what());
             throw;

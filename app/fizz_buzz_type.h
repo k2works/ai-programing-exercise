@@ -1,17 +1,23 @@
 #pragma once
 #include <string>
 
-class FizzBuzzType01 {
+class FizzBuzzType {
 public:
-    std::string generate(int number);
+    virtual ~FizzBuzzType() = default;
+    virtual std::string generate(int number) = 0;
 };
 
-class FizzBuzzType02 {
+class FizzBuzzType01 : public FizzBuzzType {
 public:
-    std::string generate(int number);
+    std::string generate(int number) override;
 };
 
-class FizzBuzzType03 {
+class FizzBuzzType02 : public FizzBuzzType {
 public:
-    std::string generate(int number);
+    std::string generate(int number) override;
+};
+
+class FizzBuzzType03 : public FizzBuzzType {
+public:
+    std::string generate(int number) override;
 };

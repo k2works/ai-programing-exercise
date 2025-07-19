@@ -1,16 +1,30 @@
 #include "fizz_buzz.h"
 
-std::string FizzBuzz::generate(int number) {
-    switch (type_) {
+FizzBuzz::FizzBuzz(int type) {
+    switch (type) {
         case 1:
-            return createType01()->generate(number);
+            type_ = createType01();
+            break;
         case 2:
-            return createType02()->generate(number);
+            type_ = createType02();
+            break;
         case 3:
-            return createType03()->generate(number);
+            type_ = createType03();
+            break;
         default:
             throw std::runtime_error("該当するタイプは存在しません");
     }
+}
+
+int FizzBuzz::type() const {
+    if (dynamic_cast<FizzBuzzType01*>(type_.get())) return 1;
+    if (dynamic_cast<FizzBuzzType02*>(type_.get())) return 2;
+    if (dynamic_cast<FizzBuzzType03*>(type_.get())) return 3;
+    return 0;
+}
+
+std::string FizzBuzz::generate(int number) {
+    return type_->generate(number);
 }
 
 std::vector<std::string> FizzBuzz::generate_list() {

@@ -8,15 +8,15 @@
 class FizzBuzz {
    private:
     std::vector<std::string> list_;
-    int type_;
+    std::unique_ptr<FizzBuzzType> type_;
     
    public:
     static const int MAX_NUMBER = 100;
     
-    FizzBuzz(int type = 1) : type_(type) {}
+    FizzBuzz(int type = 1);
     
     std::vector<std::string> list() const { return list_; }
-    int type() const { return type_; }
+    int type() const;
     
     static std::unique_ptr<FizzBuzzType01> createType01() { return std::make_unique<FizzBuzzType01>(); }
     static std::unique_ptr<FizzBuzzType02> createType02() { return std::make_unique<FizzBuzzType02>(); }
