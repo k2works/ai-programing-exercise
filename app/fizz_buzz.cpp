@@ -1,10 +1,10 @@
 #include "fizz_buzz.h"
 
-std::string FizzBuzz::generate(int number, int type) {
+std::string FizzBuzz::generate(int number) {
     bool is_fizz = number % 3 == 0;
     bool is_buzz = number % 5 == 0;
     
-    switch (type) {
+    switch (type_) {
         case 1: // 通常のFizzBuzz
             if (is_fizz && is_buzz) {
                 return "FizzBuzz";

@@ -16,7 +16,7 @@ class FizzBuzzTest : public ::testing::Test {
 // 数を文字列にして返す - タイプ1の場合
 class FizzBuzzType1Test : public ::testing::Test {
    protected:
-    FizzBuzz fizzbuzz;
+    FizzBuzz fizzbuzz{1};
     void SetUp() override {
         // Setup code if needed
     }
@@ -58,51 +58,51 @@ TEST_F(FizzBuzzListTest, test_配列の14番目は文字列のFizzBuzzを返す)
 // タイプ2の場合（数字のみ）
 class FizzBuzzType2Test : public ::testing::Test {
    protected:
-    FizzBuzz fizzbuzz;
+    FizzBuzz fizzbuzz{2};
     void SetUp() override {
         // Setup code if needed
     }
 };
 
 // 三の倍数の場合
-TEST_F(FizzBuzzType2Test, test_3を渡したら文字列3を返す) { EXPECT_EQ("3", fizzbuzz.generate(3, 2)); }
+TEST_F(FizzBuzzType2Test, test_3を渡したら文字列3を返す) { EXPECT_EQ("3", fizzbuzz.generate(3)); }
 
 // 五の倍数の場合
-TEST_F(FizzBuzzType2Test, test_5を渡したら文字列5を返す) { EXPECT_EQ("5", fizzbuzz.generate(5, 2)); }
+TEST_F(FizzBuzzType2Test, test_5を渡したら文字列5を返す) { EXPECT_EQ("5", fizzbuzz.generate(5)); }
 
 // 三と五の倍数の場合
-TEST_F(FizzBuzzType2Test, test_15を渡したら文字列15を返す) { EXPECT_EQ("15", fizzbuzz.generate(15, 2)); }
+TEST_F(FizzBuzzType2Test, test_15を渡したら文字列15を返す) { EXPECT_EQ("15", fizzbuzz.generate(15)); }
 
 // その他の場合
-TEST_F(FizzBuzzType2Test, test_1を渡したら文字列1を返す) { EXPECT_EQ("1", fizzbuzz.generate(1, 2)); }
+TEST_F(FizzBuzzType2Test, test_1を渡したら文字列1を返す) { EXPECT_EQ("1", fizzbuzz.generate(1)); }
 
 // タイプ3の場合（FizzBuzzの場合のみプリント、それ以外は空文字列）
 class FizzBuzzType3Test : public ::testing::Test {
    protected:
-    FizzBuzz fizzbuzz;
+    FizzBuzz fizzbuzz{3};
     void SetUp() override {
         // Setup code if needed
     }
 };
 
 // 三の倍数の場合
-TEST_F(FizzBuzzType3Test, test_3を渡したら文字列Fizzを返す) { EXPECT_EQ("Fizz", fizzbuzz.generate(3, 3)); }
+TEST_F(FizzBuzzType3Test, test_3を渡したら文字列Fizzを返す) { EXPECT_EQ("Fizz", fizzbuzz.generate(3)); }
 
 // 五の倍数の場合
-TEST_F(FizzBuzzType3Test, test_5を渡したら文字列Buzzを返す) { EXPECT_EQ("Buzz", fizzbuzz.generate(5, 3)); }
+TEST_F(FizzBuzzType3Test, test_5を渡したら文字列Buzzを返す) { EXPECT_EQ("Buzz", fizzbuzz.generate(5)); }
 
 // 三と五の倍数の場合
-TEST_F(FizzBuzzType3Test, test_15を渡したら文字列FizzBuzzを返す) { EXPECT_EQ("FizzBuzz", fizzbuzz.generate(15, 3)); }
+TEST_F(FizzBuzzType3Test, test_15を渡したら文字列FizzBuzzを返す) { EXPECT_EQ("FizzBuzz", fizzbuzz.generate(15)); }
 
 // その他の場合
-TEST_F(FizzBuzzType3Test, test_1を渡したら空文字列を返す) { EXPECT_EQ("", fizzbuzz.generate(1, 3)); }
+TEST_F(FizzBuzzType3Test, test_1を渡したら空文字列を返す) { EXPECT_EQ("", fizzbuzz.generate(1)); }
 
-TEST_F(FizzBuzzType3Test, test_2を渡したら空文字列を返す) { EXPECT_EQ("", fizzbuzz.generate(2, 3)); }
+TEST_F(FizzBuzzType3Test, test_2を渡したら空文字列を返す) { EXPECT_EQ("", fizzbuzz.generate(2)); }
 
 // それ以外のタイプの場合
 class FizzBuzzOtherTypeTest : public ::testing::Test {
    protected:
-    FizzBuzz fizzbuzz;
+    FizzBuzz fizzbuzz{4};
     void SetUp() override {
         // Setup code if needed
     }
@@ -111,7 +111,7 @@ class FizzBuzzOtherTypeTest : public ::testing::Test {
 TEST_F(FizzBuzzOtherTypeTest, test_例外を返す) {
     EXPECT_THROW({
         try {
-            fizzbuzz.generate(1, 4);
+            fizzbuzz.generate(1);
         } catch (const std::runtime_error& e) {
             EXPECT_STREQ("該当するタイプは存在しません", e.what());
             throw;
