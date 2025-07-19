@@ -17,6 +17,10 @@ char* fizz_buzz(int n) {
         strcpy(result, "Fizz");
         return result;
     }
+    if (n % 5 == 0) {
+        strcpy(result, "Buzz");
+        return result;
+    }
     sprintf(result, "%d", n);
     return result;
 }
@@ -29,10 +33,15 @@ void test_fizz() {
     assert_equal("Fizz", fizz_buzz(3), "test_fizz");
 }
 
+void test_buzz() {
+    assert_equal("Buzz", fizz_buzz(5), "test_buzz");
+}
+
 int main() {
     printf("Running tests...\n");
     test_number_to_string();
     test_fizz();
+    test_buzz();
     printf("All tests passed!\n");
     return 0;
 }
