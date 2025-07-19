@@ -24,6 +24,20 @@ ENV DEBIAN_FRONTEND=noninteractive \
     ERLANG_VER=26.2.1 \
     ELIXIR_VER=1.16.1
 
+# ユーザーの設定
+ARG USERNAME=developer
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+
+RUN groupadd --gid $USER_GID $USERNAME \
+    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
+    #
+    # [Optional] Add sudo support. Omit if you don't need to install software after connecting.
+    && apt-get update \
+    && apt-get install -y sudo \
+    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME
+
 # ロケールのセットアップ
 RUN apt-get update && apt-get install -y \
     language-pack-ja-base \
@@ -34,7 +48,6 @@ RUN apt-get update && apt-get install -y \
 # 基本的なパッケージのインストール
  RUN apt-get update && \
      apt-get install -y \
-            sudo \
             build-essential \
             zip \
             unzip \
@@ -68,14 +81,19 @@ RUN apt-get update && apt-get install -y \
 
 # SDKMANのインストール
 RUN apt-get update && apt-get install -y bash && apt-get clean \
-    && curl -s "https://get.sdkman.io" | bash \
-    && bash -c 'source "$HOME/.sdkman/bin/sdkman-init.sh" \
-       && sdk selfupdate \
-       && sdk install java "$JAVA_VER" \
-       && sdk install maven "$MAVEN_VER" \
-       && sdk install gradle "$GRADLE_VER" \
-       && sdk install scala "$SCALA_VER" \
-       && sdk install kotlin "$KOTLIN_VER"'
+    && curl -s "https://get.sdkman.io" | HOME=/home/$USERNAME bash \
+    && chown -R $USERNAME:$USERNAME /home/$USERNAME/.sdkman \
+    && echo '#!/bin/bash\n\
+source "/home/'$USERNAME'/.sdkman/bin/sdkman-init.sh"\n\
+sdk selfupdate\n\
+sdk install java "'$JAVA_VER'"\n\
+sdk install maven "'$MAVEN_VER'"\n\
+sdk install gradle "'$GRADLE_VER'"\n\
+sdk install scala "'$SCALA_VER'"\n\
+sdk install kotlin "'$KOTLIN_VER'"' > /tmp/sdkman_install.sh \
+    && chmod +x /tmp/sdkman_install.sh \
+    && su - $USERNAME -c /tmp/sdkman_install.sh \
+    && rm /tmp/sdkman_install.sh
 
 # Clojureのインストール
 RUN apt-get update && apt-get install -y curl bash rlwrap && apt-get clean \
@@ -83,18 +101,28 @@ RUN apt-get update && apt-get install -y curl bash rlwrap && apt-get clean \
     && chmod +x linux-install.sh \
     && ./linux-install.sh \
     && rm linux-install.sh \
-    && bash -c 'source "$HOME/.sdkman/bin/sdkman-init.sh" \
-       && sdk selfupdate \
-       && sdk install leiningen "$LEININGEN_VER"'
+    && echo '#!/bin/bash\n\
+source "/home/'$USERNAME'/.sdkman/bin/sdkman-init.sh"\n\
+sdk selfupdate\n\
+if [ ! -z "'$LEININGEN_VER'" ]; then sdk install leiningen "'$LEININGEN_VER'"; fi' > /tmp/clojure_install.sh \
+    && chmod +x /tmp/clojure_install.sh \
+    && su - $USERNAME -c /tmp/clojure_install.sh \
+    && rm /tmp/clojure_install.sh
 
 # Node.jsのインストール
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs \
     && npm install -g yarn \
-    && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash \
-    && . $HOME/.nvm/nvm.sh \
-    && nvm install $NODE_VER \
-    && nvm use $NODE_VER
+    && mkdir -p /home/$USERNAME/.nvm \
+    && chown -R $USERNAME:$USERNAME /home/$USERNAME/.nvm \
+    && echo '#!/bin/bash\n\
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash\n\
+. /home/'$USERNAME'/.nvm/nvm.sh\n\
+nvm install "'$NODE_VER'"\n\
+nvm use "'$NODE_VER'"' > /tmp/nvm_install.sh \
+    && chmod +x /tmp/nvm_install.sh \
+    && su - $USERNAME -c /tmp/nvm_install.sh \
+    && rm /tmp/nvm_install.sh
 
 # Rubyのインストール用の依存パッケージをインストール
 RUN apt-get update && apt-get install -y \
@@ -111,15 +139,21 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Rubyのインストール
-RUN git clone https://github.com/sstephenson/rbenv ~/.rbenv \
-    && git clone https://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build \
-    && ~/.rbenv/plugins/ruby-build/install.sh \
-    && echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bashrc \
-    && echo 'eval "$(rbenv init -)"' >> ~/.bashrc \
-    && bash -c 'export PATH="$HOME/.rbenv/bin:$PATH" \
-       && eval "$(rbenv init -)" \
-       && rbenv install $RUBY_VER \
-       && rbenv global $RUBY_VER'
+RUN mkdir -p /home/$USERNAME/.rbenv \
+    && chown -R $USERNAME:$USERNAME /home/$USERNAME/.rbenv \
+    && echo '#!/bin/bash\n\
+git clone https://github.com/sstephenson/rbenv /home/'$USERNAME'/.rbenv\n\
+git clone https://github.com/sstephenson/ruby-build.git /home/'$USERNAME'/.rbenv/plugins/ruby-build\n\
+/home/'$USERNAME'/.rbenv/plugins/ruby-build/install.sh\n\
+echo "export PATH=\"/home/'$USERNAME'/.rbenv/bin:\$PATH\"" >> /home/'$USERNAME'/.bashrc\n\
+echo "eval \"\$(rbenv init -)\"" >> /home/'$USERNAME'/.bashrc\n\
+export PATH="/home/'$USERNAME'/.rbenv/bin:$PATH"\n\
+eval "$(rbenv init -)"\n\
+rbenv install "'$RUBY_VER'"\n\
+rbenv global "'$RUBY_VER'"' > /tmp/rbenv_install.sh \
+    && chmod +x /tmp/rbenv_install.sh \
+    && su - $USERNAME -c /tmp/rbenv_install.sh \
+    && rm /tmp/rbenv_install.sh
 
 # Pythonの依存パッケージをインストール
 RUN apt-get update && apt-get install -y \
@@ -166,13 +200,21 @@ RUN apt-get update && apt-get install -y \
     zlib1g-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
-    && curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | BOOTSTRAP_HASKELL_NONINTERACTIVE=1 sh \
-    && . /root/.ghcup/env \
-    && ghcup install ghc $GHC_VER \
-    && ghcup set ghc $GHC_VER \
-    && ghcup install cabal latest \
-    && ghcup install stack latest \
-    && ghcup install hls latest
+    && mkdir -p /home/$USERNAME/.ghcup \
+    && chown -R $USERNAME:$USERNAME /home/$USERNAME/.ghcup \
+    && echo '#!/bin/bash\n\
+BOOTSTRAP_HASKELL_NONINTERACTIVE=1 BOOTSTRAP_HASKELL_GHC_VERSION='$GHC_VER' \
+curl --proto "=https" --tlsv1.2 -sSf https://get-ghcup.haskell.org | sh\n\
+. /home/'$USERNAME'/.ghcup/env\n\
+ghcup install ghc '$GHC_VER'\n\
+ghcup set ghc '$GHC_VER'\n\
+ghcup install cabal latest\n\
+ghcup install stack latest\n\
+ghcup install hls latest\n\
+echo "export PATH=\"\$HOME/.ghcup/bin:\$PATH\"" >> /home/'$USERNAME'/.bashrc' > /tmp/ghcup_install.sh \
+    && chmod +x /tmp/ghcup_install.sh \
+    && su - $USERNAME -c /tmp/ghcup_install.sh \
+    && rm /tmp/ghcup_install.sh
 
 # Goのインストール
 RUN wget https://golang.org/dl/go${GO_VER}.linux-amd64.tar.gz \
@@ -185,8 +227,14 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
-    && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain $RUST_VER \
-    && echo 'source $HOME/.cargo/env' >> ~/.bashrc
+    && mkdir -p /home/$USERNAME/.cargo \
+    && chown -R $USERNAME:$USERNAME /home/$USERNAME/.cargo \
+    && echo '#!/bin/bash\n\
+curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain "'$RUST_VER'"\n\
+echo "source /home/'$USERNAME'/.cargo/env" >> /home/'$USERNAME'/.bashrc' > /tmp/rust_install.sh \
+    && chmod +x /tmp/rust_install.sh \
+    && su - $USERNAME -c /tmp/rust_install.sh \
+    && rm /tmp/rust_install.sh
 
 # .NET SDKのインストール
 RUN apt-get update && apt-get install -y \
@@ -217,18 +265,24 @@ RUN apt-get update && apt-get install -y \
     libncurses-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
-    && git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.13.1 \
-    && echo '. "$HOME/.asdf/asdf.sh"' >> ~/.bashrc \
-    && echo '. "$HOME/.asdf/completions/asdf.bash"' >> ~/.bashrc \
-    && bash -c 'source "$HOME/.asdf/asdf.sh" \
-       && asdf plugin add erlang \
-       && asdf plugin add elixir \
-       && asdf install erlang $ERLANG_VER \
-       && asdf global erlang $ERLANG_VER \
-       && asdf install elixir $ELIXIR_VER \
-       && asdf global elixir $ELIXIR_VER \
-       && mix local.hex --force \
-       && mix local.rebar --force'
+    && mkdir -p /home/$USERNAME/.asdf \
+    && chown -R $USERNAME:$USERNAME /home/$USERNAME/.asdf \
+    && echo '#!/bin/bash\n\
+git clone https://github.com/asdf-vm/asdf.git /home/'$USERNAME'/.asdf --branch v0.13.1\n\
+echo ". \"/home/'$USERNAME'/.asdf/asdf.sh\"" >> /home/'$USERNAME'/.bashrc\n\
+echo ". \"/home/'$USERNAME'/.asdf/completions/asdf.bash\"" >> /home/'$USERNAME'/.bashrc\n\
+source "/home/'$USERNAME'/.asdf/asdf.sh"\n\
+asdf plugin add erlang\n\
+asdf plugin add elixir\n\
+asdf install erlang "'$ERLANG_VER'"\n\
+asdf global erlang "'$ERLANG_VER'"\n\
+asdf install elixir "'$ELIXIR_VER'"\n\
+asdf global elixir "'$ELIXIR_VER'"\n\
+mix local.hex --force\n\
+mix local.rebar --force' > /tmp/asdf_install.sh \
+    && chmod +x /tmp/asdf_install.sh \
+    && su - $USERNAME -c /tmp/asdf_install.sh \
+    && rm /tmp/asdf_install.sh
 
 # Gemini CLIのインストール
 RUN npm install -g @google/gemini-cli
@@ -236,25 +290,14 @@ RUN npm install -g @google/gemini-cli
 # Claude Codeのインストール
 RUN npm install -g @anthropic-ai/claude-code
 
+# すべてのインストールが完了した後、ユーザーのホームディレクトリの所有権を確保
+RUN chown -R $USERNAME:$USERNAME /home/$USERNAME
+
 # パスの設定
-ENV PATH="/root/.cargo/bin:/usr/local/go/bin:/root/.ghcup/bin:/root/.sdkman/candidates/java/current/bin:/root/.sdkman/candidates/maven/current/bin:/root/.sdkman/candidates/gradle/current/bin:/root/.sdkman/candidates/scala/current/bin:/root/.sdkman/candidates/kotlin/current/bin:/root/.rbenv/shims:/usr/share/dotnet:/usr/share/dotnet/tools:/usr/local/bin:/usr/lib/elixir/bin:/usr/local/bin:$PATH"
+ENV PATH="/home/$USERNAME/.cargo/bin:/usr/local/go/bin:/home/$USERNAME/.ghcup/bin:/home/$USERNAME/.sdkman/candidates/java/current/bin:/home/$USERNAME/.sdkman/candidates/maven/current/bin:/home/$USERNAME/.sdkman/candidates/gradle/current/bin:/home/$USERNAME/.sdkman/candidates/scala/current/bin:/home/$USERNAME/.sdkman/candidates/kotlin/current/bin:/home/$USERNAME/.rbenv/shims:/usr/share/dotnet:/usr/share/dotnet/tools:/usr/local/bin:/usr/lib/elixir/bin:/usr/local/bin:$PATH"
 
 # 作業ディレクトリの設定
 WORKDIR /srv
 
-# ユーザーの設定
-ARG USERNAME=developer
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
-
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
-    #
-    # [Optional] Add sudo support. Omit if you don't need to install software after connecting.
-    && apt-get update \
-    && apt-get install -y sudo \
-    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
-    && chmod 0440 /etc/sudoers.d/$USERNAME
-
-# [Optional] Set the default user. Omit if you want to keep the default as root.
+# 最後にユーザーを設定したユーザーに切り替える
 USER $USERNAME
