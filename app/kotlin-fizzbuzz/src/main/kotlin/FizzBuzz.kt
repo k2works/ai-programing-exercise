@@ -42,25 +42,25 @@ class FizzBuzzType03 : FizzBuzzType() {
     }
 }
 
-class FizzBuzz {
+class FizzBuzz(private val type: FizzBuzzType = FizzBuzzType01()) {
     companion object {
         const val DEFAULT_END_NUMBER = 100
+
+        fun createFizzBuzzType(type: Int): FizzBuzzType {
+            return when (type) {
+                1 -> FizzBuzzType01()
+                2 -> FizzBuzzType02()
+                3 -> FizzBuzzType03()
+                else -> FizzBuzzType01()
+            }
+        }
     }
 
     private var _list: List<String>? = null
     val list: List<String>? get() = _list
 
-    private fun createFizzBuzzType(type: Int): FizzBuzzType {
-        return when (type) {
-            1 -> FizzBuzzType01()
-            2 -> FizzBuzzType02()
-            3 -> FizzBuzzType03()
-            else -> FizzBuzzType01()
-        }
-    }
-
-    fun generate(number: Int, type: Int = 1): String {
-        return createFizzBuzzType(type).generate(number)
+    fun generate(number: Int): String {
+        return type.generate(number)
     }
 
     fun generateList(): List<String> {
