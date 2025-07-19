@@ -19,6 +19,13 @@ object FizzBuzz {
                 }
             }
             2 -> number.toString()
+            3 -> {
+                if (number % FIZZ_BUZZ_DIVISOR == 0) {
+                    "FizzBuzz"
+                } else {
+                    number.toString()
+                }
+            }
             else -> number.toString()
         }
     }

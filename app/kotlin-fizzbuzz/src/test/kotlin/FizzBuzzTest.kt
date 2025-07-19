@@ -74,4 +74,25 @@ class FizzBuzzTest {
     fun `test_タイプ2_15を渡したら文字列15を返す`() {
         assertEquals("15", FizzBuzz.generate(15, 2))
     }
+
+    // タイプ3の場合
+    @Test
+    fun `test_タイプ3_1を渡したら文字列1を返す`() {
+        assertEquals("1", FizzBuzz.generate(1, 3))
+    }
+
+    @Test
+    fun `test_タイプ3_3を渡したら文字列3を返す`() {
+        assertEquals("3", FizzBuzz.generate(3, 3))
+    }
+
+    @Test
+    fun `test_タイプ3_5を渡したら文字列5を返す`() {
+        assertEquals("5", FizzBuzz.generate(5, 3))
+    }
+
+    @Test
+    fun `test_タイプ3_15を渡したら文字列FizzBuzzを返す`() {
+        assertEquals("FizzBuzz", FizzBuzz.generate(15, 3))
+    }
 }
