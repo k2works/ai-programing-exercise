@@ -45,12 +45,24 @@ void test_fizz_buzz() {
     assert_equal("FizzBuzz", fizz_buzz(15), "test_fizz_buzz");
 }
 
-int main() {
+void run_tests() {
     printf("Running tests...\n");
     test_number_to_string();
     test_fizz();
     test_buzz();
     test_fizz_buzz();
     printf("All tests passed!\n");
+}
+
+void print_fizz_buzz_1_to_100() {
+    printf("\nFizzBuzz 1 to 100:\n");
+    for (int i = 1; i <= 100; i++) {
+        printf("%s\n", fizz_buzz(i));
+    }
+}
+
+int main() {
+    run_tests();
+    print_fizz_buzz_1_to_100();
     return 0;
 }
