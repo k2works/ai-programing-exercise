@@ -1,0 +1,6 @@
+/workspaces/ai-programing-exercise/app/build_coverage/CMakeFiles/fizzbuzz_lib.dir
+/workspaces/ai-programing-exercise/app/build_coverage/CMakeFiles/fizzbuzz.dir
+/workspaces/ai-programing-exercise/app/build_coverage/CMakeFiles/fizzbuzz_test.dir
+/workspaces/ai-programing-exercise/app/build_coverage/CMakeFiles/test.dir
+/workspaces/ai-programing-exercise/app/build_coverage/CMakeFiles/edit_cache.dir
+/workspaces/ai-programing-exercise/app/build_coverage/CMakeFiles/rebuild_cache.dir

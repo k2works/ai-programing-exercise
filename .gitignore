@@ -1033,6 +1033,7 @@ dkms.conf
 
 # Compiled Static libraries
 *.lai
+app/build_coverga
 
 # Executables
 
