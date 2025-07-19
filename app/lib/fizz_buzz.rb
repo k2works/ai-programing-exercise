@@ -28,7 +28,13 @@ class FizzBuzz
   end
 end
 
-class FizzBuzzType01
+class FizzBuzzType
+  def generate(number)
+    raise NotImplementedError
+  end
+end
+
+class FizzBuzzType01 < FizzBuzzType
   def generate(number)
     is_fizz = number.modulo(3).zero?
     is_buzz = number.modulo(5).zero?
@@ -41,13 +47,13 @@ class FizzBuzzType01
   end
 end
 
-class FizzBuzzType02
+class FizzBuzzType02 < FizzBuzzType
   def generate(number)
     number.to_s
   end
 end
 
-class FizzBuzzType03
+class FizzBuzzType03 < FizzBuzzType
   def generate(number)
     is_fizz = number.modulo(3).zero?
     is_buzz = number.modulo(5).zero?
