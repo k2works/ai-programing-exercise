@@ -129,8 +129,9 @@ class FizzBuzzTest < Minitest::Test
 
     describe 'それ以外のタイプの場合' do
       def test_例外を返す
+        fizzbuzz = FizzBuzz.new(4)
         e = assert_raises RuntimeError do
-          FizzBuzz.new(4)
+          fizzbuzz.generate(1)
         end
         assert_equal '該当するタイプは存在しません', e.message
       end
