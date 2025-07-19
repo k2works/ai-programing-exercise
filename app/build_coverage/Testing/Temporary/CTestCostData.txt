@@ -1,2 +1,0 @@
-FizzBuzzTests 1 0.0167094
----
