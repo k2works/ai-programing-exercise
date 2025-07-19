@@ -3,20 +3,7 @@ class FizzBuzz
   attr_reader :list, :type
 
   def initialize(type)
-    @type = self.class.create(type)
-  end
-
-  def self.create(type)
-    case type
-    when 1
-      FizzBuzzType01.new
-    when 2
-      FizzBuzzType02.new
-    when 3
-      FizzBuzzType03.new
-    else
-      FizzBuzzTypeNotDefined.new
-    end
+    @type = type
   end
 
   def generate(number)
