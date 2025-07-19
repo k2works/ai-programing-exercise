@@ -113,8 +113,21 @@ class FizzBuzzTest {
         val fizzBuzz = FizzBuzz()
         fizzBuzz.generateList()
         val result = fizzBuzz.list
-        assertEquals(100, result?.size)
-        assertEquals("1", result?.get(0))
-        assertEquals("FizzBuzz", result?.get(14))
+        assertEquals(100, result?.getValue()?.size)
+        assertEquals("1", result?.getValue()?.get(0))
+        assertEquals("FizzBuzz", result?.getValue()?.get(14))
+    }
+
+    // ファーストクラスコレクションテスト
+    @Test
+    fun `test_FizzBuzzListが正しく動作する`() {
+        val list1 = FizzBuzzList(listOf("1", "2", "Fizz"))
+        val list2 = FizzBuzzList(listOf("4", "Buzz"))
+        val combined = list1.add(list2.getValue())
+        
+        assertEquals(3, list1.getValue().size)
+        assertEquals(5, combined.getValue().size)
+        assertEquals("Fizz", list1.getValue()[2])
+        assertEquals("Buzz", combined.getValue()[4])
     }
 }

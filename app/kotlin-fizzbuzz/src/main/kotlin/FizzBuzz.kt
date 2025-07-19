@@ -1,3 +1,13 @@
+class FizzBuzzList(private val value: List<String>) {
+    fun getValue(): List<String> = value
+    
+    override fun toString(): String = value.toString()
+    
+    fun add(other: List<String>): FizzBuzzList {
+        return FizzBuzzList(value + other)
+    }
+}
+
 abstract class FizzBuzzType {
     abstract fun generate(number: Int): String
 }
@@ -56,15 +66,16 @@ class FizzBuzz(private val type: FizzBuzzType = FizzBuzzType01()) {
         }
     }
 
-    private var _list: List<String>? = null
-    val list: List<String>? get() = _list
+    private var _list: FizzBuzzList? = null
+    val list: FizzBuzzList? get() = _list
 
     fun generate(number: Int): String {
         return type.generate(number)
     }
 
-    fun generateList(): List<String> {
-        _list = (1..DEFAULT_END_NUMBER).map { generate(it) }
+    fun generateList(): FizzBuzzList {
+        val generatedList = (1..DEFAULT_END_NUMBER).map { generate(it) }
+        _list = FizzBuzzList(generatedList)
         return _list!!
     }
 
