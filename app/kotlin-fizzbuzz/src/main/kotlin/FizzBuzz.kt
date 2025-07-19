@@ -6,14 +6,20 @@ object FizzBuzz {
     const val DEFAULT_END_NUMBER = 100
 
     fun generate(number: Int, type: Int = 1): String {
-        return if (number % FIZZ_BUZZ_DIVISOR == 0) {
-            "FizzBuzz"
-        } else if (number % FIZZ_DIVISOR == 0) {
-            "Fizz"
-        } else if (number % BUZZ_DIVISOR == 0) {
-            "Buzz"
-        } else {
-            number.toString()
+        return when (type) {
+            1 -> {
+                if (number % FIZZ_BUZZ_DIVISOR == 0) {
+                    "FizzBuzz"
+                } else if (number % FIZZ_DIVISOR == 0) {
+                    "Fizz"
+                } else if (number % BUZZ_DIVISOR == 0) {
+                    "Buzz"
+                } else {
+                    number.toString()
+                }
+            }
+            2 -> number.toString()
+            else -> number.toString()
         }
     }
 
