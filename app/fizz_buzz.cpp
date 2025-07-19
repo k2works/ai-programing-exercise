@@ -33,3 +33,11 @@ std::string FizzBuzz::generate(int number, int type) {
             throw std::runtime_error("該当するタイプは存在しません");
     }
 }
+
+std::vector<std::string> FizzBuzz::generate_list() {
+    list_.clear();
+    for (int i = 1; i <= MAX_NUMBER; i++) {
+        list_.push_back(generate(i));
+    }
+    return list_;
+}
