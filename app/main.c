@@ -13,6 +13,10 @@ void assert_equal(const char* expected, const char* actual, const char* test_nam
 
 char* fizz_buzz(int n) {
     static char result[16];
+    if (n % 3 == 0 && n % 5 == 0) {
+        strcpy(result, "FizzBuzz");
+        return result;
+    }
     if (n % 3 == 0) {
         strcpy(result, "Fizz");
         return result;
@@ -37,11 +41,16 @@ void test_buzz() {
     assert_equal("Buzz", fizz_buzz(5), "test_buzz");
 }
 
+void test_fizz_buzz() {
+    assert_equal("FizzBuzz", fizz_buzz(15), "test_fizz_buzz");
+}
+
 int main() {
     printf("Running tests...\n");
     test_number_to_string();
     test_fizz();
     test_buzz();
+    test_fizz_buzz();
     printf("All tests passed!\n");
     return 0;
 }
