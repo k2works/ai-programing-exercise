@@ -1,9 +1,17 @@
-object FizzBuzz {
-    // 定数定義（マジックナンバーの解消）
-    private const val FIZZ_DIVISOR = 3
-    private const val BUZZ_DIVISOR = 5
-    private const val FIZZ_BUZZ_DIVISOR = 15
-    const val DEFAULT_END_NUMBER = 100
+class FizzBuzz {
+    companion object {
+        // 定数定義（マジックナンバーの解消）
+        private const val FIZZ_DIVISOR = 3
+        private const val BUZZ_DIVISOR = 5
+        private const val FIZZ_BUZZ_DIVISOR = 15
+        const val DEFAULT_END_NUMBER = 100
+    }
+
+    private var list: List<String>? = null
+
+    fun getList(): List<String>? {
+        return list
+    }
 
     fun generate(number: Int, type: Int = 1): String {
         return when (type) {
@@ -28,6 +36,11 @@ object FizzBuzz {
             }
             else -> number.toString()
         }
+    }
+
+    fun generateList(): List<String> {
+        list = (1..DEFAULT_END_NUMBER).map { generate(it) }
+        return list!!
     }
 
     fun printNumbers(start: Int = 1, end: Int = DEFAULT_END_NUMBER): List<String> {

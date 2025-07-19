@@ -2,41 +2,43 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class FizzBuzzTest {
+    
+    private val fizzBuzz = FizzBuzz()
 
     @Test
     fun `test_1を渡したら文字列1を返す`() {
-        assertEquals("1", FizzBuzz.generate(1))
+        assertEquals("1", fizzBuzz.generate(1))
     }
 
     @Test
     fun `test_2を渡したら文字列2を返す`() {
-        assertEquals("2", FizzBuzz.generate(2))
+        assertEquals("2", fizzBuzz.generate(2))
     }
 
     @Test
     fun `test_3を渡したら文字列Fizzを返す`() {
-        assertEquals("Fizz", FizzBuzz.generate(3))
+        assertEquals("Fizz", fizzBuzz.generate(3))
     }
 
     @Test
     fun `test_5を渡したら文字列Buzzを返す`() {
-        assertEquals("Buzz", FizzBuzz.generate(5))
+        assertEquals("Buzz", fizzBuzz.generate(5))
     }
 
     @Test
     fun `test_15を渡したら文字列FizzBuzzを返す`() {
-        assertEquals("FizzBuzz", FizzBuzz.generate(15))
+        assertEquals("FizzBuzz", fizzBuzz.generate(15))
     }
 
     @Test
     fun `test_1から3までの配列を返す`() {
-        val result = FizzBuzz.printNumbers(1, 3)
+        val result = fizzBuzz.printNumbers(1, 3)
         assertEquals(listOf("1", "2", "Fizz"), result)
     }
 
     @Test
     fun `test_1から15までの配列を返す`() {
-        val result = FizzBuzz.printNumbers(1, 15)
+        val result = fizzBuzz.printNumbers(1, 15)
         assertEquals(
             listOf(
                 "1", "2", "Fizz", "4", "Buzz",
@@ -51,48 +53,59 @@ class FizzBuzzTest {
     // タイプ1の場合
     @Test
     fun `test_タイプ1_1を渡したら文字列1を返す`() {
-        assertEquals("1", FizzBuzz.generate(1, 1))
+        assertEquals("1", fizzBuzz.generate(1, 1))
     }
 
     // タイプ2の場合
     @Test
     fun `test_タイプ2_1を渡したら文字列1を返す`() {
-        assertEquals("1", FizzBuzz.generate(1, 2))
+        assertEquals("1", fizzBuzz.generate(1, 2))
     }
 
     @Test
     fun `test_タイプ2_3を渡したら文字列3を返す`() {
-        assertEquals("3", FizzBuzz.generate(3, 2))
+        assertEquals("3", fizzBuzz.generate(3, 2))
     }
 
     @Test
     fun `test_タイプ2_5を渡したら文字列5を返す`() {
-        assertEquals("5", FizzBuzz.generate(5, 2))
+        assertEquals("5", fizzBuzz.generate(5, 2))
     }
 
     @Test
     fun `test_タイプ2_15を渡したら文字列15を返す`() {
-        assertEquals("15", FizzBuzz.generate(15, 2))
+        assertEquals("15", fizzBuzz.generate(15, 2))
     }
 
     // タイプ3の場合
     @Test
     fun `test_タイプ3_1を渡したら文字列1を返す`() {
-        assertEquals("1", FizzBuzz.generate(1, 3))
+        assertEquals("1", fizzBuzz.generate(1, 3))
     }
 
     @Test
     fun `test_タイプ3_3を渡したら文字列3を返す`() {
-        assertEquals("3", FizzBuzz.generate(3, 3))
+        assertEquals("3", fizzBuzz.generate(3, 3))
     }
 
     @Test
     fun `test_タイプ3_5を渡したら文字列5を返す`() {
-        assertEquals("5", FizzBuzz.generate(5, 3))
+        assertEquals("5", fizzBuzz.generate(5, 3))
     }
 
     @Test
     fun `test_タイプ3_15を渡したら文字列FizzBuzzを返す`() {
-        assertEquals("FizzBuzz", FizzBuzz.generate(15, 3))
+        assertEquals("FizzBuzz", fizzBuzz.generate(15, 3))
+    }
+
+    // カプセル化テスト
+    @Test
+    fun `test_配列を作成して取得できる`() {
+        val fizzBuzz = FizzBuzz()
+        fizzBuzz.generateList()
+        val result = fizzBuzz.getList()
+        assertEquals(100, result?.size)
+        assertEquals("1", result?.get(0))
+        assertEquals("FizzBuzz", result?.get(14))
     }
 }
