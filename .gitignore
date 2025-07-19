@@ -1033,12 +1033,23 @@ dkms.conf
 
 # Compiled Static libraries
 *.lai
-app/build_coverga
 
 # Executables
 
 # End of https://www.toptal.com/developers/gitignore/api/c,c++
 
+# C++ specific build directories and coverage files
+app/build/
+app/build_coverage/
+app/*.gcov
+app/*.gcno
+app/*.gcda
+
+# C++ executable outputs
+app/fizzbuzz
+app/fizzbuzz_test
+
+# IDE and project files
 .idea
 *.iml
 docs/wiki
