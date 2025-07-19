@@ -1,0 +1,1 @@
+/usr/bin/c++  -Wall -Wextra -Wpedantic --coverage -fprofile-arcs -ftest-coverage  --coverage CMakeFiles/fizzbuzz_test.dir/test/fizz_buzz_test.cpp.o -o fizzbuzz_test  libfizzbuzz_lib.a /usr/lib/x86_64-linux-gnu/libgtest_main.a /usr/lib/x86_64-linux-gnu/libgtest.a 

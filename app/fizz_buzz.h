@@ -2,6 +2,6 @@
 #include <string>
 
 class FizzBuzz {
-public:
+   public:
     static std::string generate(int number);
 };
