@@ -367,32 +367,26 @@ TvFXMeuCkZPcaEBLqvgPBhCuiZo8+sAAAAAASUVORK5CYII=
       <div class="infobox">
         <div class="total">
           5 files inspected,
-          4 offenses detected:
+          9 offenses detected:
         </div>
         <ul class="offenses-list">
 
 
+
+
+
             <li>
-              <a href="#offense_Gemfile">
-                Gemfile - 1 offense
+              <a href="#offense_lib/fizz_buzz.rb">
+                lib/fizz_buzz.rb - 6 offenses
               </a>
             </li>
 
 
             <li>
-              <a href="#offense_Guardfile">
-                Guardfile - 2 offenses
+              <a href="#offense_test/fizz_buzz_test.rb">
+                test/fizz_buzz_test.rb - 3 offenses
               </a>
             </li>
-
-
-            <li>
-              <a href="#offense_Rakefile">
-                Rakefile - 1 offense
-              </a>
-            </li>
-
-
 
         </ul>
       </div>
@@ -400,46 +394,75 @@ TvFXMeuCkZPcaEBLqvgPBhCuiZo8+sAAAAAASUVORK5CYII=
     <div id="offenses">
 
 
-      <div class="offense-box" id="offense_Gemfile">
+
+
+
+
+
+
+      <div class="offense-box" id="offense_lib/fizz_buzz.rb">
         <div class="box-title-placeholder"><h3>&nbsp;</h3></div>
-        <div class="box-title"><h3>Gemfile - 1 offense</h3></div>
+        <div class="box-title"><h3>lib/fizz_buzz.rb - 6 offenses</h3></div>
         <div class="offense-reports">
 
           <div class="report">
             <div class="meta">
-              <span class="location">Line #15</span> –
+              <span class="location">Line #3</span> –
               <span class="severity convention">convention:</span>
-              <span class="message">Layout/TrailingEmptyLines: Final newline missing.</span>
+              <span class="message">Style/AccessorGrouping: Group together all <code>attr_reader</code> attributes.</span>
             </div>
 
-            <pre><code>gem &#39;simplecov&#39;, require: false, group: :test<span class="highlight convention"></span></code></pre>
-
-          </div>
-
-        </div>
-      </div>
-
-
-
-      <div class="offense-box" id="offense_Guardfile">
-        <div class="box-title-placeholder"><h3>&nbsp;</h3></div>
-        <div class="box-title"><h3>Guardfile - 2 offenses</h3></div>
-        <div class="offense-reports">
-
-          <div class="report">
-            <div class="meta">
-              <span class="location">Line #12</span> –
-              <span class="severity convention">convention:</span>
-              <span class="message">Style/RedundantRegexpEscape: Redundant escape inside regexp literal</span>
-            </div>
-
-            <pre><code>  watch(%r{test<span class="highlight convention">\/</span>*.rb})</code></pre>
+            <pre><code>  <span class="highlight convention">attr_reader :list</span></code></pre>
 
           </div>
 
           <div class="report">
             <div class="meta">
-              <span class="location">Line #17</span> –
+              <span class="location">Line #4</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Style/AccessorGrouping: Group together all <code>attr_reader</code> attributes.</span>
+            </div>
+
+            <pre><code>  <span class="highlight convention">attr_reader :type</span></code></pre>
+
+          </div>
+
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #9</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Metrics/CyclomaticComplexity: Cyclomatic complexity for <code>generate</code> is too high. [10/7]</span>
+            </div>
+
+            <pre><code>  <span class="highlight convention">def generate(number)</span> <span class="extra-code">...</span></code></pre>
+
+          </div>
+
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #9</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Metrics/MethodLength: Method has too many lines. [16/10]</span>
+            </div>
+
+            <pre><code>  <span class="highlight convention">def generate(number)</span> <span class="extra-code">...</span></code></pre>
+
+          </div>
+
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #9</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Metrics/PerceivedComplexity: Perceived complexity for <code>generate</code> is too high. [9/8]</span>
+            </div>
+
+            <pre><code>  <span class="highlight convention">def generate(number)</span> <span class="extra-code">...</span></code></pre>
+
+          </div>
+
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #35</span> –
               <span class="severity convention">convention:</span>
               <span class="message">Layout/TrailingEmptyLines: Final newline missing.</span>
             </div>
@@ -453,14 +476,36 @@ TvFXMeuCkZPcaEBLqvgPBhCuiZo8+sAAAAAASUVORK5CYII=
 
 
 
-      <div class="offense-box" id="offense_Rakefile">
+      <div class="offense-box" id="offense_test/fizz_buzz_test.rb">
         <div class="box-title-placeholder"><h3>&nbsp;</h3></div>
-        <div class="box-title"><h3>Rakefile - 1 offense</h3></div>
+        <div class="box-title"><h3>test/fizz_buzz_test.rb - 3 offenses</h3></div>
         <div class="offense-reports">
 
           <div class="report">
             <div class="meta">
-              <span class="location">Line #22</span> –
+              <span class="location">Line #10</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Metrics/ClassLength: Class has too many lines. [110/106]</span>
+            </div>
+
+            <pre><code><span class="highlight convention">class FizzBuzzTest &lt; Minitest::Test</span> <span class="extra-code">...</span></code></pre>
+
+          </div>
+
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #11</span> –
+              <span class="severity convention">convention:</span>
+              <span class="message">Metrics/BlockLength: Block has too many lines. [108/62]</span>
+            </div>
+
+            <pre><code>  <span class="highlight convention">describe &#39;数を文字列にして返す&#39; do</span> <span class="extra-code">...</span></code></pre>
+
+          </div>
+
+          <div class="report">
+            <div class="meta">
+              <span class="location">Line #144</span> –
               <span class="severity convention">convention:</span>
               <span class="message">Layout/TrailingEmptyLines: Final newline missing.</span>
             </div>
@@ -471,10 +516,6 @@ TvFXMeuCkZPcaEBLqvgPBhCuiZo8+sAAAAAASUVORK5CYII=
 
         </div>
       </div>
-
-
-
-
 
 
     </div>
