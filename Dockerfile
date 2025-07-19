@@ -20,7 +20,9 @@ ENV DEBIAN_FRONTEND=noninteractive \
     GO_VER=1.22.0 \
     RUST_VER=stable \
     C_VER=11 \
-    CPP_VER=20
+    CPP_VER=20 \
+    ERLANG_VER=26.2.1 \
+    ELIXIR_VER=1.16.1
 
 # ロケールのセットアップ
 RUN apt-get update && apt-get install -y \
@@ -198,6 +200,36 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# ErlangとElixirのインストール
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    autoconf \
+    libncurses5-dev \
+    libwxgtk3.0-gtk3-dev \
+    libgl1-mesa-dev \
+    libglu1-mesa-dev \
+    libpng-dev \
+    libssh-dev \
+    unixodbc-dev \
+    xsltproc \
+    fop \
+    libxml2-utils \
+    libncurses-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.13.1 \
+    && echo '. "$HOME/.asdf/asdf.sh"' >> ~/.bashrc \
+    && echo '. "$HOME/.asdf/completions/asdf.bash"' >> ~/.bashrc \
+    && bash -c 'source "$HOME/.asdf/asdf.sh" \
+       && asdf plugin add erlang \
+       && asdf plugin add elixir \
+       && asdf install erlang $ERLANG_VER \
+       && asdf global erlang $ERLANG_VER \
+       && asdf install elixir $ELIXIR_VER \
+       && asdf global elixir $ELIXIR_VER \
+       && mix local.hex --force \
+       && mix local.rebar --force'
+
 # Gemini CLIのインストール
 RUN npm install -g @google/gemini-cli
 
@@ -205,7 +237,7 @@ RUN npm install -g @google/gemini-cli
 RUN npm install -g @anthropic-ai/claude-code
 
 # パスの設定
-ENV PATH="/root/.cargo/bin:/usr/local/go/bin:/root/.ghcup/bin:/root/.sdkman/candidates/java/current/bin:/root/.sdkman/candidates/maven/current/bin:/root/.sdkman/candidates/gradle/current/bin:/root/.sdkman/candidates/scala/current/bin:/root/.sdkman/candidates/kotlin/current/bin:/root/.rbenv/shims:/usr/share/dotnet:/usr/share/dotnet/tools:/usr/local/bin:$PATH"
+ENV PATH="/root/.cargo/bin:/usr/local/go/bin:/root/.ghcup/bin:/root/.sdkman/candidates/java/current/bin:/root/.sdkman/candidates/maven/current/bin:/root/.sdkman/candidates/gradle/current/bin:/root/.sdkman/candidates/scala/current/bin:/root/.sdkman/candidates/kotlin/current/bin:/root/.rbenv/shims:/usr/share/dotnet:/usr/share/dotnet/tools:/usr/local/bin:/usr/lib/elixir/bin:/usr/local/bin:$PATH"
 
 # 作業ディレクトリの設定
 WORKDIR /srv
