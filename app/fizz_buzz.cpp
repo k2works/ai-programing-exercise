@@ -30,6 +30,6 @@ std::string FizzBuzz::generate(int number, int type) {
             }
             return "";
         default:
-            return std::to_string(number);
+            throw std::runtime_error("該当するタイプは存在しません");
     }
 }

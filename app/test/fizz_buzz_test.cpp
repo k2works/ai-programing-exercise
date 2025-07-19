@@ -74,3 +74,22 @@ TEST_F(FizzBuzzType3Test, test_15を渡したら文字列FizzBuzzを返す) { EX
 TEST_F(FizzBuzzType3Test, test_1を渡したら空文字列を返す) { EXPECT_EQ("", FizzBuzz::generate(1, 3)); }
 
 TEST_F(FizzBuzzType3Test, test_2を渡したら空文字列を返す) { EXPECT_EQ("", FizzBuzz::generate(2, 3)); }
+
+// それ以外のタイプの場合
+class FizzBuzzOtherTypeTest : public ::testing::Test {
+   protected:
+    void SetUp() override {
+        // Setup code if needed
+    }
+};
+
+TEST_F(FizzBuzzOtherTypeTest, test_例外を返す) {
+    EXPECT_THROW({
+        try {
+            FizzBuzz::generate(1, 4);
+        } catch (const std::runtime_error& e) {
+            EXPECT_STREQ("該当するタイプは存在しません", e.what());
+            throw;
+        }
+    }, std::runtime_error);
+}
