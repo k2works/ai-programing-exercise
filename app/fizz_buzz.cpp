@@ -1,34 +1,13 @@
 #include "fizz_buzz.h"
 
 std::string FizzBuzz::generate(int number) {
-    bool is_fizz = number % 3 == 0;
-    bool is_buzz = number % 5 == 0;
-    
     switch (type_) {
-        case 1: // 通常のFizzBuzz
-            if (is_fizz && is_buzz) {
-                return "FizzBuzz";
-            }
-            if (is_fizz) {
-                return "Fizz";
-            }
-            if (is_buzz) {
-                return "Buzz";
-            }
-            return std::to_string(number);
-        case 2: // 数字のみ
-            return std::to_string(number);
-        case 3: // FizzBuzzの場合のみ
-            if (is_fizz && is_buzz) {
-                return "FizzBuzz";
-            }
-            if (is_fizz) {
-                return "Fizz";
-            }
-            if (is_buzz) {
-                return "Buzz";
-            }
-            return "";
+        case 1:
+            return createType01()->generate(number);
+        case 2:
+            return createType02()->generate(number);
+        case 3:
+            return createType03()->generate(number);
         default:
             throw std::runtime_error("該当するタイプは存在しません");
     }
