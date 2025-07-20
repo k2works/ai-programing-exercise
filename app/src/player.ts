@@ -7,7 +7,8 @@ import { PuyoColor } from './puyo'
 export class Player {
   private config: Config
   private stage: Stage
-  private puyoImage: PuyoImage
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private _puyoImage: PuyoImage
   private currentPair: PuyoPair | null = null
   private nextPair: PuyoPair | null = null
   private fallTimer: number = 0
@@ -16,7 +17,7 @@ export class Player {
   constructor(config: Config, stage: Stage, puyoImage: PuyoImage) {
     this.config = config
     this.stage = stage
-    this.puyoImage = puyoImage
+    this._puyoImage = puyoImage
   }
 
   initialize(): void {
@@ -68,7 +69,6 @@ export class Player {
   rotateRight(): boolean {
     if (!this.currentPair) return false
     
-    const originalRotation = this.currentPair.getRotation()
     this.currentPair.rotateRight()
     
     if (this.canMoveTo(this.currentPair.getX(), this.currentPair.getY())) {
@@ -83,7 +83,6 @@ export class Player {
   rotateLeft(): boolean {
     if (!this.currentPair) return false
     
-    const originalRotation = this.currentPair.getRotation()
     this.currentPair.rotateLeft()
     
     if (this.canMoveTo(this.currentPair.getX(), this.currentPair.getY())) {

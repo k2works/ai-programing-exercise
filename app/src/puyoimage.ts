@@ -1,9 +1,10 @@
 import { Config } from './config'
 
 export class PuyoImage {
-  private config: Config
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private _config: Config
 
   constructor(config: Config) {
-    this.config = config
+    this._config = config
   }
 }

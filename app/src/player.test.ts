@@ -3,7 +3,6 @@ import { Player } from './player'
 import { Config } from './config'
 import { Stage } from './stage'
 import { PuyoImage } from './puyoimage'
-import { PuyoColor } from './puyo'
 
 describe('プレイヤー', () => {
   let player: Player

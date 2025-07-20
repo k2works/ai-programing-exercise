@@ -19,11 +19,11 @@ export class Game {
   private mode: GameMode = 'start'
   private frame: number = 0
   private combinationCount: number = 0
-  private config: Config
-  private puyoImage: PuyoImage
-  private stage: Stage
-  private player: Player
-  private score: Score
+  private config!: Config
+  private puyoImage!: PuyoImage
+  private stage!: Stage
+  private player!: Player
+  private score!: Score
   private erasableGroups: [number, number][][] | null = null
 
   constructor() {

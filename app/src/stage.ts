@@ -4,12 +4,13 @@ import { Puyo, PuyoColor } from './puyo'
 
 export class Stage {
   private config: Config
-  private puyoImage: PuyoImage
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private _puyoImage: PuyoImage
   private grid: Puyo[][]
 
   constructor(config: Config, puyoImage: PuyoImage) {
     this.config = config
-    this.puyoImage = puyoImage
+    this._puyoImage = puyoImage
     this.grid = []
   }
 
