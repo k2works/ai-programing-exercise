@@ -33,6 +33,7 @@ export class Game {
     this.config = new Config()
     this.puyoImage = new PuyoImage(this.config)
     this.stage = new Stage(this.config, this.puyoImage)
+    this.stage.initialize()
     this.player = new Player(this.config, this.stage, this.puyoImage)
     this.score = new Score()
 
@@ -84,16 +85,22 @@ export class Game {
   private updatePlaying(): void {
     // プレイヤー操作の処理
     // 後のイテレーションで実装
+    
+    // 落下チェックに移行
+    this.mode = 'checkFall'
   }
 
   private updateCheckFall(): void {
-    // 落下チェックの処理
-    // 後のイテレーションで実装
+    if (this.stage.checkFall()) {
+      this.mode = 'fall'
+    } else {
+      this.mode = 'newPuyo'
+    }
   }
 
   private updateFall(): void {
-    // 落下処理
-    // 後のイテレーションで実装
+    this.stage.applyFall()
+    this.mode = 'checkFall'
   }
 
   private updateCheckErase(): void {

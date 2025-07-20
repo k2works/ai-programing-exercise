@@ -5,6 +5,7 @@ import { Stage } from './stage'
 import { PuyoImage } from './puyoimage'
 import { Player } from './player'
 import { Score } from './score'
+import { Puyo, PuyoColor } from './puyo'
 
 describe('ゲーム', () => {
   let game: Game
@@ -69,6 +70,43 @@ describe('ゲーム', () => {
       game.update()
       
       expect(game['frame']).toEqual(initialFrame + 1)
+    })
+  })
+
+  describe('落下処理', () => {
+    beforeEach(() => {
+      game.initialize()
+    })
+
+    it('playingモードで落下が必要な場合、checkFallモードに遷移する', () => {
+      // ステージに浮いているぷよを配置
+      const stage = game['stage']
+      const puyo = new Puyo(PuyoColor.Red, 2, 2)
+      stage.setPuyo(2, 2, puyo)
+      
+      game['mode'] = 'playing'
+      game.update()
+      
+      expect(game['mode']).toEqual('checkFall')
+    })
+
+    it('checkFallモードで落下が必要な場合、fallモードに遷移する', () => {
+      // ステージに浮いているぷよを配置
+      const stage = game['stage']
+      const puyo = new Puyo(PuyoColor.Red, 2, 2)
+      stage.setPuyo(2, 2, puyo)
+      
+      game['mode'] = 'checkFall'
+      game.update()
+      
+      expect(game['mode']).toEqual('fall')
+    })
+
+    it('checkFallモードで落下が不要な場合、newPuyoモードに遷移する', () => {
+      game['mode'] = 'checkFall'
+      game.update()
+      
+      expect(game['mode']).toEqual('newPuyo')
     })
   })
 })
