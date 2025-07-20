@@ -37,4 +37,38 @@ describe('ゲーム', () => {
       expect(game['mode']).toEqual('start')
     })
   })
+
+  describe('ゲームループ', () => {
+    beforeEach(() => {
+      game.initialize()
+    })
+
+    it('updateメソッドが存在する', () => {
+      expect(typeof game.update).toBe('function')
+    })
+
+    it('startモードからnewPuyoモードに遷移する', () => {
+      expect(game['mode']).toEqual('start')
+      
+      game.update()
+      
+      expect(game['mode']).toEqual('newPuyo')
+    })
+
+    it('newPuyoモードからplayingモードに遷移する', () => {
+      game['mode'] = 'newPuyo'
+      
+      game.update()
+      
+      expect(game['mode']).toEqual('playing')
+    })
+
+    it('updateが呼ばれるとフレームカウンターが増加する', () => {
+      const initialFrame = game['frame']
+      
+      game.update()
+      
+      expect(game['frame']).toEqual(initialFrame + 1)
+    })
+  })
 })
