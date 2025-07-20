@@ -55,5 +55,33 @@ extra:
 plugins:
   - search
 
+# Exclude wiki directory
+exclude_docs: |
+  wiki/
+
 nav:
   - Home: index.md
+  - プロジェクト概要:
+    - 要件定義: require.md
+    - 設計書: design.md
+    - 実装詳細: implement.md
+  - 開発ガイド:
+    - 開発手順再現ガイド: replay.md
+  - 開発日誌:
+    - 2025年7月:
+      - 7月20日: journal/20250720.md
+      - 7月19日: journal/20250719.md
+      - 7月18日: journal/20250718.md
+      - 7月17日: journal/20250717.md
+      - 7月15日: journal/20250715.md
+      - 7月13日: journal/20250713.md
+      - 7月11日: journal/20250711.md
+      - 7月8日: journal/20250708.md
+      - 7月5日: journal/20250705.md
+      - 7月3日: journal/20250703.md
+      - 7月2日: journal/20250702.md
+    - 2025年6月:
+      - 6月30日: journal/20250630.md
+      - 6月26日: journal/20250626.md
+      - 6月25日: journal/20250625.md
+      - 6月24日: journal/20250624.md
