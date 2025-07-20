@@ -3,6 +3,7 @@ import { PuyoImage } from './puyoimage'
 import { Stage } from './stage'
 import { Player } from './player'
 import { Score } from './score'
+import { Puyo } from './puyo'
 
 export type GameMode =
   | 'start'
@@ -35,6 +36,7 @@ export class Game {
     this.stage = new Stage(this.config, this.puyoImage)
     this.stage.initialize()
     this.player = new Player(this.config, this.stage, this.puyoImage)
+    this.player.initialize()
     this.score = new Score()
 
     // ゲームモードを設定
@@ -79,15 +81,20 @@ export class Game {
   }
 
   private updateNewPuyo(): void {
+    // 新しいぷよペアを生成
+    this.player.newPair()
     this.mode = 'playing'
   }
 
   private updatePlaying(): void {
-    // プレイヤー操作の処理
-    // 後のイテレーションで実装
+    // プレイヤーの自動落下処理
+    this.player.update()
     
-    // 落下チェックに移行
-    this.mode = 'checkFall'
+    // プレイヤーのぷよが配置されたかチェック
+    if (this.player.isPlaced()) {
+      this.placePuyoPair()
+      this.mode = 'checkFall'
+    }
   }
 
   private updateCheckFall(): void {
@@ -116,5 +123,16 @@ export class Game {
   private updateGameOver(): void {
     // ゲームオーバー処理
     // 後のイテレーションで実装
+  }
+
+  private placePuyoPair(): void {
+    const currentPair = this.player.getCurrentPair()
+    const mainX = currentPair.getX()
+    const mainY = currentPair.getY()
+    const [subX, subY] = currentPair.getSubPosition()
+
+    // ステージにぷよを配置
+    this.stage.setPuyo(mainX, mainY, new Puyo(currentPair.getMainColor(), mainX, mainY))
+    this.stage.setPuyo(subX, subY, new Puyo(currentPair.getSubColor(), subX, subY))
   }
 }

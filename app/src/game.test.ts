@@ -78,13 +78,12 @@ describe('ゲーム', () => {
       game.initialize()
     })
 
-    it('playingモードで落下が必要な場合、checkFallモードに遷移する', () => {
-      // ステージに浮いているぷよを配置
-      const stage = game['stage']
-      const puyo = new Puyo(PuyoColor.Red, 2, 2)
-      stage.setPuyo(2, 2, puyo)
-      
+    it('playingモードでプレイヤーのぷよが配置されるとcheckFallモードに遷移する', () => {
       game['mode'] = 'playing'
+      
+      // プレイヤーのぷよを強制的に配置状態にする
+      game['player']['placed'] = true
+      
       game.update()
       
       expect(game['mode']).toEqual('checkFall')
@@ -107,6 +106,40 @@ describe('ゲーム', () => {
       game.update()
       
       expect(game['mode']).toEqual('newPuyo')
+    })
+  })
+
+  describe('プレイヤー操作統合', () => {
+    beforeEach(() => {
+      game.initialize()
+    })
+
+    it('playingモードでプレイヤーが更新される', () => {
+      game['mode'] = 'playing'
+      const initialFallTimer = game['player']['fallTimer']
+      
+      game.update()
+      
+      expect(game['player']['fallTimer']).toBe(initialFallTimer + 1)
+    })
+
+    it('newPuyoモードで新しいぷよペアが生成される', () => {
+      const oldCurrentPair = game['player'].getCurrentPair()
+      
+      game['mode'] = 'newPuyo'
+      game.update()
+      
+      const newCurrentPair = game['player'].getCurrentPair()
+      expect(newCurrentPair).not.toBe(oldCurrentPair)
+    })
+
+    it('プレイヤーのぷよが配置されたらcheckFallモードに遷移する', () => {
+      game['mode'] = 'playing'
+      game['player']['placed'] = true
+      
+      game.update()
+      
+      expect(game['mode']).toEqual('checkFall')
     })
   })
 })
