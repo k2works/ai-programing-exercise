@@ -101,11 +101,11 @@ describe('ゲーム', () => {
       expect(game['mode']).toEqual('fall')
     })
 
-    it('checkFallモードで落下が不要な場合、newPuyoモードに遷移する', () => {
+    it('checkFallモードで落下が不要な場合、checkEraseモードに遷移する', () => {
       game['mode'] = 'checkFall'
       game.update()
       
-      expect(game['mode']).toEqual('newPuyo')
+      expect(game['mode']).toEqual('checkErase')
     })
   })
 
@@ -140,6 +140,75 @@ describe('ゲーム', () => {
       game.update()
       
       expect(game['mode']).toEqual('checkFall')
+    })
+  })
+
+  describe('消去処理', () => {
+    beforeEach(() => {
+      game.initialize()
+    })
+
+    it('checkEraseモードで消去対象のぷよがある場合、erasingモードに遷移する', () => {
+      // 4個の同色ぷよを配置
+      const stage = game['stage']
+      for (let y = 9; y < 13; y++) {
+        const puyo = new Puyo(PuyoColor.Red, 2, y)
+        stage.setPuyo(2, y, puyo)
+      }
+
+      game['mode'] = 'checkErase'
+      game.update()
+
+      expect(game['mode']).toEqual('erasing')
+    })
+
+    it('checkEraseモードで消去対象のぷよがない場合、newPuyoモードに遷移する', () => {
+      game['mode'] = 'checkErase'
+      game.update()
+
+      expect(game['mode']).toEqual('newPuyo')
+    })
+
+    it('erasingモードでぷよが実際に消去される', () => {
+      // 4個の同色ぷよを配置
+      const stage = game['stage']
+      for (let y = 9; y < 13; y++) {
+        const puyo = new Puyo(PuyoColor.Red, 2, y)
+        stage.setPuyo(2, y, puyo)
+      }
+
+      // 消去グループを事前に設定
+      const erasableGroups = stage.findErasableGroups()
+      game['erasableGroups'] = erasableGroups
+
+      game['mode'] = 'erasing'
+      game.update()
+
+      // ぷよが消去されていることを確認
+      for (let y = 9; y < 13; y++) {
+        expect(stage.isEmpty(2, y)).toBe(true)
+      }
+      expect(game['mode']).toEqual('checkFall')
+    })
+
+    it('消去時にスコアが加算される', () => {
+      // 4個の同色ぷよを配置
+      const stage = game['stage']
+      for (let y = 9; y < 13; y++) {
+        const puyo = new Puyo(PuyoColor.Red, 2, y)
+        stage.setPuyo(2, y, puyo)
+      }
+
+      const initialScore = game['score'].getScore()
+      
+      // 消去グループを事前に設定
+      const erasableGroups = stage.findErasableGroups()
+      game['erasableGroups'] = erasableGroups
+
+      game['mode'] = 'erasing'
+      game.update()
+
+      expect(game['score'].getScore()).toBeGreaterThan(initialScore)
     })
   })
 })

@@ -24,6 +24,7 @@ export class Game {
   private stage: Stage
   private player: Player
   private score: Score
+  private erasableGroups: [number, number][][] | null = null
 
   constructor() {
     // コンストラクタでは何もしない
@@ -101,7 +102,7 @@ export class Game {
     if (this.stage.checkFall()) {
       this.mode = 'fall'
     } else {
-      this.mode = 'newPuyo'
+      this.mode = 'checkErase'
     }
   }
 
@@ -111,13 +112,22 @@ export class Game {
   }
 
   private updateCheckErase(): void {
-    // 消去チェックの処理
-    // 後のイテレーションで実装
+    const erasableGroups = this.stage.findErasableGroups()
+    if (erasableGroups.length > 0) {
+      this.erasableGroups = erasableGroups
+      this.mode = 'erasing'
+    } else {
+      this.mode = 'newPuyo'
+    }
   }
 
   private updateErasing(): void {
-    // 消去処理
-    // 後のイテレーションで実装
+    if (this.erasableGroups) {
+      const erasedCount = this.stage.erasePuyos(this.erasableGroups)
+      this.score.addScore(erasedCount * 10) // 基本スコア: 1個につき10点
+      this.erasableGroups = null
+    }
+    this.mode = 'checkFall'
   }
 
   private updateGameOver(): void {
