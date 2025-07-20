@@ -299,5 +299,8 @@ ENV PATH="/home/$USERNAME/.cargo/bin:/usr/local/go/bin:/home/$USERNAME/.ghcup/bi
 # 作業ディレクトリの設定
 WORKDIR /srv
 
-# 最後にユーザーを設定したユーザーに切り替える
+# ユーザーを設定したユーザーに切り替える
 USER $USERNAME
+
+# デフォルトのシェルを bash に設定
+SHELL ["/bin/bash", "-c"]
