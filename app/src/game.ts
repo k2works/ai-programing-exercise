@@ -84,6 +84,13 @@ export class Game {
   private updateNewPuyo(): void {
     // 新しいぷよペアを生成
     this.player.newPair()
+    
+    // ゲームオーバー判定：新しいぷよが配置できるかチェック
+    if (!this.canPlaceNewPuyo()) {
+      this.mode = 'gameOver'
+      return
+    }
+    
     this.mode = 'playing'
   }
 
@@ -117,6 +124,8 @@ export class Game {
       this.erasableGroups = erasableGroups
       this.mode = 'erasing'
     } else {
+      // 連鎖終了
+      this.combinationCount = 0
       this.mode = 'newPuyo'
     }
   }
@@ -124,15 +133,48 @@ export class Game {
   private updateErasing(): void {
     if (this.erasableGroups) {
       const erasedCount = this.stage.erasePuyos(this.erasableGroups)
-      this.score.addScore(erasedCount * 10) // 基本スコア: 1個につき10点
+      this.combinationCount++
+      
+      // 連鎖倍率を計算してスコア加算
+      const baseScore = erasedCount * 10
+      const chainMultiplier = this.calculateChainMultiplier(this.combinationCount)
+      this.score.addScore(baseScore * chainMultiplier)
+      
       this.erasableGroups = null
     }
     this.mode = 'checkFall'
   }
 
   private updateGameOver(): void {
-    // ゲームオーバー処理
-    // 後のイテレーションで実装
+    // ゲームオーバー状態では何もしない
+  }
+
+  private canPlaceNewPuyo(): boolean {
+    const currentPair = this.player.getCurrentPair()
+    const mainX = currentPair.getX()
+    const mainY = currentPair.getY()
+    const [subX, subY] = currentPair.getSubPosition()
+
+    // メインぷよとサブぷよの位置が空いているかチェック
+    return this.stage.isEmpty(mainX, mainY) && this.stage.isEmpty(subX, subY)
+  }
+
+  private calculateChainMultiplier(chainCount: number): number {
+    // 連鎖倍率: 1連鎖=1倍、2連鎖=2倍、3連鎖=4倍、4連鎖=8倍...
+    if (chainCount <= 1) return 1
+    return Math.pow(2, chainCount - 1)
+  }
+
+  reset(): void {
+    this.mode = 'start'
+    this.frame = 0
+    this.combinationCount = 0
+    this.erasableGroups = null
+    
+    // 各コンポーネントを再初期化
+    this.stage.initialize()
+    this.player.initialize()
+    this.score = new Score()
   }
 
   private placePuyoPair(): void {

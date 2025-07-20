@@ -211,4 +211,139 @@ describe('ゲーム', () => {
       expect(game['score'].getScore()).toBeGreaterThan(initialScore)
     })
   })
+
+  describe('連鎖システム', () => {
+    beforeEach(() => {
+      game.initialize()
+    })
+
+    it('連鎖カウンターが正しく初期化される', () => {
+      expect(game['combinationCount']).toBe(0)
+    })
+
+    it('ぷよが消去されると連鎖カウンターが増加する', () => {
+      // 4個の同色ぷよを配置
+      const stage = game['stage']
+      for (let y = 9; y < 13; y++) {
+        const puyo = new Puyo(PuyoColor.Red, 2, y)
+        stage.setPuyo(2, y, puyo)
+      }
+
+      game['mode'] = 'checkErase'
+      game.update() // checkErase -> erasing
+      game.update() // erasing -> checkFall
+
+      expect(game['combinationCount']).toBe(1)
+    })
+
+    it('連鎖が終了するとカウンターがリセットされる', () => {
+      // 連鎖カウンターを設定
+      game['combinationCount'] = 3
+
+      // 消去対象なしでcheckErase
+      game['mode'] = 'checkErase'
+      game.update() // checkErase -> newPuyo
+
+      expect(game['combinationCount']).toBe(0)
+    })
+
+    it('連鎖倍率によってスコアが増加する', () => {
+      // 4個の同色ぷよを配置
+      const stage = game['stage']
+      for (let y = 9; y < 13; y++) {
+        const puyo = new Puyo(PuyoColor.Red, 2, y)
+        stage.setPuyo(2, y, puyo)
+      }
+
+      // 連鎖カウンターを設定（2連鎖目）
+      game['combinationCount'] = 1
+
+      const initialScore = game['score'].getScore()
+      
+      game['mode'] = 'checkErase'
+      game.update() // checkErase -> erasing
+      game.update() // erasing -> checkFall
+
+      const scoreIncrease = game['score'].getScore() - initialScore
+      // 2連鎖なので基本スコア(40)より高くなるはず
+      expect(scoreIncrease).toBeGreaterThan(40)
+    })
+  })
+
+  describe('ゲームオーバー判定', () => {
+    beforeEach(() => {
+      game.initialize()
+    })
+
+    it('新しいぷよが配置できない場合、ゲームオーバーになる', () => {
+      // ステージ上部を埋める
+      const stage = game['stage']
+      for (let y = 0; y < 3; y++) {
+        for (let x = 0; x < stage.getWidth(); x++) {
+          const puyo = new Puyo(PuyoColor.Red, x, y)
+          stage.setPuyo(x, y, puyo)
+        }
+      }
+
+      game['mode'] = 'newPuyo'
+      game.update()
+
+      expect(game['mode']).toBe('gameOver')
+    })
+
+    it('ゲームオーバー状態では更新されない', () => {
+      game['mode'] = 'gameOver'
+      const initialFrame = game['frame']
+      
+      game.update()
+      
+      expect(game['frame']).toBe(initialFrame + 1) // フレームは進むが
+      expect(game['mode']).toBe('gameOver') // モードは変わらない
+    })
+
+    it('ゲームをリセットできる', () => {
+      // ゲームオーバー状態にする
+      game['mode'] = 'gameOver'
+      game['combinationCount'] = 5
+      game['score'].addScore(1000)
+
+      game.reset()
+
+      expect(game['mode']).toBe('start')
+      expect(game['combinationCount']).toBe(0)
+      expect(game['score'].getScore()).toBe(0)
+    })
+  })
+
+  describe('統合テスト', () => {
+    beforeEach(() => {
+      game.initialize()
+    })
+
+    it('基本的なゲームフロー：配置→消去→新しいぷよ', () => {
+      const stage = game['stage']
+      
+      // 4個の同色ぷよを配置
+      for (let y = 9; y < 13; y++) {
+        const puyo = new Puyo(PuyoColor.Red, 2, y)
+        stage.setPuyo(2, y, puyo)
+      }
+
+      const initialScore = game['score'].getScore()
+
+      // 消去フロー
+      game['mode'] = 'checkErase'
+      game.update() // checkErase -> erasing 
+      
+      game.update() // erasing -> checkFall (消去実行)
+      expect(game['combinationCount']).toBe(1)
+      
+      game.update() // checkFall -> checkErase (落下なし)
+      game.update() // checkErase -> newPuyo (消去対象なし、連鎖終了)
+      
+      expect(game['combinationCount']).toBe(0) // 連鎖終了でリセット
+      expect(game['mode']).toBe('newPuyo')
+      expect(game['score'].getScore()).toBeGreaterThan(initialScore)
+    })
+  })
 })
