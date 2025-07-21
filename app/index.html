@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Puyo Puyo Game</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        background-color: #222;
+        color: white;
+      }
+
+      #app {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+
+      #game-container {
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+      }
+
+      #game-canvas {
+        border: 2px solid #fff;
+        background-color: #000;
+      }
+
+      #game-info {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-width: 200px;
+      }
+
+      .info-panel {
+        background-color: #333;
+        padding: 10px;
+        border-radius: 5px;
+      }
+
+      .info-title {
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      .info-value {
+        font-size: 1.2em;
+        color: #0ff;
+      }
+
+      button {
+        background-color: #0066cc;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      button:hover {
+        background-color: #0080ff;
+      }
+
+      .game-over {
+        color: #ff6666;
+        font-weight: bold;
+      }
+      .playing {
+        color: #66ff66;
+      }
+      .erasing {
+        color: #ffff66;
+        animation: pulse 0.5s infinite alternate;
+      }
+
+      @keyframes pulse {
+        from {
+          opacity: 1;
+        }
+        to {
+          opacity: 0.5;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <h1>🎮 Puyo Puyo Game</h1>
+      <div id="game-container">
+        <canvas id="game-canvas" width="384" height="640"></canvas>
+        <div id="game-info">
+          <div class="info-panel">
+            <div class="info-title">Score</div>
+            <div class="info-value" id="score-display">0</div>
+          </div>
+          <div class="info-panel">
+            <div class="info-title">Chain</div>
+            <div class="info-value" id="chain-display">0</div>
+          </div>
+          <div class="info-panel">
+            <div class="info-title">Next Puyo</div>
+            <canvas id="next-canvas" width="64" height="64"></canvas>
+          </div>
+          <div class="info-panel">
+            <div style="margin-bottom: 10px">
+              <button id="start-button">Start Game</button>
+              <button id="reset-button">Reset</button>
+            </div>
+            <div style="font-size: 12px; line-height: 1.4">
+              <strong>Controls:</strong><br />
+              ← → : Move<br />
+              ↑ : Rotate<br />
+              ↓ : Drop
+            </div>
+          </div>
+          <div class="info-panel">
+            <div class="info-title">Status</div>
+            <div class="info-value" id="status-display">Ready</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
