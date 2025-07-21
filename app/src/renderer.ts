@@ -3,6 +3,8 @@ import { Stage } from './stage'
 import { Player } from './player'
 import { PuyoColor } from './puyo'
 import { Config } from './config'
+import { DrawOptimizer, RenderBatch } from './performance'
+import { AnimationManager } from './animation'
 
 export class GameRenderer {
   private cellSize: number = 32
@@ -13,6 +15,9 @@ export class GameRenderer {
     [PuyoColor.Green]: '#44ff44',
     [PuyoColor.Yellow]: '#ffff44',
   }
+  private drawOptimizer: DrawOptimizer = new DrawOptimizer()
+  private renderBatch: RenderBatch = new RenderBatch()
+  private animationManager: AnimationManager = new AnimationManager()
 
   constructor(
     private ctx: CanvasRenderingContext2D,
@@ -22,22 +27,42 @@ export class GameRenderer {
   ) {}
 
   render(game: Game): void {
-    // メインキャンバスクリア
-    this.ctx.fillStyle = '#000000'
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
+    // アニメーション更新
+    this.animationManager.update()
+    
+    // バッチ処理でレンダリング最適化
+    this.renderBatch.addOperation(() => {
+      // メインキャンバスクリア
+      this.ctx.fillStyle = '#000000'
+      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
+    })
 
     // 各レイヤー描画
-    this.renderStage(game.getStageForRenderer())
-    this.renderCurrentPair(game.getPlayerForRenderer())
-    this.renderGrid(game.getConfigForRenderer())
-    this.renderNextPuyo(game.getPlayerForRenderer())
+    this.renderBatch.addOperation(() => this.renderStage(game.getStageForRenderer()))
+    this.renderBatch.addOperation(() => this.renderCurrentPair(game.getPlayerForRenderer()))
+    this.renderBatch.addOperation(() => this.renderAnimations())
+    this.renderBatch.addOperation(() => this.renderGrid(game.getConfigForRenderer()))
+    this.renderBatch.addOperation(() => this.renderNextPuyo(game.getPlayerForRenderer()))
+
+    // バッチ実行
+    this.renderBatch.flush()
   }
 
   private renderStage(stage: Stage): void {
     for (let x = 0; x < stage.getWidth(); x++) {
       for (let y = 0; y < stage.getHeight(); y++) {
-        const puyo = stage.getPuyo(x, y)
-        this.renderPuyo(x, y, puyo.getColor())
+        // ダーティリージョン最適化を適用
+        if (this.drawOptimizer.isDirty(x, y)) {
+          const puyo = stage.getPuyo(x, y)
+          this.renderPuyo(x, y, puyo.getColor())
+          this.drawOptimizer.markClean(x, y)
+        } else {
+          // 描画が不要な場合はスキップ
+          const puyo = stage.getPuyo(x, y)
+          if (puyo.getColor() !== PuyoColor.Empty) {
+            this.renderPuyo(x, y, puyo.getColor())
+          }
+        }
       }
     }
   }
@@ -105,12 +130,16 @@ export class GameRenderer {
     x: number,
     y: number,
     color: PuyoColor,
-    highlight: boolean = false
+    highlight: boolean = false,
+    animationProps?: { scale?: number; opacity?: number; rotation?: number; offsetX?: number; offsetY?: number }
   ): void {
     if (color === PuyoColor.Empty) return
 
-    const pixelX = x * this.cellSize
-    const pixelY = y * this.cellSize
+    const pixelX = x * this.cellSize + (animationProps?.offsetX || 0)
+    const pixelY = y * this.cellSize + (animationProps?.offsetY || 0)
+    const scale = animationProps?.scale || 1.0
+    const opacity = animationProps?.opacity || 1.0
+    const rotation = animationProps?.rotation || 0
 
     let baseColor = this.colors[color]
 
@@ -118,23 +147,48 @@ export class GameRenderer {
       baseColor = this.brightenColor(baseColor, 0.3)
     }
 
+    // バッチ処理で描画コマンドを最適化
+    this.ctx.save()
+    
+    // アニメーション変形適用
+    if (rotation !== 0 || scale !== 1.0) {
+      this.ctx.translate(pixelX + this.cellSize / 2, pixelY + this.cellSize / 2)
+      if (rotation !== 0) {
+        this.ctx.rotate(rotation)
+      }
+      if (scale !== 1.0) {
+        this.ctx.scale(scale, scale)
+      }
+      this.ctx.translate(-this.cellSize / 2, -this.cellSize / 2)
+    }
+    
+    // 透明度適用
+    if (opacity !== 1.0) {
+      this.ctx.globalAlpha = opacity
+    }
+
+    const drawX = rotation !== 0 || scale !== 1.0 ? 0 : pixelX
+    const drawY = rotation !== 0 || scale !== 1.0 ? 0 : pixelY
+    
     // メイン描画
     this.ctx.fillStyle = baseColor
-    this.ctx.fillRect(pixelX, pixelY, this.cellSize, this.cellSize)
+    this.ctx.fillRect(drawX, drawY, this.cellSize, this.cellSize)
 
     // 境界線
     this.ctx.strokeStyle = '#222222'
     this.ctx.lineWidth = 1
-    this.ctx.strokeRect(pixelX, pixelY, this.cellSize, this.cellSize)
+    this.ctx.strokeRect(drawX, drawY, this.cellSize, this.cellSize)
 
     // 3D効果
     this.ctx.fillStyle = this.brightenColor(baseColor, 0.4)
     this.ctx.fillRect(
-      pixelX + 2,
-      pixelY + 2,
+      drawX + 2,
+      drawY + 2,
       this.cellSize - 8,
       this.cellSize - 8
     )
+    
+    this.ctx.restore()
   }
 
   private brightenColor(color: string, factor: number): string {
@@ -154,5 +208,44 @@ export class GameRenderer {
     )
 
     return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
+  }
+
+  // アニメーション描画
+  private renderAnimations(): void {
+    // 消去アニメーション描画はrenderStageで統合処理
+    // ここではエフェクトアニメーションを描画
+    this.renderChainEffects()
+  }
+
+  private renderChainEffects(): void {
+    // チェインエフェクトの描画
+    // 実際の実装では、AnimationManagerから取得したエフェクトを描画
+    // デモ用の簡単なエフェクト描画ロジック
+  }
+
+  // ゲームイベントからアニメーションをトリガー
+  onPuyoErase(x: number, y: number): void {
+    const id = `erase_${x}_${y}_${Date.now()}`
+    this.animationManager.addEraseAnimation(id, x, y)
+  }
+
+  onPuyoFall(fromX: number, fromY: number, toX: number, toY: number): void {
+    const id = `fall_${fromX}_${fromY}_${toX}_${toY}_${Date.now()}`
+    this.animationManager.addFallAnimation(id, fromX, fromY, toX, toY)
+  }
+
+  onChainEffect(chainCount: number, centerX: number, centerY: number): void {
+    const id = `chain_${chainCount}_${Date.now()}`
+    this.animationManager.addChainEffect(id, chainCount, centerX, centerY)
+  }
+
+  // アニメーション状態確認
+  hasActiveAnimations(): boolean {
+    return this.animationManager.hasActiveAnimations()
+  }
+
+  // アニメーションクリア（ゲームリセット時など）
+  clearAnimations(): void {
+    this.animationManager.clear()
   }
 }

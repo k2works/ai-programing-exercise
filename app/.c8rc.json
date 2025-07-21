@@ -1,6 +1,7 @@
 {
   "reporter": ["text", "html", "json"],
   "reportsDirectory": "coverage",
+  "include": ["src/**/*.ts"],
   "exclude": [
     "dist/**",
     "node_modules/**",
