@@ -38,9 +38,16 @@ export class Game {
     this.player = new Player(this.config);
     // スコア表示の準備をする
     this.score = new Score(this.config, this.stage);
+
+    // ゲームモードを設定
+    this.mode = 'start';
   }
 
   loop(): void {
+    // フレームカウントを更新
+    this.frame++;
+
+    // ゲームの状態に応じた処理
     if (this.stage  === undefined || this.puyoImage === undefined || this.player === undefined || this.score === undefined) return;
 
     switch (this.mode) {
