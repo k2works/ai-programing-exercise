@@ -1,4 +1,5 @@
 #include "fizz_buzz.h"
+#include <stdexcept>
 
 std::string FizzBuzz::generate(int number) {
     if (number % 3 == 0 && number % 5 == 0) {
@@ -14,17 +15,25 @@ std::string FizzBuzz::generate(int number) {
 }
 
 std::string FizzBuzz::generate(int number, int type) {
-    if (type == 1) {
-        return std::to_string(number);
+    auto fb_type = create(type);
+    return fb_type->generate(number);
+}
+
+FizzBuzz::FizzBuzz(int type) : type_(create(type)) {}
+
+std::string FizzBuzz::generate_instance(int number) {
+    return type_->generate(number);
+}
+
+std::unique_ptr<FizzBuzzType> FizzBuzz::create(int type) {
+    switch (type) {
+        case 1:
+            return std::make_unique<FizzBuzzType01>();
+        case 2:
+            return std::make_unique<FizzBuzzType02>();
+        case 3:
+            return std::make_unique<FizzBuzzType03>();
+        default:
+            throw std::invalid_argument("該当するタイプは存在しません");
     }
-    if (type == 2) {
-        return std::to_string(number);
-    }
-    if (type == 3) {
-        if (number % 3 == 0 && number % 5 == 0) {
-            return "FizzBuzz";
-        }
-        return std::to_string(number);
-    }
-    return generate(number);
 }

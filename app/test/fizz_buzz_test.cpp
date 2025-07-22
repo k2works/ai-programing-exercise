@@ -64,3 +64,30 @@ TEST_F(FizzBuzzTypeTest, test_タイプ3で5を渡したら文字列5を返す) 
 TEST_F(FizzBuzzTypeTest, test_タイプ3で15を渡したら文字列FizzBuzzを返す) { 
     EXPECT_EQ("FizzBuzz", FizzBuzz::generate(15, 3)); 
 }
+
+// Test for object-oriented version
+class FizzBuzzObjectTest : public ::testing::Test {
+   protected:
+    void SetUp() override {}
+    void TearDown() override {}
+};
+
+TEST_F(FizzBuzzObjectTest, test_タイプ1インスタンスで1を渡したら文字列1を返す) {
+    FizzBuzz fizzbuzz(1);
+    EXPECT_EQ("1", fizzbuzz.generate_instance(1));
+}
+
+TEST_F(FizzBuzzObjectTest, test_タイプ1インスタンスで3を渡したら文字列Fizzを返す) {
+    FizzBuzz fizzbuzz(1);
+    EXPECT_EQ("Fizz", fizzbuzz.generate_instance(3));
+}
+
+TEST_F(FizzBuzzObjectTest, test_タイプ1インスタンスで5を渡したら文字列Buzzを返す) {
+    FizzBuzz fizzbuzz(1);
+    EXPECT_EQ("Buzz", fizzbuzz.generate_instance(5));
+}
+
+TEST_F(FizzBuzzObjectTest, test_タイプ1インスタンスで15を渡したら文字列FizzBuzzを返す) {
+    FizzBuzz fizzbuzz(1);
+    EXPECT_EQ("FizzBuzz", fizzbuzz.generate_instance(15));
+}
