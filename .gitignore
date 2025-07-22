@@ -1038,6 +1038,25 @@ dkms.conf
 
 # End of https://www.toptal.com/developers/gitignore/api/c,c++
 
+.eunit
+*.o
+*.beam
+*.plt
+erl_crash.dump
+.concrete/DEV_MODE
+
+# rebar 2.x
+.rebar
+rel/example_project
+ebin/*.beam
+deps
+
+# rebar 3
+.rebar3
+_build/
+_checkouts/
+
 .idea
 *.iml
 docs/wiki
+CLAUDE.local.md
