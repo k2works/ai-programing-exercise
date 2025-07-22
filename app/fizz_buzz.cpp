@@ -21,6 +21,8 @@ std::string FizzBuzz::generate(int number, int type) {
 
 FizzBuzz::FizzBuzz(int type) : type_(create(type)) {}
 
+FizzBuzz::FizzBuzz(const FizzBuzzValue& type) : type_(type.create_type()) {}
+
 std::string FizzBuzz::generate_instance(int number) {
     return type_->generate(number);
 }

@@ -1,4 +1,5 @@
 #include "../fizz_buzz.h"
+#include "../fizz_buzz_value.h"
 
 #include <gtest/gtest.h>
 
@@ -116,4 +117,48 @@ TEST_F(FizzBuzzEncapsulationTest, test_generate_listで配列を生成して取�
     EXPECT_EQ("4", result[3]);
     EXPECT_EQ("Buzz", result[4]);
     EXPECT_EQ("FizzBuzz", result[14]);
+}
+
+// Test for value object
+class FizzBuzzValueTest : public ::testing::Test {
+   protected:
+    void SetUp() override {}
+    void TearDown() override {}
+};
+
+TEST_F(FizzBuzzValueTest, test_値オブジェクトでタイプ1を作成) {
+    FizzBuzzValue type(1);
+    EXPECT_EQ(1, type.value());
+}
+
+TEST_F(FizzBuzzValueTest, test_値オブジェクトでタイプ2を作成) {
+    FizzBuzzValue type(2);
+    EXPECT_EQ(2, type.value());
+}
+
+TEST_F(FizzBuzzValueTest, test_値オブジェクトでタイプ3を作成) {
+    FizzBuzzValue type(3);
+    EXPECT_EQ(3, type.value());
+}
+
+TEST_F(FizzBuzzValueTest, test_無効なタイプで例外が発生) {
+    EXPECT_THROW(FizzBuzzValue(0), std::invalid_argument);
+    EXPECT_THROW(FizzBuzzValue(4), std::invalid_argument);
+}
+
+TEST_F(FizzBuzzValueTest, test_値オブジェクトでFizzBuzzインスタンスを作成) {
+    FizzBuzzValue type(1);
+    FizzBuzz fizzbuzz(type);
+    EXPECT_EQ("1", fizzbuzz.generate_instance(1));
+    EXPECT_EQ("Fizz", fizzbuzz.generate_instance(3));
+}
+
+TEST_F(FizzBuzzValueTest, test_値オブジェクトの等価性) {
+    FizzBuzzValue type1(1);
+    FizzBuzzValue type2(1);
+    FizzBuzzValue type3(2);
+    
+    EXPECT_TRUE(type1 == type2);
+    EXPECT_FALSE(type1 == type3);
+    EXPECT_TRUE(type1 != type3);
 }
