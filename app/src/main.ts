@@ -16,6 +16,16 @@ if (canvas) {
       scoreElement.textContent = 'スコア: 0'
     }
     
+    // キーボード入力の設定
+    document.addEventListener('keydown', (event) => {
+      game.handleInput(event.code)
+    })
+
+    // ゲームループの開始（暫定的にsetIntervalを使用）
+    setInterval(() => {
+      game.update()
+    }, 1000 / 60) // 60FPS
+    
     console.log('ゲームが正常に開始されました')
   } catch (error) {
     console.error('ゲームの初期化に失敗しました:', error)

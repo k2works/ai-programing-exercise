@@ -1,6 +1,7 @@
 import { Stage } from './Stage'
 import { PuyoPair } from './Puyo'
 import { Config } from './Config'
+import { Player } from './Player'
 
 // ゲームの状態を管理するメインクラス
 export class Game {
@@ -9,6 +10,8 @@ export class Game {
   private running = false
   private canvas: HTMLCanvasElement
   private ctx: CanvasRenderingContext2D
+  private player: Player
+  private frameCount = 0
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas
@@ -18,12 +21,15 @@ export class Game {
     }
     this.ctx = context
     this.stage = new Stage()
+    this.player = new Player(this.stage)
   }
 
   start(): void {
     this.running = true
     this.stage = new Stage()
+    this.player = new Player(this.stage)
     this.currentPuyo = this.generateNewPuyo()
+    this.frameCount = 0
     this.render()
   }
 
@@ -37,6 +43,56 @@ export class Game {
 
   getCurrentPuyo(): PuyoPair | null {
     return this.currentPuyo
+  }
+
+  // ゲームの状態を更新（フレーム毎に呼ばれる）
+  update(): void {
+    if (!this.running || !this.currentPuyo) {
+      return
+    }
+
+    this.frameCount++
+
+    // 一定フレーム毎に自動落下（テスト時は即座に落下）
+    const dropInterval = Config.GAME_SPEED
+    if (this.frameCount % dropInterval === 0 || dropInterval >= 60) {
+      const droppedPuyo = this.player.dropPuyoDown(this.currentPuyo)
+      
+      // 落下できた場合
+      if (droppedPuyo.main.y > this.currentPuyo.main.y) {
+        this.currentPuyo = droppedPuyo
+      } else {
+        // 着地した場合（今は何もしない、後で固定処理を実装）
+        // this.fixCurrentPuyo()
+        // this.currentPuyo = this.generateNewPuyo()
+      }
+    }
+
+    this.render()
+  }
+
+  // キーボード入力を処理
+  handleInput(key: string): void {
+    if (!this.running || !this.currentPuyo) {
+      return
+    }
+
+    switch (key) {
+      case 'ArrowLeft':
+      case 'KeyA':
+        this.currentPuyo = this.player.movePuyoLeft(this.currentPuyo)
+        break
+      case 'ArrowRight':
+      case 'KeyD':
+        this.currentPuyo = this.player.movePuyoRight(this.currentPuyo)
+        break
+      case 'ArrowDown':
+      case 'KeyS':
+        this.currentPuyo = this.player.dropPuyoDown(this.currentPuyo)
+        break
+    }
+
+    this.render()
   }
 
   private generateNewPuyo(): PuyoPair {
