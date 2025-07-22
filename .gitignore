@@ -1041,3 +1041,4 @@ dkms.conf
 .idea
 *.iml
 docs/wiki
+CLAUDE.local.md
