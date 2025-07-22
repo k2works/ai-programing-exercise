@@ -1,4 +1,5 @@
 import { Game } from './game'
+import { soundManager, SoundType } from './audio'
 
 export class InputHandler {
   private keyPressed: Set<string> = new Set()
@@ -76,13 +77,19 @@ export class InputHandler {
 
     switch (key) {
       case 'ArrowLeft':
-        player.moveLeft()
+        if (player.moveLeft()) {
+          soundManager.playSound(SoundType.Move)
+        }
         break
       case 'ArrowRight':
-        player.moveRight()
+        if (player.moveRight()) {
+          soundManager.playSound(SoundType.Move)
+        }
         break
       case 'ArrowUp':
-        player.rotateRight()
+        if (player.rotateRight()) {
+          soundManager.playSound(SoundType.Rotate)
+        }
         break
       case 'ArrowDown':
         this.forcePlayerUpdate()
@@ -92,11 +99,15 @@ export class InputHandler {
         break
       case 'z':
       case 'Z':
-        player.rotateLeft()
+        if (player.rotateLeft()) {
+          soundManager.playSound(SoundType.Rotate)
+        }
         break
       case 'x':
       case 'X':
-        player.rotateRight()
+        if (player.rotateRight()) {
+          soundManager.playSound(SoundType.Rotate)
+        }
         break
     }
   }
@@ -111,10 +122,18 @@ export class InputHandler {
 
     // 一気落下処理
     let moved = true
+    let totalMoved = 0
+    
     while (moved && !player.isPlaced()) {
       const currentY = player.getCurrentPair().getY()
       player.update()
       moved = player.getCurrentPair().getY() > currentY
+      if (moved) totalMoved++
+    }
+    
+    // 落下音再生（実際に移動した場合のみ）
+    if (totalMoved > 0) {
+      soundManager.playSound(SoundType.Land)
     }
   }
 

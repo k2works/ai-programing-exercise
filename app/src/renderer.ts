@@ -5,6 +5,7 @@ import { PuyoColor } from './puyo'
 import { Config } from './config'
 import { DrawOptimizer, RenderBatch } from './performance'
 import { AnimationManager } from './animation'
+import { EnhancedAnimationManager } from './enhanced-animation'
 
 export class GameRenderer {
   private cellSize: number = 32
@@ -18,6 +19,7 @@ export class GameRenderer {
   private drawOptimizer: DrawOptimizer = new DrawOptimizer()
   private renderBatch: RenderBatch = new RenderBatch()
   private animationManager: AnimationManager = new AnimationManager()
+  private enhancedAnimations: EnhancedAnimationManager = new EnhancedAnimationManager()
 
   constructor(
     private ctx: CanvasRenderingContext2D,
@@ -29,6 +31,7 @@ export class GameRenderer {
   render(game: Game): void {
     // アニメーション更新
     this.animationManager.update()
+    this.enhancedAnimations.update()
     
     // バッチ処理でレンダリング最適化
     this.renderBatch.addOperation(() => {
@@ -41,6 +44,7 @@ export class GameRenderer {
     this.renderBatch.addOperation(() => this.renderStage(game.getStageForRenderer()))
     this.renderBatch.addOperation(() => this.renderCurrentPair(game.getPlayerForRenderer()))
     this.renderBatch.addOperation(() => this.renderAnimations())
+    this.renderBatch.addOperation(() => this.renderEnhancedAnimations())
     this.renderBatch.addOperation(() => this.renderGrid(game.getConfigForRenderer()))
     this.renderBatch.addOperation(() => this.renderNextPuyo(game.getPlayerForRenderer()))
 
@@ -247,5 +251,31 @@ export class GameRenderer {
   // アニメーションクリア（ゲームリセット時など）
   clearAnimations(): void {
     this.animationManager.clear()
+    this.enhancedAnimations.stopAllAnimations()
+  }
+
+  private renderEnhancedAnimations(): void {
+    this.enhancedAnimations.render(this.ctx)
+  }
+
+  // 拡張アニメーション機能のAPI
+  public animatePuyoMove(puyoId: string, fromX: number, fromY: number, toX: number, toY: number): string {
+    return this.enhancedAnimations.animatePuyoMove(puyoId, fromX, fromY, toX, toY)
+  }
+
+  public animatePuyoErase(puyoId: string, x: number, y: number, color: string, chainLevel: number = 1): string {
+    return this.enhancedAnimations.animatePuyoErase(puyoId, x, y, color, chainLevel)
+  }
+
+  public animateChain(centerX: number, centerY: number, chainLevel: number): string {
+    return this.enhancedAnimations.animateChain(centerX, centerY, chainLevel)
+  }
+
+  public animateScorePopup(x: number, y: number, score: number, color?: string): string {
+    return this.enhancedAnimations.animateScorePopup(x, y, score, color)
+  }
+
+  public getAnimationStats(): { activeAnimations: number; activeParticles: number; memoryUsage: number } {
+    return this.enhancedAnimations.getPerformanceStats()
   }
 }
