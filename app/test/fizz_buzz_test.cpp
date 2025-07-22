@@ -1,5 +1,6 @@
 #include "../fizz_buzz.h"
 #include "../fizz_buzz_value.h"
+#include "../fizz_buzz_list.h"
 
 #include <gtest/gtest.h>
 
@@ -161,4 +162,66 @@ TEST_F(FizzBuzzValueTest, test_値オブジェクトの等価性) {
     EXPECT_TRUE(type1 == type2);
     EXPECT_FALSE(type1 == type3);
     EXPECT_TRUE(type1 != type3);
+}
+
+// Test for first-class collection
+class FizzBuzzListTest : public ::testing::Test {
+   protected:
+    void SetUp() override {}
+    void TearDown() override {}
+};
+
+TEST_F(FizzBuzzListTest, test_空のリストを作成) {
+    std::vector<std::string> empty_list;
+    FizzBuzzList fizz_buzz_list(empty_list);
+    
+    EXPECT_TRUE(fizz_buzz_list.empty());
+    EXPECT_EQ(0, fizz_buzz_list.size());
+}
+
+TEST_F(FizzBuzzListTest, test_要素を持つリストを作成) {
+    std::vector<std::string> list = {"1", "2", "Fizz"};
+    FizzBuzzList fizz_buzz_list(list);
+    
+    EXPECT_FALSE(fizz_buzz_list.empty());
+    EXPECT_EQ(3, fizz_buzz_list.size());
+    EXPECT_EQ("1", fizz_buzz_list[0]);
+    EXPECT_EQ("2", fizz_buzz_list[1]);
+    EXPECT_EQ("Fizz", fizz_buzz_list[2]);
+}
+
+TEST_F(FizzBuzzListTest, test_リストの文字列表現) {
+    std::vector<std::string> list = {"1", "2", "Fizz"};
+    FizzBuzzList fizz_buzz_list(list);
+    
+    EXPECT_EQ("[\"1\", \"2\", \"Fizz\"]", fizz_buzz_list.to_string());
+}
+
+TEST_F(FizzBuzzListTest, test_リストに要素を追加) {
+    std::vector<std::string> list1 = {"1", "2"};
+    std::vector<std::string> list2 = {"Fizz", "4"};
+    FizzBuzzList fizz_buzz_list(list1);
+    
+    FizzBuzzList new_list = fizz_buzz_list.add(list2);
+    
+    EXPECT_EQ(4, new_list.size());
+    EXPECT_EQ("1", new_list[0]);
+    EXPECT_EQ("2", new_list[1]);
+    EXPECT_EQ("Fizz", new_list[2]);
+    EXPECT_EQ("4", new_list[3]);
+    
+    // 元のリストは変更されない
+    EXPECT_EQ(2, fizz_buzz_list.size());
+}
+
+TEST_F(FizzBuzzListTest, test_FizzBuzzからファーストクラスコレクションを取得) {
+    FizzBuzz fizzbuzz;
+    fizzbuzz.generate_list();
+    
+    FizzBuzzList collection = fizzbuzz.list_as_collection();
+    
+    EXPECT_EQ(100, collection.size());
+    EXPECT_EQ("1", collection[0]);
+    EXPECT_EQ("Fizz", collection[2]);
+    EXPECT_EQ("FizzBuzz", collection[14]);
 }

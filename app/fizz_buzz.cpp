@@ -31,6 +31,10 @@ const std::vector<std::string>& FizzBuzz::list() const {
     return list_;
 }
 
+FizzBuzzList FizzBuzz::list_as_collection() const {
+    return FizzBuzzList(list_);
+}
+
 void FizzBuzz::generate_list() {
     list_.clear();
     for (int i = 1; i <= MAX_NUMBER; ++i) {

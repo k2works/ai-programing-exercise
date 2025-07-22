@@ -4,6 +4,7 @@
 #include <vector>
 #include "fizz_buzz_type.h"
 #include "fizz_buzz_value.h"
+#include "fizz_buzz_list.h"
 
 class FizzBuzz {
    public:
@@ -16,6 +17,7 @@ class FizzBuzz {
     FizzBuzz(const FizzBuzzValue& type);
     std::string generate_instance(int number);
     const std::vector<std::string>& list() const;
+    FizzBuzzList list_as_collection() const;
     void generate_list();
     
    private:
