@@ -7,3 +7,7 @@ convert_test() ->
     ?assertEqual("Fizz", fizzbuzz:convert(3)),
     ?assertEqual("Buzz", fizzbuzz:convert(5)),
     ?assertEqual("FizzBuzz", fizzbuzz:convert(15)).
+
+range_test() ->
+    Expected = lists:seq(1, 100),
+    ?assertEqual(Expected, fizzbuzz:range(1, 100)).
