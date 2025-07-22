@@ -11,3 +11,8 @@ convert_test() ->
 range_test() ->
     Expected = lists:seq(1, 100),
     ?assertEqual(Expected, fizzbuzz:range(1, 100)).
+
+fizzbuzz_list_test() ->
+    Expected = ["1", "2", "Fizz", "4", "Buzz", "Fizz", "7", "8", "Fizz", "Buzz", 
+                "11", "Fizz", "13", "14", "FizzBuzz"],
+    ?assertEqual(Expected, fizzbuzz:fizzbuzz_list(1, 15)).
