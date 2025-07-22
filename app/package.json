@@ -1,0 +1,40 @@
+{
+  "name": "puyo-puyo-app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "c8 vitest run",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "gulp": "gulp",
+    "watch": "gulp watch",
+    "guard": "gulp guard",
+    "check": "gulp checkAndFix",
+    "commit": "git add . && git commit",
+    "setup": "npm install && npm run check"
+  },
+  "devDependencies": {
+    "@types/node": "^18.16.0",
+    "@typescript-eslint/eslint-plugin": "^5.57.1",
+    "@typescript-eslint/parser": "^5.57.1",
+    "c8": "^7.13.0",
+    "eslint": "^8.38.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "gulp": "^4.0.2",
+    "gulp-shell": "^0.8.0",
+    "happy-dom": "^17.6.1",
+    "prettier": "^2.8.7",
+    "typescript": "^5.0.2",
+    "vite": "^4.3.2",
+    "vitest": "^0.30.1"
+  }
+}
