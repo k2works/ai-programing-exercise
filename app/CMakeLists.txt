@@ -21,6 +21,7 @@ add_library(fizzbuzz_lib
     fizz_buzz_type.cpp
     fizz_buzz_value.cpp
     fizz_buzz_list.cpp
+    fizz_buzz_command.cpp
 )
 
 # Main executable

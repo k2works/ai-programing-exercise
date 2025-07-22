@@ -1,6 +1,7 @@
 #include "../fizz_buzz.h"
 #include "../fizz_buzz_value.h"
 #include "../fizz_buzz_list.h"
+#include "../fizz_buzz_command.h"
 
 #include <gtest/gtest.h>
 
@@ -224,4 +225,76 @@ TEST_F(FizzBuzzListTest, test_FizzBuzzからファーストクラスコレクシ
     EXPECT_EQ("1", collection[0]);
     EXPECT_EQ("Fizz", collection[2]);
     EXPECT_EQ("FizzBuzz", collection[14]);
+}
+
+// Test for exception handling and commands
+class FizzBuzzCommandTest : public ::testing::Test {
+   protected:
+    void SetUp() override {}
+    void TearDown() override {}
+};
+
+TEST_F(FizzBuzzCommandTest, test_ValueCommandで正の値を処理) {
+    auto type = std::make_unique<FizzBuzzType01>();
+    FizzBuzzValueCommand command(std::move(type));
+    
+    EXPECT_EQ("1", command.execute(1));
+    EXPECT_EQ("Fizz", command.execute(3));
+    EXPECT_EQ("FizzBuzz", command.execute(15));
+}
+
+TEST_F(FizzBuzzCommandTest, test_ValueCommandで0を渡すと例外が発生) {
+    auto type = std::make_unique<FizzBuzzType01>();
+    FizzBuzzValueCommand command(std::move(type));
+    
+    EXPECT_THROW(command.execute(0), AssertionFailedError);
+}
+
+TEST_F(FizzBuzzCommandTest, test_ValueCommandで負の値を渡すと例外が発生) {
+    auto type = std::make_unique<FizzBuzzType01>();
+    FizzBuzzValueCommand command(std::move(type));
+    
+    EXPECT_THROW(command.execute(-1), AssertionFailedError);
+}
+
+TEST_F(FizzBuzzCommandTest, test_ListCommandでリストを生成) {
+    auto type = std::make_unique<FizzBuzzType01>();
+    FizzBuzzListCommand command(std::move(type));
+    
+    FizzBuzzList result = command.execute_list(5);
+    
+    EXPECT_EQ(5, result.size());
+    EXPECT_EQ("1", result[0]);
+    EXPECT_EQ("2", result[1]);
+    EXPECT_EQ("Fizz", result[2]);
+    EXPECT_EQ("4", result[3]);
+    EXPECT_EQ("Buzz", result[4]);
+}
+
+TEST_F(FizzBuzzCommandTest, test_ListCommandで0を渡すと例外が発生) {
+    auto type = std::make_unique<FizzBuzzType01>();
+    FizzBuzzListCommand command(std::move(type));
+    
+    EXPECT_THROW(command.execute_list(0), AssertionFailedError);
+}
+
+TEST_F(FizzBuzzCommandTest, test_ListCommandで負の値を渡すと例外が発生) {
+    auto type = std::make_unique<FizzBuzzType01>();
+    FizzBuzzListCommand command(std::move(type));
+    
+    EXPECT_THROW(command.execute_list(-1), AssertionFailedError);
+}
+
+TEST_F(FizzBuzzCommandTest, test_例外メッセージの内容) {
+    auto type = std::make_unique<FizzBuzzType01>();
+    FizzBuzzValueCommand command(std::move(type));
+    
+    try {
+        command.execute(-5);
+        FAIL() << "Expected AssertionFailedError";
+    } catch (const AssertionFailedError& e) {
+        std::string message = e.what();
+        EXPECT_TRUE(message.find("値は正の値のみ許可されています") != std::string::npos);
+        EXPECT_TRUE(message.find("-5") != std::string::npos);
+    }
 }
