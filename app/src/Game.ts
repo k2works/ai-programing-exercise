@@ -90,6 +90,13 @@ export class Game {
       case 'KeyS':
         this.currentPuyo = this.player.dropPuyoDown(this.currentPuyo)
         break
+      case 'KeyX':
+      case 'ArrowUp':
+        this.currentPuyo = this.player.rotatePuyoClockwise(this.currentPuyo)
+        break
+      case 'KeyZ':
+        this.currentPuyo = this.player.rotatePuyoCounterClockwise(this.currentPuyo)
+        break
     }
 
     this.render()

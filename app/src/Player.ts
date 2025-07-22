@@ -54,6 +54,77 @@ export class Player {
     return puyo
   }
 
+  // ぷよを時計回りに回転する
+  rotatePuyoClockwise(puyo: PuyoPair): PuyoPair {
+    const newPuyo = puyo.clone()
+    
+    // メインぷよを基準にサブぷよを時計回りに回転
+    // 相対位置を計算
+    const relativeX = puyo.sub.x - puyo.main.x
+    const relativeY = puyo.sub.y - puyo.main.y
+    
+    // 時計回り回転: (x, y) -> (y, -x)
+    const newRelativeX = relativeY
+    const newRelativeY = -relativeX
+    
+    newPuyo.sub.x = puyo.main.x + newRelativeX
+    newPuyo.sub.y = puyo.main.y + newRelativeY
+
+    // 回転可能かチェック（壁キック含む）
+    return this.tryRotationWithWallKick(puyo, newPuyo)
+  }
+
+  // ぷよを反時計回りに回転する
+  rotatePuyoCounterClockwise(puyo: PuyoPair): PuyoPair {
+    const newPuyo = puyo.clone()
+    
+    // メインぷよを基準にサブぷよを反時計回りに回転
+    // 相対位置を計算
+    const relativeX = puyo.sub.x - puyo.main.x
+    const relativeY = puyo.sub.y - puyo.main.y
+    
+    // 反時計回り回転: (x, y) -> (-y, x)
+    const newRelativeX = -relativeY
+    const newRelativeY = relativeX
+    
+    newPuyo.sub.x = puyo.main.x + newRelativeX
+    newPuyo.sub.y = puyo.main.y + newRelativeY
+
+    // 回転可能かチェック（壁キック含む）
+    return this.tryRotationWithWallKick(puyo, newPuyo)
+  }
+
+  // 回転を試行し、壁キックも考慮する
+  private tryRotationWithWallKick(originalPuyo: PuyoPair, rotatedPuyo: PuyoPair): PuyoPair {
+    // 通常の回転が可能かチェック
+    if (this.isValidPuyoPosition(rotatedPuyo)) {
+      return rotatedPuyo
+    }
+
+    // 壁キックを試行
+    const wallKickOffsets = [
+      { x: -1, y: 0 }, // 左にずらす
+      { x: 1, y: 0 },  // 右にずらす
+      { x: 0, y: -1 }, // 上にずらす
+      { x: 0, y: 1 },  // 下にずらす
+    ]
+
+    for (const offset of wallKickOffsets) {
+      const kickedPuyo = rotatedPuyo.clone()
+      kickedPuyo.main.x += offset.x
+      kickedPuyo.main.y += offset.y
+      kickedPuyo.sub.x += offset.x
+      kickedPuyo.sub.y += offset.y
+
+      if (this.isValidPuyoPosition(kickedPuyo)) {
+        return kickedPuyo
+      }
+    }
+
+    // 回転できない場合は元の位置を返す
+    return originalPuyo
+  }
+
   // ぷよの位置が有効かどうかをチェック
   isValidPuyoPosition(puyo: PuyoPair): boolean {
     // メインぷよのチェック

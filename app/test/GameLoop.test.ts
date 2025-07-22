@@ -67,6 +67,22 @@ describe('Game - Movement and Gravity', () => {
     expect(newX).toBe(initialX + 1) // 右に移動
   })
 
+  it('should handle keyboard input for rotation', () => {
+    game.start()
+    const initialPuyo = game.getCurrentPuyo()
+    const initialSubX = initialPuyo?.sub.x || 0
+    const initialSubY = initialPuyo?.sub.y || 0
+
+    game.handleInput('KeyX') // 時計回り回転
+    
+    const rotatedPuyo = game.getCurrentPuyo()
+    const newSubX = rotatedPuyo?.sub.x || 0
+    const newSubY = rotatedPuyo?.sub.y || 0
+    
+    // サブぷよの位置が変わっている（回転した）
+    expect(newSubX !== initialSubX || newSubY !== initialSubY).toBe(true)
+  })
+
   it('should have game loop methods', () => {
     expect(typeof game.update).toBe('function')
     expect(typeof game.handleInput).toBe('function')

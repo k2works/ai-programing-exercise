@@ -48,4 +48,11 @@ export class Stage {
     }
     return this.grid[y][x]
   }
+
+  setCell(x: number, y: number, value: number): void {
+    if (!this.isValidPosition(x, y)) {
+      return // 無効な位置には設定しない
+    }
+    this.grid[y][x] = value
+  }
 }

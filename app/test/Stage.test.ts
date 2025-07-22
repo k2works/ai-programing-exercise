@@ -32,4 +32,16 @@ describe('Stage', () => {
     const stage = new Stage()
     expect(stage.getCell(0, 0)).toBe(0) // 0 = empty
   })
+
+  it('should be able to set cell value', () => {
+    const stage = new Stage()
+    stage.setCell(1, 1, 3)
+    expect(stage.getCell(1, 1)).toBe(3)
+  })
+
+  it('should not set cell value for invalid position', () => {
+    const stage = new Stage()
+    stage.setCell(-1, 0, 1) // 無効な位置
+    expect(stage.getCell(-1, 0)).toBe(-1) // 無効な位置は-1
+  })
 })
