@@ -25,3 +25,7 @@ learning_test() ->
     % フィルタリングの学習
     Evens = [X || X <- Numbers, X rem 2 =:= 0],
     ?assertEqual([2, 4], Evens).
+
+print_test() ->
+    % プリント機能は副作用があるので、正常に実行されることを確認
+    ?assertMatch(ok, fizzbuzz:print()).
