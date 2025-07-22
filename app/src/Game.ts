@@ -16,6 +16,21 @@ export interface ChainResult {
   chainDetails: ChainDetail[]
 }
 
+// 全消しシステムの型定義
+export interface AllClearResult {
+  isAllClear: boolean
+  chainCount: number
+  allClearBonus: number
+  totalScore: number
+  chainDetails: ChainDetail[]
+}
+
+export interface AllClearEffect {
+  message: string
+  duration: number
+  color: string
+}
+
 // ゲームの状態を管理するメインクラス
 export class Game {
   private stage: Stage
@@ -27,6 +42,7 @@ export class Game {
   private frameCount = 0
   private highSpeedDrop = false
   private score = 0
+  private allClearCount = 0
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas
@@ -47,6 +63,7 @@ export class Game {
     this.frameCount = 0
     this.highSpeedDrop = false
     this.score = 0
+    this.allClearCount = 0
     this.render()
   }
 
@@ -75,6 +92,11 @@ export class Game {
   // スコアを取得する
   getScore(): number {
     return this.score
+  }
+
+  // 全消しカウントを取得する
+  getAllClearCount(): number {
+    return this.allClearCount
   }
 
   // 消去処理を実行する
@@ -221,6 +243,51 @@ export class Game {
       chainCount: chainDetails.length,
       totalScore: totalScore,
       chainDetails: chainDetails
+    }
+  }
+
+  // 全消し判定
+  checkAllClear(): boolean {
+    return this.stage.isEmpty()
+  }
+
+  // 全消しボーナス計算
+  calculateAllClearBonus(baseScore: number): number {
+    return baseScore * 30 // 一般的な全消しボーナスは30倍
+  }
+
+  // 全消しエフェクト情報を取得
+  getAllClearEffect(): AllClearEffect {
+    return {
+      message: '全消し！',
+      duration: 2000, // 2秒間表示
+      color: '#FFD700' // 金色
+    }
+  }
+
+  // 連鎖処理と全消し判定を組み合わせた処理
+  processEliminationWithAllClearCheck(): AllClearResult {
+    const chainResult = this.processEliminationWithChainInfo()
+    const isAllClear = this.checkAllClear()
+    
+    let allClearBonus = 0
+    if (isAllClear) {
+      // 全消しボーナスを計算（連鎖の基本スコアに基づく）
+      const baseChainScore = chainResult.chainDetails.reduce((sum, detail) => {
+        return sum + (detail.score / detail.multiplier) // 倍率を除いた基本スコア
+      }, 0)
+      
+      allClearBonus = this.calculateAllClearBonus(baseChainScore)
+      this.score += allClearBonus
+      this.allClearCount++
+    }
+    
+    return {
+      isAllClear: isAllClear,
+      chainCount: chainResult.chainCount,
+      allClearBonus: allClearBonus,
+      totalScore: chainResult.totalScore + allClearBonus,
+      chainDetails: chainResult.chainDetails
     }
   }
 
