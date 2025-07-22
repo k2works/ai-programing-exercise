@@ -1,6 +1,8 @@
 -module(fizzbuzz).
 -export([convert/1]).
 
+convert(N) when N rem 3 =:= 0, N rem 5 =:= 0 ->
+    "FizzBuzz";
 convert(N) when N rem 3 =:= 0 ->
     "Fizz";
 convert(N) when N rem 5 =:= 0 ->
