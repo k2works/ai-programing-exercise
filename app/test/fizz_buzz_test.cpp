@@ -91,3 +91,29 @@ TEST_F(FizzBuzzObjectTest, test_タイプ1インスタンスで15を渡したら
     FizzBuzz fizzbuzz(1);
     EXPECT_EQ("FizzBuzz", fizzbuzz.generate_instance(15));
 }
+
+// Test for encapsulation
+class FizzBuzzEncapsulationTest : public ::testing::Test {
+   protected:
+    void SetUp() override {}
+    void TearDown() override {}
+};
+
+TEST_F(FizzBuzzEncapsulationTest, test_listが空の配列を返す) {
+    FizzBuzz fizzbuzz;
+    EXPECT_TRUE(fizzbuzz.list().empty());
+}
+
+TEST_F(FizzBuzzEncapsulationTest, test_generate_listで配列を生成して取得できる) {
+    FizzBuzz fizzbuzz;
+    fizzbuzz.generate_list();
+    auto result = fizzbuzz.list();
+    
+    EXPECT_EQ(100, result.size());
+    EXPECT_EQ("1", result[0]);
+    EXPECT_EQ("2", result[1]);
+    EXPECT_EQ("Fizz", result[2]);
+    EXPECT_EQ("4", result[3]);
+    EXPECT_EQ("Buzz", result[4]);
+    EXPECT_EQ("FizzBuzz", result[14]);
+}

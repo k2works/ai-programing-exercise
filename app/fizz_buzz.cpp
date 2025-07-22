@@ -25,6 +25,17 @@ std::string FizzBuzz::generate_instance(int number) {
     return type_->generate(number);
 }
 
+const std::vector<std::string>& FizzBuzz::list() const {
+    return list_;
+}
+
+void FizzBuzz::generate_list() {
+    list_.clear();
+    for (int i = 1; i <= MAX_NUMBER; ++i) {
+        list_.push_back(generate_instance(i));
+    }
+}
+
 std::unique_ptr<FizzBuzzType> FizzBuzz::create(int type) {
     switch (type) {
         case 1:
