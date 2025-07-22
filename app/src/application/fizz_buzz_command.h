@@ -1,9 +1,9 @@
 #pragma once
 #include <memory>
 #include <stdexcept>
-#include "fizz_buzz_type.h"
-#include "fizz_buzz_value.h"
-#include "fizz_buzz_list.h"
+#include "../domain/type/fizz_buzz_type.h"
+#include "../domain/model/fizz_buzz_value.h"
+#include "../domain/model/fizz_buzz_list.h"
 
 // Custom exception for assertion failures
 class AssertionFailedError : public std::runtime_error {

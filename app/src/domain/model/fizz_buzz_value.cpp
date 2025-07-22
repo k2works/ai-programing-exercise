@@ -1,5 +1,5 @@
 #include "fizz_buzz_value.h"
-#include "fizz_buzz_type.h"
+#include "../type/fizz_buzz_type.h"
 #include <stdexcept>
 
 FizzBuzzValue::FizzBuzzValue(int type) : type_(type) {

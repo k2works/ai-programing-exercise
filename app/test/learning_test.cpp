@@ -1,7 +1,7 @@
 #include "../fizz_buzz.h"
-#include "../fizz_buzz_value.h"
-#include "../fizz_buzz_list.h"
-#include "../fizz_buzz_command.h"
+#include "../src/domain/model/fizz_buzz_value.h"
+#include "../src/domain/model/fizz_buzz_list.h"
+#include "../src/application/fizz_buzz_command.h"
 
 #include <gtest/gtest.h>
 

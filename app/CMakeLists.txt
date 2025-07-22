@@ -15,13 +15,16 @@ if(ENABLE_COVERAGE)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
 endif()
 
+# Include directories
+include_directories(src)
+
 # Library for FizzBuzz logic
 add_library(fizzbuzz_lib
     fizz_buzz.cpp
-    fizz_buzz_type.cpp
-    fizz_buzz_value.cpp
-    fizz_buzz_list.cpp
-    fizz_buzz_command.cpp
+    src/domain/type/fizz_buzz_type.cpp
+    src/domain/model/fizz_buzz_value.cpp
+    src/domain/model/fizz_buzz_list.cpp
+    src/application/fizz_buzz_command.cpp
 )
 
 # Main executable
@@ -35,7 +38,7 @@ enable_testing()
 find_package(GTest)
 if(GTest_FOUND)
     add_executable(fizzbuzz_test
-        test/fizz_buzz_test.cpp
+        test/learning_test.cpp
     )
     target_link_libraries(fizzbuzz_test fizzbuzz_lib GTest::GTest GTest::Main)
     add_test(NAME FizzBuzzTests COMMAND fizzbuzz_test)

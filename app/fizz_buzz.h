@@ -2,9 +2,9 @@
 #include <string>
 #include <memory>
 #include <vector>
-#include "fizz_buzz_type.h"
-#include "fizz_buzz_value.h"
-#include "fizz_buzz_list.h"
+#include "domain/type/fizz_buzz_type.h"
+#include "domain/model/fizz_buzz_value.h"
+#include "domain/model/fizz_buzz_list.h"
 
 class FizzBuzz {
    public:
