@@ -13,6 +13,7 @@ export class Game {
   private player: Player
   private frameCount = 0
   private highSpeedDrop = false
+  private score = 0
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas
@@ -32,6 +33,7 @@ export class Game {
     this.currentPuyo = this.generateNewPuyo()
     this.frameCount = 0
     this.highSpeedDrop = false
+    this.score = 0
     this.render()
   }
 
@@ -55,6 +57,56 @@ export class Game {
   // 高速落下を無効にする
   disableHighSpeedDrop(): void {
     this.highSpeedDrop = false
+  }
+
+  // スコアを取得する
+  getScore(): number {
+    return this.score
+  }
+
+  // 消去処理を実行する
+  processElimination(): void {
+    // 先にボーナス計算のために消去対象グループを取得
+    const eliminatableGroups = this.stage.findEliminatableGroups()
+    
+    if (eliminatableGroups.length > 0) {
+      // スコア計算（消去前に実行）
+      let totalScore = 0
+      
+      // 基本スコア計算とグループサイズボーナス
+      for (const group of eliminatableGroups) {
+        // 基本スコア（消去したぷよの数に基づく）
+        const baseScore = group.length * 10
+        
+        // グループサイズボーナス（5個以上で追加ボーナス）
+        const sizeBonus = group.length >= 5 ? (group.length - 4) * 20 : 0
+        
+        totalScore += baseScore + sizeBonus
+      }
+      
+      this.score += totalScore
+      
+      // 消去を実行
+      this.stage.eliminatePuyo()
+      
+      // 重力を適用
+      this.stage.applyGravity()
+    }
+  }
+
+  // 現在のぷよを固定する
+  fixCurrentPuyo(): void {
+    if (!this.currentPuyo) return
+    
+    // ステージにぷよを配置
+    this.stage.setCell(this.currentPuyo.main.x, this.currentPuyo.main.y, this.currentPuyo.main.color)
+    this.stage.setCell(this.currentPuyo.sub.x, this.currentPuyo.sub.y, this.currentPuyo.sub.color)
+    
+    // 消去処理を実行
+    this.processElimination()
+    
+    // 新しいぷよを生成
+    this.currentPuyo = this.generateNewPuyo()
   }
 
   // ゲームの状態を更新（フレーム毎に呼ばれる）
