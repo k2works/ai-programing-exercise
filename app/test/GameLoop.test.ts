@@ -33,7 +33,10 @@ describe('Game - Movement and Gravity', () => {
     const initialPuyo = game.getCurrentPuyo()
     const initialY = initialPuyo?.main.y || 0
 
-    game.update()
+    // 通常速度では60フレーム毎に落下するので、60回更新する
+    for (let i = 0; i < 60; i++) {
+      game.update()
+    }
     
     const updatedPuyo = game.getCurrentPuyo()
     const newY = updatedPuyo?.main.y || 0

@@ -12,6 +12,7 @@ export class Game {
   private ctx: CanvasRenderingContext2D
   private player: Player
   private frameCount = 0
+  private highSpeedDrop = false
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas
@@ -30,6 +31,7 @@ export class Game {
     this.player = new Player(this.stage)
     this.currentPuyo = this.generateNewPuyo()
     this.frameCount = 0
+    this.highSpeedDrop = false
     this.render()
   }
 
@@ -45,6 +47,16 @@ export class Game {
     return this.currentPuyo
   }
 
+  // 高速落下を有効にする
+  enableHighSpeedDrop(): void {
+    this.highSpeedDrop = true
+  }
+
+  // 高速落下を無効にする
+  disableHighSpeedDrop(): void {
+    this.highSpeedDrop = false
+  }
+
   // ゲームの状態を更新（フレーム毎に呼ばれる）
   update(): void {
     if (!this.running || !this.currentPuyo) {
@@ -53,9 +65,17 @@ export class Game {
 
     this.frameCount++
 
-    // 一定フレーム毎に自動落下（テスト時は即座に落下）
-    const dropInterval = Config.GAME_SPEED
-    if (this.frameCount % dropInterval === 0 || dropInterval >= 60) {
+    // 高速落下が有効な場合は毎フレーム落下、通常は一定フレーム毎に落下
+    let shouldDrop = false
+    
+    if (this.highSpeedDrop) {
+      shouldDrop = true
+    } else {
+      const dropInterval = Config.GAME_SPEED
+      shouldDrop = this.frameCount % dropInterval === 0
+    }
+    
+    if (shouldDrop) {
       const droppedPuyo = this.player.dropPuyoDown(this.currentPuyo)
       
       // 落下できた場合
@@ -88,7 +108,8 @@ export class Game {
         break
       case 'ArrowDown':
       case 'KeyS':
-        this.currentPuyo = this.player.dropPuyoDown(this.currentPuyo)
+        // 高速落下を有効にする（継続的な効果）
+        this.enableHighSpeedDrop()
         break
       case 'KeyX':
       case 'ArrowUp':
