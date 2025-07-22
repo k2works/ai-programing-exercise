@@ -3,6 +3,19 @@ import { PuyoPair } from './Puyo'
 import { Config } from './Config'
 import { Player } from './Player'
 
+// 連鎖システムの型定義
+export interface ChainDetail {
+  eliminatedGroups: Array<Array<{x: number, y: number, color: number}>>
+  score: number
+  multiplier: number
+}
+
+export interface ChainResult {
+  chainCount: number
+  totalScore: number
+  chainDetails: ChainDetail[]
+}
+
 // ゲームの状態を管理するメインクラス
 export class Game {
   private stage: Stage
@@ -102,11 +115,113 @@ export class Game {
     this.stage.setCell(this.currentPuyo.main.x, this.currentPuyo.main.y, this.currentPuyo.main.color)
     this.stage.setCell(this.currentPuyo.sub.x, this.currentPuyo.sub.y, this.currentPuyo.sub.color)
     
-    // 消去処理を実行
-    this.processElimination()
+    // 連鎖を含む消去処理を実行
+    this.processEliminationWithChain()
     
     // 新しいぷよを生成
     this.currentPuyo = this.generateNewPuyo()
+  }
+
+  // 連鎖倍率を取得
+  getChainMultipliers(): number[] {
+    return [1, 2, 4, 8, 16, 32, 64, 128] // 1回目、2回目、3回目...の倍率
+  }
+
+  // 連鎖スコアを計算
+  calculateChainScore(baseScore: number, chainCount: number): number {
+    const multipliers = this.getChainMultipliers()
+    let totalScore = 0
+    
+    for (let i = 0; i < chainCount; i++) {
+      const multiplier = i < multipliers.length ? multipliers[i] : multipliers[multipliers.length - 1]
+      totalScore += baseScore * multiplier
+    }
+    
+    return totalScore
+  }
+
+  // 連鎖を含む消去処理（連鎖数を返す）
+  processEliminationWithChain(): number {
+    let chainCount = 0
+    let totalScore = 0
+    
+    while (true) {
+      const eliminatableGroups = this.stage.findEliminatableGroups()
+      
+      if (eliminatableGroups.length === 0) {
+        break // 消去対象がなくなったら連鎖終了
+      }
+      
+      chainCount++
+      
+      // 各グループのスコア計算
+      let currentChainScore = 0
+      for (const group of eliminatableGroups) {
+        const baseScore = group.length * 10
+        const sizeBonus = group.length >= 5 ? (group.length - 4) * 20 : 0
+        currentChainScore += baseScore + sizeBonus
+      }
+      
+      // 連鎖倍率を適用
+      const multiplier = this.getChainMultipliers()[chainCount - 1] || this.getChainMultipliers()[this.getChainMultipliers().length - 1]
+      const finalChainScore = currentChainScore * multiplier
+      
+      totalScore += finalChainScore
+      
+      // 消去と重力を実行
+      this.stage.eliminatePuyo()
+      this.stage.applyGravity()
+    }
+    
+    this.score += totalScore
+    return chainCount
+  }
+
+  // 連鎖の詳細情報を含む消去処理
+  processEliminationWithChainInfo(): ChainResult {
+    const chainDetails: ChainDetail[] = []
+    let totalScore = 0
+    
+    while (true) {
+      const eliminatableGroups = this.stage.findEliminatableGroups()
+      
+      if (eliminatableGroups.length === 0) {
+        break // 消去対象がなくなったら連鎖終了
+      }
+      
+      const chainIndex = chainDetails.length
+      const multiplier = this.getChainMultipliers()[chainIndex] || this.getChainMultipliers()[this.getChainMultipliers().length - 1]
+      
+      // 各グループのスコア計算
+      let currentChainScore = 0
+      for (const group of eliminatableGroups) {
+        const baseScore = group.length * 10
+        const sizeBonus = group.length >= 5 ? (group.length - 4) * 20 : 0
+        currentChainScore += baseScore + sizeBonus
+      }
+      
+      const finalChainScore = currentChainScore * multiplier
+      totalScore += finalChainScore
+      
+      // 連鎖詳細を記録
+      chainDetails.push({
+        eliminatedGroups: eliminatableGroups,
+        score: finalChainScore,
+        multiplier: multiplier
+      })
+      
+      // 消去と重力を実行
+      this.stage.eliminatePuyo()
+      this.stage.applyGravity()
+    }
+    
+    this.score += totalScore
+    
+    return {
+      chainCount: chainDetails.length,
+      totalScore: totalScore,
+      chainDetails: chainDetails
+    }
   }
 
   // ゲームの状態を更新（フレーム毎に呼ばれる）
