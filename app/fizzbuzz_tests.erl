@@ -2,4 +2,6 @@
 -include_lib("eunit/include/eunit.hrl").
 
 convert_test() ->
-    ?assertEqual("1", fizzbuzz:convert(1)).
+    ?assertEqual("1", fizzbuzz:convert(1)),
+    ?assertEqual("2", fizzbuzz:convert(2)),
+    ?assertEqual("Fizz", fizzbuzz:convert(3)).
