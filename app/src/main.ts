@@ -1,40 +1,33 @@
-// ぷよぷよゲームのメインファイル
-// TDD開発の準備用の最小限実装
+import { Game } from './Game'
 
+// ぷよぷよゲームのメイン処理
 console.log('ぷよぷよゲームを開始します!')
 
-// 基本的なゲームクラスの準備（後でTDDで実装）
-export class Game {
-  constructor() {
-    console.log('Game initialized')
-  }
-
-  start(): void {
-    console.log('Game started')
-  }
-}
-
-// 開発環境確認のためのテンポラリー実装
-const game = new Game()
-game.start()
-
-// Canvas要素の取得確認
+// Canvas要素の取得とゲーム初期化
 const canvas = document.getElementById('game-canvas') as HTMLCanvasElement
 if (canvas) {
-  const ctx = canvas.getContext('2d')
-  if (ctx) {
-    // テスト用の描画
-    ctx.fillStyle = '#ff0000'
-    ctx.fillRect(10, 10, 50, 50)
-    ctx.fillStyle = '#00ff00'
-    ctx.fillRect(70, 10, 50, 50)
-    ctx.fillStyle = '#0000ff'
-    ctx.fillRect(130, 10, 50, 50)
-    ctx.fillStyle = '#ffff00'
-    ctx.fillRect(190, 10, 50, 50)
+  try {
+    const game = new Game(canvas)
+    game.start()
     
-    ctx.fillStyle = '#ffffff'
-    ctx.font = '16px Arial'
-    ctx.fillText('環境構築完了！TDD開発準備完了', 50, 100)
+    // スコア表示を更新
+    const scoreElement = document.getElementById('score')
+    if (scoreElement) {
+      scoreElement.textContent = 'スコア: 0'
+    }
+    
+    console.log('ゲームが正常に開始されました')
+  } catch (error) {
+    console.error('ゲームの初期化に失敗しました:', error)
+    
+    // フォールバック用の描画
+    const ctx = canvas.getContext('2d')
+    if (ctx) {
+      ctx.fillStyle = '#ff0000'
+      ctx.font = '16px Arial'
+      ctx.fillText('ゲーム初期化エラー', 10, 30)
+    }
   }
+} else {
+  console.error('Canvasが見つかりません')
 }
