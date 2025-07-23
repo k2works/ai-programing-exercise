@@ -14,8 +14,7 @@ get_strategy(2) -> fun convert_type2/1;
 get_strategy(3) -> fun convert_type3/1.
 
 convert_type1(N) ->
-    IsFizz = N rem 3 =:= 0,
-    IsBuzz = N rem 5 =:= 0,
+    {IsFizz, IsBuzz} = check_fizz_buzz(N),
     case {IsFizz, IsBuzz} of
         {true, true} -> "FizzBuzz";
         {true, false} -> "Fizz";
@@ -27,12 +26,17 @@ convert_type2(N) ->
     integer_to_list(N).
 
 convert_type3(N) ->
-    IsFizz = N rem 3 =:= 0,
-    IsBuzz = N rem 5 =:= 0,
+    {IsFizz, IsBuzz} = check_fizz_buzz(N),
     case {IsFizz, IsBuzz} of
         {true, true} -> "FizzBuzz";
         _ -> integer_to_list(N)
     end.
+
+%% 共通処理の抽出（スーパークラス相当）
+check_fizz_buzz(N) ->
+    IsFizz = N rem 3 =:= 0,
+    IsBuzz = N rem 5 =:= 0,
+    {IsFizz, IsBuzz}.
 
 fizzbuzz_list() ->
     lists:map(fun convert/1, lists:seq(1, 100)).
