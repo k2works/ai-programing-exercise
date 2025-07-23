@@ -162,6 +162,9 @@ export class Game {
     this.stage.setCell(this.currentPuyo.main.x, this.currentPuyo.main.y, this.currentPuyo.main.color)
     this.stage.setCell(this.currentPuyo.sub.x, this.currentPuyo.sub.y, this.currentPuyo.sub.color)
     
+    // 固定後に重力を適用
+    this.stage.applyGravity()
+    
     // 連鎖を含む消去処理を実行
     this.processEliminationWithChain()
     
@@ -399,6 +402,9 @@ export class Game {
     // 通常の固定処理
     this.stage.setCell(this.currentPuyo.main.x, this.currentPuyo.main.y, this.currentPuyo.main.color)
     this.stage.setCell(this.currentPuyo.sub.x, this.currentPuyo.sub.y, this.currentPuyo.sub.color)
+    
+    // 固定後に重力を適用（浮いているぷよを落下させる）
+    this.stage.applyGravity()
     
     // 先にゲームオーバーチェック（消去処理前に判定）
     if (this.checkGameOver()) {
