@@ -38,3 +38,7 @@ type3_test() ->
     ?assertEqual("3", fizzbuzz:convert(3, 3)),
     ?assertEqual("5", fizzbuzz:convert(5, 3)),
     ?assertEqual("FizzBuzz", fizzbuzz:convert(15, 3)).
+
+%% それ以外のタイプの場合 - 例外を投げる
+type_other_test() ->
+    ?assertError(function_clause, fizzbuzz:convert(1, 4)).
