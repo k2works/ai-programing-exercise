@@ -40,6 +40,54 @@
         font-size: 14px;
         color: #666;
       }
+      
+      #game-over {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 30px;
+        border-radius: 10px;
+        text-align: center;
+        display: none;
+        z-index: 1000;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      }
+      
+      #restart-button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      
+      #restart-button:hover {
+        background-color: #45a049;
+      }
+      
+      #all-clear-count {
+        margin-top: 5px;
+        font-size: 14px;
+        color: #4CAF50;
+      }
+      
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translate(-50%, -60%); }
+        to { opacity: 1; transform: translate(-50%, -50%); }
+      }
+      
+      @keyframes bounce {
+        0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+        50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; }
+        100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+      }
     </style>
   </head>
   <body>
@@ -47,8 +95,19 @@
       <h1>ぷよぷよゲーム</h1>
       <canvas id="game-canvas" width="400" height="600"></canvas>
       <div id="score">スコア: 0</div>
+      <div id="all-clear-count">全消し: 0回</div>
       <div id="controls">
-        操作方法：矢印キー（移動・回転・高速落下）
+        操作方法：矢印キー（移動・回転・高速落下）<br>
+        R: リスタート | G: ゲームオーバーテスト
+      </div>
+      
+      <!-- ゲームオーバー画面 -->
+      <div id="game-over">
+        <h2 id="game-over-title">ゲームオーバー</h2>
+        <div id="final-score">最終スコア: 0</div>
+        <div id="final-all-clear">全消し: 0回</div>
+        <div id="play-time">プレイ時間: 0秒</div>
+        <button id="restart-button">もう一度プレイ</button>
       </div>
     </div>
     <script type="module" src="/src/main.ts"></script>
