@@ -3,10 +3,6 @@
 -export([generate/1, generate/2, create_list/0, print_fizzbuzz/0,
          generate_with_value_objects/2, create_fizzbuzz_number/1, create_fizzbuzz_type/1]).
 
-%% Value Objects
--record(fizzbuzz_number, {value}).
--record(fizzbuzz_type, {value}).
-
 generate(N) ->
     generate(N, 1).
 
@@ -14,34 +10,9 @@ generate(N, Type) ->
     Strategy = get_strategy(Type),
     Strategy(N).
 
-get_strategy(1) -> fun convert_type1/1;
-get_strategy(2) -> fun convert_type2/1;
-get_strategy(3) -> fun convert_type3/1.
-
-convert_type1(N) ->
-    {IsFizz, IsBuzz} = check_fizz_buzz(N),
-    case {IsFizz, IsBuzz} of
-        {true, true} -> "FizzBuzz";
-        {true, false} -> "Fizz";
-        {false, true} -> "Buzz";
-        {false, false} -> integer_to_list(N)
-    end.
-
-convert_type2(N) ->
-    integer_to_list(N).
-
-convert_type3(N) ->
-    {IsFizz, IsBuzz} = check_fizz_buzz(N),
-    case {IsFizz, IsBuzz} of
-        {true, true} -> "FizzBuzz";
-        _ -> integer_to_list(N)
-    end.
-
-%% 共通処理の抽出（スーパークラス相当）
-check_fizz_buzz(N) ->
-    IsFizz = N rem 3 =:= 0,
-    IsBuzz = N rem 5 =:= 0,
-    {IsFizz, IsBuzz}.
+get_strategy(1) -> fun fizzbuzz_type:convert_type1/1;
+get_strategy(2) -> fun fizzbuzz_type:convert_type2/1;
+get_strategy(3) -> fun fizzbuzz_type:convert_type3/1.
 
 create_list() ->
     lists:map(fun generate/1, lists:seq(1, 100)).
@@ -51,15 +22,12 @@ print_fizzbuzz() ->
     lists:foreach(fun(Item) -> io:format("~s~n", [Item]) end, List),
     ok.
 
-%% Value Object constructors
-create_fizzbuzz_number(N) when is_integer(N), N > 0 ->
-    #fizzbuzz_number{value = N}.
+%% Delegate to fizzbuzz_value module
+create_fizzbuzz_number(N) ->
+    fizzbuzz_value:create_fizzbuzz_number(N).
 
-create_fizzbuzz_type(T) when T >= 1, T =< 3 ->
-    #fizzbuzz_type{value = T}.
+create_fizzbuzz_type(T) ->
+    fizzbuzz_value:create_fizzbuzz_type(T).
 
-%% Generate using Value Objects
 generate_with_value_objects(Number, Type) ->
-    #fizzbuzz_number{value = N} = Number,
-    #fizzbuzz_type{value = T} = Type,
-    generate(N, T).
+    fizzbuzz_value:generate_with_value_objects(Number, Type).
