@@ -5,20 +5,24 @@
 convert(N) ->
     convert(N, 1).
 
-convert(N, Type) when Type =:= 1, N rem 3 =:= 0, N rem 5 =:= 0 ->
-    "FizzBuzz";
-convert(N, Type) when Type =:= 1, N rem 3 =:= 0 ->
-    "Fizz";
-convert(N, Type) when Type =:= 1, N rem 5 =:= 0 ->
-    "Buzz";
-convert(N, Type) when Type =:= 1 ->
+convert(N, 1) ->
+    IsFizz = N rem 3 =:= 0,
+    IsBuzz = N rem 5 =:= 0,
+    case {IsFizz, IsBuzz} of
+        {true, true} -> "FizzBuzz";
+        {true, false} -> "Fizz";
+        {false, true} -> "Buzz";
+        {false, false} -> integer_to_list(N)
+    end;
+convert(N, 2) ->
     integer_to_list(N);
-convert(N, Type) when Type =:= 2 ->
-    integer_to_list(N);
-convert(N, Type) when Type =:= 3, N rem 3 =:= 0, N rem 5 =:= 0 ->
-    "FizzBuzz";
-convert(N, Type) when Type =:= 3 ->
-    integer_to_list(N).
+convert(N, 3) ->
+    IsFizz = N rem 3 =:= 0,
+    IsBuzz = N rem 5 =:= 0,
+    case {IsFizz, IsBuzz} of
+        {true, true} -> "FizzBuzz";
+        _ -> integer_to_list(N)
+    end.
 
 fizzbuzz_list() ->
     lists:map(fun convert/1, lists:seq(1, 100)).
