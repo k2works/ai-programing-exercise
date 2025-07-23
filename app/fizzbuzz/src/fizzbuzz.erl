@@ -6,11 +6,12 @@ convert(N) ->
     convert(N, 1).
 
 convert(N, Type) ->
-    case Type of
-        1 -> convert_type1(N);
-        2 -> convert_type2(N);
-        3 -> convert_type3(N)
-    end.
+    Strategy = get_strategy(Type),
+    Strategy(N).
+
+get_strategy(1) -> fun convert_type1/1;
+get_strategy(2) -> fun convert_type2/1;
+get_strategy(3) -> fun convert_type3/1.
 
 convert_type1(N) ->
     IsFizz = N rem 3 =:= 0,

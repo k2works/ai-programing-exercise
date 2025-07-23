@@ -41,4 +41,4 @@ type3_test() ->
 
 %% それ以外のタイプの場合 - 例外を投げる
 type_other_test() ->
-    ?assertError({case_clause, 4}, fizzbuzz:convert(1, 4)).
+    ?assertError(function_clause, fizzbuzz:convert(1, 4)).
