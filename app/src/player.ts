@@ -215,13 +215,6 @@ export class Player {
     public playing(frame: number): GameMode {
         if (this.stage === undefined) throw new Error("stage is undefined");
 
-        // まず自由落下を確認する
-        // 下キーが押されていたら、それ込みで自由落下させる
-        if (this.falling(this.keyStatus.down)) {
-            // 落下が終わっていたら、ぷよを固定する
-            this.setPuyoPosition();
-            return "fix";
-        }
         this.setPuyoPosition();
         if (this.keyStatus.right || this.keyStatus.left) {
             // 左右を確認する
@@ -409,7 +402,7 @@ export class Player {
 
     public moving(frame: number) {
         // 移動中も自由落下はさせる
-        this.falling();
+        this.fall();
         const ratio = Math.min(
             1,
             (frame - this.actionStartFrame) / this.config.playerMoveFrame
@@ -425,7 +418,7 @@ export class Player {
 
     public rotating(frame: number) {
         // 回転中も自然落下はさせる
-        this.falling();
+        this.fall();
         const ratio = Math.min(
             1,
             (frame - this.actionStartFrame) / this.config.playerRotateFrame);
@@ -474,7 +467,7 @@ export class Player {
         }
     }
 
-    private falling(isDownPressed?: boolean): boolean | void {
+    public fall(isDownPressed?: boolean): boolean {
         if (this.stage === undefined) throw new Error("stage is undefined");
         if (this.score === undefined) throw new Error("score is undefined");
 
@@ -518,17 +511,20 @@ export class Player {
                 if (!isBlocked) {
                     // 境を超えたが特に問題はなかった。次回も自由落下を続ける
                     this.groundFrame = 0;
-                    return;
+                    this.setPuyoPosition();
+                    return false;
                 } else {
                     // 境を超えたらブロックにぶつかった。位置を調整して、接地を開始する
                     this.puyoStatus.top = y * this.config.puyoImageHeight;
                     this.groundFrame = 1;
-                    return;
+                    this.setPuyoPosition();
+                    return false;
                 }
             } else {
                 // 自由落下で特に問題がなかった。次回も自由落下を続ける
                 this.groundFrame = 0;
-                return;
+                this.setPuyoPosition();
+                return false;
             }
         }
         if (this.groundFrame === 0) {
@@ -537,9 +533,12 @@ export class Player {
         } else {
             this.groundFrame++;
             if (this.groundFrame > this.config.playerGroundFrame) {
+                this.setPuyoPosition();
                 return true;
             }
         }
+        this.setPuyoPosition();
+        return false;
     }
 
     private setPuyoPosition() {

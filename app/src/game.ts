@@ -112,7 +112,17 @@ export class Game {
         break;
       case "playing":
         // プレイ中の処理
-        this.mode = this.player.playing(this.frame);
+        if (this.player.fall(this.player.keyStatus.down)) {
+          // 落下が終わっていたら、ぷよを固定する
+          this.player.fix();
+          this.mode = "checkFall";
+        } else {
+          // 落下中でなければ、プレイヤーの操作を処理する
+          const nextMode = this.player.playing(this.frame);
+          if (nextMode !== 'playing') {
+            this.mode = nextMode;
+          }
+        }
         break;
       case "gameOver":
         // ばたんきゅーの準備をする

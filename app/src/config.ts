@@ -19,18 +19,10 @@ export class Config {
     private readonly _gameOverFrame: number = 3000; // ゲームオーバー演出のサイクルフレーム
 
     get puyoImageWidth(): number {
-        // フィールドサイズ追加
-        // 高さが全部入るように
-        this._puyoImageWidth =
-            (window.innerHeight - this._fontHeight) / this._stageRows;
         return this._puyoImageWidth;
     }
 
     get puyoImageHeight(): number {
-        // フィールドサイズ追加
-        // 高さが全部入るように
-        this._puyoImageHeight =
-            (window.innerHeight - this._fontHeight) / this._stageRows;
         return this._puyoImageHeight;
     }
 
