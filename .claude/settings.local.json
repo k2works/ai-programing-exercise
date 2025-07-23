@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rebar3 new:*)",
+      "Bash(wget:*)",
+      "Bash(chmod:*)",
+      "Bash(sudo mv:*)",
+      "Bash(mkdir:*)",
+      "Bash(rebar3 eunit:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ],
+    "deny": []
+  }
+}
