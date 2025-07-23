@@ -1,18 +1,5 @@
 defmodule FizzBuzz do
-  @moduledoc """
-  Documentation for `FizzBuzz`.
-  """
-
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> FizzBuzz.hello()
-      :world
-
-  """
-  def hello do
-    :world
+  def generate(number) do
+    to_string(number)
   end
 end
