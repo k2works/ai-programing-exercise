@@ -1,11 +1,11 @@
 -module(fizzbuzz).
 
--export([convert/1, convert/2, fizzbuzz_list/0, print_fizzbuzz/0]).
+-export([generate/1, generate/2, create_list/0, print_fizzbuzz/0]).
 
-convert(N) ->
-    convert(N, 1).
+generate(N) ->
+    generate(N, 1).
 
-convert(N, Type) ->
+generate(N, Type) ->
     Strategy = get_strategy(Type),
     Strategy(N).
 
@@ -38,10 +38,10 @@ check_fizz_buzz(N) ->
     IsBuzz = N rem 5 =:= 0,
     {IsFizz, IsBuzz}.
 
-fizzbuzz_list() ->
-    lists:map(fun convert/1, lists:seq(1, 100)).
+create_list() ->
+    lists:map(fun generate/1, lists:seq(1, 100)).
 
 print_fizzbuzz() ->
-    List = fizzbuzz_list(),
+    List = create_list(),
     lists:foreach(fun(Item) -> io:format("~s~n", [Item]) end, List),
     ok.
