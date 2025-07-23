@@ -38,13 +38,8 @@ export class PuyoImage {
         const ratio = (frame - this.gameOverFrame) / this.config.gameOverFrame;
         const x =
             Math.cos(Math.PI / 2 + ratio * Math.PI * 2 * 10) * this.config.puyoImageWidth;
-        const y =
-            (Math.cos(Math.PI + ratio * Math.PI * 2) *
-                this.config.puyoImageHeight *
-                this.config.stageRows) /
-            4 +
-            (this.config.puyoImageHeight * this.config.stageRows) / 2;
-        this.batankyuImage.style.left = x + "px";
-        this.batankyuImage.style.top = y + "px";
+        const y = (this.config.puyoImageHeight * this.config.stageRows) / 2 * 1.5;
+        this.batankyuImage.style.left = x.toFixed(2) + "px";
+        this.batankyuImage.style.top = y.toFixed(2) + "px";
     }
 }

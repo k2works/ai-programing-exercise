@@ -330,36 +330,24 @@ export class Player {
                 // 右にずれる必要がある時,右にもブロックがあれば回転出来ないので確認する
                 if (cx === 1) {
                     if (
-                        y + 1 < 0 ||
-                        x + 1 < 0 ||
-                        y + 1 >= this.config.stageRows ||
-                        x + 1 >= this.config.stageCols ||
-                        this.stage.board[y + 1][x + 1]
+                        (y >= 0 && (x + 1 >= this.config.stageCols || this.stage.board[y][x + 1])) ||
+                        (y + 1 >= 0 && (x + 1 >= this.config.stageCols || this.stage.board[y + 1][x + 1]))
                     ) {
-                        if (y + 1 >= 0) {
-                            // ブロックがある。回転出来なかった
-                            canRotate = false;
-                        }
+                        // ブロックがある。回転出来なかった
+                        canRotate = false;
                     }
                 }
             } else if (rotation === 180) {
                 // 左から下に回す時には、自分の下か左下にブロックがあれば1個上に引き上げる。まず下を確認する
-                if (y + 2 < 0 || y + 2 >= this.config.stageRows || this.stage.board[y + 2][x]) {
-                    if (y + 2 >= 0) {
-                        // ブロックがある。上に引き上げる
-                        cy = -1;
-                    }
+                if (y + 1 >= 0 && (y + 2 >= this.config.stageRows || this.stage.board[y + 2][x])) {
+                    // ブロックがある。上に引き上げる
+                    cy = -1;
                 }
                 // 左下も確認する
-                if (
-                    y + 2 < 0 ||
-                    y + 2 >= this.config.stageRows ||
-                    x - 1 < 0 || this.stage.board[y + 2][x - 1])
+                if (y + 1 >= 0 && x - 1 >= 0 && (y + 2 >= this.config.stageRows || this.stage.board[y + 2][x - 1]))
                 {
-                    if (y + 2 >= 0) {
-                        // ブロックがある。上に引き上げる
-                        cy = -1;
-                    }
+                    // ブロックがある。上に引き上げる
+                    cy = -1;
                 }
             } else if (rotation === 270) {
                 // 下から右に回すときは、右にブロックがあれば左に移動する必要があるのでまず確認する
@@ -468,6 +456,7 @@ export class Player {
             this.currentRotationAngle = angle;
             // 次の状態を先に設定しておく
             this.puyoStatus.x += cx;
+            this.puyoStatus.y += cy;
             const distRotation = (this.puyoStatus.rotation + angle + 360) % 360;
             const dCombi = [
                 [1, 0],

@@ -1,12 +1,14 @@
-import {describe, beforeEach, it, expect} from "vitest";
-import { Config } from "../config";
-import { Stage } from "../stage";
-import { PuyoImage } from "../puyoimage";
+import {describe, beforeEach, it, expect, vi} from "vitest";
+import {Config} from "../config";
+import {Stage} from "../stage";
+import {PuyoImage} from "../puyoimage";
+import {Score} from "../score";
 
-describe("ステージ", () => {
-    let stage: Stage;
-    let puyoImage: PuyoImage;
-    let config: Config;
+    describe("ステージ", () => {
+        vi.useFakeTimers();
+        let stage: Stage;
+        let config: Config;
+        let puyoImage: PuyoImage;
 
     beforeEach(() => {
         document.body.innerHTML = `
@@ -298,10 +300,12 @@ describe("ステージ", () => {
         describe("全消しを表示する", () => {
             it("全消しイメージのプロパティを更新する", () => {
                 stage.showZenkeshi();
+                vi.runAllTimers();
 
                 expect(stage.zenkeshiImage.style.display).toEqual("block");
                 expect(stage.zenkeshiImage.style.opacity).toEqual("1");
-                expect(stage.zenkeshiImage.style.top).toEqual("735px");
+                const expectedTop = (config.puyoImageHeight * config.stageRows) / 3;
+                expect(stage.zenkeshiImage.style.top).toEqual(expectedTop + "px");
             });
         });
     })
