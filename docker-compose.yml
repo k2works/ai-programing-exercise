@@ -11,7 +11,7 @@ services:
 
   mkdocs:
     build:
-      context: .
+      context: .docs
       dockerfile: ./docs/Dockerfile
     environment:
         PLANTUML_SERVER_URL: http://plantuml:8080/plantuml

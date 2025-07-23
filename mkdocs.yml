@@ -57,3 +57,9 @@ plugins:
 
 nav:
   - Home: index.md
+  - ぷよぷよアプリケーション:
+    - 要件: requirement.md
+    - アーキテクチャ: architecture.md
+    - 設計: design.md
+    - 実装: implementation.md
+    - 再現手順: replay.md
