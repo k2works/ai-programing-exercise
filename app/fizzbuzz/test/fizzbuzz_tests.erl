@@ -52,3 +52,46 @@ value_object_test() ->
 value_object_validation_test() ->
     ?assertError(function_clause, fizzbuzz:create_fizzbuzz_number(0)),
     ?assertError(function_clause, fizzbuzz:create_fizzbuzz_type(4)).
+
+%% 関数型リファクタリングのテスト
+functional_features_test() ->
+    % パイプライン処理のテスト
+    ?assertEqual("Fizz", fizzbuzz_type:pipeline_convert(3, 1)),
+    
+    % 高階関数のテスト
+    List = fizzbuzz:create_list(1, 5),
+    ?assertEqual(5, length(List)),
+    
+    % リスト内包表記のテスト
+    CompList = fizzbuzz:create_list_comprehension(),
+    ?assertEqual(100, length(CompList)),
+    
+    % フィルタリングのテスト
+    FizzBuzzList = fizzbuzz:filter_only_fizzbuzz(),
+    ?assert(length(FizzBuzzList) > 0),
+    
+    % 遅延評価のテスト
+    LazyGen = fizzbuzz:create_lazy_list(1, 5),
+    ?assert(is_function(LazyGen)),
+    
+    % エラーハンドリングのテスト
+    {ok, _Number} = fizzbuzz_value:safe_create_fizzbuzz_number(5),
+    ?assertEqual({error, invalid_number}, fizzbuzz_value:safe_create_fizzbuzz_number(-1)),
+    
+    % 関数合成のテスト
+    Compose = fizzbuzz_type:compose(fun(X) -> X + 1 end, fun(X) -> X * 2 end),
+    ?assertEqual(11, Compose(5)).
+
+maybe_monad_test() ->
+    % Maybe Monadのテスト
+    Result1 = fizzbuzz_value:maybe_bind(
+        fizzbuzz_value:safe_create_fizzbuzz_number(3),
+        fun(_) -> {ok, "success"} end
+    ),
+    ?assertEqual({ok, "success"}, Result1),
+    
+    Result2 = fizzbuzz_value:maybe_bind(
+        fizzbuzz_value:safe_create_fizzbuzz_number(-1),
+        fun(_) -> {ok, "success"} end
+    ),
+    ?assertEqual({error, invalid_number}, Result2).
