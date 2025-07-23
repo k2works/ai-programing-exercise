@@ -485,11 +485,30 @@ export class Game {
     this.render()
   }
 
+  // キーボード入力を処理（keyup用）
+  handleKeyUp(key: string): void {
+    if (!this.running || !this.currentPuyo) {
+      return
+    }
+
+    switch (key) {
+      case 'ArrowDown':
+      case 'KeyS':
+        // 高速落下を無効にする
+        this.disableHighSpeedDrop()
+        break
+    }
+  }
+
   private generateNewPuyo(): PuyoPair {
     const startX = 2 // テストとの整合性を保つため固定値を使用
     const startY = 1
     const mainColor = Math.floor(Math.random() * (Config.COLORS.length - 1)) + 1
     const subColor = Math.floor(Math.random() * (Config.COLORS.length - 1)) + 1
+    
+    // 新しいぷよ生成時に高速落下をリセット
+    this.disableHighSpeedDrop()
+    
     return new PuyoPair(startX, startY, mainColor, subColor)
   }
 

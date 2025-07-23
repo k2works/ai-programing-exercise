@@ -97,6 +97,13 @@ if (canvas) {
       }
     })
 
+    // キーを離した時の処理
+    document.addEventListener('keyup', (event) => {
+      if (gameStarted && game.isRunning()) {
+        game.handleKeyUp(event.code)
+      }
+    })
+
     // ゲームループの開始
     let lastGameOverCheck = false
     setInterval(() => {
