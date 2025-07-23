@@ -7,4 +7,9 @@ defmodule FizzBuzz do
       true -> to_string(number)
     end
   end
+
+  def list(max) do
+    1..max
+    |> Enum.map(&generate/1)
+  end
 end
