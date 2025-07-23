@@ -31,3 +31,10 @@ type2_test() ->
     ?assertEqual("3", fizzbuzz:convert(3, 2)),
     ?assertEqual("5", fizzbuzz:convert(5, 2)),
     ?assertEqual("15", fizzbuzz:convert(15, 2)).
+
+%% タイプ3の場合 - FizzBuzzの場合のみFizzBuzzを返し、それ以外は数字を返す
+type3_test() ->
+    ?assertEqual("1", fizzbuzz:convert(1, 3)),
+    ?assertEqual("3", fizzbuzz:convert(3, 3)),
+    ?assertEqual("5", fizzbuzz:convert(5, 3)),
+    ?assertEqual("FizzBuzz", fizzbuzz:convert(15, 3)).
