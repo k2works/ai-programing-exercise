@@ -5,7 +5,14 @@
 convert(N) ->
     convert(N, 1).
 
-convert(N, 1) ->
+convert(N, Type) ->
+    case Type of
+        1 -> convert_type1(N);
+        2 -> convert_type2(N);
+        3 -> convert_type3(N)
+    end.
+
+convert_type1(N) ->
     IsFizz = N rem 3 =:= 0,
     IsBuzz = N rem 5 =:= 0,
     case {IsFizz, IsBuzz} of
@@ -13,10 +20,12 @@ convert(N, 1) ->
         {true, false} -> "Fizz";
         {false, true} -> "Buzz";
         {false, false} -> integer_to_list(N)
-    end;
-convert(N, 2) ->
-    integer_to_list(N);
-convert(N, 3) ->
+    end.
+
+convert_type2(N) ->
+    integer_to_list(N).
+
+convert_type3(N) ->
     IsFizz = N rem 3 =:= 0,
     IsBuzz = N rem 5 =:= 0,
     case {IsFizz, IsBuzz} of
