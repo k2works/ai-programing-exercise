@@ -12,6 +12,8 @@ convert(N, Type) when Type =:= 1, N rem 3 =:= 0 ->
 convert(N, Type) when Type =:= 1, N rem 5 =:= 0 ->
     "Buzz";
 convert(N, Type) when Type =:= 1 ->
+    integer_to_list(N);
+convert(N, Type) when Type =:= 2 ->
     integer_to_list(N).
 
 fizzbuzz_list() ->

@@ -24,3 +24,10 @@ print_fizzbuzz_test() ->
 %% タイプ1の場合
 type1_test() ->
     ?assertEqual("1", fizzbuzz:convert(1, 1)).
+
+%% タイプ2の場合 - 数字のみを返す
+type2_test() ->
+    ?assertEqual("1", fizzbuzz:convert(1, 2)),
+    ?assertEqual("3", fizzbuzz:convert(3, 2)),
+    ?assertEqual("5", fizzbuzz:convert(5, 2)),
+    ?assertEqual("15", fizzbuzz:convert(15, 2)).
