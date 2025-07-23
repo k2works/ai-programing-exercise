@@ -24,11 +24,15 @@ export class PuyoPair {
 
   // ペアを複製する
   clone(): PuyoPair {
-    return new PuyoPair(
+    const cloned = new PuyoPair(
       this.main.x,
       this.main.y,
       this.main.color,
       this.sub.color
     )
+    // 回転状態を保持するため、subの実際の位置をコピー
+    cloned.sub.x = this.sub.x
+    cloned.sub.y = this.sub.y
+    return cloned
   }
 }
