@@ -12,6 +12,9 @@ export type GameMode =
   | "erasing"
   | "newPuyo"
   | "playing"
+  | "moving"
+  | "rotating"
+  | "fix"
   | "gameOver"
   | "batankyu";
 
@@ -122,6 +125,20 @@ export class Game {
           if (nextMode !== 'playing') {
             this.mode = nextMode;
           }
+        }
+        break;
+      case "moving":
+        // 移動中の処理
+        if (!this.player.moving(this.frame)) {
+          // 移動が終わったら、プレイ中に戻す
+          this.mode = "playing";
+        }
+        break;
+      case "rotating":
+        // 回転中の処理
+        if (!this.player.rotating(this.frame, this.player.currentRotationAngle)) {
+          // 回転が終わったら、プレイ中に戻す
+          this.mode = "playing";
         }
         break;
       case "gameOver":

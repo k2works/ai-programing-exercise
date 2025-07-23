@@ -19,6 +19,7 @@ type KeyStatus = {
     left: boolean;
     up: boolean;
     down: boolean;
+    z: boolean;
 }
 
 type TouchPoint = {
@@ -46,6 +47,7 @@ export class Player {
     private rotateFromRotation: number = 0;
     private rotateAfterLeft: number = 0;
     private rotateBeforeLeft: number = 0;
+    private currentRotationAngle: number = 0;
 
     constructor(config: Config) {
         this.config = config;
@@ -56,6 +58,7 @@ export class Player {
             left: false,
             up: false,
             down: false,
+            z: false,
         };
         // ブラウザのキーボードの入力を取得するイベントリスナを登録する
         document.addEventListener("keydown", (e: KeyboardEvent) => {
@@ -75,6 +78,10 @@ export class Player {
                     return false;
                 case 40: // 下向きのキー
                     this.keyStatus.down = true;
+                    e.preventDefault();
+                    return false;
+                case 90: // Zキー
+                    this.keyStatus.z = true;
                     e.preventDefault();
                     return false;
             }
@@ -97,6 +104,10 @@ export class Player {
                     return false;
                 case 40: // 下向きキー
                     this.keyStatus.down = false;
+                    e.preventDefault();
+                    return false;
+                case 90: // Zキー
+                    this.keyStatus.z = false;
                     e.preventDefault();
                     return false;
             }
@@ -279,16 +290,28 @@ export class Player {
                 return "moving";
             }
         } else if (this.keyStatus.up) {
-            // 回転を確認する
-            // 回せるかどうかは後で確認。まわすぞ
-            const x = this.puyoStatus.x;
-            const y = this.puyoStatus.y;
-            const rotation = this.puyoStatus.rotation;
-            let canRotate = true;
+            // 時計回りの回転
+            return this.checkRotation(frame, 90);
+        } else if (this.keyStatus.z) {
+            // 反時計回りの回転
+            return this.checkRotation(frame, -90);
+        }
 
-            let cx = 0;
-            let cy = 0;
+        return "playing";
+    }
 
+    private checkRotation(frame: number, angle: number): GameMode {
+        if (this.stage === undefined) throw new Error("stage is undefined");
+        // 回転を確認する
+        const x = this.puyoStatus.x;
+        const y = this.puyoStatus.y;
+        const rotation = this.puyoStatus.rotation;
+        let canRotate = true;
+
+        let cx = 0;
+        let cy = 0;
+
+        if (angle === 90) {
             if (rotation === 0) {
                 // 右から上には100%確実に回せる。何もしない
             } else if (rotation === 90) {
@@ -366,37 +389,96 @@ export class Player {
                     }
                 }
             }
-
-            if (canRotate) {
-                // 上に移動する必要があるときは、一気にあげてしまう
-                if (cy === -1) {
-                    if (this.groundFrame > 0) {
-                        // 接地しているなら１段引き上げる
-                        this.puyoStatus.y -= 1;
-                        this.groundFrame = 0;
+        } else {
+            if (rotation === 0) {
+                // 右から下へ回すとき、右にブロックがあれば左にずれる
+                if (
+                    y + 1 < 0 ||
+                    x + 1 < 0 ||
+                    x + 1 >= this.config.stageCols ||
+                    this.stage.board[y + 1][x + 1]
+                ) {
+                    if (y + 1 >= 0) {
+                        cx = -1;
                     }
-                    this.puyoStatus.top = this.puyoStatus.y * this.config.puyoImageHeight;
                 }
-                // 回すことが出来るので、回転後の情報をセットして回転状態にする
-                this.actionStartFrame = frame;
-                this.rotateBeforeLeft = x * this.config.puyoImageWidth;
-                this.rotateAfterLeft = (x + cx) * this.config.puyoImageWidth;
-                this.rotateFromRotation = this.puyoStatus.rotation;
-                // 次の状態を先に設定しておく
-                this.puyoStatus.x += cx;
-                const distRotation = (this.puyoStatus.rotation + 90) % 360;
-                const dCombi = [
-                    [1, 0],
-                    [0, -1],
-                    [-1, 0],
-                    [0, 1],
-                ][distRotation / 90];
-                this.puyoStatus.dx = dCombi[0];
-                this.puyoStatus.dy = dCombi[1];
-                return "rotating";
+                if (cx === -1) {
+                    if (
+                        y + 1 < 0 ||
+                        x - 1 < 0 ||
+                        x - 1 >= this.config.stageCols ||
+                        this.stage.board[y + 1][x - 1]
+                    ) {
+                        if (y + 1 >= 0) {
+                            canRotate = false;
+                        }
+                    }
+                }
+            } else if (rotation === 90) {
+                // 上から右へ回すときは100%回せる
+            } else if (rotation === 180) {
+                // 左から上へ回すとき、左にブロックがあれば右にずれる
+                if (
+                    y + 1 < 0 ||
+                    x - 1 < 0 ||
+                    x - 1 >= this.config.stageCols ||
+                    this.stage.board[y + 1][x - 1]
+                ) {
+                    if (y + 1 >= 0) {
+                        cx = 1;
+                    }
+                }
+                if (cx === 1) {
+                    if (
+                        y + 1 < 0 ||
+                        x + 1 < 0 ||
+                        x + 1 >= this.config.stageCols ||
+                        this.stage.board[y + 1][x + 1]
+                    ) {
+                        if (y + 1 >= 0) {
+                            canRotate = false;
+                        }
+                    }
+                }
+            } else if (rotation === 270) {
+                // 下から左へ回すとき、下にブロックがあれば上に引き上げる
+                if (y + 2 < 0 || y + 2 >= this.config.stageRows || this.stage.board[y + 2][x]) {
+                    if (y + 2 >= 0) {
+                        cy = -1;
+                    }
+                }
             }
         }
 
+        if (canRotate) {
+            // 上に移動する必要があるときは、一気にあげてしまう
+            if (cy === -1) {
+                if (this.groundFrame > 0) {
+                    // 接地しているなら１段引き上げる
+                    this.puyoStatus.y -= 1;
+                    this.groundFrame = 0;
+                }
+                this.puyoStatus.top = this.puyoStatus.y * this.config.puyoImageHeight;
+            }
+            // 回すことが出来るので、回転後の情報をセットして回転状態にする
+            this.actionStartFrame = frame;
+            this.rotateBeforeLeft = x * this.config.puyoImageWidth;
+            this.rotateAfterLeft = (x + cx) * this.config.puyoImageWidth;
+            this.rotateFromRotation = this.puyoStatus.rotation;
+            this.currentRotationAngle = angle;
+            // 次の状態を先に設定しておく
+            this.puyoStatus.x += cx;
+            const distRotation = (this.puyoStatus.rotation + angle + 360) % 360;
+            const dCombi = [
+                [1, 0],
+                [0, -1],
+                [-1, 0],
+                [0, 1],
+            ][distRotation / 90];
+            this.puyoStatus.dx = dCombi[0];
+            this.puyoStatus.dy = dCombi[1];
+            return "rotating";
+        }
         return "playing";
     }
 
@@ -416,19 +498,16 @@ export class Player {
         return true;
     }
 
-    public rotating(frame: number) {
+    public rotating(frame: number, angle: number): boolean {
         // 回転中も自然落下はさせる
         this.fall();
         const ratio = Math.min(
             1,
             (frame - this.actionStartFrame) / this.config.playerRotateFrame);
-        this.puyoStatus.left =
-            (this.rotateAfterLeft - this.rotateBeforeLeft) * ratio +
-            this.rotateBeforeLeft;
-        this.puyoStatus.rotation = this.rotateFromRotation + ratio * 90;
+        this.puyoStatus.rotation = this.rotateFromRotation + ratio * angle;
         this.setPuyoPosition();
         if (ratio === 1) {
-            this.puyoStatus.rotation = (this.rotateFromRotation + 90) % 360;
+            this.puyoStatus.rotation = (this.rotateFromRotation + angle + 360) % 360;
             return false;
         }
         return true;
@@ -547,22 +626,17 @@ export class Player {
         // ぷよの表示を更新する
         this.centerPuyoElement.style.left = this.puyoStatus.left + "px";
         this.centerPuyoElement.style.top = this.puyoStatus.top + "px";
-        let x = this.puyoStatus.left;
-        let y = this.puyoStatus.top;
-        if (this.puyoStatus.rotation === 0) {
-            // 上
-            y -= this.config.puyoImageHeight;
-        } else if (this.puyoStatus.rotation === 90) {
-            // 右
-            x += this.config.puyoImageWidth;
-        } else if (this.puyoStatus.rotation === 180) {
-            // 下
-            y += this.config.puyoImageHeight;
-        } else if (this.puyoStatus.rotation === 270) {
-            // 左
-            x -= this.config.puyoImageWidth;
-        }
-        this.movablePuyoElement.style.left = x + "px";
-        this.movablePuyoElement.style.top = y + "px";
+
+        const angle = this.puyoStatus.rotation;
+        const x = this.puyoStatus.left + this.config.puyoImageWidth / 2;
+        const y = this.puyoStatus.top + this.config.puyoImageHeight / 2;
+
+        const movableX = x + (this.config.puyoImageWidth * this.puyoStatus.dx) / 2;
+        const movableY = y + (this.config.puyoImageHeight * this.puyoStatus.dy) / 2;
+
+        this.movablePuyoElement.style.left = (movableX - this.config.puyoImageWidth / 2) + "px";
+        this.movablePuyoElement.style.top = (movableY - this.config.puyoImageHeight / 2) + "px";
+        this.movablePuyoElement.style.transform = `rotate(${angle}deg)`;
+        this.movablePuyoElement.style.transformOrigin = `${this.config.puyoImageWidth / 2}px ${this.config.puyoImageHeight / 2}px`;
     }
 }
