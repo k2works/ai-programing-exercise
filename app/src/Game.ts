@@ -445,9 +445,8 @@ export class Game {
       if (droppedPuyo.main.y > this.currentPuyo.main.y) {
         this.currentPuyo = droppedPuyo
       } else {
-        // 着地した場合（今は何もしない、後で固定処理を実装）
-        // this.fixCurrentPuyo()
-        // this.currentPuyo = this.generateNewPuyo()
+        // 着地した場合、ぷよを固定して次のぷよを生成
+        this.fixCurrentPuyoWithGameOverCheck()
       }
     }
 
@@ -509,6 +508,16 @@ export class Game {
   }
 
   private renderStage(): void {
+    // ステージに固定されたぷよを描画
+    for (let y = 0; y < Config.STAGE_HEIGHT; y++) {
+      for (let x = 0; x < Config.STAGE_WIDTH; x++) {
+        const cellValue = this.stage.getCell(x, y)
+        if (cellValue > 0) {
+          this.renderPuyo({ x, y, color: cellValue })
+        }
+      }
+    }
+    
     // ステージの枠線を描画
     this.ctx.strokeStyle = '#ffffff'
     this.ctx.strokeRect(
