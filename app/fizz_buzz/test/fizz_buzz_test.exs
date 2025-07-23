@@ -9,5 +9,9 @@ defmodule FizzBuzzTest do
     test "2を渡したら文字列2を返す" do
       assert FizzBuzz.generate(2) == "2"
     end
+
+    test "3を渡したら文字列Fizzを返す" do
+      assert FizzBuzz.generate(3) == "Fizz"
+    end
   end
 end

@@ -1,5 +1,9 @@
 defmodule FizzBuzz do
   def generate(number) do
-    to_string(number)
+    if rem(number, 3) == 0 do
+      "Fizz"
+    else
+      to_string(number)
+    end
   end
 end
