@@ -19,3 +19,8 @@ fizzbuzz_list_test() ->
 
 print_fizzbuzz_test() ->
     ?assertEqual(ok, fizzbuzz:print_fizzbuzz()).
+
+%% タイプごとに出力を切り替えることができる
+%% タイプ1の場合
+type1_test() ->
+    ?assertEqual("1", fizzbuzz:convert(1, 1)).

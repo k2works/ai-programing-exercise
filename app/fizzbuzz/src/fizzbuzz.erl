@@ -1,14 +1,17 @@
 -module(fizzbuzz).
 
--export([convert/1, fizzbuzz_list/0, print_fizzbuzz/0]).
+-export([convert/1, convert/2, fizzbuzz_list/0, print_fizzbuzz/0]).
 
-convert(N) when N rem 3 =:= 0, N rem 5 =:= 0 ->
-    "FizzBuzz";
-convert(N) when N rem 3 =:= 0 ->
-    "Fizz";
-convert(N) when N rem 5 =:= 0 ->
-    "Buzz";
 convert(N) ->
+    convert(N, 1).
+
+convert(N, Type) when Type =:= 1, N rem 3 =:= 0, N rem 5 =:= 0 ->
+    "FizzBuzz";
+convert(N, Type) when Type =:= 1, N rem 3 =:= 0 ->
+    "Fizz";
+convert(N, Type) when Type =:= 1, N rem 5 =:= 0 ->
+    "Buzz";
+convert(N, Type) when Type =:= 1 ->
     integer_to_list(N).
 
 fizzbuzz_list() ->
