@@ -8,4 +8,9 @@ defmodule FizzBuzz do
     1..max
     |> Enum.map(&generate/1)
   end
+
+  def print(max \\ 100) do
+    list(max)
+    |> Enum.each(&IO.puts/1)
+  end
 end
