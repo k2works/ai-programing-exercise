@@ -8,7 +8,8 @@
       "Bash(mkdir:*)",
       "Bash(rebar3 eunit:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(rebar3 lint:*)"
     ],
     "deny": []
   }
