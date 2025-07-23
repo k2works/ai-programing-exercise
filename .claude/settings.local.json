@@ -9,7 +9,8 @@
       "Bash(rebar3 eunit:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(rebar3 lint:*)"
+      "Bash(rebar3 lint:*)",
+      "Bash(rebar3 dialyzer:*)"
     ],
     "deny": []
   }
