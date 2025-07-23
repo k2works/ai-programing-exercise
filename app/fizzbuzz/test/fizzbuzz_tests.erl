@@ -42,3 +42,13 @@ type3_test() ->
 %% それ以外のタイプの場合 - 例外を投げる
 type_other_test() ->
     ?assertError(function_clause, fizzbuzz:generate(1, 4)).
+
+%% Value Object tests
+value_object_test() ->
+    Number = fizzbuzz:create_fizzbuzz_number(3),
+    Type = fizzbuzz:create_fizzbuzz_type(1),
+    ?assertEqual("Fizz", fizzbuzz:generate_with_value_objects(Number, Type)).
+
+value_object_validation_test() ->
+    ?assertError(function_clause, fizzbuzz:create_fizzbuzz_number(0)),
+    ?assertError(function_clause, fizzbuzz:create_fizzbuzz_type(4)).
