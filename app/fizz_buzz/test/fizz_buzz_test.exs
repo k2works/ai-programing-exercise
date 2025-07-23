@@ -32,9 +32,12 @@ defmodule FizzBuzzTest do
 
     test "1から100までのFizzBuzzの配列を返す" do
       result = FizzBuzz.list(100)
-      assert Enum.at(result, 2) == "Fizz"  # 3
-      assert Enum.at(result, 4) == "Buzz"  # 5
-      assert Enum.at(result, 14) == "FizzBuzz"  # 15
+      # 3
+      assert Enum.at(result, 2) == "Fizz"
+      # 5
+      assert Enum.at(result, 4) == "Buzz"
+      # 15
+      assert Enum.at(result, 14) == "FizzBuzz"
     end
   end
 end
