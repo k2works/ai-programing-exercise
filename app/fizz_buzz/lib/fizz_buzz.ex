@@ -9,11 +9,14 @@ defmodule FizzBuzz do
   - それ以外: 数値の文字列表現
   """
 
+  @enforce_keys [:type]
   defstruct [:type]
 
-  def new(type) do
+  def new(type) when is_integer(type) and type > 0 do
     %FizzBuzz{type: type}
   end
+
+  def get_type(%FizzBuzz{type: type}), do: type
 
   def generate(number) when rem(number, 15) == 0, do: "FizzBuzz"
   def generate(number) when rem(number, 3) == 0, do: "Fizz"

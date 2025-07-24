@@ -71,5 +71,17 @@ defmodule FizzBuzzTest do
       fizzbuzz = FizzBuzz.new(1)
       assert FizzBuzz.generate_with_instance(fizzbuzz, 3) == "Fizz"
     end
+
+    test "構造体のtypeフィールドは読み取り専用" do
+      fizzbuzz = FizzBuzz.new(1)
+      assert FizzBuzz.get_type(fizzbuzz) == 1
+      # setterは存在しない（不変データ）
+    end
+
+    test "無効なタイプでインスタンス作成するとエラー" do
+      assert_raise FunctionClauseError, fn ->
+        FizzBuzz.new(-1)
+      end
+    end
   end
 end
