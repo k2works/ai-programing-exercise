@@ -27,6 +27,9 @@ export class Game {
   private fallSpeed = Game.FALL_SPEED
   private fallTimer = 0 // 落下タイマー
   private fallInterval = Game.FALL_INTERVAL
+  // 入力状態の管理
+  private leftKeyPressed = false
+  private rightKeyPressed = false
 
   constructor(canvas: HTMLCanvasElement, scoreDisplay: HTMLElement) {
     this.canvas = canvas
@@ -221,5 +224,46 @@ export class Game {
 
   getFallSpeed(): number {
     return this.fallSpeed
+  }
+
+  // プレイヤー入力の検出
+  handleKeyDown(event: KeyboardEvent): void {
+    switch (event.key) {
+      case 'ArrowLeft':
+        this.leftKeyPressed = true
+        break
+      case 'ArrowRight':
+        this.rightKeyPressed = true
+        break
+    }
+  }
+
+  handleKeyUp(event: KeyboardEvent): void {
+    switch (event.key) {
+      case 'ArrowLeft':
+        this.leftKeyPressed = false
+        break
+      case 'ArrowRight':
+        this.rightKeyPressed = false
+        break
+    }
+  }
+
+  isLeftKeyPressed(): boolean {
+    return this.leftKeyPressed
+  }
+
+  isRightKeyPressed(): boolean {
+    return this.rightKeyPressed
+  }
+
+  setupInputHandlers(): void {
+    addEventListener('keydown', this.handleKeyDown.bind(this))
+    addEventListener('keyup', this.handleKeyUp.bind(this))
+  }
+
+  resetInputState(): void {
+    this.leftKeyPressed = false
+    this.rightKeyPressed = false
   }
 }

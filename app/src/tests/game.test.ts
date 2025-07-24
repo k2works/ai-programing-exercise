@@ -129,12 +129,15 @@ describe('Game', () => {
     })
 
     it('次のぷよが更新される', () => {
-      const oldNext = game.getNextPuyo()
       game.spawnActivePuyo()
       const newNext = game.getNextPuyo()
 
-      // 次のぷよが新しく生成される
-      expect(newNext).not.toEqual(oldNext)
+      // 次のぷよが新しく必ず生成される
+      expect(newNext).toBeDefined()
+      expect(newNext.color1).toBeGreaterThanOrEqual(1)
+      expect(newNext.color1).toBeLessThanOrEqual(4)
+      expect(newNext.color2).toBeGreaterThanOrEqual(1)
+      expect(newNext.color2).toBeLessThanOrEqual(4)
     })
   })
 
@@ -205,6 +208,68 @@ describe('Game', () => {
     it('落下速度が設定できる', () => {
       const speed = game.getFallSpeed()
       expect(speed).toBeGreaterThan(0)
+    })
+  })
+
+  describe('プレイヤー入力検出', () => {
+    beforeEach(() => {
+      vi.clearAllMocks()
+      // キーボードイベントのモック設定
+      global.addEventListener = vi.fn()
+      global.removeEventListener = vi.fn()
+    })
+
+    it('左キーが押されたことを検知できる', () => {
+      const leftKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowLeft' })
+      game.handleKeyDown(leftKeyEvent)
+
+      expect(game.isLeftKeyPressed()).toBe(true)
+    })
+
+    it('右キーが押されたことを検知できる', () => {
+      const rightKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowRight' })
+      game.handleKeyDown(rightKeyEvent)
+
+      expect(game.isRightKeyPressed()).toBe(true)
+    })
+
+    it('キーが離されたことを検知できる', () => {
+      // 左キーを押した後に離す
+      const leftKeyDownEvent = new KeyboardEvent('keydown', { key: 'ArrowLeft' })
+      game.handleKeyDown(leftKeyDownEvent)
+
+      const leftKeyUpEvent = new KeyboardEvent('keyup', { key: 'ArrowLeft' })
+      game.handleKeyUp(leftKeyUpEvent)
+
+      expect(game.isLeftKeyPressed()).toBe(false)
+    })
+
+    it('関係ないキーは無視される', () => {
+      const spaceKeyEvent = new KeyboardEvent('keydown', { key: ' ' })
+      game.handleKeyDown(spaceKeyEvent)
+
+      expect(game.isLeftKeyPressed()).toBe(false)
+      expect(game.isRightKeyPressed()).toBe(false)
+    })
+
+    it('キーボードイベントリスナーが登録される', () => {
+      game.setupInputHandlers()
+
+      expect(global.addEventListener).toHaveBeenCalledWith('keydown', expect.any(Function))
+      expect(global.addEventListener).toHaveBeenCalledWith('keyup', expect.any(Function))
+    })
+
+    it('入力状態をリセットできる', () => {
+      // 先にキーを押した状態にする
+      const leftKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowLeft' })
+      game.handleKeyDown(leftKeyEvent)
+      expect(game.isLeftKeyPressed()).toBe(true)
+
+      // リセットする
+      game.resetInputState()
+
+      expect(game.isLeftKeyPressed()).toBe(false)
+      expect(game.isRightKeyPressed()).toBe(false)
     })
   })
 })

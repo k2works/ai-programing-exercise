@@ -27,6 +27,9 @@ export default [
         HTMLCanvasElement: 'readonly',
         HTMLElement: 'readonly',
         CanvasRenderingContext2D: 'readonly',
+        KeyboardEvent: 'readonly',
+        addEventListener: 'readonly',
+        removeEventListener: 'readonly',
         // Node globals
         global: 'readonly',
         setTimeout: 'readonly',
