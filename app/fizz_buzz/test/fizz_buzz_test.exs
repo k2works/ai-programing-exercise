@@ -24,20 +24,20 @@ defmodule FizzBuzzTest do
 
     test "1から100までの数を返す" do
       result = FizzBuzz.create_list(100)
-      assert length(result) == 100
-      assert Enum.at(result, 0) == "1"
-      assert Enum.at(result, 1) == "2"
-      assert Enum.at(result, 99) == "Buzz"
+      assert FizzBuzzList.size(result) == 100
+      assert FizzBuzzValue.to_string(FizzBuzzList.at(result, 0)) == "1"
+      assert FizzBuzzValue.to_string(FizzBuzzList.at(result, 1)) == "2"
+      assert FizzBuzzValue.to_string(FizzBuzzList.at(result, 99)) == "Buzz"
     end
 
     test "1から100までのFizzBuzzの配列を返す" do
       result = FizzBuzz.create_list(100)
       # 3
-      assert Enum.at(result, 2) == "Fizz"
+      assert FizzBuzzValue.to_string(FizzBuzzList.at(result, 2)) == "Fizz"
       # 5
-      assert Enum.at(result, 4) == "Buzz"
+      assert FizzBuzzValue.to_string(FizzBuzzList.at(result, 4)) == "Buzz"
       # 15
-      assert Enum.at(result, 14) == "FizzBuzz"
+      assert FizzBuzzValue.to_string(FizzBuzzList.at(result, 14)) == "FizzBuzz"
     end
   end
 
@@ -88,22 +88,30 @@ defmodule FizzBuzzTest do
   describe "構造体を使ったインスタンス生成" do
     test "タイプ1のインスタンスを作成して1を渡したら文字列1を返す" do
       fizzbuzz = FizzBuzz.new(1)
-      assert FizzBuzz.execute(fizzbuzz, 1) == "1"
+      result = FizzBuzz.execute(fizzbuzz, 1)
+      assert FizzBuzzValue.to_string(result) == "1"
+      assert FizzBuzzValue.get_number(result) == 1
     end
 
     test "タイプ1のインスタンスを作成して3を渡したら文字列Fizzを返す" do
       fizzbuzz = FizzBuzz.new(1)
-      assert FizzBuzz.execute(fizzbuzz, 3) == "Fizz"
+      result = FizzBuzz.execute(fizzbuzz, 3)
+      assert FizzBuzzValue.to_string(result) == "Fizz"
+      assert FizzBuzzValue.get_number(result) == 3
     end
 
     test "タイプ2のインスタンスを作成して5を渡したら文字列Fizzを返す" do
       fizzbuzz = FizzBuzz.new(2)
-      assert FizzBuzz.execute(fizzbuzz, 5) == "Fizz"
+      result = FizzBuzz.execute(fizzbuzz, 5)
+      assert FizzBuzzValue.to_string(result) == "Fizz"
+      assert FizzBuzzValue.get_number(result) == 5
     end
 
     test "タイプ3のインスタンスを作成して3を渡したら文字列Buzzを返す" do
       fizzbuzz = FizzBuzz.new(3)
-      assert FizzBuzz.execute(fizzbuzz, 3) == "Buzz"
+      result = FizzBuzz.execute(fizzbuzz, 3)
+      assert FizzBuzzValue.to_string(result) == "Buzz"
+      assert FizzBuzzValue.get_number(result) == 3
     end
 
     test "構造体のtypeフィールドは読み取り専用" do
@@ -116,6 +124,22 @@ defmodule FizzBuzzTest do
       assert_raise FunctionClauseError, fn ->
         FizzBuzz.new(-1)
       end
+    end
+  end
+
+  describe "関数型アプローチによる改善" do
+    test "Stream を使った遅延評価による FizzBuzz 生成" do
+      result = FizzBuzz.functional_generate(1..10, 1)
+      assert FizzBuzzList.size(result) == 10
+      assert FizzBuzzValue.to_string(FizzBuzzList.at(result, 2)) == "Fizz"
+      assert FizzBuzzValue.to_string(FizzBuzzList.at(result, 4)) == "Buzz"
+    end
+
+    test "並列処理による FizzBuzz 生成" do
+      result = FizzBuzz.parallel_generate(1..10, 1)
+      assert FizzBuzzList.size(result) == 10
+      assert FizzBuzzValue.to_string(FizzBuzzList.at(result, 2)) == "Fizz"
+      assert FizzBuzzValue.to_string(FizzBuzzList.at(result, 4)) == "Buzz"
     end
   end
 end

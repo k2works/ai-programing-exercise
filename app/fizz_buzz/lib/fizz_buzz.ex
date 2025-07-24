@@ -63,6 +63,34 @@ defmodule FizzBuzzType3 do
   end
 end
 
+# FizzBuzzの値オブジェクト
+defmodule FizzBuzzValue do
+  @enforce_keys [:number, :value]
+  defstruct [:number, :value]
+
+  def new(number, value) do
+    %FizzBuzzValue{number: number, value: value}
+  end
+
+  def get_number(%FizzBuzzValue{number: number}), do: number
+  def get_value(%FizzBuzzValue{value: value}), do: value
+  def to_string(%FizzBuzzValue{value: value}), do: value
+end
+
+# FizzBuzzのリストオブジェクト
+defmodule FizzBuzzList do
+  @enforce_keys [:values]
+  defstruct [:values]
+
+  def new(values) when is_list(values) do
+    %FizzBuzzList{values: values}
+  end
+
+  def get_values(%FizzBuzzList{values: values}), do: values
+  def size(%FizzBuzzList{values: values}), do: length(values)
+  def at(%FizzBuzzList{values: values}, index), do: Enum.at(values, index)
+end
+
 defmodule FizzBuzz do
   @moduledoc """
   FizzBuzz問題を解くためのモジュールです。
@@ -97,17 +125,42 @@ defmodule FizzBuzz do
   end
 
   def execute(%FizzBuzz{type: type}, number) do
-    FizzBuzzType.generate(type, number)
+    value = FizzBuzzType.generate(type, number)
+    FizzBuzzValue.new(number, value)
   end
 
-
   def create_list(max) do
-    1..max
+    values = 1..max
     |> Enum.map(&generate/1)
+    |> Enum.with_index(1)
+    |> Enum.map(fn {value, number} -> FizzBuzzValue.new(number, value) end)
+    
+    FizzBuzzList.new(values)
   end
 
   def display(max \\ 100) do
     create_list(max)
-    |> Enum.each(&IO.puts/1)
+    |> FizzBuzzList.get_values()
+    |> Enum.each(fn value -> IO.puts(FizzBuzzValue.to_string(value)) end)
+  end
+
+  # 関数型アプローチによる改善版
+  def functional_generate(range, type \\ 1) do
+    range
+    |> Stream.map(&create_fizzbuzz_value(&1, type))
+    |> Enum.to_list()
+    |> FizzBuzzList.new()
+  end
+
+  defp create_fizzbuzz_value(number, type) do
+    value = generate(number, type)
+    FizzBuzzValue.new(number, value)
+  end
+
+  def parallel_generate(range, type \\ 1) do
+    range
+    |> Task.async_stream(&create_fizzbuzz_value(&1, type), ordered: true)
+    |> Enum.map(fn {:ok, result} -> result end)
+    |> FizzBuzzList.new()
   end
 end
