@@ -107,4 +107,34 @@ describe('Game', () => {
       expect(mockContext.clearRect).toHaveBeenCalled()
     })
   })
+
+  describe('ぷよの生成', () => {
+    it('新しいぷよペアが生成される', () => {
+      const puyoPair = game.generateNewPuyoPair()
+
+      expect(puyoPair).toBeDefined()
+      expect(puyoPair.color1).toBeGreaterThanOrEqual(1)
+      expect(puyoPair.color1).toBeLessThanOrEqual(4)
+      expect(puyoPair.color2).toBeGreaterThanOrEqual(1)
+      expect(puyoPair.color2).toBeLessThanOrEqual(4)
+    })
+
+    it('操作ぷよが初期位置に配置される', () => {
+      game.spawnActivePuyo()
+      const activePuyo = game.getActivePuyo()
+
+      expect(activePuyo).toBeDefined()
+      expect(activePuyo!.x).toBe(2) // フィールド中央
+      expect(activePuyo!.y).toBe(0) // 上端
+    })
+
+    it('次のぷよが更新される', () => {
+      const oldNext = game.getNextPuyo()
+      game.spawnActivePuyo()
+      const newNext = game.getNextPuyo()
+
+      // 次のぷよが新しく生成される
+      expect(newNext).not.toEqual(oldNext)
+    })
+  })
 })

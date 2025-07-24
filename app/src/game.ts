@@ -4,6 +4,7 @@ export class Game {
   private static readonly CELL_SIZE = 30
   private static readonly FIELD_OFFSET_X = 10
   private static readonly FIELD_OFFSET_Y = 10
+  private static readonly PUYO_COLORS = 4 // 1-4の色を使用
 
   private canvas: HTMLCanvasElement
   private context: CanvasRenderingContext2D
@@ -13,6 +14,7 @@ export class Game {
   private gameState: 'ready' | 'playing' | 'gameover' = 'ready'
   private field: number[][]
   private nextPuyo: { color1: number; color2: number }
+  private activePuyo: { x: number; y: number; color1: number; color2: number } | null = null
 
   constructor(canvas: HTMLCanvasElement, scoreDisplay: HTMLElement) {
     this.canvas = canvas
@@ -30,7 +32,7 @@ export class Game {
       .map(() => Array(Game.FIELD_WIDTH).fill(0))
 
     // 次のぷよの初期化
-    this.nextPuyo = { color1: 1, color2: 2 }
+    this.nextPuyo = this.generateNewPuyoPair()
   }
 
   start(): void {
@@ -114,5 +116,29 @@ export class Game {
 
   clearScreen(): void {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
+  }
+
+  generateNewPuyoPair(): { color1: number; color2: number } {
+    return {
+      color1: Math.floor(Math.random() * Game.PUYO_COLORS) + 1,
+      color2: Math.floor(Math.random() * Game.PUYO_COLORS) + 1,
+    }
+  }
+
+  spawnActivePuyo(): void {
+    // 現在の次のぷよを操作ぷよとして配置
+    this.activePuyo = {
+      x: 2, // フィールド中央
+      y: 0, // 上端
+      color1: this.nextPuyo.color1,
+      color2: this.nextPuyo.color2,
+    }
+
+    // 新しい次のぷよを生成
+    this.nextPuyo = this.generateNewPuyoPair()
+  }
+
+  getActivePuyo(): { x: number; y: number; color1: number; color2: number } | null {
+    return this.activePuyo
   }
 }
