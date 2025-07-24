@@ -23,7 +23,7 @@ defmodule FizzBuzzTest do
     end
 
     test "1から100までの数を返す" do
-      result = FizzBuzz.list(100)
+      result = FizzBuzz.create_list(100)
       assert length(result) == 100
       assert Enum.at(result, 0) == "1"
       assert Enum.at(result, 1) == "2"
@@ -31,7 +31,7 @@ defmodule FizzBuzzTest do
     end
 
     test "1から100までのFizzBuzzの配列を返す" do
-      result = FizzBuzz.list(100)
+      result = FizzBuzz.create_list(100)
       # 3
       assert Enum.at(result, 2) == "Fizz"
       # 5
@@ -88,22 +88,22 @@ defmodule FizzBuzzTest do
   describe "構造体を使ったインスタンス生成" do
     test "タイプ1のインスタンスを作成して1を渡したら文字列1を返す" do
       fizzbuzz = FizzBuzz.new(1)
-      assert FizzBuzz.generate_with_instance(fizzbuzz, 1) == "1"
+      assert FizzBuzz.execute(fizzbuzz, 1) == "1"
     end
 
     test "タイプ1のインスタンスを作成して3を渡したら文字列Fizzを返す" do
       fizzbuzz = FizzBuzz.new(1)
-      assert FizzBuzz.generate_with_instance(fizzbuzz, 3) == "Fizz"
+      assert FizzBuzz.execute(fizzbuzz, 3) == "Fizz"
     end
 
     test "タイプ2のインスタンスを作成して5を渡したら文字列Fizzを返す" do
       fizzbuzz = FizzBuzz.new(2)
-      assert FizzBuzz.generate_with_instance(fizzbuzz, 5) == "Fizz"
+      assert FizzBuzz.execute(fizzbuzz, 5) == "Fizz"
     end
 
     test "タイプ3のインスタンスを作成して3を渡したら文字列Buzzを返す" do
       fizzbuzz = FizzBuzz.new(3)
-      assert FizzBuzz.generate_with_instance(fizzbuzz, 3) == "Buzz"
+      assert FizzBuzz.execute(fizzbuzz, 3) == "Buzz"
     end
 
     test "構造体のtypeフィールドは読み取り専用" do

@@ -96,18 +96,18 @@ defmodule FizzBuzz do
     end
   end
 
-  def generate_with_instance(%FizzBuzz{type: type}, number) do
+  def execute(%FizzBuzz{type: type}, number) do
     FizzBuzzType.generate(type, number)
   end
 
 
-  def list(max) do
+  def create_list(max) do
     1..max
     |> Enum.map(&generate/1)
   end
 
-  def print(max \\ 100) do
-    list(max)
+  def display(max \\ 100) do
+    create_list(max)
     |> Enum.each(&IO.puts/1)
   end
 end
