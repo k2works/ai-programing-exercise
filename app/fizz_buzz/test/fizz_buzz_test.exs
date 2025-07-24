@@ -52,4 +52,12 @@ defmodule FizzBuzzTest do
       assert FizzBuzz.generate(1, 3) == "1"
     end
   end
+
+  describe "タイプごとに出力を切り替えることができる - それ以外のタイプの場合" do
+    test "存在しないタイプを渡したらエラーになる" do
+      assert_raise CaseClauseError, fn ->
+        FizzBuzz.generate(1, 4)
+      end
+    end
+  end
 end
