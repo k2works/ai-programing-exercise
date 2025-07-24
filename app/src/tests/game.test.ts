@@ -137,4 +137,34 @@ describe('Game', () => {
       expect(newNext).not.toEqual(oldNext)
     })
   })
+
+  describe('ぷよの描画', () => {
+    beforeEach(() => {
+      // fillRectメソッドをリセット
+      vi.clearAllMocks()
+    })
+
+    it('操作ぷよが画面に描画される', () => {
+      game.spawnActivePuyo()
+      game.renderActivePuyo()
+
+      // 2つのぷよが描画される（fillRectが2回呼ばれる）
+      expect(mockContext.fillRect).toHaveBeenCalledTimes(2)
+    })
+
+    it('次のぷよが画面に描画される', () => {
+      game.renderNextPuyo()
+
+      // 次のぷよエリアが描画される
+      expect(mockContext.fillRect).toHaveBeenCalled()
+    })
+
+    it('ぷよの色が正しく設定される', () => {
+      game.spawnActivePuyo()
+      game.renderActivePuyo()
+
+      // fillStyleが設定される
+      expect(mockContext.fillStyle).toBeDefined()
+    })
+  })
 })

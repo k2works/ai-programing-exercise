@@ -5,6 +5,13 @@ export class Game {
   private static readonly FIELD_OFFSET_X = 10
   private static readonly FIELD_OFFSET_Y = 10
   private static readonly PUYO_COLORS = 4 // 1-4の色を使用
+  private static readonly PUYO_COLOR_MAP = [
+    '', // 0は使用しない
+    '#FF0000', // 1: 赤
+    '#00FF00', // 2: 緑
+    '#0000FF', // 3: 青
+    '#FFFF00', // 4: 黄
+  ]
 
   private canvas: HTMLCanvasElement
   private context: CanvasRenderingContext2D
@@ -51,6 +58,9 @@ export class Game {
     this.score = 0
     this.updateScoreDisplay()
     this.clearCanvas()
+
+    // 最初の操作ぷよを生成
+    this.spawnActivePuyo()
   }
 
   private gameLoop(): void {
@@ -69,6 +79,8 @@ export class Game {
   private render(): void {
     this.clearCanvas()
     this.renderField()
+    this.renderActivePuyo()
+    this.renderNextPuyo()
   }
 
   private clearCanvas(): void {
@@ -140,5 +152,39 @@ export class Game {
 
   getActivePuyo(): { x: number; y: number; color1: number; color2: number } | null {
     return this.activePuyo
+  }
+
+  private getPuyoColor(colorNumber: number): string {
+    return Game.PUYO_COLOR_MAP[colorNumber] || '#CCCCCC'
+  }
+
+  renderActivePuyo(): void {
+    if (!this.activePuyo) return
+
+    const x1 = Game.FIELD_OFFSET_X + this.activePuyo.x * Game.CELL_SIZE
+    const y1 = Game.FIELD_OFFSET_Y + this.activePuyo.y * Game.CELL_SIZE
+    const x2 = Game.FIELD_OFFSET_X + this.activePuyo.x * Game.CELL_SIZE
+    const y2 = Game.FIELD_OFFSET_Y + (this.activePuyo.y + 1) * Game.CELL_SIZE
+
+    // 1つ目のぷよを描画
+    this.context.fillStyle = this.getPuyoColor(this.activePuyo.color1)
+    this.context.fillRect(x1, y1, Game.CELL_SIZE - 2, Game.CELL_SIZE - 2)
+
+    // 2つ目のぷよを描画（下に配置）
+    this.context.fillStyle = this.getPuyoColor(this.activePuyo.color2)
+    this.context.fillRect(x2, y2, Game.CELL_SIZE - 2, Game.CELL_SIZE - 2)
+  }
+
+  renderNextPuyo(): void {
+    const nextX = Game.FIELD_OFFSET_X + (Game.FIELD_WIDTH + 1) * Game.CELL_SIZE
+    const nextY = Game.FIELD_OFFSET_Y + Game.CELL_SIZE
+
+    // 次のぷよ1を描画
+    this.context.fillStyle = this.getPuyoColor(this.nextPuyo.color1)
+    this.context.fillRect(nextX, nextY, Game.CELL_SIZE - 2, Game.CELL_SIZE - 2)
+
+    // 次のぷよ2を描画（下に配置）
+    this.context.fillStyle = this.getPuyoColor(this.nextPuyo.color2)
+    this.context.fillRect(nextX, nextY + Game.CELL_SIZE, Game.CELL_SIZE - 2, Game.CELL_SIZE - 2)
   }
 }
