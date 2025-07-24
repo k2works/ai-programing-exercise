@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ぷよぷよゲーム</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background-color: #f0f0f0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    
+    #game-container {
+      text-align: center;
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    #game-canvas {
+      border: 2px solid #333;
+      background-color: #000;
+    }
+    
+    #score-display {
+      margin-top: 10px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    
+    .controls-info {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <h1>ぷよぷよゲーム</h1>
+    <canvas id="game-canvas" width="320" height="480"></canvas>
+    <div id="score-display">スコア: 0</div>
+    <div class="controls-info">
+      <p>操作方法:</p>
+      <p>←→: 移動 | ↑: 回転 | ↓: 高速落下</p>
+    </div>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
