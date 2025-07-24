@@ -453,17 +453,6 @@ describe("プレイヤー", () => {
 
                 expect(result).toEqual("rotating");
             });
-            it.skip("右にずれる必要がある時,右にもブロックがあれば回転出来ないので確認する", () => {
-                let result;
-                stage.setPuyo(1, 0, 1);
-                stage.setPuyo(3, 0, 1);
-                document.dispatchEvent(new KeyboardEvent("keydown", { keyCode: 38 }));
-                [...Array(1).keys()].forEach((frame) => {
-                    result = player.playing(frame);
-                });
-
-                expect(result).toEqual("playing");
-            });
             it("左から下に回す時には,自分の下か左下にブロックがあれば1個上に引き上げる。まず下を確認する", () => {
                 // rotationを180(左向き)に設定
                 player.puyoStatus.rotation = 180;

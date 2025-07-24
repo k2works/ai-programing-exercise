@@ -320,7 +320,7 @@ export class Player {
                     y + 1 < 0 ||
                     x - 1 < 0 ||
                     x - 1 >= this.config.stageCols ||
-                    this.stage.board[y + 1][x - 1]
+                    (y + 1 < this.config.stageRows && this.stage.board[y + 1][x - 1])
                 ) {
                     if (y + 1 >= 0) {
                         // ブロックがある。右に1個ずれる
@@ -331,7 +331,7 @@ export class Player {
                 if (cx === 1) {
                     if (
                         (y >= 0 && (x + 1 >= this.config.stageCols || this.stage.board[y][x + 1])) ||
-                        (y + 1 >= 0 && (x + 1 >= this.config.stageCols || this.stage.board[y + 1][x + 1]))
+                        (y + 1 >= 0 && (x + 2 >= this.config.stageCols || this.stage.board[y + 1][x + 2]))
                     ) {
                         // ブロックがある。回転出来なかった
                         canRotate = false;
@@ -355,7 +355,7 @@ export class Player {
                     y + 1 < 0 ||
                     x + 1 < 0 ||
                     x + 1 >= this.config.stageCols ||
-                    this.stage.board[y + 1][x + 1]
+                    (y + 1 < this.config.stageRows && this.stage.board[y + 1][x + 1])
                 ) {
                     if (y + 1 >= 0) {
                         // ブロックがある。左に1個ずれる
@@ -368,7 +368,7 @@ export class Player {
                         y + 1 < 0 ||
                         x - 1 < 0 ||
                         x - 1 >= this.config.stageCols ||
-                        this.stage.board[y + 1][x - 1]
+                        (y + 1 < this.config.stageRows && this.stage.board[y + 1][x - 1])
                     ) {
                         if (y + 1 >= 0) {
                             // ブロックがある。回転出来なかった
@@ -384,7 +384,7 @@ export class Player {
                     y + 1 < 0 ||
                     x + 1 < 0 ||
                     x + 1 >= this.config.stageCols ||
-                    this.stage.board[y + 1][x + 1]
+                    (y + 1 < this.config.stageRows && this.stage.board[y + 1][x + 1])
                 ) {
                     if (y + 1 >= 0) {
                         cx = -1;
@@ -395,7 +395,7 @@ export class Player {
                         y + 1 < 0 ||
                         x - 1 < 0 ||
                         x - 1 >= this.config.stageCols ||
-                        this.stage.board[y + 1][x - 1]
+                        (y + 1 < this.config.stageRows && this.stage.board[y + 1][x - 1])
                     ) {
                         if (y + 1 >= 0) {
                             canRotate = false;
@@ -410,7 +410,7 @@ export class Player {
                     y + 1 < 0 ||
                     x - 1 < 0 ||
                     x - 1 >= this.config.stageCols ||
-                    this.stage.board[y + 1][x - 1]
+                    (y + 1 < this.config.stageRows && this.stage.board[y + 1][x - 1])
                 ) {
                     if (y + 1 >= 0) {
                         cx = 1;
@@ -421,7 +421,7 @@ export class Player {
                         y + 1 < 0 ||
                         x + 1 < 0 ||
                         x + 1 >= this.config.stageCols ||
-                        this.stage.board[y + 1][x + 1]
+                        (y + 1 < this.config.stageRows && this.stage.board[y + 1][x + 1])
                     ) {
                         if (y + 1 >= 0) {
                             canRotate = false;
