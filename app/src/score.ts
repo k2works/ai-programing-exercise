@@ -3,9 +3,8 @@ import type {Stage} from "./stage";
 
 export class Score {
     public score: number = 0;
-    public fontLength: number = 0;
-    public fontTemplateList: HTMLImageElement[] = [];
     private readonly stage: Stage;
+    private readonly config: Config;
 
     static readonly rensaBonus: number[] = [
         0,
@@ -38,50 +37,18 @@ export class Score {
 
     constructor(config: Config, stage: Stage) {
         this.stage = stage;
-
-        let fontWidth = 0;
-        for (let i = 0; i < 10; i++) {
-            const fontImage = document.getElementById(`font${i}`) as HTMLImageElement;
-            if (fontWidth === 0) {
-                fontWidth = (fontImage.width / fontImage.height) * config.fontHeight;
-            }
-            fontImage.height = config.fontHeight;
-            fontImage.width = fontWidth;
-            this.fontTemplateList.push(fontImage);
-        }
-
-        this.fontLength = Math.floor(
-            (config.stageCols * config.puyoImageWidth) /
-            this.fontTemplateList[0].width
-        );
-
-        // テストではイメージサイズの幅がマイナスになりフォント長が無限大になるので調整する
-        if (this.fontLength === Infinity) {
-            this.fontLength = 9;
-        }
-
+        this.config = config;
         this.showScore();
     }
 
     public showScore(): void {
-        let score = this.score;
         const scoreElement = this.stage.scoreElement;
-        // まず最初に、scoreElementの中身を空っぽにする
-        while (scoreElement.firstChild) {
-            scoreElement.removeChild(scoreElement.firstChild);
-        }
-        // スコアを下の桁から埋めていく
-        for (let i = 0; i < this.fontLength; i++) {
-            // 10で割ったあまりを求めて、一番下の桁を取り出す
-            const number = score % 10;
-            // 一番うしろに追加するのではなく、一番前に追加することで、スコアの並びを数字と同じようにする
-            scoreElement.insertBefore(
-                this.fontTemplateList[number].cloneNode(true),
-                scoreElement.firstChild
-            );
-            // 10で割って次の桁の準備をしておく
-            score = Math.floor(score / 10);
-        }
+        scoreElement.textContent = this.score.toString().padStart(9, '0');
+        scoreElement.style.fontSize = this.config.fontHeight + 'px';
+        scoreElement.style.fontFamily = 'monospace';
+        scoreElement.style.color = 'white';
+        scoreElement.style.textAlign = 'right';
+        scoreElement.style.paddingRight = '10px';
     }
 
     public addScore(score: number): void {

@@ -3,11 +3,11 @@ import type {PuyoImage} from "./puyoimage";
 
 type PuyoCell = {
     puyo: number;
-    element: HTMLImageElement;
+    element: HTMLElement;
 }
 
 type FallingPuyo = {
-    element: HTMLImageElement;
+    element: HTMLElement;
     position: number;
     destination: number;
     falling: boolean;
@@ -29,7 +29,7 @@ export class Stage {
     public scoreElement: HTMLElement;
     public puyoCount: number;
     public board: (PuyoCell | null)[][];
-    public zenkeshiImage: HTMLImageElement;
+    public zenkeshiImage: HTMLElement;
     public fallingPuyoList: FallingPuyo[];
     public erasingPuyoInfoList: PuyoInfo[];
     private readonly config: Config;
@@ -46,10 +46,15 @@ export class Stage {
         stageElement.style.backgroundColor = config.stageBackgroundColor;
         this.stageElement = stageElement;
 
-        const zenkeshiImage = document.getElementById("zenkeshi") as HTMLImageElement;
-        zenkeshiImage.width = config.puyoImageWidth * 6;
+        const zenkeshiImage = document.createElement('div');
+        zenkeshiImage.textContent = '全消し！';
+        zenkeshiImage.style.width = (config.puyoImageWidth * 6) + 'px';
         zenkeshiImage.style.position = "absolute";
         zenkeshiImage.style.display = "none";
+        zenkeshiImage.style.color = 'gold';
+        zenkeshiImage.style.fontSize = '48px';
+        zenkeshiImage.style.fontWeight = 'bold';
+        zenkeshiImage.style.textAlign = 'center';
         this.zenkeshiImage = zenkeshiImage;
         stageElement.appendChild(zenkeshiImage);
 
@@ -97,7 +102,7 @@ export class Stage {
     }
 
     // 画面とメモリ両方にpuyoをセットする
-    public setPuyo(x: number, y: number, puyo: number): HTMLImageElement {
+    public setPuyo(x: number, y: number, puyo: number): HTMLElement {
         // 画像を作成し配置する
         const puyoImage = this.puyoImage.getPuyo(puyo);
         puyoImage.style.left = x * this.config.puyoImageWidth + "px";

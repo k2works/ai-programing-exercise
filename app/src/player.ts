@@ -35,8 +35,8 @@ export class Player {
     private score: Score | undefined;
     centerPuyo: number = 0;
     movablePuyo: number = 0;
-    private centerPuyoElement: HTMLImageElement | null | undefined;
-    private movablePuyoElement: HTMLImageElement | null | undefined;
+    private centerPuyoElement: HTMLElement | null | undefined;
+    private movablePuyoElement: HTMLElement | null | undefined;
     puyoStatus: PuyoStatus = {x: 0, y: 0, left: 0, top: 0, dx: 0, dy: 0, rotation: 0}
     groundFrame: number = 0;
     keyStatus: KeyStatus;
