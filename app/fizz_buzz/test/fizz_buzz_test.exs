@@ -60,4 +60,16 @@ defmodule FizzBuzzTest do
       end
     end
   end
+
+  describe "構造体を使ったインスタンス生成" do
+    test "タイプ1のインスタンスを作成して1を渡したら文字列1を返す" do
+      fizzbuzz = FizzBuzz.new(1)
+      assert FizzBuzz.generate_with_instance(fizzbuzz, 1) == "1"
+    end
+
+    test "タイプ1のインスタンスを作成して3を渡したら文字列Fizzを返す" do
+      fizzbuzz = FizzBuzz.new(1)
+      assert FizzBuzz.generate_with_instance(fizzbuzz, 3) == "Fizz"
+    end
+  end
 end

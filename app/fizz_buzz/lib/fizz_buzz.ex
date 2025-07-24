@@ -8,6 +8,13 @@ defmodule FizzBuzz do
   - 3と5の両方で割り切れる場合: "FizzBuzz"
   - それ以外: 数値の文字列表現
   """
+
+  defstruct [:type]
+
+  def new(type) do
+    %FizzBuzz{type: type}
+  end
+
   def generate(number) when rem(number, 15) == 0, do: "FizzBuzz"
   def generate(number) when rem(number, 3) == 0, do: "Fizz"
   def generate(number) when rem(number, 5) == 0, do: "Buzz"
@@ -19,6 +26,10 @@ defmodule FizzBuzz do
       2 -> convert_by_rules(number)
       3 -> convert_by_rules(number)
     end
+  end
+
+  def generate_with_instance(%FizzBuzz{type: type}, number) do
+    generate(number, type)
   end
 
   defp convert_by_rules(number) do
