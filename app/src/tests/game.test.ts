@@ -272,4 +272,130 @@ describe('Game', () => {
       expect(game.isRightKeyPressed()).toBe(false)
     })
   })
+
+  describe('ぷよの移動', () => {
+    beforeEach(() => {
+      vi.clearAllMocks()
+      // 操作ぷよを生成しておく
+      game.spawnActivePuyo()
+    })
+
+    it('左キーが押されたときぷよが左に移動する', () => {
+      const initialPuyo = game.getActivePuyo()
+      const initialX = initialPuyo!.x
+
+      // 左キーを押す
+      const leftKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowLeft' })
+      game.handleKeyDown(leftKeyEvent)
+
+      // 移動間隔分だけ時間を進めて移動処理を実行
+      for (let i = 0; i < 8; i++) {
+        game.updateMovement()
+      }
+
+      const updatedPuyo = game.getActivePuyo()
+      expect(updatedPuyo!.x).toBe(initialX - 1)
+    })
+
+    it('右キーが押されたときぷよが右に移動する', () => {
+      const initialPuyo = game.getActivePuyo()
+      const initialX = initialPuyo!.x
+
+      // 右キーを押す
+      const rightKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowRight' })
+      game.handleKeyDown(rightKeyEvent)
+
+      // 移動間隔分だけ時間を進めて移動処理を実行
+      for (let i = 0; i < 8; i++) {
+        game.updateMovement()
+      }
+
+      const updatedPuyo = game.getActivePuyo()
+      expect(updatedPuyo!.x).toBe(initialX + 1)
+    })
+
+    it('キーが押されていないときは移動しない', () => {
+      const initialPuyo = game.getActivePuyo()
+      const initialX = initialPuyo!.x
+
+      // キーを押さずに移動処理を実行
+      game.updateMovement()
+
+      const updatedPuyo = game.getActivePuyo()
+      expect(updatedPuyo!.x).toBe(initialX)
+    })
+
+    it('操作ぷよがないときは移動処理をしない', () => {
+      // 操作ぷよをクリア
+      game.clearActivePuyo()
+
+      // 左キーを押して移動処理を実行
+      const leftKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowLeft' })
+      game.handleKeyDown(leftKeyEvent)
+      game.updateMovement()
+
+      // 操作ぷよがないのでエラーにならない
+      expect(game.getActivePuyo()).toBeNull()
+    })
+
+    it('左右のキーが同時に押されたときは移動しない', () => {
+      const initialPuyo = game.getActivePuyo()
+      const initialX = initialPuyo!.x
+
+      // 左右のキーを同時に押す
+      const leftKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowLeft' })
+      const rightKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowRight' })
+      game.handleKeyDown(leftKeyEvent)
+      game.handleKeyDown(rightKeyEvent)
+
+      // 移動間隔分だけ時間を進めて移動処理を実行
+      for (let i = 0; i < 8; i++) {
+        game.updateMovement()
+      }
+
+      const updatedPuyo = game.getActivePuyo()
+      expect(updatedPuyo!.x).toBe(initialX) // 移動しない
+    })
+
+    it('移動間隔までは移動しない', () => {
+      const initialPuyo = game.getActivePuyo()
+      const initialX = initialPuyo!.x
+
+      // 左キーを押す
+      const leftKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowLeft' })
+      game.handleKeyDown(leftKeyEvent)
+
+      // 移動間隔の直前まで移動処理を実行
+      for (let i = 0; i < 7; i++) {
+        game.updateMovement()
+      }
+
+      const updatedPuyo = game.getActivePuyo()
+      expect(updatedPuyo!.x).toBe(initialX) // まだ移動しない
+    })
+
+    it('連続移動のタイミングが正しく制御される', () => {
+      const initialPuyo = game.getActivePuyo()
+      const initialX = initialPuyo!.x
+
+      // 左キーを押して8フレーム待って移動させる
+      const leftKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowLeft' })
+      game.handleKeyDown(leftKeyEvent)
+
+      for (let i = 0; i < 8; i++) {
+        game.updateMovement()
+      }
+
+      // 最初の移動が完了
+      expect(game.getActivePuyo()!.x).toBe(initialX - 1)
+
+      // さらに8フレーム待って再び移動
+      for (let i = 0; i < 8; i++) {
+        game.updateMovement()
+      }
+
+      const updatedPuyo = game.getActivePuyo()
+      expect(updatedPuyo!.x).toBe(initialX - 2) // 2回移動
+    })
+  })
 })

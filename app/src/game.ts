@@ -30,6 +30,8 @@ export class Game {
   // 入力状態の管理
   private leftKeyPressed = false
   private rightKeyPressed = false
+  private moveTimer = 0 // 移動タイマー
+  private static readonly MOVE_INTERVAL = 8 // 移動間隔（フレーム数）
 
   constructor(canvas: HTMLCanvasElement, scoreDisplay: HTMLElement) {
     this.canvas = canvas
@@ -82,6 +84,7 @@ export class Game {
 
   private update(): void {
     this.updateFalling()
+    this.updateMovement()
   }
 
   private render(): void {
@@ -265,5 +268,36 @@ export class Game {
   resetInputState(): void {
     this.leftKeyPressed = false
     this.rightKeyPressed = false
+  }
+
+  updateMovement(): void {
+    if (!this.activePuyo) return
+
+    // 左右のキーが同時に押されている場合は移動しない
+    if (this.leftKeyPressed && this.rightKeyPressed) {
+      return
+    }
+
+    // キーが押されている場合のみタイマーを進める
+    if (this.leftKeyPressed || this.rightKeyPressed) {
+      this.moveTimer++
+
+      if (this.moveTimer >= Game.MOVE_INTERVAL) {
+        this.moveTimer = 0
+
+        if (this.leftKeyPressed) {
+          this.activePuyo.x -= 1
+        } else if (this.rightKeyPressed) {
+          this.activePuyo.x += 1
+        }
+      }
+    } else {
+      // キーが押されていないときはタイマーをリセット
+      this.moveTimer = 0
+    }
+  }
+
+  clearActivePuyo(): void {
+    this.activePuyo = null
   }
 }
