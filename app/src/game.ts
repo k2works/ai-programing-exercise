@@ -76,8 +76,7 @@ export class Game {
   private gameLoop(): void {
     if (!this.isRunning) return
 
-    this.update()
-    this.render()
+    this.updateAndRender()
 
     requestAnimationFrame(() => this.gameLoop())
   }
@@ -87,7 +86,14 @@ export class Game {
     this.updateMovement()
   }
 
-  private render(): void {
+  // テスト用のpublicメソッド - 1フレーム分の更新と描画を実行
+  updateAndRender(): void {
+    this.update()
+    this.render()
+  }
+
+  // renderメソッドをpublicにして外部からテスト可能にする
+  render(): void {
     this.clearCanvas()
     this.renderField()
     this.renderActivePuyo()
@@ -285,9 +291,9 @@ export class Game {
       if (this.moveTimer >= Game.MOVE_INTERVAL) {
         this.moveTimer = 0
 
-        if (this.leftKeyPressed) {
+        if (this.leftKeyPressed && this.canMoveLeft()) {
           this.activePuyo.x -= 1
-        } else if (this.rightKeyPressed) {
+        } else if (this.rightKeyPressed && this.canMoveRight()) {
           this.activePuyo.x += 1
         }
       }
@@ -299,5 +305,42 @@ export class Game {
 
   clearActivePuyo(): void {
     this.activePuyo = null
+  }
+
+  canMoveLeft(): boolean {
+    return this.canMoveToPosition(-1)
+  }
+
+  canMoveRight(): boolean {
+    return this.canMoveToPosition(1)
+  }
+
+  private canMoveToPosition(deltaX: number): boolean {
+    if (!this.activePuyo) return false
+
+    const targetX = this.activePuyo.x + deltaX
+    const targetY = this.activePuyo.y
+
+    // フィールドの境界チェック
+    if (targetX < 0 || targetX >= Game.FIELD_WIDTH) {
+      return false
+    }
+
+    // 他のぷよとの衝突チェック
+    return this.isPuyoPositionEmpty(targetX, targetY)
+  }
+
+  private isPuyoPositionEmpty(x: number, y: number): boolean {
+    // 操作ぷよの1つ目との衝突チェック
+    if (this.field[y] && this.field[y][x] !== 0) {
+      return false
+    }
+
+    // 操作ぷよの2つ目との衝突チェック
+    if (this.field[y + 1] && this.field[y + 1][x] !== 0) {
+      return false
+    }
+
+    return true
   }
 }

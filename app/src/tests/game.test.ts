@@ -29,6 +29,9 @@ describe('Game', () => {
     // スコア表示要素をモック
     scoreDisplay = document.createElement('div')
 
+    // requestAnimationFrameをモック
+    vi.stubGlobal('requestAnimationFrame', vi.fn())
+
     game = new Game(canvas, scoreDisplay)
   })
 
@@ -396,6 +399,239 @@ describe('Game', () => {
 
       const updatedPuyo = game.getActivePuyo()
       expect(updatedPuyo!.x).toBe(initialX - 2) // 2回移動
+    })
+  })
+
+  describe('移動後の表示更新', () => {
+    beforeEach(() => {
+      vi.clearAllMocks()
+      game.spawnActivePuyo()
+    })
+
+    it('移動後にrenderが呼ばれて表示が更新される', () => {
+      // renderメソッドをスパイする
+      const renderSpy = vi.spyOn(game, 'render')
+
+      // 左キーを押して移動させる
+      const leftKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowLeft' })
+      game.handleKeyDown(leftKeyEvent)
+
+      // ゲームループを1回実行
+      game.updateAndRender()
+
+      // renderが呼ばれることを確認
+      expect(renderSpy).toHaveBeenCalled()
+    })
+
+    it('キーが押されていない場合でもrenderは呼ばれる', () => {
+      // renderメソッドをスパイする
+      const renderSpy = vi.spyOn(game, 'render')
+
+      // キーを押さずにゲームループを実行
+      game.updateAndRender()
+
+      // renderが呼ばれることを確認
+      expect(renderSpy).toHaveBeenCalled()
+    })
+
+    it('移動処理の前後でぷよの描画位置が変わる', () => {
+      const initialPuyo = game.getActivePuyo()
+      const initialX = initialPuyo!.x
+
+      // renderActivePuyoメソッドをスパイする
+      const renderActivePuyoSpy = vi.spyOn(game, 'renderActivePuyo')
+
+      // 左キーを押す
+      const leftKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowLeft' })
+      game.handleKeyDown(leftKeyEvent)
+
+      // 移動間隔分だけ時間を進めて移動処理を実行
+      for (let i = 0; i < 8; i++) {
+        game.updateMovement()
+      }
+
+      // 表示を更新
+      game.render()
+
+      // ぷよの位置が変わっていることを確認
+      const updatedPuyo = game.getActivePuyo()
+      expect(updatedPuyo!.x).toBe(initialX - 1)
+
+      // renderActivePuyoが呼ばれることを確認
+      expect(renderActivePuyoSpy).toHaveBeenCalled()
+    })
+
+    it('ゲームループが動作中は継続的に表示が更新される', async () => {
+      // requestAnimationFrameをモック
+      const mockRAF = vi.fn((callback) => {
+        // すぐにコールバックを実行
+        setTimeout(callback, 0)
+        return 1
+      })
+      vi.stubGlobal('requestAnimationFrame', mockRAF)
+
+      // renderメソッドをスパイする
+      const renderSpy = vi.spyOn(game, 'render')
+
+      // ゲームを開始
+      game.start()
+
+      // 少し待ってからstop
+      await new Promise((resolve) => setTimeout(resolve, 10))
+      game.stop()
+
+      // renderが呼ばれることを確認
+      expect(renderSpy).toHaveBeenCalled()
+    })
+  })
+
+  describe('移動可能性チェック', () => {
+    beforeEach(() => {
+      vi.clearAllMocks()
+      game.spawnActivePuyo()
+    })
+
+    it('左端（x=0）でさらに左に移動しようとしても移動できない', () => {
+      // 操作ぷよを左端に移動
+      const activePuyo = game.getActivePuyo()
+      activePuyo!.x = 0
+
+      const leftKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowLeft' })
+      game.handleKeyDown(leftKeyEvent)
+
+      // 移動間隔分だけ時間を進める
+      for (let i = 0; i < 8; i++) {
+        game.updateMovement()
+      }
+
+      // 左端にいるので移動できない
+      expect(game.getActivePuyo()!.x).toBe(0)
+    })
+
+    it('右端（x=5）でさらに右に移動しようとしても移動できない', () => {
+      // 操作ぷよを右端に移動
+      const activePuyo = game.getActivePuyo()
+      activePuyo!.x = 5 // FIELD_WIDTH - 1
+
+      const rightKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowRight' })
+      game.handleKeyDown(rightKeyEvent)
+
+      // 移動間隔分だけ時間を進める
+      for (let i = 0; i < 8; i++) {
+        game.updateMovement()
+      }
+
+      // 右端にいるので移動できない
+      expect(game.getActivePuyo()!.x).toBe(5)
+    })
+
+    it('フィールド内では正常に左移動できる', () => {
+      // 操作ぷよを中央付近に配置
+      const activePuyo = game.getActivePuyo()
+      activePuyo!.x = 3
+
+      const leftKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowLeft' })
+      game.handleKeyDown(leftKeyEvent)
+
+      // 移動間隔分だけ時間を進める
+      for (let i = 0; i < 8; i++) {
+        game.updateMovement()
+      }
+
+      // 正常に左に移動できる
+      expect(game.getActivePuyo()!.x).toBe(2)
+    })
+
+    it('フィールド内では正常に右移動できる', () => {
+      // 操作ぷよを中央付近に配置
+      const activePuyo = game.getActivePuyo()
+      activePuyo!.x = 1
+
+      const rightKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowRight' })
+      game.handleKeyDown(rightKeyEvent)
+
+      // 移動間隔分だけ時間を進める
+      for (let i = 0; i < 8; i++) {
+        game.updateMovement()
+      }
+
+      // 正常に右に移動できる
+      expect(game.getActivePuyo()!.x).toBe(2)
+    })
+
+    it('他のぷよがある位置には移動できない', () => {
+      // フィールドにぷよを配置
+      const field = game.getField()
+      field[5][1] = 1 // (1, 5)の位置にぷよを配置
+
+      // 操作ぷよを隣に配置
+      const activePuyo = game.getActivePuyo()
+      activePuyo!.x = 2
+      activePuyo!.y = 5
+
+      const leftKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowLeft' })
+      game.handleKeyDown(leftKeyEvent)
+
+      // 移動間隔分だけ時間を進める
+      for (let i = 0; i < 8; i++) {
+        game.updateMovement()
+      }
+
+      // 他のぷよがあるので移動できない
+      expect(game.getActivePuyo()!.x).toBe(2)
+    })
+
+    it('移動可能性チェックメソッドが左端でfalseを返す', () => {
+      const activePuyo = game.getActivePuyo()
+      activePuyo!.x = 0
+
+      expect(game.canMoveLeft()).toBe(false)
+    })
+
+    it('移動可能性チェックメソッドが右端でfalseを返す', () => {
+      const activePuyo = game.getActivePuyo()
+      activePuyo!.x = 5
+
+      expect(game.canMoveRight()).toBe(false)
+    })
+
+    it('移動可能性チェックメソッドがフィールド内でtrueを返す', () => {
+      const activePuyo = game.getActivePuyo()
+      activePuyo!.x = 2
+
+      expect(game.canMoveLeft()).toBe(true)
+      expect(game.canMoveRight()).toBe(true)
+    })
+
+    it('フィールドの範囲外は移動できない', () => {
+      const activePuyo = game.getActivePuyo()
+
+      // 左端のテスト
+      activePuyo!.x = 0
+      expect(game.canMoveLeft()).toBe(false)
+
+      // 右端のテスト
+      activePuyo!.x = 5
+      expect(game.canMoveRight()).toBe(false)
+
+      // 中央のテスト
+      activePuyo!.x = 2
+      expect(game.canMoveLeft()).toBe(true)
+      expect(game.canMoveRight()).toBe(true)
+    })
+
+    it('ぷよの2つ目が他のぷよと衝突する場合も移動できない', () => {
+      // フィールドにぷよを配置（操作ぷよの2つ目の位置に当たる場所）
+      const field = game.getField()
+      field[6][1] = 1 // (1, 6)の位置にぷよを配置
+
+      // 操作ぷよを配置
+      const activePuyo = game.getActivePuyo()
+      activePuyo!.x = 2
+      activePuyo!.y = 5
+
+      // 左に移動しようとすると、2つ目のぷよが(1,6)に衝突する
+      expect(game.canMoveLeft()).toBe(false)
     })
   })
 })
