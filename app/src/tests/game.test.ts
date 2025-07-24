@@ -62,6 +62,15 @@ describe('Game', () => {
       expect(game.isGameRunning()).toBe(true)
       game.stop() // テスト後のクリーンアップ
     })
+
+    it('start()を呼ぶとキーボードイベントリスナーが設定される', () => {
+      const setupInputHandlersSpy = vi.spyOn(game, 'setupInputHandlers')
+      
+      game.start()
+      
+      expect(setupInputHandlersSpy).toHaveBeenCalled()
+      game.stop() // テスト後のクリーンアップ
+    })
   })
 
   describe('ゲーム停止', () => {

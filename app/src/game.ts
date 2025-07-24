@@ -57,6 +57,7 @@ export class Game {
 
     this.isRunning = true
     this.initialize()
+    this.setupInputHandlers()
     this.gameLoop()
   }
 
