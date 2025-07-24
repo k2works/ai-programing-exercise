@@ -149,6 +149,9 @@ export class Game {
       case "batankyu":
         this.puyoImage.batankyu(this.frame);
         this.player.batankyu();
+        if (this.player.keyStatus.up) {
+          this.initialize();
+        }
         break;
     }
     this.frame++;
