@@ -45,11 +45,35 @@ defmodule FizzBuzzTest do
     test "1を渡したら文字列1を返す" do
       assert FizzBuzz.generate(1, 2) == "1"
     end
+
+    test "5を渡したら文字列Fizzを返す" do
+      assert FizzBuzz.generate(5, 2) == "Fizz"
+    end
+
+    test "7を渡したら文字列Buzzを返す" do
+      assert FizzBuzz.generate(7, 2) == "Buzz"
+    end
+
+    test "35を渡したら文字列FizzBuzzを返す" do
+      assert FizzBuzz.generate(35, 2) == "FizzBuzz"
+    end
   end
 
   describe "タイプごとに出力を切り替えることができる - タイプ3の場合" do
     test "1を渡したら文字列1を返す" do
       assert FizzBuzz.generate(1, 3) == "1"
+    end
+
+    test "3を渡したら文字列Buzzを返す" do
+      assert FizzBuzz.generate(3, 3) == "Buzz"
+    end
+
+    test "5を渡したら文字列Fizzを返す" do
+      assert FizzBuzz.generate(5, 3) == "Fizz"
+    end
+
+    test "15を渡したら文字列BuzzFizzを返す" do
+      assert FizzBuzz.generate(15, 3) == "BuzzFizz"
     end
   end
 
@@ -70,6 +94,16 @@ defmodule FizzBuzzTest do
     test "タイプ1のインスタンスを作成して3を渡したら文字列Fizzを返す" do
       fizzbuzz = FizzBuzz.new(1)
       assert FizzBuzz.generate_with_instance(fizzbuzz, 3) == "Fizz"
+    end
+
+    test "タイプ2のインスタンスを作成して5を渡したら文字列Fizzを返す" do
+      fizzbuzz = FizzBuzz.new(2)
+      assert FizzBuzz.generate_with_instance(fizzbuzz, 5) == "Fizz"
+    end
+
+    test "タイプ3のインスタンスを作成して3を渡したら文字列Buzzを返す" do
+      fizzbuzz = FizzBuzz.new(3)
+      assert FizzBuzz.generate_with_instance(fizzbuzz, 3) == "Buzz"
     end
 
     test "構造体のtypeフィールドは読み取り専用" do

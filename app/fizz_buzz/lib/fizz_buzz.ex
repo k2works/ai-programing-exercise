@@ -20,32 +20,32 @@ defmodule FizzBuzzType1 do
   end
 end
 
-# FizzBuzzタイプ2の実装
+# FizzBuzzタイプ2の実装（5と7で異なるルール）
 defmodule FizzBuzzType2 do
   defstruct []
 
   defimpl FizzBuzzType do
     def generate(_type, number) do
       cond do
-        rem(number, 15) == 0 -> "FizzBuzz"
-        rem(number, 3) == 0 -> "Fizz"
-        rem(number, 5) == 0 -> "Buzz"
+        rem(number, 35) == 0 -> "FizzBuzz"
+        rem(number, 5) == 0 -> "Fizz"
+        rem(number, 7) == 0 -> "Buzz"
         true -> to_string(number)
       end
     end
   end
 end
 
-# FizzBuzzタイプ3の実装
+# FizzBuzzタイプ3の実装（3と5で逆のルール）
 defmodule FizzBuzzType3 do
   defstruct []
 
   defimpl FizzBuzzType do
     def generate(_type, number) do
       cond do
-        rem(number, 15) == 0 -> "FizzBuzz"
-        rem(number, 3) == 0 -> "Fizz"
-        rem(number, 5) == 0 -> "Buzz"
+        rem(number, 15) == 0 -> "BuzzFizz"
+        rem(number, 5) == 0 -> "Fizz"
+        rem(number, 3) == 0 -> "Buzz"
         true -> to_string(number)
       end
     end
@@ -79,9 +79,9 @@ defmodule FizzBuzz do
 
   def generate(number, type) do
     case type do
-      1 -> convert_by_rules(number)
-      2 -> convert_by_rules(number)
-      3 -> convert_by_rules(number)
+      1 -> FizzBuzzType.generate(%FizzBuzzType1{}, number)
+      2 -> FizzBuzzType.generate(%FizzBuzzType2{}, number)
+      3 -> FizzBuzzType.generate(%FizzBuzzType3{}, number)
     end
   end
 
@@ -89,14 +89,6 @@ defmodule FizzBuzz do
     FizzBuzzType.generate(type, number)
   end
 
-  defp convert_by_rules(number) do
-    cond do
-      rem(number, 15) == 0 -> "FizzBuzz"
-      rem(number, 3) == 0 -> "Fizz"
-      rem(number, 5) == 0 -> "Buzz"
-      true -> to_string(number)
-    end
-  end
 
   def list(max) do
     1..max
