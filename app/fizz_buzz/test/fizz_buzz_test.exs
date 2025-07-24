@@ -74,7 +74,7 @@ defmodule FizzBuzzTest do
 
     test "構造体のtypeフィールドは読み取り専用" do
       fizzbuzz = FizzBuzz.new(1)
-      assert FizzBuzz.get_type(fizzbuzz) == 1
+      assert %FizzBuzzType1{} = FizzBuzz.get_type(fizzbuzz)
       # setterは存在しない（不変データ）
     end
 

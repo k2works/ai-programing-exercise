@@ -1,3 +1,57 @@
+# FizzBuzzタイプのプロトコル定義
+defprotocol FizzBuzzType do
+  @doc "数値をFizzBuzz形式に変換する"
+  def generate(type, number)
+end
+
+# FizzBuzzタイプ1の実装
+defmodule FizzBuzzType1 do
+  defstruct []
+
+  defimpl FizzBuzzType do
+    def generate(_type, number) do
+      cond do
+        rem(number, 15) == 0 -> "FizzBuzz"
+        rem(number, 3) == 0 -> "Fizz"
+        rem(number, 5) == 0 -> "Buzz"
+        true -> to_string(number)
+      end
+    end
+  end
+end
+
+# FizzBuzzタイプ2の実装
+defmodule FizzBuzzType2 do
+  defstruct []
+
+  defimpl FizzBuzzType do
+    def generate(_type, number) do
+      cond do
+        rem(number, 15) == 0 -> "FizzBuzz"
+        rem(number, 3) == 0 -> "Fizz"
+        rem(number, 5) == 0 -> "Buzz"
+        true -> to_string(number)
+      end
+    end
+  end
+end
+
+# FizzBuzzタイプ3の実装
+defmodule FizzBuzzType3 do
+  defstruct []
+
+  defimpl FizzBuzzType do
+    def generate(_type, number) do
+      cond do
+        rem(number, 15) == 0 -> "FizzBuzz"
+        rem(number, 3) == 0 -> "Fizz"
+        rem(number, 5) == 0 -> "Buzz"
+        true -> to_string(number)
+      end
+    end
+  end
+end
+
 defmodule FizzBuzz do
   @moduledoc """
   FizzBuzz問題を解くためのモジュールです。
@@ -12,9 +66,9 @@ defmodule FizzBuzz do
   @enforce_keys [:type]
   defstruct [:type]
 
-  def new(type) when is_integer(type) and type > 0 do
-    %FizzBuzz{type: type}
-  end
+  def new(1), do: %FizzBuzz{type: %FizzBuzzType1{}}
+  def new(2), do: %FizzBuzz{type: %FizzBuzzType2{}}
+  def new(3), do: %FizzBuzz{type: %FizzBuzzType3{}}
 
   def get_type(%FizzBuzz{type: type}), do: type
 
@@ -32,7 +86,7 @@ defmodule FizzBuzz do
   end
 
   def generate_with_instance(%FizzBuzz{type: type}, number) do
-    generate(number, type)
+    FizzBuzzType.generate(type, number)
   end
 
   defp convert_by_rules(number) do
