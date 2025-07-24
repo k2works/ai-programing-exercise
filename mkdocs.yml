@@ -57,3 +57,7 @@ plugins:
 
 nav:
   - Home: index.md
+  - Puyopuyo Application:
+    - Architecture: docs/architecture.md
+    - Design: docs/design.md
+    - Implementation: docs/implementation.md
