@@ -1,25 +1,25 @@
 defmodule FizzBuzzTest do
   use ExUnit.Case
 
-  describe "FizzBuzz" do
+  describe "タイプごとに出力を切り替えることができる - タイプ1の場合" do
     test "1を渡したら文字列1を返す" do
-      assert FizzBuzz.generate(1) == "1"
+      assert FizzBuzz.generate(1, 1) == "1"
     end
 
     test "2を渡したら文字列2を返す" do
-      assert FizzBuzz.generate(2) == "2"
+      assert FizzBuzz.generate(2, 1) == "2"
     end
 
     test "3を渡したら文字列Fizzを返す" do
-      assert FizzBuzz.generate(3) == "Fizz"
+      assert FizzBuzz.generate(3, 1) == "Fizz"
     end
 
     test "5を渡したら文字列Buzzを返す" do
-      assert FizzBuzz.generate(5) == "Buzz"
+      assert FizzBuzz.generate(5, 1) == "Buzz"
     end
 
     test "15を渡したら文字列FizzBuzzを返す" do
-      assert FizzBuzz.generate(15) == "FizzBuzz"
+      assert FizzBuzz.generate(15, 1) == "FizzBuzz"
     end
 
     test "1から100までの数を返す" do
@@ -38,12 +38,6 @@ defmodule FizzBuzzTest do
       assert Enum.at(result, 4) == "Buzz"
       # 15
       assert Enum.at(result, 14) == "FizzBuzz"
-    end
-  end
-
-  describe "タイプごとに出力を切り替えることができる - タイプ1の場合" do
-    test "1を渡したら文字列1を返す" do
-      assert FizzBuzz.generate(1, 1) == "1"
     end
   end
 end
