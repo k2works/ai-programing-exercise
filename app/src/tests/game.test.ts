@@ -11,7 +11,9 @@ describe('Game', () => {
     // Canvas 2Dコンテキストのモック
     mockContext = {
       fillStyle: '',
+      strokeStyle: '',
       fillRect: vi.fn(),
+      strokeRect: vi.fn(),
       clearRect: vi.fn(),
       drawImage: vi.fn(),
     } as unknown as CanvasRenderingContext2D
@@ -80,6 +82,29 @@ describe('Game', () => {
 
     it('次のぷよが準備されている', () => {
       expect(game.getNextPuyo()).toBeDefined()
+    })
+  })
+
+  describe('ゲーム画面の表示', () => {
+    it('ゲームフィールドが描画される', () => {
+      game.renderField()
+
+      // fillRectが呼ばれることを確認（フィールドの背景描画）
+      expect(mockContext.fillRect).toHaveBeenCalled()
+    })
+
+    it('ゲームフィールドの枠線が描画される', () => {
+      game.renderField()
+
+      // strokeRectが呼ばれることを確認（フィールドの枠線描画）
+      expect(mockContext.strokeRect).toHaveBeenCalled()
+    })
+
+    it('Canvasがクリアされる', () => {
+      game.clearScreen()
+
+      // clearRectが呼ばれることを確認
+      expect(mockContext.clearRect).toHaveBeenCalled()
     })
   })
 })

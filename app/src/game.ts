@@ -1,6 +1,9 @@
 export class Game {
   private static readonly FIELD_WIDTH = 6
   private static readonly FIELD_HEIGHT = 13
+  private static readonly CELL_SIZE = 30
+  private static readonly FIELD_OFFSET_X = 10
+  private static readonly FIELD_OFFSET_Y = 10
 
   private canvas: HTMLCanvasElement
   private context: CanvasRenderingContext2D
@@ -63,7 +66,7 @@ export class Game {
 
   private render(): void {
     this.clearCanvas()
-    // 描画処理（後で実装）
+    this.renderField()
   }
 
   private clearCanvas(): void {
@@ -94,5 +97,22 @@ export class Game {
 
   getNextPuyo(): { color1: number; color2: number } {
     return this.nextPuyo
+  }
+
+  renderField(): void {
+    const fieldWidth = Game.FIELD_WIDTH * Game.CELL_SIZE
+    const fieldHeight = Game.FIELD_HEIGHT * Game.CELL_SIZE
+
+    // フィールドの背景を描画
+    this.context.fillStyle = '#f0f0f0'
+    this.context.fillRect(Game.FIELD_OFFSET_X, Game.FIELD_OFFSET_Y, fieldWidth, fieldHeight)
+
+    // フィールドの枠線を描画
+    this.context.strokeStyle = '#000000'
+    this.context.strokeRect(Game.FIELD_OFFSET_X, Game.FIELD_OFFSET_Y, fieldWidth, fieldHeight)
+  }
+
+  clearScreen(): void {
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
   }
 }
