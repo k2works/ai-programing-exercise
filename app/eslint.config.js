@@ -49,7 +49,7 @@ export default [
     files: ['**/*.test.{ts,tsx}'],
     rules: {
       '@typescript-eslint/no-unused-expressions': 'off',
-      '@typescript-eslint/no-unused-vars': 'warn'
-    }
-  }
+      '@typescript-eslint/no-unused-vars': 'warn',
+    },
+  },
 ]

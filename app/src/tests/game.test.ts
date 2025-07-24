@@ -66,4 +66,20 @@ describe('Game', () => {
       expect(game.isGameRunning()).toBe(false)
     })
   })
+
+  describe('ゲームの初期化処理', () => {
+    it('ゲームの初期状態が正しく設定される', () => {
+      expect(game.getGameState()).toBe('ready')
+    })
+
+    it('ゲームフィールドが初期化されている', () => {
+      expect(game.getField()).toBeDefined()
+      expect(game.getField().length).toBe(13) // 高さ13
+      expect(game.getField()[0].length).toBe(6) // 幅6
+    })
+
+    it('次のぷよが準備されている', () => {
+      expect(game.getNextPuyo()).toBeDefined()
+    })
+  })
 })
