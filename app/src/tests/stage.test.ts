@@ -145,7 +145,27 @@ import {Score} from "../score";
             expect(result).toBe(null);
         });
 
-        
+        describe("ぷよの接続判定を実装する", () => {
+            it("隣接する同じ色のぷよを検出する", () => {
+                // 準備: 盤面にぷよを配置
+                stage.setPuyo(0, 0, 1); // (0,0) に緑ぷよ
+                stage.setPuyo(0, 1, 1); // (0,1) に緑ぷよ
+                stage.setPuyo(1, 0, 2); // (1,0) に青ぷよ
+
+                // 実行: (0,0)のぷよから接続判定を開始
+                const connectedPuyos = stage.checkConnections(0, 0);
+
+                // 検証: 接続されているぷよの数が正しいか
+                expect(connectedPuyos.length).toBe(2);
+                // 検証: 接続されているぷよの位置が正しいか
+                expect(connectedPuyos).toEqual(
+                    expect.arrayContaining([
+                        {x: 0, y: 0},
+                        {x: 0, y: 1},
+                    ])
+                );
+            });
+        });
 
         describe("四方向周囲ぷよを確認する", () => {
             it("ステージの外にはみ出た", () => {

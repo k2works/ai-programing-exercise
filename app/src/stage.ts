@@ -178,101 +178,101 @@ export class Stage {
         return isFalling;
     }
 
+    public checkConnections(x: number, y: number): { x: number, y: number }[] {
+        const targetPuyo = this.board[y][x];
+        if (!targetPuyo) {
+            return [];
+        }
+
+        const puyoColor = targetPuyo.puyo;
+        const visited: boolean[][] = Array(this.config.stageRows)
+            .fill(false)
+            .map(() => Array(this.config.stageCols).fill(false));
+        const connectedPuyos: { x: number, y: number }[] = [];
+        const queue: { x: number, y: number }[] = [{x, y}];
+
+        visited[y][x] = true;
+
+        while (queue.length > 0) {
+            const current = queue.shift()!;
+            connectedPuyos.push({x: current.x, y: current.y});
+
+            const directions = [
+                {x: 0, y: 1},
+                {x: 0, y: -1},
+                {x: 1, y: 0},
+                {x: -1, y: 0},
+            ];
+
+            for (const dir of directions) {
+                const nextX = current.x + dir.x;
+                const nextY = current.y + dir.y;
+
+                if (
+                    nextX >= 0 &&
+                    nextX < this.config.stageCols &&
+                    nextY >= 0 &&
+                    nextY < this.config.stageRows &&
+                    !visited[nextY][nextX]
+                ) {
+                    visited[nextY][nextX] = true;
+                    const nextPuyo = this.board[nextY][nextX];
+                    if (nextPuyo && nextPuyo.puyo === puyoColor) {
+                        queue.push({x: nextX, y: nextY});
+                    }
+                }
+            }
+        }
+
+        return connectedPuyos;
+    }
+
 
     // 消せるかどうか判定する
     public checkErase(startFrame: number): EraseResult | null {
         this.eraseStartFrame = startFrame;
         this.erasingPuyoInfoList.length = 0;
-
-        // 何色のぷよを消したかを記録する
         const erasedPuyoColor: Record<string, boolean> = {};
+        const checkedPuyos: boolean[][] = Array(this.config.stageRows)
+            .fill(false)
+            .map(() => Array(this.config.stageCols).fill(false));
 
-        // 隣接ぷよを確認する関数内関数を作成
-        const sequencePuyoInfoList: PuyoInfo[] = [];
-        const existingPuyoInfoList: PuyoInfo[] = [];
-        const checkSequentialPuyo = (x: number, y: number): void => {
-            // ぷよがあるか確認する
-            const orig = this.board[y][x];
-            if (!orig) {
-                // ないなら何もしない
-                return;
-            }
-            // あるなら一旦退避して、メモリ上から消す
-            const puyo = this.board[y][x]!.puyo;
-            sequencePuyoInfoList.push({
-                x: x,
-                y: y,
-                cell: this.board[y][x] as PuyoCell,
-            });
-            this.board[y][x] = null;
-
-            // 四方向の周囲ぷよを確認する
-            const direction = [
-                [0, 1],
-                [1, 0],
-                [0, -1],
-                [-1, 0],
-            ];
-            for (let i = 0; i < direction.length; i++) {
-                const dx = x + direction[i][0];
-                const dy = y + direction[i][1];
-                if (
-                    dx < 0 ||
-                    dy < 0 ||
-                    dx >= this.config.stageCols ||
-                    dy >= this.config.stageRows
-                ) {
-                    // ステージの外にはみ出た
-                    continue;
-                }
-                const cell = this.board[dy][dx];
-                if (!cell || cell.puyo !== puyo) {
-                    // ぷよの色が違う
-                    continue;
-                }
-                // そのまわりのぷよも消せるか確認する
-                checkSequentialPuyo(dx, dy);
-            }
-        };
-
-        // 実際に削除できるかの確認を行う
         for (let y = 0; y < this.config.stageRows; y++) {
             for (let x = 0; x < this.config.stageCols; x++) {
-                sequencePuyoInfoList.length = 0;
-                const puyoColor = this.board[y][x] && this.board[y][x]!.puyo;
-                checkSequentialPuyo(x, y);
-                if (
-                    sequencePuyoInfoList.length == 0 ||
-                    sequencePuyoInfoList.length < this.config.erasePuyoCount
-                ) {
-                    // 連続して並んでいる数が足りなかったので消さない
-                    if (sequencePuyoInfoList.length) {
-                        // 退避していたぷよを消さないリストに追加する
-                        existingPuyoInfoList.push(...sequencePuyoInfoList);
+                if (checkedPuyos[y][x] || !this.board[y][x]) {
+                    continue;
+                }
+
+                const connectedPuyos = this.checkConnections(x, y);
+
+                if (connectedPuyos.length >= this.config.erasePuyoCount) {
+                    const puyoColor = this.board[y][x]!.puyo;
+                    erasedPuyoColor[puyoColor] = true;
+
+                    for (const puyo of connectedPuyos) {
+                        this.erasingPuyoInfoList.push({
+                            x: puyo.x,
+                            y: puyo.y,
+                            cell: this.board[puyo.y][puyo.x] as PuyoCell,
+                        });
+                        this.board[puyo.y][puyo.x] = null;
                     }
-                } else {
-                    // これらは消して良いので消すリストに追加する
-                    this.erasingPuyoInfoList.push(...sequencePuyoInfoList);
-                    if (puyoColor !== null && puyoColor !== undefined) {
-                        erasedPuyoColor[puyoColor] = true;
-                    }
+                }
+
+                for (const puyo of connectedPuyos) {
+                    checkedPuyos[puyo.y][puyo.x] = true;
                 }
             }
         }
-        this.puyoCount -= this.erasingPuyoInfoList.length;
 
-        // 消さないリストに入っていたぷよをメモリに復帰させる
-        for (const info of existingPuyoInfoList) {
-            this.board[info.y][info.x] = info.cell;
-        }
-
-        if (this.erasingPuyoInfoList.length) {
-            // もし消せるならば、消えるぷよの個数と色の情報をまとめて返す
+        if (this.erasingPuyoInfoList.length > 0) {
+            this.puyoCount -= this.erasingPuyoInfoList.length;
             return {
                 piece: this.erasingPuyoInfoList.length,
                 color: parseInt(Object.keys(erasedPuyoColor)[0], 10),
             };
         }
+
         return null;
     }
 

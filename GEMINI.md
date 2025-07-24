@@ -32,3 +32,14 @@ docs/requirement のイテレーションごとのTODOを基にアプリケー�
   - Keep: 続けること
   - Problem: 問題点
   - Try: 試すこと
+
+## Phase 4: ぷよぷよアプリケーションのドキュメント
+
+docs/journal/20250722.md 20250723.md からアプリケーションをどのように作ったか学習する
+- architecture.md を作成してアプリケーションのアーキテクチャをまとめる
+- design.md を作成してアプリケーションの設計をまとめる
+- implementation.md を作成してアプリケーションの実装をまとめる
+- mkdocs.yml を更新してドキュメントを生成できるようにする
+- docs/index.md も構成に合わせて更新する
+
+最後に次回同様の手順を再現で器用にしたいため replay.md を作成する
