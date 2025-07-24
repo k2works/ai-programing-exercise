@@ -167,4 +167,44 @@ describe('Game', () => {
       expect(mockContext.fillStyle).toBeDefined()
     })
   })
+
+  describe('ぷよの落下', () => {
+    beforeEach(() => {
+      vi.clearAllMocks()
+    })
+
+    it('操作ぷよが自動的に落下する', () => {
+      game.spawnActivePuyo()
+      const initialPuyo = game.getActivePuyo()
+      const initialY = initialPuyo!.y
+
+      // 落下間隔分だけ時間を進めて落下処理を実行
+      for (let i = 0; i < 30; i++) {
+        game.updateFalling()
+      }
+
+      const updatedPuyo = game.getActivePuyo()
+      expect(updatedPuyo!.y).toBeGreaterThan(initialY)
+    })
+
+    it('操作ぷよが下に障害物があるときは落下しない', () => {
+      game.spawnActivePuyo()
+      // フィールドの底部に到達した状態をシミュレート
+      const activePuyo = game.getActivePuyo()
+      activePuyo!.y = 11 // フィールドの下の方
+
+      // 落下間隔分だけ時間を進める
+      for (let i = 0; i < 30; i++) {
+        game.updateFalling()
+      }
+
+      // 底部に到達しているので位置が変わらない
+      expect(activePuyo!.y).toBe(11)
+    })
+
+    it('落下速度が設定できる', () => {
+      const speed = game.getFallSpeed()
+      expect(speed).toBeGreaterThan(0)
+    })
+  })
 })

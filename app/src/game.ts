@@ -12,6 +12,8 @@ export class Game {
     '#0000FF', // 3: 青
     '#FFFF00', // 4: 黄
   ]
+  private static readonly FALL_SPEED = 1 // 落下速度
+  private static readonly FALL_INTERVAL = 30 // 落下間隔（フレーム数）
 
   private canvas: HTMLCanvasElement
   private context: CanvasRenderingContext2D
@@ -22,6 +24,9 @@ export class Game {
   private field: number[][]
   private nextPuyo: { color1: number; color2: number }
   private activePuyo: { x: number; y: number; color1: number; color2: number } | null = null
+  private fallSpeed = Game.FALL_SPEED
+  private fallTimer = 0 // 落下タイマー
+  private fallInterval = Game.FALL_INTERVAL
 
   constructor(canvas: HTMLCanvasElement, scoreDisplay: HTMLElement) {
     this.canvas = canvas
@@ -73,7 +78,7 @@ export class Game {
   }
 
   private update(): void {
-    // ゲームロジックの更新処理（後で実装）
+    this.updateFalling()
   }
 
   private render(): void {
@@ -186,5 +191,35 @@ export class Game {
     // 次のぷよ2を描画（下に配置）
     this.context.fillStyle = this.getPuyoColor(this.nextPuyo.color2)
     this.context.fillRect(nextX, nextY + Game.CELL_SIZE, Game.CELL_SIZE - 2, Game.CELL_SIZE - 2)
+  }
+
+  updateFalling(): void {
+    if (!this.activePuyo) return
+
+    this.fallTimer++
+    if (this.fallTimer >= this.fallInterval) {
+      this.fallTimer = 0
+
+      // 落下可能かチェック
+      if (this.canFall()) {
+        this.activePuyo.y += this.fallSpeed
+      }
+    }
+  }
+
+  private canFall(): boolean {
+    if (!this.activePuyo) return false
+
+    // フィールドの底部に到達した場合
+    if (this.activePuyo.y + 1 >= Game.FIELD_HEIGHT - 1) {
+      return false
+    }
+
+    // 他のぷよとの衝突判定（後で実装）
+    return true
+  }
+
+  getFallSpeed(): number {
+    return this.fallSpeed
   }
 }
