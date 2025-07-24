@@ -40,4 +40,10 @@ defmodule FizzBuzzTest do
       assert Enum.at(result, 14) == "FizzBuzz"
     end
   end
+
+  describe "タイプごとに出力を切り替えることができる - タイプ1の場合" do
+    test "1を渡したら文字列1を返す" do
+      assert FizzBuzz.generate(1, 1) == "1"
+    end
+  end
 end
