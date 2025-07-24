@@ -72,8 +72,8 @@ defmodule FizzBuzzTest do
       assert FizzBuzz.generate(5, 3) == "Fizz"
     end
 
-    test "15を渡したら文字列BuzzFizzを返す" do
-      assert FizzBuzz.generate(15, 3) == "BuzzFizz"
+    test "15を渡したら文字列FizzBuzzを返す" do
+      assert FizzBuzz.generate(15, 3) == "FizzBuzz"
     end
   end
 

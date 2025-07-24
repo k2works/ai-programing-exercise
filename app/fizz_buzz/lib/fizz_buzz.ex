@@ -4,50 +4,61 @@ defprotocol FizzBuzzType do
   def generate(type, number)
 end
 
+# FizzBuzzタイプの基底ビヘイビア
+defmodule FizzBuzzTypeBase do
+  @moduledoc """
+  FizzBuzzタイプの共通機能を提供する基底モジュール
+  """
+
+  @doc """
+  基本的なFizzBuzz変換ロジック
+  """
+  def basic_fizzbuzz(number, fizz_divisor, buzz_divisor, fizz_text, buzz_text) do
+    fizzbuzz_divisor = fizz_divisor * buzz_divisor
+    cond do
+      rem(number, fizzbuzz_divisor) == 0 -> fizz_text <> buzz_text
+      rem(number, fizz_divisor) == 0 -> fizz_text
+      rem(number, buzz_divisor) == 0 -> buzz_text
+      true -> to_string(number)
+    end
+  end
+
+  defmacro __using__(_opts) do
+    quote do
+      defstruct []
+    end
+  end
+end
+
 # FizzBuzzタイプ1の実装
 defmodule FizzBuzzType1 do
-  defstruct []
+  use FizzBuzzTypeBase
 
   defimpl FizzBuzzType do
     def generate(_type, number) do
-      cond do
-        rem(number, 15) == 0 -> "FizzBuzz"
-        rem(number, 3) == 0 -> "Fizz"
-        rem(number, 5) == 0 -> "Buzz"
-        true -> to_string(number)
-      end
+      FizzBuzzTypeBase.basic_fizzbuzz(number, 3, 5, "Fizz", "Buzz")
     end
   end
 end
 
 # FizzBuzzタイプ2の実装（5と7で異なるルール）
 defmodule FizzBuzzType2 do
-  defstruct []
+  use FizzBuzzTypeBase
 
   defimpl FizzBuzzType do
     def generate(_type, number) do
-      cond do
-        rem(number, 35) == 0 -> "FizzBuzz"
-        rem(number, 5) == 0 -> "Fizz"
-        rem(number, 7) == 0 -> "Buzz"
-        true -> to_string(number)
-      end
+      FizzBuzzTypeBase.basic_fizzbuzz(number, 5, 7, "Fizz", "Buzz")
     end
   end
 end
 
 # FizzBuzzタイプ3の実装（3と5で逆のルール）
 defmodule FizzBuzzType3 do
-  defstruct []
+  use FizzBuzzTypeBase
 
   defimpl FizzBuzzType do
     def generate(_type, number) do
-      cond do
-        rem(number, 15) == 0 -> "BuzzFizz"
-        rem(number, 5) == 0 -> "Fizz"
-        rem(number, 3) == 0 -> "Buzz"
-        true -> to_string(number)
-      end
+      FizzBuzzTypeBase.basic_fizzbuzz(number, 5, 3, "Fizz", "Buzz")
     end
   end
 end
