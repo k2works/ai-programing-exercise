@@ -7,7 +7,9 @@
     "journal": "gulp journal:generate",
     "docs:serve": "gulp mkdocs:serve",
     "docs:stop": "gulp mkdocs:stop",
-    "docs:build": "gulp mkdocs:build"
+    "docs:build": "gulp mkdocs:build",
+    "app:claude": "cd app/claude && python3 -m http.server 8001 --bind 0.0.0.0",
+    "app:gemini": "cd app/gemini && python3 -m http.server 8002 --bind 0.0.0.0"
   },
   "repository": {
     "type": "git",

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ぷよぷよ - Claude版</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <h1>ぷよぷよ - Claude版</h1>
+        <div id="game-area">
+            <canvas id="game-canvas" width="300" height="600"></canvas>
+            <div id="info-panel">
+                <div id="score-section">
+                    <h2>スコア</h2>
+                    <div id="score">0</div>
+                </div>
+                <div id="next-section">
+                    <h2>ネクスト</h2>
+                    <canvas id="next-canvas" width="80" height="80"></canvas>
+                </div>
+                <div id="controls">
+                    <h3>操作方法</h3>
+                    <p>← → : 移動</p>
+                    <p>↓ : 高速落下</p>
+                    <p>スペース : 回転</p>
+                </div>
+            </div>
+        </div>
+        <div id="game-over" class="hidden">
+            <h2>ゲームオーバー</h2>
+            <button id="restart-btn">リスタート</button>
+        </div>
+    </div>
+
+    <script src="js/puyo.js"></script>
+    <script src="js/field.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/input.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
