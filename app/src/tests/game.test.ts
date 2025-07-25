@@ -1212,9 +1212,13 @@ describe('Game', () => {
       it('上キーが押されても回転できない場合は回転しない', () => {
         const activePuyo = game.getActivePuyo()
         if (activePuyo) {
-          // 回転を阻害する障害物を設置
+          // 全方向に障害物を設置して壁キックでも回転できない状況を作る
           const field = game.getField()
           field[2][3] = 1 // 回転先の位置に障害物
+          field[2][1] = 1 // 左側（キック先）にも障害物
+          field[2][3] = 1 // 右側にも障害物
+          field[1][2] = 1 // 上側にも障害物
+          field[3][2] = 1 // 下側にも障害物
 
           activePuyo.x = 2
           activePuyo.y = 2
@@ -1232,6 +1236,115 @@ describe('Game', () => {
           // 回転していないことを確認
           expect(game.getActivePuyoDirection()).toBe(initialDirection)
         }
+      })
+    })
+
+    describe('壁キック処理', () => {
+      beforeEach(() => {
+        // 落下を無効にして純粋に回転のテストを行う
+        game.disableFalling()
+      })
+
+      it('右端で回転時に左にキックして回転できる', () => {
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          activePuyo.x = 5 // 右端
+          activePuyo.y = 2
+          activePuyo.direction = 0 // 縦配置（下向き）
+
+          // 通常では回転できない位置
+          expect(game.canRotate()).toBe(false)
+
+          // 上キーを押して回転を試行（壁キックで成功するはず）
+          const upKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowUp' })
+          game.handleKeyDown(upKeyEvent)
+
+          // 回転間隔分だけアップデートを実行
+          for (let i = 0; i < 15; i++) {
+            game.updateAndRender()
+          }
+
+          // 壁キックにより回転が成功し、左に移動している
+          expect(game.getActivePuyoDirection()).toBe(1) // 回転成功
+          expect(game.getActivePuyo()!.x).toBe(4) // 左にキックされている
+        }
+      })
+
+      it('左端で回転時に右にキックして回転できる', () => {
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          activePuyo.x = 0 // 左端
+          activePuyo.y = 2
+          activePuyo.direction = 2 // 縦配置（上向き）から横配置（左向き）への回転
+
+          // 上キーを押して回転を試行（壁キックで成功するはず）
+          const upKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowUp' })
+          game.handleKeyDown(upKeyEvent)
+
+          // 回転間隔分だけアップデートを実行
+          for (let i = 0; i < 15; i++) {
+            game.updateAndRender()
+          }
+
+          // 壁キックにより回転が成功し、右に移動している
+          expect(game.getActivePuyoDirection()).toBe(3) // 回転成功
+          expect(game.getActivePuyo()!.x).toBe(1) // 右にキックされている
+        }
+      })
+
+      it('上端で回転時に下にキックして回転できる', () => {
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          activePuyo.x = 2
+          activePuyo.y = 0 // 上端
+          activePuyo.direction = 1 // 横配置（右向き）から縦配置（上向き）への回転
+
+          // 上キーを押して回転を試行（壁キックで成功するはず）
+          const upKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowUp' })
+          game.handleKeyDown(upKeyEvent)
+
+          // 回転間隔分だけアップデートを実行
+          for (let i = 0; i < 15; i++) {
+            game.updateAndRender()
+          }
+
+          // 壁キックにより回転が成功し、下に移動している
+          expect(game.getActivePuyoDirection()).toBe(2) // 回転成功
+          expect(game.getActivePuyo()!.y).toBe(1) // 下にキックされている
+        }
+      })
+
+      it('壁キックでも回転できない場合は回転しない', () => {
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          activePuyo.x = 5 // 右端
+          activePuyo.y = 2
+          activePuyo.direction = 0 // 縦配置（下向き）
+
+          // 壁キック先にも障害物を設置
+          const field = game.getField()
+          field[2][4] = 1 // 左側（キック先）にも障害物
+
+          const initialDirection = activePuyo.direction
+          const initialX = activePuyo.x
+
+          // 上キーを押して回転を試行
+          const upKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowUp' })
+          game.handleKeyDown(upKeyEvent)
+
+          // 回転間隔分だけアップデートを実行
+          for (let i = 0; i < 15; i++) {
+            game.updateAndRender()
+          }
+
+          // 壁キックでも回転できないので変化なし
+          expect(game.getActivePuyoDirection()).toBe(initialDirection)
+          expect(game.getActivePuyo()!.x).toBe(initialX)
+        }
+      })
+
+      it('壁キック処理をチェックするメソッドが存在する', () => {
+        expect(typeof game.tryWallKick).toBe('function')
       })
     })
   })

@@ -386,6 +386,9 @@ export class Game {
         // 回転可能かチェックしてから回転処理を実行
         if (this.canRotate()) {
           this.activePuyo.direction = (this.activePuyo.direction + 1) % 4
+        } else {
+          // 壁キック処理を試行
+          this.tryWallKick()
         }
       }
     } else {
@@ -545,6 +548,57 @@ export class Game {
 
     // 操作ぷよをクリア
     this.activePuyo = null
+  }
+
+  // 壁キック処理を試行する
+  tryWallKick(): void {
+    if (!this.activePuyo) return
+
+    const nextDirection = (this.activePuyo.direction + 1) % 4
+    const kickOffsets = [
+      { x: -1, y: 0 }, // 左にキック
+      { x: 1, y: 0 }, // 右にキック
+      { x: 0, y: -1 }, // 上にキック
+      { x: 0, y: 1 }, // 下にキック
+    ]
+
+    // 各方向のキックを試行
+    for (const offset of kickOffsets) {
+      const testPuyo = {
+        x: this.activePuyo.x + offset.x,
+        y: this.activePuyo.y + offset.y,
+        direction: nextDirection,
+      }
+
+      // キック後の位置で回転可能かチェック
+      if (this.canRotateAt(testPuyo)) {
+        // 回転を実行
+        this.activePuyo.x = testPuyo.x
+        this.activePuyo.y = testPuyo.y
+        this.activePuyo.direction = nextDirection
+        return
+      }
+    }
+  }
+
+  // 指定した位置で回転可能かどうかをチェックする
+  private canRotateAt(testPuyo: { x: number; y: number; direction: number }): boolean {
+    const positions = this.getPuyoPositionsForTest(testPuyo)
+
+    // すべての位置が有効（空き）かどうかチェック
+    for (const pos of positions) {
+      // フィールドの境界チェック
+      if (pos.x < 0 || pos.x >= Game.FIELD_WIDTH || pos.y < 0 || pos.y >= Game.FIELD_HEIGHT) {
+        return false
+      }
+
+      // フィールドの占有チェック（他のぷよと衝突しないか）
+      if (this.field[pos.y] && this.field[pos.y][pos.x] !== 0) {
+        return false
+      }
+    }
+
+    return true
   }
 
   processLanding(): void {
