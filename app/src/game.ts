@@ -143,16 +143,15 @@ export class Game {
     this.context.strokeStyle = '#000000'
     this.context.strokeRect(Game.FIELD_OFFSET_X, Game.FIELD_OFFSET_Y, fieldWidth, fieldHeight)
 
-    // フィールドに固定されたぷよを描画
+    // フィールドに固定されたぷよを楕円形で描画
     for (let y = 0; y < Game.FIELD_HEIGHT; y++) {
       for (let x = 0; x < Game.FIELD_WIDTH; x++) {
         const puyoColor = this.field[y][x]
         if (puyoColor !== 0) {
-          // ぷよが存在する場合は描画
-          this.context.fillStyle = this.getPuyoColor(puyoColor)
+          // ぷよが存在する場合は楕円形で描画
           const drawX = Game.FIELD_OFFSET_X + x * Game.CELL_SIZE
           const drawY = Game.FIELD_OFFSET_Y + y * Game.CELL_SIZE
-          this.context.fillRect(drawX, drawY, Game.CELL_SIZE - 2, Game.CELL_SIZE - 2)
+          this.drawPuyo(drawX, drawY, this.getPuyoColor(puyoColor))
         }
       }
     }
@@ -190,6 +189,24 @@ export class Game {
     return Game.PUYO_COLOR_MAP[colorNumber] || '#CCCCCC'
   }
 
+  private drawPuyo(x: number, y: number, color: string): void {
+    // ぷよを楕円形で描画
+    const centerX = x + Game.CELL_SIZE / 2
+    const centerY = y + Game.CELL_SIZE / 2
+    const radiusX = (Game.CELL_SIZE - 4) / 2 // 若干小さくして見やすく
+    const radiusY = (Game.CELL_SIZE - 4) / 2
+
+    this.context.fillStyle = color
+    this.context.beginPath()
+    this.context.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, 2 * Math.PI)
+    this.context.fill()
+
+    // 輪郭線を追加
+    this.context.strokeStyle = '#333333'
+    this.context.lineWidth = 1
+    this.context.stroke()
+  }
+
   renderActivePuyo(): void {
     if (!this.activePuyo) return
 
@@ -198,26 +215,22 @@ export class Game {
     const x2 = Game.FIELD_OFFSET_X + this.activePuyo.x * Game.CELL_SIZE
     const y2 = Game.FIELD_OFFSET_Y + (this.activePuyo.y + 1) * Game.CELL_SIZE
 
-    // 1つ目のぷよを描画
-    this.context.fillStyle = this.getPuyoColor(this.activePuyo.color1)
-    this.context.fillRect(x1, y1, Game.CELL_SIZE - 2, Game.CELL_SIZE - 2)
+    // 1つ目のぷよを楕円形で描画
+    this.drawPuyo(x1, y1, this.getPuyoColor(this.activePuyo.color1))
 
-    // 2つ目のぷよを描画（下に配置）
-    this.context.fillStyle = this.getPuyoColor(this.activePuyo.color2)
-    this.context.fillRect(x2, y2, Game.CELL_SIZE - 2, Game.CELL_SIZE - 2)
+    // 2つ目のぷよを楕円形で描画（下に配置）
+    this.drawPuyo(x2, y2, this.getPuyoColor(this.activePuyo.color2))
   }
 
   renderNextPuyo(): void {
     const nextX = Game.FIELD_OFFSET_X + (Game.FIELD_WIDTH + 1) * Game.CELL_SIZE
     const nextY = Game.FIELD_OFFSET_Y + Game.CELL_SIZE
 
-    // 次のぷよ1を描画
-    this.context.fillStyle = this.getPuyoColor(this.nextPuyo.color1)
-    this.context.fillRect(nextX, nextY, Game.CELL_SIZE - 2, Game.CELL_SIZE - 2)
+    // 次のぷよ1を楕円形で描画
+    this.drawPuyo(nextX, nextY, this.getPuyoColor(this.nextPuyo.color1))
 
-    // 次のぷよ2を描画（下に配置）
-    this.context.fillStyle = this.getPuyoColor(this.nextPuyo.color2)
-    this.context.fillRect(nextX, nextY + Game.CELL_SIZE, Game.CELL_SIZE - 2, Game.CELL_SIZE - 2)
+    // 次のぷよ2を楕円形で描画（下に配置）
+    this.drawPuyo(nextX, nextY + Game.CELL_SIZE, this.getPuyoColor(this.nextPuyo.color2))
   }
 
   updateFalling(): void {

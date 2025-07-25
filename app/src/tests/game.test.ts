@@ -12,10 +12,15 @@ describe('Game', () => {
     mockContext = {
       fillStyle: '',
       strokeStyle: '',
+      lineWidth: 1,
       fillRect: vi.fn(),
       strokeRect: vi.fn(),
       clearRect: vi.fn(),
       drawImage: vi.fn(),
+      beginPath: vi.fn(),
+      ellipse: vi.fn(),
+      fill: vi.fn(),
+      stroke: vi.fn(),
     } as unknown as CanvasRenderingContext2D
 
     // Canvas要素をモック
@@ -163,15 +168,17 @@ describe('Game', () => {
       game.spawnActivePuyo()
       game.renderActivePuyo()
 
-      // 2つのぷよが描画される（fillRectが2回呼ばれる）
-      expect(mockContext.fillRect).toHaveBeenCalledTimes(2)
+      // 2つのぷよが楕円形で描画される（ellipseが2回呼ばれる）
+      expect(mockContext.ellipse).toHaveBeenCalledTimes(2)
+      expect(mockContext.fill).toHaveBeenCalledTimes(2)
     })
 
     it('次のぷよが画面に描画される', () => {
       game.renderNextPuyo()
 
-      // 次のぷよエリアが描画される
-      expect(mockContext.fillRect).toHaveBeenCalled()
+      // 次のぷよエリアが楕円形で描画される
+      expect(mockContext.ellipse).toHaveBeenCalled()
+      expect(mockContext.fill).toHaveBeenCalled()
     })
 
     it('ぷよの色が正しく設定される', () => {
@@ -883,10 +890,15 @@ describe('Game', () => {
       // Canvas とコンテキストのモックを作成
       mockContext = {
         fillStyle: '',
-        fillRect: vi.fn(),
         strokeStyle: '',
+        lineWidth: 1,
+        fillRect: vi.fn(),
         strokeRect: vi.fn(),
         clearRect: vi.fn(),
+        beginPath: vi.fn(),
+        ellipse: vi.fn(),
+        fill: vi.fn(),
+        stroke: vi.fn(),
       } as unknown as CanvasRenderingContext2D
 
       mockCanvas = {
@@ -914,11 +926,15 @@ describe('Game', () => {
       // フィールドを描画
       game.renderField()
 
-      // fillRectが呼ばれている回数を確認
-      const fillRectCalls = (mockContext.fillRect as any).mock.calls
+      // ellipseが呼ばれている回数を確認（楕円描画）
+      const ellipseCalls = (mockContext.ellipse as any).mock.calls
 
-      // 背景(1回) + 固定ぷよ(3回) = 4回のfillRect呼び出しがあるはず
-      expect(fillRectCalls.length).toBeGreaterThanOrEqual(4)
+      // 固定ぷよが楕円形で描画される（3回のellipse呼び出しがあるはず）
+      expect(ellipseCalls.length).toBe(3)
+
+      // fillが呼ばれている回数を確認（楕円の塗りつぶし）
+      const fillCalls = (mockContext.fill as any).mock.calls
+      expect(fillCalls.length).toBe(3)
 
       // ぷよの色が正しく設定されているかチェック
       const fillStyleCalls = mockContext.fillStyle as any
