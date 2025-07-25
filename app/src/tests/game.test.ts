@@ -65,9 +65,9 @@ describe('Game', () => {
 
     it('start()を呼ぶとキーボードイベントリスナーが設定される', () => {
       const setupInputHandlersSpy = vi.spyOn(game, 'setupInputHandlers')
-      
+
       game.start()
-      
+
       expect(setupInputHandlersSpy).toHaveBeenCalled()
       game.stop() // テスト後のクリーンアップ
     })
@@ -641,6 +641,60 @@ describe('Game', () => {
 
       // 左に移動しようとすると、2つ目のぷよが(1,6)に衝突する
       expect(game.canMoveLeft()).toBe(false)
+    })
+  })
+
+  describe('ぷよの着地検出', () => {
+    beforeEach(() => {
+      vi.clearAllMocks()
+      game.start()
+    })
+
+    it('ぷよが底面に着地したことを検出できる', () => {
+      // 操作ぷよを底面近くに配置
+      const activePuyo = game.getActivePuyo()
+      activePuyo!.y = 11 // 2つ目のぷよが底面(y=12)に接触
+
+      expect(game.canMoveDown()).toBe(false)
+    })
+
+    it('ぷよが他のぷよに着地したことを検出できる', () => {
+      // フィールドにぷよを配置
+      const field = game.getField()
+      field[8][2] = 1 // (2, 8)の位置にぷよを配置
+
+      // 操作ぷよをその上に配置
+      const activePuyo = game.getActivePuyo()
+      activePuyo!.x = 2
+      activePuyo!.y = 6 // 2つ目のぷよがy=7で、下のぷよ(y=8)に接触
+
+      expect(game.canMoveDown()).toBe(false)
+    })
+
+    it('ぷよが落下可能な状態を検出できる', () => {
+      // 操作ぷよを中間の位置に配置
+      const activePuyo = game.getActivePuyo()
+      activePuyo!.x = 2
+      activePuyo!.y = 5
+
+      expect(game.canMoveDown()).toBe(true)
+    })
+
+    it('ぷよの1つ目が他のぷよに衝突する場合も着地判定する', () => {
+      // フィールドにぷよを配置
+      const field = game.getField()
+      field[6][2] = 1 // (2, 6)の位置にぷよを配置
+
+      // 操作ぷよをそのすぐ上に配置
+      const activePuyo = game.getActivePuyo()
+      activePuyo!.x = 2
+      activePuyo!.y = 5 // 1つ目のぷよがy=5で、下のぷよ(y=6)に接触
+
+      expect(game.canMoveDown()).toBe(false)
+    })
+
+    it('着地判定メソッドが存在する', () => {
+      expect(typeof game.canMoveDown).toBe('function')
     })
   })
 })

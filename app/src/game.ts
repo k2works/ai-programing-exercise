@@ -316,6 +316,21 @@ export class Game {
     return this.canMoveToPosition(1)
   }
 
+  canMoveDown(): boolean {
+    if (!this.activePuyo) return false
+
+    const targetX = this.activePuyo.x
+    const targetY = this.activePuyo.y + 1
+
+    // フィールドの境界チェック（底面判定）
+    if (targetY + 1 >= Game.FIELD_HEIGHT) {
+      return false
+    }
+
+    // 他のぷよとの衝突チェック
+    return this.isPuyoPositionEmpty(targetX, targetY)
+  }
+
   private canMoveToPosition(deltaX: number): boolean {
     if (!this.activePuyo) return false
 
