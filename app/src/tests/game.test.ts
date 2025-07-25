@@ -697,4 +697,98 @@ describe('Game', () => {
       expect(typeof game.canMoveDown).toBe('function')
     })
   })
+
+  describe('着地後の次ぷよ生成', () => {
+    beforeEach(() => {
+      vi.clearAllMocks()
+      game.start()
+    })
+
+    it('ぷよが着地したら操作ぷよをフィールドに固定する', () => {
+      // 操作ぷよを底面近くに配置
+      const activePuyo = game.getActivePuyo()
+      activePuyo!.x = 2
+      activePuyo!.y = 11 // 2つ目のぷよが底面(y=12)に接触
+
+      // 操作ぷよをフィールドに固定する処理
+      game.landActivePuyo()
+
+      // フィールドに操作ぷよが固定されている
+      const field = game.getField()
+      expect(field[11][2]).toBe(activePuyo!.color1) // 1つ目のぷよ
+      expect(field[12][2]).toBe(activePuyo!.color2) // 2つ目のぷよ
+
+      // 操作ぷよがクリアされている
+      expect(game.getActivePuyo()).toBeNull()
+    })
+
+    it('着地後に新しい操作ぷよが生成される', () => {
+      // 元の次ぷよの色を記録
+      const originalNextPuyo = game.getNextPuyo()
+
+      // 操作ぷよを着地させる
+      const activePuyo = game.getActivePuyo()
+      activePuyo!.x = 2
+      activePuyo!.y = 11
+      game.landActivePuyo()
+
+      // 新しい操作ぷよが生成される
+      game.spawnActivePuyo()
+      const newActivePuyo = game.getActivePuyo()
+
+      expect(newActivePuyo).not.toBeNull()
+      expect(newActivePuyo!.x).toBe(2) // 初期位置
+      expect(newActivePuyo!.y).toBe(0) // 初期位置
+      expect(newActivePuyo!.color1).toBe(originalNextPuyo.color1)
+      expect(newActivePuyo!.color2).toBe(originalNextPuyo.color2)
+    })
+
+    it('着地処理メソッドが存在する', () => {
+      expect(typeof game.landActivePuyo).toBe('function')
+    })
+
+    it('着地処理でフィールドの正しい位置にぷよが配置される', () => {
+      // 操作ぷよを特定の位置に配置
+      const activePuyo = game.getActivePuyo()
+      activePuyo!.x = 1
+      activePuyo!.y = 9
+      activePuyo!.color1 = 1
+      activePuyo!.color2 = 2
+
+      // 着地処理を実行
+      game.landActivePuyo()
+
+      // フィールドの正しい位置にぷよが配置されている
+      const field = game.getField()
+      expect(field[9][1]).toBe(1) // 1つ目のぷよ
+      expect(field[10][1]).toBe(2) // 2つ目のぷよ
+    })
+
+    it('着地処理と次ぷよ生成を統合したメソッドが存在する', () => {
+      expect(typeof game.processLanding).toBe('function')
+    })
+
+    it('統合メソッドで着地から次ぷよ生成まで一括処理される', () => {
+      // 操作ぷよを着地位置に配置
+      const activePuyo = game.getActivePuyo()
+      const originalColor1 = activePuyo!.color1
+      const originalColor2 = activePuyo!.color2
+      activePuyo!.x = 3
+      activePuyo!.y = 10
+
+      // 統合処理を実行
+      game.processLanding()
+
+      // フィールドに着地したぷよが配置されている
+      const field = game.getField()
+      expect(field[10][3]).toBe(originalColor1)
+      expect(field[11][3]).toBe(originalColor2)
+
+      // 新しい操作ぷよが生成されている
+      const newActivePuyo = game.getActivePuyo()
+      expect(newActivePuyo).not.toBeNull()
+      expect(newActivePuyo!.x).toBe(2) // 初期位置
+      expect(newActivePuyo!.y).toBe(0) // 初期位置
+    })
+  })
 })

@@ -359,4 +359,25 @@ export class Game {
 
     return true
   }
+
+  landActivePuyo(): void {
+    if (!this.activePuyo) return
+
+    // 操作ぷよをフィールドに固定
+    this.field[this.activePuyo.y][this.activePuyo.x] = this.activePuyo.color1
+    this.field[this.activePuyo.y + 1][this.activePuyo.x] = this.activePuyo.color2
+
+    // 操作ぷよをクリア
+    this.activePuyo = null
+  }
+
+  processLanding(): void {
+    if (!this.activePuyo) return
+
+    // 着地処理
+    this.landActivePuyo()
+
+    // 新しい操作ぷよを生成
+    this.spawnActivePuyo()
+  }
 }
