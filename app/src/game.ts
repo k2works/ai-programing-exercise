@@ -642,4 +642,14 @@ export class Game {
     // 新しい操作ぷよを生成
     this.spawnActivePuyo()
   }
+
+  // テスト用メソッド: 落下可能かどうかをチェック
+  canFallTest(): boolean {
+    return this.canFall()
+  }
+
+  // テスト用メソッド: 着地しているかどうかをチェック
+  hasLandedTest(): boolean {
+    return !this.canFall()
+  }
 }

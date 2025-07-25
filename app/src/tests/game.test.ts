@@ -1524,5 +1524,195 @@ describe('Game', () => {
         }
       })
     })
+
+    describe('落下可能性チェック', () => {
+      it('下に空きスペースがあるときは落下可能', () => {
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          // 中央上部に配置
+          activePuyo.x = 2
+          activePuyo.y = 5
+          activePuyo.direction = 0 // 縦配置
+
+          // 落下可能かチェック
+          expect(game.canFallTest()).toBe(true)
+        }
+      })
+
+      it('下に障害物があるときは落下不可能', () => {
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          // 障害物を設置（y=10とy=11にぷよを配置）
+          const field = game.getField()
+          field[10][2] = 1 // 障害物
+          field[11][2] = 2 // 障害物
+
+          // 障害物の直上に配置
+          activePuyo.x = 2
+          activePuyo.y = 9
+          activePuyo.direction = 0 // 縦配置
+
+          // 落下不可能のはず
+          expect(game.canFallTest()).toBe(false)
+        }
+      })
+
+      it('底面に達したときは落下不可能', () => {
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          // 底面に配置
+          activePuyo.x = 2
+          activePuyo.y = 12 // 底面
+          activePuyo.direction = 0 // 縦配置
+
+          // 落下不可能のはず
+          expect(game.canFallTest()).toBe(false)
+        }
+      })
+
+      it('上向きぷよでも正しく落下可能性を判定する', () => {
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          // 上向き配置で中央に配置
+          activePuyo.x = 2
+          activePuyo.y = 5
+          activePuyo.direction = 2 // 上向き
+
+          // 落下可能のはず
+          expect(game.canFallTest()).toBe(true)
+        }
+      })
+
+      it('横向きぷよでも正しく落下可能性を判定する', () => {
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          // 横向き配置で中央に配置
+          activePuyo.x = 2
+          activePuyo.y = 5
+          activePuyo.direction = 1 // 右向き
+
+          // 落下可能のはず
+          expect(game.canFallTest()).toBe(true)
+        }
+      })
+    })
+
+    describe('着地判定', () => {
+      it('ぷよが着地したことを正しく検知する', () => {
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          // 底面近くに配置
+          activePuyo.x = 2
+          activePuyo.y = 11 // 底面の1つ上
+          activePuyo.direction = 0 // 縦配置
+
+          // 着地判定をテスト
+          expect(game.hasLandedTest()).toBe(true)
+        }
+      })
+
+      it('まだ落下できる状態では着地していない', () => {
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          // 中央に配置
+          activePuyo.x = 2
+          activePuyo.y = 5
+          activePuyo.direction = 0 // 縦配置
+
+          // まだ着地していないはず
+          expect(game.hasLandedTest()).toBe(false)
+        }
+      })
+
+      it('他のぷよの上に着地したことを検知する', () => {
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          // 障害物を設置
+          const field = game.getField()
+          field[10][2] = 1 // 障害物
+
+          // 障害物の直上に配置
+          activePuyo.x = 2
+          activePuyo.y = 9
+          activePuyo.direction = 0 // 縦配置（2つ目がy=10になる）
+
+          // 着地しているはず
+          expect(game.hasLandedTest()).toBe(true)
+        }
+      })
+
+      it('複雑な配置でも正しく着地判定する', () => {
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          // 複雑な障害物パターンを作成
+          const field = game.getField()
+          field[11][1] = 1 // 左に障害物
+          field[11][3] = 2 // 右に障害物
+          field[10][2] = 3 // 中央下に障害物
+
+          // 障害物の上に配置
+          activePuyo.x = 2
+          activePuyo.y = 9
+          activePuyo.direction = 0 // 縦配置
+
+          // 着地しているはず
+          expect(game.hasLandedTest()).toBe(true)
+
+          // 落下処理は内部的に処理されるので、直接processLandingを実行
+          game.processLanding()
+
+          // 着地により新しいぷよが生成されるはず
+          const newActivePuyo = game.getActivePuyo()
+          expect(newActivePuyo).not.toBeNull()
+          expect(newActivePuyo!.y).toBe(0) // 新しいぷよは初期位置
+        }
+      })
+    })
+
+    describe('統合テスト: 落下から着地まで', () => {
+      it('高速落下中も正しく着地判定が働く', () => {
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          // 底面近くに配置
+          activePuyo.x = 2
+          activePuyo.y = 11 // より底面に近い位置
+          activePuyo.direction = 0 // 縦配置
+
+          // 下キーを押して高速落下
+          const downKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowDown' })
+          game.handleKeyDown(downKeyEvent)
+
+          // 高速落下処理を実行（着地するまで）
+          game.updateAndRender()
+
+          // 着地により新しいぷよが生成されているはず
+          const newActivePuyo = game.getActivePuyo()
+          expect(newActivePuyo).not.toBeNull()
+          expect(newActivePuyo!.y).toBe(0) // 新しいぷよは初期位置
+
+          // フィールドに前のぷよが固定されているはず
+          const field = game.getField()
+          expect(field[11][2]).not.toBe(0) // 中心ぷよが固定
+          expect(field[12][2]).not.toBe(0) // 2つ目のぷよが固定
+        }
+      })
+
+      it('回転後も正しく落下可能性を判定する', () => {
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          // 底面に配置
+          activePuyo.x = 2
+          activePuyo.y = 12 // 底面
+          activePuyo.direction = 0 // 縦配置
+
+          // 回転して横配置にする
+          activePuyo.direction = 1 // 右向き
+
+          // 横配置でも落下可能性を正しく判定するはず
+          expect(game.canFallTest()).toBe(false) // 底面なので落下不可
+          expect(game.hasLandedTest()).toBe(true) // 着地している
+        }
+      })
+    })
   })
 })
