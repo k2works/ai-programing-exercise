@@ -285,9 +285,14 @@ export class Game {
   private canFall(): boolean {
     if (!this.activePuyo) return false
 
-    // フィールドの底部に到達した場合（ぷよは2つ分の高さなので、+2で判定）
-    if (this.activePuyo.y + 2 >= Game.FIELD_HEIGHT) {
-      return false
+    // 現在の操作ぷよの位置を取得
+    const positions = this.getActivePuyoPositions()
+
+    // すべてのぷよの位置が底面に到達していないかチェック
+    for (const pos of positions) {
+      if (pos.y >= Game.FIELD_HEIGHT - 1) {
+        return false
+      }
     }
 
     // canMoveDown()と同じ衝突判定を使用
@@ -440,6 +445,11 @@ export class Game {
     this.fallInterval = 99999 // 非常に大きな値にして実質的に無効化
   }
 
+  // テスト用のメソッド：落下間隔を設定する
+  setFallInterval(interval: number): void {
+    this.fallInterval = interval
+  }
+
   clearActivePuyo(): void {
     this.activePuyo = null
   }
@@ -458,12 +468,7 @@ export class Game {
     const targetX = this.activePuyo.x
     const targetY = this.activePuyo.y + 1
 
-    // フィールドの境界チェック（底面判定）
-    if (targetY + 1 >= Game.FIELD_HEIGHT) {
-      return false
-    }
-
-    // 他のぷよとの衝突チェック
+    // 移動後の位置をチェック
     return this.isPuyoPositionEmpty(targetX, targetY)
   }
 

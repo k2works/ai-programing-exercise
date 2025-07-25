@@ -1347,5 +1347,90 @@ describe('Game', () => {
         expect(typeof game.tryWallKick).toBe('function')
       })
     })
+
+    describe('上向きぷよの着地判定', () => {
+      it('上向きぷよが底面まで正しく落下する', () => {
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          // 上向きの配置にセット（direction = 2）
+          activePuyo.x = 2
+          activePuyo.y = 10 // 底面近くから開始
+          activePuyo.direction = 2 // 上向き
+
+          // 落下を有効にする
+          game.setFallInterval(1) // 毎フレーム落下
+
+          let finalY = -1
+          // 底面まで落下させる
+          for (let i = 0; i < 10; i++) {
+            const currentPuyo = game.getActivePuyo()
+            if (currentPuyo) {
+              finalY = currentPuyo.y
+            }
+
+            game.updateAndRender()
+
+            // 着地したかチェック
+            if (!game.getActivePuyo()) {
+              break
+            }
+          }
+
+          // 上向きぷよの最終着地位置をチェック
+          // フィールドサイズは13（0-12）で、上向きぷよは2つ目が上（y-1）にある
+          // 実際の着地位置は、フィールドの境界に制限される
+
+          // フィールドに固定されているか確認
+          const field = game.getField()
+
+          // 着地したぷよがフィールドに配置されている
+          let foundPuyos = 0
+          for (let y = 0; y < 13; y++) {
+            if (field[y][2] !== 0) {
+              foundPuyos++
+            }
+          }
+          expect(foundPuyos).toBe(2) // 2つのぷよが配置されている
+
+          // 底面近くにぷよが配置されていることを確認
+          expect(field[12][2]).not.toBe(0) // 底面にぷよ
+          expect(field[11][2]).not.toBe(0) // その上にぷよ
+        }
+      })
+
+      it('上向きぷよが他のぷよの上に正しく着地する', () => {
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          // フィールドの底部に障害物を設置
+          const field = game.getField()
+          field[11][2] = 1 // 底部に障害物
+
+          // 上向きの配置にセット
+          activePuyo.x = 2
+          activePuyo.y = 0
+          activePuyo.direction = 2 // 上向き
+
+          // 落下を有効にする
+          game.setFallInterval(1) // 毎フレーム落下
+
+          // 障害物に当たるまで落下させる
+          for (let i = 0; i < 20; i++) {
+            game.updateAndRender()
+
+            // 着地したかチェック
+            if (!game.getActivePuyo()) {
+              break
+            }
+          }
+
+          // 新しいぷよが生成されていることを確認（着地完了）
+          expect(game.getActivePuyo()).not.toBeNull()
+
+          // フィールドに正しい位置に固定されているか確認
+          expect(field[10][2]).not.toBe(0) // 中心ぷよが障害物の上に固定
+          expect(field[9][2]).not.toBe(0) // 2つ目のぷよがさらに上に固定
+        }
+      })
+    })
   })
 })
