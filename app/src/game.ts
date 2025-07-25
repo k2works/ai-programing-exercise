@@ -23,15 +23,24 @@ export class Game {
   private gameState: 'ready' | 'playing' | 'gameover' = 'ready'
   private field: number[][]
   private nextPuyo: { color1: number; color2: number }
-  private activePuyo: { x: number; y: number; color1: number; color2: number } | null = null
+  private activePuyo: {
+    x: number
+    y: number
+    color1: number
+    color2: number
+    direction: number
+  } | null = null
   private fallSpeed = Game.FALL_SPEED
   private fallTimer = 0 // 落下タイマー
   private fallInterval = Game.FALL_INTERVAL
   // 入力状態の管理
   private leftKeyPressed = false
   private rightKeyPressed = false
+  private upKeyPressed = false
   private moveTimer = 0 // 移動タイマー
+  private rotationTimer = 0 // 回転タイマー
   private static readonly MOVE_INTERVAL = 8 // 移動間隔（フレーム数）
+  private static readonly ROTATION_INTERVAL = 15 // 回転間隔（フレーム数）
 
   constructor(canvas: HTMLCanvasElement, scoreDisplay: HTMLElement) {
     this.canvas = canvas
@@ -85,6 +94,7 @@ export class Game {
   private update(): void {
     this.updateFalling()
     this.updateMovement()
+    this.updateRotation()
   }
 
   // テスト用のpublicメソッド - 1フレーム分の更新と描画を実行
@@ -175,6 +185,7 @@ export class Game {
       y: 0, // 上端
       color1: this.nextPuyo.color1,
       color2: this.nextPuyo.color2,
+      direction: 0, // 初期状態は縦配置（下向き）
     }
 
     // 新しい次のぷよを生成
@@ -183,6 +194,24 @@ export class Game {
 
   getActivePuyo(): { x: number; y: number; color1: number; color2: number } | null {
     return this.activePuyo
+  }
+
+  // 回転機能関連のメソッド
+  getActivePuyoDirection(): number {
+    return this.activePuyo?.direction ?? 0
+  }
+
+  getActivePuyoPositions(): Array<{ x: number; y: number }> {
+    if (!this.activePuyo) return []
+    return this.getPuyoPositionsForTest({
+      x: this.activePuyo.x,
+      y: this.activePuyo.y,
+      direction: this.activePuyo.direction,
+    })
+  }
+
+  isUpKeyPressed(): boolean {
+    return this.upKeyPressed
   }
 
   private getPuyoColor(colorNumber: number): string {
@@ -210,16 +239,19 @@ export class Game {
   renderActivePuyo(): void {
     if (!this.activePuyo) return
 
-    const x1 = Game.FIELD_OFFSET_X + this.activePuyo.x * Game.CELL_SIZE
-    const y1 = Game.FIELD_OFFSET_Y + this.activePuyo.y * Game.CELL_SIZE
-    const x2 = Game.FIELD_OFFSET_X + this.activePuyo.x * Game.CELL_SIZE
-    const y2 = Game.FIELD_OFFSET_Y + (this.activePuyo.y + 1) * Game.CELL_SIZE
+    const positions = this.getActivePuyoPositions()
 
-    // 1つ目のぷよを楕円形で描画
+    // 1つ目のぷよ（中心ぷよ）を描画
+    const x1 = Game.FIELD_OFFSET_X + positions[0].x * Game.CELL_SIZE
+    const y1 = Game.FIELD_OFFSET_Y + positions[0].y * Game.CELL_SIZE
     this.drawPuyo(x1, y1, this.getPuyoColor(this.activePuyo.color1))
 
-    // 2つ目のぷよを楕円形で描画（下に配置）
-    this.drawPuyo(x2, y2, this.getPuyoColor(this.activePuyo.color2))
+    // 2つ目のぷよを描画
+    if (positions.length > 1) {
+      const x2 = Game.FIELD_OFFSET_X + positions[1].x * Game.CELL_SIZE
+      const y2 = Game.FIELD_OFFSET_Y + positions[1].y * Game.CELL_SIZE
+      this.drawPuyo(x2, y2, this.getPuyoColor(this.activePuyo.color2))
+    }
   }
 
   renderNextPuyo(): void {
@@ -275,6 +307,9 @@ export class Game {
       case 'ArrowRight':
         this.rightKeyPressed = true
         break
+      case 'ArrowUp':
+        this.upKeyPressed = true
+        break
     }
   }
 
@@ -285,6 +320,9 @@ export class Game {
         break
       case 'ArrowRight':
         this.rightKeyPressed = false
+        break
+      case 'ArrowUp':
+        this.upKeyPressed = false
         break
     }
   }
@@ -305,6 +343,7 @@ export class Game {
   resetInputState(): void {
     this.leftKeyPressed = false
     this.rightKeyPressed = false
+    this.upKeyPressed = false
   }
 
   updateMovement(): void {
@@ -332,6 +371,70 @@ export class Game {
       // キーが押されていないときはタイマーをリセット
       this.moveTimer = 0
     }
+  }
+
+  updateRotation(): void {
+    if (!this.activePuyo) return
+
+    // 上キーが押されている場合のみタイマーを進める
+    if (this.upKeyPressed) {
+      this.rotationTimer++
+
+      if (this.rotationTimer >= Game.ROTATION_INTERVAL) {
+        this.rotationTimer = 0
+
+        // 回転可能かチェックしてから回転処理を実行
+        if (this.canRotate()) {
+          this.activePuyo.direction = (this.activePuyo.direction + 1) % 4
+        }
+      }
+    } else {
+      // キーが押されていないときはタイマーをリセット
+      this.rotationTimer = 0
+    }
+  }
+
+  // テスト用のメソッド：即座に回転する
+  rotateActivePuyo(): void {
+    if (!this.activePuyo) return
+    this.activePuyo.direction = (this.activePuyo.direction + 1) % 4
+  }
+
+  // 回転可能かどうかをチェックする
+  canRotate(): boolean {
+    if (!this.activePuyo) return false
+
+    // 回転後の方向を計算（時計回りに90度回転）
+    const nextDirection = (this.activePuyo.direction + 1) % 4
+
+    // 回転後の位置を仮想的に計算
+    const testPuyo = {
+      x: this.activePuyo.x,
+      y: this.activePuyo.y,
+      direction: nextDirection,
+    }
+
+    const positions = this.getPuyoPositionsForTest(testPuyo)
+
+    // すべての位置が有効（空き）かどうかチェック
+    for (const pos of positions) {
+      // フィールドの境界チェック
+      if (pos.x < 0 || pos.x >= Game.FIELD_WIDTH || pos.y < 0 || pos.y >= Game.FIELD_HEIGHT) {
+        return false
+      }
+
+      // フィールドの占有チェック（他のぷよと衝突しないか）
+      if (this.field[pos.y] && this.field[pos.y][pos.x] !== 0) {
+        return false
+      }
+    }
+
+    return true
+  }
+
+  // テスト用のメソッド：落下を無効にする
+  disableFalling(): void {
+    this.fallInterval = 99999 // 非常に大きな値にして実質的に無効化
   }
 
   clearActivePuyo(): void {
@@ -377,25 +480,68 @@ export class Game {
   }
 
   private isPuyoPositionEmpty(x: number, y: number): boolean {
-    // 操作ぷよの1つ目との衝突チェック
-    if (this.field[y] && this.field[y][x] !== 0) {
-      return false
-    }
+    if (!this.activePuyo) return false
 
-    // 操作ぷよの2つ目との衝突チェック
-    if (this.field[y + 1] && this.field[y + 1][x] !== 0) {
-      return false
+    // 現在の操作ぷよの位置情報を取得
+    const testPuyo = { x, y, direction: this.activePuyo.direction }
+    const positions = this.getPuyoPositionsForTest(testPuyo)
+
+    // すべての位置が空かどうかチェック
+    for (const pos of positions) {
+      // フィールドの境界チェック
+      if (pos.x < 0 || pos.x >= Game.FIELD_WIDTH || pos.y < 0 || pos.y >= Game.FIELD_HEIGHT) {
+        return false
+      }
+
+      // フィールドの占有チェック
+      if (this.field[pos.y] && this.field[pos.y][pos.x] !== 0) {
+        return false
+      }
     }
 
     return true
   }
 
+  private getPuyoPositionsForTest(testPuyo: {
+    x: number
+    y: number
+    direction: number
+  }): Array<{ x: number; y: number }> {
+    const centerX = testPuyo.x
+    const centerY = testPuyo.y
+    const direction = testPuyo.direction
+
+    const positions = [{ x: centerX, y: centerY }] // 中心ぷよの位置
+
+    // 方向に基づいて2つ目のぷよの位置を決定
+    switch (direction) {
+      case 0: // 縦配置、下向き
+        positions.push({ x: centerX, y: centerY + 1 })
+        break
+      case 1: // 横配置、右向き
+        positions.push({ x: centerX + 1, y: centerY })
+        break
+      case 2: // 縦配置、上向き
+        positions.push({ x: centerX, y: centerY - 1 })
+        break
+      case 3: // 横配置、左向き
+        positions.push({ x: centerX - 1, y: centerY })
+        break
+    }
+
+    return positions
+  }
+
   landActivePuyo(): void {
     if (!this.activePuyo) return
 
+    const positions = this.getActivePuyoPositions()
+
     // 操作ぷよをフィールドに固定
-    this.field[this.activePuyo.y][this.activePuyo.x] = this.activePuyo.color1
-    this.field[this.activePuyo.y + 1][this.activePuyo.x] = this.activePuyo.color2
+    if (positions.length >= 2) {
+      this.field[positions[0].y][positions[0].x] = this.activePuyo.color1
+      this.field[positions[1].y][positions[1].x] = this.activePuyo.color2
+    }
 
     // 操作ぷよをクリア
     this.activePuyo = null

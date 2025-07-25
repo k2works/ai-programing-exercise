@@ -954,4 +954,285 @@ describe('Game', () => {
       expect(fillRectCalls.length).toBe(1)
     })
   })
+
+  describe('ぷよの回転機能', () => {
+    beforeEach(() => {
+      // requestAnimationFrame をモック
+      vi.stubGlobal('requestAnimationFrame', vi.fn())
+
+      const mockContext = {
+        fillStyle: '',
+        strokeStyle: '',
+        lineWidth: 1,
+        fillRect: vi.fn(),
+        strokeRect: vi.fn(),
+        clearRect: vi.fn(),
+        drawImage: vi.fn(),
+        beginPath: vi.fn(),
+        ellipse: vi.fn(),
+        fill: vi.fn(),
+        stroke: vi.fn(),
+      } as unknown as CanvasRenderingContext2D
+
+      const mockCanvas = {
+        getContext: vi.fn().mockReturnValue(mockContext),
+        width: 320,
+        height: 480,
+      } as unknown as HTMLCanvasElement
+
+      const mockScoreDisplay = {
+        textContent: '',
+      } as unknown as HTMLElement
+
+      vi.clearAllMocks()
+      game = new Game(mockCanvas, mockScoreDisplay)
+      game.spawnActivePuyo()
+    })
+
+    describe('回転方向の管理', () => {
+      it('アクティブぷよの回転方向を取得できる', () => {
+        const direction = game.getActivePuyoDirection()
+        expect(direction).toBe(0) // 初期状態は0（縦配置）
+      })
+
+      it('上キーで時計回りに回転する', () => {
+        const initialDirection = game.getActivePuyoDirection()
+
+        // 上キーを押してupKeyPressedをtrueにする
+        const upKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowUp' })
+        game.handleKeyDown(upKeyEvent)
+
+        // 回転間隔分だけアップデートを実行して回転処理を行う
+        for (let i = 0; i < 15; i++) {
+          game.updateAndRender()
+        }
+
+        const newDirection = game.getActivePuyoDirection()
+        expect(newDirection).toBe((initialDirection + 1) % 4)
+      })
+
+      it('回転方向の値は0-3の範囲で循環する', () => {
+        // 4回回転させると元の方向に戻る
+        for (let i = 0; i < 4; i++) {
+          const upKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowUp' })
+          game.handleKeyDown(upKeyEvent)
+
+          // 回転間隔分だけアップデートを実行
+          for (let j = 0; j < 15; j++) {
+            game.updateAndRender()
+          }
+
+          // キーアップイベントも送信してキー状態をリセット
+          const upKeyUpEvent = new KeyboardEvent('keyup', { key: 'ArrowUp' })
+          game.handleKeyUp(upKeyUpEvent)
+        }
+
+        expect(game.getActivePuyoDirection()).toBe(0)
+      })
+    })
+
+    describe('回転後のぷよの位置', () => {
+      it('縦配置（方向0）から横配置（方向1）に回転する', () => {
+        const activePuyo = game.getActivePuyo()
+        expect(activePuyo).not.toBeNull()
+
+        if (activePuyo) {
+          const initialX = activePuyo.x
+          const initialY = activePuyo.y
+
+          // 上キーで回転
+          const upKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowUp' })
+          game.handleKeyDown(upKeyEvent)
+
+          // 回転間隔分だけアップデートを実行
+          for (let i = 0; i < 15; i++) {
+            game.updateAndRender()
+          }
+
+          const rotatedPositions = game.getActivePuyoPositions()
+          expect(rotatedPositions).toEqual([
+            { x: initialX, y: initialY }, // 中心ぷよの位置（変わらず）
+            { x: initialX + 1, y: initialY }, // 2つ目のぷよが右に移動
+          ])
+        }
+      })
+
+      it('各回転方向でのぷよの位置が正しい', () => {
+        // 回転をテストするため、適切な位置に移動（中央、フィールドの少し下）
+        const activePuyo = game.getActivePuyo()
+        expect(activePuyo).not.toBeNull()
+
+        // 落下を無効にして純粋に回転のテストを行う
+        game.disableFalling()
+
+        if (activePuyo) {
+          // より安全な位置(2, 2)に移動してからテスト
+          activePuyo.x = 2
+          activePuyo.y = 2
+
+          const centerX = activePuyo.x
+          const centerY = activePuyo.y
+
+          // 方向0（縦配置、下向き）: 初期状態
+          expect(game.getActivePuyoPositions()).toEqual([
+            { x: centerX, y: centerY },
+            { x: centerX, y: centerY + 1 },
+          ])
+
+          // 方向1（横配置、右向き）
+          const upKeyEvent1 = new KeyboardEvent('keydown', { key: 'ArrowUp' })
+          game.handleKeyDown(upKeyEvent1)
+          for (let i = 0; i < 15; i++) {
+            game.updateAndRender()
+          }
+          game.handleKeyUp(new KeyboardEvent('keyup', { key: 'ArrowUp' }))
+
+          expect(game.getActivePuyoPositions()).toEqual([
+            { x: centerX, y: centerY },
+            { x: centerX + 1, y: centerY },
+          ])
+
+          // 方向2（縦配置、上向き）
+          const upKeyEvent2 = new KeyboardEvent('keydown', { key: 'ArrowUp' })
+          game.handleKeyDown(upKeyEvent2)
+          for (let i = 0; i < 15; i++) {
+            game.updateAndRender()
+          }
+          game.handleKeyUp(new KeyboardEvent('keyup', { key: 'ArrowUp' }))
+
+          expect(game.getActivePuyoPositions()).toEqual([
+            { x: centerX, y: centerY },
+            { x: centerX, y: centerY - 1 },
+          ])
+
+          // 方向3（横配置、左向き）
+          const upKeyEvent3 = new KeyboardEvent('keydown', { key: 'ArrowUp' })
+          game.handleKeyDown(upKeyEvent3)
+          for (let i = 0; i < 15; i++) {
+            game.updateAndRender()
+          }
+          game.handleKeyUp(new KeyboardEvent('keyup', { key: 'ArrowUp' }))
+
+          expect(game.getActivePuyoPositions()).toEqual([
+            { x: centerX, y: centerY },
+            { x: centerX - 1, y: centerY },
+          ])
+        }
+      })
+    })
+
+    describe('上キー入力の処理', () => {
+      it('上キーが押されたことを検出できる', () => {
+        expect(game.isUpKeyPressed()).toBe(false)
+
+        const upKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowUp' })
+        game.handleKeyDown(upKeyEvent)
+
+        expect(game.isUpKeyPressed()).toBe(true)
+      })
+
+      it('上キーが離されたことを検出できる', () => {
+        // まず上キーを押す
+        const upKeyDownEvent = new KeyboardEvent('keydown', { key: 'ArrowUp' })
+        game.handleKeyDown(upKeyDownEvent)
+        expect(game.isUpKeyPressed()).toBe(true)
+
+        // 上キーを離す
+        const upKeyUpEvent = new KeyboardEvent('keyup', { key: 'ArrowUp' })
+        game.handleKeyUp(upKeyUpEvent)
+
+        expect(game.isUpKeyPressed()).toBe(false)
+      })
+    })
+
+    describe('回転可能性チェック', () => {
+      beforeEach(() => {
+        // 落下を無効にして純粋に回転のテストを行う
+        game.disableFalling()
+        // 安全な位置に操作ぷよを配置
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          activePuyo.x = 2
+          activePuyo.y = 2
+        }
+      })
+
+      it('回転可能性をチェックするメソッドが存在する', () => {
+        expect(typeof game.canRotate).toBe('function')
+      })
+
+      it('フィールド内の空きスペースでは回転可能', () => {
+        expect(game.canRotate()).toBe(true)
+      })
+
+      it('右端では方向によって回転制限がある', () => {
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          activePuyo.x = 5 // 右端
+          activePuyo.y = 2
+          activePuyo.direction = 0 // 縦配置（下向き）から横配置（右向き）への回転は不可
+          expect(game.canRotate()).toBe(false) // 2つ目のぷよがx=6になりフィールド外
+        }
+      })
+
+      it('左端でも通常は回転可能', () => {
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          activePuyo.x = 0 // 左端
+          activePuyo.y = 2
+          expect(game.canRotate()).toBe(true)
+        }
+      })
+
+      it('他のぷよがある位置には回転できない', () => {
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          // 現在方向0（縦配置、下向き）から方向1（横配置、右向き）への回転を想定
+          // 方向1では2つ目のぷよが(x+1, y)の位置に来るので、そこに障害物を置く
+          const field = game.getField()
+          field[2][3] = 1 // (3, 2)の位置にぷよを配置
+
+          activePuyo.x = 2
+          activePuyo.y = 2
+          expect(game.canRotate()).toBe(false)
+        }
+      })
+
+      it('回転後の位置がフィールド外になる場合は回転できない', () => {
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          // 方向1（横配置、右向き）から方向2（縦配置、上向き）への回転で、2つ目のぷよがy-1になる場合
+          activePuyo.direction = 1 // 横配置（右向き）
+          activePuyo.x = 2
+          activePuyo.y = 0 // y=0で方向2に回転すると2つ目のぷよがy=-1になる
+          expect(game.canRotate()).toBe(false)
+        }
+      })
+
+      it('上キーが押されても回転できない場合は回転しない', () => {
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          // 回転を阻害する障害物を設置
+          const field = game.getField()
+          field[2][3] = 1 // 回転先の位置に障害物
+
+          activePuyo.x = 2
+          activePuyo.y = 2
+          const initialDirection = activePuyo.direction
+
+          // 上キーを押して回転を試行
+          const upKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowUp' })
+          game.handleKeyDown(upKeyEvent)
+
+          // 回転間隔分だけアップデートを実行
+          for (let i = 0; i < 15; i++) {
+            game.updateAndRender()
+          }
+
+          // 回転していないことを確認
+          expect(game.getActivePuyoDirection()).toBe(initialDirection)
+        }
+      })
+    })
+  })
 })
