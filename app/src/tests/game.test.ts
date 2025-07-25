@@ -791,4 +791,85 @@ describe('Game', () => {
       expect(newActivePuyo!.y).toBe(0) // 初期位置
     })
   })
+
+  describe('着地後の固定処理', () => {
+    let game: Game
+    let mockCanvas: HTMLCanvasElement
+    let mockContext: CanvasRenderingContext2D
+    let mockScoreDisplay: HTMLElement
+
+    beforeEach(() => {
+      // Canvas とコンテキストのモックを作成
+      mockContext = {
+        fillStyle: '',
+        fillRect: vi.fn(),
+        strokeStyle: '',
+        strokeRect: vi.fn(),
+        clearRect: vi.fn(),
+      } as unknown as CanvasRenderingContext2D
+
+      mockCanvas = {
+        getContext: vi.fn().mockReturnValue(mockContext),
+        width: 320,
+        height: 480,
+      } as unknown as HTMLCanvasElement
+
+      mockScoreDisplay = {
+        textContent: '',
+      } as unknown as HTMLElement
+
+      vi.clearAllMocks()
+      game = new Game(mockCanvas, mockScoreDisplay)
+      game.spawnActivePuyo()
+    })
+
+    it('着地したぷよは左右に移動できない', () => {
+      // 操作ぷよを底部近くに配置
+      const activePuyo = game.getActivePuyo()
+      activePuyo!.x = 2
+      activePuyo!.y = 11 // フィールド底部 - 1
+
+      // 落下タイマーが満たされるまで処理を実行（着地するはず）
+      for (let i = 0; i < 30; i++) {
+        game.updateFalling()
+      }
+
+      // 着地後は操作ぷよが新しく生成されている
+      expect(game.getActivePuyo()).not.toBeNull()
+      expect(game.getActivePuyo()!.x).toBe(2) // 初期位置
+      expect(game.getActivePuyo()!.y).toBe(0) // 初期位置
+
+      // フィールドに前のぷよが固定されている
+      const field = game.getField()
+      expect(field[11][2]).not.toBe(0) // 着地したぷよが固定されている
+      expect(field[12][2]).not.toBe(0) // 着地したぷよが固定されている
+    })
+
+    it('底部に着地したときに自動的に着地処理が実行される', () => {
+      // 操作ぷよを底部の一つ上に配置
+      const activePuyo = game.getActivePuyo()
+      activePuyo!.x = 2
+      activePuyo!.y = 11 // フィールド底部 - 1（y=11, 二つ目のぷよがy=12）
+      const originalColor1 = activePuyo!.color1
+      const originalColor2 = activePuyo!.color2
+
+      // 最初にcanFall()をチェック
+      expect(game['canFall']()).toBe(false)
+
+      // 落下処理を実行（fallTimerが満たされるまで繰り返す）
+      for (let i = 0; i < 30; i++) {
+        game.updateFalling()
+      }
+
+      // 操作ぷよが新しく生成されている（着地処理が実行された）
+      expect(game.getActivePuyo()).not.toBeNull()
+      expect(game.getActivePuyo()!.x).toBe(2) // 初期位置
+      expect(game.getActivePuyo()!.y).toBe(0) // 初期位置
+
+      // フィールドにぷよが配置されている
+      const field = game.getField()
+      expect(field[11][2]).toBe(originalColor1)
+      expect(field[12][2]).toBe(originalColor2)
+    })
+  })
 })

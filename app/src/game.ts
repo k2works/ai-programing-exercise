@@ -216,6 +216,9 @@ export class Game {
       // 落下可能かチェック
       if (this.canFall()) {
         this.activePuyo.y += this.fallSpeed
+      } else {
+        // 着地処理を実行
+        this.processLanding()
       }
     }
   }
@@ -223,13 +226,13 @@ export class Game {
   private canFall(): boolean {
     if (!this.activePuyo) return false
 
-    // フィールドの底部に到達した場合
-    if (this.activePuyo.y + 1 >= Game.FIELD_HEIGHT - 1) {
+    // フィールドの底部に到達した場合（ぷよは2つ分の高さなので、+2で判定）
+    if (this.activePuyo.y + 2 >= Game.FIELD_HEIGHT) {
       return false
     }
 
-    // 他のぷよとの衝突判定（後で実装）
-    return true
+    // canMoveDown()と同じ衝突判定を使用
+    return this.canMoveDown()
   }
 
   getFallSpeed(): number {
