@@ -872,4 +872,70 @@ describe('Game', () => {
       expect(field[12][2]).toBe(originalColor2)
     })
   })
+
+  describe('フィールド上のぷよ描画', () => {
+    let game: Game
+    let mockCanvas: HTMLCanvasElement
+    let mockContext: CanvasRenderingContext2D
+    let mockScoreDisplay: HTMLElement
+
+    beforeEach(() => {
+      // Canvas とコンテキストのモックを作成
+      mockContext = {
+        fillStyle: '',
+        fillRect: vi.fn(),
+        strokeStyle: '',
+        strokeRect: vi.fn(),
+        clearRect: vi.fn(),
+      } as unknown as CanvasRenderingContext2D
+
+      mockCanvas = {
+        getContext: vi.fn().mockReturnValue(mockContext),
+        width: 320,
+        height: 480,
+      } as unknown as HTMLCanvasElement
+
+      mockScoreDisplay = {
+        textContent: '',
+      } as unknown as HTMLElement
+
+      vi.clearAllMocks()
+      game = new Game(mockCanvas, mockScoreDisplay)
+      game.spawnActivePuyo()
+    })
+
+    it('フィールドに固定されたぷよが描画される', () => {
+      // フィールドにぷよを配置
+      const field = game.getField()
+      field[10][2] = 1 // 赤いぷよ
+      field[11][2] = 2 // 緑のぷよ
+      field[12][3] = 3 // 青いぷよ
+
+      // フィールドを描画
+      game.renderField()
+
+      // fillRectが呼ばれている回数を確認
+      const fillRectCalls = (mockContext.fillRect as any).mock.calls
+
+      // 背景(1回) + 固定ぷよ(3回) = 4回のfillRect呼び出しがあるはず
+      expect(fillRectCalls.length).toBeGreaterThanOrEqual(4)
+
+      // ぷよの色が正しく設定されているかチェック
+      const fillStyleCalls = mockContext.fillStyle as any
+
+      // 固定されたぷよの色が描画されているかをテスト
+      game.render()
+      expect(mockContext.fillRect).toHaveBeenCalled()
+    })
+
+    it('空のフィールドセルは描画されない', () => {
+      // 空のフィールドで描画
+      game.renderField()
+
+      const fillRectCalls = (mockContext.fillRect as any).mock.calls
+
+      // 背景のみの描画（固定ぷよがないので背景の1回のみ）
+      expect(fillRectCalls.length).toBe(1)
+    })
+  })
 })

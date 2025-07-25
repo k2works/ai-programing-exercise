@@ -142,6 +142,20 @@ export class Game {
     // フィールドの枠線を描画
     this.context.strokeStyle = '#000000'
     this.context.strokeRect(Game.FIELD_OFFSET_X, Game.FIELD_OFFSET_Y, fieldWidth, fieldHeight)
+
+    // フィールドに固定されたぷよを描画
+    for (let y = 0; y < Game.FIELD_HEIGHT; y++) {
+      for (let x = 0; x < Game.FIELD_WIDTH; x++) {
+        const puyoColor = this.field[y][x]
+        if (puyoColor !== 0) {
+          // ぷよが存在する場合は描画
+          this.context.fillStyle = this.getPuyoColor(puyoColor)
+          const drawX = Game.FIELD_OFFSET_X + x * Game.CELL_SIZE
+          const drawY = Game.FIELD_OFFSET_Y + y * Game.CELL_SIZE
+          this.context.fillRect(drawX, drawY, Game.CELL_SIZE - 2, Game.CELL_SIZE - 2)
+        }
+      }
+    }
   }
 
   clearScreen(): void {
