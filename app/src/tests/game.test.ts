@@ -1348,6 +1348,38 @@ describe('Game', () => {
       })
     })
 
+    describe('下キー入力の処理', () => {
+      it('下キーが押されたことを検出できる', () => {
+        const downKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowDown' })
+        game.handleKeyDown(downKeyEvent)
+
+        expect(game.isDownKeyPressed()).toBe(true)
+      })
+
+      it('下キーが離されたことを検出できる', () => {
+        // 最初に下キーを押す
+        const downKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowDown' })
+        game.handleKeyDown(downKeyEvent)
+        expect(game.isDownKeyPressed()).toBe(true)
+
+        // 下キーを離す
+        const upKeyEvent = new KeyboardEvent('keyup', { key: 'ArrowDown' })
+        game.handleKeyUp(upKeyEvent)
+        expect(game.isDownKeyPressed()).toBe(false)
+      })
+
+      it('入力状態リセットで下キーもリセットされる', () => {
+        // 下キーを押す
+        const downKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowDown' })
+        game.handleKeyDown(downKeyEvent)
+        expect(game.isDownKeyPressed()).toBe(true)
+
+        // 入力状態をリセット
+        game.resetInputState()
+        expect(game.isDownKeyPressed()).toBe(false)
+      })
+    })
+
     describe('上向きぷよの着地判定', () => {
       it('上向きぷよが底面まで正しく落下する', () => {
         const activePuyo = game.getActivePuyo()
@@ -1429,6 +1461,66 @@ describe('Game', () => {
           // フィールドに正しい位置に固定されているか確認
           expect(field[10][2]).not.toBe(0) // 中心ぷよが障害物の上に固定
           expect(field[9][2]).not.toBe(0) // 2つ目のぷよがさらに上に固定
+        }
+      })
+    })
+
+    describe('高速落下処理', () => {
+      it('下キーが押されているときは落下速度が上がる', () => {
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          // 初期位置を記録
+          const initialY = activePuyo.y
+
+          // 通常の落下速度を確認（fallIntervalをデフォルトの30に設定）
+          game.setFallInterval(30)
+
+          // 下キーを押す
+          const downKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowDown' })
+          game.handleKeyDown(downKeyEvent)
+
+          // 1フレーム更新
+          game.updateAndRender()
+
+          // 下キーが押されているときは即座に落下するはず
+          expect(activePuyo.y).toBeGreaterThan(initialY)
+        }
+      })
+
+      it('下キーが押されていないときは通常の落下速度', () => {
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          // 初期位置を記録
+          const initialY = activePuyo.y
+
+          // 通常の落下間隔を設定
+          game.setFallInterval(30)
+
+          // 下キーを押さずに1フレーム更新
+          game.updateAndRender()
+
+          // 通常の落下間隔なので、まだ落ちないはず
+          expect(activePuyo.y).toBe(initialY)
+        }
+      })
+
+      it('下キーを押し続けると継続的に高速落下する', () => {
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          // 初期位置を記録
+          const initialY = activePuyo.y
+
+          // 下キーを押す
+          const downKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowDown' })
+          game.handleKeyDown(downKeyEvent)
+
+          // 複数フレーム更新
+          for (let i = 0; i < 5; i++) {
+            game.updateAndRender()
+          }
+
+          // 継続的に落下しているはず
+          expect(activePuyo.y).toBeGreaterThan(initialY + 3)
         }
       })
     })

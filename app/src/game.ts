@@ -37,6 +37,7 @@ export class Game {
   private leftKeyPressed = false
   private rightKeyPressed = false
   private upKeyPressed = false
+  private downKeyPressed = false
   private moveTimer = 0 // 移動タイマー
   private rotationTimer = 0 // 回転タイマー
   private static readonly MOVE_INTERVAL = 8 // 移動間隔（フレーム数）
@@ -268,17 +269,32 @@ export class Game {
   updateFalling(): void {
     if (!this.activePuyo) return
 
+    // 下キーが押されている場合は高速落下、そうでなければタイマーで制御
+    const shouldFall = this.downKeyPressed || this.shouldFallByTimer()
+
+    if (shouldFall) {
+      this.performFallOrLanding()
+    }
+  }
+
+  private shouldFallByTimer(): boolean {
     this.fallTimer++
     if (this.fallTimer >= this.fallInterval) {
       this.fallTimer = 0
+      return true
+    }
+    return false
+  }
 
-      // 落下可能かチェック
-      if (this.canFall()) {
-        this.activePuyo.y += this.fallSpeed
-      } else {
-        // 着地処理を実行
-        this.processLanding()
-      }
+  private performFallOrLanding(): void {
+    if (!this.activePuyo) return
+
+    // 落下可能かチェック
+    if (this.canFall()) {
+      this.activePuyo.y += this.fallSpeed
+    } else {
+      // 着地処理を実行
+      this.processLanding()
     }
   }
 
@@ -315,6 +331,9 @@ export class Game {
       case 'ArrowUp':
         this.upKeyPressed = true
         break
+      case 'ArrowDown':
+        this.downKeyPressed = true
+        break
     }
   }
 
@@ -329,6 +348,9 @@ export class Game {
       case 'ArrowUp':
         this.upKeyPressed = false
         break
+      case 'ArrowDown':
+        this.downKeyPressed = false
+        break
     }
   }
 
@@ -340,6 +362,10 @@ export class Game {
     return this.rightKeyPressed
   }
 
+  isDownKeyPressed(): boolean {
+    return this.downKeyPressed
+  }
+
   setupInputHandlers(): void {
     addEventListener('keydown', this.handleKeyDown.bind(this))
     addEventListener('keyup', this.handleKeyUp.bind(this))
@@ -349,6 +375,7 @@ export class Game {
     this.leftKeyPressed = false
     this.rightKeyPressed = false
     this.upKeyPressed = false
+    this.downKeyPressed = false
   }
 
   updateMovement(): void {
