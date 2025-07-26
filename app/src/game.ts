@@ -642,6 +642,9 @@ export class Game {
     // 着地処理
     this.landActivePuyo()
 
+    // 常時重力処理を実行（消去の有無に関係なく、浮いているぷよを落下させる）
+    this.dropAfterElimination()
+
     // 連鎖処理を実行
     this.processChainWithScore()
 

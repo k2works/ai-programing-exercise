@@ -776,20 +776,21 @@ describe('Game', () => {
     })
 
     it('統合メソッドで着地から次ぷよ生成まで一括処理される', () => {
-      // 操作ぷよを着地位置に配置
+      // 操作ぷよを着地位置に配置（フィールドの底に配置して重力の影響を受けないようにする）
       const activePuyo = game.getActivePuyo()
       const originalColor1 = activePuyo!.color1
       const originalColor2 = activePuyo!.color2
       activePuyo!.x = 3
-      activePuyo!.y = 10
+      activePuyo!.y = 11 // 底の1つ上に配置（direction=0で縦配置なので底まで到達する）
+      activePuyo!.direction = 0
 
       // 統合処理を実行
       game.processLanding()
 
-      // フィールドに着地したぷよが配置されている
+      // フィールドに着地したぷよが配置されている（重力処理により底に配置される）
       const field = game.getField()
-      expect(field[10][3]).toBe(originalColor1)
-      expect(field[11][3]).toBe(originalColor2)
+      expect(field[11][3]).toBe(originalColor1) // 中心ぷよは底の1つ上
+      expect(field[12][3]).toBe(originalColor2) // 2つ目のぷよは底
 
       // 新しい操作ぷよが生成されている
       const newActivePuyo = game.getActivePuyo()
@@ -2477,6 +2478,66 @@ describe('Game', () => {
       expect(field[10][1]).toBe(2) // 緑がその下に落下
       expect(field[11][1]).toBe(3) // 青がその下に落下
       expect(field[12][1]).toBe(4) // 黄は元の位置のまま
+    })
+
+    it('操作ぷよ着地後に自動的に重力処理が実行される', () => {
+      // フィールドに浮いているぷよがある状況を作成
+      game.clearActivePuyo()
+      const field = game.getField()
+
+      // 浮いているぷよを配置
+      field[10][2] = 1 // 赤ぷよが浮いている
+      field[12][2] = 2 // 緑ぷよが底にある（間にfield[11][2]が空）
+
+      // 操作ぷよを別の場所に配置して着地させる
+      game.spawnActivePuyo()
+      const activePuyo = game.getActivePuyo()
+      if (activePuyo) {
+        activePuyo.x = 0
+        activePuyo.y = 11 // 底の1つ上の位置
+        activePuyo.direction = 0 // 縦配置
+        activePuyo.color1 = 3 // 青
+        activePuyo.color2 = 4 // 黄
+      }
+
+      // 着地処理を実行（実際のゲームプレイを模擬）
+      game.processLanding()
+
+      // 操作ぷよの着地とは関係なく、浮いていたぷよが落下していることを確認
+      expect(field[10][2]).toBe(0) // 元の位置は空
+      expect(field[11][2]).toBe(1) // 赤ぷよが落下
+      expect(field[12][2]).toBe(2) // 緑ぷよはそのまま
+    })
+
+    it('複数回の重力処理で段階的に落下する', () => {
+      game.clearActivePuyo()
+      const field = game.getField()
+
+      // 段階的に落下が必要な状況を作成
+      field[8][3] = 1 // 赤
+      field[10][3] = 2 // 緑（間にfield[9][3]が空）
+      field[12][3] = 3 // 青（間にfield[11][3]が空）
+
+      // 操作ぷよを別の場所で着地させる
+      game.spawnActivePuyo()
+      const activePuyo = game.getActivePuyo()
+      if (activePuyo) {
+        activePuyo.x = 0
+        activePuyo.y = 11 // フィールド高さ13なので最大12、1つ上の11に配置
+        activePuyo.direction = 0 // 縦配置
+        activePuyo.color1 = 4
+        activePuyo.color2 = 4
+      }
+
+      // 着地処理を実行
+      game.processLanding()
+
+      // すべてのぷよが正しく落下していることを確認
+      expect(field[8][3]).toBe(0) // 元の位置は空
+      expect(field[9][3]).toBe(0) // 元の位置は空
+      expect(field[10][3]).toBe(1) // 赤が落下
+      expect(field[11][3]).toBe(2) // 緑が落下
+      expect(field[12][3]).toBe(3) // 青はそのまま
     })
   })
 })
