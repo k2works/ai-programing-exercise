@@ -2137,4 +2137,92 @@ describe('Game', () => {
       })
     })
   })
+
+  describe('連鎖反応システム', () => {
+    describe('連鎖判定', () => {
+      it('消去後の落下で新たな4つ以上のつながりができた場合は連鎖発生を検出する', () => {
+        // 操作ぷよをクリアしてからテスト用のフィールドを設定
+        game.clearActivePuyo()
+
+        // 連鎖が発生する配置を作成
+        const field = game.getField()
+
+        // 最初の消去対象：赤のぷよが4つ縦に並ぶ
+        field[12][1] = 1 // 赤
+        field[11][1] = 1 // 赤
+        field[10][1] = 1 // 赤
+        field[9][1] = 1 // 赤
+
+        // 落下後に連鎖となるぷよ配置
+        field[8][1] = 2 // 緑（落下後に連鎖対象になる）
+        field[12][2] = 2 // 緑（連鎖対象）
+        field[11][2] = 2 // 緑（連鎖対象）
+        field[10][2] = 2 // 緑（連鎖対象）
+
+        // 連鎖処理を実行
+        const chainResult = game.processChain()
+
+        // 連鎖が検出されることを確認
+        expect(chainResult.chains).toBeGreaterThan(0)
+        expect(chainResult.totalEliminated).toBeGreaterThan(4) // 最初の4個 + 連鎖で消去された数
+      })
+
+      it('消去後に新たなつながりができない場合は連鎖が発生しない', () => {
+        // 操作ぷよをクリアしてからテスト用のフィールドを設定
+        game.clearActivePuyo()
+
+        // 連鎖が発生しない配置を作成
+        const field = game.getField()
+
+        // 消去対象：赤のぷよが4つ
+        field[12][1] = 1 // 赤
+        field[11][1] = 1 // 赤
+        field[10][1] = 1 // 赤
+        field[9][1] = 1 // 赤
+
+        // 孤立したぷよ（連鎖にならない）
+        field[8][2] = 2 // 緑（孤立）
+        field[6][3] = 3 // 青（孤立）
+
+        // 連鎖処理を実行
+        const chainResult = game.processChain()
+
+        // 連鎖が発生しないことを確認
+        expect(chainResult.chains).toBe(1) // 初回の消去のみ
+        expect(chainResult.totalEliminated).toBe(4) // 最初の4個のみ
+      })
+
+      it('多段連鎖が正しく処理される', () => {
+        // 操作ぷよをクリアしてからテスト用のフィールドを設定
+        game.clearActivePuyo()
+
+        // 3連鎖が発生する複雑な配置を作成
+        const field = game.getField()
+
+        // 2連鎖パターン: L字型配置
+        // 底の支えとなるぷよ
+        field[12][1] = 4 // 黄（支え用）
+        field[12][2] = 4 // 黄（支え用）
+
+        // 1連鎖目：赤のぷよ（横4つ）
+        field[11][0] = 1 // 赤
+        field[11][1] = 1 // 赤
+        field[11][2] = 1 // 赤
+        field[11][3] = 1 // 赤
+
+        // 2連鎖目準備：緑のぷよ（赤が消えた後に落下してつながる）
+        field[10][0] = 2 // 緑（落下後に赤の場所へ）
+        field[9][0] = 2 // 緑（落下後に赤の場所へ）
+        field[8][0] = 2 // 緑（落下後に赤の場所へ）
+        field[12][0] = 2 // 緑（元から底にある）
+
+        // 連鎖処理を実行
+        const chainResult = game.processChain()
+
+        // 2連鎖が発生することを確認
+        expect(chainResult.chains).toBe(2)
+        expect(chainResult.totalEliminated).toBe(8) // 4×2連鎖 = 8個
+      })
+    })
+  })
 })

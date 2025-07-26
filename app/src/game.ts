@@ -808,4 +808,40 @@ export class Game {
       dropped: dropped,
     }
   }
+
+  // 連鎖処理を実行するメソッド
+  processChain(): { chains: number; totalEliminated: number } {
+    let chainCount = 0
+    let totalEliminated = 0
+
+    // 連鎖が続く限り繰り返し処理
+    while (true) {
+      // 消去処理を実行
+      const eliminatedGroups = this.eliminatePuyos()
+
+      // 消去対象がない場合は連鎖終了
+      if (eliminatedGroups.length === 0) {
+        break
+      }
+
+      // 連鎖カウントと消去数を更新
+      chainCount++
+      for (const group of eliminatedGroups) {
+        totalEliminated += group.length
+      }
+
+      // 落下処理を実行
+      this.dropAfterElimination()
+
+      // 連鎖の無限ループを防ぐため、最大10回まで
+      if (chainCount >= 10) {
+        break
+      }
+    }
+
+    return {
+      chains: chainCount,
+      totalEliminated: totalEliminated,
+    }
+  }
 }
