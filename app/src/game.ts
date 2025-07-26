@@ -113,6 +113,7 @@ export class Game {
     this.renderField()
     this.renderActivePuyo()
     this.renderNextPuyo()
+    this.renderZenkeshiEffect()
   }
 
   private clearCanvas(): void {
@@ -864,6 +865,12 @@ export class Game {
 
   private static readonly COLOR_BONUS = [0, 0, 4, 8, 8]
 
+  // 全消しボーナススコア
+  private static readonly ZENKESHI_BONUS = 3600
+
+  // 全消し演出管理
+  private isZenkeshiEffectActiveFlag = false
+
   // 連鎖スコアを計算するメソッド
   calculateScore(chainNumber: number, piecesEliminated: number, colors: number): number {
     const chainBonus = Game.CHAIN_BONUS[Math.min(chainNumber, Game.CHAIN_BONUS.length - 1)]
@@ -916,6 +923,15 @@ export class Game {
       }
     }
 
+    // 全消しボーナスの判定と加算
+    let zenkeshiBonus = 0
+    if (chainCount > 0 && this.isZenkeshi()) {
+      zenkeshiBonus = Game.ZENKESHI_BONUS
+      totalScore += zenkeshiBonus
+      // 全消し演出を開始
+      this.startZenkeshiEffect()
+    }
+
     // ゲームのスコアに加算
     this.score += totalScore
     this.updateScoreDisplay()
@@ -938,5 +954,50 @@ export class Game {
       }
     }
     return true // すべてのセルが空の場合は全消し
+  }
+
+  // 全消しボーナス値を取得
+  getZenkeshiBonus(): number {
+    return Game.ZENKESHI_BONUS
+  }
+
+  // 全消し演出が有効かどうかを取得
+  isZenkeshiEffectActive(): boolean {
+    return this.isZenkeshiEffectActiveFlag
+  }
+
+  // 全消し演出を開始
+  private startZenkeshiEffect(): void {
+    this.isZenkeshiEffectActiveFlag = true
+  }
+
+  // 全消し演出を停止
+  private stopZenkeshiEffect(): void {
+    this.isZenkeshiEffectActiveFlag = false
+  }
+
+  // 全消し演出の描画
+  private renderZenkeshiEffect(): void {
+    if (!this.isZenkeshiEffectActiveFlag) return
+
+    // 画面中央に「全消し！」テキストを描画
+    const centerX = this.canvas.width / 2
+    const centerY = this.canvas.height / 2
+
+    this.context.save()
+    this.context.fillStyle = '#FFD700' // 金色
+    this.context.font = 'bold 48px Arial'
+    this.context.textAlign = 'center'
+    this.context.textBaseline = 'middle'
+
+    // 影効果を追加
+    this.context.fillStyle = '#000000'
+    this.context.fillText('全消し！', centerX + 2, centerY + 2)
+
+    // メインテキスト
+    this.context.fillStyle = '#FFD700'
+    this.context.fillText('全消し！', centerX, centerY)
+
+    this.context.restore()
   }
 }

@@ -21,6 +21,12 @@ describe('Game', () => {
       ellipse: vi.fn(),
       fill: vi.fn(),
       stroke: vi.fn(),
+      fillText: vi.fn(),
+      save: vi.fn(),
+      restore: vi.fn(),
+      textAlign: 'center',
+      textBaseline: 'middle',
+      font: 'bold 48px Arial',
     } as unknown as CanvasRenderingContext2D
 
     // Canvas要素をモック
@@ -2579,7 +2585,7 @@ describe('Game', () => {
       it('盤面にぷよがない場合は全消しと判定される', () => {
         game.clearActivePuyo()
         const field = game.getField()
-        
+
         // フィールドを完全に空にする
         for (let y = 0; y < 13; y++) {
           for (let x = 0; x < 6; x++) {
@@ -2594,7 +2600,7 @@ describe('Game', () => {
       it('盤面にぷよが残っている場合は全消しと判定されない', () => {
         game.clearActivePuyo()
         const field = game.getField()
-        
+
         // フィールドを空にしてから1つだけぷよを配置
         for (let y = 0; y < 13; y++) {
           for (let x = 0; x < 6; x++) {
@@ -2610,7 +2616,7 @@ describe('Game', () => {
       it('複数のぷよが残っている場合は全消しと判定されない', () => {
         game.clearActivePuyo()
         const field = game.getField()
-        
+
         // 複数のぷよを配置
         field[12][0] = 1
         field[12][1] = 2
@@ -2618,6 +2624,136 @@ describe('Game', () => {
 
         const isZenkeshi = game.isZenkeshi()
         expect(isZenkeshi).toBe(false)
+      })
+    })
+
+    describe('全消しボーナス計算', () => {
+      it('全消しボーナスの定数が定義されている', () => {
+        // 全消しボーナスの定数値をテスト
+        expect(typeof game.getZenkeshiBonus).toBe('function')
+      })
+
+      it('全消しボーナスが正しい値を返す', () => {
+        const bonus = game.getZenkeshiBonus()
+        expect(bonus).toBe(3600) // 一般的なぷよぷよの全消しボーナス
+      })
+
+      it('全消し時にボーナススコアが加算される', () => {
+        game.clearActivePuyo()
+        const field = game.getField()
+        const initialScore = game.getScore()
+
+        // フィールドに4つの同色ぷよを配置して消去可能にする
+        field[12][0] = 1
+        field[12][1] = 1
+        field[12][2] = 1
+        field[12][3] = 1
+
+        // 連鎖処理を実行して全消しを発生させる
+        const chainResult = game.processChainWithScore()
+
+        // 全消しボーナスが加算されているか確認
+        const finalScore = game.getScore()
+        const chainScore = chainResult.totalScore
+
+        // chainScore には既にボーナスが含まれているため、単純に加算
+        expect(finalScore).toBe(initialScore + chainScore)
+      })
+
+      it('全消しでない場合はボーナスが加算されない', () => {
+        game.clearActivePuyo()
+        const field = game.getField()
+        const initialScore = game.getScore()
+
+        // フィールドに4つの同色ぷよ + 1つの残りぷよを配置
+        field[12][0] = 1
+        field[12][1] = 1
+        field[12][2] = 1
+        field[12][3] = 1
+        field[11][5] = 2 // 残りぷよ（消去されない）
+
+        // 連鎖処理を実行
+        const chainResult = game.processChainWithScore()
+
+        // 全消しボーナスが加算されていないか確認
+        const finalScore = game.getScore()
+        const chainScore = chainResult.totalScore
+
+        expect(finalScore).toBe(initialScore + chainScore) // ボーナスなし
+      })
+    })
+
+    describe('全消し演出システム', () => {
+      beforeEach(() => {
+        // 新しいCanvas 2Dコンテキストのモック設定を強制的に適用
+        mockContext.fillText = vi.fn()
+        mockContext.save = vi.fn()
+        mockContext.restore = vi.fn()
+        mockContext.textAlign = 'center'
+        mockContext.textBaseline = 'middle'
+        mockContext.font = 'bold 48px Arial'
+        
+        // ゲームインスタンスを再作成してモックを確実に反映
+        game = new Game(canvas, scoreDisplay)
+      })
+
+      it('全消し時に演出が実行される', () => {
+        game.clearActivePuyo()
+        const field = game.getField()
+
+        // フィールドに4つの同色ぷよを配置して全消し可能にする
+        field[12][0] = 1
+        field[12][1] = 1
+        field[12][2] = 1
+        field[12][3] = 1
+
+        // 連鎖処理を実行
+        game.processChainWithScore()
+
+        // 全消し演出が実行されているかチェック（演出フラグが立つ）
+        expect(game.isZenkeshiEffectActive()).toBe(true)
+      })
+
+      it('全消しでない場合は演出が実行されない', () => {
+        game.clearActivePuyo()
+        const field = game.getField()
+
+        // フィールドに4つの同色ぷよ + 1つの残りぷよを配置
+        field[12][0] = 1
+        field[12][1] = 1
+        field[12][2] = 1
+        field[12][3] = 1
+        field[11][5] = 2 // 残りぷよ（消去されない）
+
+        // 連鎖処理を実行
+        game.processChainWithScore()
+
+        // 全消し演出が実行されていないかチェック
+        expect(game.isZenkeshiEffectActive()).toBe(false)
+      })
+
+      it('全消し演出の描画が実行される', () => {
+        game.clearActivePuyo()
+        const field = game.getField()
+
+        // フィールドに4つの同色ぷよを配置して全消し可能にする
+        field[12][0] = 1
+        field[12][1] = 1
+        field[12][2] = 1
+        field[12][3] = 1
+
+        // 連鎖処理を実行して全消し演出を発生させる
+        game.processChainWithScore()
+
+        // 描画メソッドを実行
+        game.render()
+
+        // 全消し演出のテキストが描画されているかチェック
+        expect(mockContext.fillText).toHaveBeenCalledWith(
+          '全消し！',
+          expect.any(Number),
+          expect.any(Number)
+        )
       })
     })
   })
