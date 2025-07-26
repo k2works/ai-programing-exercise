@@ -2432,4 +2432,51 @@ describe('Game', () => {
       })
     })
   })
+
+  describe('フィールドの重力処理', () => {
+    it('消去処理なしでも空間がある場合はぷよが落下する', () => {
+      // フィールドに浮いているぷよがある状況を作成
+      game.clearActivePuyo()
+      const field = game.getField()
+
+      // 浮いているぷよを配置（下に空間がある）
+      field[10][2] = 1 // 赤ぷよが浮いている
+      field[12][2] = 2 // 緑ぷよが底にある（間にfield[11][2]が空）
+
+      // 手動で重力処理を実行
+      const dropped = game.dropAfterElimination()
+
+      // 落下が発生したことを確認
+      expect(dropped).toBe(true)
+
+      // 浮いていたぷよが正しい位置に落下していることを確認
+      expect(field[10][2]).toBe(0) // 元の位置は空
+      expect(field[11][2]).toBe(1) // 赤ぷよが落下してここに配置
+      expect(field[12][2]).toBe(2) // 緑ぷよはそのまま
+    })
+
+    it('複数のぷよが重なって浮いている場合も正しく落下する', () => {
+      game.clearActivePuyo()
+      const field = game.getField()
+
+      // 複数のぷよが浮いている状況
+      field[8][1] = 1 // 赤
+      field[9][1] = 2 // 緑
+      field[10][1] = 3 // 青（これらが浮いている）
+      field[12][1] = 4 // 黄が底にある（field[11][1]が空）
+
+      // 重力処理を実行
+      const dropped = game.dropAfterElimination()
+
+      // 落下が発生したことを確認
+      expect(dropped).toBe(true)
+
+      // すべてのぷよが正しい位置に落下していることを確認
+      expect(field[8][1]).toBe(0) // 元の位置は空
+      expect(field[9][1]).toBe(1) // 赤が一番上に落下
+      expect(field[10][1]).toBe(2) // 緑がその下に落下
+      expect(field[11][1]).toBe(3) // 青がその下に落下
+      expect(field[12][1]).toBe(4) // 黄は元の位置のまま
+    })
+  })
 })

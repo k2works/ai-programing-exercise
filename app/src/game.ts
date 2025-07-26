@@ -778,8 +778,9 @@ export class Game {
       // 下から連続して配置されているかチェック
       let needsReorder = false
       for (let i = 0; i < column.length; i++) {
-        const expectedY = Game.FIELD_HEIGHT - column.length + i
-        if (this.field[expectedY][x] !== column[i]) {
+        const expectedY = Game.FIELD_HEIGHT - 1 - i
+        const expectedValue = column[column.length - 1 - i]
+        if (this.field[expectedY][x] !== expectedValue) {
           needsReorder = true
           break
         }
@@ -793,10 +794,10 @@ export class Game {
           this.field[y][x] = 0
         }
 
-        // 収集したぷよを下から配置（columnの順番を維持）
+        // 収集したぷよを下から配置（落下順序を正しく保つため、columnの逆順で配置）
         for (let i = 0; i < column.length; i++) {
-          const targetY = Game.FIELD_HEIGHT - column.length + i
-          this.field[targetY][x] = column[i]
+          const targetY = Game.FIELD_HEIGHT - 1 - i
+          this.field[targetY][x] = column[column.length - 1 - i]
         }
       }
     }
