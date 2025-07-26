@@ -926,4 +926,17 @@ export class Game {
       totalEliminated: totalEliminated,
     }
   }
+
+  // 全消し判定: 盤面上にぷよが残っていないかをチェック
+  isZenkeshi(): boolean {
+    // フィールド全体をスキャンして、空でないセルがあるかチェック
+    for (let y = 0; y < Game.FIELD_HEIGHT; y++) {
+      for (let x = 0; x < Game.FIELD_WIDTH; x++) {
+        if (this.field[y][x] !== 0) {
+          return false // ぷよが残っている場合は全消しではない
+        }
+      }
+    }
+    return true // すべてのセルが空の場合は全消し
+  }
 }

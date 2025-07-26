@@ -2540,4 +2540,85 @@ describe('Game', () => {
       expect(field[12][3]).toBe(3) // 青はそのまま
     })
   })
+
+  describe('全消しボーナスシステム', () => {
+    let game: Game
+    let mockCanvas: HTMLCanvasElement
+    let mockScoreDisplay: HTMLElement
+
+    beforeEach(() => {
+      // Canvas 2D context のモック
+      const mockContext = {
+        fillStyle: '',
+        fillRect: vi.fn(),
+        strokeStyle: '',
+        strokeRect: vi.fn(),
+        beginPath: vi.fn(),
+        ellipse: vi.fn(),
+        fill: vi.fn(),
+        stroke: vi.fn(),
+        lineWidth: 0,
+        clearRect: vi.fn(),
+      }
+
+      mockCanvas = {
+        getContext: vi.fn().mockReturnValue(mockContext),
+        width: 320,
+        height: 480,
+      } as unknown as HTMLCanvasElement
+
+      mockScoreDisplay = {
+        textContent: '',
+      } as unknown as HTMLElement
+
+      vi.clearAllMocks()
+      game = new Game(mockCanvas, mockScoreDisplay)
+    })
+
+    describe('全消し判定', () => {
+      it('盤面にぷよがない場合は全消しと判定される', () => {
+        game.clearActivePuyo()
+        const field = game.getField()
+        
+        // フィールドを完全に空にする
+        for (let y = 0; y < 13; y++) {
+          for (let x = 0; x < 6; x++) {
+            field[y][x] = 0
+          }
+        }
+
+        const isZenkeshi = game.isZenkeshi()
+        expect(isZenkeshi).toBe(true)
+      })
+
+      it('盤面にぷよが残っている場合は全消しと判定されない', () => {
+        game.clearActivePuyo()
+        const field = game.getField()
+        
+        // フィールドを空にしてから1つだけぷよを配置
+        for (let y = 0; y < 13; y++) {
+          for (let x = 0; x < 6; x++) {
+            field[y][x] = 0
+          }
+        }
+        field[12][3] = 1 // 赤ぷよを1つ配置
+
+        const isZenkeshi = game.isZenkeshi()
+        expect(isZenkeshi).toBe(false)
+      })
+
+      it('複数のぷよが残っている場合は全消しと判定されない', () => {
+        game.clearActivePuyo()
+        const field = game.getField()
+        
+        // 複数のぷよを配置
+        field[12][0] = 1
+        field[12][1] = 2
+        field[12][2] = 3
+
+        const isZenkeshi = game.isZenkeshi()
+        expect(isZenkeshi).toBe(false)
+      })
+    })
+  })
 })
