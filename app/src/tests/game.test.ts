@@ -1715,4 +1715,426 @@ describe('Game', () => {
       })
     })
   })
+
+  describe('ぷよの消去処理', () => {
+    let game: Game
+    let mockCanvas: HTMLCanvasElement
+    let mockScoreDisplay: HTMLElement
+
+    beforeEach(() => {
+      // Canvas and 2D context mocks
+      const mockContext: CanvasRenderingContext2D = {
+        fillStyle: '',
+        strokeStyle: '',
+        lineWidth: 0,
+        fillRect: vi.fn(),
+        strokeRect: vi.fn(),
+        clearRect: vi.fn(),
+        beginPath: vi.fn(),
+        ellipse: vi.fn(),
+        fill: vi.fn(),
+        stroke: vi.fn(),
+      } as any
+
+      mockCanvas = {
+        getContext: vi.fn().mockReturnValue(mockContext),
+        width: 300,
+        height: 400,
+      } as any
+
+      mockScoreDisplay = {
+        textContent: '',
+      } as any
+
+      // テスト前に新しいゲームインスタンスを作成
+      game = new Game(mockCanvas, mockScoreDisplay)
+      game.start()
+    })
+
+    describe('ぷよの接続判定', () => {
+      it('隣接する同じ色のぷよを検出できる', () => {
+        // 操作ぷよをクリアしてからテスト用のフィールドを設定
+        game.clearActivePuyo()
+
+        // フィールドに同じ色のぷよを隣接して配置
+        const field = game.getField()
+        field[12][2] = 1 // 赤
+        field[12][3] = 1 // 赤（右隣）
+        field[11][2] = 1 // 赤（上）
+
+        // 接続判定機能をテスト（startX, startYの順番）
+        const connectedPuyos = game.findConnectedPuyos(2, 12)
+        expect(connectedPuyos).toHaveLength(3)
+        expect(connectedPuyos).toContainEqual({ x: 2, y: 12 })
+        expect(connectedPuyos).toContainEqual({ x: 3, y: 12 })
+        expect(connectedPuyos).toContainEqual({ x: 2, y: 11 })
+      })
+
+      it('異なる色のぷよは接続判定に含まれない', () => {
+        // 操作ぷよをクリアしてからテスト用のフィールドを設定
+        game.clearActivePuyo()
+
+        // フィールドに異なる色のぷよを配置
+        const field = game.getField()
+        field[12][2] = 1 // 赤
+        field[12][3] = 2 // 緑（異なる色）
+        field[11][2] = 1 // 赤
+
+        // 接続判定機能をテスト（startX, startYの順番）
+        const connectedPuyos = game.findConnectedPuyos(2, 12)
+        expect(connectedPuyos).toHaveLength(2)
+        expect(connectedPuyos).toContainEqual({ x: 2, y: 12 })
+        expect(connectedPuyos).toContainEqual({ x: 2, y: 11 })
+        expect(connectedPuyos).not.toContainEqual({ x: 3, y: 12 })
+      })
+
+      it('フィールドの境界外は接続判定に含まれない', () => {
+        // 操作ぷよをクリアしてからテスト用のフィールドを設定
+        game.clearActivePuyo()
+
+        // フィールドの端にぷよを配置
+        const field = game.getField()
+        field[12][0] = 1 // 左端
+        field[12][1] = 1 // その右
+
+        // 接続判定機能をテスト（左端から開始、startX, startYの順番）
+        const connectedPuyos = game.findConnectedPuyos(0, 12)
+        expect(connectedPuyos).toHaveLength(2)
+        expect(connectedPuyos).toContainEqual({ x: 0, y: 12 })
+        expect(connectedPuyos).toContainEqual({ x: 1, y: 12 })
+      })
+
+      it('空のセルは接続判定に含まれない', () => {
+        // 操作ぷよをクリアしてからテスト用のフィールドを設定
+        game.clearActivePuyo()
+
+        // フィールドに孤立したぷよを配置
+        const field = game.getField()
+        field[12][2] = 1 // 赤（孤立）
+
+        // 接続判定機能をテスト（startX, startYの順番）
+        const connectedPuyos = game.findConnectedPuyos(2, 12)
+        expect(connectedPuyos).toHaveLength(1)
+        expect(connectedPuyos).toContainEqual({ x: 2, y: 12 })
+      })
+    })
+
+    describe('4つ以上つながったぷよの検出', () => {
+      it('4つ以上つながったぷよのグループを検出できる', () => {
+        // 操作ぷよをクリアしてからテスト用のフィールドを設定
+        game.clearActivePuyo()
+
+        // フィールドにL字型に4つの同じ色のぷよを配置
+        const field = game.getField()
+        field[12][2] = 1 // 赤
+        field[11][2] = 1 // 赤（上）
+        field[10][2] = 1 // 赤（上）
+        field[10][3] = 1 // 赤（右）
+
+        // 4つ以上つながったぷよのグループを検出
+        const eliminateGroups = game.findEliminateGroups()
+        expect(eliminateGroups).toHaveLength(1)
+        expect(eliminateGroups[0]).toHaveLength(4)
+        expect(eliminateGroups[0]).toContainEqual({ x: 2, y: 12 })
+        expect(eliminateGroups[0]).toContainEqual({ x: 2, y: 11 })
+        expect(eliminateGroups[0]).toContainEqual({ x: 2, y: 10 })
+        expect(eliminateGroups[0]).toContainEqual({ x: 3, y: 10 })
+      })
+
+      it('3つ以下のぷよは消去対象にならない', () => {
+        // 操作ぷよをクリアしてからテスト用のフィールドを設定
+        game.clearActivePuyo()
+
+        // フィールドに3つの同じ色のぷよを配置
+        const field = game.getField()
+        field[12][2] = 1 // 赤
+        field[11][2] = 1 // 赤（上）
+        field[10][2] = 1 // 赤（上）
+
+        // 3つでは消去対象にならない
+        const eliminateGroups = game.findEliminateGroups()
+        expect(eliminateGroups).toHaveLength(0)
+      })
+
+      it('複数の4つ以上のグループを検出できる', () => {
+        // 操作ぷよをクリアしてからテスト用のフィールドを設定
+        game.clearActivePuyo()
+
+        // フィールドに2つの独立したグループを配置
+        const field = game.getField()
+        // 1つ目のグループ（赤）
+        field[12][0] = 1
+        field[11][0] = 1
+        field[10][0] = 1
+        field[9][0] = 1
+
+        // 2つ目のグループ（緑）
+        field[12][4] = 2
+        field[12][5] = 2
+        field[11][4] = 2
+        field[11][5] = 2
+
+        // 2つのグループを検出
+        const eliminateGroups = game.findEliminateGroups()
+        expect(eliminateGroups).toHaveLength(2)
+        expect(eliminateGroups[0]).toHaveLength(4)
+        expect(eliminateGroups[1]).toHaveLength(4)
+      })
+
+      it('異なる色が混在している場合は正しく分離される', () => {
+        // 操作ぷよをクリアしてからテスト用のフィールドを設定
+        game.clearActivePuyo()
+
+        // フィールドに異なる色が混在する配置
+        const field = game.getField()
+        field[12][2] = 1 // 赤
+        field[11][2] = 2 // 緑（異なる色）
+        field[10][2] = 1 // 赤
+        field[9][2] = 1 // 赤（合計3つなので消去対象外）
+
+        // 連続していない3つの赤は消去対象にならない
+        const eliminateGroups = game.findEliminateGroups()
+        expect(eliminateGroups).toHaveLength(0)
+      })
+    })
+
+    describe('ぷよの消去処理', () => {
+      it('4つ以上つながったぷよを消去できる', () => {
+        // 操作ぷよをクリアしてからテスト用のフィールドを設定
+        game.clearActivePuyo()
+
+        // フィールドに4つのつながったぷよを配置
+        const field = game.getField()
+        field[12][2] = 1 // 赤
+        field[11][2] = 1 // 赤（上）
+        field[10][2] = 1 // 赤（上）
+        field[9][2] = 1 // 赤（上）
+
+        // 消去前の状態を確認
+        expect(field[12][2]).toBe(1)
+        expect(field[11][2]).toBe(1)
+        expect(field[10][2]).toBe(1)
+        expect(field[9][2]).toBe(1)
+
+        // 消去処理を実行
+        const eliminatedGroups = game.eliminatePuyos()
+        expect(eliminatedGroups).toHaveLength(1)
+        expect(eliminatedGroups[0]).toHaveLength(4)
+
+        // 消去後の状態を確認
+        expect(field[12][2]).toBe(0)
+        expect(field[11][2]).toBe(0)
+        expect(field[10][2]).toBe(0)
+        expect(field[9][2]).toBe(0)
+      })
+
+      it('3つ以下のぷよは消去されない', () => {
+        // 操作ぷよをクリアしてからテスト用のフィールドを設定
+        game.clearActivePuyo()
+
+        // フィールドに3つのつながったぷよを配置
+        const field = game.getField()
+        field[12][2] = 1 // 赤
+        field[11][2] = 1 // 赤（上）
+        field[10][2] = 1 // 赤（上）
+
+        // 消去処理を実行
+        const eliminatedGroups = game.eliminatePuyos()
+        expect(eliminatedGroups).toHaveLength(0)
+
+        // ぷよが残っていることを確認
+        expect(field[12][2]).toBe(1)
+        expect(field[11][2]).toBe(1)
+        expect(field[10][2]).toBe(1)
+      })
+
+      it('複数のグループを同時に消去できる', () => {
+        // 操作ぷよをクリアしてからテスト用のフィールドを設定
+        game.clearActivePuyo()
+
+        // フィールドに2つの独立したグループを配置
+        const field = game.getField()
+        // 1つ目のグループ（赤）
+        field[12][0] = 1
+        field[11][0] = 1
+        field[10][0] = 1
+        field[9][0] = 1
+
+        // 2つ目のグループ（緑）
+        field[12][4] = 2
+        field[12][5] = 2
+        field[11][4] = 2
+        field[11][5] = 2
+
+        // 他の色のぷよ（消去されないはず）
+        field[8][2] = 3 // 青（孤立）
+
+        // 消去処理を実行
+        const eliminatedGroups = game.eliminatePuyos()
+        expect(eliminatedGroups).toHaveLength(2)
+
+        // 1つ目のグループが消去されていることを確認
+        expect(field[12][0]).toBe(0)
+        expect(field[11][0]).toBe(0)
+        expect(field[10][0]).toBe(0)
+        expect(field[9][0]).toBe(0)
+
+        // 2つ目のグループが消去されていることを確認
+        expect(field[12][4]).toBe(0)
+        expect(field[12][5]).toBe(0)
+        expect(field[11][4]).toBe(0)
+        expect(field[11][5]).toBe(0)
+
+        // 他の色のぷよは残っていることを確認
+        expect(field[8][2]).toBe(3)
+      })
+
+      it('消去対象がない場合は何も消去されない', () => {
+        // 操作ぷよをクリアしてからテスト用のフィールドを設定
+        game.clearActivePuyo()
+
+        // フィールドに孤立したぷよを配置
+        const field = game.getField()
+        field[12][2] = 1 // 赤（孤立）
+        field[10][4] = 2 // 緑（孤立）
+
+        // 消去処理を実行
+        const eliminatedGroups = game.eliminatePuyos()
+        expect(eliminatedGroups).toHaveLength(0)
+
+        // ぷよが残っていることを確認
+        expect(field[12][2]).toBe(1)
+        expect(field[10][4]).toBe(2)
+      })
+    })
+
+    describe('消去後の落下処理', () => {
+      it('消去後に上のぷよが重力で落下する', () => {
+        // 操作ぷよをクリアしてからテスト用のフィールドを設定
+        game.clearActivePuyo()
+
+        // フィールドに落下テスト用の配置を作成
+        const field = game.getField()
+        // 下部に消去対象のぷよ（4つ）
+        field[12][2] = 1 // 赤
+        field[11][2] = 1 // 赤
+        field[10][2] = 1 // 赤
+        field[9][2] = 1 // 赤
+
+        // 上部に落下すべきぷよ
+        field[8][2] = 2 // 緑（落下すべき）
+        field[7][2] = 3 // 青（落下すべき）
+
+        // 消去処理を実行
+        game.eliminatePuyos()
+
+        // 消去後の落下処理を実行
+        game.dropAfterElimination()
+
+        // 上のぷよが落下していることを確認
+        expect(field[12][2]).toBe(2) // 緑が一番下に
+        expect(field[11][2]).toBe(3) // 青がその上に
+        expect(field[10][2]).toBe(0) // 空
+        expect(field[9][2]).toBe(0) // 空
+        expect(field[8][2]).toBe(0) // 空
+        expect(field[7][2]).toBe(0) // 空
+      })
+
+      it('複数列で同時に落下処理される', () => {
+        // 操作ぷよをクリアしてからテスト用のフィールドを設定
+        game.clearActivePuyo()
+
+        // フィールドに複数列の落下テスト用の配置を作成
+        const field = game.getField()
+
+        // 1列目: 下部に消去対象
+        field[12][1] = 1 // 赤（消去対象）
+        field[11][1] = 1 // 赤（消去対象）
+        field[10][1] = 1 // 赤（消去対象）
+        field[9][1] = 1 // 赤（消去対象）
+        field[8][1] = 2 // 緑（落下すべき）
+
+        // 3列目: 下部に消去対象
+        field[12][3] = 1 // 赤（消去対象）
+        field[11][3] = 1 // 赤（消去対象）
+        field[10][3] = 1 // 赤（消去対象）
+        field[9][3] = 1 // 赤（消去対象）
+        field[8][3] = 3 // 青（落下すべき）
+        field[7][3] = 4 // 黄（落下すべき）
+
+        // 消去処理を実行
+        game.eliminatePuyos()
+
+        // 消去後の落下処理を実行
+        game.dropAfterElimination()
+
+        // 1列目の落下確認
+        expect(field[12][1]).toBe(2) // 緑が一番下に
+        expect(field[11][1]).toBe(0) // 空
+        expect(field[8][1]).toBe(0) // 空
+
+        // 3列目の落下確認
+        expect(field[12][3]).toBe(3) // 青が一番下に
+        expect(field[11][3]).toBe(4) // 黄がその上に
+        expect(field[8][3]).toBe(0) // 空
+        expect(field[7][3]).toBe(0) // 空
+      })
+
+      it('部分的な消去でも正しく落下する', () => {
+        // 操作ぷよをクリアしてからテスト用のフィールドを設定
+        game.clearActivePuyo()
+
+        // フィールドに部分消去テスト用の配置を作成
+        const field = game.getField()
+        field[12][2] = 2 // 緑（残る）
+        field[11][2] = 1 // 赤（消去対象）
+        field[10][2] = 1 // 赤（消去対象）
+        field[9][2] = 1 // 赤（消去対象）
+        field[8][2] = 1 // 赤（消去対象）
+        field[7][2] = 3 // 青（落下すべき）
+        field[6][2] = 4 // 黄（落下すべき）
+
+        // 消去処理を実行
+        game.eliminatePuyos()
+
+        // 消去後の落下処理を実行
+        game.dropAfterElimination()
+
+        // 落下結果を確認
+        expect(field[12][2]).toBe(2) // 緑（元の位置）
+        expect(field[11][2]).toBe(3) // 青が落下
+        expect(field[10][2]).toBe(4) // 黄が落下
+        expect(field[9][2]).toBe(0) // 空
+        expect(field[8][2]).toBe(0) // 空
+        expect(field[7][2]).toBe(0) // 空
+        expect(field[6][2]).toBe(0) // 空
+      })
+
+      it('消去対象がない場合は落下処理も何も起こらない', () => {
+        // 操作ぷよをクリアしてからテスト用のフィールドを設定
+        game.clearActivePuyo()
+
+        // フィールドに消去対象がない配置を作成（隙間なく下に詰めた状態）
+        const field = game.getField()
+        field[12][2] = 1 // 赤（最下段）
+        field[11][2] = 2 // 緑（その上）
+        field[10][2] = 3 // 青（その上）
+
+        // 元の状態を記録
+        const originalField = field.map((row) => [...row])
+
+        // 消去処理を実行
+        const eliminatedGroups = game.eliminatePuyos()
+
+        // 消去対象がないことを確認
+        expect(eliminatedGroups).toHaveLength(0)
+
+        // 消去後の落下処理を実行
+        game.dropAfterElimination()
+
+        // フィールドが変わっていないことを確認
+        expect(field).toEqual(originalField)
+      })
+    })
+  })
 })

@@ -652,4 +652,160 @@ export class Game {
   hasLandedTest(): boolean {
     return !this.canFall()
   }
+
+  // ぷよの接続判定: 指定した位置から同じ色で接続されたぷよをすべて検出
+  findConnectedPuyos(startX: number, startY: number): Array<{ x: number; y: number }> {
+    const connected: Array<{ x: number; y: number }> = []
+    const visited: boolean[][] = Array(Game.FIELD_HEIGHT)
+      .fill(null)
+      .map(() => Array(Game.FIELD_WIDTH).fill(false))
+
+    const targetColor = this.field[startY][startX]
+    if (targetColor === 0) {
+      return connected // 空のセルからは何も返さない
+    }
+
+    // 深度優先探索で接続されたぷよを検出
+    this.dfsConnectedPuyos(startX, startY, targetColor, visited, connected)
+
+    return connected
+  }
+
+  // 深度優先探索で同じ色のぷよを再帰的に検出
+  private dfsConnectedPuyos(
+    x: number,
+    y: number,
+    targetColor: number,
+    visited: boolean[][],
+    connected: Array<{ x: number; y: number }>
+  ): void {
+    // 境界チェック
+    if (x < 0 || x >= Game.FIELD_WIDTH || y < 0 || y >= Game.FIELD_HEIGHT) {
+      return
+    }
+
+    // 既に訪問済みかチェック
+    if (visited[y][x]) {
+      return
+    }
+
+    // 色が一致しないかチェック
+    if (this.field[y][x] !== targetColor) {
+      return
+    }
+
+    // 訪問済みにマーク
+    visited[y][x] = true
+
+    // 接続リストに追加
+    connected.push({ x, y })
+
+    // 4方向に再帰的に探索
+    this.dfsConnectedPuyos(x + 1, y, targetColor, visited, connected) // 右
+    this.dfsConnectedPuyos(x - 1, y, targetColor, visited, connected) // 左
+    this.dfsConnectedPuyos(x, y + 1, targetColor, visited, connected) // 下
+    this.dfsConnectedPuyos(x, y - 1, targetColor, visited, connected) // 上
+  }
+
+  // 4つ以上つながったぷよのグループを検出
+  findEliminateGroups(): Array<Array<{ x: number; y: number }>> {
+    const eliminateGroups: Array<Array<{ x: number; y: number }>> = []
+    const visited: boolean[][] = Array(Game.FIELD_HEIGHT)
+      .fill(null)
+      .map(() => Array(Game.FIELD_WIDTH).fill(false))
+
+    // フィールド全体をスキャンして4つ以上の接続グループを検出
+    for (let y = 0; y < Game.FIELD_HEIGHT; y++) {
+      for (let x = 0; x < Game.FIELD_WIDTH; x++) {
+        // 空でない、かつまだ訪問していないセルから開始
+        if (this.field[y][x] !== 0 && !visited[y][x]) {
+          const connectedPuyos = this.findConnectedPuyos(x, y)
+
+          // 4つ以上のグループは消去対象
+          if (connectedPuyos.length >= 4) {
+            eliminateGroups.push(connectedPuyos)
+          }
+
+          // 訪問済みにマーク（重複検出を避ける）
+          for (const puyo of connectedPuyos) {
+            visited[puyo.y][puyo.x] = true
+          }
+        }
+      }
+    }
+
+    return eliminateGroups
+  }
+
+  // ぷよの消去処理: 4つ以上つながったぷよを実際に消去する
+  eliminatePuyos(): Array<Array<{ x: number; y: number }>> {
+    // 消去対象のグループを検出
+    const eliminateGroups = this.findEliminateGroups()
+
+    // 検出された各グループのぷよを消去（フィールドから0にする）
+    for (const group of eliminateGroups) {
+      for (const puyo of group) {
+        this.field[puyo.y][puyo.x] = 0
+      }
+    }
+
+    return eliminateGroups
+  }
+
+  // 消去後の落下処理: 空いたスペースに上のぷよを落下させる
+  // 注意: このメソッドは eliminatePuyos() が実際に消去を行った後でのみ使用すべき
+  dropAfterElimination(): boolean {
+    let hasDropped = false
+
+    // 各列ごとに処理
+    for (let x = 0; x < Game.FIELD_WIDTH; x++) {
+      // 空でないぷよを上から下の順で収集
+      const column: number[] = []
+
+      // 列全体を上から下にスキャンして、空でないぷよを収集
+      for (let y = 0; y < Game.FIELD_HEIGHT; y++) {
+        if (this.field[y][x] !== 0) {
+          column.push(this.field[y][x])
+        }
+      }
+
+      // 下から連続して配置されているかチェック
+      let needsReorder = false
+      for (let i = 0; i < column.length; i++) {
+        const expectedY = Game.FIELD_HEIGHT - column.length + i
+        if (this.field[expectedY][x] !== column[i]) {
+          needsReorder = true
+          break
+        }
+      }
+
+      // 再配置が必要な場合のみ処理
+      if (needsReorder) {
+        hasDropped = true
+        // 列全体をクリア
+        for (let y = 0; y < Game.FIELD_HEIGHT; y++) {
+          this.field[y][x] = 0
+        }
+
+        // 収集したぷよを下から配置（columnの順番を維持）
+        for (let i = 0; i < column.length; i++) {
+          const targetY = Game.FIELD_HEIGHT - column.length + i
+          this.field[targetY][x] = column[i]
+        }
+      }
+    }
+
+    return hasDropped
+  }
+
+  // 消去処理と落下処理を統合したメソッド
+  eliminateAndDrop(): { eliminated: Array<Array<{ x: number; y: number }>>; dropped: boolean } {
+    const eliminatedGroups = this.eliminatePuyos()
+    const dropped = eliminatedGroups.length > 0 ? this.dropAfterElimination() : false
+
+    return {
+      eliminated: eliminatedGroups,
+      dropped: dropped,
+    }
+  }
 }
