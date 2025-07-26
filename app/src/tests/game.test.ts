@@ -2759,6 +2759,63 @@ describe('Game', () => {
   })
 
   describe('ゲームオーバーシステム', () => {
+    describe('ゲームオーバー演出', () => {
+      it('ゲームオーバー時に演出フラグが有効になる', () => {
+        game.clearActivePuyo()
+        const field = game.getField()
+
+        // 新しいぷよの配置位置を占有してゲームオーバー状態にする
+        field[0][2] = 1 // 中心ぷよの位置
+        field[1][2] = 2 // 2つ目のぷよの位置
+
+        // ゲームオーバー演出を開始
+        game.triggerGameOver()
+
+        // ゲームオーバー演出が有効になることを確認
+        expect(game.isGameOverEffectActive()).toBe(true)
+      })
+
+      it('ゲームオーバーでない場合は演出が実行されない', () => {
+        game.clearActivePuyo()
+        const field = game.getField()
+
+        // フィールドを空にしておく（ゲームオーバーでない状態）
+        for (let y = 0; y < 13; y++) {
+          for (let x = 0; x < 6; x++) {
+            field[y][x] = 0
+          }
+        }
+
+        // ゲームオーバー判定でないことを確認
+        expect(game.isGameOver()).toBe(false)
+
+        // ゲームオーバー演出が実行されていないことを確認
+        expect(game.isGameOverEffectActive()).toBe(false)
+      })
+
+      it('ゲームオーバー演出の描画が実行される', () => {
+        game.clearActivePuyo()
+        const field = game.getField()
+
+        // ゲームオーバー状態にする
+        field[0][2] = 1
+        field[1][2] = 2
+
+        // ゲームオーバー演出を開始
+        game.triggerGameOver()
+
+        // 描画メソッドを呼び出し
+        game.render()
+
+        // ゲームオーバー演出用のテキスト描画が実行されることを確認
+        expect(mockContext.fillText).toHaveBeenCalledWith(
+          expect.stringContaining('GAME OVER'),
+          expect.any(Number),
+          expect.any(Number)
+        )
+      })
+    })
+
     describe('ゲームオーバー判定', () => {
       it('新しいぷよが配置可能な場合はゲームオーバーではない', () => {
         game.clearActivePuyo()
@@ -2805,6 +2862,51 @@ describe('Game', () => {
         }
 
         expect(game.isGameOver()).toBe(false)
+      })
+    })
+
+    describe('リスタート機能', () => {
+      it('リスタート後にゲームが初期状態に戻る', () => {
+        // ゲームを進行させて状態を変更
+        const field = game.getField()
+        field[12][2] = 1 // フィールドにぷよを配置
+        game.addScore(1000) // スコアを追加
+        game.triggerGameOver() // ゲームオーバー状態にする
+
+        // リスタートを実行
+        game.restart()
+
+        // 初期状態に戻ることを確認
+        expect(game.getScore()).toBe(0) // スコアがリセット
+        expect(game.isGameOverEffectActive()).toBe(false) // ゲームオーバー演出が無効
+        expect(game.getField()[12][2]).toBe(0) // フィールドがクリア
+        expect(game.getActivePuyo()).not.toBeNull() // 新しいアクティブぷよが生成
+      })
+
+      it('リスタート後にスコア表示が更新される', () => {
+        // スコアを設定
+        game.addScore(2500)
+
+        // リスタートを実行
+        game.restart()
+
+        // スコア表示が更新されることを確認
+        expect(scoreDisplay.textContent).toBe('スコア: 0')
+      })
+
+      it('リスタート後に全消し演出が停止する', () => {
+        // 全消し演出フラグを直接設定（テスト用メソッドが必要）
+        // privateメソッドにアクセスするため、anyでキャスト
+        ;(game as any).isZenkeshiEffectActiveFlag = true
+
+        // 全消し演出が有効になったことを確認
+        expect(game.isZenkeshiEffectActive()).toBe(true)
+
+        // リスタートを実行
+        game.restart()
+
+        // 全消し演出が停止することを確認
+        expect(game.isZenkeshiEffectActive()).toBe(false)
       })
     })
   })

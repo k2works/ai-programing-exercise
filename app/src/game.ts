@@ -114,6 +114,7 @@ export class Game {
     this.renderActivePuyo()
     this.renderNextPuyo()
     this.renderZenkeshiEffect()
+    this.renderGameOverEffect()
   }
 
   private clearCanvas(): void {
@@ -871,6 +872,9 @@ export class Game {
   // 全消し演出管理
   private isZenkeshiEffectActiveFlag = false
 
+  // ゲームオーバー演出管理
+  private isGameOverEffectActiveFlag = false
+
   // 連鎖スコアを計算するメソッド
   calculateScore(chainNumber: number, piecesEliminated: number, colors: number): number {
     const chainBonus = Game.CHAIN_BONUS[Math.min(chainNumber, Game.CHAIN_BONUS.length - 1)]
@@ -972,7 +976,7 @@ export class Game {
   }
 
   // 全消し演出を停止
-  // @ts-ignore - 将来の演出停止機能で使用予定
+  // @ts-expect-error - 将来の演出停止機能で使用予定
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private stopZenkeshiEffect(): void {
     this.isZenkeshiEffectActiveFlag = false
@@ -1034,5 +1038,75 @@ export class Game {
     }
 
     return false // 配置可能なのでゲームオーバーではない
+  }
+
+  // ゲームオーバー演出が有効かどうかを取得
+  isGameOverEffectActive(): boolean {
+    return this.isGameOverEffectActiveFlag
+  }
+
+  // ゲームオーバー演出を開始
+  triggerGameOver(): void {
+    this.isGameOverEffectActiveFlag = true
+  }
+
+  // ゲームオーバー演出を停止
+  // @ts-expect-error - 将来のリスタート機能で使用予定
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private stopGameOverEffect(): void {
+    this.isGameOverEffectActiveFlag = false
+  }
+
+  // ゲームオーバー演出の描画
+  private renderGameOverEffect(): void {
+    if (!this.isGameOverEffectActiveFlag) return
+
+    // 画面中央に「GAME OVER」テキストを描画
+    const centerX = this.canvas.width / 2
+    const centerY = this.canvas.height / 2
+
+    this.context.save()
+    this.context.fillStyle = '#FF0000' // 赤色
+    this.context.font = 'bold 36px Arial'
+    this.context.textAlign = 'center'
+    this.context.textBaseline = 'middle'
+
+    // 影効果を追加
+    this.context.fillStyle = '#000000'
+    this.context.fillText('GAME OVER', centerX + 2, centerY + 2)
+
+    // メインテキスト
+    this.context.fillStyle = '#FF0000'
+    this.context.fillText('GAME OVER', centerX, centerY)
+
+    this.context.restore()
+  }
+
+  // スコアを追加（テスト用）
+  addScore(points: number): void {
+    this.score += points
+    this.updateScoreDisplay()
+  }
+
+  // ゲームをリスタート
+  restart(): void {
+    // スコアをリセット
+    this.score = 0
+
+    // フィールドをクリア
+    this.field = Array(Game.FIELD_HEIGHT)
+      .fill(null)
+      .map(() => Array(Game.FIELD_WIDTH).fill(0))
+
+    // 演出フラグをリセット
+    this.isGameOverEffectActiveFlag = false
+    this.isZenkeshiEffectActiveFlag = false
+
+    // 新しいぷよを生成
+    this.nextPuyo = this.generateNewPuyoPair()
+    this.spawnActivePuyo()
+
+    // スコア表示を更新
+    this.updateScoreDisplay()
   }
 }
