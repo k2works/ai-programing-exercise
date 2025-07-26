@@ -2224,5 +2224,212 @@ describe('Game', () => {
         expect(chainResult.totalEliminated).toBe(8) // 4×2連鎖 = 8個
       })
     })
+
+    describe('連鎖カウントとスコア計算', () => {
+      it('基本スコア計算が正しく動作する', () => {
+        // 操作ぷよをクリアしてからテスト用のフィールドを設定
+        game.clearActivePuyo()
+
+        const field = game.getField()
+
+        // 単純な4つつながりでスコア計算をテスト
+        field[12][0] = 1 // 赤
+        field[11][0] = 1 // 赤
+        field[10][0] = 1 // 赤
+        field[9][0] = 1 // 赤
+
+        // スコア計算を実行
+        const score = game.calculateScore(1, 4, 1) // 1連鎖, 4個消去, 1色
+
+        // 基本スコア: 4個 × 10 × (連鎖ボーナス8 + 個数ボーナス2 + 色ボーナス0) = 400
+        expect(score).toBe(400)
+      })
+
+      it('連鎖ボーナスが正しく計算される', () => {
+        // 操作ぷよをクリアしてからテスト用のフィールドを設定
+        game.clearActivePuyo()
+
+        // 2連鎖のスコア計算をテスト
+        const score2 = game.calculateScore(2, 4, 1) // 2連鎖, 4個消去, 1色
+        expect(score2).toBe(720) // 4 × 10 × (16 + 2 + 0) = 720
+
+        // 3連鎖のスコア計算をテスト
+        const score3 = game.calculateScore(3, 4, 1) // 3連鎖, 4個消去, 1色
+        expect(score3).toBe(1360) // 4 × 10 × (32 + 2 + 0) = 1360
+      })
+
+      it('色ボーナスが正しく計算される', () => {
+        // 操作ぷよをクリアしてからテスト用のフィールドを設定
+        game.clearActivePuyo()
+
+        // 2色同時消去のスコア計算をテスト
+        const score2colors = game.calculateScore(1, 8, 2) // 1連鎖, 8個消去, 2色
+        expect(score2colors).toBe(1440) // 8 × 10 × (8 + 6 + 4) = 1440
+
+        // 3色同時消去のスコア計算をテスト
+        const score3colors = game.calculateScore(1, 12, 3) // 1連鎖, 12個消去, 3色
+        expect(score3colors).toBe(2640) // 12 × 10 × (8 + 6 + 8) = 2640
+      })
+
+      it('連鎖処理と統合したスコア計算が動作する', () => {
+        // 操作ぷよをクリアしてからテスト用のフィールドを設定
+        game.clearActivePuyo()
+
+        const field = game.getField()
+
+        // 2連鎖パターンを作成
+        field[12][1] = 4 // 黄（支え用）
+        field[12][2] = 4 // 黄（支え用）
+
+        // 1連鎖目：赤のぷよ（横4つ）
+        field[11][0] = 1 // 赤
+        field[11][1] = 1 // 赤
+        field[11][2] = 1 // 赤
+        field[11][3] = 1 // 赤
+
+        // 2連鎖目準備：緑のぷよ
+        field[10][0] = 2 // 緑
+        field[9][0] = 2 // 緑
+        field[8][0] = 2 // 緑
+        field[12][0] = 2 // 緑
+
+        // 初期スコアを記録
+        const initialScore = game.getScore()
+
+        // 連鎖処理とスコア計算を実行
+        const chainResult = game.processChainWithScore()
+
+        // 2連鎖が発生し、スコアが加算されることを確認
+        expect(chainResult.chains).toBe(2)
+        expect(chainResult.totalScore).toBeGreaterThan(0)
+        expect(game.getScore()).toBeGreaterThan(initialScore)
+      })
+    })
+
+    describe('スコア表示システム', () => {
+      it('初期スコアが正しく表示される', () => {
+        // 初期スコアは0
+        expect(game.getScore()).toBe(0)
+
+        // スコア表示要素の更新を確認
+        expect(scoreDisplay.textContent).toBe('スコア: 0')
+      })
+
+      it('スコアが更新されたときに表示も更新される', () => {
+        // 操作ぷよをクリアしてからテスト用のフィールドを設定
+        game.clearActivePuyo()
+
+        // 4つの赤ぷよを配置して消去
+        const field = game.getField()
+        field[12][0] = field[12][1] = field[12][2] = field[12][3] = 1
+
+        // 連鎖処理とスコア計算を実行
+        const result = game.processChainWithScore()
+
+        // スコアが更新されていることを確認
+        expect(game.getScore()).toBe(result.totalScore)
+        expect(game.getScore()).toBeGreaterThan(0)
+
+        // スコア表示要素も更新されていることを確認
+        expect(scoreDisplay.textContent).toBe(`スコア: ${result.totalScore}`)
+      })
+
+      it('複数回の連鎖でスコアが累積される', () => {
+        // 操作ぷよをクリアしてからテスト用のフィールドを設定
+        game.clearActivePuyo()
+
+        // 最初の連鎖を実行
+        const field = game.getField()
+        field[12][0] = field[12][1] = field[12][2] = field[12][3] = 1
+        const result1 = game.processChainWithScore()
+        const firstScore = result1.totalScore
+
+        // フィールドをクリアして次の連鎖用に設定
+        for (let y = 0; y < 13; y++) {
+          for (let x = 0; x < 6; x++) {
+            field[y][x] = 0
+          }
+        }
+        field[12][0] = field[12][1] = field[12][2] = field[12][3] = 2
+
+        // 2回目の連鎖を実行
+        const result2 = game.processChainWithScore()
+        const secondScore = result2.totalScore
+
+        // スコアが累積されていることを確認
+        expect(game.getScore()).toBe(firstScore + secondScore)
+        expect(scoreDisplay.textContent).toBe(`スコア: ${firstScore + secondScore}`)
+      })
+    })
+
+    describe('ゲームループ統合', () => {
+      it('ぷよが着地したときに自動的に連鎖処理が実行される', () => {
+        // 着地時の連鎖処理をテストするためにフィールドを設定
+        game.clearActivePuyo()
+        const field = game.getField()
+
+        // 4つの赤ぷよを配置（着地したらすぐ消えるように）
+        field[12][1] = field[12][2] = field[12][3] = field[12][4] = 1
+
+        // 操作ぷよとして赤ぷよを設定（着地すると5つになって消去される）
+        game.spawnActivePuyo()
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          activePuyo.x = 0
+          activePuyo.y = 11
+          activePuyo.color1 = 1 // 赤
+          activePuyo.color2 = 2 // 緑（消去には関係ない）
+        }
+
+        // 初期スコアを記録
+        const initialScore = game.getScore()
+
+        // 着地処理を実行（この時点で連鎖処理も自動実行されるべき）
+        game.processLanding()
+
+        // 連鎖が発生してスコアが上がっていることを確認
+        expect(game.getScore()).toBeGreaterThan(initialScore)
+
+        // 消去されたぷよがフィールドから消えていることを確認
+        let redCount = 0
+        for (let y = 0; y < 13; y++) {
+          for (let x = 0; x < 6; x++) {
+            if (field[y][x] === 1) redCount++
+          }
+        }
+        expect(redCount).toBeLessThan(5) // 5つあった赤ぷよが消去されているはず
+      })
+
+      it('連鎖が発生しない場合は通常通り次のぷよを生成する', () => {
+        // 連鎖が発生しないパターンをテスト
+        game.clearActivePuyo()
+        const field = game.getField()
+
+        // 単独の赤ぷよを配置（着地しても消去されない）
+        field[12][2] = 1
+
+        // 操作ぷよとして青ぷよを設定
+        game.spawnActivePuyo()
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          activePuyo.x = 1
+          activePuyo.y = 11
+          activePuyo.color1 = 3 // 青
+          activePuyo.color2 = 2 // 緑
+        }
+
+        // 初期スコアを記録
+        const initialScore = game.getScore()
+
+        // 着地処理を実行
+        game.processLanding()
+
+        // スコアは変わらない（連鎖が発生していない）
+        expect(game.getScore()).toBe(initialScore)
+
+        // 新しい操作ぷよが生成されていることを確認
+        expect(game.getActivePuyo()).not.toBeNull()
+      })
+    })
   })
 })
