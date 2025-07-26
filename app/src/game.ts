@@ -972,6 +972,8 @@ export class Game {
   }
 
   // 全消し演出を停止
+  // @ts-ignore - 将来の演出停止機能で使用予定
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private stopZenkeshiEffect(): void {
     this.isZenkeshiEffectActiveFlag = false
   }
@@ -999,5 +1001,38 @@ export class Game {
     this.context.fillText('全消し！', centerX, centerY)
 
     this.context.restore()
+  }
+
+  // ゲームオーバー判定: 新しいぷよを配置できない状態を検出
+  isGameOver(): boolean {
+    // 新しいぷよのデフォルト配置位置（x=2, y=0）をチェック
+    const spawnX = 2
+    const spawnY = 0
+    const spawnDirection = 0 // デフォルトの縦配置
+
+    // テスト ぷよオブジェクトを作成
+    const testPuyo = {
+      x: spawnX,
+      y: spawnY,
+      direction: spawnDirection,
+    }
+
+    // 新しいぷよの2つの位置を取得
+    const positions = this.getPuyoPositionsForTest(testPuyo)
+
+    // すべての位置が空かどうかチェック
+    for (const pos of positions) {
+      // フィールドの境界チェック
+      if (pos.x < 0 || pos.x >= Game.FIELD_WIDTH || pos.y < 0 || pos.y >= Game.FIELD_HEIGHT) {
+        return true // 境界外なのでゲームオーバー
+      }
+
+      // フィールドの占有チェック
+      if (this.field[pos.y] && this.field[pos.y][pos.x] !== 0) {
+        return true // 既に占有されているのでゲームオーバー
+      }
+    }
+
+    return false // 配置可能なのでゲームオーバーではない
   }
 }

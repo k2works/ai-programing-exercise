@@ -2692,7 +2692,7 @@ describe('Game', () => {
         mockContext.textAlign = 'center'
         mockContext.textBaseline = 'middle'
         mockContext.font = 'bold 48px Arial'
-        
+
         // ゲームインスタンスを再作成してモックを確実に反映
         game = new Game(canvas, scoreDisplay)
       })
@@ -2754,6 +2754,57 @@ describe('Game', () => {
           expect.any(Number),
           expect.any(Number)
         )
+      })
+    })
+  })
+
+  describe('ゲームオーバーシステム', () => {
+    describe('ゲームオーバー判定', () => {
+      it('新しいぷよが配置可能な場合はゲームオーバーではない', () => {
+        game.clearActivePuyo()
+
+        // フィールドを空にしておく（配置可能な状態）
+        const field = game.getField()
+        for (let y = 0; y < 13; y++) {
+          for (let x = 0; x < 6; x++) {
+            field[y][x] = 0
+          }
+        }
+
+        expect(game.isGameOver()).toBe(false)
+      })
+
+      it('新しいぷよの配置位置（中央上部）が占有されている場合はゲームオーバー', () => {
+        game.clearActivePuyo()
+        const field = game.getField()
+
+        // 新しいぷよの配置位置（x=2, y=0とy=1）を占有する
+        field[0][2] = 1 // 中心ぷよの位置
+        field[1][2] = 2 // 2つ目のぷよの位置（direction=0の場合）
+
+        expect(game.isGameOver()).toBe(true)
+      })
+
+      it('配置位置の一部だけが占有されている場合でもゲームオーバー', () => {
+        game.clearActivePuyo()
+        const field = game.getField()
+
+        // 中心ぷよの位置のみ占有
+        field[0][2] = 1
+
+        expect(game.isGameOver()).toBe(true)
+      })
+
+      it('配置位置以外が占有されていてもゲームオーバーではない', () => {
+        game.clearActivePuyo()
+        const field = game.getField()
+
+        // 配置位置以外を占有（x=1の列を埋める）
+        for (let y = 0; y < 13; y++) {
+          field[y][1] = 1
+        }
+
+        expect(game.isGameOver()).toBe(false)
       })
     })
   })
