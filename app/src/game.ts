@@ -1093,6 +1093,18 @@ export class Game {
     this.context.fillStyle = '#FF0000'
     this.context.fillText('GAME OVER', centerX, centerY)
 
+    // リスタート案内メッセージを追加
+    this.context.font = 'bold 18px Arial'
+    const restartY = centerY + 60
+
+    // 影効果を追加
+    this.context.fillStyle = '#000000'
+    this.context.fillText('Rキーまたはスペースキーでリスタート', centerX + 1, restartY + 1)
+
+    // メインテキスト
+    this.context.fillStyle = '#FFFFFF' // 白色
+    this.context.fillText('Rキーまたはスペースキーでリスタート', centerX, restartY)
+
     this.context.restore()
   }
 

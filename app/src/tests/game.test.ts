@@ -2814,6 +2814,28 @@ describe('Game', () => {
           expect.any(Number)
         )
       })
+
+      it('ゲームオーバー演出でリスタート案内が表示される', () => {
+        game.clearActivePuyo()
+        const field = game.getField()
+
+        // ゲームオーバー状態にする
+        field[0][2] = 1
+        field[1][2] = 2
+
+        // ゲームオーバー演出を開始
+        game.triggerGameOver()
+
+        // 描画メソッドを呼び出し
+        game.render()
+
+        // リスタート案内テキストが描画されることを確認
+        expect(mockContext.fillText).toHaveBeenCalledWith(
+          expect.stringContaining('Rキーまたはスペースキーでリスタート'),
+          expect.any(Number),
+          expect.any(Number)
+        )
+      })
     })
 
     describe('ゲームオーバー判定', () => {
