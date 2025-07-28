@@ -2877,7 +2877,7 @@ describe('Game', () => {
 
         // ゲームオーバー演出が自動的に開始されることを確認
         expect(game.isGameOverEffectActive()).toBe(true)
-        
+
         // アクティブぷよが生成されないことを確認（ゲームオーバーのため）
         expect(game.getActivePuyo()).toBeNull()
       })
@@ -2926,6 +2926,66 @@ describe('Game', () => {
         // 全消し演出が停止することを確認
         expect(game.isZenkeshiEffectActive()).toBe(false)
       })
+    })
+  })
+
+  describe('キーボード入力によるリスタート機能', () => {
+    beforeEach(() => {
+      // ゲームオーバー状態にする
+      game.triggerGameOver()
+    })
+
+    it('Rキーでゲームをリスタートする', () => {
+      // ゲームオーバー状態であることを確認
+      expect(game.isGameOverEffectActive()).toBe(true)
+
+      // Rキーのkeydownイベントを発生させる
+      const event = new KeyboardEvent('keydown', { key: 'r' })
+      game.handleKeyDown(event)
+
+      // リスタートが実行されることを確認
+      expect(game.isGameOverEffectActive()).toBe(false)
+      expect(game.getActivePuyo()).not.toBeNull()
+      expect(game.getScore()).toBe(0)
+    })
+
+    it('スペースキーでゲームをリスタートする', () => {
+      // ゲームオーバー状態であることを確認
+      expect(game.isGameOverEffectActive()).toBe(true)
+
+      // スペースキーのkeydownイベントを発生させる
+      const event = new KeyboardEvent('keydown', { key: ' ' })
+      game.handleKeyDown(event)
+
+      // リスタートが実行されることを確認
+      expect(game.isGameOverEffectActive()).toBe(false)
+      expect(game.getActivePuyo()).not.toBeNull()
+      expect(game.getScore()).toBe(0)
+    })
+
+    it('ゲームオーバー状態でないときはRキーでリスタートしない', () => {
+      // リスタートを実行してゲームオーバー状態を解除
+      game.restart()
+      const initialActivePuyo = game.getActivePuyo()
+
+      // Rキーのkeydownイベントを発生させる
+      const event = new KeyboardEvent('keydown', { key: 'r' })
+      game.handleKeyDown(event)
+
+      // リスタートが実行されないことを確認（アクティブぷよが変わらない）
+      expect(game.getActivePuyo()).toBe(initialActivePuyo)
+    })
+
+    it('ゲームオーバー状態でない時は他のキー操作が正常に動作する', () => {
+      // リスタートを実行してゲームオーバー状態を解除
+      game.restart()
+
+      // 左キーのkeydownイベントを発生させる
+      const leftEvent = new KeyboardEvent('keydown', { key: 'ArrowLeft' })
+      game.handleKeyDown(leftEvent)
+
+      // 左キーが正常に処理されることを確認
+      expect(game.isLeftKeyPressed()).toBe(true)
     })
   })
 })

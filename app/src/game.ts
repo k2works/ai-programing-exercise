@@ -334,6 +334,12 @@ export class Game {
 
   // プレイヤー入力の検出
   handleKeyDown(event: KeyboardEvent): void {
+    // ゲームオーバー時のリスタート機能
+    if (this.isGameOverEffectActiveFlag && (event.key === 'r' || event.key === ' ')) {
+      this.restart()
+      return
+    }
+
     switch (event.key) {
       case 'ArrowLeft':
         this.leftKeyPressed = true
@@ -985,7 +991,7 @@ export class Game {
 
   // 全消し演出を停止
   // @ts-expect-error - 将来の演出停止機能で使用予定
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   private stopZenkeshiEffect(): void {
     this.isZenkeshiEffectActiveFlag = false
   }
@@ -1060,7 +1066,7 @@ export class Game {
 
   // ゲームオーバー演出を停止
   // @ts-expect-error - 将来のリスタート機能で使用予定
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   private stopGameOverEffect(): void {
     this.isGameOverEffectActiveFlag = false
   }
