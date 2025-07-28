@@ -185,6 +185,14 @@ export class Game {
   }
 
   spawnActivePuyo(): void {
+    // ゲームオーバー判定: 新しいぷよを配置できるかチェック
+    if (this.isGameOver()) {
+      // ゲームオーバーの場合は演出を開始し、アクティブぷよは生成しない
+      this.triggerGameOver()
+      this.activePuyo = null
+      return
+    }
+
     // 現在の次のぷよを操作ぷよとして配置
     this.activePuyo = {
       x: 2, // フィールド中央

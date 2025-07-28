@@ -2863,6 +2863,24 @@ describe('Game', () => {
 
         expect(game.isGameOver()).toBe(false)
       })
+
+      it('新しいぷよ生成時にゲームオーバー状態の場合は自動的にゲームオーバー演出が開始される', () => {
+        game.clearActivePuyo()
+        const field = game.getField()
+
+        // 新しいぷよの配置位置を占有してゲームオーバー状態にする
+        field[0][2] = 1 // 中心ぷよの位置
+        field[1][2] = 2 // 2つ目のぷよの位置
+
+        // ぷよ生成を試行
+        game.spawnActivePuyo()
+
+        // ゲームオーバー演出が自動的に開始されることを確認
+        expect(game.isGameOverEffectActive()).toBe(true)
+        
+        // アクティブぷよが生成されないことを確認（ゲームオーバーのため）
+        expect(game.getActivePuyo()).toBeNull()
+      })
     })
 
     describe('リスタート機能', () => {
