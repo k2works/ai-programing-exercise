@@ -16,7 +16,7 @@ export default function(gulp) {
     const journalFile = path.join(journalDir, `${formattedDate}.md`);
 
     // Get commits for this date
-    const commits = execSync(`git log --since="${dateStr} 00:00:00" --until="${dateStr} 23:59:59" --format="%h %s%n%b"`).toString();
+    const commits = execSync(`git log --since="${dateStr} 00:00:00" --until="${dateStr} 23:59:59" --format="%h %s%n%b"`, { maxBuffer: 1024 * 1024 * 10 }).toString();
 
     // Skip if no commits
     if (!commits.trim()) {
@@ -25,23 +25,23 @@ export default function(gulp) {
     }
 
     // Get detailed changes for each commit on this date
-    const commitHashesOutput = execSync(`git log --since="${dateStr} 00:00:00" --until="${dateStr} 23:59:59" --format="%h"`).toString();
+    const commitHashesOutput = execSync(`git log --since="${dateStr} 00:00:00" --until="${dateStr} 23:59:59" --format="%h"`, { maxBuffer: 1024 * 1024 * 10 }).toString();
     const commitHashes = commitHashesOutput.split('\n').map(line => line.trim()).filter(Boolean);
 
     const detailedCommits = [];
 
     commitHashes.forEach(hash => {
       // Get commit details
-      const commitMessage = execSync(`git show -s --format="%s%n%b" ${hash}`).toString().trim();
+      const commitMessage = execSync(`git show -s --format="%s%n%b" ${hash}`, { maxBuffer: 1024 * 1024 * 10 }).toString().trim();
 
       // Get files changed
-      const filesChangedOutput = execSync(`git show --name-status ${hash}`).toString();
+      const filesChangedOutput = execSync(`git show --name-status ${hash}`, { maxBuffer: 1024 * 1024 * 10 }).toString();
       const filesChanged = filesChangedOutput.split('\n')
-        .map(line => line.trim())
-        .filter(line => /^[AMDRT]\s/.test(line));
+          .map(line => line.trim())
+          .filter(line => /^[AMDRT]\s/.test(line));
 
       // Get code changes (diff)
-      const diff = execSync(`git show ${hash} --color=never`).toString();
+      const diff = execSync(`git show ${hash} --color=never`, { maxBuffer: 1024 * 1024 * 10 }).toString();
 
       detailedCommits.push({
         hash,
@@ -72,9 +72,9 @@ export default function(gulp) {
       content += `\`\`\`diff\n${commit.diff}\n\`\`\`\n\n`;
 
       // Add PlantUML diagram placeholder if there are significant structural changes
-      const hasStructuralChanges = commit.filesChanged.some(f => 
-        f.endsWith('.rb') && 
-        (f.includes('model') || f.includes('controller') || f.includes('service'))
+      const hasStructuralChanges = commit.filesChanged.some(f =>
+          f.endsWith('.rb') &&
+          (f.includes('model') || f.includes('controller') || f.includes('service'))
       );
 
       if (hasStructuralChanges) {
