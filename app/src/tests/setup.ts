@@ -72,4 +72,4 @@ beforeEach(() => {
 })
 
 // グローバルにcanvas contextモックを利用可能にする
-;(global as any).createMockContext = createMockContext
+;(globalThis as any).createMockContext = createMockContext

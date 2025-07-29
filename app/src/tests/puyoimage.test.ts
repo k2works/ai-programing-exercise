@@ -8,7 +8,7 @@ describe('PuyoImage', () => {
 
   beforeEach(() => {
     // setup.tsで定義されたグローバルモックを使用
-    const createMockContext = (global as any).createMockContext
+    const createMockContext = (globalThis as any).createMockContext
     if (createMockContext) {
       mockContext = createMockContext()
     } else {
@@ -23,27 +23,27 @@ describe('PuyoImage', () => {
         stroke: vi.fn(),
         save: vi.fn(),
         restore: vi.fn(),
-        set fillStyle(value: string) {},
+        set fillStyle(_value: string) {},
         get fillStyle() {
           return '#000000'
         },
-        set strokeStyle(value: string) {},
+        set strokeStyle(_value: string) {},
         get strokeStyle() {
           return '#000000'
         },
-        set lineWidth(value: number) {},
+        set lineWidth(_value: number) {},
         get lineWidth() {
           return 1
         },
-        set font(value: string) {},
+        set font(_value: string) {},
         get font() {
           return '10px sans-serif'
         },
-        set textAlign(value: string) {},
+        set textAlign(_value: string) {},
         get textAlign() {
           return 'start'
         },
-        set textBaseline(value: string) {},
+        set textBaseline(_value: string) {},
         get textBaseline() {
           return 'alphabetic'
         },
