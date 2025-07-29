@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { Game } from '../game'
-import { PuyoImage } from '../puyoimage'
 
 // PuyoImageクラスをモック化
 const mockPuyoImageInstance = {
@@ -173,7 +172,7 @@ describe('Game', () => {
     })
 
     it('操作ぷよが初期位置に配置される', () => {
-      game.spawnActivePuyo()
+      game.createNewActivePuyo()
       const activePuyo = game.getActivePuyo()
 
       expect(activePuyo).toBeDefined()
@@ -182,7 +181,7 @@ describe('Game', () => {
     })
 
     it('次のぷよが更新される', () => {
-      game.spawnActivePuyo()
+      game.createNewActivePuyo()
       const newNext = game.getNextPuyo()
 
       // 次のぷよが新しく必ず生成される
@@ -201,7 +200,7 @@ describe('Game', () => {
     })
 
     it('操作ぷよが画面に描画される', () => {
-      game.spawnActivePuyo()
+      game.createNewActivePuyo()
       game.renderActivePuyo()
 
       // PuyoImageのrenderActivePuyoメソッドが呼ばれる
@@ -216,7 +215,7 @@ describe('Game', () => {
     })
 
     it('ぷよの色が正しく設定される', () => {
-      game.spawnActivePuyo()
+      game.createNewActivePuyo()
       game.renderActivePuyo()
 
       // fillStyleが設定される
@@ -230,13 +229,13 @@ describe('Game', () => {
     })
 
     it('操作ぷよが自動的に落下する', () => {
-      game.spawnActivePuyo()
+      game.createNewActivePuyo()
       const initialPuyo = game.getActivePuyo()
       const initialY = initialPuyo!.y
 
       // 落下間隔分だけ時間を進めて落下処理を実行
       for (let i = 0; i < 30; i++) {
-        game.updateFalling()
+        game.simulateFalling()
       }
 
       const updatedPuyo = game.getActivePuyo()
@@ -244,14 +243,14 @@ describe('Game', () => {
     })
 
     it('操作ぷよが下に障害物があるときは落下しない', () => {
-      game.spawnActivePuyo()
+      game.createNewActivePuyo()
       // フィールドの底部に到達した状態をシミュレート
       const activePuyo = game.getActivePuyo()
       activePuyo!.y = 11 // フィールドの下の方
 
       // 落下間隔分だけ時間を進める
       for (let i = 0; i < 30; i++) {
-        game.updateFalling()
+        game.simulateFalling()
       }
 
       // 底部に到達しているので位置が変わらない
@@ -330,7 +329,7 @@ describe('Game', () => {
     beforeEach(() => {
       vi.clearAllMocks()
       // 操作ぷよを生成しておく
-      game.spawnActivePuyo()
+      game.createNewActivePuyo()
     })
 
     it('左キーが押されたときぷよが左に移動する', () => {
@@ -463,7 +462,7 @@ describe('Game', () => {
   describe('移動後の表示更新', () => {
     beforeEach(() => {
       vi.clearAllMocks()
-      game.spawnActivePuyo()
+      game.createNewActivePuyo()
     })
 
     it('移動後にrenderが呼ばれて表示が更新される', () => {
@@ -475,7 +474,7 @@ describe('Game', () => {
       game.handleKeyDown(leftKeyEvent)
 
       // ゲームループを1回実行
-      game.updateAndRender()
+      game.simulateFrame()
 
       // renderが呼ばれることを確認
       expect(renderSpy).toHaveBeenCalled()
@@ -486,7 +485,7 @@ describe('Game', () => {
       const renderSpy = vi.spyOn(game, 'render')
 
       // キーを押さずにゲームループを実行
-      game.updateAndRender()
+      game.simulateFrame()
 
       // renderが呼ばれることを確認
       expect(renderSpy).toHaveBeenCalled()
@@ -543,7 +542,7 @@ describe('Game', () => {
   describe('移動可能性チェック', () => {
     beforeEach(() => {
       vi.clearAllMocks()
-      game.spawnActivePuyo()
+      game.createNewActivePuyo()
     })
 
     it('左端（x=0）でさらに左に移動しようとしても移動できない', () => {
@@ -779,7 +778,7 @@ describe('Game', () => {
       game.landActivePuyo()
 
       // 新しい操作ぷよが生成される
-      game.spawnActivePuyo()
+      game.createNewActivePuyo()
       const newActivePuyo = game.getActivePuyo()
 
       expect(newActivePuyo).not.toBeNull()
@@ -811,7 +810,7 @@ describe('Game', () => {
     })
 
     it('着地処理と次ぷよ生成を統合したメソッドが存在する', () => {
-      expect(typeof game.processLanding).toBe('function')
+      expect(typeof game.simulateLanding).toBe('function')
     })
 
     it('統合メソッドで着地から次ぷよ生成まで一括処理される', () => {
@@ -824,7 +823,7 @@ describe('Game', () => {
       activePuyo!.direction = 0
 
       // 統合処理を実行
-      game.processLanding()
+      game.simulateLanding()
 
       // フィールドに着地したぷよが配置されている（重力処理により底に配置される）
       const field = game.getField()
@@ -867,7 +866,7 @@ describe('Game', () => {
 
       vi.clearAllMocks()
       game = new Game(mockCanvas, mockScoreDisplay)
-      game.spawnActivePuyo()
+      game.createNewActivePuyo()
     })
 
     it('着地したぷよは左右に移動できない', () => {
@@ -878,7 +877,7 @@ describe('Game', () => {
 
       // 落下タイマーが満たされるまで処理を実行（着地するはず）
       for (let i = 0; i < 30; i++) {
-        game.updateFalling()
+        game.simulateFalling()
       }
 
       // 着地後は操作ぷよが新しく生成されている
@@ -905,7 +904,7 @@ describe('Game', () => {
 
       // 落下処理を実行（fallTimerが満たされるまで繰り返す）
       for (let i = 0; i < 30; i++) {
-        game.updateFalling()
+        game.simulateFalling()
       }
 
       // 操作ぷよが新しく生成されている（着地処理が実行された）
@@ -937,7 +936,7 @@ describe('Game', () => {
 
       vi.clearAllMocks()
       game = new Game(mockCanvas, mockScoreDisplay)
-      game.spawnActivePuyo()
+      game.createNewActivePuyo()
     })
 
     it('フィールドに固定されたぷよが描画される', () => {
@@ -994,7 +993,7 @@ describe('Game', () => {
 
       vi.clearAllMocks()
       game = new Game(mockCanvas, mockScoreDisplay)
-      game.spawnActivePuyo()
+      game.createNewActivePuyo()
     })
 
     describe('回転方向の管理', () => {
@@ -1012,7 +1011,7 @@ describe('Game', () => {
 
         // 回転間隔分だけアップデートを実行して回転処理を行う
         for (let i = 0; i < 15; i++) {
-          game.updateAndRender()
+          game.simulateFrame()
         }
 
         const newDirection = game.getActivePuyoDirection()
@@ -1034,7 +1033,7 @@ describe('Game', () => {
 
           // 回転間隔分だけアップデートを実行
           for (let j = 0; j < 15; j++) {
-            game.updateAndRender()
+            game.simulateFrame()
           }
 
           // キーアップイベントも送信してキー状態をリセット
@@ -1061,7 +1060,7 @@ describe('Game', () => {
 
           // 回転間隔分だけアップデートを実行
           for (let i = 0; i < 15; i++) {
-            game.updateAndRender()
+            game.simulateFrame()
           }
 
           const rotatedPositions = game.getActivePuyoPositions()
@@ -1098,7 +1097,7 @@ describe('Game', () => {
           const upKeyEvent1 = new KeyboardEvent('keydown', { key: 'ArrowUp' })
           game.handleKeyDown(upKeyEvent1)
           for (let i = 0; i < 15; i++) {
-            game.updateAndRender()
+            game.simulateFrame()
           }
           game.handleKeyUp(new KeyboardEvent('keyup', { key: 'ArrowUp' }))
 
@@ -1111,7 +1110,7 @@ describe('Game', () => {
           const upKeyEvent2 = new KeyboardEvent('keydown', { key: 'ArrowUp' })
           game.handleKeyDown(upKeyEvent2)
           for (let i = 0; i < 15; i++) {
-            game.updateAndRender()
+            game.simulateFrame()
           }
           game.handleKeyUp(new KeyboardEvent('keyup', { key: 'ArrowUp' }))
 
@@ -1124,7 +1123,7 @@ describe('Game', () => {
           const upKeyEvent3 = new KeyboardEvent('keydown', { key: 'ArrowUp' })
           game.handleKeyDown(upKeyEvent3)
           for (let i = 0; i < 15; i++) {
-            game.updateAndRender()
+            game.simulateFrame()
           }
           game.handleKeyUp(new KeyboardEvent('keyup', { key: 'ArrowUp' }))
 
@@ -1245,7 +1244,7 @@ describe('Game', () => {
 
           // 回転間隔分だけアップデートを実行
           for (let i = 0; i < 15; i++) {
-            game.updateAndRender()
+            game.simulateFrame()
           }
 
           // 回転していないことを確認
@@ -1276,7 +1275,7 @@ describe('Game', () => {
 
           // 回転間隔分だけアップデートを実行
           for (let i = 0; i < 15; i++) {
-            game.updateAndRender()
+            game.simulateFrame()
           }
 
           // 壁キックにより回転が成功し、左に移動している
@@ -1298,7 +1297,7 @@ describe('Game', () => {
 
           // 回転間隔分だけアップデートを実行
           for (let i = 0; i < 15; i++) {
-            game.updateAndRender()
+            game.simulateFrame()
           }
 
           // 壁キックにより回転が成功し、右に移動している
@@ -1320,7 +1319,7 @@ describe('Game', () => {
 
           // 回転間隔分だけアップデートを実行
           for (let i = 0; i < 15; i++) {
-            game.updateAndRender()
+            game.simulateFrame()
           }
 
           // 壁キックにより回転が成功し、下に移動している
@@ -1349,7 +1348,7 @@ describe('Game', () => {
 
           // 回転間隔分だけアップデートを実行
           for (let i = 0; i < 15; i++) {
-            game.updateAndRender()
+            game.simulateFrame()
           }
 
           // 壁キックでも回転できないので変化なし
@@ -1359,7 +1358,7 @@ describe('Game', () => {
       })
 
       it('壁キック処理をチェックするメソッドが存在する', () => {
-        expect(typeof game.tryWallKick).toBe('function')
+        expect(typeof game.simulateWallKick).toBe('function')
       })
     })
 
@@ -1407,15 +1406,12 @@ describe('Game', () => {
           // 落下を有効にする
           game.setFallInterval(1) // 毎フレーム落下
 
-          let finalY = -1
           // 底面まで落下させる
           for (let i = 0; i < 10; i++) {
             const currentPuyo = game.getActivePuyo()
-            if (currentPuyo) {
-              finalY = currentPuyo.y
-            }
+            if (!currentPuyo) break
 
-            game.updateAndRender()
+            game.simulateFrame()
 
             // 着地したかチェック
             if (!game.getActivePuyo()) {
@@ -1462,7 +1458,7 @@ describe('Game', () => {
 
           // 障害物に当たるまで落下させる
           for (let i = 0; i < 20; i++) {
-            game.updateAndRender()
+            game.simulateFrame()
 
             // 着地したかチェック
             if (!game.getActivePuyo()) {
@@ -1496,7 +1492,7 @@ describe('Game', () => {
 
           // 高速落下間隔（3フレーム）まで更新
           for (let i = 0; i < 3; i++) {
-            game.updateAndRender()
+            game.simulateFrame()
           }
 
           // 下キーが押されているときは高速落下するはず
@@ -1514,7 +1510,7 @@ describe('Game', () => {
           game.setFallInterval(30)
 
           // 下キーを押さずに1フレーム更新
-          game.updateAndRender()
+          game.simulateFrame()
 
           // 通常の落下間隔なので、まだ落ちないはず
           expect(activePuyo.y).toBe(initialY)
@@ -1533,7 +1529,7 @@ describe('Game', () => {
 
           // 十分なフレーム数更新（2回の高速落下が発生するよう6フレーム）
           for (let i = 0; i < 6; i++) {
-            game.updateAndRender()
+            game.simulateFrame()
           }
 
           // 継続的に落下しているはず（2回落下して2ピクセル下に）
@@ -1675,8 +1671,8 @@ describe('Game', () => {
           // 着地しているはず
           expect(game.hasLandedTest()).toBe(true)
 
-          // 落下処理は内部的に処理されるので、直接processLandingを実行
-          game.processLanding()
+          // 落下処理は内部的に処理されるので、直接simulateLandingを実行
+          game.simulateLanding()
 
           // 着地により新しいぷよが生成されるはず
           const newActivePuyo = game.getActivePuyo()
@@ -1701,7 +1697,7 @@ describe('Game', () => {
 
           // 高速落下処理を実行（3フレーム必要）
           for (let i = 0; i < 3; i++) {
-            game.updateAndRender()
+            game.simulateFrame()
           }
 
           // 着地により新しいぷよが生成されているはず
@@ -1870,7 +1866,7 @@ describe('Game', () => {
         field[11][2] = 1 // 赤（上）
         field[10][2] = 1 // 赤（上）
 
-        // 3つでは消去対象にならない
+        // 3つは消去対象にならない
         const eliminateGroups = game.findEliminateGroups()
         expect(eliminateGroups).toHaveLength(0)
       })
@@ -2391,7 +2387,7 @@ describe('Game', () => {
         field[12][1] = field[12][2] = field[12][3] = field[12][4] = 1
 
         // 操作ぷよとして赤ぷよを設定（着地すると5つになって消去される）
-        game.spawnActivePuyo()
+        game.createNewActivePuyo()
         const activePuyo = game.getActivePuyo()
         if (activePuyo) {
           activePuyo.x = 0
@@ -2404,7 +2400,7 @@ describe('Game', () => {
         const initialScore = game.getScore()
 
         // 着地処理を実行（この時点で連鎖処理も自動実行されるべき）
-        game.processLanding()
+        game.simulateLanding()
 
         // 連鎖が発生してスコアが上がっていることを確認
         expect(game.getScore()).toBeGreaterThan(initialScore)
@@ -2428,7 +2424,7 @@ describe('Game', () => {
         field[12][2] = 1
 
         // 操作ぷよとして青ぷよを設定
-        game.spawnActivePuyo()
+        game.createNewActivePuyo()
         const activePuyo = game.getActivePuyo()
         if (activePuyo) {
           activePuyo.x = 1
@@ -2441,7 +2437,7 @@ describe('Game', () => {
         const initialScore = game.getScore()
 
         // 着地処理を実行
-        game.processLanding()
+        game.simulateLanding()
 
         // スコアは変わらない（連鎖が発生していない）
         expect(game.getScore()).toBe(initialScore)
@@ -2508,7 +2504,7 @@ describe('Game', () => {
       field[12][2] = 2 // 緑ぷよが底にある（間にfield[11][2]が空）
 
       // 操作ぷよを別の場所に配置して着地させる
-      game.spawnActivePuyo()
+      game.createNewActivePuyo()
       const activePuyo = game.getActivePuyo()
       if (activePuyo) {
         activePuyo.x = 0
@@ -2519,7 +2515,7 @@ describe('Game', () => {
       }
 
       // 着地処理を実行（実際のゲームプレイを模擬）
-      game.processLanding()
+      game.simulateLanding()
 
       // 操作ぷよの着地とは関係なく、浮いていたぷよが落下していることを確認
       expect(field[10][2]).toBe(0) // 元の位置は空
@@ -2537,7 +2533,7 @@ describe('Game', () => {
       field[12][3] = 3 // 青（間にfield[11][3]が空）
 
       // 操作ぷよを別の場所で着地させる
-      game.spawnActivePuyo()
+      game.createNewActivePuyo()
       const activePuyo = game.getActivePuyo()
       if (activePuyo) {
         activePuyo.x = 0
@@ -2548,7 +2544,7 @@ describe('Game', () => {
       }
 
       // 着地処理を実行
-      game.processLanding()
+      game.simulateLanding()
 
       // すべてのぷよが正しく落下していることを確認
       expect(field[8][3]).toBe(0) // 元の位置は空
@@ -2895,7 +2891,7 @@ describe('Game', () => {
         field[1][2] = 2 // 2つ目のぷよの位置
 
         // ぷよ生成を試行
-        game.spawnActivePuyo()
+        game.createNewActivePuyo()
 
         // ゲームオーバー演出が自動的に開始されることを確認
         expect(game.isGameOverEffectActive()).toBe(true)

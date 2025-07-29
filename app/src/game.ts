@@ -696,4 +696,29 @@ export class Game {
       this.stage.stopZenkeshiEffect()
     }
   }
+
+  // テスト用メソッド: 新しいアクティブぷよを生成（private spawnActivePuyo のラッパー）
+  createNewActivePuyo(): void {
+    this.spawnActivePuyo()
+  }
+
+  // テスト用メソッド: 落下処理をシミュレート（private updateFalling のラッパー）
+  simulateFalling(): void {
+    this.updateFalling()
+  }
+
+  // テスト用メソッド: 1フレームの更新と描画をシミュレート（private updateAndRender のラッパー）
+  simulateFrame(): void {
+    this.updateAndRender()
+  }
+
+  // テスト用メソッド: 着地処理をシミュレート（private processLanding のラッパー）
+  simulateLanding(): void {
+    this.processLanding()
+  }
+
+  // テスト用メソッド: 壁キック処理をシミュレート（private tryWallKick のラッパー）
+  simulateWallKick(): void {
+    this.tryWallKick()
+  }
 }
