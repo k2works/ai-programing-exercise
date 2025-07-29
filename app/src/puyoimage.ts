@@ -48,6 +48,26 @@ export class PuyoImage {
    * ゲームフィールドを描画する
    */
   renderField(field: number[][]): void {
+    // フィールドの背景を描画
+    this.context.fillStyle = '#333333'
+    this.context.fillRect(
+      PuyoImage.FIELD_OFFSET_X,
+      PuyoImage.FIELD_OFFSET_Y,
+      field[0].length * PuyoImage.CELL_SIZE,
+      field.length * PuyoImage.CELL_SIZE
+    )
+
+    // フィールドの枠線を描画
+    this.context.strokeStyle = '#FFFFFF'
+    this.context.lineWidth = 2
+    this.context.strokeRect(
+      PuyoImage.FIELD_OFFSET_X,
+      PuyoImage.FIELD_OFFSET_Y,
+      field[0].length * PuyoImage.CELL_SIZE,
+      field.length * PuyoImage.CELL_SIZE
+    )
+
+    // ぷよを描画
     for (let y = 0; y < field.length; y++) {
       for (let x = 0; x < field[y].length; x++) {
         const puyoColor = field[y][x]

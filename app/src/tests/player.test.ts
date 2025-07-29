@@ -180,6 +180,9 @@ describe('Player', () => {
       player.handleKeyDown(37) // ArrowLeft
       expect(callback).toHaveBeenCalledTimes(1) // 増えない
 
+      // キーリリースをシミュレート
+      player.handleKeyUp(37) // ArrowLeft
+      
       // タイマーリセット後
       player.resetMovementTimer()
       player.handleKeyDown(37) // ArrowLeft

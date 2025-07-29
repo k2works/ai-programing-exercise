@@ -19,8 +19,11 @@ export class Player {
   private static readonly ROTATION_COOLDOWN = 15
   private static readonly MOVEMENT_COOLDOWN = 8
 
-  // 下キー押下状態
+  // キー押下状態
   private isDownPressed = false
+  private isLeftPressed = false
+  private isRightPressed = false
+  private isUpPressed = false
 
   // 操作タイマー
   private rotationTimer = 0
@@ -47,21 +50,24 @@ export class Player {
   handleKeyDown(keyCode: number): void {
     switch (keyCode) {
       case Player.KEY_LEFT:
-        if (this.canMove()) {
-          this.leftKeyCallbacks.forEach((callback) => callback())
-          this.handleMovement()
+        if (!this.isLeftPressed) {
+          this.isLeftPressed = true
+          // コールバックを実行（タイマーセットは実際に移動した時に行う）
+          this.leftKeyCallbacks.forEach(callback => callback())
         }
         break
       case Player.KEY_RIGHT:
-        if (this.canMove()) {
-          this.rightKeyCallbacks.forEach((callback) => callback())
-          this.handleMovement()
+        if (!this.isRightPressed) {
+          this.isRightPressed = true
+          // コールバックを実行（タイマーセットは実際に移動した時に行う）
+          this.rightKeyCallbacks.forEach(callback => callback())
         }
         break
       case Player.KEY_UP:
-        if (this.canRotate()) {
-          this.upKeyCallbacks.forEach((callback) => callback())
-          this.handleRotation()
+        if (!this.isUpPressed) {
+          this.isUpPressed = true
+          // コールバックを実行（タイマーセットは実際に回転した時に行う）
+          this.upKeyCallbacks.forEach(callback => callback())
         }
         break
       case Player.KEY_DOWN:
@@ -75,10 +81,40 @@ export class Player {
    */
   handleKeyUp(keyCode: number): void {
     switch (keyCode) {
+      case Player.KEY_LEFT:
+        this.isLeftPressed = false
+        break
+      case Player.KEY_RIGHT:
+        this.isRightPressed = false
+        break
+      case Player.KEY_UP:
+        this.isUpPressed = false
+        break
       case Player.KEY_DOWN:
         this.isDownPressed = false
         break
     }
+  }
+
+  /**
+   * 左キーが押されているかどうかを取得
+   */
+  isLeftKeyPressed(): boolean {
+    return this.isLeftPressed
+  }
+
+  /**
+   * 右キーが押されているかどうかを取得
+   */
+  isRightKeyPressed(): boolean {
+    return this.isRightPressed
+  }
+
+  /**
+   * 上キーが押されているかどうかを取得
+   */
+  isUpKeyPressed(): boolean {
+    return this.isUpPressed
   }
 
   /**
@@ -113,6 +149,7 @@ export class Player {
    * 移動操作が行われた時の処理
    */
   handleMovement(): void {
+    // 移動後は再度クールダウンタイマーをセット
     this.movementTimer = Player.MOVEMENT_COOLDOWN
   }
 
@@ -168,6 +205,9 @@ export class Player {
    */
   reset(): void {
     this.isDownPressed = false
+    this.isLeftPressed = false
+    this.isRightPressed = false
+    this.isUpPressed = false
     this.rotationTimer = 0
     this.movementTimer = 0
     // コールバックはリセットしない（再設定が必要になるため）

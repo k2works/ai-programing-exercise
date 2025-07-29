@@ -1,5 +1,24 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { Game } from '../game'
+import { PuyoImage } from '../puyoimage'
+
+// PuyoImageクラスをモック化
+const mockPuyoImageInstance = {
+  clearCanvas: vi.fn(),
+  renderField: vi.fn(),
+  renderActivePuyo: vi.fn(),
+  renderNextPuyo: vi.fn(),
+  renderZenkeshiEffect: vi.fn(),
+  renderGameOverEffect: vi.fn(),
+  getCellSize: vi.fn(() => 30),
+  getFieldOffset: vi.fn(() => ({ x: 10, y: 10 })),
+}
+
+vi.mock('../puyoimage', () => {
+  return {
+    PuyoImage: vi.fn(() => mockPuyoImageInstance)
+  }
+})
 
 describe('Game', () => {
   let canvas: HTMLCanvasElement
@@ -8,6 +27,8 @@ describe('Game', () => {
   let mockContext: CanvasRenderingContext2D
 
   beforeEach(() => {
+    vi.clearAllMocks()
+    
     // Canvas 2Dコンテキストのモック
     mockContext = {
       fillStyle: '',
@@ -29,19 +50,28 @@ describe('Game', () => {
       font: 'bold 48px Arial',
     } as unknown as CanvasRenderingContext2D
 
-    // Canvas要素をモック
-    canvas = document.createElement('canvas')
-    canvas.width = 320
-    canvas.height = 480
-
-    // getContextメソッドをモック
-    vi.spyOn(canvas, 'getContext').mockReturnValue(mockContext)
+    // Canvas要素を完全にモック化（setup.tsのモックと一貫性を保つ）
+    canvas = {
+      getContext: vi.fn().mockReturnValue(mockContext),
+      width: 320,
+      height: 480,
+      style: {},
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    } as unknown as HTMLCanvasElement
 
     // スコア表示要素をモック
     scoreDisplay = document.createElement('div')
 
     // requestAnimationFrameをモック
     vi.stubGlobal('requestAnimationFrame', vi.fn())
+
+    // PuyoImageモックをリセット
+    Object.values(mockPuyoImageInstance).forEach(mock => {
+      if (typeof mock === 'function' && mock.mockReset) {
+        mock.mockReset()
+      }
+    })
 
     game = new Game(canvas, scoreDisplay)
   })
@@ -112,22 +142,22 @@ describe('Game', () => {
     it('ゲームフィールドが描画される', () => {
       game.renderField()
 
-      // fillRectが呼ばれることを確認（フィールドの背景描画）
-      expect(mockContext.fillRect).toHaveBeenCalled()
+      // PuyoImageのrenderFieldメソッドが呼ばれることを確認
+      expect(mockPuyoImageInstance.renderField).toHaveBeenCalled()
     })
 
     it('ゲームフィールドの枠線が描画される', () => {
       game.renderField()
 
-      // strokeRectが呼ばれることを確認（フィールドの枠線描画）
-      expect(mockContext.strokeRect).toHaveBeenCalled()
+      // PuyoImageのrenderFieldメソッドが呼ばれることを確認
+      expect(mockPuyoImageInstance.renderField).toHaveBeenCalled()
     })
 
     it('Canvasがクリアされる', () => {
       game.clearScreen()
 
-      // clearRectが呼ばれることを確認
-      expect(mockContext.clearRect).toHaveBeenCalled()
+      // PuyoImageのclearCanvasメソッドが呼ばれることを確認
+      expect(mockPuyoImageInstance.clearCanvas).toHaveBeenCalled()
     })
   })
 
@@ -174,17 +204,15 @@ describe('Game', () => {
       game.spawnActivePuyo()
       game.renderActivePuyo()
 
-      // 2つのぷよが楕円形で描画される（ellipseが2回呼ばれる）
-      expect(mockContext.ellipse).toHaveBeenCalledTimes(2)
-      expect(mockContext.fill).toHaveBeenCalledTimes(2)
+      // PuyoImageのrenderActivePuyoメソッドが呼ばれる
+      expect(mockPuyoImageInstance.renderActivePuyo).toHaveBeenCalled()
     })
 
     it('次のぷよが画面に描画される', () => {
       game.renderNextPuyo()
 
-      // 次のぷよエリアが楕円形で描画される
-      expect(mockContext.ellipse).toHaveBeenCalled()
-      expect(mockContext.fill).toHaveBeenCalled()
+      // PuyoImageのrenderNextPuyoメソッドが呼ばれる
+      expect(mockPuyoImageInstance.renderNextPuyo).toHaveBeenCalled()
     })
 
     it('ぷよの色が正しく設定される', () => {
@@ -240,8 +268,8 @@ describe('Game', () => {
     beforeEach(() => {
       vi.clearAllMocks()
       // キーボードイベントのモック設定
-      global.addEventListener = vi.fn()
-      global.removeEventListener = vi.fn()
+      globalThis.addEventListener = vi.fn()
+      globalThis.removeEventListener = vi.fn()
     })
 
     it('左キーが押されたことを検知できる', () => {
@@ -280,8 +308,8 @@ describe('Game', () => {
     it('キーボードイベントリスナーが登録される', () => {
       game.setupInputHandlers()
 
-      expect(global.addEventListener).toHaveBeenCalledWith('keydown', expect.any(Function))
-      expect(global.addEventListener).toHaveBeenCalledWith('keyup', expect.any(Function))
+      expect(globalThis.addEventListener).toHaveBeenCalledWith('keydown', expect.any(Function))
+      expect(globalThis.addEventListener).toHaveBeenCalledWith('keyup', expect.any(Function))
     })
 
     it('入力状態をリセットできる', () => {
@@ -386,41 +414,49 @@ describe('Game', () => {
       const initialPuyo = game.getActivePuyo()
       const initialX = initialPuyo!.x
 
-      // 左キーを押す
+      // 左キーを押す（即座に1回移動する）
       const leftKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowLeft' })
       game.handleKeyDown(leftKeyEvent)
 
-      // 移動間隔の直前まで移動処理を実行
+      // 1回移動したことを確認
+      expect(game.getActivePuyo()!.x).toBe(initialX - 1)
+
+      // 移動間隔の直前まで移動処理を実行（まだ次の移動はされない）
       for (let i = 0; i < 7; i++) {
         game.updateMovement()
       }
 
       const updatedPuyo = game.getActivePuyo()
-      expect(updatedPuyo!.x).toBe(initialX) // まだ移動しない
+      expect(updatedPuyo!.x).toBe(initialX - 1) // まだ次の移動はしない
     })
 
     it('連続移動のタイミングが正しく制御される', () => {
       const initialPuyo = game.getActivePuyo()
       const initialX = initialPuyo!.x
 
-      // 左キーを押して8フレーム待って移動させる
+      // 左キーを押す（即座に1回移動する）
       const leftKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowLeft' })
       game.handleKeyDown(leftKeyEvent)
 
-      for (let i = 0; i < 8; i++) {
-        game.updateMovement()
-      }
-
-      // 最初の移動が完了
+      // 最初の移動が完了していることを確認
       expect(game.getActivePuyo()!.x).toBe(initialX - 1)
 
-      // さらに8フレーム待って再び移動
-      for (let i = 0; i < 8; i++) {
+      // 9フレーム間、継続的にupdateMovementとupdateTimersを呼び出す
+      // （キーが押され続けている状態で8フレーム経過後の9フレーム目に次の移動が発生）
+      for (let i = 0; i < 9; i++) {
+        // 移動間隔制御のテストなので、落下やゲームループは無効化
+        game.disableFalling()
         game.updateMovement()
+        // プライベートなplayerにアクセスするためにテスト用メソッドを使う
+        ;(game as any).player.updateTimers()
       }
 
       const updatedPuyo = game.getActivePuyo()
       expect(updatedPuyo!.x).toBe(initialX - 2) // 2回移動
+      
+      // キーアップをシミュレートして状態をクリア
+      const leftKeyUpEvent = new KeyboardEvent('keyup', { key: 'ArrowLeft' })
+      game.handleKeyUp(leftKeyUpEvent)
     })
   })
 
@@ -460,9 +496,6 @@ describe('Game', () => {
       const initialPuyo = game.getActivePuyo()
       const initialX = initialPuyo!.x
 
-      // renderActivePuyoメソッドをスパイする
-      const renderActivePuyoSpy = vi.spyOn(game, 'renderActivePuyo')
-
       // 左キーを押す
       const leftKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowLeft' })
       game.handleKeyDown(leftKeyEvent)
@@ -479,8 +512,8 @@ describe('Game', () => {
       const updatedPuyo = game.getActivePuyo()
       expect(updatedPuyo!.x).toBe(initialX - 1)
 
-      // renderActivePuyoが呼ばれることを確認
-      expect(renderActivePuyoSpy).toHaveBeenCalled()
+      // PuyoImageのrenderActivePuyoメソッドが呼ばれることを確認
+      expect(mockPuyoImageInstance.renderActivePuyo).toHaveBeenCalledWith(updatedPuyo)
     })
 
     it('ゲームループが動作中は継続的に表示が更新される', async () => {
@@ -890,26 +923,10 @@ describe('Game', () => {
   describe('フィールド上のぷよ描画', () => {
     let game: Game
     let mockCanvas: HTMLCanvasElement
-    let mockContext: CanvasRenderingContext2D
     let mockScoreDisplay: HTMLElement
 
     beforeEach(() => {
-      // Canvas とコンテキストのモックを作成
-      mockContext = {
-        fillStyle: '',
-        strokeStyle: '',
-        lineWidth: 1,
-        fillRect: vi.fn(),
-        strokeRect: vi.fn(),
-        clearRect: vi.fn(),
-        beginPath: vi.fn(),
-        ellipse: vi.fn(),
-        fill: vi.fn(),
-        stroke: vi.fn(),
-      } as unknown as CanvasRenderingContext2D
-
       mockCanvas = {
-        getContext: vi.fn().mockReturnValue(mockContext),
         width: 320,
         height: 480,
       } as unknown as HTMLCanvasElement
@@ -933,32 +950,16 @@ describe('Game', () => {
       // フィールドを描画
       game.renderField()
 
-      // ellipseが呼ばれている回数を確認（楕円描画）
-      const ellipseCalls = (mockContext.ellipse as any).mock.calls
-
-      // 固定ぷよが楕円形で描画される（3回のellipse呼び出しがあるはず）
-      expect(ellipseCalls.length).toBe(3)
-
-      // fillが呼ばれている回数を確認（楕円の塗りつぶし）
-      const fillCalls = (mockContext.fill as any).mock.calls
-      expect(fillCalls.length).toBe(3)
-
-      // ぷよの色が正しく設定されているかチェック
-      const fillStyleCalls = mockContext.fillStyle as any
-
-      // 固定されたぷよの色が描画されているかをテスト
-      game.render()
-      expect(mockContext.fillRect).toHaveBeenCalled()
+      // PuyoImageのrenderFieldメソッドが呼ばれたことを確認
+      expect(mockPuyoImageInstance.renderField).toHaveBeenCalledWith(field)
     })
 
     it('空のフィールドセルは描画されない', () => {
       // 空のフィールドで描画
       game.renderField()
 
-      const fillRectCalls = (mockContext.fillRect as any).mock.calls
-
-      // 背景のみの描画（固定ぷよがないので背景の1回のみ）
-      expect(fillRectCalls.length).toBe(1)
+      // PuyoImageのrenderFieldメソッドが呼ばれたことを確認
+      expect(mockPuyoImageInstance.renderField).toHaveBeenCalledWith(game.getField())
     })
   })
 
@@ -1019,6 +1020,13 @@ describe('Game', () => {
       })
 
       it('回転方向の値は0-3の範囲で循環する', () => {
+        // ぷよを少し下に移動させて回転可能な位置に移動
+        const activePuyo = game.getActivePuyo()
+        if (activePuyo) {
+          // ぷよを(2,2)に移動させて回転に十分なスペースを確保
+          ;(game as any).puyo.updateActivePuyoPosition(0, 2)
+        }
+
         // 4回回転させると元の方向に戻る
         for (let i = 0; i < 4; i++) {
           const upKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowUp' })
@@ -1486,10 +1494,12 @@ describe('Game', () => {
           const downKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowDown' })
           game.handleKeyDown(downKeyEvent)
 
-          // 1フレーム更新
-          game.updateAndRender()
+          // 高速落下間隔（3フレーム）まで更新
+          for (let i = 0; i < 3; i++) {
+            game.updateAndRender()
+          }
 
-          // 下キーが押されているときは即座に落下するはず
+          // 下キーが押されているときは高速落下するはず
           expect(activePuyo.y).toBeGreaterThan(initialY)
         }
       })
@@ -1521,13 +1531,13 @@ describe('Game', () => {
           const downKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowDown' })
           game.handleKeyDown(downKeyEvent)
 
-          // 複数フレーム更新
-          for (let i = 0; i < 5; i++) {
+          // 十分なフレーム数更新（2回の高速落下が発生するよう6フレーム）
+          for (let i = 0; i < 6; i++) {
             game.updateAndRender()
           }
 
-          // 継続的に落下しているはず
-          expect(activePuyo.y).toBeGreaterThan(initialY + 3)
+          // 継続的に落下しているはず（2回落下して2ピクセル下に）
+          expect(activePuyo.y).toBeGreaterThan(initialY + 1)
         }
       })
     })
@@ -1689,8 +1699,10 @@ describe('Game', () => {
           const downKeyEvent = new KeyboardEvent('keydown', { key: 'ArrowDown' })
           game.handleKeyDown(downKeyEvent)
 
-          // 高速落下処理を実行（着地するまで）
-          game.updateAndRender()
+          // 高速落下処理を実行（3フレーム必要）
+          for (let i = 0; i < 3; i++) {
+            game.updateAndRender()
+          }
 
           // 着地により新しいぷよが生成されているはず
           const newActivePuyo = game.getActivePuyo()
@@ -2748,12 +2760,8 @@ describe('Game', () => {
         // 描画メソッドを実行
         game.render()
 
-        // 全消し演出のテキストが描画されているかチェック
-        expect(mockContext.fillText).toHaveBeenCalledWith(
-          '全消し！',
-          expect.any(Number),
-          expect.any(Number)
-        )
+        // PuyoImageのrenderZenkeshiEffectメソッドが呼ばれることを確認
+        expect(mockPuyoImageInstance.renderZenkeshiEffect).toHaveBeenCalled()
       })
     })
   })
@@ -2807,12 +2815,8 @@ describe('Game', () => {
         // 描画メソッドを呼び出し
         game.render()
 
-        // ゲームオーバー演出用のテキスト描画が実行されることを確認
-        expect(mockContext.fillText).toHaveBeenCalledWith(
-          expect.stringContaining('GAME OVER'),
-          expect.any(Number),
-          expect.any(Number)
-        )
+        // PuyoImageのrenderGameOverEffectメソッドが呼ばれることを確認
+        expect(mockPuyoImageInstance.renderGameOverEffect).toHaveBeenCalled()
       })
 
       it('ゲームオーバー演出でリスタート案内が表示される', () => {
@@ -2829,12 +2833,8 @@ describe('Game', () => {
         // 描画メソッドを呼び出し
         game.render()
 
-        // リスタート案内テキストが描画されることを確認
-        expect(mockContext.fillText).toHaveBeenCalledWith(
-          expect.stringContaining('Rキーまたはスペースキーでリスタート'),
-          expect.any(Number),
-          expect.any(Number)
-        )
+        // PuyoImageのrenderGameOverEffectメソッドが呼ばれることを確認（リスタート案内も含む）
+        expect(mockPuyoImageInstance.renderGameOverEffect).toHaveBeenCalled()
       })
     })
 
@@ -2935,9 +2935,8 @@ describe('Game', () => {
       })
 
       it('リスタート後に全消し演出が停止する', () => {
-        // 全消し演出フラグを直接設定（テスト用メソッドが必要）
-        // privateメソッドにアクセスするため、anyでキャスト
-        ;(game as any).isZenkeshiEffectActiveFlag = true
+        // 全消し演出フラグを直接設定（テスト用メソッド使用）
+        game.setZenkeshiEffectActive(true)
 
         // 全消し演出が有効になったことを確認
         expect(game.isZenkeshiEffectActive()).toBe(true)

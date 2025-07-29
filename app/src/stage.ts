@@ -28,6 +28,7 @@ export class Stage {
 
   // 演出管理
   private isZenkeshiEffectActiveFlag = false
+  private isGameOverEffectActiveFlag = false
 
   constructor() {
     // ゲームフィールドの初期化
@@ -464,9 +465,31 @@ export class Stage {
   }
 
   /**
+   * ゲームオーバー演出が有効かどうかを取得
+   */
+  isGameOverEffectActive(): boolean {
+    return this.isGameOverEffectActiveFlag
+  }
+
+  /**
+   * ゲームオーバー演出を開始
+   */
+  triggerGameOver(): void {
+    this.isGameOverEffectActiveFlag = true
+  }
+
+  /**
+   * ゲームオーバー演出を停止
+   */
+  stopGameOverEffect(): void {
+    this.isGameOverEffectActiveFlag = false
+  }
+
+  /**
    * 演出を全て停止する
    */
   stopAllEffects(): void {
     this.isZenkeshiEffectActiveFlag = false
+    this.isGameOverEffectActiveFlag = false
   }
 }

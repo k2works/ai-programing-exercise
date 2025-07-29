@@ -7,42 +7,48 @@ describe('PuyoImage', () => {
   let mockContext: CanvasRenderingContext2D
 
   beforeEach(() => {
-    // Canvas 2D context をモック化
-    mockContext = {
-      clearRect: vi.fn(),
-      fillRect: vi.fn(),
-      fillText: vi.fn(),
-      ellipse: vi.fn(),
-      beginPath: vi.fn(),
-      fill: vi.fn(),
-      stroke: vi.fn(),
-      save: vi.fn(),
-      restore: vi.fn(),
-      set fillStyle(value: string) {},
-      get fillStyle() {
-        return '#000000'
-      },
-      set strokeStyle(value: string) {},
-      get strokeStyle() {
-        return '#000000'
-      },
-      set lineWidth(value: number) {},
-      get lineWidth() {
-        return 1
-      },
-      set font(value: string) {},
-      get font() {
-        return '10px sans-serif'
-      },
-      set textAlign(value: string) {},
-      get textAlign() {
-        return 'start'
-      },
-      set textBaseline(value: string) {},
-      get textBaseline() {
-        return 'alphabetic'
-      },
-    } as any
+    // setup.tsで定義されたグローバルモックを使用
+    const createMockContext = (global as any).createMockContext
+    if (createMockContext) {
+      mockContext = createMockContext()
+    } else {
+      // フォールバック用の独自モック（setup.tsが利用できない場合）
+      mockContext = {
+        clearRect: vi.fn(),
+        fillRect: vi.fn(),
+        fillText: vi.fn(),
+        ellipse: vi.fn(),
+        beginPath: vi.fn(),
+        fill: vi.fn(),
+        stroke: vi.fn(),
+        save: vi.fn(),
+        restore: vi.fn(),
+        set fillStyle(value: string) {},
+        get fillStyle() {
+          return '#000000'
+        },
+        set strokeStyle(value: string) {},
+        get strokeStyle() {
+          return '#000000'
+        },
+        set lineWidth(value: number) {},
+        get lineWidth() {
+          return 1
+        },
+        set font(value: string) {},
+        get font() {
+          return '10px sans-serif'
+        },
+        set textAlign(value: string) {},
+        get textAlign() {
+          return 'start'
+        },
+        set textBaseline(value: string) {},
+        get textBaseline() {
+          return 'alphabetic'
+        },
+      } as any
+    }
 
     // Canvas をモック化
     mockCanvas = {

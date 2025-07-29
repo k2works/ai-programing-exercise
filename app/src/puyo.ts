@@ -62,7 +62,7 @@ export class Puyo {
   /**
    * アクティブぷよの状態を取得する
    */
-  getActivePuyo(): { x: number; y: number; color1: number; color2: number } | null {
+  getActivePuyo(): { x: number; y: number; color1: number; color2: number; direction: number } | null {
     return this.activePuyo
   }
 
