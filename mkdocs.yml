@@ -57,3 +57,23 @@ plugins:
 
 nav:
   - Home: index.md
+  - ぷよぷよアプリケーション:
+    - 要件: requirement.md
+    - アーキテクチャ: architecture.md
+    - 設計: design.md
+    - 実装: implementation.md
+  - 開発プロセス:
+    - 開発プロセス標準: wiki/開発プロセス標準.md
+    - テスト駆動開発: wiki/読書メモ/エクストリームプログラミング.md
+    - アジャイル計画づくり: wiki/読書メモ/アジャイルな見積と計画づくり.md
+  - 参考資料:
+    - よいソフトウェアとは: 記事/よいソフトウェアとは.md
+    - ぷよぷよから始めるTDD1: reference/ぷよぷよから始めるテスト駆動開発1.md
+    - ぷよぷよから始めるTDD2: reference/ぷよぷよから始めるテスト駆動開発2.md
+    - ぷよぷよから始めるTDD3: reference/ぷよぷよから始めるテスト駆動開発3.md
+    - TypeScript入門2: reference/テスト駆動開発から始めるTypeScript入門2.md
+    - ぷよぷよプログラミング: reference/骨までしゃぶりつくす「ぷよぷよプログラミング」.md
+  - 開発日誌:
+    - 日誌一覧: journal/
+  - Wiki:
+    - Wiki概要: wiki/
