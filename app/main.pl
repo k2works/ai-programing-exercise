@@ -14,11 +14,18 @@ test('2を渡したら文字列2を返す') :-
     fizzbuzz_generate(2, Result),
     Result = '2'.
 
+test('3を渡したら文字列Fizzを返す') :-
+    fizzbuzz_generate(3, Result),
+    Result = 'Fizz'.
+
 :- end_tests(fizzbuzz).
 
 % FizzBuzz実装
 fizzbuzz_generate(Number, Result) :-
-    atom_number(Result, Number).
+    ( Number mod 3 =:= 0 ->
+        Result = 'Fizz'
+    ;   atom_number(Result, Number)
+    ).
 
 % テスト実行用
 run_all_tests :-
