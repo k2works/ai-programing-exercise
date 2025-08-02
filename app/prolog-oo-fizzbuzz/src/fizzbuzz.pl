@@ -26,6 +26,12 @@ fizzbuzz_output(Type, Number) :-
             writeln(Result)
         ;   true  % 何も出力しない
         )
+    ; Type = 3 ->
+        % タイプ3: FizzBuzzのみ
+        ( Number mod 15 =:= 0 ->
+            writeln('FizzBuzz')
+        ;   true  % 何も出力しない
+        )
     ).
 
 % テスト用ヘルパー関数
@@ -44,4 +50,8 @@ fizzbuzz_get_value(Number, Type, Result) :-
         Number mod 3 =\= 0,
         Number mod 5 =\= 0,
         atom_number(Result, Number)
+    ; Type = 3 ->
+        % タイプ3: FizzBuzzのみ（15の倍数のみ）
+        Number mod 15 =:= 0,
+        Result = 'FizzBuzz'
     ).

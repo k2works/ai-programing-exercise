@@ -48,3 +48,23 @@ test('タイプ2: 15を渡したら何も出力しない', [fail]) :-
     fizzbuzz_get_value(15, 2, _).
 
 :- end_tests(fizzbuzz_type2).
+
+:- begin_tests(fizzbuzz_type3).
+
+test('タイプ3: 1から100までのFizzBuzzのみを出力') :-
+    fizzbuzz_print(1, 100, 3).
+
+test('タイプ3: 1を渡したら何も出力しない', [fail]) :-
+    fizzbuzz_get_value(1, 3, _).
+
+test('タイプ3: 3を渡したら何も出力しない', [fail]) :-
+    fizzbuzz_get_value(3, 3, _).
+
+test('タイプ3: 5を渡したら何も出力しない', [fail]) :-
+    fizzbuzz_get_value(5, 3, _).
+
+test('タイプ3: 15を渡したらFizzBuzzを出力') :-
+    fizzbuzz_get_value(15, 3, Result),
+    assertion(Result = 'FizzBuzz').
+
+:- end_tests(fizzbuzz_type3).
