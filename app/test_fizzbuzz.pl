@@ -2,7 +2,8 @@
 % テスト駆動開発から始めるProlog入門2
 
 :- use_module(library(plunit)).
-:- use_module(fizzbuzz).
+:- consult(fizzbuzz).
+:- consult(utils).
 
 % 基本的なFizzBuzzテスト
 :- begin_tests(fizzbuzz_basic).
@@ -126,3 +127,47 @@ test('負の数-15を渡したら文字列FizzBuzzを返す') :-
     assertion(Result = 'FizzBuzz').
 
 :- end_tests(fizzbuzz_edge_cases).
+
+% バリデーションテスト
+:- begin_tests(validation).
+
+test('正常な範囲の検証は成功する') :-
+    validate_range(1, 10).
+
+test('開始値が終了値より大きい場合は失敗する', [fail]) :-
+    validate_range(10, 5).
+
+test('正常なタイプの検証は成功する') :-
+    validate_type(1),
+    validate_type(2),
+    validate_type(3).
+
+test('無効なタイプの検証は失敗する', [fail]) :-
+    validate_type(4).
+
+test('文字列のタイプは失敗する', [fail]) :-
+    validate_type('invalid').
+
+:- end_tests(validation).
+
+% ユーティリティテスト
+:- begin_tests(utilities).
+
+test('数字文字列の判定が正しく動作する') :-
+    is_number_string('1'),
+    is_number_string('42'),
+    \+ is_number_string('Fizz'),
+    \+ is_number_string('Buzz').
+
+test('統計情報の計算が正しい') :-
+    fizzbuzz_list(1, 15, List),
+    include(=('Fizz'), List, FizzList),
+    include(=('Buzz'), List, BuzzList),
+    include(=('FizzBuzz'), List, FizzBuzzList),
+    include(is_number_string, List, NumberList),
+    length(FizzList, 4),    % 3, 6, 9, 12
+    length(BuzzList, 2),    % 5, 10
+    length(FizzBuzzList, 1), % 15
+    length(NumberList, 8).  % 1, 2, 4, 7, 8, 11, 13, 14
+
+:- end_tests(utilities).

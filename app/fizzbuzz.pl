@@ -1,14 +1,6 @@
 % FizzBuzz プロダクトコード
 % テスト駆動開発から始めるProlog入門2
 
-% モジュール定義
-:- module(fizzbuzz, [
-    fizzbuzz_generate/2,
-    fizzbuzz_list/3,
-    fizzbuzz_print/2,
-    fizzbuzz_print_type/3
-]).
-
 % 定数定義
 max_number(100).
 

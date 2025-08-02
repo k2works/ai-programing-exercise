@@ -1,29 +1,40 @@
 % FizzBuzz メインアプリケーション
 % テスト駆動開発から始めるProlog入門2
 
-:- use_module(fizzbuzz).
+:- consult(fizzbuzz).
+:- consult(utils).
 
 % メイン実行関数
 main :-
     % デフォルトパラメータで実行
-    fizzbuzz_print(1, 100).
+    safe_fizzbuzz_print(1, 100, 1).
 
 % パラメータ付きメイン関数
 main(Args) :-
-    parse_args(Args, Start, End, Type),
-    execute_fizzbuzz(Start, End, Type).
+    ( parse_args(Args, Start, End, Type) ->
+        safe_fizzbuzz_print(Start, End, Type)
+    ;   usage
+    ).
 
-% 引数の解析
+% 引数の解析（エラーハンドリング付き）
 parse_args([], 1, 100, 1).  % デフォルト値
 parse_args([StartAtom], Start, 100, 1) :-  % 開始値のみ指定
-    atom_number(StartAtom, Start).
+    catch(atom_number(StartAtom, Start), _, fail).
 parse_args([StartAtom, EndAtom], Start, End, 1) :-  % 開始値と終了値指定
-    atom_number(StartAtom, Start),
-    atom_number(EndAtom, End).
+    catch(
+        ( atom_number(StartAtom, Start),
+          atom_number(EndAtom, End)
+        ),
+        _, fail
+    ).
 parse_args([StartAtom, EndAtom, TypeAtom], Start, End, Type) :-  % 全パラメータ指定
-    atom_number(StartAtom, Start),
-    atom_number(EndAtom, End),
-    atom_number(TypeAtom, Type).
+    catch(
+        ( atom_number(StartAtom, Start),
+          atom_number(EndAtom, End),
+          atom_number(TypeAtom, Type)
+        ),
+        _, fail
+    ).
 
 % FizzBuzzの実行
 execute_fizzbuzz(Start, End, Type) :-
@@ -39,10 +50,18 @@ run_fizzbuzz :-
 
 % 対話的実行のためのヘルパー
 run_fizzbuzz(Start, End) :-
-    fizzbuzz_print(Start, End).
+    safe_fizzbuzz_print(Start, End, 1).
 
 run_fizzbuzz(Start, End, Type) :-
-    fizzbuzz_print_type(Start, End, Type).
+    safe_fizzbuzz_print(Start, End, Type).
+
+% ベンチマーク実行
+run_benchmark(Start, End) :-
+    benchmark_fizzbuzz(Start, End).
+
+% 統計表示
+run_stats(Start, End) :-
+    show_stats(Start, End).
 
 % テスト実行
 run_tests :-
@@ -66,4 +85,8 @@ usage :-
     writeln('例:'),
     writeln('  swipl -g "main" -t halt app.pl'),
     writeln('  swipl -g "main([''1'', ''20''])" -t halt app.pl'),
-    writeln('  swipl -g "main([''1'', ''30'', ''2''])" -t halt app.pl').
+    writeln('  swipl -g "main([''1'', ''30'', ''2''])" -t halt app.pl'),
+    writeln(''),
+    writeln('追加機能:'),
+    writeln('  swipl -g "run_benchmark(1, 1000)" -t halt app.pl  # ベンチマーク'),
+    writeln('  swipl -g "run_stats(1, 100)" -t halt app.pl      # 統計情報').
