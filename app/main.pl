@@ -3,18 +3,18 @@
 
 :- use_module(library(plunit)).
 
-% 最初のテスト: セットアップ
-:- begin_tests(hello).
+% FizzBuzzテスト
+:- begin_tests(fizzbuzz).
 
-test(greeting) :-
-    greeting(Result),
-    Result = 'hello world'.
+test('1を渡したら文字列1を返す') :-
+    fizzbuzz_generate(1, Result),
+    Result = '1'.
 
-:- end_tests(hello).
+:- end_tests(fizzbuzz).
 
-% セットアップ用のプレディケート
-greeting('hello world').
+% FizzBuzz実装（仮実装）
+fizzbuzz_generate(1, '1').
 
-% テストを実行するためのプレディケート
-run_tests :-
-    run_tests(hello).
+% テスト実行用
+run_all_tests :-
+    run_tests.
