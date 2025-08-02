@@ -8,50 +8,40 @@ fizzbuzz_print(Start, End, Type) :-
 
 % 単一の数値を出力
 fizzbuzz_output(Type, Number) :-
+    fizzbuzz_calculate(Number, Type, Output),
+    ( Output \= none ->
+        writeln(Output)
+    ;   true
+    ).
+
+% FizzBuzz計算ロジック
+fizzbuzz_calculate(Number, Type, Output) :-
     ( Type = 1 ->
         % タイプ1: 通常のFizzBuzz
         ( Number mod 15 =:= 0 ->
-            Result = 'FizzBuzz'
+            Output = 'FizzBuzz'
         ; Number mod 3 =:= 0 ->
-            Result = 'Fizz'
+            Output = 'Fizz'
         ; Number mod 5 =:= 0 ->
-            Result = 'Buzz'
-        ;   atom_number(Result, Number)
-        ),
-        writeln(Result)
+            Output = 'Buzz'
+        ;   atom_number(Output, Number)
+        )
     ; Type = 2 ->
         % タイプ2: 数字のみ
         ( Number mod 3 =\= 0, Number mod 5 =\= 0 ->
-            atom_number(Result, Number),
-            writeln(Result)
-        ;   true  % 何も出力しない
+            atom_number(Output, Number)
+        ;   Output = none
         )
     ; Type = 3 ->
         % タイプ3: FizzBuzzのみ
         ( Number mod 15 =:= 0 ->
-            writeln('FizzBuzz')
-        ;   true  % 何も出力しない
+            Output = 'FizzBuzz'
+        ;   Output = none
         )
     ).
 
 % テスト用ヘルパー関数
 fizzbuzz_get_value(Number, Type, Result) :-
-    ( Type = 1 ->
-        ( Number mod 15 =:= 0 ->
-            Result = 'FizzBuzz'
-        ; Number mod 3 =:= 0 ->
-            Result = 'Fizz'
-        ; Number mod 5 =:= 0 ->
-            Result = 'Buzz'
-        ;   atom_number(Result, Number)
-        )
-    ; Type = 2 ->
-        % タイプ2: 数字のみ（3または5の倍数以外）
-        Number mod 3 =\= 0,
-        Number mod 5 =\= 0,
-        atom_number(Result, Number)
-    ; Type = 3 ->
-        % タイプ3: FizzBuzzのみ（15の倍数のみ）
-        Number mod 15 =:= 0,
-        Result = 'FizzBuzz'
-    ).
+    fizzbuzz_calculate(Number, Type, Output),
+    Output \= none,
+    Result = Output.
