@@ -57,3 +57,6 @@ plugins:
 
 nav:
   - Home: index.md
+  - 記事:
+    - テスト駆動開発から始めるProlog入門 作業計画: wiki/記事/テスト駆動開発から始めるProlog入門_作業計画.md
+    - テスト駆動開発から始めるProlog入門: wiki/記事/テスト駆動開発から始めるProlog入門.md
