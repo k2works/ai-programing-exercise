@@ -2,12 +2,12 @@
 
 ## 概要
 
-AIプログラミングの実践的な学習と開発のためのプロジェクトです。複数のプログラミング言語（Java、Scala、Kotlin、Node.js、Ruby、Python、PHP、Go、Rust、.NET、C、C++、Erlang、Elixir）をサポートする開発環境と、MkDocsを使用したドキュメント管理システムを提供します。
+AIプログラミングの実践的な学習と開発のためのプロジェクトです。複数のプログラミング言語（Java、Scala、Kotlin、Node.js、Ruby、Python、PHP、Go、Rust、.NET、C、C++、Erlang、Elixir、Prolog）をサポートする開発環境と、MkDocsを使用したドキュメント管理システムを提供します。
 
 ### 目的
 
 - AIプログラミングの実践的な学習環境の提供
-- 複数言語（Java、Scala、Kotlin、Node.js、Ruby、Python、PHP、Go、Rust、.NET、C、C++、Erlang、Elixir）での開発サポート
+- 複数言語（Java、Scala、Kotlin、Node.js、Ruby、Python、PHP、Go、Rust、.NET、C、C++、Erlang、Elixir、Prolog）での開発サポート
 - ドキュメント駆動開発の促進
 - プログラミング学習リソースの集約
 
@@ -73,6 +73,7 @@ AIプログラミングの実践的な学習と開発のためのプロジェク
   - C++ (C++20標準, G++, Clang)
   - Erlang 26.2.1 (via Erlang Solutions)
   - Elixir 1.16.1 (via Erlang Solutions)
+  - Prolog (SWI-Prolog 9.0.4)
 - **ドキュメント環境**:
   - MkDocs (Python 3.11ベース)
   - Material for MkDocsテーマ
@@ -249,6 +250,7 @@ echo $GITHUB_TOKEN | docker login ghcr.io -u <username> --password-stdin
    - C++: `g++ --version` または `clang++ --version`
    - Erlang: `erl -version`
    - Elixir: `elixir --version`
+   - Prolog: `swipl --version`
 
 #### ドキュメント作成
 
@@ -276,3 +278,4 @@ echo $GITHUB_TOKEN | docker login ghcr.io -u <username> --password-stdin
 - [rustup](https://rustup.rs/)
 - [Erlang](https://www.erlang.org/)
 - [Elixir](https://elixir-lang.org/)
+- [Prolog](https://www.swi-prolog.org/)

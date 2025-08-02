@@ -284,6 +284,13 @@ mix local.rebar --force' > /tmp/asdf_install.sh \
     && su - $USERNAME -c /tmp/asdf_install.sh \
     && rm /tmp/asdf_install.sh
 
+# Prologのインストール
+RUN apt-get update && apt-get install -y \
+    swi-prolog \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && echo 'alias prolog="swipl"' >> /home/$USERNAME/.bashrc
+
 # Gemini CLIのインストール
 RUN npm install -g @google/gemini-cli
 
