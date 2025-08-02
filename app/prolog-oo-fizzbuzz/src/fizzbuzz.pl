@@ -38,6 +38,14 @@ fizzbuzz_calculate(Number, Type, Output) :-
             Output = 'FizzBuzz'
         ;   Output = none
         )
+    ; Type = 4 ->
+        % タイプ4: 数字とFizzBuzzのみ（FizzとBuzzは除外）
+        ( Number mod 15 =:= 0 ->
+            Output = 'FizzBuzz'
+        ; Number mod 3 =\= 0, Number mod 5 =\= 0 ->
+            atom_number(Output, Number)
+        ;   Output = none
+        )
     ).
 
 % テスト用ヘルパー関数
