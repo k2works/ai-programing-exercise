@@ -10,10 +10,15 @@ test('1を渡したら文字列1を返す') :-
     fizzbuzz_generate(1, Result),
     Result = '1'.
 
+test('2を渡したら文字列2を返す') :-
+    fizzbuzz_generate(2, Result),
+    Result = '2'.
+
 :- end_tests(fizzbuzz).
 
-% FizzBuzz実装（仮実装）
-fizzbuzz_generate(1, '1').
+% FizzBuzz実装
+fizzbuzz_generate(Number, Result) :-
+    atom_number(Result, Number).
 
 % テスト実行用
 run_all_tests :-
