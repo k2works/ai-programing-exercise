@@ -26,6 +26,14 @@ test('15を渡したら文字列FizzBuzzを返す') :-
     fizzbuzz_generate(15, Result),
     Result = 'FizzBuzz'.
 
+test('1から100までの数をリストで返す') :-
+    fizzbuzz_list(1, 100, Result),
+    length(Result, 100),
+    nth1(1, Result, '1'),
+    nth1(3, Result, 'Fizz'),
+    nth1(5, Result, 'Buzz'),
+    nth1(15, Result, 'FizzBuzz').
+
 :- end_tests(fizzbuzz).
 
 % FizzBuzz実装
@@ -38,6 +46,16 @@ fizzbuzz_generate(Number, Result) :-
         Result = 'Buzz'
     ;   atom_number(Result, Number)
     ).
+
+% 1からNまでのFizzBuzzリストを生成
+fizzbuzz_list(Start, End, Result) :-
+    numlist(Start, End, Numbers),
+    maplist(fizzbuzz_generate, Numbers, Result).
+
+% FizzBuzzをプリント
+fizzbuzz_print(Start, End) :-
+    fizzbuzz_list(Start, End, Result),
+    maplist(writeln, Result).
 
 % テスト実行用
 run_all_tests :-
