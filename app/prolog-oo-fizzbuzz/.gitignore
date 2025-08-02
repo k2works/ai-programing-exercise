@@ -1,0 +1,20 @@
+# SWI-Prolog関連
+*.qlf
+*.qly
+
+# 一時ファイル
+*~
+*.tmp
+*.swp
+.DS_Store
+
+# ログファイル
+*.log
+
+# ビルド成果物
+build/
+dist/
+
+# エディタ設定
+.vscode/
+.idea/
