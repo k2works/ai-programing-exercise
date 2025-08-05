@@ -18,3 +18,11 @@ class TestAnimationObject:
     def test_オブジェクトの色を管理する(self):
         """オブジェクトの色が正しく設定されることを確認"""
         assert self.obj.color == 7
+
+    def test_オブジェクトの表示状態を管理する(self):
+        """オブジェクトの表示状態が正しく設定されることを確認"""
+        assert self.obj.visible is True
+        
+        # 表示状態を変更
+        self.obj.visible = False
+        assert self.obj.visible is False
