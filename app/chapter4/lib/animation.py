@@ -17,3 +17,11 @@ class AnimationObject:
         self.y = y
         self.color = color
         self.visible = visible
+
+    def move_right(self, speed: int = 1) -> None:
+        """オブジェクトを右方向に移動する
+        
+        Args:
+            speed: 移動速度 (デフォルト1)
+        """
+        self.x += speed

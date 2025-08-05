@@ -26,3 +26,15 @@ class TestAnimationObject:
         # 表示状態を変更
         self.obj.visible = False
         assert self.obj.visible is False
+
+    def test_右方向への等速移動(self):
+        """オブジェクトが右方向に等速で移動することを確認"""
+        initial_x = self.obj.x
+        
+        # 移動を実行
+        self.obj.move_right(speed=1)
+        assert self.obj.x == initial_x + 1
+        
+        # 更に移動
+        self.obj.move_right(speed=2)
+        assert self.obj.x == initial_x + 3
