@@ -29,3 +29,19 @@ class TestOneKeyGame:
         assert game.height == 120
         assert game.title == "Space Rescue"
         mock_pyxel.init.assert_called_once_with(160, 120, title="Space Rescue")
+
+    @patch('lib.one_key_game.pyxel')
+    def test_ゲームループの基本構造(self, mock_pyxel: MagicMock) -> None:
+        """ゲームループのupdate、drawメソッドが存在することを確認"""
+        # 準備
+        mock_pyxel.width = 160
+        mock_pyxel.height = 120
+        
+        # 実行
+        game = OneKeyGame()
+        
+        # 検証
+        assert hasattr(game, 'update')
+        assert hasattr(game, 'draw')
+        assert callable(game.update)
+        assert callable(game.draw)

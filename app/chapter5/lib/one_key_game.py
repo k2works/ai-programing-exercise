@@ -14,3 +14,11 @@ class OneKeyGame:
         
         # Pyxelを初期化する
         pyxel.init(self.width, self.height, title=self.title)
+
+    def update(self) -> None:
+        """ゲーム状態を更新する"""
+        pass
+
+    def draw(self) -> None:
+        """ゲーム画面を描画する"""
+        pass
