@@ -38,3 +38,14 @@ class TestAnimationObject:
         # 更に移動
         self.obj.move_right(speed=2)
         assert self.obj.x == initial_x + 3
+
+    def test_画面端での位置リセット(self):
+        """画面右端を超えた場合に位置がリセットされることを確認"""
+        screen_width = 80
+        
+        # 画面幅を超える位置に移動
+        self.obj.x = screen_width + 10
+        self.obj.check_screen_bounds(screen_width)
+        
+        # 左端にリセットされることを確認（オブjectの幅を考慮して-6）
+        assert self.obj.x == -6
