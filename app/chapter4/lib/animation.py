@@ -1,12 +1,13 @@
 """アニメーションアプリケーションのメインモジュール"""
 
 
+
 class AnimationObject:
     """アニメーションオブジェクトクラス"""
 
     def __init__(self, x: int, y: int, color: int = 15, visible: bool = True):
         """アニメーションオブジェクトを初期化する
-        
+
         Args:
             x: オブジェクトのX座標
             y: オブジェクトのY座標
@@ -20,7 +21,7 @@ class AnimationObject:
 
     def move_right(self, speed: int = 1) -> None:
         """オブジェクトを右方向に移動する
-        
+
         Args:
             speed: 移動速度 (デフォルト1)
         """
@@ -28,9 +29,36 @@ class AnimationObject:
 
     def check_screen_bounds(self, screen_width: int) -> None:
         """画面境界をチェックして必要に応じて位置をリセットする
-        
+
         Args:
             screen_width: 画面の幅
         """
         if self.x >= screen_width:
             self.x = -6  # オブjェクトの幅を考慮して画面外に配置
+
+
+class AnimationApp:
+    """アニメーションアプリケーションクラス"""
+
+    def __init__(
+        self, width: int = 80, height: int = 60, title: str = "Pyxel Animation"
+    ):
+        """アニメーションアプリケーションを初期化する
+
+        Args:
+            width: 画面の幅 (デフォルト80)
+            height: 画面の高さ (デフォルト60)
+            title: ウィンドウタイトル (デフォルト"Pyxel Animation")
+        """
+        self.width = width
+        self.height = height
+        self.title = title
+        self.objects: list[AnimationObject] = []
+
+    def add_object(self, obj: AnimationObject) -> None:
+        """アニメーションオブジェクトを追加する
+
+        Args:
+            obj: 追加するアニメーションオブジェクト
+        """
+        self.objects.append(obj)
