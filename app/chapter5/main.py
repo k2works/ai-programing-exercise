@@ -20,48 +20,71 @@ class SpaceRescueDemo:
 
     def update(self) -> None:
         """ゲーム状態を更新する"""
+        self._handle_input()
+        if not self.game.is_title:
+            self._update_gameplay()
+
+    def _handle_input(self) -> None:
+        """入力処理を行う"""
         # ESCキーで終了
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.quit()
 
         # ENTERキーでゲーム開始/リセット
         if pyxel.btnp(pyxel.KEY_RETURN):
-            if self.game.is_title:
-                self.game.start_game()
-            else:
-                self.game.reset_game()
-                self.ship.x = 76
-                self.ship.y = 30
-                self.ship.vx = 0
-                self.ship.vy = 0
+            self._handle_enter_key()
 
-        # ゲーム中の処理
-        if not self.game.is_title:
-            # スペースキーでの移動（シンプル版）
-            if pyxel.btn(pyxel.KEY_SPACE):
-                self.ship.vy = max(self.ship.vy - 0.04, -0.8)  # 上昇
-                self.ship.vx += 0.06  # 右移動（固定方向）
-            else:
-                self.ship.vy = min(self.ship.vy + 0.02, 0.8)  # 下降
+    def _handle_enter_key(self) -> None:
+        """ENTERキーの処理を行う"""
+        if self.game.is_title:
+            self.game.start_game()
+        else:
+            self._reset_game_state()
 
-            # 位置を更新
-            self.ship.x += self.ship.vx
-            self.ship.y += self.ship.vy
+    def _reset_game_state(self) -> None:
+        """ゲーム状態をリセットする"""
+        self.game.reset_game()
+        self.ship.x = 76
+        self.ship.y = 30
+        self.ship.vx = 0
+        self.ship.vy = 0
 
-            # 画面境界処理
-            if self.ship.x < 0:
-                self.ship.x = 0
-                self.ship.vx = abs(self.ship.vx)
-            elif self.ship.x > self.game.width - 8:
-                self.ship.x = self.game.width - 8
-                self.ship.vx = -abs(self.ship.vx)
+    def _update_gameplay(self) -> None:
+        """ゲームプレイ中の更新処理を行う"""
+        self._handle_space_key()
+        self._update_ship_position()
+        self._handle_boundary_collision()
 
-            if self.ship.y < 0:
-                self.ship.y = 0
-                self.ship.vy = abs(self.ship.vy)
-            elif self.ship.y > self.game.height - 8:
-                self.ship.y = self.game.height - 8
-                self.ship.vy = -abs(self.ship.vy)
+    def _handle_space_key(self) -> None:
+        """スペースキーでの移動処理を行う"""
+        if pyxel.btn(pyxel.KEY_SPACE):
+            self.ship.vy = max(self.ship.vy - 0.04, -0.8)  # 上昇
+            self.ship.vx += 0.06  # 右移動（固定方向）
+        else:
+            self.ship.vy = min(self.ship.vy + 0.02, 0.8)  # 下降
+
+    def _update_ship_position(self) -> None:
+        """宇宙船の位置を更新する"""
+        self.ship.x += self.ship.vx
+        self.ship.y += self.ship.vy
+
+    def _handle_boundary_collision(self) -> None:
+        """画面境界での衝突処理を行う"""
+        # 水平境界
+        if self.ship.x < 0:
+            self.ship.x = 0
+            self.ship.vx = abs(self.ship.vx)
+        elif self.ship.x > self.game.width - 8:
+            self.ship.x = self.game.width - 8
+            self.ship.vx = -abs(self.ship.vx)
+
+        # 垂直境界
+        if self.ship.y < 0:
+            self.ship.y = 0
+            self.ship.vy = abs(self.ship.vy)
+        elif self.ship.y > self.game.height - 8:
+            self.ship.y = self.game.height - 8
+            self.ship.vy = -abs(self.ship.vy)
 
     def draw(self) -> None:
         """ゲーム画面を描画する"""

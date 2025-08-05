@@ -48,8 +48,12 @@ select = [
     "B",  # flake8-bugbear
     "C4", # flake8-comprehensions
     "UP", # pyupgrade
+    "C90", # mccabe cyclomatic complexity
 ]
 ignore = []
+
+[tool.ruff.lint.mccabe]
+max-complexity = 7
 
 [tool.ruff.format]
 quote-style = "double"

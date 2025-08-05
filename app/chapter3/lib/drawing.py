@@ -185,30 +185,60 @@ class DrawingApp:
     def execute_drawing_commands(self) -> None:
         """蓄積された描画コマンドを実行する"""
         for command in self.drawing_commands:
-            if command[0] == "pixel":
-                _, x, y, color = command
-                pyxel.pset(x, y, color)
-            elif command[0] == "line":
-                _, x1, y1, x2, y2, color = command
-                pyxel.line(x1, y1, x2, y2, color)
-            elif command[0] == "circle_filled":
-                _, x, y, radius, color = command
-                pyxel.circ(x, y, radius, color)
-            elif command[0] == "circle_outline":
-                _, x, y, radius, color = command
-                pyxel.circb(x, y, radius, color)
-            elif command[0] == "rect_filled":
-                _, x, y, width, height, color = command
-                pyxel.rect(x, y, width, height, color)
-            elif command[0] == "rect_outline":
-                _, x, y, width, height, color = command
-                pyxel.rectb(x, y, width, height, color)
-            elif command[0] == "character":
-                _, x, y, body_color, outline_color, face_color = command
-                self._draw_character_impl(x, y, body_color, outline_color, face_color)
-            elif command[0] == "grid":
-                _, spacing, color = command
-                self._draw_grid_impl(spacing, color)
+            self._execute_single_command(command)
+
+    def _execute_single_command(self, command: tuple) -> None:
+        """単一の描画コマンドを実行する"""
+        command_type = command[0]
+
+        if command_type == "pixel":
+            self._execute_pixel_command(command)
+        elif command_type == "line":
+            self._execute_line_command(command)
+        elif command_type in ("circle_filled", "circle_outline"):
+            self._execute_circle_command(command)
+        elif command_type in ("rect_filled", "rect_outline"):
+            self._execute_rect_command(command)
+        elif command_type == "character":
+            self._execute_character_command(command)
+        elif command_type == "grid":
+            self._execute_grid_command(command)
+
+    def _execute_pixel_command(self, command: tuple) -> None:
+        """ピクセル描画コマンドを実行する"""
+        _, x, y, color = command
+        pyxel.pset(x, y, color)
+
+    def _execute_line_command(self, command: tuple) -> None:
+        """線描画コマンドを実行する"""
+        _, x1, y1, x2, y2, color = command
+        pyxel.line(x1, y1, x2, y2, color)
+
+    def _execute_circle_command(self, command: tuple) -> None:
+        """円描画コマンドを実行する"""
+        command_type, x, y, radius, color = command
+        if command_type == "circle_filled":
+            pyxel.circ(x, y, radius, color)
+        else:  # circle_outline
+            pyxel.circb(x, y, radius, color)
+
+    def _execute_rect_command(self, command: tuple) -> None:
+        """矩形描画コマンドを実行する"""
+        command_type, x, y, width, height, color = command
+        if command_type == "rect_filled":
+            pyxel.rect(x, y, width, height, color)
+        else:  # rect_outline
+            pyxel.rectb(x, y, width, height, color)
+
+    def _execute_character_command(self, command: tuple) -> None:
+        """キャラクター描画コマンドを実行する"""
+        _, x, y, body_color, outline_color, face_color = command
+        self._draw_character_impl(x, y, body_color, outline_color, face_color)
+
+    def _execute_grid_command(self, command: tuple) -> None:
+        """グリッド描画コマンドを実行する"""
+        _, spacing, color = command
+        self._draw_grid_impl(spacing, color)
 
     def _draw_character_impl(
         self,
