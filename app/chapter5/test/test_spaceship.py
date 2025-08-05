@@ -26,3 +26,18 @@ class TestSpaceship:
         ship.y = 60
         assert ship.x == 100
         assert ship.y == 60
+
+    def test_宇宙船の速度管理(self) -> None:
+        """宇宙船の速度（vx, vy）が管理されることを確認"""
+        # 実行
+        ship = Spaceship(x=50, y=30)
+        
+        # 検証
+        assert ship.vx == 0  # 初期速度は0
+        assert ship.vy == 0
+        
+        # 速度の変更
+        ship.vx = 0.5
+        ship.vy = -0.3
+        assert ship.vx == 0.5
+        assert ship.vy == -0.3
