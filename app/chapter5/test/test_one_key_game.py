@@ -45,3 +45,25 @@ class TestOneKeyGame:
         assert hasattr(game, 'draw')
         assert callable(game.update)
         assert callable(game.draw)
+
+    @patch('lib.one_key_game.pyxel')
+    def test_ゲーム状態管理(self, mock_pyxel: MagicMock) -> None:
+        """ゲーム状態（タイトル画面、プレイ中）が管理されることを確認"""
+        # 準備
+        mock_pyxel.width = 160
+        mock_pyxel.height = 120
+        
+        # 実行
+        game = OneKeyGame()
+        
+        # 検証
+        assert hasattr(game, 'is_title')
+        assert game.is_title is True  # 初期状態はタイトル画面
+        
+        # ゲーム開始状態に変更
+        game.start_game()
+        assert game.is_title is False  # プレイ中状態
+        
+        # リセット機能
+        game.reset_game()
+        assert game.is_title is True  # タイトル画面に戻る
