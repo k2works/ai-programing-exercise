@@ -11,10 +11,10 @@ class OneKeyGame:
         self.width = 160
         self.height = 120
         self.title = "Space Rescue"
-        
+
         # ゲーム状態を初期化する
         self.is_title = True  # タイトル画面から開始
-        
+
         # Pyxelを初期化する
         pyxel.init(self.width, self.height, title=self.title)
 
