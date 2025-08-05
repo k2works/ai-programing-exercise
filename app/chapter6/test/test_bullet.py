@@ -13,7 +13,7 @@ class TestBullet:
             x=50,
             y=100,
             angle=-90,  # 上方向
-            speed=5
+            speed=5,
         )
 
         assert bullet.side == Bullet.SIDE_PLAYER
@@ -30,7 +30,7 @@ class TestBullet:
             x=60,
             y=50,
             angle=90,  # 下方向
-            speed=3
+            speed=3,
         )
 
         assert bullet.side == Bullet.SIDE_ENEMY
@@ -47,7 +47,7 @@ class TestBullet:
             x=50,
             y=100,
             angle=0,  # 右方向
-            speed=4
+            speed=4,
         )
 
         # 初期速度を確認
@@ -61,13 +61,7 @@ class TestBullet:
 
     def test_弾丸の画面外判定(self) -> None:
         """弾丸が画面外に出たかの判定をテスト"""
-        bullet = Bullet(
-            side=Bullet.SIDE_PLAYER,
-            x=50,
-            y=100,
-            angle=-90,
-            speed=5
-        )
+        bullet = Bullet(side=Bullet.SIDE_PLAYER, x=50, y=100, angle=-90, speed=5)
 
         # 画面内
         assert not bullet.is_out_of_bounds(width=120, height=160)

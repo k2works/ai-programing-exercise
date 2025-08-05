@@ -73,8 +73,7 @@ class Enemy:
         Returns:
             画面外に出た場合True
         """
-        return (self.x <= -8 or self.x >= width or
-                self.y <= -8 or self.y >= height)
+        return self.x <= -8 or self.x >= width or self.y <= -8 or self.y >= height
 
     def can_shoot(self) -> bool:
         """弾丸を発射可能かを判定する

@@ -25,7 +25,7 @@ class Background:
             star = {
                 "x": random.randint(0, width - 1),
                 "y": random.randint(0, height - 1),
-                "size": random.choice([1, 2])
+                "size": random.choice([1, 2]),
             }
             self.stars.append(star)
 

@@ -7,8 +7,9 @@ class CollisionDetector:
     """AABB（軸平行境界ボックス）を使用した衝突判定システム"""
 
     @staticmethod
-    def check_aabb_collision(area1: tuple[int, int, int, int],
-                           area2: tuple[int, int, int, int]) -> bool:
+    def check_aabb_collision(
+        area1: tuple[int, int, int, int], area2: tuple[int, int, int, int]
+    ) -> bool:
         """AABB衝突判定を行う
 
         Args:
@@ -39,7 +40,7 @@ class CollisionDetector:
             int(obj.x + hit_area[0]),
             int(obj.y + hit_area[1]),
             int(obj.x + hit_area[2]),
-            int(obj.y + hit_area[3])
+            int(obj.y + hit_area[3]),
         )
 
     @staticmethod

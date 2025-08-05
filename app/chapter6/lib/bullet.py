@@ -52,5 +52,4 @@ class Bullet:
         Returns:
             画面外に出た場合True
         """
-        return (self.x <= -8 or self.x >= width or
-                self.y <= -8 or self.y >= height)
+        return self.x <= -8 or self.x >= width or self.y <= -8 or self.y >= height
