@@ -101,3 +101,38 @@ class TestPlayer:
 
         # Then: 移動速度が減速される
         assert player.dx == 8  # int(10 * 0.8) = 8
+
+    @patch("lib.player.pyxel")
+    def test_ジャンプ入力(self, mock_pyxel: Mock) -> None:
+        """スペースキー入力でプレイヤーがジャンプすることをテストする"""
+        # Given: プレイヤーを作成し、スペースキーが押されている状態をモック
+        game_mock = Mock()
+        player = Player(game_mock, 64, 64)
+        mock_pyxel.btnp.return_value = True
+        mock_pyxel.btn.return_value = False
+
+        # When: ジャンプキー入力で更新
+        mock_pyxel.btnp.side_effect = lambda key: key == mock_pyxel.KEY_SPACE
+        player._handle_movement()
+
+        # Then: ジャンプが開始される
+        assert player.dy == -8  # 上方向の初期速度
+        assert player.jump_counter == 16  # ジャンプ時間
+
+    @patch("lib.player.pyxel")
+    def test_空中でのジャンプ無効(self, mock_pyxel: Mock) -> None:
+        """空中にいる時はジャンプできないことをテストする"""
+        # Given: ジャンプ中のプレイヤーを作成
+        game_mock = Mock()
+        player = Player(game_mock, 64, 64)
+        player.jump_counter = 10  # すでにジャンプ中
+        mock_pyxel.btnp.return_value = True
+        mock_pyxel.btn.return_value = False
+
+        # When: ジャンプキー入力で更新
+        mock_pyxel.btnp.side_effect = lambda key: key == mock_pyxel.KEY_SPACE
+        player._handle_movement()
+
+        # Then: ジャンプは発動しない
+        assert player.dy == 0  # 速度変化なし
+        assert player.jump_counter == 10  # カウンター変化なし

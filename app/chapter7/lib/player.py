@@ -34,6 +34,11 @@ class Player:
             self.dx = 2
             self.direction = 1
 
+        # ジャンプ処理
+        if pyxel.btnp(pyxel.KEY_SPACE) and self.jump_counter == 0:
+            self.dy = -8  # 上方向に初期速度を設定
+            self.jump_counter = 16  # ジャンプ時間を設定
+
     def _apply_gravity(self) -> None:
         """重力処理"""
         if self.jump_counter > 0:  # ジャンプ中

@@ -15,7 +15,7 @@ class Game:
 
         # リソースファイルを読み込む（テスト時はスキップ）
         try:
-            pyxel.load("assets/cursed_caverns.pyxres")
+            pyxel.load("assets/assets.pyxres")
             pyxel.tilemaps[2].blt(0, 0, 0, 0, 0, 256, 16)
         except Exception:
             # テスト環境でのファイル読み込みエラーを無視
