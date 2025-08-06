@@ -141,7 +141,7 @@ class Flower(Enemy):
     def can_attack_player(self, player_x: int, player_y: int) -> bool:
         """プレイヤーが攻撃範囲内にいるかを判定する"""
         distance = ((self.x - player_x) ** 2 + (self.y - player_y) ** 2) ** 0.5
-        return distance <= self.attack_range
+        return bool(distance <= self.attack_range)
 
     def update(self) -> None:
         """フラワーの更新処理"""

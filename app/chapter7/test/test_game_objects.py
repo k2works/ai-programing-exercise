@@ -2,7 +2,7 @@
 
 from unittest.mock import Mock, patch
 
-from lib.game_objects import Gem, GameObject, Mushroom, Spike
+from lib.game_objects import GameObject, Gem, Mushroom, Spike
 
 
 class TestGameObject:
