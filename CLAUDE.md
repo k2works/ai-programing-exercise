@@ -1,178 +1,198 @@
 # CLAUDE.md
 
+ここで**必ず**と指示されていることは絶対に実施してください
+
 日本語で回答してください
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+あなたは**よいソフトウェア**に対する明確な考えと**よいソフトウェア**を作るための規律を持った開発経験豊富な開発者です。
 
-## プロジェクト概要
+よいソフトウェアについては @docs/reference/よいソフトウェアとは.md を参照してください。
 
-これは、複数のプログラミング言語でのテスト駆動開発（TDD）学習を目的とした多言語AIプログラミング演習環境です。プロジェクトはドキュメント駆動開発を重視し、Dockerコンテナを通じて包括的な多言語開発環境を提供します。
+よいソフトウェアについての考えと規律と経験に関する知見は @docs/reference 内を参照してください。
 
-## 開発環境
+あなたは @docs/reference/開発ガイド.md に従いソフトウェア開発を手段として問題解決に取り組みます。
 
-### Dockerベースの多言語環境
-プロジェクトは12種類以上のプログラミング言語を含む完全な開発環境を提供します：
+あなたは既存のソフトウエア開発のベストプラクティスと最新のAIテクノロジーを融合させることによりソフトウエア開発にイノベーションをもたらします。
 
-```bash
-# 開発環境を開始
-docker-compose up -d
+```plantuml
+@startuml
+title 開発プロセスの状態遷移図
 
-# すべての言語を含む開発コンテナにアクセス
-docker-compose exec app bash
+[*] --> 要件
+要件 --> 開発
+要件 -right-> 運用
+運用 -left-> 要件
+開発 -left-> 要件
+開発 --> 運用
+運用 --> 開発
+運用 --> 配置
+運用 -up-> 構築
+構築 --> 配置
+運用 ---> [*]
 
-# ドキュメントサーバーを開始（localhost:8000）
-docker-compose up mkdocs
+state 要件 #red
+state 構築 #limegreen
+state 運用 #orange
+state 開発 #purple
+state 配置 #lightblue
+@enduml
 ```
 
-**利用可能な言語:**
-Java 21.0.2、Scala 3.4.0、Kotlin 2.0.0、Clojure 1.12.1、Node.js 22、Ruby 3.4.4、Python 3.12、PHP 8.1、Haskell 9.4.8、Go 1.22.0、Rust (stable)、.NET 8.0
+## 要件
 
-## 共通コマンド
+```plantuml
+@startuml "Phase 1"
+|要件定義|
+start
+:アプリケーション概要;
+:ユーザーストーリー;
+:ユースケース;
+:ユーザーストーリー・ユースケース詳細化;
 
-### ドキュメント管理
-```bash
-npm run docs:serve          # localhost:8000でMkDocsサーバーを開始
-npm run docs:build          # 静的ドキュメントをビルド
-npm run docs:stop           # ドキュメントサーバーを停止
-npm run journal             # git履歴から開発日誌を生成
+|機能要件|
+:アーキテクチャ設計;
+:データモデル設計;
+:ドメインモデル設計;
+:UI設計;
 
-# 代替のGulpコマンド
-npx gulp mkdocs:serve        # 代替サーバー開始
-npx gulp mkdocs:stop         # 代替サーバー停止
-npx gulp journal:generate    # すべてのコミット日誌を生成
-npx gulp journal:generate:date --date=YYYY-MM-DD  # 特定日付の日誌を生成
+|非機能要件|
+:テスト戦略策定;
+:非機能要件定義;
+:運用要件定義;
+
+|要件定義|
+:技術スタック選定;
+:ADR作成;
+:リリース計画;
+
+stop
+
+@enduml
+```
+### リリース計画
+
+```plantuml
+@startuml
+
+[*] --> リリース
+
+state リリース {
+  満足条件1: （ユーザーストーリー、予算、スケジュール)
+  満足条件1 -->リリースプランニング
+  リリースプランニング --> 満足条件1 
+}
+
+state イテレーション {
+  リリースプランニング --> 満足条件2
+  満足条件2: （ユーザーストーリー、予算、スケジュール)
+  満足条件2 --> イテレーションプランニング
+  イテレーションプランニング --> 満足条件2
+  イテレーションプランニング --> 開発
+  開発 --> フィーチャが追加された状態
+  フィーチャが追加された状態 --> 満足条件2 : フィードバック
+  フィーチャが追加された状態 --> 満足条件1 : フィードバック
+}
+
+リリース --> [*]
+
+@enduml
 ```
 
-### 言語固有のビルドコマンド
+## 開発
 
-**Java/Kotlin/Scala（プロジェクトが存在する場合）:**
-```bash
-# Mavenプロジェクト
-mvn test && mvn compile && mvn package
+```plantuml
+@startuml
 
-# Gradleプロジェクト
-gradle test && gradle build
+[*] --> イテレーション計画
+イテレーション計画 --> ユーザーストーリー作成
+ユーザーストーリー作成 --> ユースケース作成
+ユースケース作成 --> コーディングとテスト
+アーキテクチャ設計 --> コーディングとテスト
+コーディングとテスト --> アーキテクチャ設計
+データモデル設計 --> コーディングとテスト
+コーディングとテスト --> データモデル設計
+ドメインモデル設計 --> コーディングとテスト
+コーディングとテスト --> ドメインモデル設計
+コーディングとテスト --> ユーザーインターフェース設計
+ユーザーインターフェース設計 --> コーディングとテスト
+コーディングとテスト --> ユースケース作成
+コーディングとテスト --> イテレーションレビュー
+イテレーションレビュー --> イテレーション計画
+イテレーションレビュー --> [*]
 
-# 単一テスト実行
-gradle test --tests SpecificTestClass
+@enduml
 ```
 
-**Node.js:**
-```bash
-npm test && npm run build
-yarn test && yarn build
+- 必ずイテレーション単位で開発を行う
+- 勝手に次のイテレーションに進まない
+
+### コーディングとテスト
+
+```plantuml
+```plantuml
+@startuml "イテレーション開発プロセス"
+
+start
+:ユースケース作成;
+:TODOリスト作成;
+
+repeat
+  :TODO選択;
+  
+  repeat
+    :失敗テスト作成 (Red);
+    :最小実装 (Green);
+    :リファクタリング (Refactor);
+    :品質チェック;
+    if (品質OK?) then (yes)
+      :コミット;
+    else (no)
+      :修正;
+    endif
+  repeat while (TODO完了?)
+  
+repeat while (全TODO完了?)
+
+:イテレーションレビュー;
+:ふりかえり;
+stop
+
+@enduml
 ```
 
-**Python:**
-```bash
-uv run pytest              # uvを使用した現代的なPythonテスト
-uv build                   # uvを使用した現代的なPythonビルド
+- コミットは必ずTODO単位で実施する
+- コミットの前に必ず品質確認を実施する
+    - コミットの前に `npm run test` を実行してテストがすべて通ることを確認する
+    - コミットの前に `npm run lint` を実行してコードが整形されていることを確認する
+    - コミットの前に `npm run format` を実行してコードが整形されていることを確認する
+    - コミットの前に `npm run build` を実行してビルドが成功することを確認する
+- コミットメッセージはAngularのコミットメッセージの書き方を参考にする
+    - feat: 新機能の追加
+    - fix: バグ修正
+    - docs: ドキュメントの変更
+    - style: フォーマットやセミコロンの追加など、コードの動作に影響しない変更
+    - refactor: リファクタリング（バグ修正や機能追加ではない）
+    - test: テストコードの追加や修正
+    - chore: ビルドプロセスや補助ツールの変更
+
+## 運用
+
+### 構築・配置
+
+```plantuml
+@startuml "Phase 1"
+|構築|
+start
+:環境構築;
+:CI/CD構築;
+
+|配置|
+:デプロイ設定;
+
+|構築|
+:ドキュメント更新;
+
+stop
+
+@enduml
 ```
-
-**その他の言語:**
-```bash
-# Ruby
-bundle exec rake test && bundle exec rake build
-
-# Go
-go test ./... && go build
-
-# Rust
-cargo test && cargo build
-
-# .NET
-dotnet test && dotnet build
-```
-
-## プロジェクトアーキテクチャ
-
-### コンテナアーキテクチャ
-- **app**: すべてのツールチェーンを含む多言語開発コンテナ
-- **mkdocs**: PlantUMLサポート付きドキュメントサーバー
-- **plantuml**: 専用PlantUML図表サーバー（plantuml:8080）
-
-### ドキュメントシステム
-プロジェクトはMaterialテーマ付きMkDocsを使用し、以下をサポートします：
-- アーキテクチャ可視化のためのPlantUML図表
-- プロセスフロー用のMermaid図表
-- 自動git履歴日誌生成
-- `docs/wiki/`内の広範囲な日本語TDD学習資料
-
-### 主要な開発パターン
-- **テスト駆動開発**: すべての実装はTDD実践に従うべきです
-- **ドキュメントファースト**: すべての新機能に対して包括的なドキュメントを作成
-- **多言語一貫性**: 異なる言語間で一貫したパターンを維持
-- **コンテナファースト開発**: すべての開発は標準化されたコンテナ内で行われます
-
-## GitHub Copilot統合
-
-プロジェクトには特定のガイダンスを含む`.github/copilot-instructions.md`があります：
-- `docs/wiki/開発プロセス標準.md`からのTDD手法に従う
-- アーキテクチャドキュメント用のPlantUML図表を作成
-- 外部サービス（Notion、GitHub、Slack、Atlassian、Wiki.js）用のMCP Server統合を使用
-- 特定フォーマットで開発日誌を維持
-
-### MCP Serverワークフロー
-```bash
-# 日誌管理ワークフロー
-git log [start]..[end] --oneline                    # git履歴を分析
-git diff [start]..[end] -- [file]                   # 特定の変更をレビュー
-
-# 日誌はdocs/journal/YYYYMMDD.mdに保存
-# MCP Serverによる外部システムとの自動統合
-```
-
-### GitHub Container Registry
-```bash
-# タグによる自動ビルドトリガー
-git tag 0.0.x && git push origin 0.0.x
-
-# 公開イメージの取得
-docker pull ghcr.io/k2works/ai-programing-exercise/core:0.0.x
-```
-
-## 開発哲学
-
-`docs/wiki/開発プロセス標準.md`に基づいて、プロジェクトは以下を重視します：
-- **問題解決指向**: 問題解決指向の開発アプローチ
-- **よいソフトウェア**: 明確な原則を持つ「よいソフトウェア」の作成に焦点
-- **アジャイル開発**: アジャイル開発手法
-- **包括的ドキュメント**: 包括的なドキュメント実践
-- @docs/記事/よいソフトウェアとは.md
-- @docs/wiki/開発プロセス標準.md
-- @docs/wiki/読書メモ/エクストリームプログラミング.md
-- @docs/wiki/読書メモ/アジャイルな見積と計画づくり.md
-- @docs/wiki/読書メモ/達人プログラマー熟練に向けたあなたの旅.md
-
-## 重要なファイルの場所
-
-**設定:**
-- `mkdocs.yml`: ドキュメントサイト設定
-- `gulpfile.js`: タスク自動化定義
-- `docker-compose.yml`: コンテナオーケストレーション
-- `package.json`: Node.js依存関係とスクリプト
-
-**ドキュメント:**
-- `docs/wiki/`: 広範囲なTDDと開発手法ガイド
-- `docs/journal/`: 開発日誌と日次ログ
-- `script/`: 自動化用Gulpタスク定義
-
-**テンプレート:**
-- `docs/wiki/テンプレート/`: ADR、ユーザーストーリー、設計テンプレートを含むドキュメントテンプレート
-
-## このコードベースでの作業
-
-1. **Docker環境から開始**: 開発には常に`docker-compose up -d`を使用
-2. **ドキュメントファーストアプローチ**: 変更があればMkDocsドキュメントを更新
-3. **TDD実践に従う**: 既存の例に示されているようにテストファースト開発を実装
-4. **日誌を生成**: 開発進捗を記録するために`npm run journal`を使用
-5. **言語一貫性を維持**: 新しい言語実装を追加する際は確立されたパターンに従う
-6. **PlantUMLを使用**: 複雑な機能にはアーキテクチャ図表を作成
-
-## 新規開発のための注意事項
-
-- これは**学習環境テンプレート**です - 実際のアプリケーションコードは`app/`ディレクトリに追加すべきです
-- すべての言語ツールチェーンはDocker環境にプリインストールされています
-- `docs/wiki/`内の広範囲な日本語ドキュメントが手法ガイダンスを提供します
-- 日誌生成はMCP Serverと統合され、外部サービス同期を行います
-- プロジェクト哲学との一貫性を保つためにGitHub Copilot指示に従ってください
