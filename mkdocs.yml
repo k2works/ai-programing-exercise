@@ -58,6 +58,7 @@ plugins:
 nav:
   - Home: index.md
   - プロジェクトサマリー: project-summary.md
+  - まとめ記事: ゲームで学ぶPython-Pyxelではじめるレトロゲームプログラミング-with-TDD.md
   - ゲーム開発チュートリアル:
     - Chapter 3 - お絵かきアプリ: chapter3.md
     - Chapter 4 - アニメーション: chapter4.md
