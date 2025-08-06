@@ -57,3 +57,23 @@ plugins:
 
 nav:
   - Home: index.md
+  - プロジェクトサマリー: project-summary.md
+  - ゲーム開発チュートリアル:
+    - Chapter 3 - お絵かきアプリ: chapter3.md
+    - Chapter 4 - アニメーション: chapter4.md
+    - Chapter 5 - ワンキーゲーム: chapter5.md
+    - Chapter 6 - シューティング: chapter6.md
+    - Chapter 7 - アクション: chapter7.md
+  - 開発プロセス:
+    - 開発プロセス標準: wiki/開発プロセス標準.md
+    - エクストリームプログラミング: wiki/読書メモ/エクストリームプログラミング.md
+    - アジャイルな見積と計画づくり: wiki/読書メモ/アジャイルな見積と計画づくり.md
+  - TDD入門:
+    - TDD基礎編: wiki/WIP/テスト駆動開発から始めるXX入門/テスト駆動開発から始めるPython入門1.md
+    - TDD環境構築編: wiki/WIP/テスト駆動開発から始めるXX入門/テスト駆動開発から始めるPython入門2.md
+  - プロジェクト管理:
+    - 要件定義: requirements/要件定義.md
+    - アーキテクチャ概要: development/アーキテクチャ概要.md
+    - アプリケーション概要: development/アプリケーション概要.md
+  - 日誌:
+    - 開発日誌: journal/
