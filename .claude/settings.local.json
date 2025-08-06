@@ -11,7 +11,10 @@
       "Bash(uv run ruff format:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(uv run:*)"
+      "Bash(uv run:*)",
+      "Bash(timeout 5s uv run:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)"
     ],
     "deny": []
   }
