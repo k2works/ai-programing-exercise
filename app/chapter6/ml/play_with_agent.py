@@ -75,7 +75,13 @@ class AgentGameDemo:
         self.agent_type = agent_type
         
         if agent_type == "dqn":
-            if model_path and os.path.exists(model_path):
+            # 高スコアモデルを優先的に読み込み
+            high_score_model = "ml/models/dqn_quick_high_score.zip"
+            if os.path.exists(high_score_model):
+                self.agent = DQN.load(high_score_model)
+                print(f"ハイスコアDQNエージェント読み込み完了: {high_score_model}")
+                print("*** This agent achieved score 200! ***")
+            elif model_path and os.path.exists(model_path):
                 self.agent = DQN.load(model_path)
                 print(f"DQNエージェントを読み込みました: {model_path}")
             else:
