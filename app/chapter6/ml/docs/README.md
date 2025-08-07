@@ -148,14 +148,50 @@ cd app/chapter6
 uv run python test_ml_integration.py
 
 # 短時間学習テスト (5,000ステップ)
-uv run python quick_training_test.py
+uv run python ml/quick_training_test.py
 
 # 本格的なDQN学習 (50,000ステップ)
-uv run python train_dqn_agent.py
+uv run python ml/train_dqn_agent.py
 
 # 本格的なPPO学習 (50,000ステップ)
-uv run python train_ppo_agent.py
+uv run python ml/train_ppo_agent.py
 ```
+
+### 🎮 視覚的エージェントプレイデモ
+```bash
+# 即座にエージェントプレイを視覚確認（推奨）
+uv run python ml/play_with_agent.py
+
+# 訓練後にプレイデモ（本格版）
+uv run python ml/train_and_play.py --agent dqn --timesteps 20000
+
+# クイック訓練版
+uv run python ml/train_and_play.py --agent ppo --quick
+
+# 保存済みモデルでプレイのみ
+uv run python ml/train_and_play.py --agent dqn --play-only --model-path models/dqn_model.zip
+
+# 訓練のみ（プレイなし）
+uv run python ml/train_and_play.py --agent ppo --train-only
+```
+
+### 📊 エージェント性能比較
+```bash
+# 複数エージェント性能比較（DQN、PPO、Rule-based、Random）
+uv run python ml/agent_comparison_demo.py
+
+# 拡張前処理・ハイパーパラメーターチューニングデモ
+uv run python ml/hyperparameter_tuning_demo.py
+```
+
+### ゲーム操作方法（視覚デモ時）
+- **1-5キー**: エージェント切り替え（1=Human, 2=DQN, 3=PPO, 4=Random, 5=Rule）
+- **R**: ゲームリスタート
+- **P**: ポーズ/再開
+- **I**: 情報パネル表示切替
+- **Q**: 終了
+- **矢印キー/WASD**: 手動プレイ時の移動
+- **スペース**: 手動プレイ時の射撃
 
 ### 環境の単体使用
 ```python
