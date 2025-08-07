@@ -55,8 +55,16 @@ class MegaWingEnv(gym.Env):
             "player_hit": -50.0,         # プレイヤー被弾
             "game_over": -200.0,         # ゲームオーバー
             "level_up": 500.0,           # レベルアップ
-            "bullet_fired": -0.1         # 弾丸発射（無駄撃ちペナルティ）
+            "bullet_fired": -0.1,        # 弾丸発射（無駄撃ちペナルティ）
+            "accuracy_bonus": 0.0,       # 命中率ボーナス
+            "combo_bonus": 0.0           # 連続撃破ボーナス
         }
+        
+        # 高度な統計追跡
+        self.shots_fired = 0
+        self.shots_hit = 0
+        self.combo_count = 0
+        self.last_hit_step = 0
         
         # ゲーム関連オブジェクト
         self.game = ShootingGame()
@@ -95,6 +103,12 @@ class MegaWingEnv(gym.Env):
         self.game.score = 0
         self.game.level = 0
         self.game.play_time = 0
+        
+        # 高度な統計リセット
+        self.shots_fired = 0
+        self.shots_hit = 0
+        self.combo_count = 0
+        self.last_hit_step = 0
         
         # プレイヤーと初期オブジェクトを設定
         self.game.player = Player(56, 144)  # 画面下部中央
@@ -204,10 +218,21 @@ class MegaWingEnv(gym.Env):
         # 当たり判定処理
         self._check_collisions()
         
-        # 簡単な敵生成（テスト用）
-        if len(self.game.enemies) < 3 and np.random.random() < 0.02:
-            enemy_x = np.random.uniform(0, self.game.width - 8)
-            enemy_type = np.random.choice([Enemy.TYPE_A, Enemy.TYPE_B, Enemy.TYPE_C])
+        # 動的敵生成（スコアに応じて難易度調整）
+        max_enemies = min(5, 2 + (self.game.score // 500))  # スコアに応じて敵数増加
+        spawn_rate = min(0.04, 0.015 + (self.game.score // 1000) * 0.01)  # スコアに応じて出現率増加
+        
+        if len(self.game.enemies) < max_enemies and np.random.random() < spawn_rate:
+            enemy_x = np.random.uniform(8, self.game.width - 16)
+            
+            # スコアに応じて敵タイプ分布を調整
+            if self.game.score < 300:
+                enemy_type = np.random.choice([Enemy.TYPE_A, Enemy.TYPE_B], p=[0.8, 0.2])
+            elif self.game.score < 600:
+                enemy_type = np.random.choice([Enemy.TYPE_A, Enemy.TYPE_B, Enemy.TYPE_C], p=[0.5, 0.3, 0.2])
+            else:
+                enemy_type = np.random.choice([Enemy.TYPE_A, Enemy.TYPE_B, Enemy.TYPE_C], p=[0.3, 0.4, 0.3])
+            
             enemy = Enemy(enemy_x, -8, enemy_type)
             self.game.enemies.append(enemy)
     
@@ -289,7 +314,29 @@ class MegaWingEnv(gym.Env):
         # 敵撃破報酬（敵数減少で推定）
         enemy_decrease = prev_state["enemy_count"] - current_state["enemy_count"]
         if enemy_decrease > 0:
-            reward += enemy_decrease * self.reward_config["enemy_destroyed"]
+            # 基本撃破報酬
+            base_reward = enemy_decrease * self.reward_config["enemy_destroyed"]
+            reward += base_reward
+            
+            # 命中統計更新
+            self.shots_hit += enemy_decrease
+            
+            # コンボシステム
+            if self.current_steps - self.last_hit_step <= 30:  # 30ステップ以内の連続撃破
+                self.combo_count += enemy_decrease
+                combo_bonus = self.combo_count * self.reward_config.get("combo_bonus", 0)
+                reward += combo_bonus
+            else:
+                self.combo_count = enemy_decrease
+            
+            self.last_hit_step = self.current_steps
+            
+            # 命中率ボーナス
+            if self.shots_fired > 0:
+                accuracy = self.shots_hit / self.shots_fired
+                if accuracy > 0.3:  # 30%以上の命中率でボーナス
+                    accuracy_bonus = accuracy * self.reward_config.get("accuracy_bonus", 0)
+                    reward += accuracy_bonus
         
         # レベルアップ報酬
         if current_state["level"] > prev_state["level"]:
@@ -300,8 +347,9 @@ class MegaWingEnv(gym.Env):
             reward += self.reward_config["game_over"]
             self.player_alive = False
         
-        # 無駄撃ちペナルティ
+        # 射撃統計追跡
         if action == self.ACTION_SHOOT:
+            self.shots_fired += 1
             reward += self.reward_config["bullet_fired"]
         
         return reward
