@@ -1,6 +1,7 @@
 """DQNエージェントの訓練スクリプト"""
 
 import os
+import sys
 import time
 from typing import Dict, Any
 import numpy as np
@@ -11,7 +12,9 @@ from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.logger import configure
 from stable_baselines3.common.monitor import Monitor
 
-from .lib.mega_wing_env import MegaWingEnv
+# プロジェクトルートをパスに追加
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+from ml.lib.mega_wing_env import MegaWingEnv
 
 
 class TrainingCallback(BaseCallback):

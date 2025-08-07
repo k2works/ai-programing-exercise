@@ -5,7 +5,7 @@ description = "テスト駆動開発から始めるPyxelシューティングゲ
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "gym>=0.26.2",
+    "gymnasium>=1.2.0",
     "matplotlib>=3.10.5",
     "numpy>=2.2.6",
     "opencv-python>=4.11.0.86",

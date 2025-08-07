@@ -1,13 +1,16 @@
 """DQN・PPO学習の動作確認テスト（短時間版）"""
 
 import os
+import sys
 import time
 import numpy as np
 from stable_baselines3 import DQN, PPO
 from stable_baselines3.common.env_checker import check_env
 from stable_baselines3.common.monitor import Monitor
 
-from .lib.mega_wing_env import MegaWingEnv
+# プロジェクトルートをパスに追加
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+from ml.lib.mega_wing_env import MegaWingEnv
 
 
 def quick_dqn_test():
