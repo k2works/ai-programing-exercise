@@ -1,6 +1,6 @@
 """ゲーム状態をML用データとして抽出するクラス"""
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Optional
 import numpy as np
 import sys
 import os
@@ -22,6 +22,31 @@ class GameStateExtractor:
         """
         self.width = width
         self.height = height
+        
+        # 正規化統計の保存
+        self.state_stats = {
+            'means': None,
+            'stds': None,
+            'mins': None,
+            'maxs': None,
+            'is_initialized': False
+        }
+        
+        # 移動平均による統計更新
+        self.ema_alpha = 0.001  # 移動平均の更新率
+        
+        # 特徴量エンジニアリング設定
+        self.feature_config = {
+            'include_velocity': True,
+            'include_distance_features': True,
+            'include_angle_features': True,
+            'include_threat_assessment': True,
+            'temporal_features': True
+        }
+        
+        # 時系列特徴量のためのバッファ
+        self.history_buffer_size = 5
+        self.state_history: List[np.ndarray] = []
         
     def extract_vector_state(
         self, 
@@ -205,3 +230,302 @@ class GameStateExtractor:
                 ]
             }
         }
+    
+    def extract_enhanced_vector_state(
+        self,
+        player: Player, 
+        enemies: List[Enemy], 
+        player_bullets: List[Bullet], 
+        enemy_bullets: List[Bullet],
+        score: int = 0,
+        level: int = 0,
+        previous_state: Optional[np.ndarray] = None
+    ) -> np.ndarray:
+        """拡張機能付きの状態ベクトル抽出
+        
+        Args:
+            player: プレイヤーオブジェクト
+            enemies: 敵のリスト
+            player_bullets: プレイヤーの弾丸リスト
+            enemy_bullets: 敵の弾丸リスト
+            score: 現在のスコア
+            level: 現在のレベル
+            previous_state: 前フレームの状態（速度計算用）
+            
+        Returns:
+            拡張された特徴量を含む状態ベクトル
+        """
+        # 基本状態ベクトルを取得
+        base_state = self.extract_vector_state(
+            player, enemies, player_bullets, enemy_bullets, score, level
+        )
+        
+        enhanced_features = []
+        
+        if self.feature_config['include_velocity']:
+            # 速度特徴量を追加
+            velocity_features = self._extract_velocity_features(player, previous_state)
+            enhanced_features.extend(velocity_features)
+        
+        if self.feature_config['include_distance_features']:
+            # 距離特徴量を追加
+            distance_features = self._extract_distance_features(player, enemies, enemy_bullets)
+            enhanced_features.extend(distance_features)
+        
+        if self.feature_config['include_angle_features']:
+            # 角度特徴量を追加
+            angle_features = self._extract_angle_features(player, enemies, enemy_bullets)
+            enhanced_features.extend(angle_features)
+        
+        if self.feature_config['include_threat_assessment']:
+            # 脅威評価特徴量を追加
+            threat_features = self._extract_threat_features(player, enemies, enemy_bullets)
+            enhanced_features.extend(threat_features)
+        
+        # 全特徴量を結合
+        if enhanced_features:
+            full_state = np.concatenate([base_state, np.array(enhanced_features, dtype=np.float32)])
+        else:
+            full_state = base_state
+        
+        # 時系列特徴量
+        if self.feature_config['temporal_features']:
+            full_state = self._add_temporal_features(full_state)
+        
+        return full_state
+    
+    def normalize_state(self, state: np.ndarray, update_stats: bool = True) -> np.ndarray:
+        """状態ベクトルを正規化する
+        
+        Args:
+            state: 生の状態ベクトル
+            update_stats: 統計情報を更新するかどうか
+            
+        Returns:
+            正規化された状態ベクトル
+        """
+        if not self.state_stats['is_initialized']:
+            self._initialize_stats(state)
+        
+        if update_stats:
+            self._update_stats(state)
+        
+        # Z-score正規化
+        normalized = (state - self.state_stats['means']) / (self.state_stats['stds'] + 1e-8)
+        
+        # クリッピング（外れ値対策）
+        normalized = np.clip(normalized, -5.0, 5.0)
+        
+        return normalized
+    
+    def min_max_normalize(self, state: np.ndarray, update_stats: bool = True) -> np.ndarray:
+        """Min-Max正規化を実行
+        
+        Args:
+            state: 生の状態ベクトル
+            update_stats: 統計情報を更新するかどうか
+            
+        Returns:
+            Min-Max正規化された状態ベクトル（0-1範囲）
+        """
+        if not self.state_stats['is_initialized']:
+            self._initialize_stats(state)
+        
+        if update_stats:
+            self._update_stats(state)
+        
+        # Min-Max正規化
+        range_vals = self.state_stats['maxs'] - self.state_stats['mins']
+        range_vals = np.where(range_vals == 0, 1.0, range_vals)  # ゼロ除算回避
+        
+        normalized = (state - self.state_stats['mins']) / range_vals
+        normalized = np.clip(normalized, 0.0, 1.0)
+        
+        return normalized
+    
+    def _extract_velocity_features(self, player: Player, previous_state: Optional[np.ndarray]) -> List[float]:
+        """速度特徴量を抽出"""
+        if previous_state is None or len(previous_state) < 2:
+            return [0.0, 0.0, 0.0]  # vx, vy, speed
+        
+        # 現在位置と前フレーム位置から速度を計算
+        current_x = player.x / self.width
+        current_y = player.y / self.height
+        prev_x = previous_state[0]
+        prev_y = previous_state[1]
+        
+        vx = current_x - prev_x
+        vy = current_y - prev_y
+        speed = np.sqrt(vx**2 + vy**2)
+        
+        return [vx, vy, speed]
+    
+    def _extract_distance_features(self, player: Player, enemies: List[Enemy], enemy_bullets: List[Bullet]) -> List[float]:
+        """距離特徴量を抽出"""
+        features = []
+        
+        # 最も近い敵までの距離
+        if enemies:
+            min_enemy_dist = min(
+                np.sqrt((enemy.x - player.x)**2 + (enemy.y - player.y)**2) 
+                for enemy in enemies
+            ) / np.sqrt(self.width**2 + self.height**2)
+            avg_enemy_dist = np.mean([
+                np.sqrt((enemy.x - player.x)**2 + (enemy.y - player.y)**2) 
+                for enemy in enemies
+            ]) / np.sqrt(self.width**2 + self.height**2)
+        else:
+            min_enemy_dist = 1.0
+            avg_enemy_dist = 1.0
+        
+        # 最も近い敵弾までの距離
+        if enemy_bullets:
+            min_bullet_dist = min(
+                np.sqrt((bullet.x - player.x)**2 + (bullet.y - player.y)**2)
+                for bullet in enemy_bullets
+            ) / np.sqrt(self.width**2 + self.height**2)
+        else:
+            min_bullet_dist = 1.0
+        
+        features.extend([min_enemy_dist, avg_enemy_dist, min_bullet_dist])
+        return features
+    
+    def _extract_angle_features(self, player: Player, enemies: List[Enemy], enemy_bullets: List[Bullet]) -> List[float]:
+        """角度特徴量を抽出"""
+        features = []
+        
+        # 最も近い敵への角度
+        if enemies:
+            nearest_enemy = min(enemies, key=lambda e: 
+                np.sqrt((e.x - player.x)**2 + (e.y - player.y)**2))
+            angle_to_enemy = np.arctan2(nearest_enemy.y - player.y, nearest_enemy.x - player.x)
+            # sin, cosで表現（周期性を保持）
+            features.extend([np.sin(angle_to_enemy), np.cos(angle_to_enemy)])
+        else:
+            features.extend([0.0, 0.0])
+        
+        # 最も近い敵弾への角度
+        if enemy_bullets:
+            nearest_bullet = min(enemy_bullets, key=lambda b:
+                np.sqrt((b.x - player.x)**2 + (b.y - player.y)**2))
+            angle_to_bullet = np.arctan2(nearest_bullet.y - player.y, nearest_bullet.x - player.x)
+            features.extend([np.sin(angle_to_bullet), np.cos(angle_to_bullet)])
+        else:
+            features.extend([0.0, 0.0])
+        
+        return features
+    
+    def _extract_threat_features(self, player: Player, enemies: List[Enemy], enemy_bullets: List[Bullet]) -> List[float]:
+        """脅威評価特徴量を抽出"""
+        features = []
+        
+        # 危険度スコア
+        danger_score = 0.0
+        
+        # 敵による脅威
+        for enemy in enemies:
+            distance = np.sqrt((enemy.x - player.x)**2 + (enemy.y - player.y)**2)
+            if distance < 50:  # 近距離脅威
+                danger_score += (enemy.enemy_type + 1) * (50 - distance) / 50
+        
+        # 敵弾による脅威
+        for bullet in enemy_bullets:
+            distance = np.sqrt((bullet.x - player.x)**2 + (bullet.y - player.y)**2)
+            if distance < 30:  # 近距離弾丸脅威
+                # 弾丸の進行方向も考慮
+                if hasattr(bullet, 'vy') and bullet.vy > 0:  # 下向きの弾
+                    danger_score += (30 - distance) / 30 * 2.0
+        
+        # 正規化
+        danger_score = min(danger_score / 10.0, 1.0)
+        
+        # 画面端危険度
+        edge_danger = 0.0
+        if player.x < 20:
+            edge_danger += (20 - player.x) / 20
+        elif player.x > self.width - 20:
+            edge_danger += (player.x - (self.width - 20)) / 20
+        if player.y < 20:
+            edge_danger += (20 - player.y) / 20
+        elif player.y > self.height - 20:
+            edge_danger += (player.y - (self.height - 20)) / 20
+        
+        edge_danger = min(edge_danger, 1.0)
+        
+        features.extend([danger_score, edge_danger])
+        return features
+    
+    def _add_temporal_features(self, state: np.ndarray) -> np.ndarray:
+        """時系列特徴量を追加"""
+        # 状態履歴を更新
+        self.state_history.append(state.copy())
+        if len(self.state_history) > self.history_buffer_size:
+            self.state_history.pop(0)
+        
+        # 十分な履歴がない場合は基本状態をそのまま返す
+        if len(self.state_history) < 2:
+            return state
+        
+        # 変化率特徴量を計算
+        prev_state = self.state_history[-2]
+        if len(prev_state) >= len(state):
+            change_rate = state[:len(prev_state)] - prev_state
+            # 変化率の大きさ
+            change_magnitude = np.linalg.norm(change_rate)
+            
+            # 基本状態に変化率情報を追加
+            temporal_features = np.array([change_magnitude], dtype=np.float32)
+            return np.concatenate([state, temporal_features])
+        
+        return state
+    
+    def _initialize_stats(self, state: np.ndarray) -> None:
+        """統計情報を初期化"""
+        self.state_stats['means'] = state.copy()
+        self.state_stats['stds'] = np.ones_like(state)
+        self.state_stats['mins'] = state.copy()
+        self.state_stats['maxs'] = state.copy()
+        self.state_stats['is_initialized'] = True
+    
+    def _update_stats(self, state: np.ndarray) -> None:
+        """統計情報を更新（移動平均）"""
+        alpha = self.ema_alpha
+        
+        # 移動平均で統計を更新
+        self.state_stats['means'] = (1 - alpha) * self.state_stats['means'] + alpha * state
+        
+        # 分散の移動平均
+        diff = state - self.state_stats['means']
+        self.state_stats['stds'] = np.sqrt(
+            (1 - alpha) * self.state_stats['stds']**2 + alpha * diff**2
+        )
+        
+        # 最小・最大値の更新
+        self.state_stats['mins'] = np.minimum(self.state_stats['mins'], state)
+        self.state_stats['maxs'] = np.maximum(self.state_stats['maxs'], state)
+    
+    def configure_features(self, **kwargs) -> None:
+        """特徴量設定を更新"""
+        self.feature_config.update(kwargs)
+    
+    def reset_stats(self) -> None:
+        """統計情報をリセット"""
+        self.state_stats = {
+            'means': None,
+            'stds': None,
+            'mins': None,
+            'maxs': None,
+            'is_initialized': False
+        }
+        self.state_history.clear()
+    
+    def save_stats(self, filepath: str) -> None:
+        """統計情報を保存"""
+        np.savez(filepath, **self.state_stats)
+    
+    def load_stats(self, filepath: str) -> None:
+        """統計情報を読み込み"""
+        data = np.load(filepath, allow_pickle=True)
+        for key in self.state_stats:
+            if key in data:
+                self.state_stats[key] = data[key].item() if key == 'is_initialized' else data[key]

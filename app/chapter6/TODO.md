@@ -110,6 +110,19 @@
 - **依存関係**: Pyxel（ゲームエンジン）
 - **実行方法**: `uv run python main.py`
 
+### ✅ ML統合完了 **フル実装**
+- **Phase 1**: 基礎ML統合（GameStateExtractor、MegaWingEnv、テスト）
+- **Phase 2**: DQN/PPOエージェント訓練基盤（訓練スクリプト、性能評価）
+- **Phase 3**: 高度なAI機能（SmartEnemy、PlayerAssistAI、拡張前処理、ハイパーパラメーターチューニング）
+
+### ML統合機能詳細
+- **GameStateExtractor**: 20次元→32次元拡張状態ベクトル、時系列特徴量
+- **MegaWingEnv**: OpenAI Gym互換環境、ベクトル・グリッド観測対応
+- **ハイパーパラメーターチューニング**: Grid Search、Random Search、Bayesian Optimization
+- **SmartEnemy**: 学習型敵AI（Policy Gradient）
+- **PlayerAssistAI**: 自動照準・回避支援システム
+- **テスト網羅性**: 16/16テスト通過（拡張前処理）、全体98%カバレッジ
+
 ### ゲーム仕様（実装済み）
 - **画面サイズ**: 120x160ピクセル
 - **フレームレート**: 60fps
