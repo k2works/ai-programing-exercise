@@ -66,8 +66,8 @@ class AgentGameDemo:
         
         if len(self.episode_scores) > 0:
             self.episode_count += 1
-            self.episode_scores.append(self.game.score)
-            self.total_score += self.game.score
+            self.episode_scores.append(getattr(self.game, 'score', 0))
+            self.total_score += getattr(self.game, 'score', 0)
     
     def load_agent(self, agent_type: str, model_path: str = None):
         """エージェントの読み込み"""
@@ -163,38 +163,27 @@ class AgentGameDemo:
     
     def _get_rule_based_action(self):
         """ルールベースエージェント"""
-        player = self.game.player
-        enemies = self.game.enemies
-        enemy_bullets = self.game.enemy_bullets
-        
         action = {"up": False, "down": False, "left": False, "right": False, "shoot": False}
         
-        # 基本戦略: 中央付近を維持
-        center_x = self.width // 2
-        if player.x < center_x - 20:
-            action["right"] = True
-        elif player.x > center_x + 20:
-            action["left"] = True
-        
-        # 敵弾回避
-        for bullet in enemy_bullets:
-            if abs(bullet.x - player.x) < 15 and bullet.y > player.y and bullet.y - player.y < 30:
-                # 危険な弾丸から回避
-                if bullet.x < player.x:
-                    action["right"] = True
-                    action["left"] = False
-                else:
-                    action["left"] = True
-                    action["right"] = False
-                break
-        
-        # 射撃判定
-        if player.shot_timer <= 0:
-            # 近くに敵がいる場合は射撃
-            for enemy in enemies:
-                if abs(enemy.x - player.x) < 25 and enemy.y > player.y:
-                    action["shoot"] = True
-                    break
+        # ML環境の状態を使用してルールベース判定
+        if self.ml_obs is not None and len(self.ml_obs) >= 20:
+            player_x = self.ml_obs[0] * self.width
+            can_shoot = self.ml_obs[2] > 0.5
+            
+            # 敵情報（最も近い2体）
+            enemy1_x = self.ml_obs[6] * self.width if self.ml_obs[6] > 0 else None
+            enemy1_y = self.ml_obs[7] * self.height if self.ml_obs[7] > 0 else None
+            
+            # 基本戦略: 中央付近を維持
+            center_x = self.width // 2
+            if player_x < center_x - 20:
+                action["right"] = True
+            elif player_x > center_x + 20:
+                action["left"] = True
+            
+            # 射撃判定
+            if can_shoot and enemy1_x is not None and abs(enemy1_x - player_x) < 30:
+                action["shoot"] = True
         
         return action
     
@@ -231,24 +220,31 @@ class AgentGameDemo:
         # エージェントのアクション取得
         action = self.get_agent_action()
         
-        # ゲーム更新（手動で入力を設定）
+        # ゲーム更新（ML環境ベース）
         if self.game and self.game.scene == ShootingGame.SCENE_PLAY:
-            # プレイヤー移動
-            if action["left"]:
-                self.game.player.x = max(8, self.game.player.x - 2)
-            if action["right"]:
-                self.game.player.x = min(self.width - 8, self.game.player.x + 2)
-            if action["up"]:
-                self.game.player.y = max(8, self.game.player.y - 2)
-            if action["down"]:
-                self.game.player.y = min(self.height - 8, self.game.player.y + 2)
-            
-            # 射撃
-            if action["shoot"] and self.game.player.shot_timer <= 0:
-                self.game.player.shoot()
-            
-            # ゲーム本体の更新
-            self.game.update()
+            # ShootingGameオブジェクトにプレイヤーがない場合はML環境のみ使用
+            try:
+                # プレイヤー移動（存在する場合のみ）
+                if hasattr(self.game, 'player') and self.game.player:
+                    if action["left"]:
+                        self.game.player.x = max(8, self.game.player.x - 2)
+                    if action["right"]:
+                        self.game.player.x = min(self.width - 8, self.game.player.x + 2)
+                    if action["up"]:
+                        self.game.player.y = max(8, self.game.player.y - 2)
+                    if action["down"]:
+                        self.game.player.y = min(self.height - 8, self.game.player.y + 2)
+                    
+                    # 射撃
+                    if action["shoot"] and self.game.player.shot_timer <= 0:
+                        self.game.player.shoot()
+                
+                # ゲーム本体の更新（存在する場合のみ）
+                if hasattr(self.game, 'update'):
+                    self.game.update()
+            except AttributeError:
+                # プレイヤーオブジェクトが存在しない場合はML環境のみ使用
+                pass
             
             # ML環境も同期更新
             try:
@@ -347,7 +343,7 @@ class AgentGameDemo:
                             pyxel.pset(bullet_x, bullet_y, 10)
                 
                 # スコア表示
-                pyxel.text(5, 5, f"Score: {self.game.score if hasattr(self.game, 'score') else 0}", 7)
+                pyxel.text(5, 5, f"Score: {getattr(self.game, 'score', 0)}", 7)
         elif self.game.scene == ShootingGame.SCENE_GAMEOVER:
             pyxel.text(35, 60, "GAME OVER", 8)
             pyxel.text(25, 80, "Press ENTER", 6)
@@ -370,8 +366,8 @@ class AgentGameDemo:
         pyxel.text(5, 5, f"Agent: {agent_name}", 7)
         
         if self.game:
-            pyxel.text(5, 13, f"Score: {self.game.score}", 7)
-            pyxel.text(5, 21, f"Level: {self.game.level}", 7)
+            pyxel.text(5, 13, f"Score: {getattr(self.game, 'score', 0)}", 7)
+            pyxel.text(5, 21, f"Level: {getattr(self.game, 'level', 0)}", 7)
         
         # パフォーマンス情報
         if self.episode_count > 0:
