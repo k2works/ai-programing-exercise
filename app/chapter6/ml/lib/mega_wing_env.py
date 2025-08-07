@@ -182,9 +182,11 @@ class MegaWingEnv(gym.Env):
         if self.game.player.shot_timer > 0:
             self.game.player.shot_timer -= 1
         
-        # 敵を更新
+        # 敵を更新（下方向に移動）
         for enemy in self.game.enemies[:]:
             enemy.update()
+            # 簡易的に下方向に移動
+            enemy.y += 1
             if enemy.is_out_of_bounds(self.game.width, self.game.height):
                 self.game.enemies.remove(enemy)
         
@@ -199,12 +201,60 @@ class MegaWingEnv(gym.Env):
             if bullet.is_out_of_bounds(self.game.width, self.game.height):
                 self.game.enemy_bullets.remove(bullet)
         
+        # 当たり判定処理
+        self._check_collisions()
+        
         # 簡単な敵生成（テスト用）
         if len(self.game.enemies) < 3 and np.random.random() < 0.02:
             enemy_x = np.random.uniform(0, self.game.width - 8)
             enemy_type = np.random.choice([Enemy.TYPE_A, Enemy.TYPE_B, Enemy.TYPE_C])
             enemy = Enemy(enemy_x, -8, enemy_type)
             self.game.enemies.append(enemy)
+    
+    def _check_collisions(self) -> None:
+        """当たり判定を処理する"""
+        # プレイヤー弾丸と敵の当たり判定
+        for bullet in self.game.player_bullets[:]:
+            for enemy in self.game.enemies[:]:
+                if self._is_collision(bullet, enemy):
+                    # 敵にダメージを与える
+                    enemy.hp -= 1
+                    # 弾丸を削除
+                    if bullet in self.game.player_bullets:
+                        self.game.player_bullets.remove(bullet)
+                    
+                    # 敵が破壊された場合
+                    if enemy.hp <= 0:
+                        if enemy in self.game.enemies:
+                            self.game.enemies.remove(enemy)
+                        # スコア加算
+                        self.game.score += 100
+                    break
+        
+        # 敵弾丸とプレイヤーの当たり判定
+        if self.game.player:
+            for bullet in self.game.enemy_bullets[:]:
+                if self._is_collision(bullet, self.game.player):
+                    # プレイヤーが被弾
+                    self.player_alive = False
+                    if bullet in self.game.enemy_bullets:
+                        self.game.enemy_bullets.remove(bullet)
+                    break
+            
+            # プレイヤーと敵の直接衝突
+            for enemy in self.game.enemies[:]:
+                if self._is_collision(self.game.player, enemy):
+                    self.player_alive = False
+                    break
+    
+    def _is_collision(self, obj1, obj2) -> bool:
+        """2つのオブジェクトの衝突判定"""
+        # 簡易的な矩形衝突判定
+        obj1_size = 8  # オブジェクトのサイズ（8x8ピクセル）
+        obj2_size = 8
+        
+        return (abs(obj1.x - obj2.x) < obj1_size and 
+                abs(obj1.y - obj2.y) < obj2_size)
     
     def _capture_game_state(self) -> Dict[str, Any]:
         """現在のゲーム状態をキャプチャする"""
