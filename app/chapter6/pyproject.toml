@@ -5,7 +5,15 @@ description = "テスト駆動開発から始めるPyxelシューティングゲ
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "gym>=0.26.2",
+    "matplotlib>=3.10.5",
+    "numpy>=2.2.6",
+    "opencv-python>=4.11.0.86",
     "pyxel",
+    "rich>=14.1.0",
+    "stable-baselines3>=2.7.0",
+    "torch>=2.7.1",
+    "tqdm>=4.67.1",
 ]
 
 [project.optional-dependencies]
@@ -76,5 +84,6 @@ dev = [
     "pytest>=8.4.1",
     "pytest-cov>=6.2.1",
     "ruff>=0.12.7",
+    "tensorboard>=2.20.0",
     "tox>=4.28.4",
 ]
