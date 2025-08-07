@@ -43,3 +43,11 @@ class Player:
         """
         self.x = max(0, min(self.x, width - 8))  # プレイヤーサイズは8x8
         self.y = max(0, min(self.y, height - 8))
+
+    def can_shoot(self) -> bool:
+        """射撃可能かどうかを判定する
+        
+        Returns:
+            射撃可能な場合True
+        """
+        return self.shot_timer <= 0
