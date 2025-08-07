@@ -32,6 +32,7 @@ class AgentGameDemo:
         # エージェント学習用環境
         self.ml_env = None
         self.ml_obs = None
+        self._last_info = {}
         
         # UI状態
         self.show_info = True
@@ -251,11 +252,22 @@ class AgentGameDemo:
                 ml_action = self._convert_game_action_to_ml(action)
                 self.ml_obs, reward, done, truncated, info = self.ml_env.step(ml_action)
                 
+                # 最新のinfoを保存
+                self._last_info = info
+                
+                # MLのスコアをゲームに同期
+                if hasattr(self.game, 'score'):
+                    self.game.score = info.get('score', 0)
+                else:
+                    # scoreプロパティが存在しない場合は追加
+                    self.game.score = info.get('score', 0)
+                
                 if done or truncated:
                     if self.auto_restart:
                         self.restart_game()
-            except:
-                # ML環境エラーの場合は無視
+            except Exception as e:
+                # ML環境エラーの場合は無視（デバッグ用）
+                print(f"ML update error: {e}")
                 pass
         
         else:
@@ -342,8 +354,20 @@ class AgentGameDemo:
                         if bullet_x > 0 and bullet_y > 0:
                             pyxel.pset(bullet_x, bullet_y, 10)
                 
-                # スコア表示
-                pyxel.text(5, 5, f"Score: {getattr(self.game, 'score', 0)}", 7)
+                # プレイヤー弾丸描画（ML環境から）
+                try:
+                    if hasattr(self.ml_env, 'game') and self.ml_env.game.player_bullets:
+                        for bullet in self.ml_env.game.player_bullets[:5]:  # 最大5発表示
+                            pyxel.pset(int(bullet.x), int(bullet.y), 6)
+                except:
+                    pass
+                
+                # スコア表示（ML環境のinfoから取得）
+                if hasattr(self, '_last_info') and self._last_info:
+                    score = self._last_info.get('score', getattr(self.game, 'score', 0))
+                else:
+                    score = getattr(self.game, 'score', 0)
+                pyxel.text(5, 5, f"Score: {score}", 7)
         elif self.game.scene == ShootingGame.SCENE_GAMEOVER:
             pyxel.text(35, 60, "GAME OVER", 8)
             pyxel.text(25, 80, "Press ENTER", 6)
