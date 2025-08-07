@@ -7,8 +7,11 @@ import torch.optim as optim
 from typing import Dict, List, Tuple, Optional
 import math
 
-from .enemy import Enemy
-from .bullet import Bullet
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+from lib.enemy import Enemy
+from lib.bullet import Bullet
 
 
 class EnemyBrain(nn.Module):

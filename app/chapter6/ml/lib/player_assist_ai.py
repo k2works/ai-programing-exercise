@@ -3,9 +3,12 @@
 import numpy as np
 import math
 from typing import List, Tuple, Optional, Dict
-from .player import Player
-from .enemy import Enemy
-from .bullet import Bullet
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+from lib.player import Player
+from lib.enemy import Enemy
+from lib.bullet import Bullet
 
 
 class AutoAimSystem:

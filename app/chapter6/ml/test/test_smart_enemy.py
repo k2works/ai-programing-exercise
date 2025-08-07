@@ -3,7 +3,11 @@
 import numpy as np
 import time
 from typing import List
-from lib.smart_enemy import SmartEnemy, SmartEnemyManager, EnemyBrain
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
+from ml.lib.smart_enemy import SmartEnemy, SmartEnemyManager, EnemyBrain
 from lib.enemy import Enemy
 from lib.player import Player
 from lib.bullet import Bullet

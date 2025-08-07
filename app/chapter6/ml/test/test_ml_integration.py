@@ -1,8 +1,12 @@
 """機械学習統合のテストとデモ"""
 
 import numpy as np
-from lib.mega_wing_env import MegaWingEnv
-from lib.game_state_extractor import GameStateExtractor
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
+from ml.lib.mega_wing_env import MegaWingEnv
+from ml.lib.game_state_extractor import GameStateExtractor
 from lib.player import Player
 from lib.enemy import Enemy
 from lib.bullet import Bullet

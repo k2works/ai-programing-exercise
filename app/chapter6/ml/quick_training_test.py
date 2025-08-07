@@ -7,7 +7,7 @@ from stable_baselines3 import DQN, PPO
 from stable_baselines3.common.env_checker import check_env
 from stable_baselines3.common.monitor import Monitor
 
-from lib.mega_wing_env import MegaWingEnv
+from .lib.mega_wing_env import MegaWingEnv
 
 
 def quick_dqn_test():

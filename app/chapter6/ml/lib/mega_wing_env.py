@@ -5,10 +5,13 @@ import numpy as np
 from typing import Any, Dict, Tuple, Optional, List
 import copy
 
-from .shooting_game import ShootingGame
-from .player import Player
-from .enemy import Enemy
-from .bullet import Bullet
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+from lib.shooting_game import ShootingGame
+from lib.player import Player
+from lib.enemy import Enemy
+from lib.bullet import Bullet
 from .game_state_extractor import GameStateExtractor
 
 

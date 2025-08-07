@@ -11,10 +11,10 @@ import math
 # プロジェクトルートをパスに追加
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from app.chapter6.lib.player_assist_ai import PlayerAssistAI, AutoAimSystem, AvoidanceSystem
-from app.chapter6.lib.player import Player
-from app.chapter6.lib.enemy import Enemy  
-from app.chapter6.lib.bullet import Bullet
+from ml.lib.player_assist_ai import PlayerAssistAI, AutoAimSystem, AvoidanceSystem
+from lib.player import Player
+from lib.enemy import Enemy  
+from lib.bullet import Bullet
 
 
 class TestAutoAimSystem(unittest.TestCase):

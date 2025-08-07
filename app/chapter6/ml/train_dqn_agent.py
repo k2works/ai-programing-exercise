@@ -11,7 +11,7 @@ from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.logger import configure
 from stable_baselines3.common.monitor import Monitor
 
-from lib.mega_wing_env import MegaWingEnv
+from .lib.mega_wing_env import MegaWingEnv
 
 
 class TrainingCallback(BaseCallback):
