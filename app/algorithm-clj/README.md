@@ -51,6 +51,9 @@ lein run -m algorithm-clj.sorting-demo
 # 第8章 リストのデモプログラムの実行（Clojure REPLで実行）
 clojure -M -e "(require '[algorithm-clj.basic-algorithms.list-demo :as demo]) (demo/run-all-demos)"
 
+# 第9章 木構造のデモプログラムの実行
+lein run -m algorithm-clj.basic-algorithms.tree-demo
+
 # 特定のテストの実行
 lein test algorithm-clj.basic-algorithms.core-test
 lein test algorithm-clj.basic-algorithms.array-test
@@ -59,6 +62,7 @@ lein test algorithm-clj.basic-algorithms.stack-queue-test
 lein test algorithm-clj.basic-algorithms.recursion-test
 lein test algorithm-clj.basic-algorithms.string-test
 lein test algorithm-clj.basic-algorithms.list-test
+lein test algorithm-clj.basic-algorithms.tree-test
 lein test algorithm-clj.algorithms.sorting-test
 ```
 
@@ -136,6 +140,17 @@ lein test algorithm-clj.algorithms.sorting-test
 - **双方向アクセス**: Java LinkedListの前方・後方走査機能
 - **リストデモ**: `clojure-list-demo`, `demo-java-linked-list`, `demo-bidirectional-access` - 各種リスト操作のデモンストレーション
 
+### 第9章: 木構造
+
+- **基本的な木操作**: `make-leaf`, `make-node`, `leaf?` - 木ノードの作成と葉ノード判定
+- **木の計算**: `tree-size`, `tree-height` - 木のサイズと高さの計算
+- **木の走査**: `preorder-traversal`, `inorder-traversal`, `postorder-traversal` - 先行順・中順・後行順走査
+- **二分探索木操作**: `insert-bst`, `search-bst`, `remove-bst` - BST への挿入・検索・削除
+- **BST最小値検索**: `find-min` - BST の最小値を検索
+- **ヒープ操作**: `make-heap`, `heap-add`, `heap-peek`, `heap-poll` - 優先度キューとしてのヒープ操作
+- **ヒープユーティリティ**: `heap-size`, `heap-empty?` - ヒープのサイズ確認と空判定
+- **木構造デモ**: `demo-basic-tree`, `demo-binary-search-tree`, `demo-heap`, `demo-complex-tree` - 各種木操作のデモンストレーション
+
 ## プロジェクト構造
 
 ```
@@ -158,7 +173,9 @@ src/algorithm_clj/
 │   ├── recursion.clj             # 第5章: 再帰
 │   ├── string.clj                # 第7章: 文字列アルゴリズム
 │   ├── list.clj                  # 第8章: リスト
-│   └── list_demo.clj             # 第8章: リストデモ
+│   ├── list_demo.clj             # 第8章: リストデモ
+│   ├── tree.clj                  # 第9章: 木構造
+│   └── tree_demo.clj             # 第9章: 木構造デモ
 └── algorithms/
     └── sorting.clj               # 第6章: ソートアルゴリズム
 
@@ -171,7 +188,8 @@ test/algorithm_clj/
 │   ├── stack_queue_test.clj      # 第4章のテスト
 │   ├── recursion_test.clj        # 第5章のテスト
 │   ├── string_test.clj           # 第7章のテスト
-│   └── list_test.clj             # 第8章のテスト
+│   ├── list_test.clj             # 第8章のテスト
+│   └── tree_test.clj             # 第9章のテスト
 └── algorithms/
     └── sorting_test.clj          # 第6章のテスト
 ```
@@ -179,9 +197,9 @@ test/algorithm_clj/
 ## テスト結果
 
 現在のテスト状況:
-- **総テスト数**: 78テスト
-- **総アサーション数**: 448アサーション  
-- **テスト結果**: 第1-5章、第7-8章は全成功 ✅、第6章に5件の失敗 ❌
+- **総テスト数**: 91テスト
+- **総アサーション数**: 515アサーション  
+- **テスト結果**: 第1-5章、第7-9章は全成功 ✅、第6章に5件の失敗 ❌
 
 ### 章別実装状況
 
@@ -218,6 +236,13 @@ test/algorithm_clj/
 - Clojureの組み込みリスト操作（cons、first、rest、count）
 - Java LinkedListを使った線形リスト操作（追加、削除、検索）
 - 双方向アクセス（前方・後方走査）、リスト走査機能
+- 状態: 完全実装・全テスト成功
+
+#### ✅ 第9章: 木構造
+- 基本的な木操作（ノード作成、サイズ・高さ計算、走査）
+- 二分探索木（BST）操作（挿入、検索、削除、最小値検索）  
+- ヒープ操作（Java PriorityQueueを使った最小・最大ヒープ）
+- 複雑な木構造の処理（不変データ構造による実装）
 - 状態: 完全実装・全テスト成功
 
 ### 実装の特徴

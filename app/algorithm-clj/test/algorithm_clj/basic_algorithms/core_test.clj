@@ -156,3 +156,31 @@
         (while (.hasPrevious it)
           (swap! elements-reverse conj (.previous it)))
         (is (= @elements-reverse [2 1 0]))))))
+
+;; 木構造の基本操作のテスト
+
+(deftest test-tree-creation-basic
+  (testing "基本的な木の作成"
+    (let [leaf (make-tree-leaf 42)]
+      (is (= (:value leaf) 42))
+      (is (nil? (:left leaf)))
+      (is (nil? (:right leaf)))
+      (is (tree-leaf? leaf)))
+    
+    (let [left-child (make-tree-leaf 1)
+          right-child (make-tree-leaf 3)
+          root (make-tree-node 2 left-child right-child)]
+      (is (= (:value root) 2))
+      (is (= (:value (:left root)) 1))
+      (is (= (:value (:right root)) 3))
+      (is (not (tree-leaf? root))))))
+
+(deftest test-tree-size-basic
+  (testing "基本的な木のサイズ計算"
+    (let [leaf (make-tree-leaf 42)]
+      (is (= (simple-tree-size leaf) 1)))
+    
+    (let [tree (make-tree-node 2 
+                              (make-tree-leaf 1) 
+                              (make-tree-leaf 3))]
+      (is (= (simple-tree-size tree) 3)))))

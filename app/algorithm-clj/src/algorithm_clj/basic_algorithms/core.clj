@@ -129,3 +129,29 @@
   "LinkedList内で指定したデータのインデックスを検索"
   [^java.util.LinkedList ll data]
   (.indexOf ll data))
+
+;; 木構造関連の基本関数
+
+(defrecord TreeNode [value left right])
+
+(defn make-tree-leaf
+  "葉ノードを作成"
+  [value]
+  (TreeNode. value nil nil))
+
+(defn make-tree-node
+  "内部ノードを作成"
+  [value left right]
+  (TreeNode. value left right))
+
+(defn tree-leaf?
+  "ノードが葉かどうかを判定"
+  [node]
+  (and (nil? (:left node)) (nil? (:right node))))
+
+(defn simple-tree-size
+  "木のノード数を計算"
+  [node]
+  (if (nil? node)
+    0
+    (+ 1 (simple-tree-size (:left node)) (simple-tree-size (:right node)))))
