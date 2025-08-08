@@ -2,6 +2,7 @@ module Main (main) where
 
 import BasicAlgorithms
 import FizzBuzz
+import ListAlgorithms
 
 main :: IO ()
 main = do
@@ -55,6 +56,35 @@ main = do
   -- 直角三角形
   putStrLn "8. 左下直角三角形（高さ5）："
   putStr $ triangleLb 5
+  putStrLn ""
+
+  putStrLn "=== 第2章 配列（リスト） ==="
+  putStrLn ""
+
+  -- リストの最大値
+  putStrLn "1. リストの最大値："
+  putStrLn $ "maxOf [172, 153, 192, 140, 165] = " ++ show (maxOf [172, 153, 192, 140, 165])
+  putStrLn $ "maxOf [-1, -5, -2] = " ++ show (maxOf [-1, -5, -2])
+  putStrLn ""
+
+  -- リストの反転
+  putStrLn "2. リストの反転："
+  let original = [2, 5, 1, 3, 9, 6, 7]
+  putStrLn $ "original: " ++ show original
+  putStrLn $ "reversed: " ++ show (reverseList original)
+  putStrLn ""
+
+  -- 基数変換
+  putStrLn "3. 基数変換："
+  putStrLn $ "cardConv 29 2  = " ++ cardConv 29 2 ++ " (2進数)"
+  putStrLn $ "cardConv 29 16 = " ++ cardConv 29 16 ++ " (16進数)"
+  putStrLn $ "cardConv 255 16 = " ++ cardConv 255 16 ++ " (16進数)"
+  putStrLn ""
+
+  -- 素数の列挙
+  putStrLn "4. 素数の列挙："
+  putStrLn $ "primes 20: " ++ show (primes 20)
+  putStrLn $ "1000以下の素数の個数: " ++ show (length (primes 1000)) ++ "個"
   putStrLn ""
 
   putStrLn "=== FizzBuzz（既存実装） ==="
