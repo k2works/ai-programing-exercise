@@ -30,6 +30,7 @@ library
       Lib
       ListAlgorithms
       QueueAlgorithms
+      RecursionAlgorithms
       SearchAlgorithms
       StackAlgorithms
   other-modules:
@@ -63,6 +64,7 @@ test-suite algorithm-haskell-test
       FizzBuzzSpec
       ListAlgorithmsSpec
       QueueAlgorithmsSpec
+      RecursionAlgorithmsSpec
       SearchAlgorithmsSpec
       StackAlgorithmsSpec
       Paths_algorithm_haskell

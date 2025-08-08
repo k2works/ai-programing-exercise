@@ -6,6 +6,7 @@ import ListAlgorithms
 import SearchAlgorithms
 import StackAlgorithms
 import QueueAlgorithms
+import RecursionAlgorithms
 
 main :: IO ()
 main = do
@@ -193,3 +194,46 @@ main = do
   let safeQueue = enqueue "world" emptyQueue
   putStrLn $ "popSafe [\"hello\"] => " ++ show (popSafe safeStack)
   putStrLn $ "dequeueSafe (enqueue \"world\") => " ++ show (dequeueSafe safeQueue)
+  
+  putStrLn ""
+  putStrLn "=== 第5章: 再帰アルゴリズム ==="
+  putStrLn ""
+  
+  -- 階乗値のデモ
+  putStrLn "1. 階乗値（Factorial）："
+  putStrLn $ "factorial 0 => " ++ show (factorial 0)
+  putStrLn $ "factorial 3 => " ++ show (factorial 3)
+  putStrLn $ "factorial 5 => " ++ show (factorial 5)
+  putStrLn $ "factorial' 5 (tail recursive) => " ++ show (factorial' 5)
+  putStrLn $ "factorial 10 == factorial' 10 => " ++ show (factorial 10 == factorial' 10)
+  putStrLn ""
+  
+  -- ユークリッドの互除法のデモ
+  putStrLn "2. ユークリッドの互除法（GCD）："
+  putStrLn $ "gcd' 22 8 => " ++ show (gcd' 22 8)
+  putStrLn $ "gcd' 48 18 => " ++ show (gcd' 48 18)
+  putStrLn $ "gcd' 17 13 => " ++ show (gcd' 17 13)
+  putStrLn ""
+  
+  -- ハノイの塔のデモ
+  putStrLn "3. ハノイの塔（Hanoi Tower）："
+  putStrLn $ "hanoi 1 1 3 => " ++ show (hanoi 1 1 3)
+  putStrLn $ "hanoi 2 1 3 => " ++ show (hanoi 2 1 3)
+  putStrLn $ "hanoi 3 1 3 (7 moves) => " ++ show (hanoi 3 1 3)
+  putStrLn $ "hanoi 4のステップ数 => " ++ show (length (hanoi 4 1 3)) ++ " moves"
+  putStrLn ""
+  
+  -- N王妃問題のデモ
+  putStrLn "4. N王妃問題（N-Queens Problem）："
+  putStrLn $ "queens 1の解の数 => " ++ show (length (queens 1))
+  putStrLn $ "queens 4の解の数 => " ++ show (length (queens 4))
+  putStrLn $ "queens 8の解の数 => " ++ show (length (queens 8))
+  putStrLn ""
+  
+  -- 4王妃問題の1つの解を表示
+  let queen4solutions = queens 4
+  if not (null queen4solutions)
+    then do
+      putStrLn "4王妃問題の1つの解:"
+      putStrLn $ show (head queen4solutions)
+    else putStrLn "4王妃問題に解はありません"
