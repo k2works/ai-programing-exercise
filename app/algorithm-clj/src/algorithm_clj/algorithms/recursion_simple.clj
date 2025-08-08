@@ -1,4 +1,4 @@
-(ns algorithm-clj.algorithms.recursion
+(ns algorithm-clj.algorithms.recursion-simple
   "第5章 再帰アルゴリズムの実装"
   (:import [java.util ArrayDeque]))
 
@@ -54,7 +54,7 @@
           (= state "second")
           (when (> (- current-n 2) 0)
             (.push call-stack [(- current-n 2) "start"])))))
-    @result-atom)
+    @result-atom))
 
 ;; ハノイの塔
 
@@ -67,7 +67,7 @@
   (when (> no 1)
     (move-hanoi (dec no) (- 6 x y) y result-atom)))
 
-;; n王妃問題の関数群（省略形）
+;; n王妃問題
 
 (defn solve-n-queens
   "n王妃問題を解く"

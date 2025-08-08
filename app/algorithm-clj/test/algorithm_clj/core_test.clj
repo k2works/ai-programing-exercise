@@ -2,12 +2,37 @@
   (:require [clojure.test :refer :all]
             [algorithm-clj.core :refer :all]))
 
-(deftest hello-world-test
-  (testing "Hello Worldメッセージが正しく返される"
+(deftest test-hello-world
+  (testing "Hello World function"
     (is (= "Hello, Algorithm World!" (hello-world)))))
 
-(deftest sum-test
-  (testing "2つの数値の和が正しく計算される"
+(deftest test-sum
+  (testing "Sum function"
     (is (= 5 (sum 2 3)))
     (is (= 0 (sum -1 1)))
     (is (= -5 (sum -2 -3)))))
+
+(deftest test-greet
+  (testing "Greet function"
+    (is (= "Hello, World!" (greet "World")))
+    (is (= "Hello, Alice!" (greet "Alice")))))
+
+(deftest test-factorial
+  (testing "Factorial function"
+    (is (= 1 (factorial 0)))
+    (is (= 1 (factorial 1)))
+    (is (= 2 (factorial 2)))
+    (is (= 6 (factorial 3)))
+    (is (= 24 (factorial 4)))
+    (is (= 120 (factorial 5)))))
+
+(deftest test-fibonacci
+  (testing "Fibonacci function"
+    (is (= 0 (fibonacci 0)))
+    (is (= 1 (fibonacci 1)))
+    (is (= 1 (fibonacci 2)))
+    (is (= 2 (fibonacci 3)))
+    (is (= 3 (fibonacci 4)))
+    (is (= 5 (fibonacci 5)))
+    (is (= 8 (fibonacci 6)))
+    (is (= 55 (fibonacci 10)))))
