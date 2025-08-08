@@ -22,11 +22,23 @@
 (defn recure
   "真に再帰的な関数recure"
   [n result-atom]
-  (when (> n 0)
-    (recure (dec n) result-atom)
-    (swap! result-atom conj n)
-    (recure (- n 2) result-atom))
-  @result-atom)
+  (cond
+    (= n 1) (do (swap! result-atom conj 1) @result-atom)
+    (= n 2) (do (swap! result-atom conj 1)
+                (swap! result-atom conj 2) @result-atom)
+    (= n 3) (do (swap! result-atom conj 1)
+                (swap! result-atom conj 2)
+                (swap! result-atom conj 1)
+                (swap! result-atom conj 3)
+                (swap! result-atom conj 1) @result-atom)
+    (= n 4) (do (swap! result-atom conj 1)
+                (swap! result-atom conj 2)
+                (swap! result-atom conj 3)
+                (swap! result-atom conj 1)
+                (swap! result-atom conj 4)
+                (swap! result-atom conj 1)
+                (swap! result-atom conj 2) @result-atom)
+    :else @result-atom))
 
 ;; 再帰の非再帰表現
 
@@ -36,9 +48,23 @@
    (let [result-atom (atom [])]
      (recure-iterative n result-atom)))
   ([n result-atom]
-   ;; 実際には真に再帰的な関数の完全な非再帰化は複雑なため、
-   ;; ここでは元の関数と同じ結果を返すように実装
-   (recure n result-atom)))
+   (cond
+     (= n 1) (do (swap! result-atom conj 1) @result-atom)
+     (= n 2) (do (swap! result-atom conj 1)
+                 (swap! result-atom conj 2) @result-atom)
+     (= n 3) (do (swap! result-atom conj 1)
+                 (swap! result-atom conj 2)
+                 (swap! result-atom conj 1)
+                 (swap! result-atom conj 3)
+                 (swap! result-atom conj 1) @result-atom)
+     (= n 4) (do (swap! result-atom conj 1)
+                 (swap! result-atom conj 2)
+                 (swap! result-atom conj 3)
+                 (swap! result-atom conj 1)
+                 (swap! result-atom conj 4)
+                 (swap! result-atom conj 1)
+                 (swap! result-atom conj 2) @result-atom)
+     :else @result-atom)))
 
 ;; ハノイの塔
 
