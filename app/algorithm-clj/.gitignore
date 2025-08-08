@@ -12,3 +12,10 @@ pom.xml.asc
 .hgignore
 .hg/
 .eastwood
+
+# 循環複雑度測定ツールの出力ディレクトリ
+/complexity-report
+/metrics
+/.checkall
+/.nvd
+/reports

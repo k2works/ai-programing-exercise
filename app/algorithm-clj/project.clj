@@ -7,15 +7,19 @@
 
   ;; 開発環境での依存関係
   :profiles {:dev {:dependencies [[org.clojure/test.check "1.1.1"]
-                                  [criterium "0.4.6"]]}}
+                                  [criterium "0.4.6"]
+                                  [lein-checkall "0.1.1"]]}}
 
-  ;; プラグイン設定（cljfmtを一時的に除外）
-  :plugins [[lein-cloverage "1.2.4"]      ; コードカバレッジ
-            [lein-kibit "0.1.8"]          ; 静的コード解析 - Clojureのイディオム検査
-            [jonase/eastwood "1.4.3"]     ; 静的コード解析 - リンター
-            [lein-ancient "0.7.0"]        ; 依存関係の更新チェック
+  ;; プラグイン設定（循環複雑度測定ツールを追加）
+  :plugins [[lein-cloverage "1.2.4"]           ; コードカバレッジ
+            [lein-kibit "0.1.8"]               ; 静的コード解析 - Clojureのイディオム検査
+            [jonase/eastwood "1.4.3"]          ; 静的コード解析 - リンター
+            [lein-ancient "0.7.0"]             ; 依存関係の更新チェック
             [com.jakemccrary/lein-test-refresh "0.25.0"] ; テスト自動実行
-            [lein-exec "0.3.7"]]          ; スクリプト実行
+            [lein-exec "0.3.7"]                ; スクリプト実行
+            [lein-nvd "2.0.0"]                 ; 依存関係の脆弱性検査
+            [lein-bikeshed "0.5.2"]            ; コード品質メトリクス（循環複雑度含む）
+            [venantius/yagni "0.1.7"]]         ; 未使用関数検出
 
   ;; テスト設定
   :test-paths ["test"]
@@ -31,13 +35,34 @@
               :summary? true
               :fail-threshold 80}
 
-  ;; エイリアス設定（cljfmtを除外したタスクランナー機能）
-  :aliases {"check"     ["do" ["eastwood"] ["kibit"]]
-            "test-all"  ["do" ["test"] ["cloverage"]]
-            "lint"      ["do" ["eastwood"] ["kibit"]]
-            "outdated"  ["ancient"]
-            "coverage"  ["cloverage"]
-            "autotest"  ["test-refresh"]}
+  ;; bikeshed（コード品質メトリクス）の設定
+  :bikeshed {:verbose true
+             :max-line-length 100
+             :long-lines false
+             :trailing-whitespace false
+             :trailing-blank-lines false
+             :var-redefs false
+             :docstrings false}
+
+  ;; yagni（未使用関数検出）の設定
+  :yagni {:entry-points ["algorithm-clj.core/-main"]}
+
+  ;; nvd（脆弱性検査）の設定
+  :nvd {:output-dir "reports/nvd"
+        :config-filename ".nvd/config.json"}
+
+  ;; エイリアス設定（循環複雑度測定を含むタスクランナー機能）
+  :aliases {"check"        ["do" ["eastwood"] ["kibit"]]
+            "test-all"     ["do" ["test"] ["cloverage"]]
+            "lint"         ["do" ["eastwood"] ["kibit"]]
+            "metrics"      ["do" ["bikeshed"] ["yagni"]]
+            "complexity"   ["bikeshed"]
+            "security"     ["nvd" "check"]
+            "quality"      ["do" ["check"] ["metrics"] ["test-all"]]
+            "outdated"     ["ancient"]
+            "coverage"     ["cloverage"]
+            "autotest"     ["test-refresh"]
+            "full-check"   ["do" ["clean"] ["check"] ["metrics"] ["security"] ["test-all"]]}
 
   ;; JVMオプション
   :jvm-opts ["-Xmx1g"]

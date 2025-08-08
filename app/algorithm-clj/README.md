@@ -13,10 +13,15 @@
 - **Kibit**: Clojureのイディオムに従った書き方の提案
 
 ### コードフォーマッタ
-- **cljfmt**: コードスタイルの統一
+- **cljfmt**: コードスタイルの統一（現在は一時的に除外中）
 
 ### コードカバレッジ
 - **Cloverage**: テストカバレッジの測定とレポート生成
+
+### コード品質メトリクス（新規追加）
+- **Bikeshed**: 循環複雑度、行長、コードスタイルの測定
+- **Yagni**: 未使用関数の検出
+- **NVD**: 依存関係の脆弱性検査
 
 ### テストツール
 - **test.check**: プロパティベーステスト
@@ -49,22 +54,17 @@ lein run
 
 #### 全体的な品質チェック
 ```bash
-# コードフォーマット、静的解析を一括実行
+# 静的解析の一括実行
 lein check
+
+# 総合品質チェック（静的解析+メトリクス+テスト）
+lein quality
+
+# 完全品質チェック（クリーン+全チェック）
+lein full-check
 ```
 
 #### 個別のツール実行
-
-**コードフォーマット**
-```bash
-# フォーマットの確認（修正なし）
-lein cljfmt check
-
-# フォーマットの自動修正
-lein cljfmt fix
-# または
-lein fix
-```
 
 **静的コード解析**
 ```bash
@@ -76,6 +76,28 @@ lein kibit
 
 # 両方を実行
 lein lint
+```
+
+**コード品質メトリクス（新規追加）**
+```bash
+# 循環複雑度とコード品質メトリクスの測定
+lein bikeshed
+# または
+lein complexity
+
+# 未使用関数の検出
+lein yagni
+
+# 両方を実行
+lein metrics
+```
+
+**セキュリティチェック（新規追加）**
+```bash
+# 依存関係の脆弱性検査
+lein nvd check
+# または
+lein security
 ```
 
 **コードカバレッジ**
@@ -105,24 +127,60 @@ lein ancient
 lein outdated
 ```
 
-### カバレッジレポート
+### Makeタスク（推奨）
 
-カバレッジレポートは `target/coverage/` ディレクトリに生成されます：
+#### 品質チェック系
+```bash
+make check          # 静的コード解析
+make complexity     # 循環複雑度測定
+make security       # セキュリティチェック
+make quality        # 総合品質チェック
+make full-check     # 完全品質チェック
+```
+
+#### テスト系
+```bash
+make test           # テスト実行
+make coverage       # カバレッジ測定
+make test-all       # テスト+カバレッジ
+make test-watch     # テスト自動実行
+```
+
+#### レポート生成
+```bash
+make reports        # 全レポート生成（カバレッジ+メトリクス+セキュリティ）
+```
+
+#### 開発フロー
+```bash
+make dev-flow       # 開発時の推奨フロー
+make pre-commit     # コミット前のチェック
+```
+
+### 生成されるレポート
+
+**カバレッジレポート**
 - `target/coverage/index.html`: HTMLレポート
-- コンソールにもサマリーが表示されます
-- カバレッジが80%未満の場合、失敗として扱われます
+
+**品質メトリクスレポート（新規追加）**
+- コンソール出力: 循環複雑度、長い行、未使用関数の一覧
+- Bikeshedによる詳細なコード品質指標
+
+**セキュリティレポート（新規追加）**
+- `reports/nvd/`: 依存関係の脆弱性レポート
 
 ### 推奨開発フロー
 
-1. **コード変更前**: `lein check` で現在の状態を確認
+1. **コード変更前**: `make check` で現在の状態を確認
 2. **コード実装**: TDDアプローチでテストファーストで開発
 3. **コード変更後**: 
    ```bash
-   lein fix          # フォーマット自動修正
-   lein test-all     # テスト実行とカバレッジ測定
-   lein lint         # 静的解析
+   make quality      # 総合品質チェック
+   make complexity   # 循環複雑度チェック
+   make security     # セキュリティチェック
    ```
-4. **継続的な監視**: `lein autotest` でテストを自動実行
+4. **継続的な監視**: `make test-watch` でテストを自動実行
+5. **コミット前**: `make pre-commit` で最終チェック
 
 ## ディレクトリ構造
 
@@ -130,6 +188,7 @@ lein outdated
 algorithm-clj/
 ├── project.clj          # プロジェクト設定
 ├── README.md            # このファイル
+├── Makefile             # タスクランナー
 ├── src/                 # ソースコード
 │   └── algorithm_clj/
 │       ├── core.clj     # メインエントリーポイント
@@ -139,14 +198,34 @@ algorithm-clj/
 │   └── algorithm_clj/
 ├── target/              # ビルド成果物
 │   └── coverage/        # カバレッジレポート
+├── reports/             # 各種レポート（新規追加）
+│   └── nvd/            # セキュリティレポート
 └── resources/           # リソースファイル
 ```
 
 ## 品質基準
 
 - **テストカバレッジ**: 80%以上を維持
-- **コードスタイル**: cljfmtの規則に準拠
+- **循環複雑度**: 関数ごとに10以下を推奨（新規追加）
+- **コードスタイル**: Bikeshedの規則に準拠（新規追加）
 - **静的解析**: EastwoodとKibitの警告をゼロに維持
+- **セキュリティ**: 依存関係の脆弱性をゼロに維持（新規追加）
+
+## メトリクス指標（新規追加）
+
+### 循環複雑度
+- **測定対象**: 全関数の制御フローの複雑さ
+- **推奨値**: 関数ごとに10以下
+- **測定方法**: `make complexity`
+
+### コード品質指標
+- **行長**: 100文字以下を推奨
+- **未使用関数**: 検出された場合は削除を検討
+- **測定方法**: `make metrics`
+
+### セキュリティ指標
+- **依存関係の脆弱性**: CVEデータベースとの照合
+- **測定方法**: `make security`
 
 ## トラブルシューティング
 
@@ -166,4 +245,11 @@ lein test :verbose
 **プラグインのバージョン確認**
 ```bash
 lein ancient :plugins
+```
+
+**レポートが生成されない場合**
+```bash
+make clean
+make deps
+make reports
 ```

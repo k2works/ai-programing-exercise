@@ -1,7 +1,7 @@
 # Algorithm Clojure - Makefile
 # テスト駆動開発アプローチでのClojureプロジェクト管理
 
-.PHONY: help clean deps test lint format coverage check build run install dev-setup
+.PHONY: help clean deps test lint format coverage check build run install dev-setup metrics complexity security quality
 
 # デフォルトターゲット
 help: ## ヘルプを表示
@@ -12,6 +12,7 @@ help: ## ヘルプを表示
 clean: ## ビルド成果物をクリーンアップ
 	lein clean
 	rm -rf target/
+	rm -rf reports/
 
 deps: ## 依存関係をインストール
 	lein deps
@@ -33,17 +34,27 @@ test-all: ## テスト実行とカバレッジ測定
 	lein test-all
 
 # 品質チェック
-format-check: ## コードフォーマットをチェック（修正なし）
-	lein cljfmt check
-
-format-fix: ## コードフォーマットを自動修正
-	lein fix
-
 lint: ## 静的コード解析を実行
 	lein lint
 
 check: ## 全体的な品質チェック（フォーマット+リント）
 	lein check
+
+# メトリクス関連（新規追加）
+metrics: ## コード品質メトリクスを測定
+	lein metrics
+
+complexity: ## 循環複雑度を測定
+	lein complexity
+
+security: ## 依存関係の脆弱性検査
+	lein security
+
+quality: ## 総合品質チェック（静的解析+メトリクス+テスト）
+	lein quality
+
+full-check: ## 完全品質チェック（クリーン+全チェック）
+	lein full-check
 
 # アプリケーション実行
 run: ## アプリケーションを実行
@@ -71,14 +82,24 @@ ci-test: ## CI環境でのテスト実行
 	lein test-all
 
 ci-quality: ## CI環境での品質チェック
-	lein check
+	lein quality
 
-ci-build: clean ci-setup ci-quality ci-test build ## CI環境での完全ビルド
+ci-security: ## CI環境でのセキュリティチェック
+	lein security
+
+ci-build: clean ci-setup ci-quality ci-security ci-test build ## CI環境での完全ビルド
 	@echo "CI build complete!"
 
 # 開発フロー
-dev-flow: format-fix test-all lint ## 開発時の推奨フロー
+dev-flow: quality ## 開発時の推奨フロー（品質チェック+テスト）
 	@echo "Development flow complete!"
 
-pre-commit: check test ## コミット前のチェック
+pre-commit: check test complexity ## コミット前のチェック（静的解析+テスト+複雑度）
 	@echo "Pre-commit checks passed!"
+
+# レポート生成
+reports: ## 全レポートを生成（カバレッジ+メトリクス+セキュリティ）
+	make coverage
+	make metrics
+	make security
+	@echo "All reports generated!"
