@@ -97,7 +97,7 @@
   (let [result-atom1 (atom [])
         result-atom2 (atom [])]
     (rec/recure 3 result-atom1)
-    (rec-simple/recure-iterative 3 result-atom2)
+    (rec/recure-iterative 3 result-atom2)  ; recursion名前空間のrecure-iterativeを使用
     (println "  再帰版recure(3) = " @result-atom1)
     (println "  反復版recure-iterative(3) = " @result-atom2))
   (println))

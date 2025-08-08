@@ -64,5 +64,15 @@
       (stack-queue-demo/-main)
       (list-demo/run-all-demos)
       (core-demo/-main)
+
+      ;; デバッグ用素数生成デモの統合
+      (when (some #{"all" "debug"} args)
+        (println "\n=== Prime Generation Analysis ===")
+        (try
+          (let [debug-prime (requiring-resolve 'algorithm-clj.debug-prime/-main)]
+            (when debug-prime (debug-prime)))
+          (catch Exception e
+            (println "Debug prime analysis not available"))))
+
       (catch Exception e
         (println "Demo execution error:" (.getMessage e))))))
