@@ -10,6 +10,13 @@ import QueueAlgorithms
 import RecursionAlgorithms
 import SortAlgorithms
 import StringProcessing
+import TreeStructures (Tree(..), treeInsert, treeElem, treeDelete, treeSize, treeHeight, 
+                      treeMin, treeMax, inOrderTraversal, preOrderTraversal, 
+                      postOrderTraversal, treeToList, singleton, isBalanced, 
+                      balanceFactor, toSet, fromSet, toMap, fromMap)
+import qualified TreeStructures as Tree
+import qualified Data.Set as Set
+import qualified Data.Map as Map
 
 main :: IO ()
 main = do
@@ -396,9 +403,9 @@ main = do
   -- Zipperパターン（双方向リスト）
   putStrLn "2. Zipperパターン（双方向リスト）："
   let originalList = [10, 20, 30, 40, 50]
-  let zipper1 = fromList originalList
+  let zipper1 = AdvancedLists.fromList originalList
   putStrLn $ "元のリスト: " ++ show originalList
-  putStrLn $ "Zipperから復元: " ++ show (toList zipper1)
+  putStrLn $ "Zipperから復元: " ++ show (AdvancedLists.toList zipper1)
   putStrLn $ "現在の注目点: " ++ show (getFocus zipper1)
   
   let zipper2 = goForward zipper1
@@ -406,11 +413,11 @@ main = do
   
   let zipper3 = goForward zipper2
   let zipper4 = modify (*100) zipper3
-  putStrLn $ "2回前方移動してから要素を100倍: " ++ show (toList zipper4)
+  putStrLn $ "2回前方移動してから要素を100倍: " ++ show (AdvancedLists.toList zipper4)
   putStrLn $ "現在の注目点: " ++ show (getFocus zipper4)
   
   let zipper5 = insertHere 25 zipper4
-  putStrLn $ "注目点に25を挿入: " ++ show (toList zipper5)
+  putStrLn $ "注目点に25を挿入: " ++ show (AdvancedLists.toList zipper5)
   putStrLn ""
 
   -- リスト操作の計算量分析
@@ -458,3 +465,95 @@ main = do
   putStrLn "| インデックスアクセス | O(n)        | O(1)   | O(n)       |"
   putStrLn "| 前方/後方移動       | -           | O(1)   | O(1)       |"
   putStrLn "| メモリ効率          | 低          | 高     | 中         |"
+
+  putStrLn ""
+  putStrLn "=== 第9章: 木構造 ==="
+  putStrLn ""
+  
+  putStrLn "1. 二分探索木の基本操作："
+  let emptyBst = EmptyTree :: Tree Int
+  let sampleBst = Tree.fromList [8, 6, 10, 5, 7, 9, 11]
+  putStrLn $ "空の木のサイズ: " ++ show (treeSize emptyBst)
+  putStrLn $ "サンプル木構築: Tree.fromList [8,6,10,5,7,9,11]"
+  putStrLn $ "木のサイズ: " ++ show (treeSize sampleBst)
+  putStrLn $ "木の高さ: " ++ show (treeHeight sampleBst)
+  putStrLn $ "要素7の検索: " ++ show (treeElem 7 sampleBst)
+  putStrLn $ "要素12の検索: " ++ show (treeElem 12 sampleBst)
+  putStrLn $ "最小値: " ++ show (treeMin sampleBst)
+  putStrLn $ "最大値: " ++ show (treeMax sampleBst)
+  
+  putStrLn ""
+  putStrLn "2. 木の走査アルゴリズム："
+  let traversalTree = Tree.fromList [4, 2, 6, 1, 3, 5, 7]
+  putStrLn $ "元の挿入順序: [4,2,6,1,3,5,7]"
+  putStrLn $ "中間順走査（in-order）: " ++ show (inOrderTraversal traversalTree)
+  putStrLn $ "前順走査（pre-order）: " ++ show (preOrderTraversal traversalTree)
+  putStrLn $ "後順走査（post-order）: " ++ show (postOrderTraversal traversalTree)
+  putStrLn $ "ソートされたリスト: " ++ show (treeToList traversalTree)
+  
+  putStrLn ""
+  putStrLn "3. 木の削除操作："
+  let deleteTestTree = Tree.fromList [5, 3, 7, 2, 4, 6, 8]
+  putStrLn $ "削除前: " ++ show (treeToList deleteTestTree)
+  let afterDelete3 = treeDelete 3 deleteTestTree
+  putStrLn $ "要素3削除後: " ++ show (treeToList afterDelete3)
+  let afterDelete5 = treeDelete 5 deleteTestTree
+  putStrLn $ "要素5削除後: " ++ show (treeToList afterDelete5)
+  
+  putStrLn ""
+  putStrLn "4. 平衡性の分析："
+  let balancedTree = Tree.fromList [4, 2, 6, 1, 3, 5, 7]
+  let unbalancedTree = Tree.fromList [1, 2, 3, 4, 5]
+  putStrLn $ "平衡木 [4,2,6,1,3,5,7]:"
+  putStrLn $ "  高さ: " ++ show (treeHeight balancedTree)
+  putStrLn $ "  平衡?: " ++ show (isBalanced balancedTree)
+  putStrLn $ "  平衡係数: " ++ show (balanceFactor balancedTree)
+  putStrLn $ "不平衡木 [1,2,3,4,5]:"
+  putStrLn $ "  高さ: " ++ show (treeHeight unbalancedTree)
+  putStrLn $ "  平衡?: " ++ show (isBalanced unbalancedTree)
+  
+  putStrLn ""
+  putStrLn "5. 標準ライブラリとの連携："
+  let originalList = [5, 3, 7, 2, 4, 6, 8]
+  let bstFromList = Tree.fromList originalList
+  putStrLn $ "元のリスト: " ++ show originalList
+  putStrLn $ "BST構築: " ++ show (treeToList bstFromList)
+  
+  -- Data.Setとの連携
+  let setFromTree = toSet bstFromList
+  let treeFromSet = fromSet setFromTree
+  putStrLn $ "Data.Set変換: " ++ show (Set.toList setFromTree)
+  putStrLn $ "Set→BST変換: " ++ show (treeToList treeFromSet)
+  
+  -- Data.Mapとの連携
+  let mapFromTree = toMap bstFromList
+  let treeFromMap = fromMap mapFromTree
+  putStrLn $ "Data.Map変換: " ++ show (Map.keys mapFromTree)
+  putStrLn $ "Map→BST変換: " ++ show (treeToList treeFromMap)
+  
+  putStrLn ""
+  putStrLn "6. 実用的な使用例："
+  -- 重複除去
+  let duplicateList = [5, 3, 7, 3, 5, 8, 2, 7]
+  let deduplicatedTree = Tree.fromList duplicateList
+  putStrLn $ "重複あり: " ++ show duplicateList
+  putStrLn $ "重複除去: " ++ show (treeToList deduplicatedTree)
+  
+  -- 大きなデータでの性能
+  let largeData = [100, 50, 150, 25, 75, 125, 175, 12, 37, 62, 87, 112, 137, 162, 187]
+  let largeBst = Tree.fromList largeData
+  putStrLn $ "大きなBST（15要素）での検索："
+  putStrLn $ "  要素87の検索: " ++ show (treeElem 87 largeBst)
+  putStrLn $ "  要素200の検索: " ++ show (treeElem 200 largeBst)
+  putStrLn $ "  最小値: " ++ show (treeMin largeBst)
+  putStrLn $ "  最大値: " ++ show (treeMax largeBst)
+  
+  putStrLn ""
+  putStrLn "7. 木構造の特徴比較："
+  putStrLn "| 操作           | 平衡BST    | 不平衡BST | 配列     | リスト   |"
+  putStrLn "|---------------|-----------|----------|---------|---------|"
+  putStrLn "| 検索          | O(log n)  | O(n)     | O(log n)| O(n)    |"
+  putStrLn "| 挿入          | O(log n)  | O(n)     | O(n)    | O(1)    |"
+  putStrLn "| 削除          | O(log n)  | O(n)     | O(n)    | O(1)    |"
+  putStrLn "| ソート済み列挙 | O(n)      | O(n)     | O(n ln n)| O(n ln n)|"
+  putStrLn "| メモリ効率     | 中        | 中       | 高      | 中      |"
