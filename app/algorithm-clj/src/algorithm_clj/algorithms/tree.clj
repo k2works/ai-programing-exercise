@@ -133,8 +133,8 @@
   "ヒープを作成"
   ([]
    (PriorityQueue.))
-  ([comparator]
-   (PriorityQueue. comparator)))
+  ([comp-fn]
+   (PriorityQueue. comp-fn)))
 
 (defn heap-add
   "ヒープに要素を追加"

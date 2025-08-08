@@ -32,13 +32,16 @@
 (defn demo-string-manipulation []
   (print-divider "文字列操作")
   
-  (let [test-string "Hello, World!"]
-    (println "元の文字列:" test-string)
-    (println "長さ:" (string-alg/string-length test-string))
-    (println "反転:" (string-alg/string-reverse test-string))
-    (println "大文字:" (string-alg/string-uppercase test-string))
-    (println "小文字:" (string-alg/string-lowercase test-string))
-    (println "部分文字列(0-5):" (string-alg/substring test-string 0 5))))
+  (let [original "Hello, World!"]
+    (println "元の文字列:" original)
+    (println "長さ:" (string-alg/string-length original))
+    (println "反転:" (string-alg/string-reverse original))
+    (println "大文字:" (string-alg/string-uppercase original))
+    (println "小文字:" (string-alg/string-lowercase original))
+    (println "部分文字列(0-5):" (string-alg/substring original 0 5))
+
+    ;; 文字列連結のデモ
+    (println "文字列連結:" (string-alg/string-concat "Hello" ", " "World" "!"))))
 
 (defn demo-string-analysis []
   (print-divider "文字列解析")

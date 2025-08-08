@@ -8,6 +8,7 @@
   (println "【3値の最大値】")
   (println "max3(3, 2, 1) =" (basic/max3 3 2 1))
   (println "max3(1, 3, 2) =" (basic/max3 1 3 2))
+  (println "max3-imperative(3, 2, 1) =" (basic/max3-imperative 3 2 1))
   (println)
   
   ;; 3値の中央値
@@ -69,4 +70,23 @@
    (println "要素追加後:" (seq ll))
    (println "要素2のインデックス:" (basic/search-java-linked-list ll 2))
    (println "先頭要素を削除:" (basic/remove-first-java-linked-list ll))
-   (println "削除後のリスト:" (seq ll))))
+   (println "末尾要素を削除:" (basic/remove-last-java-linked-list ll))
+   (println "削除後のリスト:" (seq ll)))
+
+ ;; 木構造のデモ
+ (println "\n【木構造のデモ】")
+ (let [leaf1 (basic/make-tree-leaf 1)
+       leaf2 (basic/make-tree-leaf 2)
+       tree (basic/make-tree-node 0 leaf1 leaf2)]
+   (println "木のサイズ:" (basic/simple-tree-size tree))
+   (println "ノードが葉かどうか:" (basic/tree-leaf? leaf1))
+
+   ;; TreeNodeレコードの直接使用デモ
+   (println "\n【TreeNodeレコード直接使用デモ】")
+   (let [tree-node (basic/->TreeNode "root"
+                                    (basic/->TreeNode "left" nil nil)
+                                    (basic/->TreeNode "right" nil nil))]
+     (println "TreeNodeレコード作成:" tree-node)
+     (println "  ルート値:" (:value tree-node))
+     (println "  左の子の値:" (get-in tree-node [:left :value]))
+     (println "  右の子の値:" (get-in tree-node [:right :value])))))

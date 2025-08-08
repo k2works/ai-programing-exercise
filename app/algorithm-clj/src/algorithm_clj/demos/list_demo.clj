@@ -55,13 +55,20 @@
     ;; 前方向の走査
     (println "前方向の走査:")
     (dotimes [i (.size ll)]
-      (println "  インデックス" i ":" (.get ll i)))
-    
+      (println (str "  インデックス " i " : " (.get ll i))))
+
     ;; 後方向の走査
     (println "後方向の走査:")
-    (let [it (.listIterator ll (.size ll))]
-      (while (.hasPrevious it)
-        (println "  " (.previous it))))))
+    (doseq [x (reverse (seq ll))]
+      (println (str "   " x)))
+
+    ;; リストの走査機能をテスト
+    (println "\nリスト走査のテスト:")
+    (list-ops/traverse-list ll)
+
+    ;; Clojure リストのデモも追加
+    (println "\n=== Clojureリストのより詳細なデモ ===")
+    (list-ops/clojure-list-demo)))
 
 (defn run-all-demos
   "すべてのデモを実行"

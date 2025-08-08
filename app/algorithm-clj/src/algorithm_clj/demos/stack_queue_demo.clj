@@ -30,21 +30,19 @@
     (push-fixed-stack stack 10)
     (println (str "  現在のスタック: " (dump-fixed-stack stack)))
     (println (str "  値 10 の検索: インデックス " (find-fixed-stack stack 10)))
-    (println (str "  値 20 の個数: " (count-fixed-stack stack 20) "個"))
-    
-    ;; エラーケースのテスト
+    (println (str "  値 20 の個数: " (count-fixed-stack-elements stack 20) "個"))
+    (println (str "  スタック内の総要素数: " (count-fixed-stack stack) "個"))
+
+    ;; エラーハンドリング
     (try
-      (dotimes [_ 10]
-        (push-fixed-stack stack 99))
-    (catch Exception e
-      (println (str "  満杯エラー: " (.getMessage e)))))
-    
-    (clear-fixed-stack stack)
+      (dotimes [_ 10] (push-fixed-stack stack 99))
+      (catch Exception e (println (str "  満杯エラー: " (.getMessage e)))))
+
     (try
+      (clear-fixed-stack stack)
       (pop-fixed-stack stack)
-    (catch Exception e
-      (println (str "  空エラー: " (.getMessage e))))))
-  
+      (catch Exception e (println (str "  空エラー: " (.getMessage e))))))
+
   (println)
   
   ;; ArrayDeque スタックのデモ
@@ -63,8 +61,15 @@
     ;; ポップ操作
     (while (not (is-empty-deque stack))
       (let [value (pop-deque stack)]
-        (println (str "  ポップ: " value " (残り: " (count-deque-elements stack) ")")))))
-  
+        (println (str "  ポップ: " value " (残り: " (count-deque-elements stack) ")"))))
+
+    ;; ArrayDequeのクリア機能をテスト
+    (push-deque stack "Test1")
+    (push-deque stack "Test2")
+    (println (str "  テストデータ追加後のサイズ: " (count-deque-elements stack)))
+    (clear-deque stack)
+    (println (str "  クリア後のサイズ: " (count-deque-elements stack))))
+
   (println)
   
   ;; 固定長キューのデモ
@@ -94,7 +99,8 @@
     (println (str "  現在のキュー: " (dump-queue queue)))
     (println (str "  値 300 の検索: 位置 " (find-queue queue 300)))
     (println (str "  値 400 の個数: " (count-queue queue 400) "個"))
-    
+    (println (str "  総要素数: " (count-queue-elements queue) "個"))
+
     ;; リングバッファの動作確認
     (println "【リングバッファ動作確認】")
     (let [ring-queue (make-fixed-queue 3)]
@@ -108,8 +114,12 @@
       
       (deque ring-queue)
       (enque ring-queue 5)
-      (println (str "  デキューして5をエンキュー: " (dump-queue ring-queue)))))
-  
+      (println (str "  デキューして5をエンキュー: " (dump-queue ring-queue)))
+
+      ;; キューのクリア
+      (clear-queue ring-queue)
+      (println (str "  クリア後: " (dump-queue ring-queue)))))
+
   (println)
   
   ;; ArrayDeque キューのデモ

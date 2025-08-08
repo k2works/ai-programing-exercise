@@ -1,27 +1,15 @@
 (ns algorithm-clj.algorithms.recursion-simple
-  "第5章 再帰アルゴリズムの実装"
+  "第5章 再帰アルゴリズムの実装（シンプル版）"
+  (:require [algorithm-clj.algorithms.recursion :as rec])
   (:import [java.util ArrayDeque]))
 
-;; 基本的な再帰アルゴリズム
+;; 基本的な再帰アルゴリズムはrecursion.cljから利用
+;; (factorial, gcdはrecursion.cljを参照)
 
-(defn factorial
-  "非負の整数nの階乗を再帰的に求める"
-  [n]
-  (if (zero? n)
-    1
-    (* n (factorial (dec n)))))
-
-(defn gcd
-  "整数値xとyの最大公約数を求めて返却"
-  [x y]
-  (if (zero? y)
-    x
-    (gcd y (mod x y))))
-
-;; 真に再帰的な関数
+;; 真に再帰的な関数（簡略版）
 
 (defn recure
-  "真に再帰的な関数recure"
+  "真に再帰的な関数recure（シンプル版）"
   [n result-atom]
   (when (> n 0)
     (recure (dec n) result-atom)
