@@ -33,8 +33,12 @@ lein run
 # デモプログラムの実行（第1章の全関数を試す）
 lein run -m algorithm-clj.demo
 
+# 第2章 配列のデモプログラムの実行
+lein run -m algorithm-clj.array-demo
+
 # 特定のテストの実行
 lein test algorithm-clj.basic-algorithms.core-test
+lein test algorithm-clj.basic-algorithms.array-test
 ```
 
 ## 実装済みアルゴリズム
@@ -50,21 +54,33 @@ lein test algorithm-clj.basic-algorithms.core-test
 - **九九の表**: `multiplication-table` - 九九の表を表示
 - **直角三角形の表示**: `triangle-lb` - 左下が直角の二等辺三角形を表示
 
+### 第2章: 配列
+
+- **5人の点数から合計と平均**: `calculate-scores-individual` - 個別引数での計算
+- **配列の要素の最大値**: `max-of` - シーケンスの最大値を求める
+- **配列の要素の並びを反転**: `reverse-vector` - ベクターの要素を反転
+- **基数変換**: `card-conv` - 10進数を指定された基数に変換
+- **素数の列挙**: `prime1`, `prime2`, `prime3` - 3つの異なる効率レベルの素数列挙アルゴリズム
+
 ## プロジェクト構造
 
 ```
 src/algorithm_clj/
 ├── core.clj                      # メインアプリケーション
-├── demo.clj                      # デモプログラム
+├── demo.clj                      # 第1章デモプログラム
+├── array_demo.clj                # 第2章デモプログラム
+├── debug_prime.clj               # 素数デバッグユーティリティ
 ├── basic_algorithms/
-│   └── core.clj                  # 第1章: 基本的なアルゴリズム
+│   ├── core.clj                  # 第1章: 基本的なアルゴリズム
+│   └── array.clj                 # 第2章: 配列
 └── algorithms/
     └── sorting.clj               # ソートアルゴリズム（今後実装予定）
 
 test/algorithm_clj/
 ├── core_test.clj                 # メインのテスト
 ├── basic_algorithms/
-│   └── core_test.clj             # 第1章のテスト
+│   ├── core_test.clj             # 第1章のテスト
+│   └── array_test.clj            # 第2章のテスト
 └── algorithms/
     └── sorting_test.clj          # ソートアルゴリズムのテスト
 ```
