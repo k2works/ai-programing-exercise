@@ -1,5 +1,6 @@
 module Main (main) where
 
+import AdvancedLists
 import BasicAlgorithms
 import FizzBuzz
 import ListAlgorithms
@@ -380,3 +381,80 @@ main = do
   putStrLn "| KMP法              | O(n+m)     | 前処理でスキップテーブル作成|"
   putStrLn "| Boyer-Moore法       | O(n/m)平均  | 右から左比較、実用的      |"
   putStrLn "| Data.Text.isInfixOf | 最適化済み  | Haskellの実用的選択       |"
+  putStrLn ""
+
+  putStrLn "=== 第8章: リスト構造 ==="
+  putStrLn ""
+
+  -- 循環リストと遅延評価
+  putStrLn "1. 循環リストと遅延評価："
+  putStrLn $ "cyclicListManual (最初の10要素): " ++ show (take 10 cyclicListManual)
+  putStrLn $ "cyclicFromList [10,20,30] (最初の8要素): " ++ show (take 8 (cyclicFromList [10,20,30]))
+  putStrLn $ "takeFromCyclic 7 [1,2,3]: " ++ show (takeFromCyclic 7 [1,2,3])
+  putStrLn ""
+
+  -- Zipperパターン（双方向リスト）
+  putStrLn "2. Zipperパターン（双方向リスト）："
+  let originalList = [10, 20, 30, 40, 50]
+  let zipper1 = fromList originalList
+  putStrLn $ "元のリスト: " ++ show originalList
+  putStrLn $ "Zipperから復元: " ++ show (toList zipper1)
+  putStrLn $ "現在の注目点: " ++ show (getFocus zipper1)
+  
+  let zipper2 = goForward zipper1
+  putStrLn $ "前方移動後の注目点: " ++ show (getFocus zipper2)
+  
+  let zipper3 = goForward zipper2
+  let zipper4 = modify (*100) zipper3
+  putStrLn $ "2回前方移動してから要素を100倍: " ++ show (toList zipper4)
+  putStrLn $ "現在の注目点: " ++ show (getFocus zipper4)
+  
+  let zipper5 = insertHere 25 zipper4
+  putStrLn $ "注目点に25を挿入: " ++ show (toList zipper5)
+  putStrLn ""
+
+  -- リスト操作の計算量分析
+  putStrLn "3. リスト操作の計算量分析："
+  let sampleList = [1, 2, 3, 4, 5]
+  putStrLn $ "サンプルリスト: " ++ show sampleList
+  putStrLn $ listOperationComplexity PrependOp
+  putStrLn $ listOperationComplexity AppendOp
+  putStrLn $ listOperationComplexity HeadOp
+  putStrLn $ listOperationComplexity IndexOp
+  putStrLn ""
+
+  -- 高度なリスト生成
+  putStrLn "4. 高度なリスト生成（遅延評価）："
+  putStrLn $ "フィボナッチ数列の最初の15項: " ++ show (take 15 fibonacciList)
+  putStrLn $ "最初の12個の素数: " ++ show (take 12 primesList)
+  putStrLn $ "2の冪乗（最初の8項）: " ++ show (take 8 (powerList 2))
+  putStrLn $ "3の冪乗（最初の6項）: " ++ show (take 6 (powerList 3))
+  putStrLn ""
+
+  -- リスト変換ユーティリティ
+  putStrLn "5. リスト変換とユーティリティ："
+  let testList = [1..12]
+  putStrLn $ "元のリスト: " ++ show testList
+  putStrLn $ "chunksOf 3: " ++ show (chunksOf 3 testList)
+  putStrLn $ "interleave [1,3,5] [2,4,6]: " ++ show (interleave [1,3,5] [2,4,6])
+  putStrLn $ "slidingWindow 3 [1..6]: " ++ show (slidingWindow 3 [1..6])
+  putStrLn $ "rotateLeft 2 [1..5]: " ++ show (rotateLeft 2 [1..5])
+  putStrLn $ "rotateRight 2 [1..5]: " ++ show (rotateRight 2 [1..5])
+  putStrLn ""
+
+  -- 遅延評価の威力
+  putStrLn "6. 遅延評価の威力："
+  putStrLn $ "無限リスト repeat 'A' の最初の10要素: " ++ show (take 10 (repeat 'A'))
+  putStrLn $ "無限の自然数列 [1..] の最初の10要素: " ++ show (take 10 [1..])
+  putStrLn $ "無限の平方数列の最初の8要素: " ++ show (take 8 (map (^2) [1..]))
+  putStrLn ""
+
+  -- データ構造の特徴比較
+  putStrLn "7. リストデータ構造の特徴比較："
+  putStrLn "| 操作                | Haskellリスト | 配列   | 双方向リスト |"
+  putStrLn "|-------------------|-------------|--------|------------|"
+  putStrLn "| 先頭への挿入        | O(1)        | O(n)   | O(1)       |"
+  putStrLn "| 末尾への挿入        | O(n)        | O(1)*  | O(1)       |"
+  putStrLn "| インデックスアクセス | O(n)        | O(1)   | O(n)       |"
+  putStrLn "| 前方/後方移動       | -           | O(1)   | O(1)       |"
+  putStrLn "| メモリ効率          | 低          | 高     | 中         |"
