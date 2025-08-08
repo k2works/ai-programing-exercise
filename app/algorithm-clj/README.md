@@ -45,12 +45,16 @@ lein run -m algorithm-clj.stack-queue-demo
 # 第5章 再帰アルゴリズムのデモプログラムの実行
 lein run -m algorithm-clj.recursion-demo
 
+# 第6章 ソートアルゴリズムのデモプログラムの実行
+lein run -m algorithm-clj.sorting-demo
+
 # 特定のテストの実行
 lein test algorithm-clj.basic-algorithms.core-test
 lein test algorithm-clj.basic-algorithms.array-test
 lein test algorithm-clj.basic-algorithms.search-test
 lein test algorithm-clj.basic-algorithms.stack-queue-test
 lein test algorithm-clj.basic-algorithms.recursion-test
+lein test algorithm-clj.algorithms.sorting-test
 ```
 
 ## 実装済みアルゴリズム
@@ -97,6 +101,16 @@ lein test algorithm-clj.basic-algorithms.recursion-test
 - **8王妃問題**: `solve-8-queens`, `solve-n-queens` - バックトラッキングによるn王妃問題の解法
 - **王妃の配置**: `put-queens-all-combinations`, `put-queens-row-col-constraint` - 制約条件を考慮した王妃の配置
 
+### 第6章: ソートアルゴリズム
+
+- **バブルソート**: `bubble-sort` - 隣接要素の比較と交換による基本的なソート
+- **選択ソート**: `selection-sort` - 最小値を選択して先頭から配置
+- **挿入ソート**: `insertion-sort` - 要素を適切な位置に挿入
+- **シェルソート**: `shell-sort` - ギャップを使った挿入ソートの改良版
+- **クイックソート**: `quick-sort` - 分割統治法による高速ソート
+- **マージソート**: `merge-sort` - 分割統治法による安定ソート
+- **ヒープソート**: `heap-sort` - ヒープ構造を利用したソート
+
 ## プロジェクト構造
 
 ```
@@ -107,6 +121,7 @@ src/algorithm_clj/
 ├── search_demo.clj               # 第3章デモプログラム
 ├── stack_queue_demo.clj          # 第4章デモプログラム
 ├── recursion_demo.clj            # 第5章デモプログラム
+├── sorting_demo.clj              # 第6章デモプログラム
 ├── debug_prime.clj               # 素数デバッグユーティリティ
 ├── basic_algorithms/
 │   ├── core.clj                  # 第1章: 基本的なアルゴリズム
@@ -115,7 +130,7 @@ src/algorithm_clj/
 │   ├── stack_queue.clj           # 第4章: スタックとキュー
 │   └── recursion.clj             # 第5章: 再帰アルゴリズム
 └── algorithms/
-    └── sorting.clj               # ソートアルゴリズム（今後実装予定）
+    └── sorting.clj               # 第6章: ソートアルゴリズム
 
 test/algorithm_clj/
 ├── core_test.clj                 # メインのテスト
@@ -126,7 +141,7 @@ test/algorithm_clj/
 │   ├── stack_queue_test.clj      # 第4章のテスト
 │   └── recursion_test.clj        # 第5章のテスト
 └── algorithms/
-    └── sorting_test.clj          # ソートアルゴリズムのテスト
+    └── sorting_test.clj          # 第6章のテスト
 ```
 
 ## テスト結果
