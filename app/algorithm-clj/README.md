@@ -39,10 +39,14 @@ lein run -m algorithm-clj.array-demo
 # 第3章 探索アルゴリズムのデモプログラムの実行
 lein run -m algorithm-clj.search-demo
 
+# 第4章 スタックとキューのデモプログラムの実行
+lein run -m algorithm-clj.stack-queue-demo
+
 # 特定のテストの実行
 lein test algorithm-clj.basic-algorithms.core-test
 lein test algorithm-clj.basic-algorithms.array-test
 lein test algorithm-clj.basic-algorithms.search-test
+lein test algorithm-clj.basic-algorithms.stack-queue-test
 ```
 
 ## 実装済みアルゴリズム
@@ -73,6 +77,13 @@ lein test algorithm-clj.basic-algorithms.search-test
 - **ハッシュ法（チェイン法）**: `ChainedHash` - 連鎖リストによる衝突解決
 - **ハッシュ法（オープンアドレス法）**: `OpenHash` - 線形探査による衝突解決
 
+### 第4章: スタックとキュー
+
+- **固定長スタック**: `FixedStack` - 配列ベースのLIFO構造、プッシュ・ポップ・ピーク操作
+- **ArrayDeque スタック**: `ArrayDeque` - Java標準ライブラリを使った効率的なスタック実装
+- **固定長キュー**: `FixedQueue` - リングバッファを使ったFIFO構造、エンキュー・デキュー・ピーク操作  
+- **ArrayDeque キュー**: `ArrayDeque` - Java標準ライブラリを使った効率的なキュー実装
+
 ## プロジェクト構造
 
 ```
@@ -81,11 +92,13 @@ src/algorithm_clj/
 ├── demo.clj                      # 第1章デモプログラム
 ├── array_demo.clj                # 第2章デモプログラム
 ├── search_demo.clj               # 第3章デモプログラム
+├── stack_queue_demo.clj          # 第4章デモプログラム
 ├── debug_prime.clj               # 素数デバッグユーティリティ
 ├── basic_algorithms/
 │   ├── core.clj                  # 第1章: 基本的なアルゴリズム
 │   ├── array.clj                 # 第2章: 配列
-│   └── search.clj                # 第3章: 探索アルゴリズム
+│   ├── search.clj                # 第3章: 探索アルゴリズム
+│   └── stack_queue.clj           # 第4章: スタックとキュー
 └── algorithms/
     └── sorting.clj               # ソートアルゴリズム（今後実装予定）
 
@@ -94,7 +107,8 @@ test/algorithm_clj/
 ├── basic_algorithms/
 │   ├── core_test.clj             # 第1章のテスト
 │   ├── array_test.clj            # 第2章のテスト
-│   └── search_test.clj           # 第3章のテスト
+│   ├── search_test.clj           # 第3章のテスト
+│   └── stack_queue_test.clj      # 第4章のテスト
 └── algorithms/
     └── sorting_test.clj          # ソートアルゴリズムのテスト
 ```
@@ -102,8 +116,8 @@ test/algorithm_clj/
 ## テスト結果
 
 現在のテスト状況:
-- **総テスト数**: 16テスト
-- **総アサーション数**: 71アサーション  
+- **総テスト数**: 31テスト
+- **総アサーション数**: 200アサーション  
 - **テスト結果**: 全テスト成功 ✅
 
 ### 実装の特徴
