@@ -29,6 +29,7 @@ library
       FizzBuzz
       Lib
       ListAlgorithms
+      SearchAlgorithms
   other-modules:
       Paths_algorithm_haskell
   hs-source-dirs:
@@ -36,6 +37,7 @@ library
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
+    , containers
   default-language: Haskell2010
 
 executable algorithm-haskell-exe
@@ -48,6 +50,7 @@ executable algorithm-haskell-exe
   build-depends:
       algorithm-haskell
     , base >=4.7 && <5
+    , containers
   default-language: Haskell2010
 
 test-suite algorithm-haskell-test
@@ -57,6 +60,7 @@ test-suite algorithm-haskell-test
       BasicAlgorithmsSpec
       FizzBuzzSpec
       ListAlgorithmsSpec
+      SearchAlgorithmsSpec
       Paths_algorithm_haskell
   hs-source-dirs:
       test
@@ -65,6 +69,7 @@ test-suite algorithm-haskell-test
       QuickCheck
     , algorithm-haskell
     , base >=4.7 && <5
+    , containers
     , hspec
     , hspec-discover
   default-language: Haskell2010

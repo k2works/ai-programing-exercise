@@ -3,6 +3,7 @@ module Main (main) where
 import BasicAlgorithms
 import FizzBuzz
 import ListAlgorithms
+import SearchAlgorithms
 
 main :: IO ()
 main = do
@@ -90,3 +91,44 @@ main = do
   putStrLn "=== FizzBuzz（既存実装） ==="
   putStrLn "FizzBuzz (1-20):"
   mapM_ putStrLn $ take 20 generateList
+
+  putStrLn ""
+  putStrLn "=== 第3章: 探索アルゴリズム ==="
+  putStrLn ""
+  
+  -- 線形探索
+  putStrLn "1. 線形探索（LinearSearch）："
+  let testList = [6, 4, 3, 2, 1, 2, 8]
+  putStrLn $ "リスト: " ++ show testList
+  putStrLn $ "linearSearch 2 => " ++ show (linearSearch 2 testList)
+  putStrLn $ "linearSearch 5 => " ++ show (linearSearch 5 testList)
+  putStrLn $ "linearSearch 8 => " ++ show (linearSearch 8 testList)
+  putStrLn ""
+  
+  -- 二分探索
+  putStrLn "2. 二分探索（BinarySearch）："
+  let sortedList = [1, 2, 3, 5, 7, 8, 9]
+  putStrLn $ "ソート済みリスト: " ++ show sortedList
+  putStrLn $ "binarySearch 5 => " ++ show (binarySearch 5 sortedList)
+  putStrLn $ "binarySearch 6 => " ++ show (binarySearch 6 sortedList)
+  putStrLn $ "binarySearch 1 => " ++ show (binarySearch 1 sortedList)
+  putStrLn $ "binarySearch 9 => " ++ show (binarySearch 9 sortedList)
+  putStrLn ""
+  
+  -- ハッシュテーブル（Data.Map）
+  putStrLn "3. ハッシュテーブル（Data.Map）："
+  let studentMap = createMap [(1, "赤尾"), (5, "武田"), (10, "小野")]
+  putStrLn $ "学生マップ: " ++ show studentMap
+  putStrLn $ "searchInMap 1  => " ++ show (searchInMap 1 studentMap)
+  putStrLn $ "searchInMap 5  => " ++ show (searchInMap 5 studentMap)
+  putStrLn $ "searchInMap 99 => " ++ show (searchInMap 99 studentMap)
+  putStrLn ""
+  
+  let updatedMap = addToMap 12 "佐藤" studentMap
+  putStrLn $ "addToMap 12 \"佐藤\" => " ++ show updatedMap
+  putStrLn $ "searchInMap 12 => " ++ show (searchInMap 12 updatedMap)
+  putStrLn ""
+  
+  let removedMap = removeFromMap 5 updatedMap
+  putStrLn $ "removeFromMap 5 => " ++ show removedMap
+  putStrLn $ "searchInMap 5 => " ++ show (searchInMap 5 removedMap)
