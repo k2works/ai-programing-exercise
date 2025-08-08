@@ -29,15 +29,45 @@ lein repl
 ```bash
 # アプリケーションの実行
 lein run
+
+# デモプログラムの実行（第1章の全関数を試す）
+lein run -m algorithm-clj.demo
+
+# 特定のテストの実行
+lein test algorithm-clj.basic-algorithms.core-test
 ```
 
-## Options
+## 実装済みアルゴリズム
 
-FIXME: listing of options this app accepts.
+### 第1章: 基本的なアルゴリズム
 
-## Examples
+- **3値の最大値**: `max3` - 3つの整数値の中から最大値を求める
+- **3値の中央値**: `med3` - 3つの整数値の中央値を求める
+- **符号判定**: `judge-sign` - 整数値の符号（正・負・ゼロ）を判定
+- **1からnまでの総和**: `sum-1-to-n-while`, `sum-1-to-n-for` - 1からnまでの整数の総和を計算
+- **記号文字の交互表示**: `alternative-1`, `alternative-2` - '+'と'-'を交互に表示
+- **長方形の辺の長さを列挙**: `rectangle` - 指定された面積の長方形の辺の組み合わせを列挙
+- **九九の表**: `multiplication-table` - 九九の表を表示
+- **直角三角形の表示**: `triangle-lb` - 左下が直角の二等辺三角形を表示
 
-...
+## プロジェクト構造
+
+```
+src/algorithm_clj/
+├── core.clj                      # メインアプリケーション
+├── demo.clj                      # デモプログラム
+├── basic_algorithms/
+│   └── core.clj                  # 第1章: 基本的なアルゴリズム
+└── algorithms/
+    └── sorting.clj               # ソートアルゴリズム（今後実装予定）
+
+test/algorithm_clj/
+├── core_test.clj                 # メインのテスト
+├── basic_algorithms/
+│   └── core_test.clj             # 第1章のテスト
+└── algorithms/
+    └── sorting_test.clj          # ソートアルゴリズムのテスト
+```
 
 ### Bugs
 
