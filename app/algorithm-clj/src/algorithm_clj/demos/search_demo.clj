@@ -1,4 +1,4 @@
-(ns algorithm-clj.search-demo
+(ns algorithm-clj.demos.search-demo
   (:require [algorithm-clj.algorithms.search :as search]))
 
 (defn demonstrate-linear-search []

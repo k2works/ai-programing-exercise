@@ -1,4 +1,4 @@
-(ns algorithm-clj.sorting-demo
+(ns algorithm-clj.demos.sorting-demo
   "第6章 ソートアルゴリズムのデモ"
   (:require [algorithm-clj.algorithms.sorting :as sort]))
 

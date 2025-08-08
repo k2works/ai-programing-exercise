@@ -1,4 +1,4 @@
-(ns algorithm-clj.algorithms.list-demo
+(ns algorithm-clj.demos.list-demo
   (:require [algorithm-clj.algorithms.list :as list-ops]))
 
 (defn demo-clojure-list

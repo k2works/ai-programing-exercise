@@ -1,4 +1,4 @@
-(ns algorithm-clj.stack-queue-demo
+(ns algorithm-clj.demos.stack-queue-demo
   "第4章 スタックとキューのデモプログラム"
   (:require [algorithm-clj.algorithms.stack-queue :refer :all])
   (:import [java.util ArrayDeque]))

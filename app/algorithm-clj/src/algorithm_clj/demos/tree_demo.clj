@@ -1,4 +1,4 @@
-(ns algorithm-clj.algorithms.tree-demo
+(ns algorithm-clj.demos.tree-demo
   (:require [algorithm-clj.algorithms.tree :as tree]))
 
 (defn demo-basic-tree

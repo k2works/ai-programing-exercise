@@ -1,4 +1,4 @@
-(ns algorithm-clj.array-demo
+(ns algorithm-clj.demos.array-demo
   (:require [algorithm-clj.algorithms.array :as array]))
 
 (defn -main []

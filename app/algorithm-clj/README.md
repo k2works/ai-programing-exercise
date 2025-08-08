@@ -31,39 +31,42 @@ lein repl
 lein run
 
 # デモプログラムの実行（第1章の全関数を試す）
-lein run -m algorithm-clj.demo
+lein run -m algorithm-clj.demos.core-demo
 
 # 第2章 配列のデモプログラムの実行
-lein run -m algorithm-clj.array-demo
+lein run -m algorithm-clj.demos.array-demo
 
 # 第3章 探索アルゴリズムのデモプログラムの実行
-lein run -m algorithm-clj.search-demo
+lein run -m algorithm-clj.demos.search-demo
 
 # 第4章 スタックとキューのデモプログラムの実行
-lein run -m algorithm-clj.stack-queue-demo
+lein run -m algorithm-clj.demos.stack-queue-demo
 
 # 第5章 再帰アルゴリズムのデモプログラムの実行
-lein run -m algorithm-clj.recursion-demo
+lein run -m algorithm-clj.demos.recursion-demo
 
 # 第6章 ソートアルゴリズムのデモプログラムの実行
-lein run -m algorithm-clj.sorting-demo
+lein run -m algorithm-clj.demos.sorting-demo
+
+# 第7章 文字列アルゴリズムのデモプログラムの実行
+lein run -m algorithm-clj.demos.string-demo
 
 # 第8章 リストのデモプログラムの実行（Clojure REPLで実行）
-clojure -M -e "(require '[algorithm-clj.basic-algorithms.list-demo :as demo]) (demo/run-all-demos)"
+clojure -M -e "(require '[algorithm-clj.demos.list-demo :as demo]) (demo/run-all-demos)"
 
 # 第9章 木構造のデモプログラムの実行
-lein run -m algorithm-clj.basic-algorithms.tree-demo
+lein run -m algorithm-clj.demos.tree-demo
 
 # 特定のテストの実行
-lein test algorithm-clj.basic-algorithms.core-test
-lein test algorithm-clj.basic-algorithms.array-test
-lein test algorithm-clj.basic-algorithms.search-test
-lein test algorithm-clj.basic-algorithms.stack-queue-test
-lein test algorithm-clj.basic-algorithms.recursion-test
-lein test algorithm-clj.basic-algorithms.string-test
-lein test algorithm-clj.basic-algorithms.list-test
-lein test algorithm-clj.basic-algorithms.tree-test
+lein test algorithm-clj.algorithms.core-test
+lein test algorithm-clj.algorithms.array-test
+lein test algorithm-clj.algorithms.search-test
+lein test algorithm-clj.algorithms.stack-queue-test
+lein test algorithm-clj.algorithms.recursion-test
 lein test algorithm-clj.algorithms.sorting-test
+lein test algorithm-clj.algorithms.string-test
+lein test algorithm-clj.algorithms.list-test
+lein test algorithm-clj.algorithms.tree-test
 ```
 
 ## 実装済みアルゴリズム
@@ -156,25 +159,27 @@ lein test algorithm-clj.algorithms.sorting-test
 ```
 src/algorithm_clj/
 ├── core.clj                      # メインアプリケーション
-├── demos/
-│   ├── demo.clj                  # 第1章デモプログラム
-│   ├── array_demo.clj            # 第2章デモプログラム
-│   ├── search_demo.clj           # 第3章デモプログラム
-│   ├── stack_queue_demo.clj      # 第4章デモプログラム
-│   ├── recursion_demo.clj        # 第5章デモプログラム
-│   ├── sorting_demo.clj          # 第6章デモプログラム
-│   └── string_demo.clj           # 第7章デモプログラム
 ├── debug_prime.clj               # 素数デバッグユーティリティ
-└── algorithms/
-    ├── core.clj                  # 第1章: 基本的なアルゴリズム
-    ├── array.clj                 # 第2章: 配列
-    ├── search.clj                # 第3章: 探索アルゴリズム
-    ├── stack_queue.clj           # 第4章: スタックとキュー
-    ├── recursion.clj             # 第5章: 再帰
-    ├── sorting.clj               # 第6章: ソートアルゴリズム
-    ├── string.clj                # 第7章: 文字列アルゴリズム
-    ├── list.clj                  # 第8章: リスト
-    ├── list_demo.clj             # 第8章: リストデモ
+├── algorithms/
+│   ├── core.clj                  # 第1章: 基本的なアルゴリズム
+│   ├── array.clj                 # 第2章: 配列
+│   ├── search.clj                # 第3章: 探索アルゴリズム
+│   ├── stack_queue.clj           # 第4章: スタックとキュー
+│   ├── recursion.clj             # 第5章: 再帰
+│   ├── sorting.clj               # 第6章: ソートアルゴリズム
+│   ├── string.clj                # 第7章: 文字列アルゴリズム
+│   ├── list.clj                  # 第8章: リスト
+│   └── tree.clj                  # 第9章: 木構造
+└── demos/
+    ├── core_demo.clj             # 第1章デモプログラム
+    ├── array_demo.clj            # 第2章デモプログラム
+    ├── search_demo.clj           # 第3章デモプログラム
+    ├── stack_queue_demo.clj      # 第4章デモプログラム
+    ├── recursion_demo.clj        # 第5章デモプログラム
+    ├── sorting_demo.clj          # 第6章デモプログラム
+    ├── string_demo.clj           # 第7章デモプログラム
+    ├── list_demo.clj             # 第8章デモプログラム
+    └── tree_demo.clj             # 第9章デモプログラム
     ├── tree.clj                  # 第9章: 木構造
     └── tree_demo.clj             # 第9章: 木構造デモ
 

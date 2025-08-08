@@ -1,4 +1,4 @@
-(ns algorithm-clj.demo
+(ns algorithm-clj.demos.core-demo
   (:require [algorithm-clj.algorithms.core :as basic]))
 
 (defn -main []
