@@ -111,23 +111,37 @@ lein test algorithm-clj.algorithms.sorting-test
 - **マージソート**: `merge-sort` - 分割統治法による安定ソート
 - **ヒープソート**: `heap-sort` - ヒープ構造を利用したソート
 
+### 第7章: 文字列アルゴリズム
+
+- **文字列基本操作**: `string-length`, `string-concat`, `substring`, `string-reverse` - 基本的な文字列操作
+- **文字列検索**: `string-search-simple`, `string-search-kmp`, `string-search-boyer-moore` - 様々な検索アルゴリズム
+- **文字列変換**: `string-uppercase`, `string-lowercase` - 大文字小文字変換
+- **文字列解析**: `is-palindrome`, `is-anagram` - 回文判定とアナグラム判定
+- **文字列圧縮**: `run-length-encode`, `run-length-decode` - ランレングス符号化
+- **パターンマッチング**: `pattern-match-wildcard` - ワイルドカードパターンマッチング
+- **編集距離**: `edit-distance` - レーベンシュタイン距離計算
+
 ## プロジェクト構造
 
 ```
 src/algorithm_clj/
 ├── core.clj                      # メインアプリケーション
-├── demo.clj                      # 第1章デモプログラム
-├── array_demo.clj                # 第2章デモプログラム
-├── search_demo.clj               # 第3章デモプログラム
-├── stack_queue_demo.clj          # 第4章デモプログラム
-├── recursion_demo.clj            # 第5章デモプログラム
-├── sorting_demo.clj              # 第6章デモプログラム
+├── demos/
+│   ├── demo.clj                  # 第1章デモプログラム
+│   ├── array_demo.clj            # 第2章デモプログラム
+│   ├── search_demo.clj           # 第3章デモプログラム
+│   ├── stack_queue_demo.clj      # 第4章デモプログラム
+│   ├── recursion_demo.clj        # 第5章デモプログラム
+│   ├── sorting_demo.clj          # 第6章デモプログラム
+│   └── string_demo.clj           # 第7章デモプログラム
 ├── debug_prime.clj               # 素数デバッグユーティリティ
 ├── basic_algorithms/
 │   ├── core.clj                  # 第1章: 基本的なアルゴリズム
 │   ├── array.clj                 # 第2章: 配列
 │   ├── search.clj                # 第3章: 探索アルゴリズム
 │   ├── stack_queue.clj           # 第4章: スタックとキュー
+│   ├── recursion.clj             # 第5章: 再帰
+│   └── string.clj                # 第7章: 文字列アルゴリズム
 │   └── recursion.clj             # 第5章: 再帰アルゴリズム
 └── algorithms/
     └── sorting.clj               # 第6章: ソートアルゴリズム
@@ -139,7 +153,8 @@ test/algorithm_clj/
 │   ├── array_test.clj            # 第2章のテスト
 │   ├── search_test.clj           # 第3章のテスト
 │   ├── stack_queue_test.clj      # 第4章のテスト
-│   └── recursion_test.clj        # 第5章のテスト
+│   ├── recursion_test.clj        # 第5章のテスト
+│   └── string_test.clj           # 第7章のテスト
 └── algorithms/
     └── sorting_test.clj          # 第6章のテスト
 ```
@@ -147,9 +162,40 @@ test/algorithm_clj/
 ## テスト結果
 
 現在のテスト状況:
-- **総テスト数**: 43テスト
-- **総アサーション数**: 305アサーション  
-- **テスト結果**: 全テスト成功 ✅ (100%成功)
+- **総テスト数**: 58テスト
+- **総アサーション数**: 360アサーション  
+- **テスト結果**: 第1-5章と第7章は全成功 ✅、第6章に5件の失敗 ❌
+
+### 章別実装状況
+
+#### ✅ 第1章: 基本データ構造
+- 配列操作、リスト操作、ハッシュマップ操作
+- 状態: 完全実装・全テスト成功
+
+#### ✅ 第2章: コアアルゴリズム  
+- 基本的なアルゴリズム（最大値・最小値・平均値計算等）
+- 状態: 完全実装・全テスト成功
+
+#### ✅ 第3章: 検索アルゴリズム
+- 線形検索、二分探索、ハッシュテーブル
+- 状態: 完全実装・全テスト成功
+
+#### ✅ 第4章: スタックとキュー
+- スタック操作、キュー操作、デック操作
+- 状態: 完全実装・全テスト成功
+
+#### ✅ 第5章: 再帰アルゴリズム
+- 階乗、フィボナッチ数列、ハノイの塔、N-Queens問題
+- 状態: 完全実装・全テスト成功
+
+#### ❌ 第6章: ソートアルゴリズム  
+- バブルソート、選択ソート、挿入ソート、シェルソート、クイックソート、マージソート、ヒープソート
+- 状態: 実装済みだが、ヒープソートに逆順ソート問題があり、性能テストでタイムアウト
+
+#### ✅ 第7章: 文字列アルゴリズム
+- 文字列検索（単純検索、KMP法、Boyer-Moore法）
+- 文字列操作、解析、圧縮、パターンマッチング、編集距離
+- 状態: 完全実装・全テスト成功
 
 ### 実装の特徴
 
