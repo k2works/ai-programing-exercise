@@ -8,6 +8,7 @@ import StackAlgorithms
 import QueueAlgorithms
 import RecursionAlgorithms
 import SortAlgorithms
+import StringProcessing
 
 main :: IO ()
 main = do
@@ -303,3 +304,79 @@ main = do
   putStrLn "| 挿入ソート      | O(n²)       | O(n²)       | 安定   |"
   putStrLn "| クイックソート  | O(n log n)  | O(n²)       | 不安定 |"
   putStrLn "| マージソート    | O(n log n)  | O(n log n)  | 安定   |"
+  putStrLn ""
+
+  putStrLn "=== 第7章: 文字列処理 ==="
+  putStrLn ""
+
+  -- 基本的な文字列検索
+  putStrLn "1. 基本的な文字列検索："
+  let text = "Hello, Haskell World!"
+  let pattern1 = "Haskell"
+  let pattern2 = "Python"
+  putStrLn $ "テキスト: \"" ++ text ++ "\""
+  putStrLn $ "bruteForceSearch \"" ++ pattern1 ++ "\" => " ++ show (bruteForceSearch pattern1 text)
+  putStrLn $ "bruteForceSearch \"" ++ pattern2 ++ "\" => " ++ show (bruteForceSearch pattern2 text)
+  putStrLn $ "bruteForceSearchManual \"" ++ pattern1 ++ "\" => " ++ show (bruteForceSearchManual pattern1 text)
+  putStrLn ""
+
+  -- パターンの出現位置検索
+  putStrLn "2. パターンの出現位置検索："
+  let searchText = "ABABCABABAB"
+  let searchPattern = "AB"
+  putStrLn $ "テキスト: \"" ++ searchText ++ "\""
+  putStrLn $ "パターン: \"" ++ searchPattern ++ "\""
+  putStrLn $ "findAllOccurrences => " ++ show (findAllOccurrences searchPattern searchText)
+  putStrLn $ "findFirst => " ++ show (findFirst searchPattern searchText)
+  putStrLn $ "countOccurrences => " ++ show (countOccurrences searchPattern searchText)
+  putStrLn ""
+
+  -- 文字列操作
+  putStrLn "3. 文字列操作："
+  let sampleText = "hello world"
+  putStrLn $ "元の文字列: \"" ++ sampleText ++ "\""
+  putStrLn $ "capitalize => \"" ++ capitalize sampleText ++ "\""
+  putStrLn $ "removeSpaces => \"" ++ removeSpaces sampleText ++ "\""
+  putStrLn $ "reverseWords => \"" ++ reverseWords sampleText ++ "\""
+  putStrLn ""
+
+  -- 回文判定
+  putStrLn "4. 回文判定："
+  let palindromes = ["racecar", "A man a plan a canal Panama", "hello", "Madam"]
+  mapM_ (\s -> putStrLn $ "isPalindrome \"" ++ s ++ "\" => " ++ show (isPalindrome s)) palindromes
+  putStrLn ""
+
+  -- パターンマッチング
+  putStrLn "5. パターンマッチング："
+  let testString = "Hello, World!"
+  putStrLn $ "テキスト: \"" ++ testString ++ "\""
+  putStrLn $ "startsWith \"Hello\" => " ++ show (startsWith "Hello" testString)
+  putStrLn $ "endsWith \"World!\" => " ++ show (endsWith "World!" testString)
+  putStrLn $ "startsWith \"Hi\" => " ++ show (startsWith "Hi" testString)
+  putStrLn ""
+
+  -- シーザー暗号
+  putStrLn "6. シーザー暗号："
+  let message = "Hello World"
+  putStrLn $ "元のメッセージ: \"" ++ message ++ "\""
+  putStrLn $ "caesarCipher 3 => \"" ++ caesarCipher 3 message ++ "\""
+  putStrLn $ "caesarCipher (-3) => \"" ++ caesarCipher (-3) (caesarCipher 3 message) ++ "\""
+  putStrLn $ "rot13 => \"" ++ rot13 message ++ "\""
+  putStrLn $ "rot13 (rot13) => \"" ++ rot13 (rot13 message) ++ "\" (元に戻る)"
+  putStrLn ""
+
+  -- 文字頻度解析
+  putStrLn "7. 文字頻度解析："
+  let analyzeText = "programming"
+  putStrLn $ "テキスト: \"" ++ analyzeText ++ "\""
+  putStrLn $ "charFrequency => " ++ show (charFrequency analyzeText)
+  putStrLn ""
+
+  -- アルゴリズムの比較
+  putStrLn "8. 文字列検索アルゴリズムの特徴："
+  putStrLn "| アルゴリズム        | 時間計算量  | 特徴                     |"
+  putStrLn "|-------------------|------------|--------------------------|"
+  putStrLn "| 力まかせ法          | O(n*m)     | 単純、理解しやすい        |"
+  putStrLn "| KMP法              | O(n+m)     | 前処理でスキップテーブル作成|"
+  putStrLn "| Boyer-Moore法       | O(n/m)平均  | 右から左比較、実用的      |"
+  putStrLn "| Data.Text.isInfixOf | 最適化済み  | Haskellの実用的選択       |"
