@@ -1,6 +1,6 @@
 (ns algorithm-clj.demos.string-demo
-  "第7章: 文字列アルゴリズムのデモプログラム"
-  (:require [algorithm-clj.basic-algorithms.string :as string-alg]))
+  "文字列アルゴリズムのデモプログラム"
+ (:require [algorithm-clj.algorithms.string :as string-alg]))
 
 (defn print-divider [title]
   (println "\n" (str "=" (apply str (repeat (count title) "=")) "="))

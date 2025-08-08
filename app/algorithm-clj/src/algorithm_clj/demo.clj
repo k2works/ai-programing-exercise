@@ -1,5 +1,5 @@
 (ns algorithm-clj.demo
-  (:require [algorithm-clj.basic-algorithms.core :as basic]))
+  (:require [algorithm-clj.algorithms.core :as basic]))
 
 (defn -main []
   (println "=== アルゴリズムから始めるClojure入門 第1章 デモ ===\n")

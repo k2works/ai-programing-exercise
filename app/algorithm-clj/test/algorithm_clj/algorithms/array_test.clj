@@ -1,6 +1,6 @@
-(ns algorithm-clj.basic-algorithms.array-test
+(ns algorithm-clj.algorithms.array-test
   (:require [clojure.test :refer :all]
-            [algorithm-clj.basic-algorithms.array :refer :all]))
+            [algorithm-clj.algorithms.array :refer :all]))
 
 ;; 5人の点数から合計と平均を計算（個別引数版）
 (deftest test-calculate-scores-individual

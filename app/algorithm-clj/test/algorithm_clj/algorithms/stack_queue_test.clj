@@ -1,6 +1,6 @@
-(ns algorithm-clj.basic-algorithms.stack-queue-test
+(ns algorithm-clj.algorithms.stack-queue-test
   (:require [clojure.test :refer :all]
-            [algorithm-clj.basic-algorithms.stack-queue :refer :all])
+            [algorithm-clj.algorithms.stack-queue :refer :all])
   (:import [java.util ArrayDeque]))
 
 ;; ============================

@@ -1,4 +1,4 @@
-(ns algorithm-clj.basic-algorithms.core)
+(ns algorithm-clj.algorithms.core)
 
 ;; 3値の最大値を求める
 (defn max3

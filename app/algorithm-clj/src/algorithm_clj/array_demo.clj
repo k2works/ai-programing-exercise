@@ -1,5 +1,5 @@
 (ns algorithm-clj.array-demo
-  (:require [algorithm-clj.basic-algorithms.array :as array]))
+  (:require [algorithm-clj.algorithms.array :as array]))
 
 (defn -main []
   (println "=== アルゴリズムから始めるClojure入門 第2章 配列 デモ ===\n")

@@ -1,6 +1,6 @@
-(ns algorithm-clj.basic-algorithms.core-test
+(ns algorithm-clj.algorithms.core-test
   (:require [clojure.test :refer :all]
-            [algorithm-clj.basic-algorithms.core :refer :all]))
+            [algorithm-clj.algorithms.core :refer :all]))
 
 ;; 3値の最大値のテスト
 (deftest test-max3

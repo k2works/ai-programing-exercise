@@ -1,4 +1,4 @@
-(ns algorithm-clj.basic-algorithms.recursion
+(ns algorithm-clj.algorithms.recursion
   "第5章 再帰アルゴリズムの実装"
   (:import [java.util ArrayDeque]))
 

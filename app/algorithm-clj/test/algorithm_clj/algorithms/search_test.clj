@@ -1,6 +1,6 @@
-(ns algorithm-clj.basic-algorithms.search-test
+(ns algorithm-clj.algorithms.search-test
   (:require [clojure.test :refer :all]
-            [algorithm-clj.basic-algorithms.search :refer :all]))
+            [algorithm-clj.algorithms.search :refer :all]))
 
 ;; 線形探索のテスト
 (deftest test-ssearch

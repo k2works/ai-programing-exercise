@@ -1,5 +1,5 @@
 (ns algorithm-clj.debug-prime
-  (:require [algorithm-clj.basic-algorithms.array :as array]))
+  (:require [algorithm-clj.algorithms.array :as array]))
 
 (defn prime-debug
   "素数を実際に列挙してデバッグ用に表示"

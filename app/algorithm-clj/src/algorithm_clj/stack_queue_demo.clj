@@ -1,6 +1,6 @@
 (ns algorithm-clj.stack-queue-demo
   "第4章 スタックとキューのデモプログラム"
-  (:require [algorithm-clj.basic-algorithms.stack-queue :refer :all])
+  (:require [algorithm-clj.algorithms.stack-queue :refer :all])
   (:import [java.util ArrayDeque]))
 
 (defn -main []

@@ -165,33 +165,31 @@ src/algorithm_clj/
 │   ├── sorting_demo.clj          # 第6章デモプログラム
 │   └── string_demo.clj           # 第7章デモプログラム
 ├── debug_prime.clj               # 素数デバッグユーティリティ
-├── basic_algorithms/
-│   ├── core.clj                  # 第1章: 基本的なアルゴリズム
-│   ├── array.clj                 # 第2章: 配列
-│   ├── search.clj                # 第3章: 探索アルゴリズム
-│   ├── stack_queue.clj           # 第4章: スタックとキュー
-│   ├── recursion.clj             # 第5章: 再帰
-│   ├── string.clj                # 第7章: 文字列アルゴリズム
-│   ├── list.clj                  # 第8章: リスト
-│   ├── list_demo.clj             # 第8章: リストデモ
-│   ├── tree.clj                  # 第9章: 木構造
-│   └── tree_demo.clj             # 第9章: 木構造デモ
 └── algorithms/
-    └── sorting.clj               # 第6章: ソートアルゴリズム
+    ├── core.clj                  # 第1章: 基本的なアルゴリズム
+    ├── array.clj                 # 第2章: 配列
+    ├── search.clj                # 第3章: 探索アルゴリズム
+    ├── stack_queue.clj           # 第4章: スタックとキュー
+    ├── recursion.clj             # 第5章: 再帰
+    ├── sorting.clj               # 第6章: ソートアルゴリズム
+    ├── string.clj                # 第7章: 文字列アルゴリズム
+    ├── list.clj                  # 第8章: リスト
+    ├── list_demo.clj             # 第8章: リストデモ
+    ├── tree.clj                  # 第9章: 木構造
+    └── tree_demo.clj             # 第9章: 木構造デモ
 
 test/algorithm_clj/
 ├── core_test.clj                 # メインのテスト
-├── basic_algorithms/
-│   ├── core_test.clj             # 第1章のテスト
-│   ├── array_test.clj            # 第2章のテスト
-│   ├── search_test.clj           # 第3章のテスト
-│   ├── stack_queue_test.clj      # 第4章のテスト
-│   ├── recursion_test.clj        # 第5章のテスト
-│   ├── string_test.clj           # 第7章のテスト
-│   ├── list_test.clj             # 第8章のテスト
-│   └── tree_test.clj             # 第9章のテスト
 └── algorithms/
-    └── sorting_test.clj          # 第6章のテスト
+    ├── core_test.clj             # 第1章のテスト
+    ├── array_test.clj            # 第2章のテスト
+    ├── search_test.clj           # 第3章のテスト
+    ├── stack_queue_test.clj      # 第4章のテスト
+    ├── recursion_test.clj        # 第5章のテスト
+    ├── sorting_test.clj          # 第6章のテスト
+    ├── string_test.clj           # 第7章のテスト
+    ├── list_test.clj             # 第8章のテスト
+    └── tree_test.clj             # 第9章のテスト
 ```
 
 ## テスト結果
@@ -199,7 +197,7 @@ test/algorithm_clj/
 現在のテスト状況:
 - **総テスト数**: 91テスト
 - **総アサーション数**: 515アサーション  
-- **テスト結果**: 第1-5章、第7-9章は全成功 ✅、第6章に5件の失敗 ❌
+- **テスト結果**: 全章すべて成功 ✅
 
 ### 章別実装状況
 

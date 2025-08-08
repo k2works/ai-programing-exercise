@@ -1,4 +1,4 @@
-(ns algorithm-clj.basic-algorithms.list
+(ns algorithm-clj.algorithms.list
   (:import [java.util LinkedList]))
 
 ;; Javaの LinkedList を使った線形リスト操作

@@ -1,6 +1,6 @@
-(ns algorithm-clj.basic-algorithms.tree-test
+(ns algorithm-clj.algorithms.tree-test
   (:require [clojure.test :refer :all]
-            [algorithm-clj.basic-algorithms.tree :refer :all]))
+            [algorithm-clj.algorithms.tree :refer :all]))
 
 ;; 基本的な木のテスト
 

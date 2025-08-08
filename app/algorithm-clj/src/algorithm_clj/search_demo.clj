@@ -1,5 +1,5 @@
 (ns algorithm-clj.search-demo
-  (:require [algorithm-clj.basic-algorithms.search :as search]))
+  (:require [algorithm-clj.algorithms.search :as search]))
 
 (defn demonstrate-linear-search []
   (println "【線形探索のデモ】")

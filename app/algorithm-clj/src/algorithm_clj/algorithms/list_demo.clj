@@ -1,5 +1,5 @@
-(ns algorithm-clj.basic-algorithms.list-demo
-  (:require [algorithm-clj.basic-algorithms.list :as list-ops]))
+(ns algorithm-clj.algorithms.list-demo
+  (:require [algorithm-clj.algorithms.list :as list-ops]))
 
 (defn demo-clojure-list
   "Clojureの組み込みリストのデモ"

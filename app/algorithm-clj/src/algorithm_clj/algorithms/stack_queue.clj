@@ -1,4 +1,4 @@
-(ns algorithm-clj.basic-algorithms.stack-queue
+(ns algorithm-clj.algorithms.stack-queue
   "第4章 スタックとキューの実装"
   (:import [java.util ArrayDeque]))
 

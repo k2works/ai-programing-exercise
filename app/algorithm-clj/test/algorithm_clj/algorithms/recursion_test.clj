@@ -1,6 +1,6 @@
-(ns algorithm-clj.basic-algorithms.recursion-test
+(ns algorithm-clj.algorithms.recursion-test
   (:require [clojure.test :refer :all]
-            [algorithm-clj.basic-algorithms.recursion :refer :all]))
+            [algorithm-clj.algorithms.recursion :refer :all]))
 
 ;; ============================
 ;; 基本的な再帰アルゴリズムのテスト

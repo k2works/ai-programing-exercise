@@ -182,9 +182,10 @@
             n (count heap)
             result []]
        (if (<= n 1)
-         (if (= n 1)
-           (conj result (first current-heap))
-           result)
+         (let [final-result (if (= n 1)
+                     (conj result (first current-heap))
+                              result)]
+ (vec (reverse final-result)))
          (let [max-elem (first current-heap)
                new-heap (assoc current-heap 0 (get current-heap (dec n)))
                heapified (heapify new-heap (dec n) 0)]

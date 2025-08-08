@@ -1,5 +1,5 @@
-(ns algorithm-clj.basic-algorithms.tree-demo
-  (:require [algorithm-clj.basic-algorithms.tree :as tree]))
+(ns algorithm-clj.algorithms.tree-demo
+  (:require [algorithm-clj.algorithms.tree :as tree]))
 
 (defn demo-basic-tree
   "基本的な木のデモ"

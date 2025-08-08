@@ -11,4 +11,4 @@
 ;;
 ;; 修正案: 2番目の再帰呼び出しを先に実行する
 
-(ns algorithm-clj.basic-algorithms.recure-analysis)
+(ns algorithm-clj.algorithms.recure-analysis)

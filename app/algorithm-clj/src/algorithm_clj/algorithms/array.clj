@@ -1,4 +1,4 @@
-(ns algorithm-clj.basic-algorithms.array)
+(ns algorithm-clj.algorithms.array)
 
 ;; 5人の点数から合計と平均を計算（個別引数版）
 (defn calculate-scores-individual

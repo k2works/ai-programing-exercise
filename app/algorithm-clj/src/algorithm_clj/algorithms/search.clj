@@ -1,4 +1,4 @@
-(ns algorithm-clj.basic-algorithms.search)
+(ns algorithm-clj.algorithms.search)
 
 ;; 線形探索（loop/recur版）
 (defn ssearch-while

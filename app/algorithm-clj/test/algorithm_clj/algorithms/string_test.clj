@@ -1,6 +1,6 @@
-(ns algorithm-clj.basic-algorithms.string-test
+(ns algorithm-clj.algorithms.string-test
   (:require [clojure.test :refer :all]
-            [algorithm-clj.basic-algorithms.string :refer :all]))
+            [algorithm-clj.algorithms.string :refer :all]))
 
 ;; ============================
 ;; 第7章: 文字列アルゴリズム テスト

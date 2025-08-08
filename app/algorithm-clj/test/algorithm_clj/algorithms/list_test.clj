@@ -1,6 +1,6 @@
-(ns algorithm-clj.basic-algorithms.list-test
+(ns algorithm-clj.algorithms.list-test
   (:require [clojure.test :refer :all]
-            [algorithm-clj.basic-algorithms.list :refer :all]))
+            [algorithm-clj.algorithms.list :refer :all]))
 
 ;; Java LinkedList のテスト
 

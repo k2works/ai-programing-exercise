@@ -1,4 +1,4 @@
-(ns algorithm-clj.basic-algorithms.tree
+(ns algorithm-clj.algorithms.tree
   (:import [java.util PriorityQueue]))
 
 ;; 基本的な木のノード（不変）

@@ -1,4 +1,4 @@
-(ns algorithm-clj.basic-algorithms.string
+(ns algorithm-clj.algorithms.string
   "第7章: 文字列アルゴリズムの実装"
   (:require [clojure.string :as str]))
 
