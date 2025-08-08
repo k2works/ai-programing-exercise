@@ -48,12 +48,17 @@ lein run -m algorithm-clj.recursion-demo
 # 第6章 ソートアルゴリズムのデモプログラムの実行
 lein run -m algorithm-clj.sorting-demo
 
+# 第8章 リストのデモプログラムの実行（Clojure REPLで実行）
+clojure -M -e "(require '[algorithm-clj.basic-algorithms.list-demo :as demo]) (demo/run-all-demos)"
+
 # 特定のテストの実行
 lein test algorithm-clj.basic-algorithms.core-test
 lein test algorithm-clj.basic-algorithms.array-test
 lein test algorithm-clj.basic-algorithms.search-test
 lein test algorithm-clj.basic-algorithms.stack-queue-test
 lein test algorithm-clj.basic-algorithms.recursion-test
+lein test algorithm-clj.basic-algorithms.string-test
+lein test algorithm-clj.basic-algorithms.list-test
 lein test algorithm-clj.algorithms.sorting-test
 ```
 
@@ -121,6 +126,16 @@ lein test algorithm-clj.algorithms.sorting-test
 - **パターンマッチング**: `pattern-match-wildcard` - ワイルドカードパターンマッチング
 - **編集距離**: `edit-distance` - レーベンシュタイン距離計算
 
+### 第8章: リスト
+
+- **Clojureリスト基本操作**: `cons`, `first`, `rest`, `count` - Clojureの組み込みリストの基本操作
+- **Java LinkedList操作**: `make-java-linked-list`, `add-first-java-linked-list`, `add-last-java-linked-list` - 先頭・末尾への要素追加
+- **Java LinkedList削除**: `remove-first-java-linked-list`, `remove-last-java-linked-list` - 先頭・末尾からの要素削除
+- **Java LinkedList検索**: `search-java-linked-list` - リスト内での要素検索
+- **リスト走査**: `traverse-list` - リストの要素を順次処理
+- **双方向アクセス**: Java LinkedListの前方・後方走査機能
+- **リストデモ**: `clojure-list-demo`, `demo-java-linked-list`, `demo-bidirectional-access` - 各種リスト操作のデモンストレーション
+
 ## プロジェクト構造
 
 ```
@@ -141,8 +156,9 @@ src/algorithm_clj/
 │   ├── search.clj                # 第3章: 探索アルゴリズム
 │   ├── stack_queue.clj           # 第4章: スタックとキュー
 │   ├── recursion.clj             # 第5章: 再帰
-│   └── string.clj                # 第7章: 文字列アルゴリズム
-│   └── recursion.clj             # 第5章: 再帰アルゴリズム
+│   ├── string.clj                # 第7章: 文字列アルゴリズム
+│   ├── list.clj                  # 第8章: リスト
+│   └── list_demo.clj             # 第8章: リストデモ
 └── algorithms/
     └── sorting.clj               # 第6章: ソートアルゴリズム
 
@@ -154,7 +170,8 @@ test/algorithm_clj/
 │   ├── search_test.clj           # 第3章のテスト
 │   ├── stack_queue_test.clj      # 第4章のテスト
 │   ├── recursion_test.clj        # 第5章のテスト
-│   └── string_test.clj           # 第7章のテスト
+│   ├── string_test.clj           # 第7章のテスト
+│   └── list_test.clj             # 第8章のテスト
 └── algorithms/
     └── sorting_test.clj          # 第6章のテスト
 ```
@@ -162,9 +179,9 @@ test/algorithm_clj/
 ## テスト結果
 
 現在のテスト状況:
-- **総テスト数**: 58テスト
-- **総アサーション数**: 360アサーション  
-- **テスト結果**: 第1-5章と第7章は全成功 ✅、第6章に5件の失敗 ❌
+- **総テスト数**: 78テスト
+- **総アサーション数**: 448アサーション  
+- **テスト結果**: 第1-5章、第7-8章は全成功 ✅、第6章に5件の失敗 ❌
 
 ### 章別実装状況
 
@@ -195,6 +212,12 @@ test/algorithm_clj/
 #### ✅ 第7章: 文字列アルゴリズム
 - 文字列検索（単純検索、KMP法、Boyer-Moore法）
 - 文字列操作、解析、圧縮、パターンマッチング、編集距離
+- 状態: 完全実装・全テスト成功
+
+#### ✅ 第8章: リスト
+- Clojureの組み込みリスト操作（cons、first、rest、count）
+- Java LinkedListを使った線形リスト操作（追加、削除、検索）
+- 双方向アクセス（前方・後方走査）、リスト走査機能
 - 状態: 完全実装・全テスト成功
 
 ### 実装の特徴

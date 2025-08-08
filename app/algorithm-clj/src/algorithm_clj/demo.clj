@@ -48,4 +48,25 @@
   
   ;; 直角三角形の表示
   (println "【直角三角形の表示】")
-  (println (basic/triangle-lb 5)))
+  (println (basic/triangle-lb 5))
+
+ ;; リストのデモ
+ (println "\n【リストのデモ】")
+ (println "Clojureの組み込みリスト:")
+ (let [my-list '(1 2 3 4 5)]
+   (println "元のリスト:" my-list)
+   (println "先頭に0を追加:" (cons 0 my-list))
+   (println "先頭の要素:" (first my-list))
+   (println "先頭以外の要素:" (rest my-list))
+   (println "要素数:" (count my-list)))
+
+ (println "\nJava LinkedListのデモ:")
+ (let [ll (basic/make-java-linked-list)]
+   (println "初期サイズ:" (.size ll))
+   (basic/add-first-java-linked-list ll 2)
+   (basic/add-first-java-linked-list ll 1)
+   (basic/add-last-java-linked-list ll 3)
+   (println "要素追加後:" (seq ll))
+   (println "要素2のインデックス:" (basic/search-java-linked-list ll 2))
+   (println "先頭要素を削除:" (basic/remove-first-java-linked-list ll))
+   (println "削除後のリスト:" (seq ll))))

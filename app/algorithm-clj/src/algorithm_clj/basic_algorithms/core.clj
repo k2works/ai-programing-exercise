@@ -97,3 +97,35 @@
   (apply str
          (for [i (range n)]
            (str (apply str (repeat (inc i) "*")) "\n"))))
+
+;; リスト関連の基本関数
+
+(defn make-java-linked-list
+  "新しいJava LinkedListを作成"
+  []
+  (java.util.LinkedList.))
+
+(defn add-first-java-linked-list
+  "LinkedListの先頭に要素を追加"
+  [^java.util.LinkedList ll data]
+  (.addFirst ll data))
+
+(defn add-last-java-linked-list
+  "LinkedListの末尾に要素を追加"
+  [^java.util.LinkedList ll data]
+  (.addLast ll data))
+
+(defn remove-first-java-linked-list
+  "LinkedListの先頭要素を削除して返す"
+  [^java.util.LinkedList ll]
+  (.removeFirst ll))
+
+(defn remove-last-java-linked-list
+  "LinkedListの末尾要素を削除して返す"
+  [^java.util.LinkedList ll]
+  (.removeLast ll))
+
+(defn search-java-linked-list
+  "LinkedList内で指定したデータのインデックスを検索"
+  [^java.util.LinkedList ll data]
+  (.indexOf ll data))
