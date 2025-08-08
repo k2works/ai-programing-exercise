@@ -1,24 +1,17 @@
--- HLint configuration file for complexity analysis
--- このファイルでHLintのカスタムルールを定義します
+# HLint configuration file
+# HLintの設定ファイル
 
--- 循環複雑度に関する警告
-{-# OPTIONS_GHC -Wno-missing-signatures #-}
+# 無視する警告
+- ignore: {name: "Use camelCase"}
+- ignore: {name: "Redundant bracket"}
 
--- 複雑な関数に対する警告
-warn = {lhs = "f", rhs = "g", note = "Consider simplifying this function"}
+# 推奨事項
+- suggest: {lhs: "concat (map f xs)", rhs: "concatMap f xs"}
+- suggest: {lhs: "foldr (++) []", rhs: "concat"}
 
--- ネストが深い場合の警告
-warn = {lhs = "if a then if b then c else d else e", 
-        rhs = "case (a, b) of (True, True) -> c; (True, False) -> d; _ -> e",
-        note = "Consider using case expressions for multiple conditions"}
+# 警告
+- warn: {lhs: "length xs == 0", rhs: "null xs", note: "Use null to test for empty"}
+- warn: {lhs: "x ++ []", rhs: "x", note: "Redundant append"}
 
--- 長いガードの警告
-warn = {lhs = "f x | condition1 = result1 | condition2 = result2 | condition3 = result3 | otherwise = result4",
-        note = "Consider breaking down complex guard conditions"}
-
--- パターンマッチングの複雑さ
-warn = {note = "Consider simplifying complex pattern matching"}
-
--- モナドの複雑なチェーン
-warn = {lhs = "do a; b; c; d; e; f; g; h",
-        note = "Consider breaking down long monadic chains"}
+# エラー
+- error: {lhs: "map f (map g xs)", rhs: "map (f . g) xs", note: "Use composition"}

@@ -47,6 +47,10 @@ complexity:
 complexity-report:
 	stack exec -- runhaskell complexity-report.hs
 
+# 全体的な品質チェック
+check: lint test coverage complexity
+	@echo "✅ 全ての品質チェックが完了しました"
+
 # クリーンアップ
 clean:
 	stack clean

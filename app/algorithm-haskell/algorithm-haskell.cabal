@@ -25,6 +25,7 @@ source-repository head
 
 library
   exposed-modules:
+      BasicAlgorithms
       FizzBuzz
       Lib
   other-modules:
@@ -52,6 +53,7 @@ test-suite algorithm-haskell-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      BasicAlgorithmsSpec
       FizzBuzzSpec
       Paths_algorithm_haskell
   hs-source-dirs:
