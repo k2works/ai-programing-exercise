@@ -29,7 +29,9 @@ library
       FizzBuzz
       Lib
       ListAlgorithms
+      QueueAlgorithms
       SearchAlgorithms
+      StackAlgorithms
   other-modules:
       Paths_algorithm_haskell
   hs-source-dirs:
@@ -60,7 +62,9 @@ test-suite algorithm-haskell-test
       BasicAlgorithmsSpec
       FizzBuzzSpec
       ListAlgorithmsSpec
+      QueueAlgorithmsSpec
       SearchAlgorithmsSpec
+      StackAlgorithmsSpec
       Paths_algorithm_haskell
   hs-source-dirs:
       test

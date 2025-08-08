@@ -4,6 +4,8 @@ import BasicAlgorithms
 import FizzBuzz
 import ListAlgorithms
 import SearchAlgorithms
+import StackAlgorithms
+import QueueAlgorithms
 
 main :: IO ()
 main = do
@@ -132,3 +134,62 @@ main = do
   let removedMap = removeFromMap 5 updatedMap
   putStrLn $ "removeFromMap 5 => " ++ show removedMap
   putStrLn $ "searchInMap 5 => " ++ show (searchInMap 5 removedMap)
+
+  putStrLn ""
+  putStrLn "=== 第4章: スタックとキュー ==="
+  putStrLn ""
+  
+  -- スタック
+  putStrLn "1. スタック（Stack - LIFO）："
+  let stack0 = [] :: Stack Int
+  putStrLn $ "空のスタック: " ++ show stack0
+  putStrLn $ "isEmpty stack0 => " ++ show (isEmpty stack0)
+  
+  let stack1 = push 1 stack0
+  let stack2 = push 2 stack1
+  let stack3 = push 3 stack2
+  putStrLn $ "push 1, 2, 3 => " ++ show stack3
+  putStrLn $ "peek stack3 => " ++ show (peek stack3)
+  
+  let (val1, stack4) = pop stack3
+  let (val2, stack5) = pop stack4
+  let (val3, stack6) = pop stack5
+  putStrLn $ "pop operations => " ++ show (val1, val2, val3)
+  putStrLn $ "final stack => " ++ show stack6
+  putStrLn $ "isEmpty final => " ++ show (isEmpty stack6)
+  putStrLn ""
+  
+  -- キュー
+  putStrLn "2. キュー（Queue - FIFO）："
+  let queue0 = createEmpty :: Queue Int
+  putStrLn $ "空のキュー: " ++ show queue0
+  putStrLn $ "qIsEmpty queue0 => " ++ show (qIsEmpty queue0)
+  
+  let queue1 = enqueue 1 queue0
+  let queue2 = enqueue 2 queue1
+  let queue3 = enqueue 3 queue2
+  putStrLn $ "enqueue 1, 2, 3 => " ++ show queue3
+  putStrLn $ "qPeek queue3 => " ++ show (qPeek queue3)
+  
+  let (qval1, queue4) = dequeue queue3
+  let (qval2, queue5) = dequeue queue4
+  let (qval3, queue6) = dequeue queue5
+  putStrLn $ "dequeue operations => " ++ show (qval1, qval2, qval3)
+  putStrLn $ "final queue => " ++ show queue6
+  putStrLn $ "qIsEmpty final => " ++ show (qIsEmpty queue6)
+  putStrLn ""
+  
+  -- 安全な操作のデモ
+  putStrLn "3. 安全な操作（Safe Operations）："
+  let emptyStack = [] :: Stack String
+  let emptyQueue = createEmpty :: Queue String
+  
+  putStrLn $ "popSafe emptyStack => " ++ show (popSafe emptyStack)
+  putStrLn $ "peekSafe emptyStack => " ++ show (peekSafe emptyStack)
+  putStrLn $ "dequeueSafe emptyQueue => " ++ show (dequeueSafe emptyQueue)
+  putStrLn $ "qPeekSafe emptyQueue => " ++ show (qPeekSafe emptyQueue)
+  
+  let safeStack = push "hello" emptyStack
+  let safeQueue = enqueue "world" emptyQueue
+  putStrLn $ "popSafe [\"hello\"] => " ++ show (popSafe safeStack)
+  putStrLn $ "dequeueSafe (enqueue \"world\") => " ++ show (dequeueSafe safeQueue)
