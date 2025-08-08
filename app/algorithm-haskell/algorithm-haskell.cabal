@@ -32,6 +32,7 @@ library
       QueueAlgorithms
       RecursionAlgorithms
       SearchAlgorithms
+      SortAlgorithms
       StackAlgorithms
   other-modules:
       Paths_algorithm_haskell
@@ -66,6 +67,7 @@ test-suite algorithm-haskell-test
       QueueAlgorithmsSpec
       RecursionAlgorithmsSpec
       SearchAlgorithmsSpec
+      SortAlgorithmsSpec
       StackAlgorithmsSpec
       Paths_algorithm_haskell
   hs-source-dirs:

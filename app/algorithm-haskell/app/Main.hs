@@ -7,6 +7,7 @@ import SearchAlgorithms
 import StackAlgorithms
 import QueueAlgorithms
 import RecursionAlgorithms
+import SortAlgorithms
 
 main :: IO ()
 main = do
@@ -237,3 +238,68 @@ main = do
       putStrLn "4王妃問題の1つの解:"
       putStrLn $ show (head queen4solutions)
     else putStrLn "4王妃問題に解はありません"
+  
+  putStrLn ""
+  putStrLn "=== 第6章: ソートアルゴリズム ==="
+  putStrLn ""
+  
+  let testData = [6, 4, 3, 7, 1, 9, 8] :: [Int]
+  putStrLn $ "テストデータ: " ++ show testData
+  putStrLn ""
+  
+  -- バブルソートのデモ
+  putStrLn "1. バブルソート（Bubble Sort）："
+  putStrLn $ "bubbleSort " ++ show testData ++ " => " ++ show (bubbleSort testData)
+  putStrLn "特徴: 隣接要素を比較・交換、O(n²)、安定"
+  putStrLn ""
+  
+  -- 選択ソートのデモ
+  putStrLn "2. 選択ソート（Selection Sort）："
+  putStrLn $ "selectionSort " ++ show testData ++ " => " ++ show (selectionSort testData)
+  putStrLn "特徴: 最小値を選択して配置、O(n²)、不安定"
+  putStrLn ""
+  
+  -- 挿入ソートのデモ
+  putStrLn "3. 挿入ソート（Insertion Sort）："
+  putStrLn $ "insertionSort " ++ show testData ++ " => " ++ show (insertionSort testData)
+  putStrLn "特徴: 適切な位置に挿入、O(n²)、安定、ほぼソート済みに高速"
+  putStrLn ""
+  
+  -- クイックソートのデモ
+  putStrLn "4. クイックソート（Quick Sort）："
+  putStrLn $ "quickSort " ++ show testData ++ " => " ++ show (quickSort testData)
+  putStrLn "特徴: 分割統治法、O(n log n)平均、不安定、Haskellで簡潔"
+  putStrLn ""
+  
+  -- マージソートのデモ
+  putStrLn "5. マージソート（Merge Sort）："
+  let testData2 = [5, 8, 4, 2, 6, 1, 3, 9, 7] :: [Int]
+  putStrLn $ "mergeSort " ++ show testData2 ++ " => " ++ show (mergeSort testData2)
+  putStrLn "特徴: 分割統治法、O(n log n)常に、安定、標準ライブラリのベース"
+  putStrLn ""
+  
+  -- 文字列ソートのデモ
+  putStrLn "6. 文字列のソート："
+  let fruits = ["banana", "apple", "cherry", "date"]
+  putStrLn $ "文字列データ: " ++ show fruits
+  putStrLn $ "quickSort => " ++ show (quickSort fruits)
+  putStrLn $ "mergeSort => " ++ show (mergeSort fruits)
+  putStrLn ""
+  
+  -- 重複データのテスト
+  putStrLn "7. 重複要素を含むデータ："
+  let duplicateData = [3, 1, 4, 1, 5, 9, 2, 6, 5] :: [Int]
+  putStrLn $ "テストデータ: " ++ show duplicateData
+  putStrLn $ "quickSort => " ++ show (quickSort duplicateData)
+  putStrLn $ "mergeSort => " ++ show (mergeSort duplicateData)
+  putStrLn ""
+  
+  -- パフォーマンス比較の準備
+  putStrLn "8. アルゴリズムの特徴比較："
+  putStrLn "| アルゴリズム    | 平均計算量   | 最悪計算量   | 安定性 |"
+  putStrLn "|----------------|-------------|-------------|--------|"
+  putStrLn "| バブルソート    | O(n²)       | O(n²)       | 安定   |"
+  putStrLn "| 選択ソート      | O(n²)       | O(n²)       | 不安定 |"
+  putStrLn "| 挿入ソート      | O(n²)       | O(n²)       | 安定   |"
+  putStrLn "| クイックソート  | O(n log n)  | O(n²)       | 不安定 |"
+  putStrLn "| マージソート    | O(n log n)  | O(n log n)  | 安定   |"
