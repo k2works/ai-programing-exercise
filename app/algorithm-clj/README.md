@@ -42,11 +42,15 @@ lein run -m algorithm-clj.search-demo
 # 第4章 スタックとキューのデモプログラムの実行
 lein run -m algorithm-clj.stack-queue-demo
 
+# 第5章 再帰アルゴリズムのデモプログラムの実行
+lein run -m algorithm-clj.recursion-demo
+
 # 特定のテストの実行
 lein test algorithm-clj.basic-algorithms.core-test
 lein test algorithm-clj.basic-algorithms.array-test
 lein test algorithm-clj.basic-algorithms.search-test
 lein test algorithm-clj.basic-algorithms.stack-queue-test
+lein test algorithm-clj.basic-algorithms.recursion-test
 ```
 
 ## 実装済みアルゴリズム
@@ -84,6 +88,15 @@ lein test algorithm-clj.basic-algorithms.stack-queue-test
 - **固定長キュー**: `FixedQueue` - リングバッファを使ったFIFO構造、エンキュー・デキュー・ピーク操作  
 - **ArrayDeque キュー**: `ArrayDeque` - Java標準ライブラリを使った効率的なキュー実装
 
+### 第5章: 再帰アルゴリズム
+
+- **階乗**: `factorial` - 再帰とループによる階乗計算
+- **ユークリッドの互除法**: `gcd` - 最大公約数の計算
+- **再帰関数**: `recure`, `recure-iterative` - 再帰の仕組みを理解するための例
+- **ハノイの塔**: `move-hanoi`, `count-hanoi-moves` - 円盤の移動と移動回数の計算
+- **8王妃問題**: `solve-8-queens`, `solve-n-queens` - バックトラッキングによるn王妃問題の解法
+- **王妃の配置**: `put-queens-all-combinations`, `put-queens-row-col-constraint` - 制約条件を考慮した王妃の配置
+
 ## プロジェクト構造
 
 ```
@@ -93,12 +106,14 @@ src/algorithm_clj/
 ├── array_demo.clj                # 第2章デモプログラム
 ├── search_demo.clj               # 第3章デモプログラム
 ├── stack_queue_demo.clj          # 第4章デモプログラム
+├── recursion_demo.clj            # 第5章デモプログラム
 ├── debug_prime.clj               # 素数デバッグユーティリティ
 ├── basic_algorithms/
 │   ├── core.clj                  # 第1章: 基本的なアルゴリズム
 │   ├── array.clj                 # 第2章: 配列
 │   ├── search.clj                # 第3章: 探索アルゴリズム
-│   └── stack_queue.clj           # 第4章: スタックとキュー
+│   ├── stack_queue.clj           # 第4章: スタックとキュー
+│   └── recursion.clj             # 第5章: 再帰アルゴリズム
 └── algorithms/
     └── sorting.clj               # ソートアルゴリズム（今後実装予定）
 
@@ -108,7 +123,8 @@ test/algorithm_clj/
 │   ├── core_test.clj             # 第1章のテスト
 │   ├── array_test.clj            # 第2章のテスト
 │   ├── search_test.clj           # 第3章のテスト
-│   └── stack_queue_test.clj      # 第4章のテスト
+│   ├── stack_queue_test.clj      # 第4章のテスト
+│   └── recursion_test.clj        # 第5章のテスト
 └── algorithms/
     └── sorting_test.clj          # ソートアルゴリズムのテスト
 ```
@@ -116,9 +132,9 @@ test/algorithm_clj/
 ## テスト結果
 
 現在のテスト状況:
-- **総テスト数**: 31テスト
-- **総アサーション数**: 200アサーション  
-- **テスト結果**: 全テスト成功 ✅
+- **総テスト数**: 43テスト
+- **総アサーション数**: 305アサーション  
+- **テスト結果**: 41テスト成功（95.3%）✅
 
 ### 実装の特徴
 

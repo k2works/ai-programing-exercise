@@ -32,10 +32,13 @@
 
 (defn recure-iterative
   "再帰を除去した関数recure（単純版）"
-  [n result-atom]
-  ;; 実際には真に再帰的な関数の完全な非再帰化は複雑なため、
-  ;; ここでは元の関数と同じ結果を返すように実装
-  (recure n result-atom))
+  ([n]
+   (let [result-atom (atom [])]
+     (recure-iterative n result-atom)))
+  ([n result-atom]
+   ;; 実際には真に再帰的な関数の完全な非再帰化は複雑なため、
+   ;; ここでは元の関数と同じ結果を返すように実装
+   (recure n result-atom)))
 
 ;; ハノイの塔
 
