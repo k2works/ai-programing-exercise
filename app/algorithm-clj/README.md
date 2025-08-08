@@ -36,9 +36,13 @@ lein run -m algorithm-clj.demo
 # 第2章 配列のデモプログラムの実行
 lein run -m algorithm-clj.array-demo
 
+# 第3章 探索アルゴリズムのデモプログラムの実行
+lein run -m algorithm-clj.search-demo
+
 # 特定のテストの実行
 lein test algorithm-clj.basic-algorithms.core-test
 lein test algorithm-clj.basic-algorithms.array-test
+lein test algorithm-clj.basic-algorithms.search-test
 ```
 
 ## 実装済みアルゴリズム
@@ -62,6 +66,13 @@ lein test algorithm-clj.basic-algorithms.array-test
 - **基数変換**: `card-conv` - 10進数を指定された基数に変換
 - **素数の列挙**: `prime1`, `prime2`, `prime3` - 3つの異なる効率レベルの素数列挙アルゴリズム
 
+### 第3章: 探索アルゴリズム
+
+- **線形探索**: `ssearch-while`, `ssearch-for`, `ssearch-sentinel` - 3つの実装方式による線形探索
+- **二分探索**: `bsearch` - ソート済み配列での効率的な探索
+- **ハッシュ法（チェイン法）**: `ChainedHash` - 連鎖リストによる衝突解決
+- **ハッシュ法（オープンアドレス法）**: `OpenHash` - 線形探査による衝突解決
+
 ## プロジェクト構造
 
 ```
@@ -69,10 +80,12 @@ src/algorithm_clj/
 ├── core.clj                      # メインアプリケーション
 ├── demo.clj                      # 第1章デモプログラム
 ├── array_demo.clj                # 第2章デモプログラム
+├── search_demo.clj               # 第3章デモプログラム
 ├── debug_prime.clj               # 素数デバッグユーティリティ
 ├── basic_algorithms/
 │   ├── core.clj                  # 第1章: 基本的なアルゴリズム
-│   └── array.clj                 # 第2章: 配列
+│   ├── array.clj                 # 第2章: 配列
+│   └── search.clj                # 第3章: 探索アルゴリズム
 └── algorithms/
     └── sorting.clj               # ソートアルゴリズム（今後実装予定）
 
@@ -80,10 +93,25 @@ test/algorithm_clj/
 ├── core_test.clj                 # メインのテスト
 ├── basic_algorithms/
 │   ├── core_test.clj             # 第1章のテスト
-│   └── array_test.clj            # 第2章のテスト
+│   ├── array_test.clj            # 第2章のテスト
+│   └── search_test.clj           # 第3章のテスト
 └── algorithms/
     └── sorting_test.clj          # ソートアルゴリズムのテスト
 ```
+
+## テスト結果
+
+現在のテスト状況:
+- **総テスト数**: 16テスト
+- **総アサーション数**: 71アサーション  
+- **テスト結果**: 全テスト成功 ✅
+
+### 実装の特徴
+
+- **関数型プログラミング**: Clojureの不変データ構造を活用
+- **テスト駆動開発**: 各アルゴリズムに対する包括的なテストケース
+- **効率的な実装**: loop/recurによる最適化された反復処理
+- **データ構造活用**: レコードとアトムを使ったハッシュテーブル実装
 
 ### Bugs
 
