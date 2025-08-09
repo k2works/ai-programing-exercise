@@ -266,3 +266,20 @@
       (is (= 1 (deque queue)))
       (is (= 2 (deque queue)))
       (is (= 3 (deque queue))))))
+
+(deftest test-list-queue-operations
+  (testing "2リストキューの基本操作"
+    (let [q1 (create-empty-queue)]
+      (is (queue-empty? q1))
+      (let [q2 (enqueue 1 q1)
+            q3 (enqueue 2 q2)
+            q4 (enqueue 3 q3)]
+        (is (not (queue-empty? q4)))
+        (let [[v1 q5] (dequeue q4)]
+          (is (= v1 1))
+          (let [[v2 q6] (dequeue q5)]
+            (is (= v2 2))
+            (let [[v3 q7] (dequeue q6)]
+              (is (= v3 3))
+              (is (queue-empty? q7))
+              (is (thrown? Exception (dequeue q7))))))))))

@@ -243,3 +243,35 @@
   "ArrayDeque キューの先頭要素を参照"
   [^ArrayDeque q]
   (.peek q))
+
+;; 2つのリストでキューを表現
+(defrecord Queue [inbox outbox])
+
+(defn create-empty-queue
+  "空のキューを作成"
+  []
+  (->Queue '() '()))
+
+(defn queue-empty?
+  "キューが空か判定"
+  [^Queue q]
+  (and (empty? (:inbox q)) (empty? (:outbox q))))
+
+(defn enqueue
+  "キューに要素を追加"
+  [x ^Queue q]
+  (->Queue (cons x (:inbox q)) (:outbox q)))
+
+(defn dequeue
+  "キューから要素を取り出す（タプル [値, 新しいキュー] を返す）"
+  [^Queue q]
+  (cond
+    (seq (:outbox q))
+    [(first (:outbox q)) (->Queue (:inbox q) (rest (:outbox q)))]
+
+    (and (empty? (:inbox q)) (empty? (:outbox q)))
+    (throw (ex-info "dequeue from empty queue" {:queue q}))
+
+    :else
+    (let [new-outbox (reverse (:inbox q))]
+      [(first new-outbox) (->Queue '() (rest new-outbox))])))
