@@ -107,3 +107,15 @@
           (if @broke?
             (recur (+ n 2) new-counter primes ptr)
             (recur (+ n 2) new-counter (conj primes n) (inc ptr))))))))
+
+(defn primes
+  "x以下の素数をリストで返す（エラトステネスの篩）"
+  [x]
+  (letfn [(sieve [xs]
+            (if (empty? xs)
+              []
+              (let [p (first xs)]
+                (cons p (sieve (remove #(zero? (mod % p)) (rest xs)))))))]
+    (if (< x 2)
+      []
+      (sieve (range 2 (inc x))))))

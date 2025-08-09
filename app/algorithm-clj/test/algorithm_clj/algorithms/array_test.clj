@@ -42,3 +42,13 @@
   (testing "prime3 function"
     (is (= (prime3 1000) 3774))
     (is (= (prime3 100) 191))))
+
+(deftest test-primes
+  (testing "primes function"
+    (is (= (primes 2) [2]))
+    (is (= (primes 10) [2 3 5 7]))
+    (is (= (primes 30) [2 3 5 7 11 13 17 19 23 29]))
+    (is (= (primes 100) [2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97]))
+    (is (= (primes 1) []))
+    (is (= (primes 0) []))
+    (is (= (primes -10) []))))
