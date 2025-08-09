@@ -81,3 +81,21 @@
       (is (true? (remove-open-hash oh 100)))
       (is (nil? (search-open-hash oh 100)))
       (is (false? (remove-open-hash oh 100)))))) ; 存在しないキーの削除は失敗
+
+(deftest test-map-functions
+  (testing "create-map"
+    (is (= (create-map [[:a 1] [:b 2]]) {:a 1 :b 2}))
+    (is (= (create-map []) {})))
+  (testing "search-in-map"
+    (let [m {:a 1 :b 2}]
+      (is (= (search-in-map :a m) 1))
+      (is (= (search-in-map :b m) 2))
+      (is (nil? (search-in-map :c m)))))
+  (testing "add-to-map"
+    (let [m {:a 1}]
+      (is (= (add-to-map :b 2 m) {:a 1 :b 2}))
+      (is (= (add-to-map :a 3 m) {:a 3}))))
+  (testing "remove-from-map"
+    (let [m {:a 1 :b 2}]
+      (is (= (remove-from-map :a m) {:b 2}))
+      (is (= (remove-from-map :c m) m)))))

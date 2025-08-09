@@ -154,3 +154,27 @@
               (swap! (:table oh) assoc h (assoc bucket :status DELETED))
               true)
             :else (recur (rehash-value-open oh h) (inc i))))))))
+
+;; Mapの作成
+(defn create-map
+  "キーと値のペアのリストからマップを作成"
+  [kvs]
+  (into {} kvs))
+
+;; 探索
+(defn search-in-map
+  "マップからキーに対応する値を取得（なければnil）"
+  [k m]
+  (get m k))
+
+;; 追加・更新
+(defn add-to-map
+  "マップにキーと値を追加または更新"
+  [k v m]
+  (assoc m k v))
+
+;; 削除
+(defn remove-from-map
+  "マップから指定キーを削除"
+  [k m]
+  (dissoc m k))
