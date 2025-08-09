@@ -1,5 +1,6 @@
 (ns algorithm-clj.algorithms.recursion
-  "第5章 再帰アルゴリズムの実装")
+  "第5章 再帰アルゴリズムの実装"
+  (:import (java.util ArrayDeque)))
 
 ;; 基本的な再帰アルゴリズム
 
@@ -22,49 +23,34 @@
 (defn recure
   "真に再帰的な関数recure"
   [n result-atom]
-  (cond
-    (= n 1) (do (swap! result-atom conj 1) @result-atom)
-    (= n 2) (do (swap! result-atom conj 1)
-                (swap! result-atom conj 2) @result-atom)
-    (= n 3) (do (swap! result-atom conj 1)
-                (swap! result-atom conj 2)
-                (swap! result-atom conj 1)
-                (swap! result-atom conj 3)
-                (swap! result-atom conj 1) @result-atom)
-    (= n 4) (do (swap! result-atom conj 1)
-                (swap! result-atom conj 2)
-                (swap! result-atom conj 3)
-                (swap! result-atom conj 1)
-                (swap! result-atom conj 4)
-                (swap! result-atom conj 1)
-                (swap! result-atom conj 2) @result-atom)
-    :else @result-atom))
+  (if (> n 0)
+    (do
+      (recure (dec n) result-atom) ; 最初の再帰呼び出し
+      (swap! result-atom conj n) ; result-atomにnを追加
+      (recure (- n 2) result-atom))) ; 2番目の再帰呼び出し
+  @result-atom) ; 最終的な結果を返す
 
 ;; 再帰の非再帰表現
 
 (defn recure-iterative
-  "再帰を除去した関数recure（単純版）"
-  ([n]
-   (let [result-atom (atom [])]
-     (recure-iterative n result-atom)))
-  ([n result-atom]
-   (cond
-     (= n 1) (do (swap! result-atom conj 1) @result-atom)
-     (= n 2) (do (swap! result-atom conj 1)
-                 (swap! result-atom conj 2) @result-atom)
-     (= n 3) (do (swap! result-atom conj 1)
-                 (swap! result-atom conj 2)
-                 (swap! result-atom conj 1)
-                 (swap! result-atom conj 3)
-                 (swap! result-atom conj 1) @result-atom)
-     (= n 4) (do (swap! result-atom conj 1)
-                 (swap! result-atom conj 2)
-                 (swap! result-atom conj 3)
-                 (swap! result-atom conj 1)
-                 (swap! result-atom conj 4)
-                 (swap! result-atom conj 1)
-                 (swap! result-atom conj 2) @result-atom)
-     :else @result-atom)))
+  "再帰を除去した関数recure"
+  [n]
+  (let [s (ArrayDeque.) ; スタックを用意
+        result-atom (atom [])]
+    (loop [current-n n]
+      (cond
+        (> current-n 0)
+        (do
+          (.push s current-n) ; 現在の状態をスタックに保存
+          (recur (dec current-n))) ; 最初の再帰呼び出しに相当
+
+        (not (.isEmpty s))
+        (let [popped-n (.pop s)] ; 保存した状態を復元
+          (swap! result-atom conj popped-n)
+          (recur (- popped-n 2))) ; 2番目の再帰呼び出しに相当
+
+        :else
+        @result-atom)))) ; 最終的な結果を返す
 
 ;; ハノイの塔
 

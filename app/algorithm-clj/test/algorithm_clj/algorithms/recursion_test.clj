@@ -29,24 +29,24 @@
 (deftest test-recure
   (testing "真に再帰的な関数のテスト"
     (let [result-atom (atom [])]
-      (is (= (recure 4 result-atom) [1 2 3 1 4 1 2])))
+      (is (= [1 2 3 1 4 1 2] (recure 4 result-atom))))
     
     (let [result-atom (atom [])]
-      (is (= (recure 3 result-atom) [1 2 1 3 1])))
+      (is (= [1 2 3 1] (recure 3 result-atom))))
     
     (let [result-atom (atom [])]
-      (is (= (recure 2 result-atom) [1 2])))
+      (is (= [1 2] (recure 2 result-atom))))
     
     (let [result-atom (atom [])]
-      (is (= (recure 1 result-atom) [1])))))
+      (is (= [1] (recure 1 result-atom))))))
 
 (deftest test-recure-iterative
   (testing "非再帰版の真に再帰的な関数のテスト"
-    (is (= (recure-iterative 4) [1 2 3 1 4 1 2]))
-    (is (= (recure-iterative 3) [1 2 1 3 1]))
-    (is (= (recure-iterative 2) [1 2]))
-    (is (= (recure-iterative 1) [1]))
-    (is (= (recure-iterative 0) []))))
+    (is (= [1 2 3 1 4 1 2] (recure-iterative 4)))
+    (is (= [1 2 3 1] (recure-iterative 3)))
+    (is (= [1 2] (recure-iterative 2)))
+    (is (= [1] (recure-iterative 1)))
+    (is (= [] (recure-iterative 0)))))
 
 (deftest test-recure-vs-iterative
   (testing "再帰版と非再帰版の結果が一致することを確認"
