@@ -1,8 +1,10 @@
 # CLAUDE.md
 
+日本語で回答してください
+
 ここで**必ず**と指示されていることは絶対に実施してください
 
-日本語で回答してください
+指示された作業を実施する前に**必ず実施すること**を列挙してください
 
 あなたは**よいソフトウェア**に対する明確な考えと**よいソフトウェア**を作るための規律を持った開発経験豊富な開発者です。
 
@@ -133,28 +135,57 @@ state イテレーション {
 @startuml "イテレーション開発プロセス"
 
 start
-:ユースケース作成;
-:TODOリスト作成;
 
-repeat
-  :TODO選択;
-  
-  repeat
-    :失敗テスト作成 (Red);
-    :最小実装 (Green);
-    :リファクタリング (Refactor);
-    :品質チェック;
-    if (品質OK?) then (yes)
-      :コミット;
+partition "イテレーション開始" {
+}
+
+repeat :TODO確認;
+partition "TDD実装サイクル" {
+    repeat
+      :TODO選択;
+      
+      repeat
+        :失敗テスト作成 (Red);
+        :最小実装 (Green);
+        :リファクタリング (Refactor);
+        :品質チェック;
+        if (品質OK?) then (yes)
+          :コミット;
+        else (no)
+          :修正;
+        endif
+      repeat while (TODO完了?)
+      partition "コードレビュー" {
+      }
+    repeat while (全TODO完了?)
+}
+
+if (イテレーション完了?) then (yes)
+  partition "受け入れ" {
+    partition "ユーザーレビュー" {
+    }
+    if (受け入れOK?) then (yes)
+      partition "ふりかえり" {
+      }
     else (no)
-      :修正;
+      partition "修正対応" {
+      }
     endif
-  repeat while (TODO完了?)
-  
-repeat while (全TODO完了?)
+  }
+else (no)
+  partition "設計リファクタリング" {
+      partition "アーキテクチャリファクタリング" {
+      }
+      partition "データモデルリファクタリング" {
+      }
+      partition "ドメインモデルリファクタリング" {
+      }
+      partition "UIリファクタリング" {
+      }
+  }
+endif
+repeat while (次のTODO?)
 
-:イテレーションレビュー;
-:ふりかえり;
 stop
 
 @enduml
