@@ -2,6 +2,10 @@
 .shadow-cljs/
 public/js/
 out/
+target/
+
+# Coverage reports
+coverage/
 
 # Node.js
 node_modules/

@@ -16,6 +16,7 @@
     "format": "clojure -M:format-check src/ test/",
     "format-fix": "clojure -M:format-fix src/ test/",
     "coverage": "gulp coverage",
+    "coverage-clj": "clojure -M:coverage",
     "outdated": "clojure -M:outdated"
   },
   "keywords": ["clojurescript", "shadow-cljs", "fizzbuzz", "tdd", "gulp"],

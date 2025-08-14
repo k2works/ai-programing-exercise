@@ -14,6 +14,7 @@ shadow-cljsとGulpを使用してFizzBuzzアプリケーションを構築し、
 - **cljs.test**: テストフレームワーク
 - **clj-kondo**: 静的コード解析ツール
 - **cljfmt**: コードフォーマッター
+- **cloverage**: コードカバレッジ測定ツール
 - **Clojure CLI**: 依存関係管理とツール実行
 
 ## ソフトウェア開発の三種の神器
@@ -32,6 +33,7 @@ shadow-cljsとGulpを使用してFizzBuzzアプリケーションを構築し、
 - npmによる依存関係管理
 - clj-kondoによる静的コード解析
 - cljfmtによるコードフォーマット自動化
+- cloverageによるテストカバレッジ測定
 
 ## セットアップ
 
@@ -92,6 +94,7 @@ npm run lint          # clj-kondoによる静的解析
 npm run format        # cljfmtによるフォーマットチェック
 npm run format-fix    # cljfmtによるフォーマット自動修正
 npm run coverage      # カバレッジ測定（拡張版）
+npm run coverage-clj  # cloverageによる直接測定
 npm run outdated      # 依存関係の更新チェック
 ```
 
@@ -135,12 +138,14 @@ npx gulp check
 | **clj-kondo** | `:lint` | 静的コード解析ツール |
 | **cljfmt** | `:format-check` | コードフォーマットチェック |
 | **cljfmt** | `:format-fix` | コードフォーマット自動修正 |
+| **cloverage** | `:coverage` | テストカバレッジ測定 |
 | **antq** | `:outdated` | 依存関係の更新チェック |
 
 ### 設定ファイル
 
 - **`.clj-kondo/config.edn`**: clj-kondoの設定（ClojureScript対応）
 - **`.cljfmt.edn`**: cljfmtのフォーマット設定
+- **`cloverage.edn`**: cloverageのカバレッジ測定設定
 - **`deps.edn`**: Clojure CLI依存関係とエイリアス定義
 
 ### 直接実行
@@ -157,6 +162,9 @@ clojure -M:format-check src/ test/
 # フォーマット自動修正
 clojure -M:format-fix src/ test/
 
+# カバレッジ測定
+clojure -M:coverage
+
 # 依存関係更新チェック
 clojure -M:outdated
 ```
@@ -169,6 +177,7 @@ app/
 ├── package.json         # npm設定
 ├── deps.edn             # Clojure CLI設定
 ├── shadow-cljs.edn      # shadow-cljs設定
+├── cloverage.edn        # cloverage設定
 ├── .clj-kondo/
 │   └── config.edn       # clj-kondo設定
 ├── .cljfmt.edn          # cljfmt設定

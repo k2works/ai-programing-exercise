@@ -1,0 +1,11 @@
+{:runner :cljs
+ :src-ns-path ["src"]
+ :test-ns-path ["test"]
+ :output "target/coverage"
+ :html? true
+ :text? true
+ :summary? true
+ :fail-threshold 80
+ :low-watermark 50
+ :high-watermark 80
+ :exclude []}

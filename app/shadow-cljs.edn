@@ -13,6 +13,12 @@
   :test {:target :node-test
          :output-to "out/test.js"
          :autorun true
-         :modules {:test {:entries [fizzbuzz.core-test]}}}}
+         :modules {:test {:entries [fizzbuzz.core-test]}}}
+  
+  :coverage {:target :node-test
+             :output-to "out/coverage-test.js"
+             :autorun false
+             :modules {:test {:entries [fizzbuzz.core-test]}}
+             :compiler-options {:instrumentation-enabled true}}}
  
  :aliases {:check [:test]}}
