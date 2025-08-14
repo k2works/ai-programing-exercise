@@ -1,0 +1,9 @@
+{:max-line-length 120
+ :long-lines true
+ :trailing-whitespace true
+ :trailing-blank-lines true
+ :var-redefs true
+ :docstrings true
+ :name-collisions true
+ :verbose true
+ :exclude-profiles #{}}

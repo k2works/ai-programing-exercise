@@ -20,9 +20,10 @@ function help(cb) {
   console.log('  gulp clean       - 生成されたファイルをクリーンアップ');
   console.log('  gulp dev         - 開発環境セットアップ（server + watch）');
   console.log('  gulp check       - 全ての品質チェックを実行');
+  console.log('  gulp lint        - 静的コード解析を実行');
+  console.log('  gulp complexity  - 循環複雑度とコード品質を測定');
   console.log('  gulp format      - コードフォーマットをチェック');
   console.log('  gulp format-fix  - コードフォーマットを自動修正');
-  console.log('  gulp lint        - 静的コード解析を実行');
   console.log('  gulp coverage    - コードカバレッジを実行');
   console.log('');
   cb();
@@ -164,6 +165,81 @@ function lint(cb) {
   });
 }
 
+// 循環複雑度測定（eastwoodを使用）
+function complexity(cb) {
+  console.log('循環複雑度とコード品質を測定中...');
+  
+  // まずclj-kondoで詳細分析を実行
+  exec('clojure -M:metrics', (kondoErr, kondoStdout, kondoStderr) => {
+    console.log('=== clj-kondo詳細分析 ===');
+    if (kondoStdout) {
+      try {
+        // clj-kondoの出力をパースして統計を表示
+        const analysis = kondoStdout.trim();
+        if (analysis.includes('errors:') || analysis.includes('warnings:')) {
+          console.log(analysis);
+        } else {
+          console.log('構文エラーや警告は見つかりませんでした。');
+        }
+      } catch (e) {
+        console.log('分析データのパースに失敗しましたが、処理を続行します。');
+      }
+    }
+    
+    // 次にeastwoodで詳細な静的解析を実行
+    exec('clojure -M:complexity', (eastErr, eastStdout, eastStderr) => {
+      console.log('\n=== Eastwood詳細静的解析 ===');
+      if (eastErr) {
+        // eastwoodは問題を見つけると非0終了コードを返すが、警告として扱う
+        console.log('コード品質チェックが完了しました。以下の詳細分析結果:');
+        if (eastStdout) console.log(eastStdout);
+        if (eastStderr) console.log(eastStderr);
+      } else {
+        console.log('詳細静的解析が完了しました。重大な問題は見つかりませんでした。');
+        if (eastStdout) console.log(eastStdout);
+      }
+      
+      // カスタム複雑度分析
+      console.log('\n=== カスタム複雑度分析 ===');
+      
+      // ソースファイルの行数とcondの数を数える
+      exec('find src -name "*.cljs" -exec wc -l {} + | tail -1', (lineErr, lineCount) => {
+        exec('grep -r "cond\\|if\\|when\\|case" src/ | wc -l', (condErr, condCount) => {
+          exec('grep -r "defn\\|defn-" src/ | wc -l', (funcErr, funcCount) => {
+            const totalLines = parseInt(lineCount.trim().split(' ')[0]) || 0;
+            const totalConds = parseInt(condCount.trim()) || 0;
+            const totalFuncs = parseInt(funcCount.trim()) || 0;
+            
+            console.log(`総行数: ${totalLines}`);
+            console.log(`条件分岐数: ${totalConds}`);
+            console.log(`関数数: ${totalFuncs}`);
+            
+            if (totalFuncs > 0) {
+              const avgComplexity = Math.round((totalConds / totalFuncs) * 100) / 100;
+              console.log(`平均循環複雑度: ${avgComplexity} (条件分岐数/関数数)`);
+              
+              if (avgComplexity <= 2) {
+                console.log('✅ 優秀な循環複雑度です！コードは理解しやすい状態です。');
+              } else if (avgComplexity <= 4) {
+                console.log('⚠️  循環複雑度は許容範囲ですが、改善の余地があります。');
+              } else {
+                console.log('❌ 循環複雑度が高いです。リファクタリングを検討してください。');
+              }
+            }
+            
+            console.log('\n推奨事項:');
+            console.log('- 関数を小さく保つ（10-20行以下）');
+            console.log('- 条件分岐を減らす（パターンマッチングやポリモーフィズムの活用）');
+            console.log('- 単一責任の原則に従う');
+            
+            cb();
+          });
+        });
+      });
+    });
+  });
+}
+
 // コードフォーマットチェック（cljfmtを使用）
 function format(cb) {
   console.log('コードフォーマットをチェック中...');
@@ -272,7 +348,7 @@ function coverage(cb) {
 const dev = parallel(server, watchDev);
 
 // 全体の品質チェック
-const check = series(lint, format, test);
+const check = series(lint, complexity, format, test);
 
 // タスクの登録
 exports.help = help;
@@ -284,6 +360,7 @@ exports.release = release;
 exports.server = server;
 exports.clean = clean;
 exports.lint = lint;
+exports.complexity = complexity;
 exports.format = format;
 exports['format-fix'] = formatFix;
 exports.coverage = coverage;

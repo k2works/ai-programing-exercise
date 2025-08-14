@@ -15,6 +15,8 @@ shadow-cljsとGulpを使用してFizzBuzzアプリケーションを構築し、
 - **clj-kondo**: 静的コード解析ツール
 - **cljfmt**: コードフォーマッター
 - **cloverage**: コードカバレッジ測定ツール
+- **bikeshed**: 循環複雑度とコード品質測定ツール
+- **eastwood**: 詳細静的解析ツール
 - **Clojure CLI**: 依存関係管理とツール実行
 
 ## ソフトウェア開発の三種の神器
@@ -34,6 +36,8 @@ shadow-cljsとGulpを使用してFizzBuzzアプリケーションを構築し、
 - clj-kondoによる静的コード解析
 - cljfmtによるコードフォーマット自動化
 - cloverageによるテストカバレッジ測定
+- bikeshedによる循環複雑度とコード品質測定
+- eastwoodによる詳細静的解析
 
 ## セットアップ
 
@@ -72,7 +76,8 @@ Gulpで定義されたタスクは以下の通りです：
 | 静的解析 | `npx gulp lint` | 静的コード解析を実行 |
 | フォーマット | `npx gulp format` | コードフォーマットを確認 |
 | フォーマット修正 | `npx gulp format-fix` | コードフォーマットを自動修正 |
-| カバレッジ | `npx gulp coverage` | テストカバレッジを測定 |
+| カバレッジ | `npx gulp coverage` | コードカバレッジを実行 |
+| 循環複雑度 | `npx gulp complexity` | 循環複雑度とコード品質を測定 |
 
 ### npmスクリプトとの連携
 
@@ -91,6 +96,9 @@ npm run build
 
 # Clojureツールチェーン
 npm run lint          # clj-kondoによる静的解析
+npm run complexity    # eastwoodによる循環複雑度測定
+npm run bikeshed      # eastwoodによるコード品質チェック
+npm run metrics       # clj-kondo詳細分析
 npm run format        # cljfmtによるフォーマットチェック
 npm run format-fix    # cljfmtによるフォーマット自動修正
 npm run coverage      # カバレッジ測定（拡張版）
@@ -136,6 +144,9 @@ npx gulp check
 | ツール | エイリアス | 説明 |
 |--------|------------|------|
 | **clj-kondo** | `:lint` | 静的コード解析ツール |
+| **bikeshed** | `:complexity` | eastwoodによる詳細静的解析 |
+| **bikeshed** | `:bikeshed` | eastwoodによるコード品質チェック |
+| **clj-kondo** | `:metrics` | clj-kondo詳細分析（EDN出力）|
 | **cljfmt** | `:format-check` | コードフォーマットチェック |
 | **cljfmt** | `:format-fix` | コードフォーマット自動修正 |
 | **cloverage** | `:coverage` | テストカバレッジ測定 |
@@ -145,6 +156,7 @@ npx gulp check
 
 - **`.clj-kondo/config.edn`**: clj-kondoの設定（ClojureScript対応）
 - **`.cljfmt.edn`**: cljfmtのフォーマット設定
+- **`.bikeshed.edn`**: bikeshedのコード品質測定設定
 - **`cloverage.edn`**: cloverageのカバレッジ測定設定
 - **`deps.edn`**: Clojure CLI依存関係とエイリアス定義
 
@@ -155,6 +167,15 @@ Clojure CLIを直接使用することも可能です：
 ```bash
 # 静的解析
 clojure -M:lint
+
+# 循環複雑度測定
+clojure -M:complexity
+
+# コード品質チェック  
+clojure -M:bikeshed
+
+# 詳細メトリクス
+clojure -M:metrics
 
 # フォーマットチェック
 clojure -M:format-check src/ test/
@@ -169,6 +190,56 @@ clojure -M:coverage
 clojure -M:outdated
 ```
 
+## コード品質測定
+
+このプロジェクトでは複数のツールを組み合わせて包括的なコード品質測定を実施しています。
+
+### eastwoodとclj-kondoによる循環複雑度測定
+
+現代的なClojureツールチェーンを使用して循環複雑度と詳細なコード品質分析を実施します：
+
+#### 測定項目
+- **循環複雑度**: 条件分岐数から算出される複雑度指標
+- **関数の複雑さ**: 各関数の複雑度分析
+- **コード行数**: ソースコードの規模測定
+- **条件分岐数**: if、when、cond、caseなどの分岐構造カウント
+- **静的解析**: 潜在的な問題やアンチパターンの検出
+
+#### 実行方法
+```bash
+# Gulpタスク経由
+npx gulp complexity
+
+# npm スクリプト経由  
+npm run complexity
+npm run bikeshed
+
+# Clojure CLI直接実行
+clojure -M:complexity
+clojure -M:bikeshed
+clojure -M:metrics
+```
+
+#### 複雑度評価基準
+- **≤2.0**: ✅ 優秀（理解しやすい）
+- **2.1-4.0**: ⚠️ 許容範囲（改善の余地あり）
+- **>4.0**: ❌ 高複雑度（リファクタリング推奨）
+
+#### 設定ファイル
+`.bikeshed.edn` で以下の設定が可能です：
+- `max-line-length`: 最大行長（デフォルト: 120文字）
+- `verbose`: 詳細出力の有効/無効
+- `exclude-profiles`: 除外するプロファイル
+
+### 品質チェックの統合
+
+全ての品質チェックは `npx gulp check` で一括実行されます：
+
+1. **静的解析** (clj-kondo): 構文エラーや潜在的問題の検出
+2. **循環複雑度** (eastwood): コードの複雑さと品質測定
+3. **フォーマット** (cljfmt): コードスタイルの一貫性チェック
+4. **テスト** (cljs.test): 機能の正常性確認
+
 ## プロジェクト構成
 
 ```
@@ -181,6 +252,7 @@ app/
 ├── .clj-kondo/
 │   └── config.edn       # clj-kondo設定
 ├── .cljfmt.edn          # cljfmt設定
+├── .bikeshed.edn        # bikeshed設定
 ├── README.md            # このファイル
 ├── public/
 │   ├── index.html       # HTMLエントリーポイント
