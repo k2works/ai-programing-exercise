@@ -8,13 +8,18 @@
     "release": "shadow-cljs release app",
     "build": "shadow-cljs compile app",
     "server": "shadow-cljs server",
-    "test": "shadow-cljs compile test && node out/test.js"
+    "test": "shadow-cljs compile test && node out/test.js",
+    "gulp": "gulp",
+    "dev": "gulp dev",
+    "check": "gulp check"
   },
-  "keywords": ["clojurescript", "shadow-cljs", "fizzbuzz", "tdd"],
+  "keywords": ["clojurescript", "shadow-cljs", "fizzbuzz", "tdd", "gulp"],
   "author": "k2works",
   "license": "MIT",
   "devDependencies": {
-    "shadow-cljs": "^2.28.15"
+    "shadow-cljs": "^2.28.15",
+    "gulp": "^5.0.0",
+    "gulp-cli": "^3.0.0"
   },
   "dependencies": {}
 }
