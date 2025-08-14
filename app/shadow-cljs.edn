@@ -1,0 +1,12 @@
+{:source-paths ["src" "test"]
+ :dependencies [[org.clojure/clojurescript "1.11.132"]]
+ 
+ :builds
+ {:app {:target :browser
+        :output-dir "public/js"
+        :asset-path "/js"
+        :modules {:main {:init-fn fizzbuzz.core/init}}}
+  
+  :test {:target :node-test
+         :output-to "out/test.js"
+         :autorun true}}}
