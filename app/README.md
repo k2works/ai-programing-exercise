@@ -12,6 +12,9 @@ shadow-cljsとGulpを使用してFizzBuzzアプリケーションを構築し、
 - **npm**: 依存関係管理
 - **Gulp**: タスクランナー
 - **cljs.test**: テストフレームワーク
+- **clj-kondo**: 静的コード解析ツール
+- **cljfmt**: コードフォーマッター
+- **Clojure CLI**: 依存関係管理とツール実行
 
 ## ソフトウェア開発の三種の神器
 
@@ -27,6 +30,8 @@ shadow-cljsとGulpを使用してFizzBuzzアプリケーションを構築し、
 - shadow-cljsによるビルド自動化
 - Gulpによるタスクランナー
 - npmによる依存関係管理
+- clj-kondoによる静的コード解析
+- cljfmtによるコードフォーマット自動化
 
 ## セットアップ
 
@@ -34,6 +39,7 @@ shadow-cljsとGulpを使用してFizzBuzzアプリケーションを構築し、
 - Node.js (v16以上推奨)
 - npm
 - Java (shadow-cljsの実行に必要)
+- Clojure CLI (ツールチェーンに必要)
 
 ### インストール
 
@@ -80,6 +86,13 @@ npm test
 
 # ビルド
 npm run build
+
+# Clojureツールチェーン
+npm run lint          # clj-kondoによる静的解析
+npm run format        # cljfmtによるフォーマットチェック
+npm run format-fix    # cljfmtによるフォーマット自動修正
+npm run coverage      # カバレッジ測定（拡張版）
+npm run outdated      # 依存関係の更新チェック
 ```
 
 ## 開発ワークフロー
@@ -111,13 +124,54 @@ npx gulp watch
 npx gulp check
 ```
 
+## Clojureツールチェーン
+
+このプロジェクトではClojure CLI（deps.edn）を使用してClojure固有のツールを管理しています。
+
+### 利用可能なツール
+
+| ツール | エイリアス | 説明 |
+|--------|------------|------|
+| **clj-kondo** | `:lint` | 静的コード解析ツール |
+| **cljfmt** | `:format-check` | コードフォーマットチェック |
+| **cljfmt** | `:format-fix` | コードフォーマット自動修正 |
+| **antq** | `:outdated` | 依存関係の更新チェック |
+
+### 設定ファイル
+
+- **`.clj-kondo/config.edn`**: clj-kondoの設定（ClojureScript対応）
+- **`.cljfmt.edn`**: cljfmtのフォーマット設定
+- **`deps.edn`**: Clojure CLI依存関係とエイリアス定義
+
+### 直接実行
+
+Clojure CLIを直接使用することも可能です：
+
+```bash
+# 静的解析
+clojure -M:lint
+
+# フォーマットチェック
+clojure -M:format-check src/ test/
+
+# フォーマット自動修正
+clojure -M:format-fix src/ test/
+
+# 依存関係更新チェック
+clojure -M:outdated
+```
+
 ## プロジェクト構成
 
 ```
 app/
 ├── gulpfile.js          # Gulpタスクランナー設定
 ├── package.json         # npm設定
+├── deps.edn             # Clojure CLI設定
 ├── shadow-cljs.edn      # shadow-cljs設定
+├── .clj-kondo/
+│   └── config.edn       # clj-kondo設定
+├── .cljfmt.edn          # cljfmt設定
 ├── README.md            # このファイル
 ├── public/
 │   ├── index.html       # HTMLエントリーポイント

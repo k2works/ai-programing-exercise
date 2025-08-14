@@ -1,0 +1,18 @@
+{:skip-lint ["out"]
+ :linters {:unresolved-symbol {:level :warning
+                               :exclude [(cljs.test/run-tests)
+                                        (js/console)
+                                        (js/document)
+                                        (js/parseInt)
+                                        (js/isNaN)]}
+           :unused-binding {:level :warning}
+           :unused-import {:level :warning}
+           :unused-referred-var {:level :warning}
+           :missing-docstring {:level :info}
+           :shadowed-var {:level :warning}
+           :redefined-var {:level :error}
+           :unresolved-namespace {:level :error
+                                  :exclude [cljs.test]}
+           :type-mismatch {:level :warning}}
+ :output {:pattern "{{filename}}:{{row}}:{{col}}: {{level}}: {{message}}"
+          :canonical-paths true}}

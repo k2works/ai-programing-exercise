@@ -1,0 +1,37 @@
+{:indents ^:replace
+ {;; ClojureScript specific indentation
+  testing [[:inner 0]]
+  deftest [[:inner 0]]
+  
+  ;; Standard Clojure forms
+  let [[:block 1]]
+  when [[:block 1]]
+  when-not [[:block 1]]
+  when-let [[:block 1]]
+  when-some [[:block 1]]
+  if-let [[:block 1]]
+  if-some [[:block 1]]
+  if-not [[:block 1]]
+  condp [[:block 2]]
+  for [[:block 1]]
+  doseq [[:block 1]]
+  dotimes [[:block 1]]
+  loop [[:block 1]]
+  binding [[:block 1]]
+  with-open [[:block 1]]
+  with-redefs [[:block 1]]
+  reify [[:inner 0]]
+  deftype [[:block 2] [:inner 1]]
+  defrecord [[:block 2] [:inner 1]]
+  defprotocol [[:block 1] [:inner 1]]
+  defmethod [[:inner 0]]
+  extend-type [[:block 1] [:inner 1]]
+  extend-protocol [[:block 1] [:inner 1]]
+  letfn [[:block 1] [:inner 2 0]]}
+  
+ :remove-surrounding-whitespace? true
+ :remove-trailing-whitespace? true
+ :insert-missing-whitespace? true
+ :remove-consecutive-blank-lines? false
+ :indentation? true
+ :split-keypairs-over-multiple-lines? false}

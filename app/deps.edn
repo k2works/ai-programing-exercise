@@ -1,0 +1,29 @@
+{:paths ["src" "test"]
+ 
+ :deps {org.clojure/clojurescript {:mvn/version "1.11.132"}}
+ 
+ :aliases
+ {:dev {:extra-paths ["dev"]
+        :extra-deps {thheller/shadow-cljs {:mvn/version "2.28.15"}}}
+  
+  :test {:extra-paths ["test"]
+         :extra-deps {org.clojure/test.check {:mvn/version "1.1.1"}}}
+  
+  :format {:extra-deps {cljfmt/cljfmt {:mvn/version "0.9.2"}}
+           :main-opts ["-m" "cljfmt.main"]}
+  
+  :format-check {:extra-deps {cljfmt/cljfmt {:mvn/version "0.9.2"}}
+                 :main-opts ["-m" "cljfmt.main" "check"]}
+  
+  :format-fix {:extra-deps {cljfmt/cljfmt {:mvn/version "0.9.2"}}
+               :main-opts ["-m" "cljfmt.main" "fix"]}
+  
+  :lint {:extra-deps {clj-kondo/clj-kondo {:mvn/version "2024.02.12"}}
+         :main-opts ["-m" "clj-kondo.main" "--lint" "src" "test"]}
+  
+  :coverage {:extra-deps {org.clojure/clojurescript {:mvn/version "1.11.132"}
+                          cloverage/cloverage {:mvn/version "1.2.4"}}
+             :main-opts ["-m" "cloverage.coverage"]}
+  
+  :outdated {:extra-deps {com.github.liquidz/antq {:mvn/version "2.8.1206"}}
+             :main-opts ["-m" "antq.core"]}}}

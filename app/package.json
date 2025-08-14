@@ -11,7 +11,12 @@
     "test": "shadow-cljs compile test && node out/test.js",
     "gulp": "gulp",
     "dev": "gulp dev",
-    "check": "gulp check"
+    "check": "gulp check",
+    "lint": "clojure -M:lint",
+    "format": "clojure -M:format-check src/ test/",
+    "format-fix": "clojure -M:format-fix src/ test/",
+    "coverage": "gulp coverage",
+    "outdated": "clojure -M:outdated"
   },
   "keywords": ["clojurescript", "shadow-cljs", "fizzbuzz", "tdd", "gulp"],
   "author": "k2works",

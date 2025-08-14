@@ -11,7 +11,7 @@
    - テスティング: cljs.test
    - 自動化: shadow-cljs + Gulp")
 
-(defn fizzbuzz 
+(defn fizzbuzz
   "FizzBuzz関数: 数値を受け取ってFizzBuzz判定結果を返す
    
    TDDで実装された核となる関数:
@@ -26,7 +26,7 @@
     (zero? (mod n 5)) "Buzz"
     :else (str n)))
 
-(defn fizzbuzz-list 
+(defn fizzbuzz-list
   "指定された範囲のFizzBuzzリストを生成
    
    引数:
@@ -37,7 +37,7 @@
   [start end]
   (map fizzbuzz (range start (inc end))))
 
-(defn format-fizzbuzz-item 
+(defn format-fizzbuzz-item
   "FizzBuzz結果をHTML用にフォーマット（将来の拡張用）
    
    現在は使用されていませんが、リファクタリングの一環として
@@ -50,7 +50,7 @@
                      :else "number")]
     [:span {:class class-name} item]))
 
-(defn render-fizzbuzz-list 
+(defn render-fizzbuzz-list
   "FizzBuzzリストをHTMLとして描画
    
    DOM操作を行ってブラウザに結果を表示します。
@@ -59,7 +59,7 @@
   (let [result-element (.getElementById js/document "result")]
     (set! (.-innerHTML result-element)
           (->> result-list
-               (map #(str "<span class=\"" 
+               (map #(str "<span class=\""
                           (cond
                             (= % "FizzBuzz") "fizzbuzz"
                             (= % "Fizz") "fizz"
@@ -69,7 +69,7 @@
                (interpose "<br>")
                (apply str)))))
 
-(defn get-input-value 
+(defn get-input-value
   "入力フィールドから値を取得
    
    DOM要素から数値を取得し、JavaScriptの数値に変換"
@@ -77,7 +77,7 @@
   (let [element (.getElementById js/document id)]
     (js/parseInt (.-value element))))
 
-(defn generate-fizzbuzz 
+(defn generate-fizzbuzz
   "FizzBuzz生成ボタンのイベントハンドラ
    
    ユーザー入力を検証し、有効な場合はFizzBuzzを生成・表示"
@@ -91,10 +91,10 @@
       (let [result (fizzbuzz-list start end)]
         (render-fizzbuzz-list result))
       (let [result-element (.getElementById js/document "result")]
-        (set! (.-innerHTML result-element) 
+        (set! (.-innerHTML result-element)
               "<span style='color: red;'>無効な入力です。開始数と終了数を正しく入力してください。</span>")))))
 
-(defn clear-result 
+(defn clear-result
   "結果をクリア
    
    表示結果をクリアしてリセット状態に戻す"
@@ -102,7 +102,7 @@
   (let [result-element (.getElementById js/document "result")]
     (set! (.-innerHTML result-element) "")))
 
-(defn setup-event-listeners 
+(defn setup-event-listeners
   "イベントリスナーをセットアップ
    
    DOM要素にイベントハンドラを登録"
@@ -112,7 +112,7 @@
     (.addEventListener generate-btn "click" generate-fizzbuzz)
     (.addEventListener clear-btn "click" clear-result)))
 
-(defn init 
+(defn init
   "アプリケーション初期化
    
    ClojureScriptアプリケーションのエントリーポイント。

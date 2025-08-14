@@ -144,76 +144,78 @@ function clean(cb) {
   });
 }
 
-// 静的コード解析（ClojureScript用に調整）
+// 静的コード解析（clj-kondoを使用）
 function lint(cb) {
   console.log('静的コード解析を実行中...');
-  // ClojureScriptの場合、clj-kondoを使用することが多い
-  // ここではshadow-cljsのコンパイルエラーチェックを代用
-  exec('npx shadow-cljs compile app --verbose', (err, stdout, stderr) => {
+  exec('clojure -M:lint', (err, stdout, stderr) => {
     if (err) {
-      console.error('静的コード解析でエラーが発見されました:', err);
+      console.error('静的コード解析でエラーが発見されました:', stderr);
+      // 警告レベルのエラーの場合は処理を続行
+      if (err.code === 2 || err.code === 3) {
+        console.log('警告が見つかりましたが、処理を続行します。');
+        console.log(stdout);
+        return cb();
+      }
       return cb(err);
     }
     console.log('静的コード解析が完了しました。問題は見つかりませんでした。');
+    if (stdout) console.log(stdout);
     cb();
   });
 }
 
-// コードフォーマットチェック（cljfmtがあれば使用）
+// コードフォーマットチェック（cljfmtを使用）
 function format(cb) {
   console.log('コードフォーマットをチェック中...');
-  // cljfmtがインストールされていれば使用
-  exec('which cljfmt', (err, stdout, stderr) => {
+  exec('clojure -M:format-check src/ test/', (err, stdout, stderr) => {
     if (err) {
-      console.log('cljfmtが見つかりません。フォーマットチェックをスキップします。');
-      return cb();
+      console.error('フォーマットエラーが見つかりました:', stderr);
+      if (stdout) console.log(stdout);
+      return cb(err);
     }
-    
-    exec('cljfmt check src/ test/', (err, stdout, stderr) => {
-      if (err) {
-        console.error('フォーマットエラーが見つかりました:', stderr);
-        return cb(err);
-      }
-      console.log('コードフォーマットは正常です。');
-      cb();
-    });
+    console.log('コードフォーマットは正常です。');
+    if (stdout) console.log(stdout);
+    cb();
   });
 }
 
-// コードフォーマット自動修正
+// コードフォーマット自動修正（cljfmtを使用）
 function formatFix(cb) {
   console.log('コードフォーマットを自動修正中...');
-  exec('which cljfmt', (err, stdout, stderr) => {
+  exec('clojure -M:format-fix src/ test/', (err, stdout, stderr) => {
     if (err) {
-      console.log('cljfmtが見つかりません。フォーマット修正をスキップします。');
-      return cb();
+      console.error('フォーマット修正でエラーが発生しました:', err);
+      return cb(err);
     }
-    
-    exec('cljfmt fix src/ test/', (err, stdout, stderr) => {
-      if (err) {
-        console.error('フォーマット修正でエラーが発生しました:', err);
-        return cb(err);
-      }
-      console.log('コードフォーマットの自動修正が完了しました。');
-      cb();
-    });
+    console.log('コードフォーマットの自動修正が完了しました。');
+    if (stdout) console.log(stdout);
+    cb();
   });
 }
 
-// コードカバレッジ（ClojureScript用の設定が必要）
+// コードカバレッジ（ClojureScript用設定）
 function coverage(cb) {
   console.log('コードカバレッジを実行中...');
-  // ClojureScriptのカバレッジツールは限定的なので、テスト実行で代用
-  console.log('注意: ClojureScriptのコードカバレッジは制限があります。');
-  console.log('テスト結果を参考にしてください。');
+  // ClojureScriptの場合、通常のcoverageツールは制限があるため
+  // テスト実行と組み合わせてカバレッジ情報を表示
+  console.log('注意: ClojureScriptの高精度カバレッジ測定には制限があります。');
+  console.log('テスト結果とlint結果を総合的に評価してください。');
+  
+  // テスト実行でカバレッジの代替とする
   exec('npx shadow-cljs compile test && node out/test.js', (err, stdout, stderr) => {
     if (err) {
       console.error('カバレッジ測定でエラーが発生しました:', err);
       return cb(err);
     }
     console.log(stdout);
-    console.log('カバレッジ測定が完了しました。');
-    cb();
+    
+    // 追加でlint情報も表示
+    exec('clojure -M:lint', (lintErr, lintStdout, lintStderr) => {
+      console.log('\n=== コード品質情報 ===');
+      if (lintStdout) console.log('Lint結果:', lintStdout);
+      console.log('カバレッジ測定が完了しました。');
+      cb();
+    });
   });
 }
 

@@ -15,7 +15,7 @@
         (is (= "1" (fizzbuzz/fizzbuzz 1))))
       (testing "2を渡したら文字列\"2\"を返す"
         (is (= "2" (fizzbuzz/fizzbuzz 2)))))
-    
+
     (testing "3の倍数のときは数の代わりに「Fizz」と返す"
       (testing "3を渡したら文字列\"Fizz\"を返す"
         (is (= "Fizz" (fizzbuzz/fizzbuzz 3))))
@@ -23,7 +23,7 @@
         (is (= "Fizz" (fizzbuzz/fizzbuzz 6))))
       (testing "9を渡したら文字列\"Fizz\"を返す"
         (is (= "Fizz" (fizzbuzz/fizzbuzz 9)))))
-    
+
     (testing "5の倍数のときは「Buzz」と返す"
       (testing "5を渡したら文字列\"Buzz\"を返す"
         (is (= "Buzz" (fizzbuzz/fizzbuzz 5))))
@@ -31,7 +31,7 @@
         (is (= "Buzz" (fizzbuzz/fizzbuzz 10))))
       (testing "20を渡したら文字列\"Buzz\"を返す"
         (is (= "Buzz" (fizzbuzz/fizzbuzz 20)))))
-    
+
     (testing "3と5両方の倍数の場合には「FizzBuzz」と返す"
       (testing "15を渡したら文字列\"FizzBuzz\"を返す"
         (is (= "FizzBuzz" (fizzbuzz/fizzbuzz 15))))
@@ -47,7 +47,7 @@
         (is (= 100 (count result)))
         (is (= "1" (first result)))
         (is (= "Buzz" (nth result 99)))))
-    
+
     (testing "小さな範囲のFizzBuzzリストを生成する"
       (let [result (fizzbuzz/fizzbuzz-list 1 15)]
         (is (= 15 (count result)))
