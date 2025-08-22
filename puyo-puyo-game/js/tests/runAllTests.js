@@ -7,6 +7,7 @@ import { PuyoTestRunner } from './models/Puyo.test.js';
 import { PuyoPairTestRunner } from './models/PuyoPair.test.js';
 import { GameStateTestRunner } from './models/GameState.test.js';
 import { FieldManagerTestRunner } from './models/FieldManager.test.js';
+import { PuyoManagerTestRunner } from './models/PuyoManager.test.js';
 
 /**
  * Run all model tests
@@ -46,6 +47,13 @@ export async function runAllTests() {
         console.log('='.repeat(30));
         const fieldManagerResults = await FieldManagerTestRunner.run();
         allResults.push(...fieldManagerResults);
+        
+        // Run PuyoManager tests
+        console.log('\n' + '='.repeat(30));
+        console.log('PUYO MANAGER TESTS');
+        console.log('='.repeat(30));
+        const puyoManagerResults = await PuyoManagerTestRunner.run();
+        allResults.push(...puyoManagerResults);
         
     } catch (error) {
         console.error('Error running tests:', error);
