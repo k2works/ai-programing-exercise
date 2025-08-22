@@ -5,6 +5,8 @@
 
 import { Puyo } from './Puyo.js';
 import { PuyoPair } from './PuyoPair.js';
+import { ScoreManager } from './ScoreManager.js';
+import { ZenkeshiManager } from './ZenkeshiManager.js';
 
 export class GameState {
     // Game status constants
@@ -49,6 +51,10 @@ export class GameState {
         this.gameDuration = 0;
         this.highestChain = 0;
         this.zenkeshiCount = 0; // All-clear count
+        
+        // Initialize score manager and zenkeshi manager
+        this.scoreManager = new ScoreManager();
+        this.zenkeshiManager = new ZenkeshiManager();
     }
 
     /**
@@ -139,6 +145,11 @@ export class GameState {
     startNewGame() {
         this.reset();
         this.setStatus(GameState.STATUS.PLAYING);
+        
+        // Start new game for zenkeshi manager
+        if (this.zenkeshiManager) {
+            this.zenkeshiManager.startNewGame();
+        }
     }
 
     /**
@@ -264,6 +275,11 @@ export class GameState {
             throw new Error('Points must be a non-negative number');
         }
         this.score += points;
+        
+        // Keep score manager in sync
+        if (this.scoreManager) {
+            this.scoreManager.totalScore = this.score;
+        }
     }
 
     /**
@@ -468,6 +484,143 @@ export class GameState {
     }
 
     /**
+     * Get the score manager
+     * @returns {ScoreManager} Score manager instance
+     */
+    getScoreManager() {
+        return this.scoreManager;
+    }
+
+    /**
+     * Start a new chain sequence
+     */
+    startChain() {
+        if (this.scoreManager) {
+            this.scoreManager.startChain();
+        }
+        this.resetChainCount();
+    }
+
+    /**
+     * Process cleared groups and update score
+     * @param {Array<Array<Object>>} clearedGroups - Groups of cleared puyos
+     * @param {boolean} isZenkeshi - Whether this is an all-clear
+     * @returns {Object} Scoring results
+     */
+    processClearedGroups(clearedGroups, isZenkeshi = false) {
+        if (!this.scoreManager) {
+            return { score: 0, chainLink: null, zenkeshiBonus: 0 };
+        }
+
+        // Process zenkeshi if detected
+        let zenkeshiResult = null;
+        if (isZenkeshi && this.zenkeshiManager) {
+            const clearData = {
+                groups: clearedGroups,
+                groupCount: clearedGroups.length,
+                totalCleared: clearedGroups.reduce((sum, group) => sum + group.length, 0)
+            };
+            zenkeshiResult = this.zenkeshiManager.processZenkeshi(clearData, 0);
+        } else if (this.zenkeshiManager) {
+            // Reset consecutive zenkeshi if no zenkeshi occurred
+            this.zenkeshiManager.resetConsecutiveZenkeshi();
+        }
+
+        const result = this.scoreManager.processClearingSequence(clearedGroups, isZenkeshi);
+        
+        // Update game state
+        this.addScore(result.score);
+        this.addPuyosCleared(result.totalPuyosCleared);
+        this.setChainCount(this.scoreManager.getCurrentChainLevel());
+        
+        if (isZenkeshi) {
+            this.incrementZenkeshiCount();
+        }
+        
+        this.setLastClearTime(Date.now());
+        
+        // Add zenkeshi information to result
+        if (zenkeshiResult) {
+            result.zenkeshiResult = zenkeshiResult;
+            result.zenkeshiDisplayInfo = this.zenkeshiManager.getDisplayInfo();
+        }
+        
+        return result;
+    }
+
+    /**
+     * End the current chain sequence
+     * @returns {Object} Chain summary
+     */
+    endChain() {
+        if (!this.scoreManager) {
+            return { totalChainLinks: 0, totalScore: 0 };
+        }
+
+        const chainSummary = this.scoreManager.endChain();
+        
+        // Update highest chain if this was a record
+        if (chainSummary.maxChainLevel > this.highestChain) {
+            this.highestChain = chainSummary.maxChainLevel;
+        }
+        
+        this.resetChainCount();
+        
+        return chainSummary;
+    }
+
+    /**
+     * Get current chain level from score manager
+     * @returns {number} Current chain level
+     */
+    getCurrentChainLevel() {
+        return this.scoreManager ? this.scoreManager.getCurrentChainLevel() : 0;
+    }
+
+    /**
+     * Check if chain is currently active
+     * @returns {boolean} True if chain is active
+     */
+    isChainActive() {
+        return this.scoreManager ? this.scoreManager.isChainActive() : false;
+    }
+
+    /**
+     * Get the zenkeshi manager
+     * @returns {ZenkeshiManager} Zenkeshi manager instance
+     */
+    getZenkeshiManager() {
+        return this.zenkeshiManager;
+    }
+
+    /**
+     * Check if zenkeshi effect is currently active
+     * @returns {boolean} True if zenkeshi effect is active
+     */
+    isZenkeshiEffectActive() {
+        return this.zenkeshiManager ? this.zenkeshiManager.isEffectActive() : false;
+    }
+
+    /**
+     * Get zenkeshi display information
+     * @returns {Object} Zenkeshi display info
+     */
+    getZenkeshiDisplayInfo() {
+        return this.zenkeshiManager ? this.zenkeshiManager.getDisplayInfo() : null;
+    }
+
+    /**
+     * Detect zenkeshi from current field state
+     * @returns {boolean} True if field is empty (zenkeshi condition)
+     */
+    detectZenkeshi() {
+        if (!this.zenkeshiManager) {
+            return this.isFieldEmpty();
+        }
+        return this.zenkeshiManager.detectZenkeshiFromField(this.field);
+    }
+
+    /**
      * Check if the top row has any puyos (game over condition)
      * @returns {boolean} True if top row has puyos
      */
@@ -509,6 +662,10 @@ export class GameState {
         cloned.currentPair = this.currentPair ? this.currentPair.clone() : null;
         cloned.nextPair = this.nextPair ? this.nextPair.clone() : null;
         
+        // Copy score manager and zenkeshi manager
+        cloned.scoreManager = this.scoreManager ? this.scoreManager.clone() : new ScoreManager();
+        cloned.zenkeshiManager = this.zenkeshiManager ? this.zenkeshiManager.clone() : new ZenkeshiManager();
+        
         return cloned;
     }
 
@@ -533,7 +690,9 @@ export class GameState {
             gameStartTime: this.gameStartTime,
             gameDuration: this.gameDuration,
             highestChain: this.highestChain,
-            zenkeshiCount: this.zenkeshiCount
+            zenkeshiCount: this.zenkeshiCount,
+            scoreManager: this.scoreManager ? this.scoreManager.toJSON() : null,
+            zenkeshiManager: this.zenkeshiManager ? this.zenkeshiManager.toJSON() : null
         };
     }
 
@@ -566,6 +725,10 @@ export class GameState {
         // Import puyo pairs
         gameState.currentPair = json.currentPair ? PuyoPair.fromJSON(json.currentPair) : null;
         gameState.nextPair = json.nextPair ? PuyoPair.fromJSON(json.nextPair) : null;
+        
+        // Import score manager and zenkeshi manager
+        gameState.scoreManager = json.scoreManager ? ScoreManager.fromJSON(json.scoreManager) : new ScoreManager();
+        gameState.zenkeshiManager = json.zenkeshiManager ? ZenkeshiManager.fromJSON(json.zenkeshiManager) : new ZenkeshiManager();
         
         return gameState;
     }

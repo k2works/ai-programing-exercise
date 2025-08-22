@@ -8,6 +8,9 @@ import { PuyoPairTestRunner } from './models/PuyoPair.test.js';
 import { GameStateTestRunner } from './models/GameState.test.js';
 import { FieldManagerTestRunner } from './models/FieldManager.test.js';
 import { PuyoManagerTestRunner } from './models/PuyoManager.test.js';
+import { runTests as runScoreManagerTests } from './models/ScoreManager.test.js';
+import { runTests as runChainTests } from './models/Chain.test.js';
+import { runTests as runZenkeshiManagerTests } from './models/ZenkeshiManager.test.js';
 import { InputHandlerTestRunner } from './input/InputHandler.test.js';
 
 /**
@@ -55,6 +58,39 @@ export async function runAllTests() {
         console.log('='.repeat(30));
         const puyoManagerResults = await PuyoManagerTestRunner.run();
         allResults.push(...puyoManagerResults);
+        
+        // Run ScoreManager tests
+        console.log('\n' + '='.repeat(30));
+        console.log('SCORE MANAGER TESTS');
+        console.log('='.repeat(30));
+        const scoreManagerSuccess = runScoreManagerTests();
+        allResults.push({
+            name: 'ScoreManager Tests',
+            status: scoreManagerSuccess ? 'PASS' : 'FAIL',
+            error: scoreManagerSuccess ? null : 'Some ScoreManager tests failed'
+        });
+        
+        // Run Chain tests
+        console.log('\n' + '='.repeat(30));
+        console.log('CHAIN TESTS');
+        console.log('='.repeat(30));
+        const chainSuccess = runChainTests();
+        allResults.push({
+            name: 'Chain Tests',
+            status: chainSuccess ? 'PASS' : 'FAIL',
+            error: chainSuccess ? null : 'Some Chain tests failed'
+        });
+        
+        // Run ZenkeshiManager tests
+        console.log('\n' + '='.repeat(30));
+        console.log('ZENKESHI MANAGER TESTS');
+        console.log('='.repeat(30));
+        const zenkeshiSuccess = runZenkeshiManagerTests();
+        allResults.push({
+            name: 'ZenkeshiManager Tests',
+            status: zenkeshiSuccess ? 'PASS' : 'FAIL',
+            error: zenkeshiSuccess ? null : 'Some ZenkeshiManager tests failed'
+        });
         
         // Run InputHandler tests
         console.log('\n' + '='.repeat(30));

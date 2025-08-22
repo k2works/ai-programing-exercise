@@ -365,15 +365,22 @@ export class FieldManager {
     /**
      * Clear specified groups of puyo from the field
      * @param {Array<Array<{x: number, y: number, puyo: Puyo}>>} groups - Groups to clear
-     * @returns {number} Total number of puyo cleared
+     * @returns {Object} Clearing results with detailed information
      */
     clearGroups(groups) {
         let totalCleared = 0;
+        const clearedPositions = [];
+        const groupSizes = [];
         
         for (const group of groups) {
+            groupSizes.push(group.length);
+            
             for (const { x, y, puyo } of group) {
                 // Set puyo to clearing state first (for animation)
                 puyo.setClearing();
+                
+                // Track cleared position
+                clearedPositions.push({ x, y, color: puyo.color });
                 
                 // Remove from field
                 this.clearCell(x, y);
@@ -381,22 +388,32 @@ export class FieldManager {
             }
         }
         
-        return totalCleared;
+        return {
+            totalCleared,
+            groupCount: groups.length,
+            groupSizes,
+            clearedPositions,
+            groups: groups.map(group => group.map(({ x, y, puyo }) => ({ x, y, color: puyo.color })))
+        };
     }
 
     /**
      * Find and clear all connected groups, then apply gravity
-     * @returns {{groups: Array, clearedCount: number, gravityApplied: boolean}} Results of the clear operation
+     * @returns {Object} Results of the clear operation with detailed information
      */
     findAndClearGroups() {
         const groups = this.findConnectedGroups();
-        const clearedCount = this.clearGroups(groups);
-        const gravityApplied = clearedCount > 0 ? this.applyGravity() : false;
+        const clearResults = this.clearGroups(groups);
+        const gravityApplied = clearResults.totalCleared > 0 ? this.applyGravity() : false;
         
         return {
             groups,
-            clearedCount,
-            gravityApplied
+            clearedCount: clearResults.totalCleared,
+            groupCount: clearResults.groupCount,
+            groupSizes: clearResults.groupSizes,
+            clearedPositions: clearResults.clearedPositions,
+            gravityApplied,
+            clearResults
         };
     }
 
