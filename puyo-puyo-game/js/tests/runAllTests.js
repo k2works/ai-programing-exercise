@@ -14,6 +14,7 @@ import { runTests as runZenkeshiManagerTests } from './models/ZenkeshiManager.te
 import { InputHandlerTestRunner } from './input/InputHandler.test.js';
 import { RendererTestRunner } from './rendering/Renderer.test.js';
 import { AnimationTestRunner } from './rendering/Animation.test.js';
+import { runGameEngineTests } from './engine/GameEngine.test.js';
 
 /**
  * Run all model tests
@@ -114,6 +115,17 @@ export async function runAllTests() {
         console.log('='.repeat(30));
         const animationResults = await AnimationTestRunner.run();
         allResults.push(...animationResults);
+        
+        // Run GameEngine tests
+        console.log('\n' + '='.repeat(30));
+        console.log('GAME ENGINE TESTS');
+        console.log('='.repeat(30));
+        const gameEngineResults = runGameEngineTests();
+        allResults.push({
+            name: 'GameEngine Tests',
+            status: gameEngineResults.passed === gameEngineResults.total ? 'PASS' : 'FAIL',
+            error: gameEngineResults.passed === gameEngineResults.total ? null : `${gameEngineResults.total - gameEngineResults.passed} GameEngine tests failed`
+        });
         
     } catch (error) {
         console.error('Error running tests:', error);
