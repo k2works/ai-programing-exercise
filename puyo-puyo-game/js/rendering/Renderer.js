@@ -3,6 +3,8 @@
  * Manages rendering of game field, puyo, UI elements, and animations
  */
 
+import { AnimationManager } from './Animation.js';
+
 export class Renderer {
     constructor(gameCanvas, nextPuyoCanvas) {
         this.gameCanvas = gameCanvas;
@@ -24,6 +26,12 @@ export class Renderer {
             yellow: '#FFFF44',
             purple: '#FF44FF'
         };
+        
+        // Animation manager
+        this.animationManager = new AnimationManager();
+        
+        // Screen shake offset
+        this.screenShakeOffset = { x: 0, y: 0 };
         
         // Initialize canvas settings
         this.initializeCanvas();
@@ -116,11 +124,15 @@ export class Renderer {
     /**
      * Render a single puyo
      */
-    renderPuyo(puyo, x, y, ctx = this.gameContext) {
+    renderPuyo(puyo, x, y, ctx = this.gameContext, animatedPosition = null) {
         if (!puyo || !puyo.color) return;
         
-        const centerX = (x + 0.5) * this.cellSize;
-        const centerY = (y + 0.5) * this.cellSize;
+        // Use animated position if provided
+        const renderX = animatedPosition ? animatedPosition.x : x;
+        const renderY = animatedPosition ? animatedPosition.y : y;
+        
+        const centerX = (renderX + 0.5) * this.cellSize;
+        const centerY = (renderY + 0.5) * this.cellSize;
         const radius = this.cellSize * 0.4;
         
         // Get color
@@ -148,6 +160,8 @@ export class Renderer {
             this.renderClearingEffect(centerX, centerY, radius, ctx);
         } else if (puyo.state === 'falling') {
             this.renderFallingEffect(centerX, centerY, radius, ctx);
+        } else if (puyo.state === 'fixed') {
+            this.renderFixedEffect(centerX, centerY, radius, ctx);
         }
     }
 
@@ -170,21 +184,82 @@ export class Renderer {
         ctx.beginPath();
         ctx.arc(x + 2, y + 2, radius, 0, Math.PI * 2);
         ctx.fill();
+        
+        // Add motion blur effect
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.beginPath();
+        ctx.arc(x, y - 3, radius * 0.8, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    /**
+     * Render fixed effect for puyo
+     */
+    renderFixedEffect(x, y, radius, ctx) {
+        // Add a subtle border to indicate fixed state
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(x, y, radius + 1, 0, Math.PI * 2);
+        ctx.stroke();
+        
+        // Add inner shadow for depth
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+        ctx.beginPath();
+        ctx.arc(x + 1, y + 1, radius * 0.2, 0, Math.PI * 2);
+        ctx.fill();
     }
 
     /**
      * Render UI elements (score, chains, etc.)
      */
     renderUI(score, chains, nextPuyo) {
-        // UI is handled by HTML elements, but we can add canvas-based UI here if needed
-        // For now, this is a placeholder for future canvas-based UI elements
+        // Update HTML UI elements
+        this.updateScoreDisplay(score);
+        this.updateChainDisplay(chains);
+        
+        // Render next puyo in canvas
+        if (nextPuyo) {
+            this.renderNextPuyo(nextPuyo);
+        }
+    }
+
+    /**
+     * Update score display in HTML UI
+     */
+    updateScoreDisplay(score) {
+        const scoreElement = document.getElementById('score-display');
+        if (scoreElement) {
+            scoreElement.textContent = score.toLocaleString();
+        }
+    }
+
+    /**
+     * Update chain display in HTML UI
+     */
+    updateChainDisplay(chains) {
+        const chainElement = document.getElementById('chain-display');
+        if (chainElement) {
+            chainElement.textContent = chains.toString();
+            
+            // Add visual feedback for high chains
+            if (chains > 0) {
+                chainElement.classList.add('chain-active');
+                setTimeout(() => {
+                    chainElement.classList.remove('chain-active');
+                }, 1000);
+            }
+        }
     }
 
     /**
      * Render next puyo preview
      */
     renderNextPuyo(puyoPair) {
-        if (!puyoPair) return;
+        if (!puyoPair) {
+            this.renderEmptyNextPuyo();
+            return;
+        }
         
         const ctx = this.nextPuyoContext;
         const canvasWidth = this.nextPuyoCanvas.width;
@@ -193,9 +268,8 @@ export class Renderer {
         // Clear canvas
         ctx.clearRect(0, 0, canvasWidth, canvasHeight);
         
-        // Draw background
-        ctx.fillStyle = '#F7FAFC';
-        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+        // Draw background with border
+        this.renderNextPuyoBackground(ctx, canvasWidth, canvasHeight);
         
         // Calculate puyo size for preview
         const previewCellSize = Math.min(canvasWidth, canvasHeight) / 4;
@@ -214,6 +288,46 @@ export class Renderer {
         if (puyoPair.puyo2) {
             this.renderPuyoPreview(puyoPair.puyo2, centerX, puyo2Y, previewCellSize * 0.4, ctx);
         }
+    }
+
+    /**
+     * Render background for next puyo preview area
+     */
+    renderNextPuyoBackground(ctx, width, height) {
+        // Draw background
+        ctx.fillStyle = '#F7FAFC';
+        ctx.fillRect(0, 0, width, height);
+        
+        // Draw border
+        ctx.strokeStyle = '#E2E8F0';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(1, 1, width - 2, height - 2);
+        
+        // Draw inner shadow
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(2, 2, width - 4, 4);
+    }
+
+    /**
+     * Render empty next puyo preview
+     */
+    renderEmptyNextPuyo() {
+        const ctx = this.nextPuyoContext;
+        const canvasWidth = this.nextPuyoCanvas.width;
+        const canvasHeight = this.nextPuyoCanvas.height;
+        
+        // Clear canvas
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        
+        // Draw background
+        this.renderNextPuyoBackground(ctx, canvasWidth, canvasHeight);
+        
+        // Draw placeholder text
+        ctx.fillStyle = '#A0AEC0';
+        ctx.font = '12px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('次のぷよ', canvasWidth / 2, canvasHeight / 2);
     }
 
     /**
@@ -263,11 +377,195 @@ export class Renderer {
     }
 
     /**
-     * Render animation frame
+     * Update and render all animations
      */
-    renderAnimation(animation) {
-        // Placeholder for animation rendering
-        // Will be implemented in later tasks
+    updateAnimations(currentTime) {
+        // Update all animations
+        const completedAnimations = this.animationManager.update(currentTime);
+        
+        // Update screen shake offset
+        const shakeAnimations = this.animationManager.getAnimationsByType('screenShake');
+        if (shakeAnimations.length > 0) {
+            this.screenShakeOffset = this.animationManager.getScreenShakeOffset(shakeAnimations[0]);
+        } else {
+            this.screenShakeOffset = { x: 0, y: 0 };
+        }
+        
+        return completedAnimations;
+    }
+
+    /**
+     * Render all active animations
+     */
+    renderAnimations() {
+        const ctx = this.gameContext;
+        
+        // Save current context state
+        ctx.save();
+        
+        // Apply screen shake
+        ctx.translate(this.screenShakeOffset.x, this.screenShakeOffset.y);
+        
+        // Render chain highlights
+        this.renderChainHighlights(ctx);
+        
+        // Render clearing animations
+        this.renderClearingAnimations(ctx);
+        
+        // Restore context state
+        ctx.restore();
+    }
+
+    /**
+     * Render chain highlight animations
+     */
+    renderChainHighlights(ctx) {
+        const chainAnimations = this.animationManager.getAnimationsByType('chainHighlight');
+        
+        chainAnimations.forEach(animation => {
+            const values = this.animationManager.getChainHighlightValues(animation);
+            const { x, y } = animation.properties;
+            
+            if (values) {
+                ctx.save();
+                ctx.globalAlpha = values.alpha;
+                
+                // Create radial gradient
+                const gradient = ctx.createRadialGradient(
+                    (x + 0.5) * this.cellSize, (y + 0.5) * this.cellSize, 0,
+                    (x + 0.5) * this.cellSize, (y + 0.5) * this.cellSize, values.radius
+                );
+                gradient.addColorStop(0, values.color);
+                gradient.addColorStop(1, 'transparent');
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(
+                    (x + 0.5) * this.cellSize,
+                    (y + 0.5) * this.cellSize,
+                    values.radius,
+                    0,
+                    Math.PI * 2
+                );
+                ctx.fill();
+                
+                ctx.restore();
+            }
+        });
+    }
+
+    /**
+     * Render clearing animations
+     */
+    renderClearingAnimations(ctx) {
+        const clearAnimations = this.animationManager.getAnimationsByType('clear');
+        
+        clearAnimations.forEach(animation => {
+            const values = this.animationManager.getClearValues(animation);
+            const { x, y } = animation.properties;
+            
+            if (values) {
+                ctx.save();
+                ctx.globalAlpha = values.alpha;
+                
+                const centerX = (x + 0.5) * this.cellSize;
+                const centerY = (y + 0.5) * this.cellSize;
+                const radius = this.cellSize * 0.4 * values.scale;
+                
+                // Draw expanding white circle
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw sparkle effect
+                this.renderSparkles(ctx, centerX, centerY, radius, values.alpha);
+                
+                ctx.restore();
+            }
+        });
+    }
+
+    /**
+     * Render sparkle effects for clearing animation
+     */
+    renderSparkles(ctx, centerX, centerY, radius, alpha) {
+        const sparkleCount = 8;
+        const sparkleRadius = 2;
+        
+        for (let i = 0; i < sparkleCount; i++) {
+            const angle = (i / sparkleCount) * Math.PI * 2;
+            const distance = radius * 1.2;
+            const sparkleX = centerX + Math.cos(angle) * distance;
+            const sparkleY = centerY + Math.sin(angle) * distance;
+            
+            ctx.save();
+            ctx.globalAlpha = alpha * 0.8;
+            ctx.fillStyle = '#FFD700'; // Gold sparkles
+            ctx.beginPath();
+            ctx.arc(sparkleX, sparkleY, sparkleRadius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+    }
+
+    /**
+     * Create animation for puyo clearing
+     */
+    startClearAnimation(x, y) {
+        return this.animationManager.createClearAnimation(x, y);
+    }
+
+    /**
+     * Create animation for chain highlight
+     */
+    startChainHighlight(x, y, chainLevel) {
+        return this.animationManager.createChainHighlight(x, y, chainLevel);
+    }
+
+    /**
+     * Create animation for screen shake
+     */
+    startScreenShake(intensity = 5) {
+        return this.animationManager.createScreenShake(intensity);
+    }
+
+    /**
+     * Create animation for puyo movement
+     */
+    startMoveAnimation(fromX, fromY, toX, toY) {
+        return this.animationManager.createMoveAnimation(fromX, fromY, toX, toY);
+    }
+
+    /**
+     * Create animation for puyo drop
+     */
+    startDropAnimation(x, fromY, toY) {
+        return this.animationManager.createDropAnimation(x, fromY, toY);
+    }
+
+    /**
+     * Get animated position for a puyo
+     */
+    getAnimatedPosition(puyoId, defaultX, defaultY) {
+        // This would be used with a puyo ID system to track individual puyo animations
+        // For now, return default position
+        return { x: defaultX, y: defaultY };
+    }
+
+    /**
+     * Check if any animations are currently running
+     */
+    hasActiveAnimations() {
+        return this.animationManager.hasActiveAnimations();
+    }
+
+    /**
+     * Clear all animations
+     */
+    clearAllAnimations() {
+        this.animationManager.clearAll();
+        this.screenShakeOffset = { x: 0, y: 0 };
     }
 
     /**

@@ -12,6 +12,8 @@ import { runTests as runScoreManagerTests } from './models/ScoreManager.test.js'
 import { runTests as runChainTests } from './models/Chain.test.js';
 import { runTests as runZenkeshiManagerTests } from './models/ZenkeshiManager.test.js';
 import { InputHandlerTestRunner } from './input/InputHandler.test.js';
+import { RendererTestRunner } from './rendering/Renderer.test.js';
+import { AnimationTestRunner } from './rendering/Animation.test.js';
 
 /**
  * Run all model tests
@@ -98,6 +100,20 @@ export async function runAllTests() {
         console.log('='.repeat(30));
         const inputHandlerResults = await InputHandlerTestRunner.run();
         allResults.push(...inputHandlerResults);
+        
+        // Run Renderer tests
+        console.log('\n' + '='.repeat(30));
+        console.log('RENDERER TESTS');
+        console.log('='.repeat(30));
+        const rendererResults = await RendererTestRunner.run();
+        allResults.push(...rendererResults);
+        
+        // Run Animation tests
+        console.log('\n' + '='.repeat(30));
+        console.log('ANIMATION TESTS');
+        console.log('='.repeat(30));
+        const animationResults = await AnimationTestRunner.run();
+        allResults.push(...animationResults);
         
     } catch (error) {
         console.error('Error running tests:', error);

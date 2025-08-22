@@ -1,0 +1,19 @@
+{
+  "name": "puyo-puyo-game",
+  "version": "1.0.0",
+  "description": "ぷよぷよパズルゲーム",
+  "type": "module",
+  "main": "js/main.js",
+  "scripts": {
+    "test": "node js/tests/runAllTests.js",
+    "start": "python -m http.server 8000"
+  },
+  "keywords": [
+    "puyo",
+    "puzzle",
+    "game",
+    "javascript"
+  ],
+  "author": "",
+  "license": "MIT"
+}
