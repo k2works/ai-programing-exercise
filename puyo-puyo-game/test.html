@@ -80,6 +80,12 @@
             <div id="responsive-test-results"></div>
             <button onclick="testResponsive()">レスポンシブをテスト</button>
         </div>
+        
+        <div class="test-section">
+            <h2>モデルクラステスト</h2>
+            <div id="model-test-results"></div>
+            <button onclick="testModels()">モデルクラスをテスト</button>
+        </div>
     </div>
 
     <script type="module">
@@ -190,6 +196,41 @@
             div.textContent = message;
             container.appendChild(div);
         }
+        
+        window.testModels = async function() {
+            const results = document.getElementById('model-test-results');
+            results.innerHTML = '<div class="test-result">モデルテストを実行中...</div>';
+            
+            try {
+                // Import and run all model tests
+                const { runAllTests } = await import('./js/tests/runAllTests.js');
+                const testResults = await runAllTests();
+                
+                results.innerHTML = '';
+                
+                if (testResults.success) {
+                    addTestResult(results, `✓ 全${testResults.totalTests}個のテストが成功しました`, 'success');
+                } else {
+                    addTestResult(results, `✗ ${testResults.totalFailed}個のテストが失敗しました (${testResults.totalPassed}個成功)`, 'error');
+                    
+                    // Show first few failed tests
+                    const failedTests = testResults.results.filter(r => r.status === 'FAIL').slice(0, 5);
+                    failedTests.forEach(test => {
+                        addTestResult(results, `  - ${test.name}: ${test.error}`, 'error');
+                    });
+                    
+                    if (testResults.totalFailed > 5) {
+                        addTestResult(results, `  ... および他${testResults.totalFailed - 5}個の失敗`, 'error');
+                    }
+                }
+                
+                addTestResult(results, 'コンソールで詳細な結果を確認してください', 'success');
+                
+            } catch (error) {
+                addTestResult(results, `✗ テスト実行エラー: ${error.message}`, 'error');
+                console.error('Model test error:', error);
+            }
+        };
         
         // ページ読み込み時に基本テストを実行
         document.addEventListener('DOMContentLoaded', () => {
