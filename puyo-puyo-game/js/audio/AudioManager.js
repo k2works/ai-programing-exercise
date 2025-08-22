@@ -210,6 +210,144 @@ export class AudioManager {
     }
 
     /**
+     * Play background music (placeholder for future implementation)
+     */
+    playBackgroundMusic(trackName = 'main') {
+        if (this.isMuted) return;
+        
+        console.log(`Playing background music: ${trackName}`);
+        // TODO: Implement actual background music playback
+        // This would load and play audio files when implemented
+    }
+
+    /**
+     * Stop background music
+     */
+    stopBackgroundMusic() {
+        console.log('Stopping background music');
+        // TODO: Implement actual background music stopping
+    }
+
+    /**
+     * Play menu sound effect
+     */
+    playMenuSound() {
+        this.createTone(523, 0.1, 'sine');
+    }
+
+    /**
+     * Play button click sound effect
+     */
+    playButtonSound() {
+        this.createTone(440, 0.08, 'square');
+    }
+
+    /**
+     * Play warning sound effect (for game over warning)
+     */
+    playWarningSound() {
+        this.createTone(200, 0.3, 'sawtooth');
+        setTimeout(() => this.createTone(200, 0.3, 'sawtooth'), 400);
+    }
+
+    /**
+     * Play combo sound effect for multiple simultaneous clears
+     */
+    playComboSound(comboCount) {
+        const baseFreq = 330;
+        for (let i = 0; i < Math.min(comboCount, 5); i++) {
+            setTimeout(() => {
+                this.createTone(baseFreq + (i * 110), 0.15, 'triangle');
+            }, i * 60);
+        }
+    }
+
+    /**
+     * Play soft landing sound for puyo placement
+     */
+    playSoftLandSound() {
+        this.createTone(150, 0.1, 'sine');
+    }
+
+    /**
+     * Play hard landing sound for fast drop
+     */
+    playHardLandSound() {
+        this.createTone(100, 0.2, 'square');
+    }
+
+    /**
+     * Create audio integration points for external audio files
+     */
+    loadAudioFile(name, url) {
+        // Placeholder for loading external audio files
+        console.log(`Audio integration point: Load ${name} from ${url}`);
+        // TODO: Implement actual audio file loading
+        // This would use fetch() to load audio files and decode them
+        return Promise.resolve();
+    }
+
+    /**
+     * Play loaded audio file
+     */
+    playAudioFile(name, volume = 1.0, loop = false) {
+        // Placeholder for playing loaded audio files
+        console.log(`Audio integration point: Play ${name} (volume: ${volume}, loop: ${loop})`);
+        // TODO: Implement actual audio file playback
+    }
+
+    /**
+     * Get audio settings for persistence
+     */
+    getAudioSettings() {
+        return {
+            musicVolume: this.musicVolume,
+            sfxVolume: this.sfxVolume,
+            isMuted: this.isMuted
+        };
+    }
+
+    /**
+     * Apply audio settings from persistence
+     */
+    applyAudioSettings(settings) {
+        if (settings.musicVolume !== undefined) {
+            this.setMusicVolume(settings.musicVolume);
+        }
+        if (settings.sfxVolume !== undefined) {
+            this.setSfxVolume(settings.sfxVolume);
+        }
+        if (settings.isMuted !== undefined) {
+            this.isMuted = settings.isMuted;
+        }
+    }
+
+    /**
+     * Create dynamic sound effect based on game state
+     */
+    playDynamicSound(eventType, intensity = 1.0, pitch = 1.0) {
+        if (this.isMuted) return;
+        
+        const soundMap = {
+            'puyo_land': { freq: 150, duration: 0.1, type: 'sine' },
+            'puyo_clear': { freq: 440, duration: 0.15, type: 'triangle' },
+            'chain_start': { freq: 330, duration: 0.2, type: 'square' },
+            'chain_continue': { freq: 550, duration: 0.18, type: 'sine' },
+            'all_clear': { freq: 880, duration: 0.4, type: 'sine' },
+            'game_over': { freq: 220, duration: 0.5, type: 'sawtooth' },
+            'level_up': { freq: 523, duration: 0.3, type: 'triangle' },
+            'warning': { freq: 200, duration: 0.25, type: 'square' }
+        };
+        
+        const sound = soundMap[eventType];
+        if (sound) {
+            const frequency = sound.freq * pitch;
+            const duration = sound.duration * intensity;
+            this.createTone(frequency, duration, sound.type);
+        }
+    }
+
+    /**
      * Clean up audio resources
      */
     dispose() {

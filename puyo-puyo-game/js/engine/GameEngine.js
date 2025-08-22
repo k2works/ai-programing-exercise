@@ -29,11 +29,11 @@ export class GameEngine {
         // Event callback
         this.onGameEvent = null;
         
-        // Initialize placeholder for future components
+        // Initialize game components
         this.fieldManager = null;
         this.puyoManager = null;
         this.scoreManager = null;
-        this.chainCalculator = null;
+        this.inputHandler = null;
         
         // Bind methods to preserve context
         this.gameLoop = this.gameLoop.bind(this);
@@ -43,7 +43,7 @@ export class GameEngine {
      * Start the game
      * Requirements: 1.1, 1.2 - Initialize clean playfield and reset score
      */
-    start() {
+    async start() {
         if (this.isRunning) {
             console.warn('Game is already running');
             return;
@@ -51,7 +51,7 @@ export class GameEngine {
         
         this.isRunning = true;
         this.isPausedState = false;
-        this.initializeGameState();
+        await this.initializeGameState();
         this.startGameLoop();
         
         // Emit game started event
@@ -151,7 +151,7 @@ export class GameEngine {
      * Restart the game with a fresh state
      * Requirements: 1.1, 1.2 - Reset to clean state and start new game
      */
-    restart() {
+    async restart() {
         console.log('Restarting game...');
         
         // Stop current game
@@ -159,13 +159,15 @@ export class GameEngine {
         
         // Clear any existing state
         this.gameState = null;
+        this.fieldManager = null;
+        this.puyoManager = null;
         this.frameTimeAccumulator = 0;
         this.frameCount = 0;
         this.lastFpsTime = 0;
         this.currentFps = 60;
         
         // Start fresh game
-        this.start();
+        await this.start();
         
         this.emitGameEvent({
             type: 'gameRestarted'
@@ -217,15 +219,29 @@ export class GameEngine {
     }
 
     /**
-     * Initialize game state
+     * Initialize game state and all game systems
      * Requirements: 1.1, 1.2 - Clean 12x6 playfield and reset score to zero
      */
-    initializeGameState() {
+    async initializeGameState() {
+        // Import required modules
+        const { FieldManager } = await import('../models/FieldManager.js');
+        const { PuyoManager } = await import('../models/PuyoManager.js');
+        
         // Create new game state instance
         this.gameState = new GameState();
         
+        // Initialize field manager
+        this.fieldManager = new FieldManager();
+        
+        // Initialize puyo manager with field manager
+        this.puyoManager = new PuyoManager(this.fieldManager);
+        
         // Start new game (this initializes clean field and resets score)
         this.gameState.startNewGame();
+        
+        // Set initial puyo pairs in game state
+        this.gameState.setCurrentPair(this.puyoManager.getCurrentPair());
+        this.gameState.setNextPair(this.puyoManager.getNextPair());
         
         // Emit initial state events
         this.emitGameEvent({
@@ -243,7 +259,7 @@ export class GameEngine {
             gameState: this.gameState
         });
         
-        console.log('Game state initialized - Clean 12x6 field, Score: 0');
+        console.log('Game systems initialized - Field, Puyo, Input, and Score managers connected');
     }
 
     /**
@@ -323,7 +339,7 @@ export class GameEngine {
      * Update game logic
      */
     update(deltaTime) {
-        if (!this.gameState) {
+        if (!this.gameState || !this.fieldManager || !this.puyoManager) {
             return;
         }
         
@@ -332,14 +348,26 @@ export class GameEngine {
             return;
         }
 
-        // TODO: Update game components
-        // - Update falling puyo
-        // - Check for completed groups
-        // - Handle chain reactions
-        // - Update animations
+        // Update falling puyo
+        const pairFixed = this.puyoManager.update(deltaTime);
         
-        // Placeholder update logic
-        this.updatePlaceholder(deltaTime);
+        if (pairFixed) {
+            // A puyo pair was just fixed to the field
+            // Play landing sound
+            if (this.audioManager) {
+                this.audioManager.playSoftLandSound();
+            }
+            
+            // Update game state with current field
+            this.syncFieldToGameState();
+            
+            // Check for completed groups and handle chain reactions
+            this.processChainReactions();
+            
+            // Update puyo pairs in game state
+            this.gameState.setCurrentPair(this.puyoManager.getCurrentPair());
+            this.gameState.setNextPair(this.puyoManager.getNextPair());
+        }
         
         // Check for game over condition after updates
         if (this.isGameOver() && this.gameState.isPlaying()) {
@@ -348,11 +376,116 @@ export class GameEngine {
     }
 
     /**
-     * Placeholder update logic for initial implementation
+     * Sync field manager state to game state
      */
-    updatePlaceholder(deltaTime) {
-        // This is a placeholder that will be replaced by actual game logic
-        // in subsequent tasks
+    syncFieldToGameState() {
+        if (!this.fieldManager || !this.gameState) {
+            return;
+        }
+        
+        // Copy field from field manager to game state
+        const field = this.fieldManager.getField();
+        for (let y = 0; y < field.length; y++) {
+            for (let x = 0; x < field[y].length; x++) {
+                this.gameState.setFieldCell(x, y, field[y][x]);
+            }
+        }
+    }
+
+    /**
+     * Process chain reactions after puyo are fixed
+     */
+    processChainReactions() {
+        if (!this.fieldManager || !this.gameState) {
+            return;
+        }
+        
+        let chainActive = true;
+        let chainProcessed = false;
+        
+        // Start chain if groups are found
+        if (this.fieldManager.hasClearableGroups()) {
+            this.gameState.startChain();
+            chainActive = true;
+        }
+        
+        // Process chain reactions
+        while (chainActive) {
+            // Find and clear connected groups
+            const clearResult = this.fieldManager.findAndClearGroups();
+            
+            if (clearResult.clearedCount > 0) {
+                chainProcessed = true;
+                
+                // Check for zenkeshi (all-clear)
+                const isZenkeshi = this.gameState.detectZenkeshi();
+                
+                // Process scoring
+                const scoringResult = this.gameState.processClearedGroups(
+                    clearResult.groups, 
+                    isZenkeshi
+                );
+                
+                // Play audio feedback
+                if (this.audioManager) {
+                    if (isZenkeshi) {
+                        this.audioManager.playAllClearSound();
+                    } else if (scoringResult.chainLevel > 0) {
+                        this.audioManager.playChainSound(scoringResult.chainLevel);
+                    } else {
+                        this.audioManager.playClearSound();
+                    }
+                    
+                    // Play combo sound for multiple groups
+                    if (clearResult.groupCount > 1) {
+                        setTimeout(() => {
+                            this.audioManager.playComboSound(clearResult.groupCount);
+                        }, 100);
+                    }
+                }
+                
+                // Emit scoring events
+                this.emitGameEvent({
+                    type: 'scoreUpdate',
+                    score: this.gameState.getScore(),
+                    lastChainScore: scoringResult.score,
+                    chainLevel: scoringResult.chainLevel
+                });
+                
+                this.emitGameEvent({
+                    type: 'chainUpdate',
+                    chainCount: this.gameState.getChainCount()
+                });
+                
+                // Emit puyo cleared event for animations
+                this.emitGameEvent({
+                    type: 'puyoCleared',
+                    clearedPositions: clearResult.clearedPositions,
+                    chainLevel: scoringResult.chainLevel,
+                    isZenkeshi: isZenkeshi
+                });
+                
+                // Apply gravity and check for more groups
+                this.fieldManager.applyCascadingGravity();
+                this.syncFieldToGameState();
+                
+                // Check if more groups can be cleared (continue chain)
+                chainActive = this.fieldManager.hasClearableGroups();
+            } else {
+                // No more groups to clear, end chain
+                chainActive = false;
+            }
+        }
+        
+        // End chain if any processing occurred
+        if (chainProcessed) {
+            const chainSummary = this.gameState.endChain();
+            
+            this.emitGameEvent({
+                type: 'chainComplete',
+                chainSummary: chainSummary
+            });
+        }
     }
 
     /**
@@ -366,32 +499,52 @@ export class GameEngine {
         // Clear the canvas
         this.renderer.clear();
         
-        // TODO: Render game components
-        // - Render field
-        // - Render puyo
-        // - Render UI elements
-        // - Render animations
+        // Render field with placed puyo
+        if (this.fieldManager) {
+            this.renderer.renderField(this.fieldManager.getField());
+        }
         
-        // Placeholder rendering
-        this.renderPlaceholder();
+        // Render current falling puyo pair
+        if (this.puyoManager && this.puyoManager.getCurrentPair()) {
+            const currentPair = this.puyoManager.getCurrentPair();
+            const positions = currentPair.getPuyoPositions();
+            
+            // Render both puyo in the pair
+            this.renderer.renderPuyo(currentPair.puyo1, positions.puyo1.x, positions.puyo1.y);
+            this.renderer.renderPuyo(currentPair.puyo2, positions.puyo2.x, positions.puyo2.y);
+        }
+        
+        // Render UI elements
+        this.renderer.renderUI(
+            this.gameState.getScore(),
+            this.gameState.getChainCount(),
+            this.gameState.getNextPair()
+        );
+        
+        // Render animations
+        this.renderer.updateAnimations(performance.now());
+        this.renderer.renderAnimations();
+        
+        // Render game over screen if needed
+        if (this.gameState.isGameOver()) {
+            this.renderer.renderGameOver();
+        }
     }
 
-    /**
-     * Placeholder rendering for initial implementation
-     */
-    renderPlaceholder() {
-        // This is a placeholder that will be replaced by actual rendering logic
-        // in subsequent tasks
-        this.renderer.renderPlaceholder();
-    }
+
 
     /**
      * Handle input from input handler
      * Requirements: 9.2 - Stop accepting input when game is over
      */
     handleInput(inputEvent) {
+        // Validate input event
+        if (!inputEvent || typeof inputEvent !== 'object' || !inputEvent.type) {
+            return;
+        }
+        
         // Don't process input if game is not running, paused, or game state is missing
-        if (!this.isRunning || this.isPausedState || !this.gameState) {
+        if (!this.isRunning || this.isPausedState || !this.gameState || !this.puyoManager) {
             return;
         }
         
@@ -401,12 +554,100 @@ export class GameEngine {
             return;
         }
 
-        // TODO: Process input events
-        // - Move puyo pair
-        // - Rotate puyo pair
-        // - Drop puyo pair
+        // Process input events
+        switch (inputEvent.type) {
+            case 'move':
+                this.handleMoveInput(inputEvent.direction, inputEvent.fast);
+                break;
+            case 'rotate':
+                this.handleRotateInput();
+                break;
+            case 'pause':
+                this.handlePauseInput();
+                break;
+            case 'restart':
+                this.handleRestartInput();
+                break;
+            default:
+                console.log('Unknown input type:', inputEvent.type);
+        }
+    }
+
+    /**
+     * Handle movement input
+     */
+    handleMoveInput(direction, fast = false) {
+        if (!this.puyoManager) {
+            return;
+        }
         
-        console.log('Input received:', inputEvent);
+        let moved = false;
+        
+        switch (direction) {
+            case 'left':
+                moved = this.puyoManager.movePair('left');
+                if (moved && this.audioManager) {
+                    this.audioManager.playMoveSound();
+                }
+                break;
+            case 'right':
+                moved = this.puyoManager.movePair('right');
+                if (moved && this.audioManager) {
+                    this.audioManager.playMoveSound();
+                }
+                break;
+            case 'down':
+                if (fast) {
+                    // Fast drop - move down as much as possible
+                    let dropCount = 0;
+                    while (this.puyoManager.canPairFall()) {
+                        this.puyoManager.fallPair();
+                        dropCount++;
+                    }
+                    if (dropCount > 0 && this.audioManager) {
+                        this.audioManager.playHardLandSound();
+                    }
+                } else {
+                    // Enable fast drop mode
+                    this.puyoManager.dropPair();
+                    if (this.audioManager) {
+                        this.audioManager.playDropSound();
+                    }
+                }
+                break;
+        }
+    }
+
+    /**
+     * Handle rotation input
+     */
+    handleRotateInput() {
+        if (!this.puyoManager) {
+            return;
+        }
+        
+        const rotated = this.puyoManager.rotatePair();
+        if (rotated && this.audioManager) {
+            this.audioManager.playRotateSound();
+        }
+    }
+
+    /**
+     * Handle pause input
+     */
+    handlePauseInput() {
+        if (this.isPausedState) {
+            this.resume();
+        } else {
+            this.pause();
+        }
+    }
+
+    /**
+     * Handle restart input
+     */
+    async handleRestartInput() {
+        await this.restart();
     }
 
     /**
@@ -424,12 +665,12 @@ export class GameEngine {
      * @returns {boolean} True if game over condition is met
      */
     isGameOver() {
-        if (!this.gameState) {
+        if (!this.gameState || !this.fieldManager || !this.puyoManager) {
             return false;
         }
         
-        // Check if top row is occupied (standard game over condition)
-        return this.gameState.isTopRowOccupied();
+        // Check if puyo manager detects game over (cannot spawn new pair)
+        return this.puyoManager.isGameOver() || this.fieldManager.isGameOver();
     }
 
     /**
@@ -442,6 +683,11 @@ export class GameEngine {
         }
         
         console.log('Game over detected');
+        
+        // Play game over sound
+        if (this.audioManager) {
+            this.audioManager.playGameOverSound();
+        }
         
         // Set game state to game over
         this.gameState.gameOver();

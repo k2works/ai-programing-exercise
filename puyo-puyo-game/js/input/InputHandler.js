@@ -387,7 +387,266 @@ export class InputHandler {
             this.touchSettings.maxTapTime = 250;
             this.touchSettings.tapTolerance = 1.0;
             this.inputDelay = 80; // Faster input response on mobile
+            
+            // Add mobile-specific optimizations
+            this.setupMobileOptimizations();
         }
+    }
+
+    /**
+     * Setup mobile-specific optimizations
+     */
+    setupMobileOptimizations() {
+        // Prevent default touch behaviors on game canvas
+        const gameCanvas = document.getElementById('game-canvas');
+        if (gameCanvas) {
+            // Prevent scrolling and zooming
+            gameCanvas.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
+            gameCanvas.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+            gameCanvas.addEventListener('touchend', (e) => e.preventDefault(), { passive: false });
+            
+            // Prevent context menu on long press
+            gameCanvas.addEventListener('contextmenu', (e) => e.preventDefault());
+        }
+        
+        // Setup viewport meta tag for mobile
+        this.setupMobileViewport();
+        
+        // Setup orientation change handling
+        this.setupOrientationHandling();
+        
+        // Setup mobile-specific touch zones
+        this.setupMobileTouchZones();
+    }
+
+    /**
+     * Setup mobile viewport meta tag
+     */
+    setupMobileViewport() {
+        if (typeof document === 'undefined') return;
+        
+        let viewport = document.querySelector('meta[name="viewport"]');
+        if (!viewport) {
+            viewport = document.createElement('meta');
+            viewport.name = 'viewport';
+            document.head.appendChild(viewport);
+        }
+        
+        // Optimize viewport for mobile gaming
+        viewport.content = 'width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0, viewport-fit=cover';
+    }
+
+    /**
+     * Setup orientation change handling
+     */
+    setupOrientationHandling() {
+        if (typeof window === 'undefined') return;
+        
+        window.addEventListener('orientationchange', () => {
+            // Delay to allow orientation change to complete
+            setTimeout(() => {
+                this.handleOrientationChange();
+            }, 100);
+        });
+    }
+
+    /**
+     * Handle orientation change
+     */
+    handleOrientationChange() {
+        // Recalculate touch zones and canvas size
+        if (this.gameEngine && this.gameEngine.renderer) {
+            this.gameEngine.renderer.resize();
+        }
+        
+        // Update mobile controls visibility
+        this.updateMobileControlsVisibility();
+        
+        // Emit orientation change event
+        if (this.gameEngine) {
+            this.gameEngine.emitGameEvent({
+                type: 'orientationChange',
+                orientation: this.getOrientation()
+            });
+        }
+    }
+
+    /**
+     * Get current device orientation
+     */
+    getOrientation() {
+        if (typeof window === 'undefined') return 'portrait';
+        
+        if (window.orientation !== undefined) {
+            return Math.abs(window.orientation) === 90 ? 'landscape' : 'portrait';
+        }
+        
+        return window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
+    }
+
+    /**
+     * Update mobile controls visibility based on device and orientation
+     */
+    updateMobileControlsVisibility() {
+        const mobileControls = document.querySelector('.mobile-controls');
+        if (!mobileControls) return;
+        
+        const shouldShow = this.isMobileDevice() || this.isTouchDevice();
+        mobileControls.style.display = shouldShow ? 'block' : 'none';
+        
+        // Adjust position based on orientation
+        const orientation = this.getOrientation();
+        if (orientation === 'landscape') {
+            mobileControls.style.bottom = '10px';
+            mobileControls.style.transform = 'translateX(-50%) scale(0.8)';
+        } else {
+            mobileControls.style.bottom = '20px';
+            mobileControls.style.transform = 'translateX(-50%) scale(1)';
+        }
+    }
+
+    /**
+     * Setup mobile-specific touch zones
+     */
+    setupMobileTouchZones() {
+        const gameCanvas = document.getElementById('game-canvas');
+        if (!gameCanvas) return;
+        
+        // Create invisible touch zones for better mobile interaction
+        this.createTouchZones(gameCanvas);
+    }
+
+    /**
+     * Create touch zones for mobile interaction
+     */
+    createTouchZones(canvas) {
+        // Remove existing touch zones
+        const existingZones = document.querySelectorAll('.touch-zone-overlay');
+        existingZones.forEach(zone => zone.remove());
+        
+        // Create overlay container
+        const overlay = document.createElement('div');
+        overlay.className = 'touch-zone-overlay';
+        overlay.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        `;
+        
+        // Position overlay relative to canvas
+        const canvasContainer = canvas.parentElement;
+        if (canvasContainer) {
+            canvasContainer.style.position = 'relative';
+            canvasContainer.appendChild(overlay);
+        }
+        
+        // Create touch zones
+        this.createLeftTouchZone(overlay);
+        this.createRightTouchZone(overlay);
+        this.createCenterTouchZone(overlay);
+    }
+
+    /**
+     * Create left touch zone for left movement
+     */
+    createLeftTouchZone(overlay) {
+        const leftZone = document.createElement('div');
+        leftZone.className = 'touch-zone touch-zone-left';
+        leftZone.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 30%;
+            height: 100%;
+            pointer-events: auto;
+            background: rgba(255, 0, 0, 0.1);
+            opacity: 0;
+            transition: opacity 0.2s;
+        `;
+        
+        // Add touch feedback
+        leftZone.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            leftZone.style.opacity = '0.3';
+            this.gameEngine?.handleInput({ type: 'move', direction: 'left' });
+            this.triggerHapticFeedback('light');
+        });
+        
+        leftZone.addEventListener('touchend', () => {
+            leftZone.style.opacity = '0';
+        });
+        
+        overlay.appendChild(leftZone);
+    }
+
+    /**
+     * Create right touch zone for right movement
+     */
+    createRightTouchZone(overlay) {
+        const rightZone = document.createElement('div');
+        rightZone.className = 'touch-zone touch-zone-right';
+        rightZone.style.cssText = `
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 30%;
+            height: 100%;
+            pointer-events: auto;
+            background: rgba(0, 255, 0, 0.1);
+            opacity: 0;
+            transition: opacity 0.2s;
+        `;
+        
+        // Add touch feedback
+        rightZone.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            rightZone.style.opacity = '0.3';
+            this.gameEngine?.handleInput({ type: 'move', direction: 'right' });
+            this.triggerHapticFeedback('light');
+        });
+        
+        rightZone.addEventListener('touchend', () => {
+            rightZone.style.opacity = '0';
+        });
+        
+        overlay.appendChild(rightZone);
+    }
+
+    /**
+     * Create center touch zone for rotation
+     */
+    createCenterTouchZone(overlay) {
+        const centerZone = document.createElement('div');
+        centerZone.className = 'touch-zone touch-zone-center';
+        centerZone.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 30%;
+            width: 40%;
+            height: 100%;
+            pointer-events: auto;
+            background: rgba(0, 0, 255, 0.1);
+            opacity: 0;
+            transition: opacity 0.2s;
+        `;
+        
+        // Add touch feedback
+        centerZone.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            centerZone.style.opacity = '0.3';
+            this.gameEngine?.handleInput({ type: 'rotate' });
+            this.triggerHapticFeedback('medium');
+        });
+        
+        centerZone.addEventListener('touchend', () => {
+            centerZone.style.opacity = '0';
+        });
+        
+        overlay.appendChild(centerZone);
     }
 
     /**

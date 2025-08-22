@@ -52,10 +52,94 @@ export class Renderer {
         this.nextPuyoContext.textBaseline = 'middle';
         
         // Calculate actual cell size based on canvas dimensions
+        this.updateCanvasScaling();
+        
+        // Set up responsive canvas
+        this.setupResponsiveCanvas();
+    }
+
+    /**
+     * Update canvas scaling based on current dimensions
+     */
+    updateCanvasScaling() {
         this.cellSize = Math.min(
             this.gameCanvas.width / this.fieldWidth,
             this.gameCanvas.height / this.fieldHeight
         );
+        
+        // Ensure minimum cell size for mobile devices
+        const minCellSize = this.isMobileDevice() ? 20 : 25;
+        this.cellSize = Math.max(this.cellSize, minCellSize);
+        
+        // Update canvas dimensions to maintain aspect ratio
+        const idealWidth = this.cellSize * this.fieldWidth;
+        const idealHeight = this.cellSize * this.fieldHeight;
+        
+        // Set canvas display size
+        this.gameCanvas.style.width = idealWidth + 'px';
+        this.gameCanvas.style.height = idealHeight + 'px';
+        
+        // Set canvas internal resolution (for crisp rendering)
+        const pixelRatio = this.getPixelRatio();
+        this.gameCanvas.width = idealWidth * pixelRatio;
+        this.gameCanvas.height = idealHeight * pixelRatio;
+        
+        // Scale context to match pixel ratio
+        this.gameContext.scale(pixelRatio, pixelRatio);
+        
+        // Update cell size for actual rendering
+        this.cellSize = this.cellSize * pixelRatio;
+    }
+
+    /**
+     * Setup responsive canvas behavior
+     */
+    setupResponsiveCanvas() {
+        // Add resize listener
+        if (typeof window !== 'undefined') {
+            window.addEventListener('resize', () => this.handleResize());
+            window.addEventListener('orientationchange', () => {
+                setTimeout(() => this.handleResize(), 100);
+            });
+        }
+        
+        // Initial resize
+        this.handleResize();
+    }
+
+    /**
+     * Handle window resize events
+     */
+    handleResize() {
+        // Debounce resize events
+        if (this.resizeTimeout) {
+            clearTimeout(this.resizeTimeout);
+        }
+        
+        this.resizeTimeout = setTimeout(() => {
+            this.resize();
+        }, 100);
+    }
+
+    /**
+     * Get device pixel ratio for crisp rendering
+     */
+    getPixelRatio() {
+        if (typeof window === 'undefined') {
+            return 1;
+        }
+        return window.devicePixelRatio || 1;
+    }
+
+    /**
+     * Check if device is mobile
+     */
+    isMobileDevice() {
+        if (typeof window === 'undefined') {
+            return false;
+        }
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+               window.innerWidth <= 768;
     }
 
     /**
@@ -599,7 +683,7 @@ export class Renderer {
     }
 
     /**
-     * Resize canvas to fit container
+     * Resize canvas to fit container and screen
      */
     resize() {
         // Get container dimensions
@@ -609,22 +693,87 @@ export class Renderer {
         const containerRect = container.getBoundingClientRect();
         const aspectRatio = this.fieldWidth / this.fieldHeight;
         
-        let newWidth = containerRect.width;
+        // Calculate available space
+        let availableWidth = containerRect.width;
+        let availableHeight = containerRect.height;
+        
+        // On mobile, consider viewport dimensions
+        if (this.isMobileDevice()) {
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            
+            // Leave space for mobile controls and UI
+            const mobileControlsHeight = 120; // Height of mobile controls
+            const headerHeight = 100; // Approximate header height
+            const padding = 40; // Padding around game area
+            
+            availableWidth = Math.min(availableWidth, viewportWidth - padding);
+            availableHeight = Math.min(availableHeight, viewportHeight - mobileControlsHeight - headerHeight - padding);
+        }
+        
+        // Calculate optimal dimensions maintaining aspect ratio
+        let newWidth = availableWidth;
         let newHeight = newWidth / aspectRatio;
         
-        if (newHeight > containerRect.height) {
-            newHeight = containerRect.height;
+        if (newHeight > availableHeight) {
+            newHeight = availableHeight;
             newWidth = newHeight * aspectRatio;
         }
         
-        // Update canvas size
-        this.gameCanvas.width = newWidth;
-        this.gameCanvas.height = newHeight;
+        // Ensure minimum size for playability
+        const minWidth = this.isMobileDevice() ? 240 : 300;
+        const minHeight = minWidth / aspectRatio;
         
-        // Recalculate cell size
-        this.cellSize = Math.min(newWidth / this.fieldWidth, newHeight / this.fieldHeight);
+        newWidth = Math.max(newWidth, minWidth);
+        newHeight = Math.max(newHeight, minHeight);
         
-        // Reinitialize canvas settings
-        this.initializeCanvas();
+        // Update canvas scaling
+        this.gameCanvas.style.width = newWidth + 'px';
+        this.gameCanvas.style.height = newHeight + 'px';
+        
+        // Update internal canvas dimensions and scaling
+        this.updateCanvasScaling();
+        
+        // Resize next puyo canvas proportionally
+        this.resizeNextPuyoCanvas(newWidth);
+        
+        // Emit resize event for other components
+        this.emitResizeEvent(newWidth, newHeight);
+    }
+
+    /**
+     * Resize next puyo canvas proportionally
+     */
+    resizeNextPuyoCanvas(gameCanvasWidth) {
+        if (!this.nextPuyoCanvas) return;
+        
+        // Calculate proportional size for next puyo canvas
+        const proportion = this.isMobileDevice() ? 0.25 : 0.3;
+        const nextPuyoSize = Math.max(gameCanvasWidth * proportion, 80);
+        
+        this.nextPuyoCanvas.style.width = nextPuyoSize + 'px';
+        this.nextPuyoCanvas.style.height = nextPuyoSize + 'px';
+        
+        // Update internal dimensions
+        const pixelRatio = this.getPixelRatio();
+        this.nextPuyoCanvas.width = nextPuyoSize * pixelRatio;
+        this.nextPuyoCanvas.height = nextPuyoSize * pixelRatio;
+        
+        // Scale context
+        this.nextPuyoContext.scale(pixelRatio, pixelRatio);
+    }
+
+    /**
+     * Emit resize event for other components
+     */
+    emitResizeEvent(width, height) {
+        if (this.onResize) {
+            this.onResize({
+                width,
+                height,
+                cellSize: this.cellSize,
+                isMobile: this.isMobileDevice()
+            });
+        }
     }
 }

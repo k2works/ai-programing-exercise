@@ -115,7 +115,7 @@ body {
     transition: all 0.3s ease;
 }
 
-/* Chain animation */
+/* Chain animations */
 .chain-value.chain-active {
     color: #e53e3e;
     transform: scale(1.2);
@@ -123,10 +123,200 @@ body {
     animation: chainPulse 0.5s ease-in-out;
 }
 
+.chain-value.chain-mega {
+    color: #ff6b6b;
+    transform: scale(1.4);
+    text-shadow: 0 0 20px rgba(255, 107, 107, 0.8);
+    animation: chainMegaPulse 0.8s ease-in-out;
+}
+
 @keyframes chainPulse {
     0% { transform: scale(1); }
     50% { transform: scale(1.3); }
     100% { transform: scale(1.2); }
+}
+
+@keyframes chainMegaPulse {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.5); }
+    50% { transform: scale(1.3); }
+    75% { transform: scale(1.5); }
+    100% { transform: scale(1.4); }
+}
+
+/* Floating text animation */
+@keyframes floatUp {
+    0% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-50px);
+    }
+}
+
+/* Notification animations */
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* Button loading state */
+.btn.loading {
+    position: relative;
+    color: transparent;
+}
+
+.btn.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Enhanced button feedback */
+.btn:active {
+    transform: scale(0.95);
+}
+
+.control-btn:active {
+    transform: scale(0.9);
+}
+
+/* Game over screen enhancements */
+.game-over-content {
+    animation: gameOverSlideIn 0.5s ease-out;
+}
+
+@keyframes gameOverSlideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Score animation */
+.score-value {
+    transition: all 0.3s ease;
+}
+
+.score-value.score-increase {
+    color: #48bb78;
+    transform: scale(1.1);
+    animation: scoreIncrease 0.5s ease-out;
+}
+
+@keyframes scoreIncrease {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); color: #48bb78; }
+    100% { transform: scale(1.1); }
+}
+
+/* Puyo clearing effects */
+.puyo-clearing {
+    animation: puyoClear 0.5s ease-out;
+}
+
+@keyframes puyoClear {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.3);
+        opacity: 0.7;
+    }
+    100% {
+        transform: scale(0);
+        opacity: 0;
+    }
+}
+
+/* Zenkeshi (all-clear) effect */
+.zenkeshi-effect {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1500;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, transparent 70%);
+    animation: zenkeshiFlash 1s ease-out;
+}
+
+@keyframes zenkeshiFlash {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* Game field glow effect for special events */
+.game-field.special-event {
+    animation: fieldGlow 1s ease-in-out;
+}
+
+@keyframes fieldGlow {
+    0% { box-shadow: 0 0 0 rgba(102, 126, 234, 0.5); }
+    50% { box-shadow: 0 0 30px rgba(102, 126, 234, 0.8); }
+    100% { box-shadow: 0 0 0 rgba(102, 126, 234, 0.5); }
+}
+
+/* Smooth transitions for all interactive elements */
+.btn, .control-btn, .score-value, .chain-value {
+    transition: all 0.2s ease;
+}
+
+/* Accessibility: Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .chain-value.chain-active,
+    .chain-value.chain-mega,
+    .btn.loading::after,
+    .game-over-content,
+    .score-value.score-increase,
+    .puyo-clearing,
+    .zenkeshi-effect,
+    .game-field.special-event {
+        animation: none;
+    }
+    
+    .btn, .control-btn, .score-value, .chain-value {
+        transition: none;
+    }
 }
 
 /* Game field */
@@ -437,5 +627,240 @@ body {
     .control-btn {
         min-height: 60px;
         min-width: 60px;
+    }
+}
+
+/* Canvas scaling and responsiveness */
+.game-field {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#game-canvas {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+/* Touch zone overlays */
+.touch-zone-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.touch-zone {
+    pointer-events: auto;
+    transition: opacity 0.2s ease;
+}
+
+/* Landscape orientation optimizations */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+    .game-container {
+        padding: 10px;
+        margin: 5px;
+    }
+    
+    .game-header {
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+    }
+    
+    .game-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .game-main {
+        gap: 10px;
+    }
+    
+    .mobile-controls {
+        bottom: 10px;
+        padding: 10px;
+        transform: translateX(-50%) scale(0.8);
+    }
+    
+    .control-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 0.9rem;
+    }
+    
+    .score-section, .chain-section {
+        padding: 10px;
+    }
+    
+    .score-value, .chain-value {
+        font-size: 1.5rem;
+    }
+}
+
+/* Very small screens (iPhone SE, etc.) */
+@media (max-width: 375px) and (max-height: 667px) {
+    .game-container {
+        margin: 2px;
+        padding: 8px;
+    }
+    
+    .game-header h1 {
+        font-size: 1.6rem;
+    }
+    
+    #game-canvas {
+        max-width: 220px;
+    }
+    
+    .control-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 0.9rem;
+    }
+    
+    .mobile-controls {
+        bottom: 15px;
+        padding: 12px;
+    }
+}
+
+/* Large screens optimization */
+@media (min-width: 1200px) {
+    .game-container {
+        max-width: 1000px;
+    }
+    
+    .game-main {
+        grid-template-columns: 200px 400px 200px;
+    }
+    
+    #game-canvas {
+        width: 400px;
+        height: 800px;
+    }
+    
+    .game-info {
+        gap: 30px;
+    }
+    
+    .score-section, .chain-section {
+        padding: 20px;
+    }
+}
+
+/* Tablet optimization */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .game-main {
+        grid-template-columns: 150px 320px 150px;
+    }
+    
+    #game-canvas {
+        width: 320px;
+        height: 640px;
+    }
+}
+
+/* Safe area insets for devices with notches */
+@supports (padding: max(0px)) {
+    .game-container {
+        padding-left: max(20px, env(safe-area-inset-left));
+        padding-right: max(20px, env(safe-area-inset-right));
+        padding-top: max(20px, env(safe-area-inset-top));
+        padding-bottom: max(20px, env(safe-area-inset-bottom));
+    }
+    
+    .mobile-controls {
+        bottom: max(20px, env(safe-area-inset-bottom));
+    }
+}
+
+/* Performance optimizations for mobile */
+@media (max-width: 768px) {
+    * {
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+    }
+    
+    .game-container {
+        will-change: transform;
+    }
+    
+    #game-canvas {
+        will-change: transform;
+    }
+    
+    .mobile-controls {
+        will-change: transform;
+    }
+}
+
+/* Reduce motion for better performance on low-end devices */
+@media (max-width: 480px) {
+    .chain-value.chain-active {
+        animation: none;
+        transform: scale(1.1);
+    }
+    
+    .btn:hover, .control-btn:hover {
+        transform: none;
+    }
+    
+    .btn:active, .control-btn:active {
+        transform: scale(0.98);
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    body {
+        background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+    }
+    
+    .game-container {
+        background: rgba(45, 55, 72, 0.95);
+        color: #e2e8f0;
+    }
+    
+    .game-header h1 {
+        color: #e2e8f0;
+    }
+    
+    .score-section, .chain-section {
+        background: #2d3748;
+        border-color: #4a5568;
+        color: #e2e8f0;
+    }
+    
+    .score-section h3, .chain-section h3 {
+        color: #cbd5e0;
+    }
+    
+    .score-value, .chain-value {
+        color: #f7fafc;
+    }
+    
+    #next-puyo-canvas {
+        background: #2d3748;
+        border-color: #4a5568;
+    }
+}
+
+/* Print styles (hide interactive elements) */
+@media print {
+    .mobile-controls,
+    .game-controls,
+    .touch-zone-overlay {
+        display: none !important;
+    }
+    
+    .game-container {
+        box-shadow: none;
+        background: white;
     }
 }
