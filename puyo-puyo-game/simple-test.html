@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InputHandler Simple Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f0f0f0;
+        }
+        .test-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        #test-results {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-family: monospace;
+            white-space: pre-line;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        canvas {
+            border: 2px solid #333;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>InputHandler Simple Test</h1>
+        <p>このテストでは、InputHandlerクラスの基本機能をテストします。</p>
+        
+        <canvas id="game-canvas" width="300" height="600"></canvas>
+        
+        <div>
+            <button onclick="runInputHandlerTest()">InputHandler テストを実行</button>
+            <button onclick="clearResults()">結果をクリア</button>
+        </div>
+        
+        <div id="test-results"></div>
+        
+        <div>
+            <h3>キーボードテスト</h3>
+            <p>以下のキーを押してテストしてください:</p>
+            <ul>
+                <li>矢印キー (←→↓↑)</li>
+                <li>スペースキー</li>
+                <li>P キー (一時停止)</li>
+                <li>R キー (リスタート)</li>
+            </ul>
+        </div>
+        
+        <div>
+            <h3>タッチテスト</h3>
+            <p>上のキャンバスをタップまたはスワイプしてテストしてください</p>
+        </div>
+    </div>
+
+    <script type="module">
+        // Mock GameEngine for testing
+        class MockGameEngine {
+            constructor() {
+                this.inputHistory = [];
+            }
+
+            handleInput(action) {
+                this.inputHistory.push({
+                    action: action,
+                    timestamp: new Date().toLocaleTimeString()
+                });
+                
+                // Display the input
+                const results = document.getElementById('test-results');
+                results.textContent += `${new Date().toLocaleTimeString()}: ${JSON.stringify(action)}\n`;
+                results.scrollTop = results.scrollHeight;
+            }
+        }
+
+        let inputHandler = null;
+        let mockEngine = null;
+
+        window.runInputHandlerTest = async function() {
+            const results = document.getElementById('test-results');
+            results.textContent = 'InputHandler テストを開始...\n';
+
+            try {
+                // Import InputHandler
+                const { InputHandler } = await import('./js/input/InputHandler.js');
+                results.textContent += '✓ InputHandler モジュール読み込み成功\n';
+
+                // Create mock engine
+                mockEngine = new MockGameEngine();
+                results.textContent += '✓ MockGameEngine 作成成功\n';
+
+                // Create InputHandler
+                inputHandler = new InputHandler(mockEngine);
+                results.textContent += '✓ InputHandler 作成成功\n';
+
+                // Test key mapping
+                results.textContent += '\nキーマッピングテスト:\n';
+                const testKeys = [
+                    { key: 'ArrowLeft', expected: { type: 'move', direction: 'left' } },
+                    { key: 'ArrowRight', expected: { type: 'move', direction: 'right' } },
+                    { key: 'ArrowDown', expected: { type: 'move', direction: 'down' } },
+                    { key: 'ArrowUp', expected: { type: 'rotate' } },
+                    { key: 'Space', expected: { type: 'rotate' } }
+                ];
+
+                testKeys.forEach(test => {
+                    const action = inputHandler.keyToAction(test.key);
+                    const matches = JSON.stringify(action) === JSON.stringify(test.expected);
+                    results.textContent += `${matches ? '✓' : '✗'} ${test.key} -> ${JSON.stringify(action)}\n`;
+                });
+
+                results.textContent += '\n✓ InputHandler テスト完了\n';
+                results.textContent += '\n実際のキーボード・タッチ入力をテストしてください:\n';
+
+            } catch (error) {
+                results.textContent += `✗ エラー: ${error.message}\n`;
+                console.error('Test error:', error);
+            }
+        };
+
+        window.clearResults = function() {
+            document.getElementById('test-results').textContent = '';
+        };
+
+        // Auto-run test on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            runInputHandlerTest();
+        });
+    </script>
+</body>
+</html>

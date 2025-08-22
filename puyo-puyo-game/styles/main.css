@@ -126,6 +126,11 @@ body {
     border-radius: 10px;
     background: #1a202c;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    touch-action: none; /* Prevent default touch behaviors */
+    user-select: none; /* Prevent text selection */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 /* Next puyo section */
@@ -202,6 +207,10 @@ body {
     padding: 15px;
     border-radius: 15px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .control-row {
@@ -232,6 +241,16 @@ body {
 .control-btn:hover, .control-btn:active {
     transform: scale(0.95);
     box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.control-btn:active {
+    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+}
+
+/* Touch feedback */
+.control-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.5);
 }
 
 /* Responsive design */
@@ -323,6 +342,52 @@ body {
     }
 }
 
+/* Touch optimization */
+body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent zoom on double tap */
+* {
+    touch-action: manipulation;
+}
+
+/* Touch zones for better accessibility */
+.touch-zone {
+    min-height: 44px;
+    min-width: 44px;
+}
+
+/* Visual feedback for touch interactions */
+.touch-feedback {
+    position: relative;
+    overflow: hidden;
+}
+
+.touch-feedback::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    transform: translate(-50%, -50%);
+    transition: width 0.3s, height 0.3s;
+}
+
+.touch-feedback:active::after {
+    width: 100px;
+    height: 100px;
+}
+
 /* High contrast mode */
 @media (prefers-contrast: high) {
     .game-container {
@@ -340,5 +405,22 @@ body {
         background: white;
         color: black;
         border: 2px solid black;
+    }
+}
+
+/* Touch device specific styles */
+@media (hover: none) and (pointer: coarse) {
+    .mobile-controls {
+        display: block;
+    }
+    
+    .btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    .control-btn {
+        min-height: 60px;
+        min-width: 60px;
     }
 }
