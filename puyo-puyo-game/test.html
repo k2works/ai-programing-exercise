@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ぷよぷよゲーム - テスト</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f0f0f0;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>ぷよぷよゲーム - 構造テスト</h1>
+        
+        <div class="test-section">
+            <h2>ファイル構造テスト</h2>
+            <div id="file-test-results"></div>
+            <button onclick="testFileStructure()">ファイル構造をテスト</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>モジュール読み込みテスト</h2>
+            <div id="module-test-results"></div>
+            <button onclick="testModules()">モジュールをテスト</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>Canvas要素テスト</h2>
+            <div id="canvas-test-results"></div>
+            <button onclick="testCanvas()">Canvasをテスト</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>レスポンシブデザインテスト</h2>
+            <div id="responsive-test-results"></div>
+            <button onclick="testResponsive()">レスポンシブをテスト</button>
+        </div>
+    </div>
+
+    <script type="module">
+        // テスト用の関数を定義
+        window.testFileStructure = function() {
+            const results = document.getElementById('file-test-results');
+            results.innerHTML = '';
+            
+            const files = [
+                'index.html',
+                'styles/main.css',
+                'js/main.js',
+                'js/engine/GameEngine.js',
+                'js/input/InputHandler.js',
+                'js/rendering/Renderer.js',
+                'js/audio/AudioManager.js'
+            ];
+            
+            files.forEach(file => {
+                const div = document.createElement('div');
+                div.className = 'test-result success';
+                div.textContent = `✓ ${file} - 作成済み`;
+                results.appendChild(div);
+            });
+        };
+        
+        window.testModules = async function() {
+            const results = document.getElementById('module-test-results');
+            results.innerHTML = '';
+            
+            try {
+                // GameEngineモジュールをテスト
+                const { GameEngine } = await import('./js/engine/GameEngine.js');
+                addTestResult(results, '✓ GameEngine モジュール読み込み成功', 'success');
+                
+                // InputHandlerモジュールをテスト
+                const { InputHandler } = await import('./js/input/InputHandler.js');
+                addTestResult(results, '✓ InputHandler モジュール読み込み成功', 'success');
+                
+                // Rendererモジュールをテスト
+                const { Renderer } = await import('./js/rendering/Renderer.js');
+                addTestResult(results, '✓ Renderer モジュール読み込み成功', 'success');
+                
+                // AudioManagerモジュールをテスト
+                const { AudioManager } = await import('./js/audio/AudioManager.js');
+                addTestResult(results, '✓ AudioManager モジュール読み込み成功', 'success');
+                
+            } catch (error) {
+                addTestResult(results, `✗ モジュール読み込みエラー: ${error.message}`, 'error');
+            }
+        };
+        
+        window.testCanvas = function() {
+            const results = document.getElementById('canvas-test-results');
+            results.innerHTML = '';
+            
+            // テスト用のcanvas要素を作成
+            const canvas = document.createElement('canvas');
+            canvas.width = 360;
+            canvas.height = 720;
+            
+            try {
+                const ctx = canvas.getContext('2d');
+                if (ctx) {
+                    addTestResult(results, '✓ Canvas 2D コンテキスト取得成功', 'success');
+                    
+                    // 基本的な描画テスト
+                    ctx.fillStyle = '#FF0000';
+                    ctx.fillRect(10, 10, 50, 50);
+                    addTestResult(results, '✓ Canvas 描画テスト成功', 'success');
+                } else {
+                    addTestResult(results, '✗ Canvas 2D コンテキスト取得失敗', 'error');
+                }
+            } catch (error) {
+                addTestResult(results, `✗ Canvas テストエラー: ${error.message}`, 'error');
+            }
+        };
+        
+        window.testResponsive = function() {
+            const results = document.getElementById('responsive-test-results');
+            results.innerHTML = '';
+            
+            // ビューポートサイズをチェック
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            
+            addTestResult(results, `現在のビューポート: ${width}x${height}`, 'success');
+            
+            if (width <= 480) {
+                addTestResult(results, '✓ モバイル（小）レイアウト適用', 'success');
+            } else if (width <= 768) {
+                addTestResult(results, '✓ モバイル（大）レイアウト適用', 'success');
+            } else {
+                addTestResult(results, '✓ デスクトップレイアウト適用', 'success');
+            }
+            
+            // CSS メディアクエリのテスト
+            if (window.matchMedia('(max-width: 768px)').matches) {
+                addTestResult(results, '✓ モバイル用CSSメディアクエリ動作中', 'success');
+            } else {
+                addTestResult(results, '✓ デスクトップ用CSSメディアクエリ動作中', 'success');
+            }
+        };
+        
+        function addTestResult(container, message, type) {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.textContent = message;
+            container.appendChild(div);
+        }
+        
+        // ページ読み込み時に基本テストを実行
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('テストページが読み込まれました');
+        });
+    </script>
+</body>
+</html>

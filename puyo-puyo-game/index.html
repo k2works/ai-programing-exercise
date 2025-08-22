@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ぷよぷよゲーム</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <h1>ぷよぷよ</h1>
+            <div class="game-controls">
+                <button id="new-game-btn" class="btn btn-primary">新しいゲーム</button>
+                <button id="pause-btn" class="btn btn-secondary">一時停止</button>
+            </div>
+        </header>
+        
+        <main class="game-main">
+            <div class="game-info">
+                <div class="score-section">
+                    <h3>スコア</h3>
+                    <div id="score-display" class="score-value">0</div>
+                </div>
+                <div class="chain-section">
+                    <h3>連鎖</h3>
+                    <div id="chain-display" class="chain-value">0</div>
+                </div>
+            </div>
+            
+            <div class="game-field">
+                <canvas id="game-canvas" width="360" height="720"></canvas>
+            </div>
+            
+            <div class="next-puyo-section">
+                <h3>次のぷよ</h3>
+                <canvas id="next-puyo-canvas" width="120" height="120"></canvas>
+            </div>
+        </main>
+        
+        <div id="game-over-screen" class="game-over hidden">
+            <div class="game-over-content">
+                <h2>ゲームオーバー</h2>
+                <div class="final-score">
+                    <span>最終スコア: </span>
+                    <span id="final-score-value">0</span>
+                </div>
+                <div class="game-over-actions">
+                    <button id="restart-btn" class="btn btn-primary">もう一度</button>
+                    <button id="menu-btn" class="btn btn-secondary">メニューに戻る</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mobile-controls">
+        <div class="control-row">
+            <button id="rotate-btn" class="control-btn">回転</button>
+        </div>
+        <div class="control-row">
+            <button id="left-btn" class="control-btn">←</button>
+            <button id="down-btn" class="control-btn">↓</button>
+            <button id="right-btn" class="control-btn">→</button>
+        </div>
+    </div>
+    
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
