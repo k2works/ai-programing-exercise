@@ -1,0 +1,2 @@
+# カスタムフック
+# useGameState, useInputHandler, useGameLoop などのカスタムフックを配置

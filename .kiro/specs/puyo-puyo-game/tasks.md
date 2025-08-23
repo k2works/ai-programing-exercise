@@ -1,6 +1,8 @@
 # Implementation Plan
 
-- [ ] 1. プロジェクト基盤とコア型定義の設定
+- [x] 1. プロジェクト基盤とコア型定義の設定
+
+
   - TypeScript設定とReact開発環境を構築
   - ドメイン型（PuyoColor、Position、Direction）を定義
   - 基本的なプロジェクト構造を作成
