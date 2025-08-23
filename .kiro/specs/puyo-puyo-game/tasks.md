@@ -8,20 +8,31 @@
   - 基本的なプロジェクト構造を作成
   - _Requirements: 1.1, 10.1_
 
-- [ ] 2. ドメインモデルの実装
-- [ ] 2.1 Puyoエンティティの実装
+- [x] 2. ドメインモデルの実装
+
+
+
+
+
+- [x] 2.1 Puyoエンティティの実装
+
+
   - Puyoインターフェースと関連する型を定義
   - Puyo作成とプロパティアクセスの単体テストを作成
   - 不変性を保証するPuyo実装を作成
   - _Requirements: 2.1, 4.1_
 
-- [ ] 2.2 GameFieldモデルの実装
+- [x] 2.2 GameFieldモデルの実装
+
+
   - GameFieldインターフェースを定義
   - フィールド操作（placePuyo、removePuyos）の単体テストを作成
   - GameField実装とぷよ配置ロジックを作成
   - _Requirements: 3.1, 4.1, 10.1_
 
-- [ ] 2.3 GameStateモデルの実装
+- [x] 2.3 GameStateモデルの実装
+
+
   - GameStateとPuyoPairインターフェースを定義
   - ゲーム状態管理の単体テストを作成
   - GameState実装と状態遷移ロジックを作成
