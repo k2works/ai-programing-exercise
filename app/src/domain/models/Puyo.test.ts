@@ -45,7 +45,7 @@ describe('Puyo', () => {
         // @ts-expect-error - 不変性のテスト
         puyo.color = 'red';
       }).toThrow();
-      
+
       expect(() => {
         // @ts-expect-error - 不変性のテスト
         puyo.position.x = 5;

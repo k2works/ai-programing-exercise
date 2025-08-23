@@ -28,16 +28,16 @@ describe('Direction', () => {
   describe('isValidDirection', () => {
     it('有効な方向の場合trueを返す', () => {
       const validDirections: Direction[] = ['left', 'right', 'down'];
-      
-      validDirections.forEach(direction => {
+
+      validDirections.forEach((direction) => {
         expect(isValidDirection(direction)).toBe(true);
       });
     });
 
     it('無効な方向の場合falseを返す', () => {
       const invalidDirections = ['up', 'forward', 'back', '', 'LEFT'];
-      
-      invalidDirections.forEach(direction => {
+
+      invalidDirections.forEach((direction) => {
         expect(isValidDirection(direction)).toBe(false);
       });
     });
@@ -46,16 +46,16 @@ describe('Direction', () => {
   describe('isValidRotation', () => {
     it('有効な回転角度の場合trueを返す', () => {
       const validRotations: Rotation[] = [0, 90, 180, 270];
-      
-      validRotations.forEach(rotation => {
+
+      validRotations.forEach((rotation) => {
         expect(isValidRotation(rotation)).toBe(true);
       });
     });
 
     it('無効な回転角度の場合falseを返す', () => {
       const invalidRotations = [45, 135, 225, 315, 360, -90];
-      
-      invalidRotations.forEach(rotation => {
+
+      invalidRotations.forEach((rotation) => {
         expect(isValidRotation(rotation)).toBe(false);
       });
     });
@@ -82,23 +82,23 @@ describe('Direction', () => {
   describe('回転の循環性', () => {
     it('4回時計回りに回転すると元の角度に戻る', () => {
       let rotation: Rotation = 0;
-      
+
       rotation = getNextRotation(rotation);
       rotation = getNextRotation(rotation);
       rotation = getNextRotation(rotation);
       rotation = getNextRotation(rotation);
-      
+
       expect(rotation).toBe(0);
     });
 
     it('4回反時計回りに回転すると元の角度に戻る', () => {
       let rotation: Rotation = 0;
-      
+
       rotation = getPreviousRotation(rotation);
       rotation = getPreviousRotation(rotation);
       rotation = getPreviousRotation(rotation);
       rotation = getPreviousRotation(rotation);
-      
+
       expect(rotation).toBe(0);
     });
   });

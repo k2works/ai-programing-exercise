@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { createGameField, placePuyo, removePuyos, applyGravity, findConnectedPuyos } from './GameField';
+import {
+  createGameField,
+  placePuyo,
+  removePuyos,
+  applyGravity,
+  findConnectedPuyos,
+} from './GameField';
 import { createPuyo } from './Puyo';
 import { createPosition } from '../types/Position';
 
@@ -14,7 +20,7 @@ describe('GameField', () => {
       expect(field.height).toBe(12);
       expect(field.puyos).toHaveLength(12);
       expect(field.puyos[0]).toHaveLength(6);
-      
+
       // 全てのセルがnullであることを確認
       for (let y = 0; y < 12; y++) {
         for (let x = 0; x < 6; x++) {
@@ -32,7 +38,7 @@ describe('GameField', () => {
         // @ts-expect-error - 不変性のテスト
         field.width = 10;
       }).toThrow();
-      
+
       expect(() => {
         // @ts-expect-error - 不変性のテスト
         field.puyos[0][0] = createPuyo('test', 'red', createPosition(0, 0));
@@ -86,7 +92,11 @@ describe('GameField', () => {
       const field = createGameField();
       const puyo1 = createPuyo('test-1', 'red', createPosition(1, 2));
       const puyo2 = createPuyo('test-2', 'blue', createPosition(3, 4));
-      const fieldWithPuyos = placePuyo(placePuyo(field, puyo1, createPosition(1, 2)), puyo2, createPosition(3, 4));
+      const fieldWithPuyos = placePuyo(
+        placePuyo(field, puyo1, createPosition(1, 2)),
+        puyo2,
+        createPosition(3, 4)
+      );
 
       // Act
       const newField = removePuyos(fieldWithPuyos, [createPosition(1, 2)]);
@@ -101,10 +111,17 @@ describe('GameField', () => {
       const field = createGameField();
       const puyo1 = createPuyo('test-1', 'red', createPosition(1, 2));
       const puyo2 = createPuyo('test-2', 'blue', createPosition(3, 4));
-      const fieldWithPuyos = placePuyo(placePuyo(field, puyo1, createPosition(1, 2)), puyo2, createPosition(3, 4));
+      const fieldWithPuyos = placePuyo(
+        placePuyo(field, puyo1, createPosition(1, 2)),
+        puyo2,
+        createPosition(3, 4)
+      );
 
       // Act
-      const newField = removePuyos(fieldWithPuyos, [createPosition(1, 2), createPosition(3, 4)]);
+      const newField = removePuyos(fieldWithPuyos, [
+        createPosition(1, 2),
+        createPosition(3, 4),
+      ]);
 
       // Assert
       expect(newField.puyos[2]![1]).toBeNull();
@@ -129,14 +146,22 @@ describe('GameField', () => {
       const field = createGameField();
       const puyo1 = createPuyo('test-1', 'red', createPosition(2, 2));
       const puyo2 = createPuyo('test-2', 'blue', createPosition(2, 5));
-      const fieldWithPuyos = placePuyo(placePuyo(field, puyo1, createPosition(2, 2)), puyo2, createPosition(2, 5));
+      const fieldWithPuyos = placePuyo(
+        placePuyo(field, puyo1, createPosition(2, 2)),
+        puyo2,
+        createPosition(2, 5)
+      );
 
       // Act
       const newField = applyGravity(fieldWithPuyos);
 
       // Assert
-      expect(newField.puyos[11]![2]).toEqual(expect.objectContaining({ color: 'red' }));
-      expect(newField.puyos[10]![2]).toEqual(expect.objectContaining({ color: 'blue' }));
+      expect(newField.puyos[11]![2]).toEqual(
+        expect.objectContaining({ color: 'red' })
+      );
+      expect(newField.puyos[10]![2]).toEqual(
+        expect.objectContaining({ color: 'blue' })
+      );
       expect(newField.puyos[2]![2]).toBeNull();
       expect(newField.puyos[5]![2]).toBeNull();
     });
@@ -168,9 +193,15 @@ describe('GameField', () => {
       const newField = applyGravity(fieldWithPuyos);
 
       // Assert
-      expect(newField.puyos[11]![1]).toEqual(expect.objectContaining({ color: 'red' }));
-      expect(newField.puyos[10]![1]).toEqual(expect.objectContaining({ color: 'blue' }));
-      expect(newField.puyos[9]![1]).toEqual(expect.objectContaining({ color: 'green' }));
+      expect(newField.puyos[11]![1]).toEqual(
+        expect.objectContaining({ color: 'red' })
+      );
+      expect(newField.puyos[10]![1]).toEqual(
+        expect.objectContaining({ color: 'blue' })
+      );
+      expect(newField.puyos[9]![1]).toEqual(
+        expect.objectContaining({ color: 'green' })
+      );
     });
   });
 
@@ -183,12 +214,27 @@ describe('GameField', () => {
       const redPuyo3 = createPuyo('red-3', 'red', createPosition(2, 9));
       const redPuyo4 = createPuyo('red-4', 'red', createPosition(1, 10));
       let fieldWithPuyos = placePuyo(field, redPuyo1, createPosition(2, 10));
-      fieldWithPuyos = placePuyo(fieldWithPuyos, redPuyo2, createPosition(3, 10));
-      fieldWithPuyos = placePuyo(fieldWithPuyos, redPuyo3, createPosition(2, 9));
-      fieldWithPuyos = placePuyo(fieldWithPuyos, redPuyo4, createPosition(1, 10));
+      fieldWithPuyos = placePuyo(
+        fieldWithPuyos,
+        redPuyo2,
+        createPosition(3, 10)
+      );
+      fieldWithPuyos = placePuyo(
+        fieldWithPuyos,
+        redPuyo3,
+        createPosition(2, 9)
+      );
+      fieldWithPuyos = placePuyo(
+        fieldWithPuyos,
+        redPuyo4,
+        createPosition(1, 10)
+      );
 
       // Act
-      const connected = findConnectedPuyos(fieldWithPuyos, createPosition(2, 10));
+      const connected = findConnectedPuyos(
+        fieldWithPuyos,
+        createPosition(2, 10)
+      );
 
       // Assert
       expect(connected).toHaveLength(4);
@@ -204,10 +250,17 @@ describe('GameField', () => {
       const redPuyo = createPuyo('red-1', 'red', createPosition(2, 10));
       const bluePuyo = createPuyo('blue-1', 'blue', createPosition(3, 10));
       let fieldWithPuyos = placePuyo(field, redPuyo, createPosition(2, 10));
-      fieldWithPuyos = placePuyo(fieldWithPuyos, bluePuyo, createPosition(3, 10));
+      fieldWithPuyos = placePuyo(
+        fieldWithPuyos,
+        bluePuyo,
+        createPosition(3, 10)
+      );
 
       // Act
-      const connected = findConnectedPuyos(fieldWithPuyos, createPosition(2, 10));
+      const connected = findConnectedPuyos(
+        fieldWithPuyos,
+        createPosition(2, 10)
+      );
 
       // Assert
       expect(connected).toHaveLength(1);
@@ -232,7 +285,10 @@ describe('GameField', () => {
       const fieldWithPuyo = placePuyo(field, puyo, createPosition(2, 10));
 
       // Act
-      const connected = findConnectedPuyos(fieldWithPuyo, createPosition(2, 10));
+      const connected = findConnectedPuyos(
+        fieldWithPuyo,
+        createPosition(2, 10)
+      );
 
       // Assert
       expect(connected).toHaveLength(1);

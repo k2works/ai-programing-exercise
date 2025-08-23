@@ -2,13 +2,7 @@
  * ドメインモデルのエクスポート
  */
 export type { Puyo } from './Puyo';
-export {
-  createPuyo,
-  isPuyoEqual,
-  movePuyo,
-  fixPuyo,
-  unfixPuyo,
-} from './Puyo';
+export { createPuyo, isPuyoEqual, movePuyo, fixPuyo, unfixPuyo } from './Puyo';
 
 export type { GameField } from './GameField';
 export {

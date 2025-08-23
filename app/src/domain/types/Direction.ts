@@ -11,7 +11,11 @@ export type Rotation = 0 | 90 | 180 | 270;
 /**
  * 全ての移動方向
  */
-export const DIRECTIONS: readonly Direction[] = ['left', 'right', 'down'] as const;
+export const DIRECTIONS: readonly Direction[] = [
+  'left',
+  'right',
+  'down',
+] as const;
 
 /**
  * 全ての回転角度
@@ -46,6 +50,7 @@ export const getNextRotation = (currentRotation: Rotation): Rotation => {
  */
 export const getPreviousRotation = (currentRotation: Rotation): Rotation => {
   const currentIndex = ROTATIONS.indexOf(currentRotation);
-  const previousIndex = (currentIndex - 1 + ROTATIONS.length) % ROTATIONS.length;
+  const previousIndex =
+    (currentIndex - 1 + ROTATIONS.length) % ROTATIONS.length;
   return ROTATIONS[previousIndex]!;
 };

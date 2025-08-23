@@ -10,7 +10,7 @@ import {
   isGameOver,
   incrementChain,
   resetChain,
-  updateScore
+  updateScore,
 } from './GameState';
 import { createGameField } from './GameField';
 import { createPuyo } from './Puyo';
@@ -92,7 +92,14 @@ describe('GameState', () => {
       const position = createPosition(3, 2);
 
       // Act
-      const puyoPair = createPuyoPair(mainPuyo, subPuyo, position, 90, false, true);
+      const puyoPair = createPuyoPair(
+        mainPuyo,
+        subPuyo,
+        position,
+        90,
+        false,
+        true
+      );
 
       // Assert
       expect(puyoPair.main).toBe(mainPuyo);
@@ -146,7 +153,7 @@ describe('GameState', () => {
       const updatedState = updateGameState(gameState, {
         isPlaying: true,
         gameStarted: true,
-        chainCount: 2
+        chainCount: 2,
       });
 
       // Assert

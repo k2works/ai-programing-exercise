@@ -4,7 +4,7 @@ import { defineConfig, devices } from '@playwright/test';
 if (typeof globalThis !== 'undefined') {
   // @ts-ignore
   delete globalThis.expect;
-  // @ts-ignore  
+  // @ts-ignore
   delete globalThis.test;
   // @ts-ignore
   delete globalThis.describe;
@@ -22,7 +22,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
-  
+
   use: {
     baseURL: 'http://localhost:4173',
     trace: 'on-first-retry',

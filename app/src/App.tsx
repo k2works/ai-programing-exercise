@@ -10,9 +10,7 @@ const App: React.FC = () => {
         <p className="text-gray-600">
           TypeScript + React で実装されたぷよぷよゲーム
         </p>
-        <p className="text-sm text-gray-500 mt-2">
-          開発中...
-        </p>
+        <p className="text-sm text-gray-500 mt-2">開発中...</p>
       </div>
     </div>
   );

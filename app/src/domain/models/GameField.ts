@@ -19,7 +19,7 @@ export interface GameField {
  */
 export const createGameField = (): GameField => {
   const puyos: (Puyo | null)[][] = [];
-  
+
   for (let y = 0; y < 12; y++) {
     const row: (Puyo | null)[] = [];
     for (let x = 0; x < 6; x++) {
@@ -42,7 +42,11 @@ export const createGameField = (): GameField => {
  * @param position 配置する位置
  * @returns ぷよが配置された新しいフィールド
  */
-export const placePuyo = (field: GameField, puyo: Puyo, position: Position): GameField => {
+export const placePuyo = (
+  field: GameField,
+  puyo: Puyo,
+  position: Position
+): GameField => {
   if (!isValidPosition(position)) {
     throw new Error('Invalid position');
   }
@@ -70,11 +74,16 @@ export const placePuyo = (field: GameField, puyo: Puyo, position: Position): Gam
  * @param positions 削除する位置の配列
  * @returns ぷよが削除された新しいフィールド
  */
-export const removePuyos = (field: GameField, positions: ReadonlyArray<Position>): GameField => {
+export const removePuyos = (
+  field: GameField,
+  positions: ReadonlyArray<Position>
+): GameField => {
   const newPuyos = field.puyos.map((row, y) =>
     Object.freeze(
       row.map((cell, x) => {
-        const shouldRemove = positions.some(pos => pos.x === x && pos.y === y);
+        const shouldRemove = positions.some(
+          (pos) => pos.x === x && pos.y === y
+        );
         return shouldRemove ? null : cell;
       })
     )
@@ -93,7 +102,7 @@ export const removePuyos = (field: GameField, positions: ReadonlyArray<Position>
  */
 export const applyGravity = (field: GameField): GameField => {
   const newPuyos: (Puyo | null)[][] = [];
-  
+
   // 各行を初期化
   for (let y = 0; y < field.height; y++) {
     const row: (Puyo | null)[] = [];
@@ -106,7 +115,7 @@ export const applyGravity = (field: GameField): GameField => {
   // 各列について重力を適用
   for (let x = 0; x < field.width; x++) {
     const columnPuyos: Puyo[] = [];
-    
+
     // 列のぷよを収集（上から下へ）
     for (let y = 0; y < field.height; y++) {
       const puyo = field.puyos[y]![x];
@@ -114,18 +123,23 @@ export const applyGravity = (field: GameField): GameField => {
         columnPuyos.push(puyo);
       }
     }
-    
+
     // 底から順番にぷよを配置
     for (let i = 0; i < columnPuyos.length; i++) {
       const puyo = columnPuyos[i]!;
       const newY = field.height - 1 - i;
       const newPosition = createPosition(x, newY);
-      newPuyos[newY]![x] = createPuyo(puyo.id, puyo.color, newPosition, puyo.isFixed);
+      newPuyos[newY]![x] = createPuyo(
+        puyo.id,
+        puyo.color,
+        newPosition,
+        puyo.isFixed
+      );
     }
   }
 
   // 配列を不変にする
-  const frozenPuyos = newPuyos.map(row => Object.freeze(row));
+  const frozenPuyos = newPuyos.map((row) => Object.freeze(row));
 
   return Object.freeze({
     ...field,
@@ -173,7 +187,11 @@ const markAsVisited = (visited: Set<string>, position: Position): void => {
  * @param startPuyo 開始ぷよ
  * @returns 同じ色の場合true
  */
-const isSameColorPuyo = (field: GameField, position: Position, startPuyo: Puyo): boolean => {
+const isSameColorPuyo = (
+  field: GameField,
+  position: Position,
+  startPuyo: Puyo
+): boolean => {
   const currentPuyo = field.puyos[position.y]?.[position.x];
   return currentPuyo !== null && currentPuyo.color === startPuyo.color;
 };
@@ -184,9 +202,13 @@ const isSameColorPuyo = (field: GameField, position: Position, startPuyo: Puyo):
  * @param visited 訪問済み位置のSet
  * @param currentPos 現在の位置
  */
-const addValidNeighborsToQueue = (queue: Position[], visited: Set<string>, currentPos: Position): void => {
+const addValidNeighborsToQueue = (
+  queue: Position[],
+  visited: Set<string>,
+  currentPos: Position
+): void => {
   const neighbors = getNeighborPositions(currentPos);
-  
+
   for (const neighbor of neighbors) {
     if (isValidPosition(neighbor) && !isVisited(visited, neighbor)) {
       queue.push(neighbor);
@@ -200,7 +222,10 @@ const addValidNeighborsToQueue = (queue: Position[], visited: Set<string>, curre
  * @param startPosition 開始位置
  * @returns 接続されたぷよの位置の配列
  */
-export const findConnectedPuyos = (field: GameField, startPosition: Position): ReadonlyArray<Position> => {
+export const findConnectedPuyos = (
+  field: GameField,
+  startPosition: Position
+): ReadonlyArray<Position> => {
   const startPuyo = field.puyos[startPosition.y]?.[startPosition.x];
   if (!startPuyo) {
     return [];
@@ -212,17 +237,17 @@ export const findConnectedPuyos = (field: GameField, startPosition: Position): R
 
   while (queue.length > 0) {
     const currentPos = queue.shift()!;
-    
+
     if (isVisited(visited, currentPos)) {
       continue;
     }
-    
+
     markAsVisited(visited, currentPos);
-    
+
     if (!isSameColorPuyo(field, currentPos, startPuyo)) {
       continue;
     }
-    
+
     connected.push(currentPos);
     addValidNeighborsToQueue(queue, visited, currentPos);
   }

@@ -1,9 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
@@ -13,15 +10,15 @@ export default {
           green: '#44ff44',
           yellow: '#ffff44',
           purple: '#ff44ff',
-        }
+        },
       },
       gridTemplateColumns: {
         'puyo-field': 'repeat(6, minmax(0, 1fr))',
       },
       gridTemplateRows: {
         'puyo-field': 'repeat(12, minmax(0, 1fr))',
-      }
+      },
     },
   },
   plugins: [],
-}
+};

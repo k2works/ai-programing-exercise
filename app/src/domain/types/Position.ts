@@ -21,10 +21,7 @@ export const isEqualPosition = (pos1: Position, pos2: Position): boolean => {
  */
 export const isValidPosition = (position: Position): boolean => {
   return (
-    position.x >= 0 &&
-    position.x < 6 &&
-    position.y >= 0 &&
-    position.y < 12
+    position.x >= 0 && position.x < 6 && position.y >= 0 && position.y < 12
   );
 };
 

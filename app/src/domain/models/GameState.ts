@@ -163,7 +163,10 @@ export const rotatePuyoPair = (puyoPair: PuyoPair): PuyoPair => {
  * @param newPosition 新しい位置
  * @returns 移動された新しい組ぷよ
  */
-export const movePuyoPair = (puyoPair: PuyoPair, newPosition: Position): PuyoPair => {
+export const movePuyoPair = (
+  puyoPair: PuyoPair,
+  newPosition: Position
+): PuyoPair => {
   return createPuyoPair(
     puyoPair.main,
     puyoPair.sub,
@@ -186,7 +189,7 @@ export const fixPuyoPair = (puyoPair: PuyoPair): PuyoPair => {
     puyoPair.position,
     puyoPair.rotation,
     false, // canMove = false
-    true   // isFixed = true
+    true // isFixed = true
   );
 };
 
@@ -227,7 +230,10 @@ export const resetChain = (gameState: GameState): GameState => {
  * @param newScore 新しいスコア
  * @returns スコアが更新された新しいゲーム状態
  */
-export const updateScore = (gameState: GameState, newScore: Score): GameState => {
+export const updateScore = (
+  gameState: GameState,
+  newScore: Score
+): GameState => {
   return updateGameState(gameState, {
     score: newScore,
   });

@@ -1,15 +1,12 @@
 module.exports = {
   root: true,
   env: { browser: true, es2020: true, node: true },
-  extends: [
-    'eslint:recommended',
-    'plugin:react-hooks/recommended',
-  ],
+  extends: ['eslint:recommended', 'plugin:react-hooks/recommended'],
   ignorePatterns: ['dist', '.eslintrc.cjs'],
   parser: '@typescript-eslint/parser',
   plugins: ['react-refresh', '@typescript-eslint'],
   rules: {
-    'complexity': ['error', { max: 7 }],
+    complexity: ['error', { max: 7 }],
     'react-refresh/only-export-components': [
       'warn',
       { allowConstantExport: true },
@@ -24,4 +21,4 @@ module.exports = {
       env: { node: true },
     },
   ],
-}
+};
