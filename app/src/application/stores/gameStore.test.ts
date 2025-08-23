@@ -56,7 +56,7 @@ describe('GameStore 統合テスト', () => {
 
   // ヘルパー関数：初期ゲーム状態を作成
   const createInitialGameState = (): GameState => {
-    const field = createGameField(12, 6);
+    const field = createGameField();
     const mainPuyo = createPuyo('test-main', 'red', createPosition(2, 0));
     const subPuyo = createPuyo('test-sub', 'blue', createPosition(2, 1));
     const currentPuyoPair = createPuyoPair(mainPuyo, subPuyo);
@@ -435,7 +435,7 @@ describe('GameStore 統合テスト', () => {
       const { setScoreHighlight } = useGameStore.getState();
       const beforeTime = Date.now();
 
-      setScoreHighlight(1000);
+      setScoreHighlight();
 
       const state = useGameStore.getState();
       expect(state.lastScoreUpdate).toBeGreaterThanOrEqual(beforeTime);
@@ -445,7 +445,7 @@ describe('GameStore 統合テスト', () => {
       const { setScoreHighlight, clearScoreHighlight } =
         useGameStore.getState();
 
-      setScoreHighlight(1000);
+      setScoreHighlight();
       clearScoreHighlight();
 
       const state = useGameStore.getState();
@@ -457,7 +457,7 @@ describe('GameStore 統合テスト', () => {
     it('setChainDisplayが正常に動作するべき', () => {
       const { setChainDisplay } = useGameStore.getState();
 
-      setChainDisplay(3);
+      setChainDisplay();
 
       const state = useGameStore.getState();
       expect(state.chainDisplayTimeout).not.toBeNull();
@@ -466,7 +466,7 @@ describe('GameStore 統合テスト', () => {
     it('clearChainDisplayが正常に動作するべき', () => {
       const { setChainDisplay, clearChainDisplay } = useGameStore.getState();
 
-      setChainDisplay(3);
+      setChainDisplay();
       clearChainDisplay();
 
       const state = useGameStore.getState();
@@ -476,10 +476,10 @@ describe('GameStore 統合テスト', () => {
     it('setChainDisplayで既存のタイムアウトがクリアされるべき', () => {
       const { setChainDisplay } = useGameStore.getState();
 
-      setChainDisplay(2);
+      setChainDisplay();
       const firstTimeout = useGameStore.getState().chainDisplayTimeout;
 
-      setChainDisplay(3);
+      setChainDisplay();
       const secondTimeout = useGameStore.getState().chainDisplayTimeout;
 
       expect(firstTimeout).not.toBe(secondTimeout);

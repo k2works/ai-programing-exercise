@@ -5,7 +5,6 @@ import type { Direction } from '../../domain/types/Direction';
 import type { Position } from '../../domain/types/Position';
 import type { DependencyContainer } from '../ports/DependencyContainer';
 
-
 import {
   createGameState,
   createPuyoPair,
@@ -182,7 +181,10 @@ export class GameServiceImpl implements GameService {
       return gameState;
     }
 
-    const newPosition = this.calculateNewPosition(gameState.currentPuyoPair, direction);
+    const newPosition = this.calculateNewPosition(
+      gameState.currentPuyoPair,
+      direction
+    );
     if (!newPosition) {
       return gameState;
     }
@@ -199,7 +201,10 @@ export class GameServiceImpl implements GameService {
     return currentPuyoPair.canMove && !currentPuyoPair.isFixed;
   }
 
-  private calculateNewPosition(currentPuyoPair: PuyoPair, direction: Direction): Position | null {
+  private calculateNewPosition(
+    currentPuyoPair: PuyoPair,
+    direction: Direction
+  ): Position | null {
     switch (direction) {
       case 'left':
         return createPosition(
@@ -382,15 +387,17 @@ export class GameServiceImpl implements GameService {
       const fieldAfterGravity = applyGravity(fieldAfterRemoval);
 
       // スコアを計算
-      const chainResult = this.chainCalculator.calculateChainScore(
+      const chainScore = this.chainCalculator.calculateScore(
         matchingGroups,
-        chainCount,
-        currentState.score
+        chainCount
       );
 
       currentState = updateGameState(currentState, {
         field: fieldAfterGravity,
-        score: chainResult.newScore,
+        score: {
+          ...currentState.score,
+          current: currentState.score.current + chainScore,
+        },
         chainCount: chainCount,
       });
     }
@@ -409,7 +416,7 @@ export class GameServiceImpl implements GameService {
   }
 
   initializeField(): GameField {
-    return createGameField(12, 6);
+    return createGameField();
   }
 
   generatePuyoPair(): PuyoPair {

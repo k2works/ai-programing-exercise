@@ -50,7 +50,7 @@ interface GameStore {
  * 初期ゲーム状態を作成
  */
 const createInitialGameState = (): GameState => {
-  const field = createGameField(12, 6);
+  const field = createGameField();
   const mainPuyo = createPuyo('initial-main', 'red', createPosition(2, 0));
   const subPuyo = createPuyo('initial-sub', 'blue', createPosition(2, 1));
   const currentPuyoPair = createPuyoPair(mainPuyo, subPuyo);
@@ -136,11 +136,11 @@ export const useGameStore = create<GameStore>()(
     },
 
     resetGame: async (): Promise<void> => {
-      const { gameService, gameState } = get();
+      const { gameService } = get();
       if (!gameService) return;
 
       try {
-        const resetState = await gameService.resetGame(gameState);
+        const resetState = await gameService.resetGame();
         set({
           gameState: resetState,
           isPlaying: true,
@@ -236,7 +236,7 @@ export const useGameStore = create<GameStore>()(
         get().clearChainDisplay();
       }, 3000);
 
-      set({ chainDisplayTimeout: timeout });
+      set({ chainDisplayTimeout: timeout as unknown as number });
     },
 
     clearChainDisplay: (): void => {
@@ -254,10 +254,14 @@ export const useGameStore = create<GameStore>()(
 /**
  * ゲーム状態の選択的購読用フック
  */
-export const useGameState = (): GameState => useGameStore((state) => state.gameState);
-export const useIsPlaying = (): boolean => useGameStore((state) => state.isPlaying);
-export const useGameStarted = (): boolean => useGameStore((state) => state.gameStarted);
-export const useScore = (): Score => useGameStore((state) => state.gameState.score);
+export const useGameState = (): GameState =>
+  useGameStore((state) => state.gameState);
+export const useIsPlaying = (): boolean =>
+  useGameStore((state) => state.isPlaying);
+export const useGameStarted = (): boolean =>
+  useGameStore((state) => state.gameStarted);
+export const useScore = (): Score =>
+  useGameStore((state) => state.gameState.score);
 export const useChainCount = (): number =>
   useGameStore((state) => state.gameState.chainCount);
 export const useCurrentPuyoPair = (): PuyoPair =>

@@ -100,7 +100,7 @@ describe('GameService 統合テスト', () => {
       let isEmpty = true;
       for (let y = 0; y < result.field.height; y++) {
         for (let x = 0; x < result.field.width; x++) {
-          if (result.field.puyos[y][x] !== null) {
+          if (result.field.puyos[y]?.[x] !== null) {
             isEmpty = false;
             break;
           }
@@ -135,7 +135,7 @@ describe('GameService 統合テスト', () => {
     let testGameState: GameState;
 
     beforeEach(() => {
-      const field = createGameField(12, 6);
+      const field = createGameField();
       const mainPuyo = createPuyo('main-1', 'red', createPosition(2, 0));
       const subPuyo = createPuyo('sub-1', 'blue', createPosition(2, 1));
       const currentPuyoPair = createPuyoPair(
@@ -240,7 +240,7 @@ describe('GameService 統合テスト', () => {
     let testGameState: GameState;
 
     beforeEach(() => {
-      const field = createGameField(12, 6);
+      const field = createGameField();
       const mainPuyo = createPuyo('main-2', 'red', createPosition(2, 0));
       const subPuyo = createPuyo('sub-2', 'blue', createPosition(2, 1));
       const currentPuyoPair = createPuyoPair(
@@ -328,7 +328,7 @@ describe('GameService 統合テスト', () => {
     let testGameState: GameState;
 
     beforeEach(() => {
-      const field = createGameField(12, 6);
+      const field = createGameField();
       const mainPuyo = createPuyo('main-3', 'red', createPosition(2, 0));
       const subPuyo = createPuyo('sub-3', 'blue', createPosition(2, 1));
       const currentPuyoPair = createPuyoPair(
@@ -398,7 +398,7 @@ describe('GameService 統合テスト', () => {
     let testGameState: GameState;
 
     beforeEach(() => {
-      const field = createGameField(12, 6);
+      const field = createGameField();
       const mainPuyo = createPuyo('main-4', 'red', createPosition(2, 0));
       const subPuyo = createPuyo('sub-4', 'blue', createPosition(2, 1));
       const currentPuyoPair = createPuyoPair(
@@ -460,7 +460,7 @@ describe('GameService 統合テスト', () => {
     let testGameState: GameState;
 
     beforeEach(() => {
-      const field = createGameField(12, 6);
+      const field = createGameField();
       const mainPuyo = createPuyo('main-5', 'red', createPosition(2, 0));
       const subPuyo = createPuyo('sub-5', 'blue', createPosition(2, 1));
       const currentPuyoPair = createPuyoPair(mainPuyo, subPuyo);
@@ -502,31 +502,9 @@ describe('GameService 統合テスト', () => {
   });
 
   describe('resetGame', () => {
-    let testGameState: GameState;
-
-    beforeEach(() => {
-      const field = createGameField(12, 6);
-      const mainPuyo = createPuyo('main-6', 'red', createPosition(2, 0));
-      const subPuyo = createPuyo('sub-6', 'blue', createPosition(2, 1));
-      const currentPuyoPair = createPuyoPair(mainPuyo, subPuyo);
-      const nextPuyoPair = createPuyoPair(mainPuyo, subPuyo);
-      const score = createScore(5000, 1000, 500, 1500);
-
-      testGameState = createGameState(
-        field,
-        currentPuyoPair,
-        nextPuyoPair,
-        score,
-        false,
-        3,
-        true,
-        true
-      );
-    });
-
     it('ゲームをリセットして新しいゲームを開始するべき', async () => {
       // Act
-      const result = await gameService.resetGame(testGameState);
+      const result = await gameService.resetGame();
 
       // Assert
       expect(result.score.current).toBe(0);
@@ -540,7 +518,7 @@ describe('GameService 統合テスト', () => {
   describe('checkGameOver', () => {
     it('ゲームオーバー状態を正しく判定するべき', () => {
       // Arrange
-      const field = createGameField(12, 6);
+      const field = createGameField();
       const mainPuyo = createPuyo('main-7', 'red', createPosition(2, 0));
       const subPuyo = createPuyo('sub-7', 'blue', createPosition(2, 1));
       const currentPuyoPair = createPuyoPair(mainPuyo, subPuyo);
@@ -569,7 +547,7 @@ describe('GameService 統合テスト', () => {
 
     it('通常のゲーム状態では false を返すべき', () => {
       // Arrange
-      const field = createGameField(12, 6);
+      const field = createGameField();
       const mainPuyo = createPuyo('main-8', 'red', createPosition(2, 0));
       const subPuyo = createPuyo('sub-8', 'blue', createPosition(2, 1));
       const currentPuyoPair = createPuyoPair(mainPuyo, subPuyo);
@@ -625,7 +603,7 @@ describe('GameService 統合テスト', () => {
       let isEmpty = true;
       for (let y = 0; y < result.height; y++) {
         for (let x = 0; x < result.width; x++) {
-          if (result.puyos[y][x] !== null) {
+          if (result.puyos[y]?.[x] !== null) {
             isEmpty = false;
             break;
           }

@@ -28,9 +28,9 @@ describe('GameRepository インターフェース契約', () => {
     };
 
     // テスト用のゲーム状態を作成
-    const field = createGameField(12, 6);
-    const mainPuyo = createPuyo('red', createPosition(2, 0));
-    const subPuyo = createPuyo('blue', createPosition(2, 1));
+    const field = createGameField();
+    const mainPuyo = createPuyo('main-puyo', 'red', createPosition(2, 0));
+    const subPuyo = createPuyo('sub-puyo', 'blue', createPosition(2, 1));
     const currentPuyoPair = createPuyoPair(mainPuyo, subPuyo);
     const nextPuyoPair = createPuyoPair(mainPuyo, subPuyo);
     const score = createScore(1000, 500, 0, 500);

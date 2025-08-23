@@ -38,10 +38,10 @@ describe('GameRenderer インターフェース契約', () => {
     };
 
     // テストデータの作成
-    testField = createGameField(12, 6);
-    testPuyo = createPuyo('red', createPosition(2, 3));
-    const mainPuyo = createPuyo('red', createPosition(2, 0));
-    const subPuyo = createPuyo('blue', createPosition(2, 1));
+    testField = createGameField();
+    testPuyo = createPuyo('test-puyo', 'red', createPosition(2, 3));
+    const mainPuyo = createPuyo('main-puyo', 'red', createPosition(2, 0));
+    const subPuyo = createPuyo('sub-puyo', 'blue', createPosition(2, 1));
     testPuyoPair = createPuyoPair(mainPuyo, subPuyo);
   });
 
