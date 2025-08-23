@@ -110,7 +110,7 @@ describe('TouchInputHandler', () => {
 
     it('入力が無効化されている場合はnullを返す', () => {
       handler.disableInput();
-      
+
       const touchStartEvent = new TouchEvent('touchstart', {
         touches: [{ clientX: 100, clientY: 100 } as Touch],
       });

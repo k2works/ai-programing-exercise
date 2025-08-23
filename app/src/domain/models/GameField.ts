@@ -25,7 +25,7 @@ export const createGameField = (): GameField => {
     for (let x = 0; x < 6; x++) {
       row.push(null);
     }
-    puyos.push(Object.freeze(row));
+    puyos.push(Object.freeze(row) as (Puyo | null)[]);
   }
 
   return Object.freeze({
@@ -96,46 +96,81 @@ export const removePuyos = (
 };
 
 /**
+ * 空の2次元配列を初期化する
+ * @param height 高さ
+ * @param width 幅
+ * @returns 初期化された2次元配列
+ */
+const initializeEmptyGrid = (
+  height: number,
+  width: number
+): (Puyo | null)[][] => {
+  const grid: (Puyo | null)[][] = [];
+  for (let y = 0; y < height; y++) {
+    const row: (Puyo | null)[] = [];
+    for (let x = 0; x < width; x++) {
+      row.push(null);
+    }
+    grid.push(row);
+  }
+  return grid;
+};
+
+/**
+ * 指定された列からぷよを収集する
+ * @param field ゲームフィールド
+ * @param columnIndex 列のインデックス
+ * @returns 列のぷよの配列
+ */
+const collectColumnPuyos = (field: GameField, columnIndex: number): Puyo[] => {
+  const columnPuyos: Puyo[] = [];
+  for (let y = 0; y < field.height; y++) {
+    const puyo = field.puyos[y]?.[columnIndex];
+    if (puyo !== null && puyo !== undefined) {
+      columnPuyos.push(puyo);
+    }
+  }
+  return columnPuyos;
+};
+
+/**
+ * 列のぷよを底から配置する
+ * @param grid 配置先のグリッド
+ * @param columnPuyos 配置するぷよの配列
+ * @param columnIndex 列のインデックス
+ * @param fieldHeight フィールドの高さ
+ */
+const placeColumnPuyos = (
+  grid: (Puyo | null)[][],
+  columnPuyos: Puyo[],
+  columnIndex: number,
+  fieldHeight: number
+): void => {
+  for (let i = 0; i < columnPuyos.length; i++) {
+    const puyo = columnPuyos[i]!;
+    const newY = fieldHeight - 1 - i;
+    const newPosition = createPosition(columnIndex, newY);
+    grid[newY]![columnIndex] = createPuyo(
+      puyo.id,
+      puyo.color,
+      newPosition,
+      puyo.isFixed
+    );
+  }
+};
+
+/**
  * 重力を適用してぷよを落下させた新しいフィールドを作成する
  * @param field 元のゲームフィールド
  * @returns 重力が適用された新しいフィールド
  */
 export const applyGravity = (field: GameField): GameField => {
-  const newPuyos: (Puyo | null)[][] = [];
-
-  // 各行を初期化
-  for (let y = 0; y < field.height; y++) {
-    const row: (Puyo | null)[] = [];
-    for (let x = 0; x < field.width; x++) {
-      row.push(null);
-    }
-    newPuyos.push(row);
-  }
+  const newPuyos = initializeEmptyGrid(field.height, field.width);
 
   // 各列について重力を適用
   for (let x = 0; x < field.width; x++) {
-    const columnPuyos: Puyo[] = [];
-
-    // 列のぷよを収集（上から下へ）
-    for (let y = 0; y < field.height; y++) {
-      const puyo = field.puyos[y]![x];
-      if (puyo !== null) {
-        columnPuyos.push(puyo);
-      }
-    }
-
-    // 底から順番にぷよを配置
-    for (let i = 0; i < columnPuyos.length; i++) {
-      const puyo = columnPuyos[i]!;
-      const newY = field.height - 1 - i;
-      const newPosition = createPosition(x, newY);
-      newPuyos[newY]![x] = createPuyo(
-        puyo.id,
-        puyo.color,
-        newPosition,
-        puyo.isFixed
-      );
-    }
+    const columnPuyos = collectColumnPuyos(field, x);
+    placeColumnPuyos(newPuyos, columnPuyos, x, field.height);
   }
 
   // 配列を不変にする
@@ -193,7 +228,11 @@ const isSameColorPuyo = (
   startPuyo: Puyo
 ): boolean => {
   const currentPuyo = field.puyos[position.y]?.[position.x];
-  return currentPuyo !== null && currentPuyo.color === startPuyo.color;
+  return (
+    currentPuyo !== null &&
+    currentPuyo !== undefined &&
+    currentPuyo.color === startPuyo.color
+  );
 };
 
 /**

@@ -1,7 +1,4 @@
-import {
-  InputHandler,
-  GameAction,
-} from '../../application/ports/InputHandler';
+import { InputHandler, GameAction } from '../../application/ports/InputHandler';
 
 /**
  * キーボード入力を処理するハンドラー
@@ -14,11 +11,11 @@ export class KeyboardInputHandler implements InputHandler {
   constructor() {
     // 要件2.1-2.4に基づくキーマッピング
     this.keyMappings = new Map([
-      ['ArrowLeft', GameAction.MoveLeft],   // 要件2.1: 左矢印キーで左移動
+      ['ArrowLeft', GameAction.MoveLeft], // 要件2.1: 左矢印キーで左移動
       ['ArrowRight', GameAction.MoveRight], // 要件2.2: 右矢印キーで右移動
-      ['ArrowUp', GameAction.Rotate],       // 要件2.3: 上矢印キーで回転
-      [' ', GameAction.Rotate],             // 要件2.3: スペースキーで回転
-      ['ArrowDown', GameAction.Drop],       // 要件2.4: 下矢印キーで高速落下
+      ['ArrowUp', GameAction.Rotate], // 要件2.3: 上矢印キーで回転
+      [' ', GameAction.Rotate], // 要件2.3: スペースキーで回転
+      ['ArrowDown', GameAction.Drop], // 要件2.4: 下矢印キーで高速落下
     ]);
   }
 

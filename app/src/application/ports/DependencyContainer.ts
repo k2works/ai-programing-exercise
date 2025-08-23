@@ -104,8 +104,8 @@ export class SimpleDependencyContainer implements DependencyContainer {
   }
 
   clear(): void {
-    this.gameRepository = undefined;
-    this.inputHandler = undefined;
-    this.gameRenderer = undefined;
+    delete this.gameRepository;
+    delete this.inputHandler;
+    delete this.gameRenderer;
   }
 }

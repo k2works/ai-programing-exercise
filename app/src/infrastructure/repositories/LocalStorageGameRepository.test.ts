@@ -29,7 +29,7 @@ describe('LocalStorageGameRepository', () => {
     const field = createGameField();
     const mainPuyo = createPuyo('main-1', 'red', createPosition(2, 0));
     const subPuyo = createPuyo('sub-1', 'blue', createPosition(2, 1));
-    
+
     testGameState = createGameState(
       field,
       {
@@ -89,7 +89,9 @@ describe('LocalStorageGameRepository', () => {
     });
 
     it('無効なゲーム状態の場合はfalseを返す', async () => {
-      const invalidGameState = null as unknown as ReturnType<typeof createGameState>;
+      const invalidGameState = null as unknown as ReturnType<
+        typeof createGameState
+      >;
 
       const result = await repository.saveGameState(invalidGameState);
 
@@ -143,7 +145,9 @@ describe('LocalStorageGameRepository', () => {
       const result = await repository.clearGameState();
 
       expect(result).toBe(true);
-      expect(localStorageMock.removeItem).toHaveBeenCalledWith('puyo-game-state');
+      expect(localStorageMock.removeItem).toHaveBeenCalledWith(
+        'puyo-game-state'
+      );
     });
 
     it('削除時にエラーが発生した場合はfalseを返す', async () => {
@@ -191,7 +195,12 @@ describe('LocalStorageGameRepository', () => {
       const incompleteData = {
         field: {},
         // currentPuyoPairが不足
-        score: { current: 0, lastChainBonus: 0, allClearBonus: 0, totalBonus: 0 },
+        score: {
+          current: 0,
+          lastChainBonus: 0,
+          allClearBonus: 0,
+          totalBonus: 0,
+        },
         isGameOver: false,
         chainCount: 0,
         isPlaying: true,
@@ -209,7 +218,9 @@ describe('LocalStorageGameRepository', () => {
         ...testGameState,
         score: { current: 'invalid' }, // 数値でない
       };
-      localStorageMock.getItem.mockReturnValue(JSON.stringify(invalidScoreData));
+      localStorageMock.getItem.mockReturnValue(
+        JSON.stringify(invalidScoreData)
+      );
 
       const result = await repository.loadGameState();
 

@@ -50,13 +50,13 @@ export class TouchInputHandler implements InputHandler {
 
     switch (gesture.direction) {
       case 'left':
-        return GameAction.MoveLeft;   // 要件9.1: 左スワイプで左移動
+        return GameAction.MoveLeft; // 要件9.1: 左スワイプで左移動
       case 'right':
-        return GameAction.MoveRight;  // 要件9.1: 右スワイプで右移動
+        return GameAction.MoveRight; // 要件9.1: 右スワイプで右移動
       case 'down':
-        return GameAction.Drop;       // 要件9.3: 下スワイプで高速落下
+        return GameAction.Drop; // 要件9.3: 下スワイプで高速落下
       case 'up':
-        return GameAction.Rotate;     // 上スワイプで回転
+        return GameAction.Rotate; // 上スワイプで回転
       default:
         return null;
     }

@@ -28,7 +28,7 @@ export class LocalStorageGameRepository implements GameRepository {
       // ゲーム状態をJSONにシリアライズして保存
       const serializedState = JSON.stringify(gameState);
       localStorage.setItem(this.storageKey, serializedState);
-      
+
       return true;
     } catch (error) {
       console.error('Failed to save game state:', error);
@@ -48,14 +48,14 @@ export class LocalStorageGameRepository implements GameRepository {
       }
 
       const serializedState = localStorage.getItem(this.storageKey);
-      
+
       if (!serializedState) {
         return null;
       }
 
       // JSONをパースしてゲーム状態に復元
       const gameState = JSON.parse(serializedState) as GameState;
-      
+
       // 読み込んだデータの検証
       if (!this.validateLoadedGameState(gameState)) {
         return null;
@@ -229,10 +229,7 @@ export class LocalStorageGameRepository implements GameRepository {
   /**
    * PuyoPairデータを検証する
    */
-  private validatePuyoPairs(
-    currentPair: unknown,
-    nextPair: unknown
-  ): boolean {
+  private validatePuyoPairs(currentPair: unknown, nextPair: unknown): boolean {
     return (
       this.validateSinglePuyoPair(currentPair) &&
       this.validateSinglePuyoPair(nextPair)
@@ -249,8 +246,7 @@ export class LocalStorageGameRepository implements GameRepository {
 
     const pairData = pair as Record<string, unknown>;
     return (
-      this.hasPuyoPairObjects(pairData) &&
-      this.hasPuyoPairValidTypes(pairData)
+      this.hasPuyoPairObjects(pairData) && this.hasPuyoPairValidTypes(pairData)
     );
   }
 

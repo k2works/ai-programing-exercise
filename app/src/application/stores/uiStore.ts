@@ -132,8 +132,10 @@ export const useUIStore = create<UIStore>()(
 /**
  * UI状態の選択的購読用フック
  */
-export const useShowNextPuyo = (): boolean => useUIStore((state) => state.showNextPuyo);
-export const useShowScore = (): boolean => useUIStore((state) => state.showScore);
+export const useShowNextPuyo = (): boolean =>
+  useUIStore((state) => state.showNextPuyo);
+export const useShowScore = (): boolean =>
+  useUIStore((state) => state.showScore);
 export const useAnimationSpeed = (): number =>
   useUIStore((state) => state.animationSpeed);
 export const useShowChainCount = (): boolean =>
@@ -148,6 +150,7 @@ export const useShowNewGameButton = (): boolean =>
   useUIStore((state) => state.showNewGameButton);
 export const useShowRestartOption = (): boolean =>
   useUIStore((state) => state.showRestartOption);
-export const useIsAnimating = (): boolean => useUIStore((state) => state.isAnimating);
+export const useIsAnimating = (): boolean =>
+  useUIStore((state) => state.isAnimating);
 export const useCurrentAnimation = (): string | null =>
   useUIStore((state) => state.currentAnimation);
