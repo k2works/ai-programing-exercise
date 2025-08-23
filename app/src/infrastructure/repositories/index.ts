@@ -1,0 +1,1 @@
+export { LocalStorageGameRepository } from './LocalStorageGameRepository';
