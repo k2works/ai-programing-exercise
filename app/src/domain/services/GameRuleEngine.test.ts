@@ -5,7 +5,6 @@ import { createPuyo } from '../models/Puyo';
 import { createPuyoPair, createGameState } from '../models/GameState';
 import { createPosition } from '../types/Position';
 
-
 describe('GameRuleEngine', () => {
   const ruleEngine = new GameRuleEngine();
 

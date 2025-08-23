@@ -4,7 +4,6 @@ import { createGameField, placePuyo } from '../models/GameField';
 import { createPuyo } from '../models/Puyo';
 import { createPosition } from '../types/Position';
 
-
 describe('PuyoMatcher', () => {
   const matcher = new PuyoMatcher();
 

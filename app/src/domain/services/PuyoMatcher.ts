@@ -83,7 +83,7 @@ export class PuyoMatcher {
 
     while (queue.length > 0) {
       const currentPos = queue.shift()!;
-      
+
       if (this.shouldSkipPosition(visited, currentPos)) {
         continue;
       }
@@ -100,7 +100,10 @@ export class PuyoMatcher {
   /**
    * 位置をスキップすべきかどうかを判定する
    */
-  private shouldSkipPosition(visited: Set<string>, position: Position): boolean {
+  private shouldSkipPosition(
+    visited: Set<string>,
+    position: Position
+  ): boolean {
     const positionKey = this.positionToKey(position);
     if (visited.has(positionKey)) {
       return true;
@@ -112,7 +115,11 @@ export class PuyoMatcher {
   /**
    * 指定された位置のぷよが開始ぷよと同じ色かどうかを判定する
    */
-  private isSameColorPuyo(field: GameField, position: Position, startPuyo: { color: PuyoColor }): boolean {
+  private isSameColorPuyo(
+    field: GameField,
+    position: Position,
+    startPuyo: { color: PuyoColor }
+  ): boolean {
     const currentPuyo = field.puyos[position.y]?.[position.x];
     return currentPuyo !== null && currentPuyo?.color === startPuyo.color;
   }
@@ -120,10 +127,17 @@ export class PuyoMatcher {
   /**
    * 隣接する位置をキューに追加する
    */
-  private addNeighborsToQueue(queue: Position[], visited: Set<string>, currentPos: Position): void {
+  private addNeighborsToQueue(
+    queue: Position[],
+    visited: Set<string>,
+    currentPos: Position
+  ): void {
     const neighbors = this.getNeighborPositions(currentPos);
     for (const neighbor of neighbors) {
-      if (isValidPosition(neighbor) && !visited.has(this.positionToKey(neighbor))) {
+      if (
+        isValidPosition(neighbor) &&
+        !visited.has(this.positionToKey(neighbor))
+      ) {
         queue.push(neighbor);
       }
     }
