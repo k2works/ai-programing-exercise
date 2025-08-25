@@ -14,18 +14,14 @@ import {
   movePuyoPair,
   fixPuyoPair,
 } from '../../domain/models/GameState';
-import {
-  createGameField,
-  placePuyo,
-  removePuyos,
-  applyGravity,
-} from '../../domain/models/GameField';
+import { createGameField, placePuyo } from '../../domain/models/GameField';
 import { createPuyo } from '../../domain/models/Puyo';
 import { createPosition } from '../../domain/types/Position';
 import { generateRandomPuyoColor } from '../../domain/types/PuyoColor';
-import { PuyoMatcher } from '../../domain/services/PuyoMatcher';
-import { ChainCalculator } from '../../domain/services/ChainCalculator';
+
 import { GameRuleEngine } from '../../domain/services/GameRuleEngine';
+import { FallSystemServiceImpl } from './FallSystemService';
+import { ChainSystemServiceImpl } from './ChainSystemService';
 
 /**
  * ゲーム管理サービス
@@ -137,16 +133,16 @@ export interface GameService {
  * GameServiceの実装
  */
 export class GameServiceImpl implements GameService {
-  private readonly puyoMatcher: PuyoMatcher;
-  private readonly chainCalculator: ChainCalculator;
   private readonly gameRuleEngine: GameRuleEngine;
+  private readonly fallSystemService: FallSystemServiceImpl;
+  private readonly chainSystemService: ChainSystemServiceImpl;
   private readonly container: DependencyContainer;
 
   constructor(container: DependencyContainer) {
     this.container = container;
-    this.puyoMatcher = new PuyoMatcher();
-    this.chainCalculator = new ChainCalculator();
     this.gameRuleEngine = new GameRuleEngine();
+    this.fallSystemService = new FallSystemServiceImpl(container);
+    this.chainSystemService = new ChainSystemServiceImpl(container);
   }
 
   async startNewGame(): Promise<GameState> {
@@ -319,8 +315,8 @@ export class GameServiceImpl implements GameService {
       return gameState;
     }
 
-    // 自動落下処理
-    return this.movePuyo('down', gameState);
+    // 自動落下処理（要件3.1）
+    return this.fallSystemService.executeAutoFall(gameState);
   }
 
   async pauseGame(gameState: GameState): Promise<GameState> {
@@ -357,62 +353,10 @@ export class GameServiceImpl implements GameService {
   }
 
   async processChain(gameState: GameState): Promise<GameState> {
-    let currentState = gameState;
-    let chainCount = 0;
-
-    let hasMatches = true;
-    while (hasMatches) {
-      // 消去可能なぷよグループを検索
-      const matchingGroups = this.puyoMatcher.findMatchingGroups(
-        currentState.field
-      );
-
-      if (matchingGroups.length === 0) {
-        hasMatches = false; // 連鎖終了
-        continue;
-      }
-
-      chainCount++;
-
-      // ぷよを消去
-      const positionsToRemove = matchingGroups.flatMap(
-        (group) => group.positions
-      );
-      const fieldAfterRemoval = removePuyos(
-        currentState.field,
-        positionsToRemove
-      );
-
-      // 重力を適用
-      const fieldAfterGravity = applyGravity(fieldAfterRemoval);
-
-      // スコアを計算
-      const chainScore = this.chainCalculator.calculateScore(
-        matchingGroups,
-        chainCount
-      );
-
-      currentState = updateGameState(currentState, {
-        field: fieldAfterGravity,
-        score: {
-          ...currentState.score,
-          current: currentState.score.current + chainScore,
-        },
-        chainCount: chainCount,
-      });
-    }
-
-    // 連鎖が終了したら連鎖数をリセット
-    if (chainCount > 0) {
-      currentState = updateGameState(currentState, {
-        chainCount: 0,
-      });
-    }
-
-    const repository = this.container.getGameRepository();
-    await repository.saveGameState(currentState);
-
-    return currentState;
+    // アニメーション対応の連鎖システムを使用
+    const chainResult =
+      await this.chainSystemService.executeChainWithAnimation(gameState);
+    return chainResult.newGameState;
   }
 
   initializeField(): GameField {
@@ -445,21 +389,41 @@ export class GameServiceImpl implements GameService {
   }
 
   fixPuyoPair(puyoPair: PuyoPair, field: GameField): GameField {
-    const mainPosition = this.calculatePuyoPosition(
-      puyoPair.main,
-      puyoPair.position,
-      puyoPair.rotation
-    );
-    const subPosition = this.calculatePuyoPosition(
-      puyoPair.sub,
-      puyoPair.position,
-      puyoPair.rotation
-    );
+    const mainPosition = this.calculatePuyoPosition(puyoPair.main, puyoPair);
+    const subPosition = this.calculatePuyoPosition(puyoPair.sub, puyoPair);
 
-    let updatedField = placePuyo(field, puyoPair.main, mainPosition);
-    updatedField = placePuyo(updatedField, puyoPair.sub, subPosition);
+    // 位置が有効かチェックしてから配置
+    let updatedField = field;
+
+    try {
+      if (this.isValidFieldPosition(mainPosition, field)) {
+        updatedField = placePuyo(updatedField, puyoPair.main, mainPosition);
+      }
+
+      if (this.isValidFieldPosition(subPosition, field)) {
+        updatedField = placePuyo(updatedField, puyoPair.sub, subPosition);
+      }
+    } catch (error) {
+      // 無効な位置の場合はフィールドをそのまま返す
+      console.warn('Failed to place puyo at invalid position:', error);
+    }
 
     return updatedField;
+  }
+
+  /**
+   * フィールド内の有効な位置かどうかをチェックする
+   * @param position チェックする位置
+   * @param field ゲームフィールド
+   * @returns 有効な位置の場合はtrue
+   */
+  private isValidFieldPosition(position: Position, field: GameField): boolean {
+    return (
+      position.x >= 0 &&
+      position.x < field.width &&
+      position.y >= 0 &&
+      position.y < field.height
+    );
   }
 
   /**
@@ -502,18 +466,14 @@ export class GameServiceImpl implements GameService {
   /**
    * 回転を考慮したぷよの実際の位置を計算する
    * @param puyo ぷよ
-   * @param pairPosition 組ぷよの基準位置
-   * @param rotation 回転角度
+   * @param puyoPair 組ぷよ
    * @returns 実際の位置
    */
-  private calculatePuyoPosition(
-    puyo: Puyo,
-    pairPosition: Position,
-    rotation: number
-  ): Position {
-    // 簡単な実装：メインぷよは基準位置、サブぷよは回転に応じて位置を調整
-    if (puyo === puyo) {
-      // メインぷよの場合（実際の判定は別途実装）
+  private calculatePuyoPosition(puyo: Puyo, puyoPair: PuyoPair): Position {
+    const { position: pairPosition, rotation, main } = puyoPair;
+
+    // メインぷよの場合は基準位置
+    if (puyo.id === main.id) {
       return pairPosition;
     }
 

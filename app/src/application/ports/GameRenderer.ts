@@ -64,23 +64,21 @@ export interface GameRenderer {
 
   /**
    * ぷよ消去アニメーションを再生する
-   * @param puyos 消去するぷよの配列
+   * @param positions 消去するぷよの位置配列
    * @returns アニメーション完了のPromise
    * 要件10.4: 消去アニメーションを表示
    */
-  playEraseAnimation(puyos: Puyo[]): Promise<void>;
+  playEraseAnimation(positions: ReadonlyArray<Position>): Promise<void>;
 
   /**
    * ぷよ落下アニメーションを再生する
-   * @param puyo 落下するぷよ
-   * @param fromPosition 開始位置
-   * @param toPosition 終了位置
+   * @param fromPositions 開始位置の配列
+   * @param toPositions 終了位置の配列
    * @returns アニメーション完了のPromise
    */
   playFallAnimation(
-    puyo: Puyo,
-    fromPosition: Position,
-    toPosition: Position
+    fromPositions: ReadonlyArray<Position>,
+    toPositions: ReadonlyArray<Position>
   ): Promise<void>;
 
   /**

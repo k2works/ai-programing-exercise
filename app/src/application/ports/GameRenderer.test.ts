@@ -161,26 +161,26 @@ describe('GameRenderer インターフェース契約', () => {
   });
 
   describe('playEraseAnimation', () => {
-    it('消去するぷよの配列を受け取り、アニメーション完了のPromiseを返すべき', async () => {
+    it('消去するぷよの位置配列を受け取り、アニメーション完了のPromiseを返すべき', async () => {
       // Arrange
-      const puyos = [testPuyo];
+      const positions = [createPosition(2, 5)];
       vi.mocked(mockRenderer.playEraseAnimation).mockResolvedValue(undefined);
 
       // Act
-      const result = await mockRenderer.playEraseAnimation(puyos);
+      const result = await mockRenderer.playEraseAnimation(positions);
 
       // Assert
-      expect(mockRenderer.playEraseAnimation).toHaveBeenCalledWith(puyos);
+      expect(mockRenderer.playEraseAnimation).toHaveBeenCalledWith(positions);
       expect(result).toBeUndefined();
     });
 
-    it('Puyo配列のパラメータを受け取り、Promiseを返すべき', () => {
+    it('Position配列のパラメータを受け取り、Promiseを返すべき', () => {
       // Arrange
-      const puyos = [testPuyo];
+      const positions = [createPosition(2, 5)];
       vi.mocked(mockRenderer.playEraseAnimation).mockResolvedValue(undefined);
 
       // Act
-      const result = mockRenderer.playEraseAnimation(puyos);
+      const result = mockRenderer.playEraseAnimation(positions);
 
       // Assert
       expect(result).toBeInstanceOf(Promise);
@@ -188,40 +188,34 @@ describe('GameRenderer インターフェース契約', () => {
   });
 
   describe('playFallAnimation', () => {
-    it('落下するぷよと開始・終了位置を受け取り、アニメーション完了のPromiseを返すべき', async () => {
+    it('開始・終了位置の配列を受け取り、アニメーション完了のPromiseを返すべき', async () => {
       // Arrange
-      const fromPosition = createPosition(2, 0);
-      const toPosition = createPosition(2, 5);
+      const fromPositions = [createPosition(2, 0)];
+      const toPositions = [createPosition(2, 5)];
       vi.mocked(mockRenderer.playFallAnimation).mockResolvedValue(undefined);
 
       // Act
       const result = await mockRenderer.playFallAnimation(
-        testPuyo,
-        fromPosition,
-        toPosition
+        fromPositions,
+        toPositions
       );
 
       // Assert
       expect(mockRenderer.playFallAnimation).toHaveBeenCalledWith(
-        testPuyo,
-        fromPosition,
-        toPosition
+        fromPositions,
+        toPositions
       );
       expect(result).toBeUndefined();
     });
 
-    it('Puyo、Position、Position型のパラメータを受け取り、Promiseを返すべき', () => {
+    it('Position配列のパラメータを受け取り、Promiseを返すべき', () => {
       // Arrange
-      const fromPosition = createPosition(2, 0);
-      const toPosition = createPosition(2, 5);
+      const fromPositions = [createPosition(2, 0)];
+      const toPositions = [createPosition(2, 5)];
       vi.mocked(mockRenderer.playFallAnimation).mockResolvedValue(undefined);
 
       // Act
-      const result = mockRenderer.playFallAnimation(
-        testPuyo,
-        fromPosition,
-        toPosition
-      );
+      const result = mockRenderer.playFallAnimation(fromPositions, toPositions);
 
       // Assert
       expect(result).toBeInstanceOf(Promise);
@@ -397,11 +391,12 @@ describe('GameRenderer インターフェース契約', () => {
       );
 
       // Act
-      const eraseResult = mockRenderer.playEraseAnimation([testPuyo]);
-      const fallResult = mockRenderer.playFallAnimation(
-        testPuyo,
+      const eraseResult = mockRenderer.playEraseAnimation([
         createPosition(0, 0),
-        createPosition(0, 1)
+      ]);
+      const fallResult = mockRenderer.playFallAnimation(
+        [createPosition(0, 0)],
+        [createPosition(0, 1)]
       );
       const chainResult = mockRenderer.playChainEffect(1);
       const allClearResult = mockRenderer.playAllClearEffect();
