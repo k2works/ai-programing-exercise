@@ -63,6 +63,26 @@ export interface GameRenderer {
   renderChainCount(chainCount: number): void;
 
   /**
+   * スコア獲得をハイライト表示する
+   * @param scoreGain 獲得スコア
+   * 要件8.3: 連鎖やボーナスが発生すると獲得ポイントを一時的に強調表示
+   */
+  highlightScore(scoreGain: number): Promise<void>;
+
+  /**
+   * スコアハイライトをクリアする
+   * 要件8.3: ハイライト表示の終了
+   */
+  clearScoreHighlight(): Promise<void>;
+
+  /**
+   * フィールド表示を更新する
+   * @param field 更新するゲームフィールド
+   * 要件8.2: スコアが更新されると即座に反映
+   */
+  updateFieldDisplay(field: GameField): void;
+
+  /**
    * ぷよ消去アニメーションを再生する
    * @param positions 消去するぷよの位置配列
    * @returns アニメーション完了のPromise

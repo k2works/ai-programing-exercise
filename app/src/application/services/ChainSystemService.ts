@@ -9,6 +9,10 @@ import { updateGameState } from '../../domain/models/GameState';
 import { removePuyos, applyGravity } from '../../domain/models/GameField';
 import { PuyoMatcher, type PuyoGroup } from '../../domain/services/PuyoMatcher';
 import { ChainCalculator } from '../../domain/services/ChainCalculator';
+import {
+  ScoreSystemServiceImpl,
+  type ScoreSystemService,
+} from './ScoreSystemService';
 
 /**
  * 連鎖結果を表すインターフェース
@@ -68,6 +72,7 @@ export class ChainSystemServiceImpl implements ChainSystemService {
   private readonly puyoMatcher: PuyoMatcher;
   private readonly chainCalculator: ChainCalculator;
   private readonly renderer: GameRenderer;
+  private readonly scoreSystemService: ScoreSystemService;
   private readonly container: DependencyContainer;
 
   constructor(container: DependencyContainer) {
@@ -75,12 +80,12 @@ export class ChainSystemServiceImpl implements ChainSystemService {
     this.puyoMatcher = new PuyoMatcher();
     this.chainCalculator = new ChainCalculator();
     this.renderer = container.getGameRenderer();
+    this.scoreSystemService = new ScoreSystemServiceImpl(container);
   }
 
   async executeChainWithAnimation(gameState: GameState): Promise<ChainResult> {
     let currentState = gameState;
     let chainCount = 0;
-    let totalScore = 0;
     let allErasedGroups: PuyoGroup[] = [];
 
     // まず重力を適用して浮いているぷよを落下させる（要件4.3）
@@ -101,18 +106,20 @@ export class ChainSystemServiceImpl implements ChainSystemService {
       currentState = eliminationResult.newGameState;
       allErasedGroups.push(...eliminationResult.erasedGroups);
 
-      // 連鎖スコアを計算（要件5.1）
-      const chainScore = this.chainCalculator.calculateScore(
+      // 統合されたスコアシステムを使用してスコア計算と表示を実行
+      const scoreResult = await this.scoreSystemService.calculateAndUpdateScore(
+        currentState,
         eliminationResult.erasedGroups,
         chainCount
       );
-      totalScore += chainScore;
+
+      currentState = scoreResult.newGameState;
 
       // 連鎖エフェクトを再生
       await this.renderer.playChainEffect(chainCount);
 
       // 連鎖数を表示（要件5.2）
-      this.renderer.renderChainCount(chainCount);
+      await this.scoreSystemService.displayChainCount(chainCount);
 
       // 重力を適用
       currentState = await this.applyGravityWithAnimation(currentState);
@@ -121,18 +128,25 @@ export class ChainSystemServiceImpl implements ChainSystemService {
       await this.waitForAnimation(200);
     }
 
-    // 全消しボーナスの判定と適用
-    const finalScore = await this.applyAllClearBonus(currentState, totalScore);
+    // 全消しボーナスの判定と適用（統合されたスコアシステムを使用）
     const isAllClear = this.chainCalculator.isAllClear(currentState.field);
+    let finalGameState = currentState;
 
-    // 最終的なゲーム状態を更新
-    const finalGameState = updateGameState(currentState, {
-      score: {
-        ...currentState.score,
-        current: currentState.score.current + finalScore,
-      },
+    if (isAllClear) {
+      const allClearResult = await this.scoreSystemService.applyAllClearBonus(
+        currentState,
+        currentState.score.current
+      );
+      finalGameState = allClearResult.newGameState;
+    }
+
+    // 連鎖終了時の処理
+    finalGameState = updateGameState(finalGameState, {
       chainCount: 0, // 連鎖終了時にリセット（要件5.3）
     });
+
+    // 連鎖表示をクリア（要件5.3）
+    await this.scoreSystemService.clearChainDisplay();
 
     // ゲーム状態を保存
     const repository = this.container.getGameRepository();
@@ -141,7 +155,7 @@ export class ChainSystemServiceImpl implements ChainSystemService {
     return {
       newGameState: finalGameState,
       chainCount,
-      totalScore: finalScore,
+      totalScore: finalGameState.score.current,
       isAllClear,
       erasedGroups: Object.freeze(allErasedGroups),
     };
@@ -199,18 +213,12 @@ export class ChainSystemServiceImpl implements ChainSystemService {
     gameState: GameState,
     baseScore: number
   ): Promise<number> {
-    const isAllClear = this.chainCalculator.isAllClear(gameState.field);
-
-    if (isAllClear) {
-      const allClearBonus = this.chainCalculator.calculateAllClearBonus();
-
-      // 全消しエフェクトを再生
-      await this.renderer.playAllClearEffect();
-
-      return baseScore + allClearBonus;
-    }
-
-    return baseScore;
+    // この機能は ScoreSystemService に移行されました
+    const allClearResult = await this.scoreSystemService.applyAllClearBonus(
+      gameState,
+      baseScore
+    );
+    return allClearResult.totalScore;
   }
 
   /**
