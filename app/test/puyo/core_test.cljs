@@ -458,4 +458,95 @@
     (is (= "2:15" (core/format-game-time 135)) "2分15秒のフォーマット")
     (is (= "10:05" (core/format-game-time 605)) "10分5秒のフォーマット")))
 
+;; T017: キーボード入力処理テスト
+(deftest keyboard-input-processing-test
+  (testing "キーボード入力処理機能"
+    (let [initial-state @core/game-state
+          test-puyo-pair {:puyo1 {:x 3 :y 1 :color 1}
+                          :puyo2 {:x 3 :y 2 :color 2}
+                          :rotation 0}]
+      ;; ゲーム状態をテスト用に設定
+      (swap! core/game-state assoc
+             :game-running true
+             :current-piece test-puyo-pair
+             :board (core/create-empty-board))
+
+      ;; 左移動処理のテスト
+      (let [result (core/handle-key-input "ArrowLeft")]
+        (is (map? result) "左移動処理は結果を返す"))
+
+      ;; 右移動処理のテスト
+      (let [result (core/handle-key-input "ArrowRight")]
+        (is (map? result) "右移動処理は結果を返す"))
+
+      ;; 回転処理のテスト
+      (let [result (core/handle-key-input "ArrowUp")]
+        (is (map? result) "回転処理は結果を返す"))
+
+      ;; 高速落下処理のテスト
+      (let [result (core/handle-key-input "ArrowDown")]
+        (is (map? result) "高速落下処理は結果を返す"))
+
+      ;; ハードドロップ処理のテスト
+      (let [result (core/handle-key-input " ")]
+        (is (map? result) "ハードドロップ処理は結果を返す"))
+
+      ;; 無効なキー処理のテスト
+      (let [result (core/handle-key-input "Escape")]
+        (is (nil? result) "無効なキーは何も処理しない"))
+
+      ;; 状態復元
+      (reset! core/game-state initial-state))))
+
+(deftest puyo-movement-integration-test
+  (testing "ぷよ移動統合機能"
+    (let [initial-state @core/game-state
+          test-board (core/create-empty-board)
+          test-puyo-pair {:puyo1 {:x 3 :y 1 :color 1}
+                          :puyo2 {:x 3 :y 2 :color 2}
+                          :rotation 0}]
+
+      ;; テスト用ゲーム状態設定
+      (swap! core/game-state assoc
+             :game-running true
+             :current-piece test-puyo-pair
+             :board test-board)
+
+      ;; 左移動統合テスト
+      (core/process-left-movement!)
+      (let [updated-piece (:current-piece @core/game-state)]
+        (is (= 2 (get-in updated-piece [:puyo1 :x])) "左移動後のx座標"))
+
+      ;; 右移動統合テスト
+      (core/process-right-movement!)
+      (let [updated-piece (:current-piece @core/game-state)]
+        (is (= 3 (get-in updated-piece [:puyo1 :x])) "右移動後のx座標"))
+
+      ;; 回転統合テスト
+      (core/process-rotation!)
+      (let [updated-piece (:current-piece @core/game-state)]
+        (is (= 1 (:rotation updated-piece)) "回転後の回転状態"))
+
+      ;; 状態復元
+      (reset! core/game-state initial-state))))
+
+(deftest keyboard-game-state-validation-test
+  (testing "キーボード入力時のゲーム状態検証"
+    (let [initial-state @core/game-state]
+
+      ;; ゲーム停止時のキー入力テスト
+      (swap! core/game-state assoc :game-running false)
+      (let [result (core/handle-key-input "ArrowLeft")]
+        (is (nil? result) "ゲーム停止時はキー入力を無視"))
+
+      ;; 現在の組ぷよがない場合のテスト
+      (swap! core/game-state assoc
+             :game-running true
+             :current-piece nil)
+      (let [result (core/handle-key-input "ArrowLeft")]
+        (is (nil? result) "現在の組ぷよがない場合はキー入力を無視"))
+
+      ;; 状態復元
+      (reset! core/game-state initial-state))))
+
 (run-tests)

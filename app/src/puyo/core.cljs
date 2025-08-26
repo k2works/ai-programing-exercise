@@ -222,6 +222,27 @@
                    (= 0 (get-in board [y x] 0))))
             new-positions)))
 
+(defn can-place-puyo-pair?
+  "組ぷよが指定位置に配置可能かチェック
+   
+   Args:
+     puyo-pair: 組ぷよマップ
+     board: ゲームボード
+   
+   Returns:
+     配置可能な場合true"
+  [puyo-pair board]
+  (let [positions (get-puyo-pair-positions
+                   (get-in puyo-pair [:puyo1 :x])
+                   (get-in puyo-pair [:puyo1 :y])
+                   (:rotation puyo-pair))]
+    ;; すべての位置が有効な範囲内かつ空きマスかチェック
+    (every? (fn [{:keys [x y]}]
+              (and (>= x 0) (< x board-width)
+                   (>= y 0) (< y board-height)
+                   (= 0 (get-in board [y x] 0))))
+            positions)))
+
 (defn move-puyo-pair-left
   "組ぷよを左に移動
    
@@ -941,3 +962,113 @@
 
   ;; 初期描画
   (render-game))
+
+;; =============================================================================
+;; T017: キーボード入力処理
+;; =============================================================================
+
+;; 補助関数群（キーボード処理用）
+(defn drop-puyo-pair-one-step
+  "組ぷよを1マス下に落下"
+  [puyo-pair board]
+  (let [moved-down (-> puyo-pair
+                       (update-in [:puyo1 :y] inc)
+                       (update-in [:puyo2 :y] inc))]
+    (if (can-place-puyo-pair? moved-down board)
+      moved-down
+      puyo-pair)))
+
+(defn hard-drop-puyo-pair
+  "組ぷよをハードドロップ（最下段まで一気に落下）"
+  [puyo-pair board]
+  (loop [current-piece puyo-pair]
+    (let [dropped-piece (drop-puyo-pair-one-step current-piece board)]
+      (if (= dropped-piece current-piece)
+        current-piece
+        (recur dropped-piece)))))
+
+;; 移動処理関数群
+(defn process-left-movement!
+  "左移動処理"
+  []
+  (let [current-piece (:current-piece @game-state)
+        board (:board @game-state)]
+    (when current-piece
+      (let [moved-piece (move-puyo-pair-left current-piece board)]
+        (when (not= moved-piece current-piece)
+          (swap! game-state assoc :current-piece moved-piece)
+          (render-game)
+          {:result :moved :direction :left})))))
+
+(defn process-right-movement!
+  "右移動処理"
+  []
+  (let [current-piece (:current-piece @game-state)
+        board (:board @game-state)]
+    (when current-piece
+      (let [moved-piece (move-puyo-pair-right current-piece board)]
+        (when (not= moved-piece current-piece)
+          (swap! game-state assoc :current-piece moved-piece)
+          (render-game)
+          {:result :moved :direction :right})))))
+
+(defn process-rotation!
+  "回転処理"
+  []
+  (let [current-piece (:current-piece @game-state)
+        board (:board @game-state)]
+    (when current-piece
+      (let [rotated-piece (rotate-puyo-pair current-piece)]
+        (when (can-place-puyo-pair? rotated-piece board)
+          (swap! game-state assoc :current-piece rotated-piece)
+          (render-game)
+          {:result :rotated :new-rotation (:rotation rotated-piece)})))))
+
+(defn process-soft-drop!
+  "高速落下処理"
+  []
+  (let [current-piece (:current-piece @game-state)
+        board (:board @game-state)]
+    (when current-piece
+      (let [dropped-piece (drop-puyo-pair-one-step current-piece board)]
+        (if (not= dropped-piece current-piece)
+          (do
+            (swap! game-state assoc :current-piece dropped-piece)
+            (render-game)
+            {:result :soft-dropped :new-y (get-in dropped-piece [:puyo1 :y])})
+          {:result :bottom-reached})))))
+
+(defn process-hard-drop!
+  "ハードドロップ処理"
+  []
+  (let [current-piece (:current-piece @game-state)
+        board (:board @game-state)]
+    (when current-piece
+      (let [final-piece (hard-drop-puyo-pair current-piece board)]
+        (swap! game-state assoc :current-piece final-piece)
+        (render-game)
+        {:result :hard-dropped :final-y (get-in final-piece [:puyo1 :y])}))))
+
+;; キーボード入力ハンドラ関数
+(defn handle-key-input
+  "キーボード入力を処理してゲーム状態を更新"
+  [key]
+  (when (and (:game-running @game-state)
+             (:current-piece @game-state))
+    (case key
+      "ArrowLeft" (process-left-movement!)
+      "ArrowRight" (process-right-movement!)
+      "ArrowUp" (process-rotation!)
+      "ArrowDown" (process-soft-drop!)
+      " " (process-hard-drop!)
+      nil)))
+
+;; キーボードイベントハンドラの更新
+(defn update-keyboard-handler!
+  "キーボードイベントハンドラを新しい処理ロジックで更新"
+  []
+  (.addEventListener js/document "keydown"
+                     (fn [event]
+                       (when (:game-running @game-state)
+                         (let [key (.-key event)]
+                           (handle-key-input key))))))
