@@ -248,6 +248,50 @@
       (is (>= (:chain-count result) 1) "消去処理が実行される")
       (is (> (:total-score result) 30) "基本スコア取得"))))
 
+;; T013: 基本スコア計算テスト
+(deftest basic-score-test
+  (testing "消去ぷよ数に基づくベーススコア"
+    (let [score-4 (core/calculate-base-score 4 1 1 1)
+          score-8 (core/calculate-base-score 8 1 1 1)]
+      (is (= 40 score-4) "4つ消去のベーススコア")
+      (is (= 80 score-8) "8つ消去のベーススコア"))))
+
+(deftest chain-multiplier-test
+  (testing "連鎖倍率の計算"
+    (let [chain-1 (core/calculate-chain-multiplier 1)
+          chain-2 (core/calculate-chain-multiplier 2)
+          chain-3 (core/calculate-chain-multiplier 3)]
+      (is (= 1 chain-1) "1連鎖は倍率1")
+      (is (= 8 chain-2) "2連鎖は倍率8")
+      (is (= 16 chain-3) "3連鎖は倍率16"))))
+
+(deftest group-bonus-test
+  (testing "同時消し倍率の計算"
+    (let [single-group (core/calculate-group-bonus 1)
+          dual-group (core/calculate-group-bonus 2)
+          triple-group (core/calculate-group-bonus 3)]
+      (is (= 1 single-group) "1グループは倍率1")
+      (is (= 3 dual-group) "2グループは倍率3")
+      (is (= 6 triple-group) "3グループは倍率6"))))
+
+(deftest color-bonus-test
+  (testing "色数ボーナスの計算"
+    (let [one-color (core/calculate-color-bonus 1)
+          two-colors (core/calculate-color-bonus 2)
+          three-colors (core/calculate-color-bonus 3)]
+      (is (= 1 one-color) "1色は倍率1")
+      (is (= 3 two-colors) "2色は倍率3")
+      (is (= 6 three-colors) "3色は倍率6"))))
+
+(deftest total-score-calculation-test
+  (testing "総合スコア計算"
+    (let [simple-score (core/calculate-total-score 4 1 1 1)
+          chain-score (core/calculate-total-score 4 2 1 1)
+          bonus-score (core/calculate-total-score 8 2 2 2)]
+      (is (= 40 simple-score) "基本スコア")
+      (is (= 320 chain-score) "連鎖込みスコア")
+      (is (> bonus-score 1000) "ボーナス込みスコア"))))
+
 (deftest validation-test
   (testing "バリデーション"
     (is (true? (core/valid-color? 1)) "有効な色")

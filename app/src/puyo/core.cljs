@@ -475,6 +475,96 @@
                       0)]
     (+ base-score chain-bonus)))
 
+(defn calculate-base-score
+  "消去ぷよ数に基づくベーススコア計算
+   
+   Args:
+     erased-count: 消去したぷよの数
+     _chain-count: 連鎖回数（未使用、互換性のため）
+     _group-count: グループ数（未使用、互換性のため）
+     _color-count: 色数（未使用、互換性のため）
+   
+   Returns:
+     ベーススコア"
+  [erased-count _chain-count _group-count _color-count]
+  (* erased-count 10))
+
+(defn calculate-chain-multiplier
+  "連鎖倍率の計算
+   
+   Args:
+     chain-count: 連鎖回数
+   
+   Returns:
+     連鎖倍率"
+  [chain-count]
+  (case chain-count
+    1 1
+    2 8
+    3 16
+    4 32
+    5 64
+    6 96
+    7 128
+    8 160
+    9 192
+    10 224
+    256)) ; 11連鎖以上は固定
+
+(defn calculate-group-bonus
+  "同時消し倍率の計算
+   
+   Args:
+     group-count: 同時に消去されたグループ数
+   
+   Returns:
+     グループボーナス倍率"
+  [group-count]
+  (case group-count
+    1 1
+    2 3
+    3 6
+    4 12
+    5 24
+    (* group-count 24))) ; 6グループ以上
+
+(defn calculate-color-bonus
+  "色数ボーナスの計算
+   
+   Args:
+     color-count: 消去に関わった色の数
+   
+   Returns:
+     色ボーナス倍率"
+  [color-count]
+  (case color-count
+    1 1
+    2 3
+    3 6
+    4 12
+    5 24
+    (* color-count 24))) ; 6色以上
+
+(defn calculate-total-score
+  "総合スコア計算
+   
+   Args:
+     erased-count: 消去したぷよの数
+     chain-count: 連鎖回数
+     group-count: 同時消去グループ数
+     color-count: 消去に関わった色数
+   
+   Returns:
+     計算された総合スコア"
+  [erased-count chain-count group-count color-count]
+  (let [base-score (calculate-base-score erased-count chain-count group-count color-count)
+        chain-mult (calculate-chain-multiplier chain-count)
+        group-mult (if (= group-count 1) 0 (calculate-group-bonus group-count))
+        color-mult (if (= color-count 1) 0 (calculate-color-bonus color-count))
+        ; 連鎖のみまたはボーナスがある場合の計算
+        total-mult (max 1 (+ chain-mult group-mult color-mult))]
+    (* base-score total-mult)))
+
 (defn execute-chain
   "連鎖の実行
    
