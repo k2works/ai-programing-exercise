@@ -43,11 +43,11 @@
   (testing "境界制限"
     (let [board (core/create-empty-board)
           left-pair {:puyo1 {:x 0 :y 1 :color 1}
-                    :puyo2 {:x 0 :y 2 :color 2}
-                    :rotation 0}
+                     :puyo2 {:x 0 :y 2 :color 2}
+                     :rotation 0}
           right-pair {:puyo1 {:x 7 :y 1 :color 1}
-                     :puyo2 {:x 7 :y 2 :color 2}
-                     :rotation 0}]
+                      :puyo2 {:x 7 :y 2 :color 2}
+                      :rotation 0}]
       (is (= left-pair (core/move-puyo-pair-left left-pair board)) "左端移動制限")
       (is (= right-pair (core/move-puyo-pair-right right-pair board)) "右端移動制限"))))
 
@@ -78,8 +78,8 @@
                 :rotation 0}]
       (is (true? (core/can-fall? pair board)) "落下可能判定")
       (let [bottom-pair {:puyo1 {:x 3 :y 10 :color 1}
-                        :puyo2 {:x 3 :y 11 :color 2}
-                        :rotation 0}]
+                         :puyo2 {:x 3 :y 11 :color 2}
+                         :rotation 0}]
         (is (false? (core/can-fall? bottom-pair board)) "底面落下不可判定")))))
 
 (deftest soft-drop-test
@@ -101,6 +101,45 @@
           hard-dropped (core/hard-drop pair board)]
       (is (= 10 (get-in hard-dropped [:puyo1 :y])) "ハードドロップ底面到達")
       (is (= 11 (get-in hard-dropped [:puyo2 :y])) "ハードドロップ底面到達"))))
+
+(deftest puyo-placement-test
+  (testing "ぷよ固定処理"
+    (let [board (core/create-empty-board)
+          pair {:puyo1 {:x 3 :y 10 :color 1}
+                :puyo2 {:x 3 :y 11 :color 2}
+                :rotation 0}]
+      (is (true? (core/should-fix-puyo? pair board)) "底面で固定判定")
+      (let [fixed-board (core/fix-puyo-pair-to-board pair board)]
+        (is (= 1 (get-in fixed-board [10 3])) "puyo1がボードに配置")
+        (is (= 2 (get-in fixed-board [11 3])) "puyo2がボードに配置")))))
+
+(deftest floating-puyo-test
+  (testing "浮いているぷよの落下"
+    (let [board (-> (core/create-empty-board)
+                    (assoc-in [11 3] 1)  ; 底面にぷよ
+                    (assoc-in [9 3] 2))  ; 浮いているぷよ
+          dropped-board (core/drop-floating-puyos board)]
+      (is (= 0 (get-in dropped-board [9 3])) "元の位置は空")
+      (is (= 2 (get-in dropped-board [10 3])) "落下後の位置"))))
+
+(deftest collision-detection-test
+  (testing "衝突判定"
+    (let [board (-> (core/create-empty-board)
+                    (assoc-in [10 3] 1)  ; 既存のぷよ
+                    (assoc-in [11 3] 2))
+          pair {:puyo1 {:x 3 :y 9 :color 3}
+                :puyo2 {:x 3 :y 10 :color 4}
+                :rotation 0}]
+      (is (true? (core/should-fix-puyo? pair board)) "既存ぷよとの衝突で固定")
+      (is (false? (core/can-fall? pair board)) "衝突により落下不可"))))
+
+(deftest should-fix-test
+  (testing "固定判定"
+    (let [board (core/create-empty-board)
+          bottom-pair {:puyo1 {:x 3 :y 10 :color 1}
+                       :puyo2 {:x 3 :y 11 :color 2}
+                       :rotation 0}]
+      (is (true? (core/should-fix-puyo? bottom-pair board)) "底面で固定判定"))))
 
 (deftest validation-test
   (testing "バリデーション"

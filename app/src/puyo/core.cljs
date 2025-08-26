@@ -191,7 +191,7 @@
   [puyo-pair board direction]
   (when-not (valid-direction? direction)
     (throw (js/Error. (str "Invalid direction: " direction))))
-  
+
   (let [positions (get-puyo-pair-positions
                    (get-in puyo-pair [:puyo1 :x])
                    (get-in puyo-pair [:puyo1 :y])
@@ -200,7 +200,7 @@
                  :left -1
                  :right 1)
         new-positions (map #(assoc % :x (+ (:x %) offset)) positions)]
-    
+
     ;; すべての新しい位置が有効な範囲内かチェック
     (every? (fn [{:keys [x y]}]
               (and (>= x 0) (< x board-width)
@@ -326,6 +326,64 @@
     (if (can-fall? current-pair board)
       (recur (move-puyo-pair-down current-pair board))
       current-pair)))
+
+;; ぷよ固定システム
+(defn should-fix-puyo?
+  "組ぷよが固定されるべきかどうか判定
+   
+   Args:
+     puyo-pair: 組ぷよマップ
+     board: ゲームボード
+   
+   Returns:
+     固定すべき場合true"
+  [puyo-pair board]
+  (not (can-fall? puyo-pair board)))
+
+(defn fix-puyo-pair-to-board
+  "組ぷよをボードに固定
+   
+   Args:
+     puyo-pair: 組ぷよマップ
+     board: ゲームボード
+   
+   Returns:
+     ぷよが固定された新しいボード"
+  [puyo-pair board]
+  (let [positions (get-puyo-pair-positions
+                   (get-in puyo-pair [:puyo1 :x])
+                   (get-in puyo-pair [:puyo1 :y])
+                   (:rotation puyo-pair))
+        colors [(get-in puyo-pair [:puyo1 :color])
+                (get-in puyo-pair [:puyo2 :color])]]
+    (reduce (fn [board [pos color]]
+              (assoc-in board [(:y pos) (:x pos)] color))
+            board
+            (map vector positions colors))))
+
+(defn drop-floating-puyos
+  "浮いているぷよを落下させる
+   
+   Args:
+     board: ゲームボード
+   
+   Returns:
+     浮いているぷよが落下した新しいボード"
+  [board]
+  (letfn [(drop-column [column]
+            (let [non-empty-puyos (filter #(not= 0 %) column)
+                  empty-spaces (- (count column) (count non-empty-puyos))
+                  dropped-column (concat (repeat empty-spaces 0) non-empty-puyos)]
+              (vec dropped-column)))]
+    (let [columns (for [x (range board-width)]
+                    (drop-column (mapv #(get % x) board)))]
+      (reduce (fn [new-board [x column]]
+                (reduce (fn [board [y value]]
+                          (assoc-in board [y x] value))
+                        new-board
+                        (map-indexed vector column)))
+              (vec (repeat board-height (vec (repeat board-width 0))))
+              (map-indexed vector columns)))))
 
 (defn create-empty-board
   "空のゲームボードを作成"
