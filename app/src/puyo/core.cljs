@@ -440,6 +440,25 @@
               (swap! erasable-groups conj group))))))
     @erasable-groups))
 
+(defn erase-puyos
+  "ぷよ消去の実行
+   
+   Args:
+     board: ゲームボード
+   
+   Returns:
+     {:board new-board :erased-count count} - 消去後のボードと消去数"
+  [board]
+  (let [erasable-groups (find-erasable-groups board)
+        erase-positions (set (apply concat erasable-groups))
+        erased-count (count erase-positions)
+        new-board (reduce (fn [b pos]
+                            (assoc-in b pos 0))
+                          board
+                          erase-positions)]
+    {:board new-board
+     :erased-count erased-count}))
+
 (defn create-empty-board
   "空のゲームボードを作成"
   []

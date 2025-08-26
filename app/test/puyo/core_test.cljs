@@ -177,6 +177,46 @@
           erasable-groups (core/find-erasable-groups board)]
       (is (= 0 (count erasable-groups)) "3つ以下は消去されない"))))
 
+(deftest puyo-erasure-test
+  (testing "ぷよ消去の実行"
+    (let [board (-> (core/create-empty-board)
+                    ;; 4つ連結の赤グループ（消去対象）
+                    (assoc-in [10 3] 1) (assoc-in [10 4] 1)
+                    (assoc-in [9 3] 1) (assoc-in [9 4] 1)
+                    ;; 単独の青ぷよ（残存）
+                    (assoc-in [8 1] 2))
+          result (core/erase-puyos board)]
+      (is (= 4 (:erased-count result)) "4つのぷよが消去")
+      (is (= 0 (get-in (:board result) [10 3])) "消去位置は空")
+      (is (= 0 (get-in (:board result) [10 4])) "消去位置は空")
+      (is (= 0 (get-in (:board result) [9 3])) "消去位置は空")
+      (is (= 0 (get-in (:board result) [9 4])) "消去位置は空")
+      (is (= 2 (get-in (:board result) [8 1])) "他色ぷよは残存"))))
+
+(deftest no-erasure-test
+  (testing "消去対象がない場合"
+    (let [board (-> (core/create-empty-board)
+                    ;; 3つ連結（消去対象外）
+                    (assoc-in [10 3] 1) (assoc-in [10 4] 1)
+                    (assoc-in [9 3] 1))
+          result (core/erase-puyos board)]
+      (is (= 0 (:erased-count result)) "消去数は0")
+      (is (= board (:board result)) "ボードは変化なし"))))
+
+(deftest multiple-groups-test
+  (testing "複数グループの同時消去"
+    (let [board (-> (core/create-empty-board)
+                    ;; 赤グループ（4つ）
+                    (assoc-in [10 1] 1) (assoc-in [10 2] 1)
+                    (assoc-in [9 1] 1) (assoc-in [9 2] 1)
+                    ;; 青グループ（4つ）
+                    (assoc-in [10 5] 2) (assoc-in [10 6] 2)
+                    (assoc-in [9 5] 2) (assoc-in [9 6] 2))
+          result (core/erase-puyos board)]
+      (is (= 8 (:erased-count result)) "8つのぷよが消去")
+      (is (= 0 (get-in (:board result) [10 1])) "赤グループ消去")
+      (is (= 0 (get-in (:board result) [10 5])) "青グループ消去"))))
+
 (deftest validation-test
   (testing "バリデーション"
     (is (true? (core/valid-color? 1)) "有効な色")
