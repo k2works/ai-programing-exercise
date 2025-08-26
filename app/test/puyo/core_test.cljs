@@ -141,6 +141,42 @@
                        :rotation 0}]
       (is (true? (core/should-fix-puyo? bottom-pair board)) "底面で固定判定"))))
 
+(deftest adjacent-search-test
+  (testing "隣接ぷよ検索"
+    (let [board (-> (core/create-empty-board)
+                    (assoc-in [10 3] 1)  ; 赤
+                    (assoc-in [10 4] 1)  ; 赤（隣接）
+                    (assoc-in [9 3] 1)   ; 赤（隣接）
+                    (assoc-in [11 3] 2)) ; 青（非隣接）
+          adjacent-puyos (core/find-adjacent-puyos board 10 3)]
+      (is (= 3 (count adjacent-puyos)) "3つの隣接する赤ぷよ")
+      (is (contains? (set adjacent-puyos) [10 3]) "起点を含む")
+      (is (contains? (set adjacent-puyos) [10 4]) "右隣を含む")
+      (is (contains? (set adjacent-puyos) [9 3]) "上隣を含む")
+      (is (not (contains? (set adjacent-puyos) [11 3])) "異なる色は含まない"))))
+
+(deftest group-detection-test
+  (testing "消去可能グループの検出"
+    (let [board (-> (core/create-empty-board)
+                    ;; 4つ連結の赤グループ（消去可能）
+                    (assoc-in [10 3] 1) (assoc-in [10 4] 1)
+                    (assoc-in [9 3] 1) (assoc-in [9 4] 1)
+                    ;; 3つ連結の青グループ（消去不可）
+                    (assoc-in [8 1] 2) (assoc-in [8 2] 2)
+                    (assoc-in [7 1] 2))
+          erasable-groups (core/find-erasable-groups board)]
+      (is (= 1 (count erasable-groups)) "1つの消去可能グループ")
+      (is (= 4 (count (first erasable-groups))) "4つのぷよからなるグループ")
+      (is (= 1 (get-in board [(first (first (first erasable-groups))) (second (first (first erasable-groups)))])) "赤色グループ"))))
+
+(deftest small-group-test
+  (testing "小さなグループの非消去"
+    (let [board (-> (core/create-empty-board)
+                    (assoc-in [10 3] 1) (assoc-in [10 4] 1)
+                    (assoc-in [9 3] 1))  ; 3つ連結（消去不可）
+          erasable-groups (core/find-erasable-groups board)]
+      (is (= 0 (count erasable-groups)) "3つ以下は消去されない"))))
+
 (deftest validation-test
   (testing "バリデーション"
     (is (true? (core/valid-color? 1)) "有効な色")

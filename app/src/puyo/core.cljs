@@ -385,6 +385,61 @@
               (vec (repeat board-height (vec (repeat board-width 0))))
               (map-indexed vector columns)))))
 
+;; ぷよ消去システム
+(defn find-adjacent-puyos
+  "指定位置から同色の隣接ぷよを検索（幅優先探索）
+   
+   Args:
+     board: ゲームボード
+     start-y: 開始位置のy座標
+     start-x: 開始位置のx座標
+   
+   Returns:
+     同色で隣接するぷよの座標リスト [[y x] [y x] ...]"
+  [board start-y start-x]
+  (let [target-color (get-in board [start-y start-x])
+        visited (atom #{})
+        result (atom [])]
+    (when (and target-color (not= 0 target-color))
+      (letfn [(bfs [queue]
+                (when-not (empty? queue)
+                  (let [[y x] (first queue)
+                        remaining (rest queue)]
+                    (when-not (contains? @visited [y x])
+                      (swap! visited conj [y x])
+                      (swap! result conj [y x])
+                      (let [neighbors (filter (fn [[ny nx]]
+                                                (and (>= ny 0) (< ny board-height)
+                                                     (>= nx 0) (< nx board-width)
+                                                     (= target-color (get-in board [ny nx]))
+                                                     (not (contains? @visited [ny nx]))))
+                                              [[(dec y) x] [(inc y) x] [y (dec x)] [y (inc x)]])]
+                        (bfs (concat remaining neighbors)))))))]
+        (bfs [[start-y start-x]])))
+    @result))
+
+(defn find-erasable-groups
+  "ボード上の消去可能なぷよグループを検出
+   
+   Args:
+     board: ゲームボード
+   
+   Returns:
+     消去可能グループのリスト [[[y x] [y x] ...] [[y x] [y x] ...] ...]"
+  [board]
+  (let [visited (atom #{})
+        erasable-groups (atom [])]
+    (dotimes [y board-height]
+      (dotimes [x board-width]
+        (when (and (not= 0 (get-in board [y x]))
+                   (not (contains? @visited [y x])))
+          (let [group (find-adjacent-puyos board y x)]
+            (doseq [pos group]
+              (swap! visited conj pos))
+            (when (>= (count group) 4)
+              (swap! erasable-groups conj group))))))
+    @erasable-groups))
+
 (defn create-empty-board
   "空のゲームボードを作成"
   []

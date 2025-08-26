@@ -13,7 +13,8 @@
     "metrics": "clojure -M:metrics",
     "format": "clojure -M:format-check",
     "format-fix": "clojure -M:format-fix",
-		"coverage": "npx shadow-cljs compile coverage && node public/js/coverage.js"
+    "coverage": "npx shadow-cljs compile coverage && node public/js/coverage.js",
+    "check": "npm run lint && npm run complexity && npm run format && npm run test && npm run coverage"
   },
   "dependencies": {
     "shadow-cljs": "^2.28.20"
