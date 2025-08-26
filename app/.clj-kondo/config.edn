@@ -1,0 +1,5 @@
+{:lint-as {cljs.test/deftest clojure.core/def
+           cljs.test/testing clojure.core/do}
+ :linters {:unresolved-symbol {:level :error}
+           :unused-binding {:level :warning}
+           :missing-docstring {:level :off}}}

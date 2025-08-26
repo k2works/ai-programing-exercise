@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puyo Puyo Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        #app {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+        }
+        #game-board {
+            border: 2px solid #333;
+            margin: 20px auto;
+            background-color: #fff;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>🍮 Puyo Puyo Game 🍮</h1>
+        <div id="game-info">
+            <p>Score: <span id="score">0</span></p>
+            <p>Level: <span id="level">1</span></p>
+        </div>
+        <canvas id="game-board" width="320" height="480"></canvas>
+        <div class="controls">
+            <button id="start-button">ゲーム開始</button>
+            <button id="reset-button">リセット</button>
+        </div>
+        <div id="instructions">
+            <h3>操作方法</h3>
+            <p>← → : 左右移動</p>
+            <p>↓ : 高速落下</p>
+            <p>↑ : 回転</p>
+            <p>スペース : ハードドロップ</p>
+        </div>
+    </div>
+    <script src="/js/main.js"></script>
+</body>
+</html>

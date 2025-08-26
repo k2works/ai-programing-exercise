@@ -1,0 +1,26 @@
+{
+  "name": "puyo-puyo-cljs",
+  "version": "1.0.0",
+  "description": "ClojureScript Puyo Puyo Game with TDD",
+  "main": "public/js/main.js",
+  "scripts": {
+    "dev": "npx shadow-cljs watch app",
+    "build": "npx shadow-cljs release app",
+    "test": "npx shadow-cljs compile test && node public/js/test.js",
+    "lint": "clojure -M:lint",
+    "complexity": "clojure -M:complexity",
+    "bikeshed": "clojure -M:bikeshed",
+    "metrics": "clojure -M:metrics",
+    "format": "clojure -M:format-check",
+    "format-fix": "clojure -M:format-fix",
+    "coverage": "clojure -M:coverage"
+  },
+  "dependencies": {
+    "shadow-cljs": "^2.28.20"
+  },
+  "devDependencies": {
+    "gulp": "^4.0.2",
+    "gulp-shell": "^0.8.0",
+    "chalk": "^4.1.2"
+  }
+}
