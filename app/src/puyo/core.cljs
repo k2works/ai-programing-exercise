@@ -110,6 +110,62 @@
                          :x (:x (second positions))
                          :y (:y (second positions))))))
 
+;; ランダム生成システム
+(defn generate-random-color
+  "有効なぷよの色をランダムに生成
+   
+   Returns:
+     1-5の範囲でランダムな色番号"
+  []
+  (+ 1 (rand-int 5)))
+
+(defn generate-random-puyo-pair
+  "指定位置にランダムな色の組ぷよを生成
+   
+   Args:
+     x: 初期x座標
+     y: 初期y座標
+   
+   Returns:
+     ランダムな色の組ぷよマップ"
+  [x y]
+  (let [color1 (generate-random-color)
+        color2 (generate-random-color)]
+    (create-puyo-pair color1 color2 x y)))
+
+(defn setup-next-puyo
+  "NEXTぷよを生成
+   
+   Returns:
+     NEXTぷよとして使用する組ぷよマップ"
+  []
+  {:puyo1 {:color (generate-random-color)}
+   :puyo2 {:color (generate-random-color)}})
+
+(defn get-current-puyo-from-next
+  "NEXTぷよから現在の組ぷよを生成
+   
+   Args:
+     next-puyo: NEXTぷよマップ
+     x: 初期配置のx座標
+     y: 初期配置のy座標
+   
+   Returns:
+     指定位置に配置された組ぷよマップ"
+  [next-puyo x y]
+  (create-puyo-pair
+   (get-in next-puyo [:puyo1 :color])
+   (get-in next-puyo [:puyo2 :color])
+   x y))
+
+(defn update-next-puyo
+  "新しいNEXTぷよを生成
+   
+   Returns:
+     新しいNEXTぷよマップ"
+  []
+  (setup-next-puyo))
+
 (defn create-empty-board
   "空のゲームボードを作成"
   []

@@ -101,6 +101,48 @@
     (is (thrown? js/Error (core/create-puyo-pair 1 6 3 0)) "puyo2に無効な色（6）を指定するとエラー")
     (is (thrown? js/Error (core/get-puyo-pair-positions 3 0 4)) "無効な回転状態（4）を指定するとエラー")))
 
+(deftest test-generate-random-puyo-pair
+  (testing "ランダムな組ぷよの生成"
+    (let [pair (core/generate-random-puyo-pair 3 0)]
+      (is (map? pair) "生成された組ぷよはマップである")
+      (is (contains? pair :puyo1) "puyo1が含まれる")
+      (is (contains? pair :puyo2) "puyo2が含まれる")
+      (is (contains? pair :rotation) "回転状態が含まれる")
+      (is (core/valid-color? (get-in pair [:puyo1 :color])) "puyo1の色が有効")
+      (is (core/valid-color? (get-in pair [:puyo2 :color])) "puyo2の色が有効")
+      (is (= 3 (get-in pair [:puyo1 :x])) "puyo1のx座標が正しい")
+      (is (= 0 (get-in pair [:puyo1 :y])) "puyo1のy座標が正しい")
+      (is (= 0 (:rotation pair)) "初期回転状態が0"))))
+
+(deftest test-generate-random-color
+  (testing "ランダムな色の生成"
+    (let [color (core/generate-random-color)]
+      (is (core/valid-color? color) "生成された色が有効")
+      (is (>= color 1) "色が1以上")
+      (is (<= color 5) "色が5以下"))
+
+    (testing "複数回生成で異なる色が出る可能性"
+      (let [colors (repeatedly 20 core/generate-random-color)
+            unique-colors (set colors)]
+        (is (>= (count unique-colors) 2) "20回の生成で少なくとも2種類の色が出る")))))
+
+(deftest test-next-puyo-management
+  (testing "NEXTぷよの管理"
+    (testing "NEXTぷよの初期化"
+      (let [next-puyo (core/setup-next-puyo)]
+        (is (map? next-puyo) "NEXTぷよはマップである")
+        (is (core/valid-color? (get-in next-puyo [:puyo1 :color])) "NEXTぷよ1の色が有効")
+        (is (core/valid-color? (get-in next-puyo [:puyo2 :color])) "NEXTぷよ2の色が有効")))
+
+    (testing "NEXTぷよの取得と更新"
+      (let [initial-next (core/setup-next-puyo)
+            current-pair (core/get-current-puyo-from-next initial-next 3 0)
+            new-next (core/update-next-puyo)]
+        (is (map? current-pair) "現在の組ぷよはマップである")
+        (is (= 3 (get-in current-pair [:puyo1 :x])) "現在の組ぷよの初期x座標が正しい")
+        (is (= 0 (get-in current-pair [:puyo1 :y])) "現在の組ぷよの初期y座標が正しい")
+        (is (map? new-next) "新しいNEXTぷよはマップである")))))
+
 ;; テスト実行のエントリーポイント
 (defn ^:export run-all-tests []
   (run-tests))
