@@ -549,4 +549,184 @@
       ;; 状態復元
       (reset! core/game-state initial-state))))
 
+;; T019: ゲーム初期化テスト
+(deftest game-initialization-test
+  (testing "ゲーム初期化機能"
+    (let [initial-state @core/game-state]
+      ;; ゲーム状態のリセット
+      (swap! core/game-state assoc
+             :score 1000
+             :level 5
+             :chain-count 3
+             :game-time 120
+             :game-running true
+             :current-piece {:puyo1 {:x 3 :y 1 :color 1} :puyo2 {:x 3 :y 2 :color 2} :rotation 0}
+             :board [[1 0 0 0 0 0 0 0] [0 0 0 0 0 0 0 0] [0 0 0 0 0 0 0 0] [0 0 0 0 0 0 0 0]
+                     [0 0 0 0 0 0 0 0] [0 0 0 0 0 0 0 0] [0 0 0 0 0 0 0 0] [0 0 0 0 0 0 0 0]
+                     [0 0 0 0 0 0 0 0] [0 0 0 0 0 0 0 0] [0 0 0 0 0 0 0 0] [0 0 0 0 0 0 0 0]])
+
+      ;; ゲーム状態の初期化テスト
+      (core/reset-game-state!)
+      (is (= 0 (:score @core/game-state)) "スコアが0にリセット")
+      (is (= 1 (:level @core/game-state)) "レベルが1にリセット")
+      (is (= 0 (:chain-count @core/game-state)) "連鎖数が0にリセット")
+      (is (= 0 (:game-time @core/game-state)) "ゲーム時間が0にリセット")
+      (is (false? (:game-running @core/game-state)) "ゲーム実行フラグがfalseにリセット")
+      (is (nil? (:current-piece @core/game-state)) "現在の組ぷよがnilにリセット")
+
+      ;; ボード初期化テスト
+      (core/initialize-game-board!)
+      (let [board (:board @core/game-state)]
+        (is (vector? board) "ボードがベクター")
+        (is (= 12 (count board)) "ボードの高さが12")
+        (is (every? #(= 8 (count %)) board) "各行の幅が8")
+        (is (every? #(every? zero? %) board) "すべてのセルが0（空）"))
+
+      ;; 状態復元
+      (reset! core/game-state initial-state))))
+
+(deftest new-game-start-test
+  (testing "新しいゲーム開始機能"
+    (let [initial-state @core/game-state]
+      ;; 新しいゲーム開始
+      (core/start-new-game!)
+
+      ;; ゲーム状態の確認
+      (is (true? (:game-running @core/game-state)) "ゲームが開始状態")
+      (is (= 0 (:score @core/game-state)) "スコアが初期値")
+      (is (= 1 (:level @core/game-state)) "レベルが初期値")
+      (is (= 0 (:chain-count @core/game-state)) "連鎖数が初期値")
+      (is (= 0 (:game-time @core/game-state)) "ゲーム時間が初期値")
+
+      ;; ボードが初期化されている
+      (let [board (:board @core/game-state)]
+        (is (vector? board) "ボードがベクター")
+        (is (= 12 (count board)) "ボードの高さが12")
+        (is (every? #(= 8 (count %)) board) "各行の幅が8")
+        (is (every? #(every? zero? %) board) "すべてのセルが空"))
+
+      ;; 初期の組ぷよが生成されている
+      (let [current-piece (:current-piece @core/game-state)]
+        (is (map? current-piece) "現在の組ぷよが存在")
+        (is (contains? current-piece :puyo1) "puyo1が存在")
+        (is (contains? current-piece :puyo2) "puyo2が存在")
+        (is (contains? current-piece :rotation) "回転状態が存在")
+        (is (core/valid-color? (get-in current-piece [:puyo1 :color])) "puyo1の色が有効")
+        (is (core/valid-color? (get-in current-piece [:puyo2 :color])) "puyo2の色が有効")
+        (is (core/valid-rotation? (:rotation current-piece)) "回転状態が有効"))
+
+      ;; 状態復元
+      (reset! core/game-state initial-state))))
+
+(deftest game-initialization-integration-test
+  (testing "ゲーム初期化統合機能"
+    (let [initial-state @core/game-state]
+      ;; ゲーム全体の初期化
+      (core/init-game!)
+
+      ;; すべてが適切に初期化されている
+      (is (true? (:game-running @core/game-state)) "ゲームが開始状態")
+      (is (map? (:current-piece @core/game-state)) "組ぷよが生成済み")
+      (is (every? #(every? zero? %) (:board @core/game-state)) "ボードが空")
+      (is (= 0 (:score @core/game-state)) "スコア初期化")
+      (is (= 0 (:chain-count @core/game-state)) "連鎖数初期化")
+      (is (= 0 (:game-time @core/game-state)) "時間初期化")
+
+      ;; 状態復元
+      (reset! core/game-state initial-state))))
+
+;; T020: ゲーム終了判定テスト
+(deftest game-over-detection-test
+  (testing "ゲームオーバー判定機能"
+    (let [initial-state @core/game-state]
+      ;; 空のボードの場合（ゲームオーバーではない）
+      (swap! core/game-state assoc :board (core/create-empty-board))
+      (is (false? (core/is-game-over?)) "空のボードはゲームオーバーではない")
+
+      ;; ボード上部（y=0）にぷよがある場合（ゲームオーバー）
+      (let [game-over-board (assoc-in (core/create-empty-board) [0 3] 1)]
+        (swap! core/game-state assoc :board game-over-board)
+        (is (true? (core/is-game-over?)) "上部にぷよがあるとゲームオーバー"))
+
+      ;; ボード上部（y=1）にぷよがある場合（ゲームオーバー）
+      (let [game-over-board (assoc-in (core/create-empty-board) [1 3] 2)]
+        (swap! core/game-state assoc :board game-over-board)
+        (is (true? (core/is-game-over?)) "上部2行目にぷよがあるとゲームオーバー"))
+
+      ;; ボード下部のみにぷよがある場合（ゲームオーバーではない）
+      (let [normal-board (assoc-in (core/create-empty-board) [10 3] 1)]
+        (swap! core/game-state assoc :board normal-board)
+        (is (false? (core/is-game-over?)) "下部のみのぷよはゲームオーバーではない"))
+
+      ;; 状態復元
+      (reset! core/game-state initial-state))))
+
+(deftest game-over-processing-test
+  (testing "ゲームオーバー処理機能"
+    (let [initial-state @core/game-state]
+      ;; ゲーム実行中の状態を設定
+      (swap! core/game-state assoc
+             :game-running true
+             :score 1500
+             :level 3
+             :chain-count 2
+             :game-time 180)
+
+      ;; ゲームオーバー処理を実行
+      (core/process-game-over!)
+
+      ;; ゲームが停止状態になる
+      (is (false? (:game-running @core/game-state)) "ゲームが停止状態")
+
+      ;; スコアやその他の情報は保持される
+      (is (= 1500 (:score @core/game-state)) "スコアが保持される")
+      (is (= 3 (:level @core/game-state)) "レベルが保持される")
+      (is (= 2 (:chain-count @core/game-state)) "連鎖数が保持される")
+      (is (= 180 (:game-time @core/game-state)) "ゲーム時間が保持される")
+
+      ;; 状態復元
+      (reset! core/game-state initial-state))))
+
+(deftest game-over-integration-test
+  (testing "ゲームオーバー統合機能"
+    (let [initial-state @core/game-state]
+      ;; ゲーム実行中でボード上部にぷよがある状態
+      (let [game-over-board (assoc-in (core/create-empty-board) [0 3] 1)]
+        (swap! core/game-state assoc
+               :game-running true
+               :board game-over-board
+               :score 2000
+               :current-piece {:puyo1 {:x 3 :y 1 :color 1} :puyo2 {:x 3 :y 2 :color 2} :rotation 0}))
+
+      ;; ゲームオーバーチェックと処理
+      (let [game-over-result (core/check-and-handle-game-over!)]
+        (is (true? game-over-result) "ゲームオーバーが検出される")
+        (is (false? (:game-running @core/game-state)) "ゲームが停止される")
+        (is (= 2000 (:score @core/game-state)) "最終スコアが保持される"))
+
+      ;; 状態復元
+      (reset! core/game-state initial-state))))
+
+(deftest game-over-conditions-test
+  (testing "ゲームオーバー条件の詳細テスト"
+    (let [initial-state @core/game-state]
+      ;; 危険ライン（y=0, y=1）のテスト
+      (doseq [dangerous-y [0 1]]
+        (doseq [x (range 8)]
+          (let [test-board (assoc-in (core/create-empty-board) [dangerous-y x] 1)]
+            (swap! core/game-state assoc :board test-board)
+            (is (true? (core/is-game-over?))
+                (str "位置 [" dangerous-y " " x "] のぷよでゲームオーバー")))))
+
+      ;; 安全ライン（y=2以降）のテスト
+      (doseq [safe-y (range 2 12)]
+        (doseq [x (range 8)]
+          (let [test-board (assoc-in (core/create-empty-board) [safe-y x] 1)]
+            (swap! core/game-state assoc :board test-board)
+            (is (false? (core/is-game-over?))
+                (str "位置 [" safe-y " " x "] のぷよは安全")))))
+
+      ;; 状態復元
+      (reset! core/game-state initial-state))))
+
 (run-tests)

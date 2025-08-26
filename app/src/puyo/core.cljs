@@ -1072,3 +1072,66 @@
                        (when (:game-running @game-state)
                          (let [key (.-key event)]
                            (handle-key-input key))))))
+
+;; T019: ゲーム初期化関数群
+(defn reset-game-state!
+  "ゲーム状態を初期値にリセット"
+  []
+  (swap! game-state assoc
+         :score 0
+         :level 1
+         :chain-count 0
+         :game-time 0
+         :game-running false
+         :current-piece nil))
+
+(defn initialize-game-board!
+  "ゲームボードを空の状態で初期化"
+  []
+  (swap! game-state assoc :board (create-empty-board)))
+
+(defn spawn-initial-puyo-pair!
+  "初回の組ぷよを生成してゲーム状態に設定"
+  []
+  (let [initial-x 3  ; ボード中央
+        initial-y 0  ; 上部
+        initial-pair (generate-random-puyo-pair initial-x initial-y)]
+    (swap! game-state assoc :current-piece initial-pair)))
+
+(defn start-new-game!
+  "新しいゲームを開始"
+  []
+  (reset-game-state!)
+  (initialize-game-board!)
+  (spawn-initial-puyo-pair!)
+  (swap! game-state assoc :game-running true))
+
+(defn init-game!
+  "ゲーム全体の初期化（統合関数）"
+  []
+  (start-new-game!))
+
+;; T020: ゲーム終了判定関数群
+(defn is-game-over?
+  "ゲームオーバー判定：y=0,1の危険ラインにぷよがあるかチェック"
+  []
+  (let [board (:board @game-state)]
+    (boolean
+     (some (fn [y]
+             (some (fn [x]
+                     (pos? (get-in board [y x])))
+                   (range board-width)))
+           [0 1]))))
+
+(defn process-game-over!
+  "ゲームオーバー時の処理"
+  []
+  (swap! game-state assoc :game-over true :game-running false))
+
+(defn check-and-handle-game-over!
+  "ゲームオーバーをチェックし、必要に応じて処理を実行"
+  []
+  (let [game-over (is-game-over?)]
+    (when game-over
+      (process-game-over!))
+    game-over))
