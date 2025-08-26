@@ -133,6 +133,16 @@
         color2 (generate-random-color)]
     (create-puyo-pair color1 color2 x y)))
 
+(defn spawn-new-puyo-pair
+  "新しい組ぷよをボード上部中央に生成
+   
+   Returns:
+     初期位置に配置された組ぷよマップ"
+  []
+  (let [start-x (quot board-width 2)
+        start-y 0]
+    (generate-random-puyo-pair start-x start-y)))
+
 (defn setup-next-puyo
   "NEXTぷよを生成
    
@@ -762,6 +772,10 @@
     ;; ボード描画
     (draw-board)
 
+    ;; 現在の組ぷよ描画
+    (when-let [current-piece (:current-piece @game-state)]
+      (render-puyo-pair current-piece))
+
     ;; UI更新
     (update-score-display)))
 
@@ -769,7 +783,9 @@
   "ゲームを開始"
   []
   (init-game-state!)
-  (swap! game-state assoc :game-running true)
+  (swap! game-state assoc
+         :game-running true
+         :current-piece (spawn-new-puyo-pair))
   (render-game)
   (js/console.log "ゲーム開始!"))
 

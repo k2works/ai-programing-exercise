@@ -367,6 +367,18 @@
           result (core/update-game-display game-state)]
       (is (nil? result) "状態表示更新は戻り値なし"))))
 
+;; 組ぷよ表示テスト
+(deftest current-puyo-display-test
+  (testing "現在の組ぷよ生成と表示"
+    (let [puyo-pair (core/spawn-new-puyo-pair)]
+      (is (map? puyo-pair) "組ぷよは辞書形式")
+      (is (contains? puyo-pair :puyo1) "puyo1を含む")
+      (is (contains? puyo-pair :puyo2) "puyo2を含む")
+      (is (number? (get-in puyo-pair [:puyo1 :x])) "puyo1のx座標")
+      (is (number? (get-in puyo-pair [:puyo1 :y])) "puyo1のy座標")
+      (is (>= (get-in puyo-pair [:puyo1 :x]) 0) "x座標は0以上")
+      (is (>= (get-in puyo-pair [:puyo1 :y]) 0) "y座標は0以上"))))
+
 (deftest validation-test
   (testing "バリデーション"
     (is (true? (core/valid-color? 1)) "有効な色")
