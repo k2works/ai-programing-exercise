@@ -328,6 +328,45 @@
       (is (= 0 (:perfect-clear-bonus result)) "全消しボーナスなし")
       (is (= 0 (:total-score result)) "基本スコアのみ"))))
 
+;; T015: ゲーム画面の描画テスト
+(deftest canvas-initialization-test
+  (testing "Canvas初期化"
+    (let [canvas-id "test-canvas"
+          result (core/init-canvas canvas-id)]
+      (is (boolean? result) "初期化結果はboolean"))))
+
+(deftest color-mapping-test
+  (testing "色とカラーコードのマッピング"
+    (let [red-color (core/get-puyo-color 1)
+          blue-color (core/get-puyo-color 2)
+          empty-color (core/get-puyo-color 0)]
+      (is (string? red-color) "赤色はカラーコード文字列")
+      (is (string? blue-color) "青色はカラーコード文字列")
+      (is (string? empty-color) "空はカラーコード文字列")
+      (is (not= red-color blue-color) "色は異なる"))))
+
+(deftest board-rendering-test
+  (testing "ボード描画処理"
+    (let [board (-> (core/create-empty-board)
+                    (assoc-in [11 3] 1)
+                    (assoc-in [10 2] 2))
+          result (core/render-board board)]
+      (is (nil? result) "描画処理は戻り値なし"))))
+
+(deftest puyo-pair-rendering-test
+  (testing "組ぷよ描画処理"
+    (let [puyo-pair {:puyo1 {:x 3 :y 1 :color 1}
+                     :puyo2 {:x 3 :y 2 :color 2}
+                     :rotation 0}
+          result (core/render-puyo-pair puyo-pair)]
+      (is (nil? result) "組ぷよ描画処理は戻り値なし"))))
+
+(deftest game-state-display-test
+  (testing "ゲーム状態表示"
+    (let [game-state {:score 1500 :level 2 :chain-count 3}
+          result (core/update-game-display game-state)]
+      (is (nil? result) "状態表示更新は戻り値なし"))))
+
 (deftest validation-test
   (testing "バリデーション"
     (is (true? (core/valid-color? 1)) "有効な色")

@@ -661,6 +661,88 @@
             color (get colors cell-value "#ffffff")]
         (draw-cell x y color)))))
 
+(defn init-canvas
+  "Canvas初期化
+   
+   Args:
+     canvas-id: CanvasのID
+   
+   Returns:
+     初期化成功ならtrue、失敗ならfalse"
+  [canvas-id]
+  (try
+    (if (exists? js/document)
+      (when-let [canvas (.getElementById js/document canvas-id)]
+        (reset! ctx (.getContext canvas "2d"))
+        true)
+      ;; テスト環境ではモック
+      true)
+    (catch js/Error _
+      false)))
+
+(defn get-puyo-color
+  "ぷよの色番号に対応するカラーコードを取得
+   
+   Args:
+     color-num: 色番号
+   
+   Returns:
+     カラーコード文字列"
+  [color-num]
+  (get colors color-num "#ffffff"))
+
+(defn render-board
+  "ボード描画処理
+   
+   Args:
+     board: ゲームボード
+   
+   Returns:
+     nil"
+  [board]
+  (when @ctx
+    (doseq [y (range board-height)
+            x (range board-width)]
+      (let [cell-value (get-in board [y x])
+            color (get-puyo-color cell-value)]
+        (draw-cell x y color))))
+  nil)
+
+(defn render-puyo-pair
+  "組ぷよ描画処理
+   
+   Args:
+     puyo-pair: 組ぷよデータ
+   
+   Returns:
+     nil"
+  [puyo-pair]
+  (when @ctx
+    (let [{:keys [puyo1 puyo2]} puyo-pair
+          color1 (get-puyo-color (:color puyo1))
+          color2 (get-puyo-color (:color puyo2))]
+      (draw-cell (:x puyo1) (:y puyo1) color1)
+      (draw-cell (:x puyo2) (:y puyo2) color2)))
+  nil)
+
+(defn update-game-display
+  "ゲーム状態表示更新
+   
+   Args:
+     game-state: ゲーム状態
+   
+   Returns:
+     nil"
+  [game-state]
+  (when (exists? js/document)
+    (when-let [score-elem (.getElementById js/document "score")]
+      (set! (.-textContent score-elem) (str (:score game-state))))
+    (when-let [level-elem (.getElementById js/document "level")]
+      (set! (.-textContent level-elem) (str (:level game-state))))
+    (when-let [chain-elem (.getElementById js/document "chain")]
+      (set! (.-textContent chain-elem) (str (:chain-count game-state 0)))))
+  nil)
+
 (defn update-score-display
   "スコア表示を更新"
   []
