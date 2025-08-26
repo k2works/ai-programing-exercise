@@ -388,4 +388,74 @@
     (is (true? (core/valid-direction? :left)) "有効な方向")
     (is (false? (core/valid-direction? :up)) "無効な方向")))
 
+;; T016: ゲーム情報の表示テスト
+(deftest chain-count-management-test
+  (testing "連鎖数管理"
+    (let [initial-state @core/game-state]
+      ;; 連鎖数の初期化
+      (core/reset-chain-count!)
+      (is (= 0 (:chain-count @core/game-state)) "連鎖数初期値は0")
+
+      ;; 連鎖数の増加
+      (core/increment-chain-count!)
+      (is (= 1 (:chain-count @core/game-state)) "連鎖数が1増加")
+
+      ;; 連鎖数の設定
+      (core/set-chain-count! 5)
+      (is (= 5 (:chain-count @core/game-state)) "連鎖数を直接設定")
+
+      ;; 状態復元
+      (reset! core/game-state initial-state))))
+
+(deftest game-time-management-test
+  (testing "ゲーム時間管理"
+    (let [initial-state @core/game-state]
+      ;; ゲーム時間の初期化
+      (core/reset-game-time!)
+      (is (= 0 (:game-time @core/game-state)) "ゲーム時間初期値は0")
+
+      ;; ゲーム時間の更新
+      (core/update-game-time! 120)
+      (is (= 120 (:game-time @core/game-state)) "ゲーム時間を更新")
+
+      ;; 状態復元
+      (reset! core/game-state initial-state))))
+
+(deftest game-info-display-test
+  (testing "ゲーム情報表示機能"
+    (let [initial-state @core/game-state]
+      ;; テスト用状態設定
+      (swap! core/game-state assoc
+             :score 2500
+             :level 3
+             :chain-count 4
+             :game-time 180)
+
+      ;; 表示更新機能のテスト
+      (let [result (core/update-all-game-info!)]
+        (is (nil? result) "ゲーム情報更新は戻り値なし"))
+
+      ;; スコア表示のテスト
+      (let [result (core/update-score-display!)]
+        (is (nil? result) "スコア表示更新は戻り値なし"))
+
+      ;; 連鎖数表示のテスト
+      (let [result (core/update-chain-display!)]
+        (is (nil? result) "連鎖数表示更新は戻り値なし"))
+
+      ;; 時間表示のテスト
+      (let [result (core/update-time-display!)]
+        (is (nil? result) "時間表示更新は戻り値なし"))
+
+      ;; 状態復元
+      (reset! core/game-state initial-state))))
+
+(deftest time-formatting-test
+  (testing "時間フォーマット機能"
+    (is (= "0:00" (core/format-game-time 0)) "0秒のフォーマット")
+    (is (= "0:30" (core/format-game-time 30)) "30秒のフォーマット")
+    (is (= "1:00" (core/format-game-time 60)) "1分のフォーマット")
+    (is (= "2:15" (core/format-game-time 135)) "2分15秒のフォーマット")
+    (is (= "10:05" (core/format-game-time 605)) "10分5秒のフォーマット")))
+
 (run-tests)

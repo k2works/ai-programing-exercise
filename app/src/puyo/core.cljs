@@ -5,11 +5,14 @@
                            :current-piece nil
                            :score 0
                            :level 1
+                           :chain-count 0
+                           :game-time 0
                            :game-running false}))
 
 ;; HTML要素への参照
 (defonce canvas (atom nil))
 (defonce ctx (atom nil))
+(defonce game-timer (atom nil))
 
 ;; ゲームボードの設定
 (def board-width 8)
@@ -753,13 +756,105 @@
       (set! (.-textContent chain-elem) (str (:chain-count game-state 0)))))
   nil)
 
-(defn update-score-display
+;; =============================================================================
+;; T016: ゲーム情報の表示
+;; =============================================================================
+
+;; 連鎖数管理関数
+(defn reset-chain-count!
+  "連鎖数を0にリセット"
+  []
+  (swap! game-state assoc :chain-count 0))
+
+(defn increment-chain-count!
+  "連鎖数を1増加"
+  []
+  (swap! game-state update :chain-count inc))
+
+(defn set-chain-count!
+  "連鎖数を指定値に設定"
+  [count]
+  (swap! game-state assoc :chain-count count))
+
+;; ゲーム時間管理関数
+(defn reset-game-time!
+  "ゲーム時間を0にリセット"
+  []
+  (swap! game-state assoc :game-time 0))
+
+(defn update-game-time!
+  "ゲーム時間を更新（秒単位）"
+  [seconds]
+  (swap! game-state assoc :game-time seconds))
+
+;; 時間フォーマット関数
+(defn format-game-time
+  "ゲーム時間を M:SS 形式でフォーマット"
+  [seconds]
+  (let [minutes (quot seconds 60)
+        remaining-seconds (mod seconds 60)]
+    (str minutes ":" (if (< remaining-seconds 10)
+                       (str "0" remaining-seconds)
+                       (str remaining-seconds)))))
+
+;; 個別表示更新関数
+(defn update-score-display!
   "スコア表示を更新"
   []
-  (when-let [score-elem (.getElementById js/document "score")]
-    (set! (.-textContent score-elem) (str (:score @game-state))))
-  (when-let [level-elem (.getElementById js/document "level")]
-    (set! (.-textContent level-elem) (str (:level @game-state)))))
+  (when (and (exists? js/document)
+             (.-getElementById js/document))
+    (when-let [score-elem (.getElementById js/document "score")]
+      (set! (.-textContent score-elem) (str (:score @game-state))))))
+
+(defn update-chain-display!
+  "連鎖数表示を更新"
+  []
+  (when (and (exists? js/document)
+             (.-getElementById js/document))
+    (when-let [chain-elem (.getElementById js/document "chain")]
+      (set! (.-textContent chain-elem) (str (:chain-count @game-state))))))
+
+(defn update-time-display!
+  "時間表示を更新"
+  []
+  (when (and (exists? js/document)
+             (.-getElementById js/document))
+    (when-let [time-elem (.getElementById js/document "time")]
+      (set! (.-textContent time-elem) (format-game-time (:game-time @game-state))))))
+
+;; 統合表示更新関数
+(defn update-all-game-info!
+  "すべてのゲーム情報表示を更新"
+  []
+  (update-score-display!)
+  (update-chain-display!)
+  (update-time-display!)
+  ;; レベル表示も更新
+  (when (and (exists? js/document)
+             (.-getElementById js/document))
+    (when-let [level-elem (.getElementById js/document "level")]
+      (set! (.-textContent level-elem) (str (:level @game-state))))))
+
+;; ゲームタイマー管理
+(defn start-game-timer!
+  "ゲームタイマーを開始（1秒ごとに時間を更新）"
+  []
+  (when @game-timer
+    (js/clearInterval @game-timer))
+  (reset! game-timer
+          (js/setInterval
+           (fn []
+             (when (:game-running @game-state)
+               (update-game-time! (inc (:game-time @game-state)))
+               (update-time-display!)))
+           1000)))
+
+(defn stop-game-timer!
+  "ゲームタイマーを停止"
+  []
+  (when @game-timer
+    (js/clearInterval @game-timer)
+    (reset! game-timer nil)))
 
 (defn render-game
   "ゲーム画面を描画"
@@ -777,22 +872,30 @@
       (render-puyo-pair current-piece))
 
     ;; UI更新
-    (update-score-display)))
+    (update-all-game-info!)))
 
 (defn start-game
   "ゲームを開始"
   []
   (init-game-state!)
+  (reset-chain-count!)
+  (reset-game-time!)
   (swap! game-state assoc
          :game-running true
          :current-piece (spawn-new-puyo-pair))
+  (update-all-game-info!)
+  (start-game-timer!)
   (render-game)
   (js/console.log "ゲーム開始!"))
 
 (defn reset-game
   "ゲームをリセット"
   []
+  (stop-game-timer!)
   (init-game-state!)
+  (reset-chain-count!)
+  (reset-game-time!)
+  (update-all-game-info!)
   (render-game)
   (js/console.log "ゲームリセット"))
 
@@ -837,6 +940,4 @@
   (setup-event-listeners)
 
   ;; 初期描画
-  (render-game)
-
-  (js/console.log "初期化完了!"))
+  (render-game))
