@@ -459,6 +459,46 @@
     {:board new-board
      :erased-count erased-count}))
 
+(defn calculate-score
+  "スコア計算
+   
+   Args:
+     erased-count: 消去したぷよの数
+     chain-count: 連鎖回数
+   
+   Returns:
+     計算されたスコア"
+  [erased-count chain-count]
+  (let [base-score (* erased-count 10)
+        chain-bonus (if (> chain-count 1)
+                      (* (dec chain-count) 50)
+                      0)]
+    (+ base-score chain-bonus)))
+
+(defn execute-chain
+  "連鎖の実行
+   
+   Args:
+     board: ゲームボード
+   
+   Returns:
+     {:board new-board :chain-count count :total-score score} - 連鎖実行結果"
+  [board]
+  (loop [current-board board
+         chain-count 0
+         total-score 0]
+    (let [erase-result (erase-puyos current-board)]
+      (if (> (:erased-count erase-result) 0)
+        ;; 消去があった場合：落下処理して再帰
+        (let [new-chain-count (inc chain-count)
+              chain-score (calculate-score (:erased-count erase-result) new-chain-count)
+              dropped-board (drop-floating-puyos (:board erase-result))]
+          (recur dropped-board new-chain-count (+ total-score chain-score)))
+        ;; 消去がなかった場合：連鎖終了
+        {:board current-board
+         :chain-count chain-count
+         :total-score total-score}))))
+
 (defn create-empty-board
   "空のゲームボードを作成"
   []

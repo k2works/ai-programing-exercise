@@ -217,6 +217,37 @@
       (is (= 0 (get-in (:board result) [10 1])) "赤グループ消去")
       (is (= 0 (get-in (:board result) [10 5])) "青グループ消去"))))
 
+;; T012: 連鎖の実装テスト
+(deftest chain-detection-test
+  (testing "基本的な消去処理"
+    (let [board (-> (core/create-empty-board)
+                    ;; 青の4つ組（確実に消去される）
+                    (assoc-in [11 3] 2) (assoc-in [11 4] 2)
+                    (assoc-in [10 3] 2) (assoc-in [10 4] 2))
+          result (core/execute-chain board)]
+      (is (>= (:chain-count result) 1) "消去が発生")
+      (is (> (:total-score result) 0) "スコア加算"))))
+
+(deftest no-chain-test
+  (testing "連鎖が発生しない場合"
+    (let [board (-> (core/create-empty-board)
+                    ;; 消去できない3つ組
+                    (assoc-in [11 2] 1) (assoc-in [11 3] 1)
+                    (assoc-in [10 2] 1))
+          result (core/execute-chain board)]
+      (is (= 0 (:chain-count result)) "連鎖なし")
+      (is (= 0 (:total-score result)) "スコアなし"))))
+
+(deftest multiple-chain-test
+  (testing "基本的な連鎖システム"
+    (let [board (-> (core/create-empty-board)
+                    ;; 青の4つ組
+                    (assoc-in [11 1] 2) (assoc-in [11 2] 2)
+                    (assoc-in [10 1] 2) (assoc-in [10 2] 2))
+          result (core/execute-chain board)]
+      (is (>= (:chain-count result) 1) "消去処理が実行される")
+      (is (> (:total-score result) 30) "基本スコア取得"))))
+
 (deftest validation-test
   (testing "バリデーション"
     (is (true? (core/valid-color? 1)) "有効な色")
