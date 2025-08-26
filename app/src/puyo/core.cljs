@@ -204,7 +204,9 @@
     ;; すべての新しい位置が有効な範囲内かチェック
     (every? (fn [{:keys [x y]}]
               (and (>= x 0) (< x board-width)
-                   (>= y 0) (< y board-height)))
+                   (>= y 0) (< y board-height)
+                   ;; 将来的にはボードの衝突判定も追加予定
+                   (= 0 (get-in board [y x] 0))))
             new-positions)))
 
 (defn move-puyo-pair-left
@@ -252,6 +254,78 @@
                            :x (:x (second positions))
                            :y (:y (second positions)))))
     puyo-pair))
+
+;; 下移動と重力システム
+(defn can-fall?
+  "組ぷよが落下可能かチェック
+   
+   Args:
+     puyo-pair: 組ぷよマップ
+     board: ゲームボード
+   
+   Returns:
+     落下可能な場合true"
+  [puyo-pair board]
+  (let [positions (get-puyo-pair-positions
+                   (get-in puyo-pair [:puyo1 :x])
+                   (get-in puyo-pair [:puyo1 :y])
+                   (:rotation puyo-pair))]
+    ;; 各ぷよが底面に到達していないかチェック
+    (every? (fn [pos]
+              (let [new-y (inc (:y pos))]
+                (and (< new-y board-height)
+                     (= 0 (get-in board [new-y (:x pos)])))))
+            positions)))
+
+(defn move-puyo-pair-down
+  "組ぷよを下に移動
+   
+   Args:
+     puyo-pair: 組ぷよマップ
+     board: ゲームボード
+   
+   Returns:
+     移動後の組ぷよマップ（移動不可の場合は元のまま）"
+  [puyo-pair board]
+  (if (can-fall? puyo-pair board)
+    (let [new-x (get-in puyo-pair [:puyo1 :x])
+          new-y (inc (get-in puyo-pair [:puyo1 :y]))
+          positions (get-puyo-pair-positions new-x new-y (:rotation puyo-pair))]
+      (assoc puyo-pair
+             :puyo1 (assoc (get-in puyo-pair [:puyo1])
+                           :x (:x (first positions))
+                           :y (:y (first positions)))
+             :puyo2 (assoc (get-in puyo-pair [:puyo2])
+                           :x (:x (second positions))
+                           :y (:y (second positions)))))
+    puyo-pair))
+
+(defn soft-drop
+  "ソフトドロップ（高速落下）- 1段階下に移動
+   
+   Args:
+     puyo-pair: 組ぷよマップ
+     board: ゲームボード
+   
+   Returns:
+     移動後の組ぷよマップ"
+  [puyo-pair board]
+  (move-puyo-pair-down puyo-pair board))
+
+(defn hard-drop
+  "ハードドロップ（瞬間落下）- 底面まで一気に移動
+   
+   Args:
+     puyo-pair: 組ぷよマップ
+     board: ゲームボード
+   
+   Returns:
+     底面に到達した組ぷよマップ"
+  [puyo-pair board]
+  (loop [current-pair puyo-pair]
+    (if (can-fall? current-pair board)
+      (recur (move-puyo-pair-down current-pair board))
+      current-pair)))
 
 (defn create-empty-board
   "空のゲームボードを作成"
