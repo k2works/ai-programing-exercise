@@ -292,6 +292,42 @@
       (is (= 320 chain-score) "連鎖込みスコア")
       (is (> bonus-score 1000) "ボーナス込みスコア"))))
 
+;; T014: 全消し判定テスト
+(deftest perfect-clear-detection-test
+  (testing "全消し（ぜんけし）判定"
+    (let [empty-board (core/create-empty-board)
+          non-empty-board (-> (core/create-empty-board)
+                              (assoc-in [11 3] 1))]
+      (is (true? (core/is-perfect-clear? empty-board)) "空ボードは全消し")
+      (is (false? (core/is-perfect-clear? non-empty-board)) "ぷよが残っている場合は全消しではない"))))
+
+(deftest perfect-clear-bonus-test
+  (testing "全消しボーナススコア計算"
+    (let [bonus-score (core/calculate-perfect-clear-bonus)]
+      (is (= 8500 bonus-score) "全消しボーナスは8500点"))))
+
+(deftest perfect-clear-execution-test
+  (testing "全消し実行とボーナス計算"
+    (let [board (-> (core/create-empty-board)
+                    ;; 4つの赤ぷよ（最後の1グループ）
+                    (assoc-in [11 3] 1) (assoc-in [11 4] 1)
+                    (assoc-in [10 3] 1) (assoc-in [10 4] 1))
+          result (core/execute-perfect-clear board)]
+      (is (true? (:is-perfect-clear result)) "全消し発生")
+      (is (= 8500 (:perfect-clear-bonus result)) "全消しボーナス取得")
+      (is (> (:total-score result) 8500) "総スコアに全消しボーナス加算"))))
+
+(deftest no-perfect-clear-test
+  (testing "全消しが発生しない場合"
+    (let [board (-> (core/create-empty-board)
+                    ;; 消去されないぷよが残る
+                    (assoc-in [11 3] 1) (assoc-in [11 4] 1)
+                    (assoc-in [10 3] 1) (assoc-in [9 4] 2))
+          result (core/execute-perfect-clear board)]
+      (is (false? (:is-perfect-clear result)) "全消し未発生")
+      (is (= 0 (:perfect-clear-bonus result)) "全消しボーナスなし")
+      (is (= 0 (:total-score result)) "基本スコアのみ"))))
+
 (deftest validation-test
   (testing "バリデーション"
     (is (true? (core/valid-color? 1)) "有効な色")

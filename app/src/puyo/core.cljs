@@ -565,6 +565,25 @@
         total-mult (max 1 (+ chain-mult group-mult color-mult))]
     (* base-score total-mult)))
 
+(defn is-perfect-clear?
+  "ボードが完全に空（全消し）かどうかを判定
+   
+   Args:
+     board: ゲームボード
+   
+   Returns:
+     ボードが空ならtrue、そうでなければfalse"
+  [board]
+  (every? #(every? zero? %) board))
+
+(defn calculate-perfect-clear-bonus
+  "全消しボーナススコアを計算
+   
+   Returns:
+     全消しボーナススコア（8500点）"
+  []
+  8500)
+
 (defn execute-chain
   "連鎖の実行
    
@@ -588,6 +607,26 @@
         {:board current-board
          :chain-count chain-count
          :total-score total-score}))))
+
+(defn execute-perfect-clear
+  "全消し処理の実行
+   
+   Args:
+     board: ゲームボード
+   
+   Returns:
+     {:is-perfect-clear boolean :perfect-clear-bonus score :total-score score}"
+  [board]
+  (let [chain-result (execute-chain board)
+        final-board (:board chain-result)
+        is-perfect (is-perfect-clear? final-board)
+        perfect-bonus (if is-perfect (calculate-perfect-clear-bonus) 0)
+        total-score (+ (:total-score chain-result) perfect-bonus)]
+    {:is-perfect-clear is-perfect
+     :perfect-clear-bonus perfect-bonus
+     :total-score total-score
+     :board final-board
+     :chain-count (:chain-count chain-result)}))
 
 (defn create-empty-board
   "空のゲームボードを作成"
