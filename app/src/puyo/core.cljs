@@ -24,6 +24,92 @@
              4 "#ffff00"  ; 黄
              5 "#ff00ff"}) ; 紫
 
+;; 有効な色の範囲
+(def valid-colors #{1 2 3 4 5})
+
+;; 有効な回転状態（0: 縦, 1: 右, 2: 逆縦, 3: 左）
+(def valid-rotations #{0 1 2 3})
+
+;; 回転状態の名前マッピング
+(def rotation-names {0 "縦" 1 "右" 2 "逆縦" 3 "左"})
+
+(defn valid-color?
+  "色が有効かどうかチェック
+   有効な色: 1(赤) 2(緑) 3(青) 4(黄) 5(紫)"
+  [color]
+  (contains? valid-colors color))
+
+(defn valid-rotation?
+  "回転状態が有効かどうかチェック
+   有効な回転: 0(縦) 1(右) 2(逆縦) 3(左)"
+  [rotation]
+  (contains? valid-rotations rotation))
+
+(defn create-puyo-pair
+  "組ぷよ（2個セット）を作成
+   
+   Args:
+     color1: puyo1の色 (1-5)
+     color2: puyo2の色 (1-5)  
+     x: 基準位置のx座標
+     y: 基準位置のy座標
+   
+   Returns:
+     組ぷよマップ {:puyo1 {...} :puyo2 {...} :rotation 0}"
+  [color1 color2 x y]
+  (when-not (valid-color? color1)
+    (throw (js/Error. (str "Invalid color for puyo1: " color1))))
+  (when-not (valid-color? color2)
+    (throw (js/Error. (str "Invalid color for puyo2: " color2))))
+  (when-not (and (>= y 0) (>= x 0))
+    (throw (js/Error. (str "Invalid position: x=" x " y=" y))))
+
+  {:puyo1 {:color color1 :x x :y y}
+   :puyo2 {:color color2 :x x :y (inc y)}
+   :rotation 0})
+
+(defn get-puyo-pair-positions
+  "組ぷよの回転状態に基づいて2つのぷよの位置を計算
+   
+   Args:
+     x, y: 基準ぷよ（puyo1）の位置
+     rotation: 回転状態 (0-3)
+   
+   Returns:
+     [{:x x1 :y y1} {:x x2 :y y2}] の形式で2つのぷよの位置"
+  [x y rotation]
+  (when-not (valid-rotation? rotation)
+    (throw (js/Error. (str "Invalid rotation: " rotation))))
+
+  (case rotation
+    0 [{:x x :y y} {:x x :y (inc y)}]        ; 縦向き: puyo2が下
+    1 [{:x x :y y} {:x (inc x) :y y}]        ; 右向き: puyo2が右
+    2 [{:x x :y y} {:x x :y (dec y)}]        ; 逆縦向き: puyo2が上
+    3 [{:x x :y y} {:x (dec x) :y y}]))      ; 左向き: puyo2が左
+
+(defn rotate-puyo-pair
+  "組ぷよを時計回りに90度回転
+   
+   Args:
+     puyo-pair: 組ぷよマップ
+   
+   Returns:
+     回転後の組ぷよマップ"
+  [puyo-pair]
+  (let [current-rotation (:rotation puyo-pair)
+        new-rotation (mod (inc current-rotation) 4)
+        base-pos {:x (get-in puyo-pair [:puyo1 :x])
+                  :y (get-in puyo-pair [:puyo1 :y])}
+        positions (get-puyo-pair-positions (:x base-pos) (:y base-pos) new-rotation)]
+    (assoc puyo-pair
+           :rotation new-rotation
+           :puyo1 (assoc (get-in puyo-pair [:puyo1])
+                         :x (:x (first positions))
+                         :y (:y (first positions)))
+           :puyo2 (assoc (get-in puyo-pair [:puyo2])
+                         :x (:x (second positions))
+                         :y (:y (second positions))))))
+
 (defn create-empty-board
   "空のゲームボードを作成"
   []
