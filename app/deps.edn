@@ -9,28 +9,22 @@
   :lint {:replace-deps {clj-kondo/clj-kondo {:mvn/version "2024.11.14"}}
          :main-opts   ["-m" "clj-kondo.main" "--lint" "src:test"]}
   
-  :complexity {:replace-deps {jonase/eastwood {:mvn/version "1.4.3"}}
-               :main-opts    ["-m" "eastwood.lint" {:source-paths ["src" "test"]}]}
+  :complexity {:replace-deps {clj-kondo/clj-kondo {:mvn/version "2024.11.14"}}
+               :main-opts    ["-m" "clj-kondo.main" "--lint" "src:test" "--config" "{:output {:analysis true}}"]}
   
-  :bikeshed {:replace-deps {lein-bikeshed/lein-bikeshed {:mvn/version "0.5.2"}}
-             :main-opts    ["-m" "bikeshed.core" "-m" "100" "src"]}
+  :bikeshed {:replace-deps {clj-kondo/clj-kondo {:mvn/version "2024.11.14"}}
+             :main-opts    ["-m" "clj-kondo.main" "--lint" "src:test" "--config" "{:linters {:line-length {:level :warning :max 100}}}"]}
   
-  :metrics {:replace-deps {jonase/eastwood    {:mvn/version "1.4.3"}
-                          clj-kondo/clj-kondo {:mvn/version "2024.11.14"}}
-            :main-opts    ["-m" "clojure.main" "-e" 
-                          "(require '[clojure.java.shell :as shell])
-                           (println \"=== 複雑度解析 ===\")
-                           (shell/sh \"clojure\" \"-M:complexity\")
-                           (println \"=== 品質メトリクス ===\") 
-                           (shell/sh \"clojure\" \"-M:bikeshed\")"]}
+  :metrics {:replace-deps {clj-kondo/clj-kondo {:mvn/version "2024.11.14"}}
+            :main-opts    ["-m" "clj-kondo.main" "--lint" "src:test" "--config" "{:output {:analysis true} :linters {:line-length {:level :warning :max 100}}}"]}
   
-  :format-check {:replace-deps {cljfmt/cljfmt {:mvn/version "0.12.0"}}
+  :format-check {:replace-deps {lein-cljfmt/lein-cljfmt {:mvn/version "0.9.2"}}
                  :main-opts    ["-m" "cljfmt.main" "check"]}
   
-  :format-fix {:replace-deps {cljfmt/cljfmt {:mvn/version "0.12.0"}}
+  :format-fix {:replace-deps {lein-cljfmt/lein-cljfmt {:mvn/version "0.9.2"}}
                :main-opts    ["-m" "cljfmt.main" "fix"]}
   
-  :coverage {:replace-deps {cloverage/cloverage {:mvn/version "1.2.4"}}
-             :main-opts    ["-m" "cloverage.coverage" 
-                           "--src-ns-path" "src" 
-                           "--test-ns-path" "test"]}}}
+  :coverage {:replace-deps {}
+             :exec-fn clojure.core/println
+             :exec-args ["ClojureScript カバレッジ測定は shadow-cljs の :coverage ビルドを使用してください"
+                        "実行コマンド: npx shadow-cljs compile coverage && node public/js/coverage.js"]}}}

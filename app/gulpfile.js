@@ -162,7 +162,8 @@ const formatFix = shell.task([
 
 const coverage = shell.task([
   'echo "📊 テストカバレッジを測定中..."',
-  'clojure -M:coverage'
+  'npx shadow-cljs compile coverage',
+  'node public/js/coverage.js'
 ]);
 
 // タスクをエクスポート

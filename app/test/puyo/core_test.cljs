@@ -17,7 +17,7 @@
 (deftest test-colors-definition
   (testing "色の定義確認"
     (is (contains? core/colors 0) "空の色が定義されている")
-    (is (contains? core/colors 1) "赤の色が定義されている") 
+    (is (contains? core/colors 1) "赤の色が定義されている")
     (is (contains? core/colors 2) "緑の色が定義されている")
     (is (contains? core/colors 3) "青の色が定義されている")
     (is (contains? core/colors 4) "黄の色が定義されている")
@@ -43,11 +43,15 @@
   (testing "色の値の確認"
     (is (= "#ffffff" (core/colors 0)) "空は白色")
     (is (= "#ff0000" (core/colors 1)) "1は赤色")
-    (is (= "#00ff00" (core/colors 2)) "2は緑色") 
+    (is (= "#00ff00" (core/colors 2)) "2は緑色")
     (is (= "#0000ff" (core/colors 3)) "3は青色")
     (is (= "#ffff00" (core/colors 4)) "4は黄色")
     (is (= "#ff00ff" (core/colors 5)) "5は紫色")))
 
-;; テスト実行関数（エクスポート用）
-(defn ^:export -main []
-  (run-tests 'puyo.core-test))
+;; テスト実行のエントリーポイント
+(defn ^:export run-all-tests []
+  (run-tests))
+
+;; Node.js環境でのテスト実行
+(when (exists? js/process)
+  (set! *main-cli-fn* run-all-tests))

@@ -1,12 +1,11 @@
-(ns puyo.core
-  (:require [clojure.string :as str]))
+(ns puyo.core)
 
 ;; ゲーム状態の初期化
 (defonce game-state (atom {:board []
-                          :current-piece nil
-                          :score 0
-                          :level 1
-                          :game-running false}))
+                           :current-piece nil
+                           :score 0
+                           :level 1
+                           :game-running false}))
 
 ;; HTML要素への参照
 (defonce canvas (atom nil))
@@ -34,10 +33,10 @@
   "ゲーム状態を初期化"
   []
   (reset! game-state {:board (create-empty-board)
-                     :current-piece nil
-                     :score 0
-                     :level 1
-                     :game-running false}))
+                      :current-piece nil
+                      :score 0
+                      :level 1
+                      :game-running false}))
 
 (defn draw-cell
   "セルを描画"
@@ -73,10 +72,10 @@
     ;; 画面クリア
     (set! (.-fillStyle @ctx) "#f0f0f0")
     (.fillRect @ctx 0 0 (* board-width cell-size) (* board-height cell-size))
-    
+
     ;; ボード描画
     (draw-board)
-    
+
     ;; UI更新
     (update-score-display)))
 
@@ -101,41 +100,41 @@
   ;; ゲーム開始ボタン
   (when-let [start-btn (.getElementById js/document "start-button")]
     (.addEventListener start-btn "click" start-game))
-  
+
   ;; リセットボタン
   (when-let [reset-btn (.getElementById js/document "reset-button")]
     (.addEventListener reset-btn "click" reset-game))
-  
+
   ;; キーボードイベント
-  (.addEventListener js/document "keydown" 
-    (fn [event]
-      (when (:game-running @game-state)
-        (let [key (.-key event)]
-          (case key
-            "ArrowLeft" (js/console.log "左移動")
-            "ArrowRight" (js/console.log "右移動") 
-            "ArrowDown" (js/console.log "高速落下")
-            "ArrowUp" (js/console.log "回転")
-            " " (js/console.log "ハードドロップ")
-            nil))))))
+  (.addEventListener js/document "keydown"
+                     (fn [event]
+                       (when (:game-running @game-state)
+                         (let [key (.-key event)]
+                           (case key
+                             "ArrowLeft" (js/console.log "左移動")
+                             "ArrowRight" (js/console.log "右移動")
+                             "ArrowDown" (js/console.log "高速落下")
+                             "ArrowUp" (js/console.log "回転")
+                             " " (js/console.log "ハードドロップ")
+                             nil))))))
 
 (defn init
   "アプリケーション初期化"
   []
   (js/console.log "Puyo Puyo Game 初期化中...")
-  
+
   ;; Canvas要素の取得
   (when-let [canvas-elem (.getElementById js/document "game-board")]
     (reset! canvas canvas-elem)
     (reset! ctx (.getContext canvas-elem "2d")))
-  
+
   ;; ゲーム状態初期化
   (init-game-state!)
-  
+
   ;; イベントリスナー設定
   (setup-event-listeners)
-  
+
   ;; 初期描画
   (render-game)
-  
+
   (js/console.log "初期化完了!"))
