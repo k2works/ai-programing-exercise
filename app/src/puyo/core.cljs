@@ -166,6 +166,93 @@
   []
   (setup-next-puyo))
 
+;; 移動システム
+(defn valid-direction?
+  "移動方向が有効かどうかチェック
+   
+   Args:
+     direction: :left または :right
+   
+   Returns:
+     有効な方向の場合true"
+  [direction]
+  (contains? #{:left :right} direction))
+
+(defn can-move?
+  "組ぷよが指定方向に移動可能かチェック
+   
+   Args:
+     puyo-pair: 組ぷよマップ
+     board: ゲームボード
+     direction: 移動方向 (:left または :right)
+   
+   Returns:
+     移動可能な場合true"
+  [puyo-pair board direction]
+  (when-not (valid-direction? direction)
+    (throw (js/Error. (str "Invalid direction: " direction))))
+  
+  (let [positions (get-puyo-pair-positions
+                   (get-in puyo-pair [:puyo1 :x])
+                   (get-in puyo-pair [:puyo1 :y])
+                   (:rotation puyo-pair))
+        offset (case direction
+                 :left -1
+                 :right 1)
+        new-positions (map #(assoc % :x (+ (:x %) offset)) positions)]
+    
+    ;; すべての新しい位置が有効な範囲内かチェック
+    (every? (fn [{:keys [x y]}]
+              (and (>= x 0) (< x board-width)
+                   (>= y 0) (< y board-height)))
+            new-positions)))
+
+(defn move-puyo-pair-left
+  "組ぷよを左に移動
+   
+   Args:
+     puyo-pair: 組ぷよマップ
+     board: ゲームボード
+   
+   Returns:
+     移動後の組ぷよマップ（移動不可の場合は元のまま）"
+  [puyo-pair board]
+  (if (can-move? puyo-pair board :left)
+    (let [new-x (dec (get-in puyo-pair [:puyo1 :x]))
+          new-y (get-in puyo-pair [:puyo1 :y])
+          positions (get-puyo-pair-positions new-x new-y (:rotation puyo-pair))]
+      (assoc puyo-pair
+             :puyo1 (assoc (get-in puyo-pair [:puyo1])
+                           :x (:x (first positions))
+                           :y (:y (first positions)))
+             :puyo2 (assoc (get-in puyo-pair [:puyo2])
+                           :x (:x (second positions))
+                           :y (:y (second positions)))))
+    puyo-pair))
+
+(defn move-puyo-pair-right
+  "組ぷよを右に移動
+   
+   Args:
+     puyo-pair: 組ぷよマップ
+     board: ゲームボード
+   
+   Returns:
+     移動後の組ぷよマップ（移動不可の場合は元のまま）"
+  [puyo-pair board]
+  (if (can-move? puyo-pair board :right)
+    (let [new-x (inc (get-in puyo-pair [:puyo1 :x]))
+          new-y (get-in puyo-pair [:puyo1 :y])
+          positions (get-puyo-pair-positions new-x new-y (:rotation puyo-pair))]
+      (assoc puyo-pair
+             :puyo1 (assoc (get-in puyo-pair [:puyo1])
+                           :x (:x (first positions))
+                           :y (:y (first positions)))
+             :puyo2 (assoc (get-in puyo-pair [:puyo2])
+                           :x (:x (second positions))
+                           :y (:y (second positions)))))
+    puyo-pair))
+
 (defn create-empty-board
   "空のゲームボードを作成"
   []
