@@ -1009,13 +1009,7 @@
                      (fn [event]
                        (when (:game-running @game-state)
                          (let [key (.-key event)]
-                           (case key
-                             "ArrowLeft" (js/console.log "左移動")
-                             "ArrowRight" (js/console.log "右移動")
-                             "ArrowDown" (js/console.log "高速落下")
-                             "ArrowUp" (js/console.log "回転")
-                             " " (js/console.log "ハードドロップ")
-                             nil))))))
+                           (handle-key-input key))))))
 
 (defn init
   "アプリケーション初期化"
@@ -1034,7 +1028,13 @@
   (setup-event-listeners)
 
   ;; 初期描画
-  (render-game))
+  (render-game)
+
+  (js/console.log "初期化完了"))
+
+;; DOMContentLoadedで自動初期化
+(when (exists? js/document)
+  (.addEventListener js/document "DOMContentLoaded" init))
 
 ;; =============================================================================
 ;; T017: キーボード入力処理
@@ -1068,10 +1068,13 @@
         board (:board @game-state)]
     (when current-piece
       (let [moved-piece (move-puyo-pair-left current-piece board)]
-        (when (not= moved-piece current-piece)
-          (swap! game-state assoc :current-piece moved-piece)
-          (render-game)
-          {:result :moved :direction :left})))))
+        (if (not= moved-piece current-piece)
+          (do
+            (js/console.log "左移動成功")
+            (swap! game-state assoc :current-piece moved-piece)
+            (render-game)
+            {:result :moved :direction :left})
+          (js/console.log "左移動できません"))))))
 
 (defn process-right-movement!
   "右移動処理"
@@ -1080,10 +1083,13 @@
         board (:board @game-state)]
     (when current-piece
       (let [moved-piece (move-puyo-pair-right current-piece board)]
-        (when (not= moved-piece current-piece)
-          (swap! game-state assoc :current-piece moved-piece)
-          (render-game)
-          {:result :moved :direction :right})))))
+        (if (not= moved-piece current-piece)
+          (do
+            (js/console.log "右移動成功")
+            (swap! game-state assoc :current-piece moved-piece)
+            (render-game)
+            {:result :moved :direction :right})
+          (js/console.log "右移動できません"))))))
 
 (defn process-rotation!
   "回転処理"
@@ -1126,25 +1132,20 @@
 (defn handle-key-input
   "キーボード入力を処理してゲーム状態を更新"
   [key]
+  (js/console.log "Key:" key "Game running:" (:game-running @game-state) "Current piece:" (some? (:current-piece @game-state)))
   (when (and (:game-running @game-state)
              (:current-piece @game-state))
     (case key
-      "ArrowLeft" (process-left-movement!)
-      "ArrowRight" (process-right-movement!)
+      "ArrowLeft" (do
+                    (js/console.log "左移動")
+                    (process-left-movement!))
+      "ArrowRight" (do
+                     (js/console.log "右移動")
+                     (process-right-movement!))
       "ArrowUp" (process-rotation!)
       "ArrowDown" (process-soft-drop!)
       " " (process-hard-drop!)
       nil)))
-
-;; キーボードイベントハンドラの更新
-(defn update-keyboard-handler!
-  "キーボードイベントハンドラを新しい処理ロジックで更新"
-  []
-  (.addEventListener js/document "keydown"
-                     (fn [event]
-                       (when (:game-running @game-state)
-                         (let [key (.-key event)]
-                           (handle-key-input key))))))
 
 ;; T019: ゲーム初期化関数群
 (defn reset-game-state!
