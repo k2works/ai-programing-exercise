@@ -747,17 +747,17 @@
   [x y color]
   (when @ctx
     (let [center-x (+ (* x cell-size) (/ cell-size 2))
-          center-y (+ (* y cell-size) (/ cell-size 2))
-          radius (- (/ cell-size 2) 2)] ; 少し小さめの円にしてマージンを作る
-      ;; 円を描画
-      (.beginPath @ctx)
-      (.arc @ctx center-x center-y radius 0 (* 2 js/Math.PI))
+      center-y (+ (* y cell-size) (/ cell-size 2))
+      radius (- (/ cell-size 2) 2)] ; 少し小さめの円にしてマージンを作る
+  ;; 円を描画
+  (.beginPath @ctx)
+  (.arc @ctx center-x center-y radius 0 (* 2 js/Math.PI))
       (set! (.-fillStyle @ctx) color)
       (.fill @ctx)
-      ;; 円の境界線を描画
-      (set! (.-strokeStyle @ctx) "#000000")
+;; 円の境界線を描画
+(set! (.-strokeStyle @ctx) "#000000")
       (set! (.-lineWidth @ctx) 2)
-      (.stroke @ctx))))
+   (.stroke @ctx))))
 
 (defn draw-board
   "ゲームボードを描画"
@@ -765,9 +765,11 @@
   (let [board (:board @game-state)]
     (doseq [y (range board-height)
             x (range board-width)]
-      (let [cell-value (get-in board [y x])
-            color (get colors cell-value "#ffffff")]
-        (draw-cell x y color)))))
+      (let [cell-value (get-in board [y x])]
+        ;; 空のセル（値が0）の場合は描画をスキップ
+        (when (not= cell-value 0)
+          (let [color (get colors cell-value "#ffffff")]
+            (draw-cell x y color)))))))
 
 (defn init-canvas
   "Canvas初期化
@@ -838,18 +840,18 @@
   [x y color]
   (when @next-ctx
     (let [cell-size 20
-          center-x (+ (* x cell-size) (/ cell-size 2))
-          center-y (+ (* y cell-size) (/ cell-size 2))
-          radius (- (/ cell-size 2) 1)] ; 少し小さめの円にしてマージンを作る
-      ;; 円を描画
-      (.beginPath @next-ctx)
-      (.arc @next-ctx center-x center-y radius 0 (* 2 js/Math.PI))
+      center-x (+ (* x cell-size) (/ cell-size 2))
+      center-y (+ (* y cell-size) (/ cell-size 2))
+      radius (- (/ cell-size 2) 1)] ; 少し小さめの円にしてマージンを作る
+  ;; 円を描画
+  (.beginPath @next-ctx)
+  (.arc @next-ctx center-x center-y radius 0 (* 2 js/Math.PI))
       (set! (.-fillStyle @next-ctx) color)
       (.fill @next-ctx)
-      ;; 円の境界線を描画
-      (set! (.-strokeStyle @next-ctx) "#000")
+;; 円の境界線を描画
+(set! (.-strokeStyle @next-ctx) "#000")
       (set! (.-lineWidth @next-ctx) 1)
-      (.stroke @next-ctx))))
+   (.stroke @next-ctx))))
 
 (defn render-next-piece
   "次のぷよを描画"
