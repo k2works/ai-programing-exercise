@@ -669,13 +669,8 @@
   (vec (repeat board-height (vec (repeat board-width 0)))))
 
 (defn place-puyo-pair!
-  "組ぷよをボードに配置する（詳細ログ付き）"
+  "組ぷよをボードに配置する"
   [puyo-pair]
-  (js/console.log "=== place-puyo-pair! 実行開始 ===")
-  (js/console.log "配置対象ぷよペア:"
-                  "puyo1(" (get-in puyo-pair [:puyo1 :x]) "," (get-in puyo-pair [:puyo1 :y]) ")"
-                  "puyo2(" (get-in puyo-pair [:puyo2 :x]) "," (get-in puyo-pair [:puyo2 :y]) ")"
-                  "rotation:" (:rotation puyo-pair))
   (let [positions (get-puyo-pair-positions
                    (get-in puyo-pair [:puyo1 :x])
                    (get-in puyo-pair [:puyo1 :y])
@@ -684,35 +679,25 @@
         puyo2-pos (second positions)
         color1 (get-in puyo-pair [:puyo1 :color])
         color2 (get-in puyo-pair [:puyo2 :color])]
-    (js/console.log "配置座標:"
-                    "puyo1-pos(" (:x puyo1-pos) "," (:y puyo1-pos) ")"
-                    "puyo2-pos(" (:x puyo2-pos) "," (:y puyo2-pos) ")")
-    (js/console.log "配置色:" "color1=" color1 "color2=" color2)
     (swap! game-state
            update :board
            #(-> %
                 (assoc-in [(:y puyo1-pos) (:x puyo1-pos)] color1)
                 (assoc-in [(:y puyo2-pos) (:x puyo2-pos)] color2)
-                (drop-floating-puyos)))
-    (js/console.log "✓ ボード配置完了")
-    (js/console.log "=== place-puyo-pair! 実行終了 ===")))
+                (drop-floating-puyos)))))
 
 (defn process-line-clear!
-  "連鎖処理を実行し、結果をゲーム状態に反映（詳細ログ付き）"
+  "連鎖処理を実行し、結果をゲーム状態に反映"
   []
-  (js/console.log "=== process-line-clear! 実行開始 ===")
   (let [board (:board @game-state)
         chain-result (execute-chain board)]
-    (js/console.log "連鎖結果:" "chains=" (:chain-count chain-result)
-                    "score=" (:total-score chain-result))
     (swap! game-state merge
            {:board (:board chain-result)
             :score (+ (:score @game-state) (:total-score chain-result))
             :chain-count (:chain-count chain-result)})
-    (js/console.log "✓ ゲーム状態更新完了")
     ;; TODO: update-all-game-info!の呼び出しを一時的にコメントアウト
     ;; (update-all-game-info!)
-    (js/console.log "=== process-line-clear! 実行終了 ===")))
+    ))
 
 (defn init-game-state!
   "ゲーム状態を初期化"
@@ -924,17 +909,39 @@
     (js/clearInterval @game-timer)
     (reset! game-timer nil)))
 
-(defn start-drop-timer!
-  "ぷよ落下タイマーを開始（500msごとにぷよを1マス下に落下）"
+;; 補助関数群（前方参照回避のため先に定義）
+(defn drop-puyo-pair-one-step
+  "組ぷよを1マス下に落下"
+  [puyo-pair board]
+  (let [moved-down (-> puyo-pair
+                       (update-in [:puyo1 :y] inc)
+                       (update-in [:puyo2 :y] inc))]
+    (if (can-place-puyo-pair? moved-down board)
+      moved-down
+      puyo-pair)))
+
+(defn process-game-over!
+  "ゲームオーバー時の処理"
   []
-  (when @drop-timer
-    (js/clearInterval @drop-timer))
-  (reset! drop-timer
-          (js/setInterval
-           (fn []
-             (when (:game-running @game-state)
-               (process-auto-drop!)))
-           500)))
+  (swap! game-state assoc :game-over true :game-running false))
+
+(defn render-game
+  "ゲーム画面を描画"
+  []
+  (when @ctx
+    ;; 画面クリア
+    (set! (.-fillStyle @ctx) "#f0f0f0")
+    (.fillRect @ctx 0 0 (* board-width cell-size) (* board-height cell-size))
+
+    ;; ボード描画
+    (draw-board)
+
+    ;; 現在の組ぷよ描画
+    (when-let [current-piece (:current-piece @game-state)]
+      (render-puyo-pair current-piece))
+
+    ;; UI更新
+    (update-all-game-info!)))
 
 (defn stop-drop-timer!
   "ぷよ落下タイマーを停止"
@@ -976,38 +983,21 @@
       :dropped (render-game)
       nil)))
 
-(defn render-game
-  "ゲーム画面を描画"
+(defn start-drop-timer!
+  "ぷよ落下タイマーを開始（500msごとにぷよを1マス下に落下）"
   []
-  (when @ctx
-    ;; 画面クリア
-    (set! (.-fillStyle @ctx) "#f0f0f0")
-    (.fillRect @ctx 0 0 (* board-width cell-size) (* board-height cell-size))
-
-    ;; ボード描画
-    (draw-board)
-
-    ;; 現在の組ぷよ描画
-    (when-let [current-piece (:current-piece @game-state)]
-      (render-puyo-pair current-piece))
-
-    ;; UI更新
-    (update-all-game-info!)))
+  (when @drop-timer
+    (js/clearInterval @drop-timer))
+  (reset! drop-timer
+          (js/setInterval
+           (fn []
+             (when (:game-running @game-state)
+               (process-auto-drop!)))
+           500)))
 
 (defn start-game
   "ゲームを開始"
   []
-  (js/console.log "🚨🚨🚨 start-game 関数が実行されました！🚨🚨🚨")
-  (js/console.log "=== start-game 実行開始 ===")
-  (js/console.log "📍 start-game 呼び出し元を特定中...")
-
-  ;; スタックトレースを出力して呼び出し元を特定
-  (try
-    (throw (js/Error. "Stack trace for debugging"))
-    (catch js/Error e
-      (js/console.log "📍 Stack trace:")
-      (js/console.log (.-stack e))))
-
   (init-game-state!)
   (reset-chain-count!)
   (reset-game-time!)
@@ -1017,9 +1007,7 @@
   (update-all-game-info!)
   (start-game-timer!)
   (start-drop-timer!)
-  (render-game)
-  (js/console.log "ゲーム開始!")
-  (js/console.log "=== start-game 実行終了 ==="))
+  (render-game))
 
 (defn reset-game
   "ゲームをリセット"
@@ -1030,280 +1018,92 @@
   (reset-chain-count!)
   (reset-game-time!)
   (update-all-game-info!)
-  (render-game)
-  (js/console.log "ゲームリセット"))
+  (render-game))
 
 ;; イベントリスナー登録済みフラグ
 (defonce event-listeners-setup (atom false))
 
-(defn setup-event-listeners
-  "イベントリスナーを設定（重複登録防止付き）"
-  []
-  (js/console.log "=== イベントリスナー設定開始 ===")
-  (if @event-listeners-setup
-    (js/console.log "✓ イベントリスナーは既に設定済み - スキップ")
-    (do
-      (js/console.log "イベントリスナーを新規設定中...")
-
-      ;; ゲーム開始ボタン
-      (when-let [start-btn (.getElementById js/document "start-button")]
-        (js/console.log "ゲーム開始ボタンのイベントリスナー設定")
-        (.addEventListener start-btn "click"
-                           (fn [event]
-                             (js/console.log "🎮 ゲーム開始ボタンがクリックされました")
-                             (js/console.log "現在のゲーム実行状態:" (:game-running @game-state))
-                             (if (:game-running @game-state)
-                               (js/console.log "⚠️ ゲーム実行中のため、start-gameをスキップ")
-                               (do
-                                 (js/console.log "✅ ゲーム停止中のため、start-gameを実行")
-                                 (start-game))))))
-
-      ;; リセットボタン
-      (when-let [reset-btn (.getElementById js/document "reset-button")]
-        (js/console.log "リセットボタンのイベントリスナー設定")
-        (.addEventListener reset-btn "click" reset-game))
-
-      ;; キーボードイベント
-      (js/console.log "キーボードイベントリスナー設定")
-      (.addEventListener js/document "keydown"
-                         (fn [event]
-                           (js/console.log "🎹 キーボードイベント発生 - Key:" (.-key event) "Target:" (.-tagName (.-target event)))
-                           (when (:game-running @game-state)
-                             (let [key (.-key event)]
-                               ;; スペースキーがボタンを誤って発火させないように preventDefault
-                               (when (= key " ")
-                                 (js/console.log "🚫 スペースキーのデフォルト動作を防止")
-                                 (.preventDefault event))
-                               (handle-key-input key)))))
-
-      (reset! event-listeners-setup true)
-      (js/console.log "✓ イベントリスナー設定完了")))
-  (js/console.log "=== イベントリスナー設定終了 ==="))
-
-;; ゲーム初期化フラグ
-(defonce app-initialized (atom false))
-
-(defn init
-  "アプリケーション初期化"
-  []
-  (js/console.log "=== アプリケーション初期化開始 ===")
-  (if @app-initialized
-    (do
-      (js/console.log "✗ アプリケーションは既に初期化済みです - スキップ")
-      (js/console.log "=== アプリケーション初期化終了（スキップ） ==="))
-    (do
-      (js/console.log "Puyo Puyo Game 初期化中...")
-
-      ;; Canvas要素の取得
-      (when-let [canvas-elem (.getElementById js/document "game-board")]
-        (js/console.log "Canvas要素取得成功")
-        (reset! canvas canvas-elem)
-        (reset! ctx (.getContext canvas-elem "2d")))
-
-      ;; ゲーム状態初期化
-      (js/console.log "ゲーム状態初期化実行")
-      (init-game-state!)
-
-      ;; イベントリスナー設定
-      (js/console.log "イベントリスナー設定実行")
-      (setup-event-listeners)
-
-      ;; 初期描画
-      (js/console.log "初期描画実行")
-      (render-game)
-
-      ;; 初期化完了フラグを設定
-      (reset! app-initialized true)
-      (js/console.log "初期化完了")
-      (js/console.log "=== アプリケーション初期化終了 ==="))))
-
-;; DOMContentLoadedで自動初期化
-(when (exists? js/document)
-  (js/console.log "=== DOMContentLoadedイベントリスナー設定 ===")
-  (.addEventListener js/document "DOMContentLoaded"
-                     (fn [e]
-                       (js/console.log "✓ DOMContentLoadedイベント発火 - init関数呼び出し")
-                       (init)))
-
-  ;; グローバルエラーハンドラー追加
-  (.addEventListener js/window "error"
-                     (fn [e]
-                       (js/console.error "✗✗✗ グローバルエラー検出 ✗✗✗")
-                       (js/console.error "Error:" e)
-                       (js/console.error "Message:" (.-message e))
-                       (js/console.error "Filename:" (.-filename e))
-                       (js/console.error "Line:" (.-lineno e))))
-
-  ;; Unhandled Promise Rejectionハンドラー追加  
-  (.addEventListener js/window "unhandledrejection"
-                     (fn [e]
-                       (js/console.error "✗✗✗ Unhandled Promise Rejection 検出 ✗✗✗")
-                       (js/console.error "Reason:" (.-reason e)))))
-
-;; =============================================================================
-;; T017: キーボード入力処理
-;; =============================================================================
-
-;; 補助関数群（キーボード処理用）
-(defn drop-puyo-pair-one-step
-  "組ぷよを1マス下に落下"
-  [puyo-pair board]
-  (let [moved-down (-> puyo-pair
-                       (update-in [:puyo1 :y] inc)
-                       (update-in [:puyo2 :y] inc))]
-    (if (can-place-puyo-pair? moved-down board)
-      moved-down
-      puyo-pair)))
-
-(defn hard-drop-puyo-pair
-  "組ぷよをハードドロップ（最下段まで一気に落下）詳細ログ付き"
-  [puyo-pair board]
-  (js/console.log "=== hard-drop-puyo-pair 実行開始 ===")
-  (js/console.log "開始位置:"
-                  "puyo1(" (get-in puyo-pair [:puyo1 :x]) "," (get-in puyo-pair [:puyo1 :y]) ")"
-                  "puyo2(" (get-in puyo-pair [:puyo2 :x]) "," (get-in puyo-pair [:puyo2 :y]) ")")
-  (loop [current-piece puyo-pair
-         step-count 0]
-    (js/console.log (str "ハードドロップ ステップ " step-count ":")
-                    "puyo1(" (get-in current-piece [:puyo1 :x]) "," (get-in current-piece [:puyo1 :y]) ")"
-                    "puyo2(" (get-in current-piece [:puyo2 :x]) "," (get-in current-piece [:puyo2 :y]) ")")
-    (let [dropped-piece (drop-puyo-pair-one-step current-piece board)]
-      (if (= dropped-piece current-piece)
-        (do
-          (js/console.log "✓ ハードドロップ完了 - 最終位置:"
-                          "puyo1(" (get-in current-piece [:puyo1 :x]) "," (get-in current-piece [:puyo1 :y]) ")"
-                          "puyo2(" (get-in current-piece [:puyo2 :x]) "," (get-in current-piece [:puyo2 :y]) ")")
-          (js/console.log "=== hard-drop-puyo-pair 実行終了 ===")
-          current-piece)
-        (recur dropped-piece (inc step-count))))))
-
 ;; 移動処理関数群
 (defn process-left-movement!
-  "左移動処理（アトミック操作 + 詳細ログ）"
+  "左移動処理（アトミック操作）"
   []
-  (js/console.log "=== 左移動処理開始 ===")
-  (let [result (atom nil)
-        start-time (js/Date.now)]
+  (let [result (atom nil)]
     (swap! game-state
            (fn [state]
              (let [current-piece (:current-piece state)
                    board (:board state)]
                (if current-piece
+                 (let [moved-piece (move-puyo-pair-left current-piece board)]
+                   (if (not= moved-piece current-piece)
+                     (do
+                       (reset! result {:result :moved :direction :left})
+                       (assoc state :current-piece moved-piece))
+                     (do
+                       (reset! result {:result :failed :reason "cannot-move"})
+                       state)))
                  (do
-                   (js/console.log "左移動前のピース位置:"
-                                   "puyo1(" (get-in current-piece [:puyo1 :x]) "," (get-in current-piece [:puyo1 :y]) ")"
-                                   "puyo2(" (get-in current-piece [:puyo2 :x]) "," (get-in current-piece [:puyo2 :y]) ")")
-                   (let [moved-piece (move-puyo-pair-left current-piece board)]
-                     (if (not= moved-piece current-piece)
-                       (do
-                         (js/console.log "左移動後のピース位置:"
-                                         "puyo1(" (get-in moved-piece [:puyo1 :x]) "," (get-in moved-piece [:puyo1 :y]) ")"
-                                         "puyo2(" (get-in moved-piece [:puyo2 :x]) "," (get-in moved-piece [:puyo2 :y]) ")")
-                         (js/console.log "✓ 左移動成功")
-                         (reset! result {:result :moved :direction :left})
-                         (assoc state :current-piece moved-piece))
-                       (do
-                         (js/console.log "✗ 左移動できません")
-                         (reset! result {:result :failed :reason "cannot-move"})
-                         state))))
-                 (do
-                   (js/console.log "✗ 左移動失敗: 現在のピースがありません")
                    (reset! result {:result :failed :reason "no-piece"})
                    state)))))
-    (let [end-time (js/Date.now)
-          duration (- end-time start-time)]
-      (js/console.log "左移動処理時間:" duration "ms")
-      (when (= (:result @result) :moved)
-        (js/console.log "描画実行")
-        (render-game))
-      (js/console.log "=== 左移動処理終了 ===")
-      @result)))
+    (when (= (:result @result) :moved)
+      (render-game))
+    @result))
 
 (defn process-right-movement!
-  "右移動処理（アトミック操作 + 詳細ログ）"
+  "右移動処理（アトミック操作）"
   []
-  (js/console.log "=== 右移動処理開始 ===")
-  (let [result (atom nil)
-        start-time (js/Date.now)]
+  (let [result (atom nil)]
     (swap! game-state
            (fn [state]
              (let [current-piece (:current-piece state)
                    board (:board state)]
                (if current-piece
+                 (let [moved-piece (move-puyo-pair-right current-piece board)]
+                   (if (not= moved-piece current-piece)
+                     (do
+                       (reset! result {:result :moved :direction :right})
+                       (assoc state :current-piece moved-piece))
+                     (do
+                       (reset! result {:result :failed :reason "cannot-move"})
+                       state)))
                  (do
-                   (js/console.log "右移動前のピース位置:"
-                                   "puyo1(" (get-in current-piece [:puyo1 :x]) "," (get-in current-piece [:puyo1 :y]) ")"
-                                   "puyo2(" (get-in current-piece [:puyo2 :x]) "," (get-in current-piece [:puyo2 :y]) ")")
-                   (let [moved-piece (move-puyo-pair-right current-piece board)]
-                     (if (not= moved-piece current-piece)
-                       (do
-                         (js/console.log "右移動後のピース位置:"
-                                         "puyo1(" (get-in moved-piece [:puyo1 :x]) "," (get-in moved-piece [:puyo1 :y]) ")"
-                                         "puyo2(" (get-in moved-piece [:puyo2 :x]) "," (get-in moved-piece [:puyo2 :y]) ")")
-                         (js/console.log "✓ 右移動成功")
-                         (reset! result {:result :moved :direction :right})
-                         (assoc state :current-piece moved-piece))
-                       (do
-                         (js/console.log "✗ 右移動できません")
-                         (reset! result {:result :failed :reason "cannot-move"})
-                         state))))
-                 (do
-                   (js/console.log "✗ 右移動失敗: 現在のピースがありません")
                    (reset! result {:result :failed :reason "no-piece"})
                    state)))))
-    (let [end-time (js/Date.now)
-          duration (- end-time start-time)]
-      (js/console.log "右移動処理時間:" duration "ms")
-      (when (= (:result @result) :moved)
-        (js/console.log "描画実行")
-        (render-game))
-      (js/console.log "=== 右移動処理終了 ===")
-      @result)))
+    (when (= (:result @result) :moved)
+      (render-game))
+    @result))
 
 (defn process-rotation!
-  "回転処理（アトミック操作 + 二重実行防止）"
+  "回転処理（アトミック操作）"
   []
-  (js/console.log "=== 回転処理開始 ===")
-  ;; スワップ関数を使用してアトミックに状態を更新
-  (let [result (atom nil)
-        start-time (js/Date.now)]
+  (let [result (atom nil)]
     (swap! game-state
            (fn [state]
              (let [current-piece (:current-piece state)
                    board (:board state)]
                (if current-piece
+                 (let [rotated-piece (rotate-puyo-pair current-piece)]
+                   (if (can-place-puyo-pair? rotated-piece board)
+                     (do
+                       (reset! result {:result :rotated :new-rotation (:rotation rotated-piece)})
+                       (assoc state :current-piece rotated-piece))
+                     (do
+                       (reset! result {:result :failed :reason "cannot-place"})
+                       state)))
                  (do
-                   (js/console.log "回転前の現在のピース:" (pr-str current-piece))
-                   (js/console.log "回転前の回転状態:" (:rotation current-piece))
-                   (js/console.log "回転前puyo1位置:" (get-in current-piece [:puyo1 :x]) (get-in current-piece [:puyo1 :y]))
-                   (js/console.log "回転前puyo2位置:" (get-in current-piece [:puyo2 :x]) (get-in current-piece [:puyo2 :y]))
-                   (let [rotated-piece (rotate-puyo-pair current-piece)]
-                     (js/console.log "回転計算後のピース:" (pr-str rotated-piece))
-                     (js/console.log "回転計算後の状態:" (:rotation rotated-piece))
-                     (js/console.log "回転計算後puyo1位置:" (get-in rotated-piece [:puyo1 :x]) (get-in rotated-piece [:puyo1 :y]))
-                     (js/console.log "回転計算後puyo2位置:" (get-in rotated-piece [:puyo2 :x]) (get-in rotated-piece [:puyo2 :y]))
-                     (if (can-place-puyo-pair? rotated-piece board)
-                       (do
-                         (js/console.log "✓ 回転成功 - 状態更新実行")
-                         (reset! result {:result :rotated :new-rotation (:rotation rotated-piece)})
-                         (assoc state :current-piece rotated-piece))
-                       (do
-                         (js/console.log "✗ 回転失敗: 配置できません")
-                         (reset! result {:result :failed :reason "cannot-place"})
-                         state))))
-                 (do
-                   (js/console.log "✗ 回転失敗: 現在のピースがありません")
                    (reset! result {:result :failed :reason "no-piece"})
                    state)))))
-    ;; 状態更新後に描画を実行
-    (let [end-time (js/Date.now)
-          duration (- end-time start-time)]
-      (js/console.log "回転処理時間:" duration "ms")
-      (when (= (:result @result) :rotated)
-        (js/console.log "描画実行")
-        (render-game))
-      (js/console.log "=== 回転処理終了 ===")
-      @result)))
+    (when (= (:result @result) :rotated)
+      (render-game))
+    @result))
+
+(defn hard-drop-puyo-pair
+  "組ぷよをハードドロップ（最下段まで一気に落下）"
+  [puyo-pair board]
+  (loop [current-piece puyo-pair]
+    (let [dropped-piece (drop-puyo-pair-one-step current-piece board)]
+      (if (= dropped-piece current-piece)
+        current-piece
+        (recur dropped-piece)))))
 
 (defn process-soft-drop!
   "高速落下処理"
@@ -1320,76 +1120,44 @@
           {:result :bottom-reached})))))
 
 (defn process-hard-drop!
-  "ハードドロップ処理（詳細ログ付き + ぷよ固定処理）"
+  "ハードドロップ処理（ぷよ固定処理）"
   []
-  (js/console.log "=== ハードドロップ処理開始 ===")
-
   ;; ハードドロップ中は他のタイマーを一時停止
-  (js/console.log "⏸️ ハードドロップ中 - 他のタイマーを一時停止")
   (stop-drop-timer!)
 
   (try
     (let [current-piece (:current-piece @game-state)
           board (:board @game-state)]
       (if current-piece
-        (do
-          (js/console.log "ハードドロップ前のピース位置:"
-                          "puyo1(" (get-in current-piece [:puyo1 :x]) "," (get-in current-piece [:puyo1 :y]) ")"
-                          "puyo2(" (get-in current-piece [:puyo2 :x]) "," (get-in current-piece [:puyo2 :y]) ")")
-          (let [final-piece (hard-drop-puyo-pair current-piece board)]
-            (js/console.log "ハードドロップ後のピース位置:"
-                            "puyo1(" (get-in final-piece [:puyo1 :x]) "," (get-in final-piece [:puyo1 :y]) ")"
-                            "puyo2(" (get-in final-piece [:puyo2 :x]) "," (get-in final-piece [:puyo2 :y]) ")")
-            (js/console.log "✓ ハードドロップ成功 - ぷよをボードに固定します")
-
-            ;; 現在のピースをクリア
-            (swap! game-state assoc :current-piece nil)
-            (js/console.log "現在のピースをクリアしました")
+        (let [final-piece (hard-drop-puyo-pair current-piece board)]
+          ;; 現在のピースをクリア
+          (swap! game-state assoc :current-piece nil)
 
             ;; ぷよをボードに固定
-            (place-puyo-pair! final-piece)
-            (process-line-clear!)
+          (place-puyo-pair! final-piece)
+          (process-line-clear!)
 
-            ;; 新しいぷよを生成（ゲームオーバーチェック改善）
-            (let [new-piece (spawn-new-puyo-pair)]
-              (js/console.log "新しいぷよペア生成位置:"
-                              "puyo1(" (get-in new-piece [:puyo1 :x]) "," (get-in new-piece [:puyo1 :y]) ")"
-                              "puyo2(" (get-in new-piece [:puyo2 :x]) "," (get-in new-piece [:puyo2 :y]) ")")
-              ;; 新しいぷよが配置可能かチェック（危険ライン判定ではなく配置可能性のみ）
-              (if (can-place-puyo-pair? new-piece (:board @game-state))
-                (do
-                  (swap! game-state assoc :current-piece new-piece)
-                  (js/console.log "✓ 新しいぷよペア生成成功"))
-                (do
-                  (js/console.log "✗ ゲームオーバー: 新しいぷよを配置できません")
-                  (js/console.log "ボード状態（上部2行）:")
-                  (doseq [y [0 1]]
-                    (js/console.log (str "y=" y ": " (vec (for [x (range board-width)] (get-in (:board @game-state) [y x]))))))
-                  (process-game-over!)
-                  (stop-drop-timer!))))
+            ;; 新しいぷよを生成
+          (let [new-piece (spawn-new-puyo-pair)]
+              ;; 新しいぷよが配置可能かチェック
+            (if (can-place-puyo-pair? new-piece (:board @game-state))
+              (swap! game-state assoc :current-piece new-piece)
+              (do
+                (process-game-over!)
+                (stop-drop-timer!))))
 
             ;; ハードドロップ完了後にタイマーを再開
-            (js/console.log "▶️ ハードドロップ完了 - タイマーを再開")
-            (start-drop-timer!)
+          (start-drop-timer!)
 
-            (render-game)
-            (js/console.log "=== ハードドロップ処理終了 ===")
-            {:result :hard-dropped-and-placed :final-y (get-in final-piece [:puyo1 :y])}))
-        (do
-          (js/console.log "✗ ハードドロップ失敗: 現在のピースがありません")
-          (js/console.log "=== ハードドロップ処理終了 ===")
-          {:result :failed :reason "no-piece"})))
+          (render-game)
+          {:result :hard-dropped-and-placed :final-y (get-in final-piece [:puyo1 :y])})
+        {:result :failed :reason "no-piece"}))
     (catch js/Error e
-      (js/console.error "✗✗✗ ハードドロップ処理中にエラーが発生しました ✗✗✗")
-      (js/console.error "エラー詳細:" e)
-      (js/console.error "エラーメッセージ:" (.-message e))
-      (js/console.error "エラースタック:" (.-stack e))
+      (js/console.error "ハードドロップ処理中にエラーが発生しました:" e)
       ;; エラー時もタイマーを再開
       (start-drop-timer!)
-      (js/console.log "=== ハードドロップ処理終了（エラー） ===")
       {:result :error :error e})))
 
-;; キーボード入力ハンドラ関数
 ;; キー入力のデバウンス制御
 (def ^:private last-rotation-time (atom 0))
 (def ^:private last-left-move-time (atom 0))
@@ -1402,56 +1170,118 @@
 (defn handle-key-input
   "キーボード入力を処理してゲーム状態を更新"
   [key]
-  (js/console.log "Key:" key "Game running:" (:game-running @game-state) "Current piece:" (some? (:current-piece @game-state)))
   (when (and (:game-running @game-state)
              (:current-piece @game-state))
     (case key
       "ArrowLeft" (let [current-time (js/Date.now)
                         time-since-last-move (- current-time @last-left-move-time)]
-                    (js/console.log "左移動キー検出 - 前回からの経過時間:" time-since-last-move "ms")
                     (if (> time-since-last-move movement-debounce-ms)
                       (do
-                        (js/console.log "左移動実行 - デバウンス条件OK")
                         (reset! last-left-move-time current-time)
                         (process-left-movement!))
-                      (do
-                        (js/console.log "左移動スキップ - デバウンス条件NG")
-                        {:result :debounced :reason "too-soon"})))
+                      {:result :debounced :reason "too-soon"}))
       "ArrowRight" (let [current-time (js/Date.now)
                          time-since-last-move (- current-time @last-right-move-time)]
-                     (js/console.log "右移動キー検出 - 前回からの経過時間:" time-since-last-move "ms")
                      (if (> time-since-last-move movement-debounce-ms)
                        (do
-                         (js/console.log "右移動実行 - デバウンス条件OK")
                          (reset! last-right-move-time current-time)
                          (process-right-movement!))
-                       (do
-                         (js/console.log "右移動スキップ - デバウンス条件NG")
-                         {:result :debounced :reason "too-soon"})))
+                       {:result :debounced :reason "too-soon"}))
       "ArrowUp" (let [current-time (js/Date.now)
                       time-since-last-rotation (- current-time @last-rotation-time)]
-                  (js/console.log "回転キー検出 - 前回からの経過時間:" time-since-last-rotation "ms")
                   (if (> time-since-last-rotation rotation-debounce-ms)
                     (do
-                      (js/console.log "回転実行 - デバウンス条件OK")
                       (reset! last-rotation-time current-time)
                       (process-rotation!))
-                    (do
-                      (js/console.log "回転スキップ - デバウンス条件NG")
-                      {:result :debounced :reason "too-soon"})))
+                    {:result :debounced :reason "too-soon"}))
       "ArrowDown" (process-soft-drop!)
       " " (let [current-time (js/Date.now)
                 time-since-last-drop (- current-time @last-hard-drop-time)]
-            (js/console.log "ハードドロップキー検出 - 前回からの経過時間:" time-since-last-drop "ms")
             (if (> time-since-last-drop hard-drop-debounce-ms)
               (do
-                (js/console.log "ハードドロップ実行 - デバウンス条件OK")
                 (reset! last-hard-drop-time current-time)
                 (process-hard-drop!))
-              (do
-                (js/console.log "ハードドロップスキップ - デバウンス条件NG")
-                {:result :debounced :reason "too-soon"})))
+              {:result :debounced :reason "too-soon"}))
       nil)))
+
+(defn setup-event-listeners
+  "イベントリスナーを設定（重複登録防止付き）"
+  []
+  (if @event-listeners-setup
+    nil
+    (do
+      ;; ゲーム開始ボタン
+      (when-let [start-btn (.getElementById js/document "start-button")]
+        (.addEventListener start-btn "click"
+                           (fn [_event]
+                             (if (:game-running @game-state)
+                               nil
+                               (start-game)))))
+
+      ;; リセットボタン
+      (when-let [reset-btn (.getElementById js/document "reset-button")]
+        (.addEventListener reset-btn "click" reset-game))
+
+      ;; キーボードイベント
+      (.addEventListener js/document "keydown"
+                         (fn [event]
+                           (when (:game-running @game-state)
+                             (let [key (.-key event)]
+                               ;; スペースキーがボタンを誤って発火させないように preventDefault
+                               (when (= key " ")
+                                 (.preventDefault event))
+                               (handle-key-input key)))))
+
+      (reset! event-listeners-setup true))))
+
+;; ゲーム初期化フラグ
+(defonce app-initialized (atom false))
+
+(defn init
+  "アプリケーション初期化"
+  []
+  (if @app-initialized
+    nil
+    (do
+      ;; Canvas要素の取得
+      (when-let [canvas-elem (.getElementById js/document "game-board")]
+        (reset! canvas canvas-elem)
+        (reset! ctx (.getContext canvas-elem "2d")))
+
+      ;; ゲーム状態初期化
+      (init-game-state!)
+
+      ;; イベントリスナー設定
+      (setup-event-listeners)
+
+      ;; 初期描画
+      (render-game)
+
+      ;; 初期化完了フラグを設定
+      (reset! app-initialized true))))
+
+;; DOMContentLoadedで自動初期化
+(when (exists? js/document)
+  (.addEventListener js/document "DOMContentLoaded"
+                     (fn [_e]
+                       (init)))
+
+  ;; グローバルエラーハンドラー追加
+  (.addEventListener js/window "error"
+                     (fn [e]
+                       (js/console.error "Error:" e)
+                       (js/console.error "Message:" (.-message e))
+                       (js/console.error "Filename:" (.-filename e))
+                       (js/console.error "Line:" (.-lineno e))))
+
+  ;; Unhandled Promise Rejectionハンドラー追加  
+  (.addEventListener js/window "unhandledrejection"
+                     (fn [e]
+                       (js/console.error "Unhandled Promise Rejection:" (.-reason e)))))
+
+;; =============================================================================
+;; T017: キーボード入力処理
+;; =============================================================================
 
 ;; T019: ゲーム初期化関数群
 (defn reset-game-state!
@@ -1502,11 +1332,6 @@
                      (pos? (get-in board [y x])))
                    (range board-width)))
            [0 1]))))
-
-(defn process-game-over!
-  "ゲームオーバー時の処理"
-  []
-  (swap! game-state assoc :game-over true :game-running false))
 
 (defn check-and-handle-game-over!
   "ゲームオーバーをチェックし、必要に応じて処理を実行"
