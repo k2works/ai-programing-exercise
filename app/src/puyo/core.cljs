@@ -13,6 +13,7 @@
 (defonce canvas (atom nil))
 (defonce ctx (atom nil))
 (defonce game-timer (atom nil))
+(defonce drop-timer (atom nil))
 
 ;; ゲームボードの設定
 (def board-width 8)
@@ -667,6 +668,34 @@
   []
   (vec (repeat board-height (vec (repeat board-width 0)))))
 
+(defn place-puyo-pair!
+  "組ぷよをボードに配置する"
+  [puyo-pair]
+  (let [positions (get-puyo-pair-positions
+                   (get-in puyo-pair [:puyo1 :x])
+                   (get-in puyo-pair [:puyo1 :y])
+                   (:rotation puyo-pair))
+        puyo1-pos (first positions)
+        puyo2-pos (second positions)
+        color1 (get-in puyo-pair [:puyo1 :color])
+        color2 (get-in puyo-pair [:puyo2 :color])]
+    (swap! game-state
+           update :board
+           #(-> %
+                (assoc-in [(:y puyo1-pos) (:x puyo1-pos)] color1)
+                (assoc-in [(:y puyo2-pos) (:x puyo2-pos)] color2)))))
+
+(defn process-line-clear!
+  "連鎖処理を実行し、結果をゲーム状態に反映"
+  []
+  (let [board (:board @game-state)
+        chain-result (execute-chain board)]
+    (swap! game-state merge
+           {:board (:board chain-result)
+            :score (+ (:score @game-state) (:total-score chain-result))
+            :chain-count (:chain-count chain-result)})
+    (update-all-game-info!)))
+
 (defn init-game-state!
   "ゲーム状態を初期化"
   []
@@ -877,6 +906,48 @@
     (js/clearInterval @game-timer)
     (reset! game-timer nil)))
 
+(defn start-drop-timer!
+  "ぷよ落下タイマーを開始（500msごとにぷよを1マス下に落下）"
+  []
+  (when @drop-timer
+    (js/clearInterval @drop-timer))
+  (reset! drop-timer
+          (js/setInterval
+           (fn []
+             (when (:game-running @game-state)
+               (process-auto-drop!)))
+           500)))
+
+(defn stop-drop-timer!
+  "ぷよ落下タイマーを停止"
+  []
+  (when @drop-timer
+    (js/clearInterval @drop-timer)
+    (reset! drop-timer nil)))
+
+(defn process-auto-drop!
+  "自動落下処理：現在のぷよを1マス下に落下させる"
+  []
+  (when-let [current-piece (:current-piece @game-state)]
+    (let [board (:board @game-state)
+          dropped-piece (drop-puyo-pair-one-step current-piece board)]
+      (if (= dropped-piece current-piece)
+        ;; 落下できない場合はぷよを配置して新しいぷよを生成
+        (do
+          (place-puyo-pair! current-piece)
+          (process-line-clear!)
+          (let [new-piece (spawn-new-puyo-pair)]
+            (if (can-place-puyo-pair? new-piece (:board @game-state))
+              (swap! game-state assoc :current-piece new-piece)
+              ;; 新しいぷよが配置できない場合はゲームオーバー
+              (do
+                (process-game-over!)
+                (stop-drop-timer!)))))
+        ;; 落下できる場合は位置を更新
+        (do
+          (swap! game-state assoc :current-piece dropped-piece)
+          (render-game))))))
+
 (defn render-game
   "ゲーム画面を描画"
   []
@@ -906,6 +977,7 @@
          :current-piece (spawn-new-puyo-pair))
   (update-all-game-info!)
   (start-game-timer!)
+  (start-drop-timer!)
   (render-game)
   (js/console.log "ゲーム開始!"))
 
@@ -913,6 +985,7 @@
   "ゲームをリセット"
   []
   (stop-game-timer!)
+  (stop-drop-timer!)
   (init-game-state!)
   (reset-chain-count!)
   (reset-game-time!)
