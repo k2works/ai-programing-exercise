@@ -683,7 +683,8 @@
            update :board
            #(-> %
                 (assoc-in [(:y puyo1-pos) (:x puyo1-pos)] color1)
-                (assoc-in [(:y puyo2-pos) (:x puyo2-pos)] color2)))))
+                (assoc-in [(:y puyo2-pos) (:x puyo2-pos)] color2)
+                (drop-floating-puyos)))))
 
 (defn process-line-clear!
   "連鎖処理を実行し、結果をゲーム状態に反映"
@@ -926,27 +927,37 @@
     (reset! drop-timer nil)))
 
 (defn process-auto-drop!
-  "自動落下処理：現在のぷよを1マス下に落下させる"
+  "自動落下処理：現在のぷよを1マス下に落下させる（アトミック操作）"
   []
-  (when-let [current-piece (:current-piece @game-state)]
-    (let [board (:board @game-state)
-          dropped-piece (drop-puyo-pair-one-step current-piece board)]
-      (if (= dropped-piece current-piece)
-        ;; 落下できない場合はぷよを配置して新しいぷよを生成
-        (do
-          (place-puyo-pair! current-piece)
-          (process-line-clear!)
-          (let [new-piece (spawn-new-puyo-pair)]
-            (if (can-place-puyo-pair? new-piece (:board @game-state))
-              (swap! game-state assoc :current-piece new-piece)
-              ;; 新しいぷよが配置できない場合はゲームオーバー
-              (do
-                (process-game-over!)
-                (stop-drop-timer!)))))
-        ;; 落下できる場合は位置を更新
-        (do
-          (swap! game-state assoc :current-piece dropped-piece)
-          (render-game))))))
+  (let [result (atom nil)]
+    (swap! game-state
+           (fn [state]
+             (if-let [current-piece (:current-piece state)]
+               (let [board (:board state)
+                     dropped-piece (drop-puyo-pair-one-step current-piece board)]
+                 (if (= dropped-piece current-piece)
+                   ;; 落下できない場合はぷよを配置して新しいぷよを生成
+                   (do
+                     (reset! result :piece-placed)
+                     state) ; 配置処理は別途実行
+                   ;; 落下できる場合は位置を更新
+                   (do
+                     (reset! result :dropped)
+                     (assoc state :current-piece dropped-piece))))
+               state)))
+    ;; 結果に応じて後続処理を実行
+    (case @result
+      :piece-placed (do
+                      (place-puyo-pair! (:current-piece @game-state))
+                      (process-line-clear!)
+                      (let [new-piece (spawn-new-puyo-pair)]
+                        (if (can-place-puyo-pair? new-piece (:board @game-state))
+                          (swap! game-state assoc :current-piece new-piece)
+                          (do
+                            (process-game-over!)
+                            (stop-drop-timer!)))))
+      :dropped (render-game)
+      nil)))
 
 (defn render-game
   "ゲーム画面を描画"
@@ -1062,46 +1073,131 @@
 
 ;; 移動処理関数群
 (defn process-left-movement!
-  "左移動処理"
+  "左移動処理（アトミック操作 + 詳細ログ）"
   []
-  (let [current-piece (:current-piece @game-state)
-        board (:board @game-state)]
-    (when current-piece
-      (let [moved-piece (move-puyo-pair-left current-piece board)]
-        (if (not= moved-piece current-piece)
-          (do
-            (js/console.log "左移動成功")
-            (swap! game-state assoc :current-piece moved-piece)
-            (render-game)
-            {:result :moved :direction :left})
-          (js/console.log "左移動できません"))))))
+  (js/console.log "=== 左移動処理開始 ===")
+  (let [result (atom nil)
+        start-time (js/Date.now)]
+    (swap! game-state
+           (fn [state]
+             (let [current-piece (:current-piece state)
+                   board (:board state)]
+               (if current-piece
+                 (do
+                   (js/console.log "左移動前のピース位置:" 
+                                   "puyo1(" (get-in current-piece [:puyo1 :x]) "," (get-in current-piece [:puyo1 :y]) ")"
+                                   "puyo2(" (get-in current-piece [:puyo2 :x]) "," (get-in current-piece [:puyo2 :y]) ")")
+                   (let [moved-piece (move-puyo-pair-left current-piece board)]
+                     (if (not= moved-piece current-piece)
+                       (do
+                         (js/console.log "左移動後のピース位置:"
+                                         "puyo1(" (get-in moved-piece [:puyo1 :x]) "," (get-in moved-piece [:puyo1 :y]) ")"
+                                         "puyo2(" (get-in moved-piece [:puyo2 :x]) "," (get-in moved-piece [:puyo2 :y]) ")")
+                         (js/console.log "✓ 左移動成功")
+                         (reset! result {:result :moved :direction :left})
+                         (assoc state :current-piece moved-piece))
+                       (do
+                         (js/console.log "✗ 左移動できません")
+                         (reset! result {:result :failed :reason "cannot-move"})
+                         state))))
+                 (do
+                   (js/console.log "✗ 左移動失敗: 現在のピースがありません")
+                   (reset! result {:result :failed :reason "no-piece"})
+                   state)))))
+    (let [end-time (js/Date.now)
+          duration (- end-time start-time)]
+      (js/console.log "左移動処理時間:" duration "ms")
+      (when (= (:result @result) :moved)
+        (js/console.log "描画実行")
+        (render-game))
+      (js/console.log "=== 左移動処理終了 ===")
+      @result)))
 
 (defn process-right-movement!
-  "右移動処理"
+  "右移動処理（アトミック操作 + 詳細ログ）"
   []
-  (let [current-piece (:current-piece @game-state)
-        board (:board @game-state)]
-    (when current-piece
-      (let [moved-piece (move-puyo-pair-right current-piece board)]
-        (if (not= moved-piece current-piece)
-          (do
-            (js/console.log "右移動成功")
-            (swap! game-state assoc :current-piece moved-piece)
-            (render-game)
-            {:result :moved :direction :right})
-          (js/console.log "右移動できません"))))))
+  (js/console.log "=== 右移動処理開始 ===")
+  (let [result (atom nil)
+        start-time (js/Date.now)]
+    (swap! game-state
+           (fn [state]
+             (let [current-piece (:current-piece state)
+                   board (:board state)]
+               (if current-piece
+                 (do
+                   (js/console.log "右移動前のピース位置:" 
+                                   "puyo1(" (get-in current-piece [:puyo1 :x]) "," (get-in current-piece [:puyo1 :y]) ")"
+                                   "puyo2(" (get-in current-piece [:puyo2 :x]) "," (get-in current-piece [:puyo2 :y]) ")")
+                   (let [moved-piece (move-puyo-pair-right current-piece board)]
+                     (if (not= moved-piece current-piece)
+                       (do
+                         (js/console.log "右移動後のピース位置:"
+                                         "puyo1(" (get-in moved-piece [:puyo1 :x]) "," (get-in moved-piece [:puyo1 :y]) ")"
+                                         "puyo2(" (get-in moved-piece [:puyo2 :x]) "," (get-in moved-piece [:puyo2 :y]) ")")
+                         (js/console.log "✓ 右移動成功")
+                         (reset! result {:result :moved :direction :right})
+                         (assoc state :current-piece moved-piece))
+                       (do
+                         (js/console.log "✗ 右移動できません")
+                         (reset! result {:result :failed :reason "cannot-move"})
+                         state))))
+                 (do
+                   (js/console.log "✗ 右移動失敗: 現在のピースがありません")
+                   (reset! result {:result :failed :reason "no-piece"})
+                   state)))))
+    (let [end-time (js/Date.now)
+          duration (- end-time start-time)]
+      (js/console.log "右移動処理時間:" duration "ms")
+      (when (= (:result @result) :moved)
+        (js/console.log "描画実行")
+        (render-game))
+      (js/console.log "=== 右移動処理終了 ===")
+      @result)))
 
 (defn process-rotation!
-  "回転処理"
+  "回転処理（アトミック操作 + 二重実行防止）"
   []
-  (let [current-piece (:current-piece @game-state)
-        board (:board @game-state)]
-    (when current-piece
-      (let [rotated-piece (rotate-puyo-pair current-piece)]
-        (when (can-place-puyo-pair? rotated-piece board)
-          (swap! game-state assoc :current-piece rotated-piece)
-          (render-game)
-          {:result :rotated :new-rotation (:rotation rotated-piece)})))))
+  (js/console.log "=== 回転処理開始 ===")
+  ;; スワップ関数を使用してアトミックに状態を更新
+  (let [result (atom nil)
+        start-time (js/Date.now)]
+    (swap! game-state
+           (fn [state]
+             (let [current-piece (:current-piece state)
+                   board (:board state)]
+               (if current-piece
+                 (do
+                   (js/console.log "回転前の現在のピース:" (pr-str current-piece))
+                   (js/console.log "回転前の回転状態:" (:rotation current-piece))
+                   (js/console.log "回転前puyo1位置:" (get-in current-piece [:puyo1 :x]) (get-in current-piece [:puyo1 :y]))
+                   (js/console.log "回転前puyo2位置:" (get-in current-piece [:puyo2 :x]) (get-in current-piece [:puyo2 :y]))
+                   (let [rotated-piece (rotate-puyo-pair current-piece)]
+                     (js/console.log "回転計算後のピース:" (pr-str rotated-piece))
+                     (js/console.log "回転計算後の状態:" (:rotation rotated-piece))
+                     (js/console.log "回転計算後puyo1位置:" (get-in rotated-piece [:puyo1 :x]) (get-in rotated-piece [:puyo1 :y]))
+                     (js/console.log "回転計算後puyo2位置:" (get-in rotated-piece [:puyo2 :x]) (get-in rotated-piece [:puyo2 :y]))
+                     (if (can-place-puyo-pair? rotated-piece board)
+                       (do
+                         (js/console.log "✓ 回転成功 - 状態更新実行")
+                         (reset! result {:result :rotated :new-rotation (:rotation rotated-piece)})
+                         (assoc state :current-piece rotated-piece))
+                       (do
+                         (js/console.log "✗ 回転失敗: 配置できません")
+                         (reset! result {:result :failed :reason "cannot-place"})
+                         state))))
+                 (do
+                   (js/console.log "✗ 回転失敗: 現在のピースがありません")
+                   (reset! result {:result :failed :reason "no-piece"})
+                   state)))))
+    ;; 状態更新後に描画を実行
+    (let [end-time (js/Date.now)
+          duration (- end-time start-time)]
+      (js/console.log "回転処理時間:" duration "ms")
+      (when (= (:result @result) :rotated)
+        (js/console.log "描画実行")
+        (render-game))
+      (js/console.log "=== 回転処理終了 ===")
+      @result)))
 
 (defn process-soft-drop!
   "高速落下処理"
@@ -1129,6 +1225,13 @@
         {:result :hard-dropped :final-y (get-in final-piece [:puyo1 :y])}))))
 
 ;; キーボード入力ハンドラ関数
+;; キー入力のデバウンス制御
+(def ^:private last-rotation-time (atom 0))
+(def ^:private last-left-move-time (atom 0))
+(def ^:private last-right-move-time (atom 0))
+(def ^:private rotation-debounce-ms 200) ; 200ms以内の連続回転を防ぐ
+(def ^:private movement-debounce-ms 100) ; 100ms以内の連続移動を防ぐ
+
 (defn handle-key-input
   "キーボード入力を処理してゲーム状態を更新"
   [key]
@@ -1136,13 +1239,39 @@
   (when (and (:game-running @game-state)
              (:current-piece @game-state))
     (case key
-      "ArrowLeft" (do
-                    (js/console.log "左移動")
-                    (process-left-movement!))
-      "ArrowRight" (do
-                     (js/console.log "右移動")
-                     (process-right-movement!))
-      "ArrowUp" (process-rotation!)
+      "ArrowLeft" (let [current-time (js/Date.now)
+                        time-since-last-move (- current-time @last-left-move-time)]
+                    (js/console.log "左移動キー検出 - 前回からの経過時間:" time-since-last-move "ms")
+                    (if (> time-since-last-move movement-debounce-ms)
+                      (do
+                        (js/console.log "左移動実行 - デバウンス条件OK")
+                        (reset! last-left-move-time current-time)
+                        (process-left-movement!))
+                      (do
+                        (js/console.log "左移動スキップ - デバウンス条件NG")
+                        {:result :debounced :reason "too-soon"})))
+      "ArrowRight" (let [current-time (js/Date.now)
+                         time-since-last-move (- current-time @last-right-move-time)]
+                     (js/console.log "右移動キー検出 - 前回からの経過時間:" time-since-last-move "ms")
+                     (if (> time-since-last-move movement-debounce-ms)
+                       (do
+                         (js/console.log "右移動実行 - デバウンス条件OK")
+                         (reset! last-right-move-time current-time)
+                         (process-right-movement!))
+                       (do
+                         (js/console.log "右移動スキップ - デバウンス条件NG")
+                         {:result :debounced :reason "too-soon"})))
+      "ArrowUp" (let [current-time (js/Date.now)
+                      time-since-last-rotation (- current-time @last-rotation-time)]
+                  (js/console.log "回転キー検出 - 前回からの経過時間:" time-since-last-rotation "ms")
+                  (if (> time-since-last-rotation rotation-debounce-ms)
+                    (do
+                      (js/console.log "回転実行 - デバウンス条件OK")
+                      (reset! last-rotation-time current-time)
+                      (process-rotation!))
+                    (do
+                      (js/console.log "回転スキップ - デバウンス条件NG")
+                      {:result :debounced :reason "too-soon"})))
       "ArrowDown" (process-soft-drop!)
       " " (process-hard-drop!)
       nil)))
