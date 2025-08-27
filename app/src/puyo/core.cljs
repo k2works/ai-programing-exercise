@@ -3,6 +3,7 @@
 ;; ゲーム状態の初期化
 (defonce game-state (atom {:board []
                            :current-piece nil
+                           :next-piece nil
                            :score 0
                            :level 1
                            :chain-count 0
@@ -12,6 +13,8 @@
 ;; HTML要素への参照
 (defonce canvas (atom nil))
 (defonce ctx (atom nil))
+(defonce next-canvas (atom nil))
+(defonce next-ctx (atom nil))
 (defonce game-timer (atom nil))
 (defonce drop-timer (atom nil))
 
@@ -734,6 +737,7 @@
   []
   (reset! game-state {:board (create-empty-board)
                       :current-piece nil
+                      :next-piece (setup-next-puyo)
                       :score 0
                       :level 1
                       :game-running false}))
@@ -820,6 +824,32 @@
       (draw-cell (:x puyo1) (:y puyo1) color1)
       (draw-cell (:x puyo2) (:y puyo2) color2)))
   nil)
+
+(defn draw-next-cell
+  "次のぷよエリアでセルを描画"
+  [x y color]
+  (when @next-ctx
+    (set! (.-fillStyle @next-ctx) color)
+    (.fillRect @next-ctx (* x 20) (* y 20) 20 20)
+    (set! (.-strokeStyle @next-ctx) "#000")
+    (.strokeRect @next-ctx (* x 20) (* y 20) 20 20)))
+
+(defn render-next-piece
+  "次のぷよを描画"
+  []
+  (when (and @next-ctx (:next-piece @game-state))
+    ;; 背景クリア
+    (set! (.-fillStyle @next-ctx) "#f0f0f0")
+    (.fillRect @next-ctx 0 0 80 80)
+    
+    (let [next-piece (:next-piece @game-state)
+          puyo1 (:puyo1 next-piece)
+          puyo2 (:puyo2 next-piece)
+          color1 (get-puyo-color (:color puyo1))
+          color2 (get-puyo-color (:color puyo2))]
+      ;; 縦配置で中央に表示
+      (draw-next-cell 1 1 color1)  ; 上のぷよ
+      (draw-next-cell 1 2 color2)))) ; 下のぷよ
 
 (defn update-game-display
   "ゲーム状態表示更新
@@ -970,6 +1000,9 @@
     (when-let [current-piece (:current-piece @game-state)]
       (render-puyo-pair current-piece))
 
+    ;; 次のぷよ描画
+    (render-next-piece)
+
     ;; UI更新
     (update-all-game-info!)))
 
@@ -1004,9 +1037,19 @@
       :piece-placed (do
                       (place-puyo-pair! (:current-piece @game-state))
                       (process-line-clear!)
-                      (let [new-piece (spawn-new-puyo-pair)]
-                        (if (can-place-puyo-pair? new-piece (:board @game-state))
-                          (swap! game-state assoc :current-piece new-piece)
+                      ;; 次のぷよを現在のぷよにして、新しい次のぷよを生成
+                      (let [next-piece (:next-piece @game-state)
+                            positioned-piece (if next-piece
+                                               (merge next-piece 
+                                                      {:puyo1 (merge (:puyo1 next-piece) {:x (quot board-width 2) :y 0})
+                                                       :puyo2 (merge (:puyo2 next-piece) {:x (quot board-width 2) :y 1})
+                                                       :rotation 0})
+                                               (spawn-new-puyo-pair))
+                            new-next-piece (setup-next-puyo)]
+                        (if (can-place-puyo-pair? positioned-piece (:board @game-state))
+                          (swap! game-state assoc 
+                                 :current-piece positioned-piece
+                                 :next-piece new-next-piece)
                           (do
                             (process-game-over!)
                             (stop-drop-timer!)))))
@@ -1031,9 +1074,17 @@
   (init-game-state!)
   (reset-chain-count!)
   (reset-game-time!)
-  (swap! game-state assoc
-         :game-running true
-         :current-piece (spawn-new-puyo-pair))
+  ;; 次のぷよを現在のぷよにして、新しい次のぷよを生成
+  (let [next-piece (:next-piece @game-state)
+        positioned-piece (merge next-piece 
+                               {:puyo1 (merge (:puyo1 next-piece) {:x (quot board-width 2) :y 0})
+                                :puyo2 (merge (:puyo2 next-piece) {:x (quot board-width 2) :y 1})
+                                :rotation 0})
+        new-next-piece (setup-next-puyo)]
+    (swap! game-state assoc
+           :game-running true
+           :current-piece positioned-piece
+           :next-piece new-next-piece))
   (update-all-game-info!)
   (start-game-timer!)
   (start-drop-timer!)
@@ -1277,6 +1328,11 @@
       (when-let [canvas-elem (.getElementById js/document "game-board")]
         (reset! canvas canvas-elem)
         (reset! ctx (.getContext canvas-elem "2d")))
+
+      ;; 次のぷよCanvas要素の取得
+      (when-let [next-canvas-elem (.getElementById js/document "next-piece-canvas")]
+        (reset! next-canvas next-canvas-elem)
+        (reset! next-ctx (.getContext next-canvas-elem "2d")))
 
       ;; ゲーム状態初期化
       (init-game-state!)

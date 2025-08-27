@@ -27,6 +27,19 @@
             margin: 20px auto;
             background-color: #fff;
         }
+        #next-piece-area {
+            text-align: center;
+            margin-top: 20px;
+        }
+        #next-piece-area h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            color: #333;
+        }
+        #next-piece-canvas {
+            border: 2px solid #666;
+            background-color: #fff;
+        }
         .controls {
             margin: 20px 0;
         }
@@ -51,13 +64,19 @@
 <body>
     <div id="app">
         <h1>🍮 Puyo Puyo Game 🍮</h1>
-        <div id="game-info">
-            <p>Score: <span id="score">0</span></p>
-            <p>Level: <span id="level">1</span></p>
-            <p>Chain: <span id="chain">0</span></p>
-            <p>Time: <span id="time">0:00</span></p>
+        <div style="display: flex; justify-content: center; align-items: flex-start; gap: 20px;">
+            <canvas id="game-board" width="320" height="480"></canvas>
+            <div id="game-info">
+                <p>Score: <span id="score">0</span></p>
+                <p>Level: <span id="level">1</span></p>
+                <p>Chain: <span id="chain">0</span></p>
+                <p>Time: <span id="time">0:00</span></p>
+                <div id="next-piece-area">
+                    <h3>Next</h3>
+                    <canvas id="next-piece-canvas" width="80" height="80"></canvas>
+                </div>
+            </div>
         </div>
-        <canvas id="game-board" width="320" height="480"></canvas>
         <div class="controls">
             <button id="start-button">ゲーム開始</button>
             <button id="reset-button">リセット</button>
