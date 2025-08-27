@@ -766,10 +766,10 @@
     (doseq [y (range board-height)
             x (range board-width)]
       (let [cell-value (get-in board [y x])]
-        ;; 空のセル（値が0）の場合は描画をスキップ
-        (when (not= cell-value 0)
-          (let [color (get colors cell-value "#ffffff")]
-            (draw-cell x y color)))))))
+     ;; 空のセル（値が0）の場合は描画をスキップ
+     (when (not= cell-value 0)
+       (let [color (get colors cell-value "#ffffff")]
+         (draw-cell x y color)))))))
 
 (defn init-canvas
   "Canvas初期化
