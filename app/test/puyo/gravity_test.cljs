@@ -1,4 +1,4 @@
-(ns gravity-test
+(ns puyo.gravity-test
   (:require [puyo.core :as puyo]))
 
 ;; 重力テスト用の簡単なテストケース

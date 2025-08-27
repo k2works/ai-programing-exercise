@@ -668,6 +668,36 @@
   []
   (vec (repeat board-height (vec (repeat board-width 0)))))
 
+(defn get-puyo-at
+  "指定した座標のぷよの色を取得"
+  [board x y]
+  (if (and (>= x 0) (< x board-width)
+           (>= y 0) (< y board-height))
+    (let [color (get-in board [y x])]
+      (case color
+        1 :red
+        2 :green
+        3 :blue
+        4 :yellow
+        5 :purple
+        nil))
+    nil))
+
+(defn place-puyo
+  "指定した座標にぷよを配置（非破壊的）"
+  [board x y color]
+  (if (and (>= x 0) (< x board-width)
+           (>= y 0) (< y board-height))
+    (let [color-num (case color
+                      :red 1
+                      :green 2
+                      :blue 3
+                      :yellow 4
+                      :purple 5
+                      0)]
+      (assoc-in board [y x] color-num))
+    board))
+
 (defn place-puyo-pair!
   "組ぷよをボードに配置する"
   [puyo-pair]
