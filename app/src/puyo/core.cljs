@@ -743,13 +743,21 @@
                       :game-running false}))
 
 (defn draw-cell
-  "セルを描画"
+  "セルを描画（円形）"
   [x y color]
   (when @ctx
-    (set! (.-fillStyle @ctx) color)
-    (.fillRect @ctx (* x cell-size) (* y cell-size) cell-size cell-size)
-    (set! (.-strokeStyle @ctx) "#000000")
-    (.strokeRect @ctx (* x cell-size) (* y cell-size) cell-size cell-size)))
+    (let [center-x (+ (* x cell-size) (/ cell-size 2))
+          center-y (+ (* y cell-size) (/ cell-size 2))
+          radius (- (/ cell-size 2) 2)] ; 少し小さめの円にしてマージンを作る
+      ;; 円を描画
+      (.beginPath @ctx)
+      (.arc @ctx center-x center-y radius 0 (* 2 js/Math.PI))
+      (set! (.-fillStyle @ctx) color)
+      (.fill @ctx)
+      ;; 円の境界線を描画
+      (set! (.-strokeStyle @ctx) "#000000")
+      (set! (.-lineWidth @ctx) 2)
+      (.stroke @ctx))))
 
 (defn draw-board
   "ゲームボードを描画"
@@ -826,13 +834,22 @@
   nil)
 
 (defn draw-next-cell
-  "次のぷよエリアでセルを描画"
+  "次のぷよエリアでセルを描画（円形）"
   [x y color]
   (when @next-ctx
-    (set! (.-fillStyle @next-ctx) color)
-    (.fillRect @next-ctx (* x 20) (* y 20) 20 20)
-    (set! (.-strokeStyle @next-ctx) "#000")
-    (.strokeRect @next-ctx (* x 20) (* y 20) 20 20)))
+    (let [cell-size 20
+          center-x (+ (* x cell-size) (/ cell-size 2))
+          center-y (+ (* y cell-size) (/ cell-size 2))
+          radius (- (/ cell-size 2) 1)] ; 少し小さめの円にしてマージンを作る
+      ;; 円を描画
+      (.beginPath @next-ctx)
+      (.arc @next-ctx center-x center-y radius 0 (* 2 js/Math.PI))
+      (set! (.-fillStyle @next-ctx) color)
+      (.fill @next-ctx)
+      ;; 円の境界線を描画
+      (set! (.-strokeStyle @next-ctx) "#000")
+      (set! (.-lineWidth @next-ctx) 1)
+      (.stroke @next-ctx))))
 
 (defn render-next-piece
   "次のぷよを描画"
