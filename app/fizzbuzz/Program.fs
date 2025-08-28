@@ -10,6 +10,10 @@ let fizz_buzz number = to_string number
 
 let create_numbers() = [|1..100|]
 
+let create_fizz_buzz_list() = 
+    create_numbers()
+    |> Array.map fizz_buzz
+
 [<TestFixture>]
 type FizzBuzzTest() =
 
@@ -35,6 +39,15 @@ type FizzBuzzTest() =
         Assert.That(numbers.[0], Is.EqualTo(1))
         Assert.That(numbers.[99], Is.EqualTo(100))
         Assert.That(numbers.Length, Is.EqualTo(100))
+
+    [<Test>]
+    member __.Test1から100までのFizzBuzzの配列を返す() =
+        let result = create_fizz_buzz_list()
+        Assert.That(result.[0], Is.EqualTo("1"))
+        Assert.That(result.[2], Is.EqualTo("Fizz"))
+        Assert.That(result.[4], Is.EqualTo("Buzz"))
+        Assert.That(result.[14], Is.EqualTo("FizzBuzz"))
+        Assert.That(result.Length, Is.EqualTo(100))
 
 [<EntryPoint>]
 let main argv =
