@@ -43,8 +43,8 @@ describe('EffectManager', () => {
       expect(effectManager).toBeInstanceOf(EffectManager)
     })
 
-    it('コンテナが正しく設定される', () => {
-      expect(effectManager.container).toBe(mockContainer)
+    it('シーンが正しく設定される', () => {
+      expect((effectManager as any).scene).toBe(mockContainer)
     })
   })
 

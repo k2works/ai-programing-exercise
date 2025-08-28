@@ -1,16 +1,20 @@
 import Phaser from 'phaser'
 import { DialogueBox } from '../dialogue/DialogueBox'
 import { ScenarioManager } from '../story/ScenarioManager'
+import { CharacterManager } from '../character/CharacterManager'
+import { BackgroundManager } from '../effect/BackgroundManager'
 import { sampleScenario } from '../story/data/sampleScenario'
-import type { ChoiceData } from '../story/types'
 
 /**
  * シナリオデモシーン
  * ScenarioManagerを使用した本格的なストーリー体験
+ * キャラクターと背景付きのビジュアル体験
  */
 export class ScenarioScene extends Phaser.Scene {
   private dialogueBox!: DialogueBox
   private scenarioManager!: ScenarioManager
+  private characterManager!: CharacterManager
+  private backgroundManager!: BackgroundManager
   private choiceButtons: Phaser.GameObjects.Text[] = []
   private choiceContainer!: Phaser.GameObjects.Container
   private isProcessing: boolean = false
@@ -21,14 +25,13 @@ export class ScenarioScene extends Phaser.Scene {
 
   preload(): void {
     this.setupPlaceholderAssets()
+    this.loadCharacterAssets()
+    this.loadBackgroundAssets()
   }
 
   create(): void {
     // カメラフェードイン
     this.cameras.main.fadeIn(500, 0, 0, 0)
-
-    // 背景
-    this.add.rectangle(400, 300, 800, 600, 0x2c3e50) // ダークブルー背景
 
     // システム初期化
     this.initializeSystems()
@@ -44,11 +47,62 @@ export class ScenarioScene extends Phaser.Scene {
    */
   private setupPlaceholderAssets(): void {
     // 基本的な色付き矩形テクスチャを作成
-    this.add.graphics()
+    this.add
+      .graphics()
       .fillStyle(0x4a90e2)
       .fillRect(0, 0, 64, 64)
       .generateTexture('blue-placeholder', 64, 64)
       .destroy()
+  }
+
+  /**
+   * キャラクターアセット読み込み
+   */
+  private loadCharacterAssets(): void {
+    // プレースホルダーキャラクター画像を作成
+    const graphics = this.add.graphics()
+
+    // ナレーター（透明）
+    graphics.clear()
+    graphics.generateTexture('narrator', 1, 1)
+
+    // 賢者キャラクター
+    graphics.fillStyle(0x8b4513) // ブラウン
+    graphics.fillCircle(32, 32, 30)
+    graphics.fillStyle(0xffffff) // 白いひげ
+    graphics.fillRect(20, 45, 24, 15)
+    graphics.generateTexture('wise_man', 64, 64)
+
+    graphics.destroy()
+  }
+
+  /**
+   * 背景アセット読み込み
+   */
+  private loadBackgroundAssets(): void {
+    const graphics = this.add.graphics()
+
+    // 森の背景
+    graphics.fillGradientStyle(0x2d5016, 0x2d5016, 0x8fbc8f, 0x8fbc8f, 1)
+    graphics.fillRect(0, 0, 800, 600)
+    graphics.generateTexture('forest', 800, 600)
+
+    // 花畑の背景
+    graphics.fillGradientStyle(0x90ee90, 0x90ee90, 0x32cd32, 0x32cd32, 1)
+    graphics.fillRect(0, 0, 800, 600)
+    graphics.generateTexture('meadow', 800, 600)
+
+    // 洞窟の背景
+    graphics.fillGradientStyle(0x2f4f4f, 0x2f4f4f, 0x000000, 0x000000, 1)
+    graphics.fillRect(0, 0, 800, 600)
+    graphics.generateTexture('cave', 800, 600)
+
+    // 空の背景
+    graphics.fillGradientStyle(0x87ceeb, 0x87ceeb, 0x4169e1, 0x4169e1, 1)
+    graphics.fillRect(0, 0, 800, 600)
+    graphics.generateTexture('sky', 800, 600)
+
+    graphics.destroy()
   }
 
   /**
@@ -60,6 +114,12 @@ export class ScenarioScene extends Phaser.Scene {
     // シナリオマネージャー初期化
     this.scenarioManager = new ScenarioManager()
     this.scenarioManager.loadScenario(sampleScenario)
+
+    // キャラクターマネージャー初期化
+    this.characterManager = new CharacterManager(this)
+
+    // 背景マネージャー初期化
+    this.backgroundManager = new BackgroundManager(this)
 
     // ダイアログボックス初期化
     this.dialogueBox = new DialogueBox(this, 750, 120)
@@ -77,8 +137,8 @@ export class ScenarioScene extends Phaser.Scene {
   private setupUI(): void {
     // タイトル
     this.add
-      .text(400, 30, '📖 シナリオデモ - はじまりの物語', {
-        fontSize: '20px',
+      .text(400, 30, '📖 シナリオデモ - はじまりの物語 (キャラクター・背景付き)', {
+        fontSize: '18px',
         color: '#ffffff',
         stroke: '#000000',
         strokeThickness: 2,
@@ -118,7 +178,9 @@ export class ScenarioScene extends Phaser.Scene {
 
     // 数字キーで選択肢選択
     for (let i = 1; i <= 9; i++) {
-      const key = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes[`DIGIT_${i}` as keyof typeof Phaser.Input.Keyboard.KeyCodes])
+      const key = this.input.keyboard!.addKey(
+        Phaser.Input.Keyboard.KeyCodes[`DIGIT_${i}` as keyof typeof Phaser.Input.Keyboard.KeyCodes]
+      )
       key.on('down', () => {
         if (this.choiceContainer.visible && this.choiceButtons.length >= i) {
           this.selectChoiceByIndex(i - 1)
@@ -145,8 +207,23 @@ export class ScenarioScene extends Phaser.Scene {
       const currentScene = this.scenarioManager.getCurrentScene()
       console.log('Displaying scene:', currentScene.id)
 
+      // 背景を表示
+      if (currentScene.background) {
+        this.displayBackground(currentScene.background)
+      }
+
+      // キャラクターを表示
+      if (currentScene.character && currentScene.character !== 'narrator') {
+        this.displayCharacter(currentScene.character)
+      } else {
+        // ナレーターの場合はすべてのキャラクターを非表示
+        this.characterManager.hideAllCharacters()
+      }
+
       // ダイアログ表示
-      this.dialogueBox.setSpeaker(this.getCharacterDisplayName(currentScene.character || 'narrator'))
+      this.dialogueBox.setSpeaker(
+        this.getCharacterDisplayName(currentScene.character || 'narrator')
+      )
       this.dialogueBox.setMessages([currentScene.text])
       this.dialogueBox.show()
 
@@ -163,6 +240,29 @@ export class ScenarioScene extends Phaser.Scene {
   }
 
   /**
+   * 背景を表示
+   */
+  private displayBackground(backgroundId: string): void {
+    console.log('Displaying background:', backgroundId)
+    this.backgroundManager.setBackground(backgroundId)
+  }
+
+  /**
+   * キャラクターを表示
+   */
+  private displayCharacter(characterId: string): void {
+    console.log('Displaying character:', characterId)
+
+    // キャラクターが登録されていない場合は登録
+    if (!this.characterManager.hasCharacter(characterId)) {
+      this.characterManager.registerCharacter(characterId, ['normal'])
+    }
+
+    // キャラクターを表示
+    this.characterManager.showCharacter(characterId, 'normal', { x: 650, y: 350 })
+  }
+
+  /**
    * 選択肢を表示
    */
   private showChoices(): void {
@@ -175,7 +275,7 @@ export class ScenarioScene extends Phaser.Scene {
     // 新しい選択肢ボタンを作成
     choices.forEach((choice, index) => {
       const y = index * 60 - (choices.length - 1) * 30
-      
+
       // 選択肢の背景
       const bg = this.add.rectangle(0, y, 400, 50, 0x4a90e2, 0.8)
       bg.setInteractive()
@@ -187,7 +287,7 @@ export class ScenarioScene extends Phaser.Scene {
       const text = this.add.text(0, y, `${index + 1}. ${choice.text}`, {
         fontSize: '16px',
         color: '#ffffff',
-        wordWrap: { width: 380 }
+        wordWrap: { width: 380 },
       })
       text.setOrigin(0.5)
 
@@ -231,7 +331,7 @@ export class ScenarioScene extends Phaser.Scene {
     // 選択実行
     try {
       this.scenarioManager.selectChoice(choiceId)
-      
+
       // 少し待ってから次のシーンを表示
       this.time.delayedCall(300, () => {
         this.isProcessing = false
@@ -297,7 +397,7 @@ export class ScenarioScene extends Phaser.Scene {
    */
   private showCompletionMessage(): void {
     console.log('Showing completion message')
-    
+
     this.dialogueBox.setSpeaker('システム')
     this.dialogueBox.setMessages([
       '🎉 シナリオデモが完了しました！',
@@ -305,8 +405,10 @@ export class ScenarioScene extends Phaser.Scene {
       '✅ ScenarioManager: JSON形式シナリオデータ管理',
       '✅ 分岐フロー: 選択肢による物語の分岐',
       '✅ ストーリー進行: 順次的なシーン遷移',
+      '✅ ビジュアル体験: キャラクター・背景表示',
+      '✅ 動的背景: シーンに応じた背景変更',
       '',
-      '3秒後にタイトルに戻ります。'
+      '3秒後にタイトルに戻ります。',
     ])
     this.dialogueBox.show()
 

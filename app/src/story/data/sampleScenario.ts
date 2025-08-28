@@ -11,11 +11,13 @@ export const sampleScenario: ScenarioData = {
       id: 'opening',
       text: 'あなたは静かな森の中で目を覚ました。\n辺りを見回すと、二つの道が見える。',
       character: 'narrator',
+      background: 'forest',
     },
     {
       id: 'choice_path',
       text: 'どちらの道を選びますか？',
       character: 'narrator',
+      background: 'forest',
       choices: [
         {
           id: 'left_path',
@@ -38,21 +40,25 @@ export const sampleScenario: ScenarioData = {
       id: 'light_path',
       text: '光の道を進むと、美しい花畑に出た。\n花の香りに包まれながら、あなたは平穏を感じた。',
       character: 'narrator',
+      background: 'meadow',
     },
     {
       id: 'dark_path',
       text: '暗い洞窟に入ると、キラキラと光る宝石を発見した。\n危険だったが、貴重な宝を手に入れることができた。',
       character: 'narrator',
+      background: 'cave',
     },
     {
       id: 'stay_scene',
       text: 'その場に留まっていると、賢そうな老人が現れた。',
       character: 'narrator',
+      background: 'forest',
     },
     {
       id: 'wise_man_speaks',
       text: 'おや、迷子かな？どちらへ向かいたいのじゃ？',
       character: 'wise_man',
+      background: 'forest',
       choices: [
         {
           id: 'ask_advice',
@@ -70,16 +76,19 @@ export const sampleScenario: ScenarioData = {
       id: 'advice_scene',
       text: '光の道は平穏をもたらすが、暗い道は試練と共に成長をもたらすじゃろう。\n選択はそなた次第じゃ。',
       character: 'wise_man',
+      background: 'forest',
     },
     {
       id: 'independent_scene',
       text: 'ほほう、自立心があるようじゃな。それも立派な選択じゃ。',
       character: 'wise_man',
+      background: 'forest',
     },
     {
       id: 'ending',
       text: 'あなたの冒険はまだ始まったばかり。\nこれからどんな物語が待っているのでしょうか...',
       character: 'narrator',
+      background: 'sky',
     },
   ],
 }

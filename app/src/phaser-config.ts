@@ -18,7 +18,7 @@ export class PhaserGameConfig {
       height: 600,
       backgroundColor: '#2c3e50',
       parent: 'game-container',
-			scene: [LoadingScene, TitleScene, TestScene, GameScene, ScenarioScene],
+      scene: [LoadingScene, TitleScene, TestScene, GameScene, ScenarioScene],
       physics: {
         default: 'arcade',
         arcade: {

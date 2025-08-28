@@ -20,6 +20,7 @@ export interface SceneData {
   id: string
   text: string
   character?: string
+  background?: string
   choices?: ChoiceData[]
   condition?: Condition
 }
