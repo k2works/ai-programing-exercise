@@ -50,3 +50,9 @@ let ``タイプ3の場合_5で割り切れる数値を返す`` () =
     fizz_buzz (5) |> should equal "Buzz"
     fizz_buzz (10) |> should equal "Buzz"
     fizz_buzz (20) |> should equal "Buzz"
+
+[<Fact>]
+let ``タイプその他の場合_15で割り切れる数値を返す`` () =
+    fizz_buzz (15) |> should equal "FizzBuzz"
+    fizz_buzz (30) |> should equal "FizzBuzz"
+    fizz_buzz (45) |> should equal "FizzBuzz"
