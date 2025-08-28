@@ -38,3 +38,15 @@ let ``タイプ1の場合_3でも5でも割り切れない数値を返す`` () =
     fizz_buzz (1) |> should equal "1"
     fizz_buzz (2) |> should equal "2"
     fizz_buzz (4) |> should equal "4"
+
+[<Fact>]
+let ``タイプ2の場合_3で割り切れる数値を返す`` () =
+    fizz_buzz (3) |> should equal "Fizz"
+    fizz_buzz (6) |> should equal "Fizz" 
+    fizz_buzz (9) |> should equal "Fizz"
+
+[<Fact>]
+let ``タイプ3の場合_5で割り切れる数値を返す`` () =
+    fizz_buzz (5) |> should equal "Buzz"
+    fizz_buzz (10) |> should equal "Buzz"
+    fizz_buzz (20) |> should equal "Buzz"

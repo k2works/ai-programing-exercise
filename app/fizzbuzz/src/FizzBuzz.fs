@@ -10,11 +10,14 @@ let private isFizzNumber number = isDivisibleBy 3 number
 let private isBuzzNumber number = isDivisibleBy 5 number
 
 let fizz_buzz number =
-    match number with
-    | n when isFizzBuzzNumber n -> "FizzBuzz"
-    | n when isFizzNumber n -> "Fizz"
-    | n when isBuzzNumber n -> "Buzz"
-    | n -> string n
+    let isDivisibleBy3 = isDivisibleBy 3 number
+    let isDivisibleBy5 = isDivisibleBy 5 number
+    
+    match (isDivisibleBy3, isDivisibleBy5) with
+    | (true, true) -> "FizzBuzz"
+    | (true, false) -> "Fizz"
+    | (false, true) -> "Buzz"
+    | (false, false) -> string number
 
 let create_numbers () = [| 1..100 |]
 
