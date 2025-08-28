@@ -5,7 +5,6 @@ import Phaser from 'phaser'
  * ゲームのタイトル画面を表示し、プレイヤーの入力を待つ
  */
 export class TitleScene extends Phaser.Scene {
-  private startText!: Phaser.GameObjects.Text
   private logo!: Phaser.GameObjects.Image
 
   constructor() {
@@ -28,13 +27,13 @@ export class TitleScene extends Phaser.Scene {
 
     // Phaser3ロゴ（読み込み済みのアセットを使用）
     if (this.textures.exists('phaser-logo')) {
-      this.logo = this.add.image(width / 2, height / 2 - 100, 'phaser-logo')
+      this.logo = this.add.image(width / 2, height / 2 - 150, 'phaser-logo')
       this.logo.setScale(0.3)
     }
 
     // ゲームタイトル
     this.add
-      .text(width / 2, height / 2, 'TypeScript Novel Game', {
+      .text(width / 2, height / 2 - 50, 'TypeScript Novel Game', {
         fontFamily: 'Arial',
         fontSize: '48px',
         color: '#ffffff',
@@ -43,54 +42,112 @@ export class TitleScene extends Phaser.Scene {
       })
       .setOrigin(0.5)
 
-    // スタート案内テキスト
-    this.startText = this.add
-      .text(width / 2, height / 2 + 100, 'Click to Start', {
+    // メニューオプション
+    this.createMenuOptions()
+  }
+
+  /**
+   * メニューオプションを作成
+   */
+  private createMenuOptions(): void {
+    const { width, height } = this.cameras.main
+
+    // 新しい統合ゲームオプション
+    const integratedGameOption = this.add
+      .text(width / 2, height / 2 + 50, '🎮 統合ゲーム体験 (1キー)', {
         fontFamily: 'Arial',
-        fontSize: '24px',
-        color: '#ecf0f1',
+        fontSize: '20px',
+        color: '#3498db',
+        stroke: '#000000',
+        strokeThickness: 2,
       })
       .setOrigin(0.5)
+      .setInteractive()
 
-    // 点滅効果を追加
-    this.tweens.add({
-      targets: this.startText,
-      alpha: 0.3,
-      duration: 1000,
-      yoyo: true,
-      repeat: -1,
+    integratedGameOption.on('pointerover', () => {
+      integratedGameOption.setScale(1.1)
     })
+
+    integratedGameOption.on('pointerout', () => {
+      integratedGameOption.setScale(1.0)
+    })
+
+    integratedGameOption.on('pointerdown', () => {
+      this.startIntegratedGame()
+    })
+
+    // 従来のテストオプション
+    const originalTestOption = this.add
+      .text(width / 2, height / 2 + 100, '🧪 従来のテスト (2キー)', {
+        fontFamily: 'Arial',
+        fontSize: '20px',
+        color: '#e74c3c',
+        stroke: '#000000',
+        strokeThickness: 2,
+      })
+      .setOrigin(0.5)
+      .setInteractive()
+
+    originalTestOption.on('pointerover', () => {
+      originalTestOption.setScale(1.1)
+    })
+
+    originalTestOption.on('pointerout', () => {
+      originalTestOption.setScale(1.0)
+    })
+
+    originalTestOption.on('pointerdown', () => {
+      this.startOriginalTest()
+    })
+
+    // 説明テキスト
+    this.add
+      .text(width / 2, height / 2 + 170, '統合ゲーム: シナリオ・選択肢・エフェクトの全機能\n従来テスト: キャラクター表示のみ', {
+        fontFamily: 'Arial',
+        fontSize: '14px',
+        color: '#bdc3c7',
+        align: 'center'
+      })
+      .setOrigin(0.5)
   }
 
   /**
    * 入力設定
    */
   private setupInput(): void {
-    // クリック・タップでメインシーンに遷移
-    this.input.once('pointerdown', () => {
-      this.startGame()
+    // 数字キー 1: 統合ゲーム
+    this.input.keyboard?.addKey('ONE').on('down', () => {
+      this.startIntegratedGame()
     })
 
-    // キーボード入力（スペースキーまたはEnter）
-    this.input.keyboard?.once('keydown-SPACE', () => {
-      this.startGame()
+    // 数字キー 2: 従来テスト
+    this.input.keyboard?.addKey('TWO').on('down', () => {
+      this.startOriginalTest()
     })
 
-    this.input.keyboard?.once('keydown-ENTER', () => {
-      this.startGame()
+    // スペースキー: デフォルトで統合ゲーム
+    this.input.keyboard?.addKey('SPACE').on('down', () => {
+      this.startIntegratedGame()
     })
   }
 
   /**
-   * ゲーム開始処理
+   * 統合ゲームを開始
    */
-  private startGame(): void {
-    // フェードアウト効果
+  private startIntegratedGame(): void {
     this.cameras.main.fadeOut(500, 0, 0, 0)
-
-    // フェードアウト完了後にメインシーンに遷移
     this.cameras.main.once('camerafadeoutcomplete', () => {
-      this.scene.start('GameScene') // キャラクターシステムテストシーンに遷移
+      this.scene.start('GameScene') // まずは既存のGameSceneで確認
+    })
+  }
+
+  /**
+   * 従来のテストを開始
+   */
+  private startOriginalTest(): void {
+    this.cameras.main.fadeOut(500, 0, 0, 0)
+    this.cameras.main.once('camerafadeoutcomplete', () => {
+      this.scene.start('TestScene') // TestSceneに遷移
     })
   }
 }

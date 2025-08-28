@@ -3,12 +3,12 @@
  * 画面フラッシュ、振動、フェードなどの視覚効果を管理
  */
 export class EffectManager {
-  public container: any
+	private scene: any
   private activeTweens: any[] = []
   private activeOverlays: any[] = []
 
-  constructor(container: any) {
-    this.container = container
+	constructor(scene: any) {
+		this.scene = scene
   }
 
   /**
@@ -16,28 +16,62 @@ export class EffectManager {
    * @param color フラッシュ色 ('white', 'black', '#rrggbb')
    * @param duration 継続時間（ミリ秒）
    */
-  flash(color: string, duration = 300): void {
+	flash(color: string, duration: number = 300): void {
+		// デバッグ情報
+		console.log('EffectManager.flash called with:', { color, duration })
+		console.log('Scene check:', {
+			scene: !!this.scene,
+			add: !!(this.scene && this.scene.add),
+			tweens: !!(this.scene && this.scene.tweens)
+		})
+
+		if (!this.scene) {
+			console.error('EffectManager: scene is undefined')
+			return
+		}
+		if (!this.scene.add) {
+			console.error('EffectManager: scene.add is undefined', this.scene)
+			return
+		}
+
     const colorValue = this.parseColor(color)
 
-    const overlay = this.container.add.rectangle(0, 0, 800, 600, colorValue)
-    overlay.setFillStyle(colorValue)
-    overlay.setAlpha(1)
-    overlay.setDepth(10000)
-    overlay.setVisible(true)
+		try {
+			// カメラの寸法を取得
+			const camera = this.scene.cameras.main
+			const { width, height } = camera
 
-    this.activeOverlays.push(overlay)
+			// 画面中央にオーバーレイを配置
+			const overlay = this.scene.add.rectangle(width / 2, height / 2, width, height, colorValue)
+			overlay.setFillStyle(colorValue)
+			overlay.setAlpha(1)
+			overlay.setDepth(10000)
+			overlay.setVisible(true)
 
-    const tween = this.container.scene.tweens.add({
-      targets: overlay,
-      alpha: { from: 1, to: 0 },
-      duration: duration,
-      onComplete: () => {
-        overlay.destroy()
-        this.removeFromActive(tween, overlay)
-      },
-    })
+			this.activeOverlays.push(overlay)
 
-    this.activeTweens.push(tween)
+			const tween = this.scene.tweens.add({
+				targets: overlay,
+				alpha: { from: 1, to: 0 },
+				duration: duration,
+				onComplete: () => {
+					overlay.destroy()
+					this.removeFromActive(tween, overlay)
+				},
+			})
+
+			this.activeTweens.push(tween)
+		} catch (error) {
+			console.error('Error in flash effect:', error)
+			console.error('Scene state:', this.scene)
+			// エラー時にもオーバーレイを破棄
+			this.activeOverlays.forEach(overlay => {
+				if (overlay && overlay.destroy) {
+					overlay.destroy()
+				}
+			})
+			this.activeOverlays = []
+		}
   }
 
   /**
@@ -45,9 +79,9 @@ export class EffectManager {
    * @param intensity 振動強度 ('light', 'medium', 'heavy')
    * @param duration 継続時間（ミリ秒）
    */
-  shake(intensity: 'light' | 'medium' | 'heavy', duration = 600): void {
+	shake(intensity: 'light' | 'medium' | 'heavy', duration: number = 600): void {
     const intensityValue = this.getShakeIntensity(intensity)
-    this.container.scene.cameras.main.shake(duration, intensityValue)
+		this.scene.cameras.main.shake(duration, intensityValue)
   }
 
   /**
@@ -56,10 +90,15 @@ export class EffectManager {
    * @param duration 継続時間（ミリ秒）
    * @param color フェード色
    */
-  fade(direction: 'in' | 'out', duration = 500, color = '#000000'): void {
+	fade(direction: 'in' | 'out', duration: number = 500, color: string = '#000000'): void {
     const colorValue = this.parseColor(color)
 
-    const overlay = this.container.add.rectangle(0, 0, 800, 600, colorValue)
+		// カメラの寸法を取得
+		const camera = this.scene.cameras.main
+		const { width, height } = camera
+
+		// 画面中央にオーバーレイを配置
+		const overlay = this.scene.add.rectangle(width / 2, height / 2, width, height, colorValue)
     overlay.setFillStyle(colorValue)
     overlay.setDepth(10000)
     overlay.setVisible(true)
@@ -71,15 +110,15 @@ export class EffectManager {
 
     overlay.setAlpha(fromAlpha)
 
-    const tween = this.container.scene.tweens.add({
+		const tween = this.scene.tweens.add({
       targets: overlay,
       alpha: { from: fromAlpha, to: toAlpha },
       duration: duration,
       onComplete: () => {
-        if (direction === 'in') {
-          overlay.destroy()
-        }
-        this.removeFromActive(tween, overlay)
+				// すべてのフェードエフェクト完了時にオーバーレイを破棄
+				overlay.destroy()
+				this.activeOverlays = this.activeOverlays.filter(o => o !== overlay)
+				this.activeTweens = this.activeTweens.filter(t => t !== tween)
       },
     })
 
@@ -211,4 +250,25 @@ export class EffectManager {
         break
     }
   }
+
+	/**
+	 * すべてのアクティブなエフェクトをクリーンアップ
+	 */
+	public cleanup(): void {
+		// アクティブなTweenを停止
+		this.activeTweens.forEach(tween => {
+			if (tween && tween.stop) {
+				tween.stop()
+			}
+		})
+		this.activeTweens = []
+
+		// アクティブなオーバーレイを破棄
+		this.activeOverlays.forEach(overlay => {
+			if (overlay && overlay.destroy) {
+				overlay.destroy()
+			}
+		})
+		this.activeOverlays = []
+	}
 }
