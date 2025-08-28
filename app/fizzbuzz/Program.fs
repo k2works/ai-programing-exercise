@@ -1,13 +1,13 @@
 open NUnit.Framework
 
-let greeting() = "hello world"
+let fizz_buzz n = "1"
 
 [<TestFixture>]
-type HelloTest() =
+type FizzBuzzTest() =
 
     [<Test>]
-    member __.TestGreeting() =
-        Assert.That(greeting(), Is.EqualTo("hello world"))
+    member __.Test数を文字列にして返す() =
+        Assert.That(fizz_buzz(1), Is.EqualTo("1"))
 
 [<EntryPoint>]
 let main argv =
