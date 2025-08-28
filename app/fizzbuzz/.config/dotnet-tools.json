@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "fantomas": {
+      "version": "7.0.3",
+      "commands": [
+        "fantomas"
+      ],
+      "rollForward": false
+    },
+    "dotnet-reportgenerator-globaltool": {
+      "version": "5.4.12",
+      "commands": [
+        "reportgenerator"
+      ],
+      "rollForward": false
+    },
+    "cake.tool": {
+      "version": "5.0.0",
+      "commands": [
+        "dotnet-cake"
+      ],
+      "rollForward": false
+    },
+    "dotnet-fsharplint": {
+      "version": "0.26.2",
+      "commands": [
+        "dotnet-fsharplint"
+      ],
+      "rollForward": false
+    }
+  }
+}

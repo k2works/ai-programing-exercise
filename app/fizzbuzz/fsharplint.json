@@ -1,0 +1,77 @@
+{
+  "rules": {
+    "Conventions": {
+      "NestedStatements": {
+        "enabled": true,
+        "depth": 8
+      },
+      "CyclomaticComplexity": {
+        "enabled": true,
+        "maxComplexity": 7,
+        "includeMatchStatements": true
+      }
+    },
+    "Formatting": {
+      "TupleIndentation": {
+        "enabled": false
+      },
+      "PatternMatchClause": {
+        "enabled": false
+      }
+    },
+    "Typography": {
+      "MaxLinesInFile": {
+        "enabled": true,
+        "maxLines": 1000
+      },
+      "MaxLinesInFunction": {
+        "enabled": true,
+        "maxLines": 100
+      },
+      "MaxLinesInLambdaFunction": {
+        "enabled": true,
+        "maxLines": 7
+      },
+      "MaxLinesInMatchLambdaFunction": {
+        "enabled": true,
+        "maxLines": 70
+      },
+      "MaxLinesInValue": {
+        "enabled": true,
+        "maxLines": 70
+      },
+      "MaxLinesInConstructor": {
+        "enabled": true,
+        "maxLines": 70
+      },
+      "MaxLinesInMember": {
+        "enabled": true,
+        "maxLines": 70
+      },
+      "MaxLinesInProperty": {
+        "enabled": true,
+        "maxLines": 70
+      },
+      "MaxLinesInClass": {
+        "enabled": true,
+        "maxLines": 500
+      },
+      "MaxLinesInEnum": {
+        "enabled": true,
+        "maxLines": 500
+      },
+      "MaxLinesInUnion": {
+        "enabled": true,
+        "maxLines": 500
+      },
+      "MaxLinesInRecord": {
+        "enabled": true,
+        "maxLines": 500
+      },
+      "MaxLinesInModule": {
+        "enabled": true,
+        "maxLines": 1000
+      }
+    }
+  }
+}

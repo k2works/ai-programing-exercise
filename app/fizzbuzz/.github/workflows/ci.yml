@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Restore tools
+      run: dotnet tool restore
+    
+    - name: Build
+      run: dotnet build --no-restore
+    
+    - name: Format check
+      run: |
+        dotnet cake build.cake --target=Format
+        if [ $? -ne 0 ]; then
+          echo "Code formatting check failed. Please run 'dotnet cake build.cake --target=Format'"
+          exit 1
+        fi
+    
+    - name: Test and Coverage
+      run: dotnet cake build.cake --target=Report
+    
+    - name: Upload coverage reports
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: TestResults/html/

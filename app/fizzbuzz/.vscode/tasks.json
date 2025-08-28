@@ -1,0 +1,90 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "cake-build",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "cake",
+                "build.cake",
+                "--target=Build"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "cake-test",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "cake",
+                "build.cake",
+                "--target=Test"
+            ],
+            "group": "test",
+            "presentation": {
+                "reveal": "always"
+            }
+        },
+        {
+            "label": "cake-format",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "cake",
+                "build.cake",
+                "--target=Format"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always"
+            }
+        },
+        {
+            "label": "cake-coverage",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "cake",
+                "build.cake",
+                "--target=Report"
+            ],
+            "group": "test",
+            "presentation": {
+                "reveal": "always"
+            }
+        },
+        {
+            "label": "cake-check",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "cake",
+                "build.cake",
+                "--target=Check"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always"
+            }
+        },
+        {
+            "label": "cake-all",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "cake",
+                "build.cake",
+                "--target=All"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always"
+            }
+        }
+    ]
+}
