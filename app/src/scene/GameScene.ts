@@ -1,5 +1,6 @@
 import Phaser from 'phaser'
 import { CharacterManager } from '../character/CharacterManager'
+import { DialogueBox } from '../dialogue/DialogueBox'
 
 /**
  * ゲームメインシーン
@@ -7,6 +8,7 @@ import { CharacterManager } from '../character/CharacterManager'
  */
 export class GameScene extends Phaser.Scene {
   public characterManager!: CharacterManager
+  public dialogueBox!: DialogueBox
   private currentStep: number = 0
   private testSteps: string[] = [
     'Aliceを表示します（通常表情）',
@@ -37,6 +39,9 @@ export class GameScene extends Phaser.Scene {
     this.characterManager = new CharacterManager(this)
     this.setupCharacters()
 
+    // ダイアログシステム初期化
+    this.dialogueBox = new DialogueBox(this, 750, 120)
+
     // UI要素
     this.setupUI()
 
@@ -44,7 +49,7 @@ export class GameScene extends Phaser.Scene {
     this.setupInput()
 
     // テスト開始
-    this.startCharacterTest()
+    this.startCharacterAndDialogueTest()
   }
 
   /**
@@ -125,11 +130,29 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
-   * キャラクターテストの開始
+   * キャラクターとダイアログテストの開始
    */
-  private startCharacterTest(): void {
+  private startCharacterAndDialogueTest(): void {
     this.currentStep = 0
     this.updateStepDisplay()
+
+    // ダイアログテストメッセージを設定
+    const testMessages = [
+      'こんにちは！私はアリスです。',
+      'このゲームでは、私たちキャラクターが',
+      'このように会話をすることができます。',
+      'クリックまたはスペースキーで',
+      'メッセージを進められます。',
+      'それでは、一緒に冒険を始めましょう！',
+    ]
+
+    // キャラクターを表示
+    this.characterManager.showCharacterWithFadeIn('alice', 'normal', { x: 400, y: 450 })
+
+    // ダイアログを表示
+    this.dialogueBox.setSpeaker('アリス')
+    this.dialogueBox.setMessages(testMessages)
+    this.dialogueBox.show()
   }
 
   /**
