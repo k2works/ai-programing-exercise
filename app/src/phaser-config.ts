@@ -2,6 +2,7 @@ import Phaser from 'phaser'
 import { LoadingScene } from './scene/LoadingScene'
 import { TitleScene } from './scene/TitleScene'
 import { TestScene } from './scene/TestScene'
+import { GameScene } from './scene/GameScene'
 
 /**
  * ノベルゲーム用のPhaser3設定クラス
@@ -16,7 +17,7 @@ export class PhaserGameConfig {
       height: 600,
       backgroundColor: '#2c3e50',
       parent: 'game-container',
-      scene: [LoadingScene, TitleScene, TestScene],
+      scene: [LoadingScene, TitleScene, TestScene, GameScene],
       physics: {
         default: 'arcade',
         arcade: {

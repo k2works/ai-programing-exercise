@@ -4,6 +4,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
+    setupFiles: ['src/test/setup.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'json'],
@@ -22,7 +23,6 @@ export default defineConfig({
         'src/vite-env.d.ts',
       ],
       all: true,
-      checkCoverage: false,
     },
   },
 })

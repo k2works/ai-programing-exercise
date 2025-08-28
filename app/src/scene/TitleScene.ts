@@ -90,7 +90,7 @@ export class TitleScene extends Phaser.Scene {
 
     // フェードアウト完了後にメインシーンに遷移
     this.cameras.main.once('camerafadeoutcomplete', () => {
-      this.scene.start('test') // 現在はテストシーンに遷移
+      this.scene.start('GameScene') // キャラクターシステムテストシーンに遷移
     })
   }
 }

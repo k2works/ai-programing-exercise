@@ -6,6 +6,7 @@ vi.mock('phaser', () => ({
   default: {
     AUTO: 'AUTO',
     Scene: class MockScene {
+      public scene: any
       constructor(config: string | { key: string }) {
         this.scene = config
       }
@@ -56,7 +57,7 @@ describe('PhaserGameConfig', () => {
 
       expect(config.scene).toBeDefined()
       expect(Array.isArray(config.scene)).toBe(true)
-      expect(config.scene).toHaveLength(3)
+      expect(config.scene).toHaveLength(4) // LoadingScene, TitleScene, TestScene, GameScene
     })
 
     it('物理エンジンが設定されている', () => {
