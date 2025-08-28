@@ -54,9 +54,9 @@ export class TitleScene extends Phaser.Scene {
 
     // 新しい統合ゲームオプション
     const integratedGameOption = this.add
-      .text(width / 2, height / 2 + 50, '🎮 統合ゲーム体験 (1キー)', {
+			.text(width / 2, height / 2 + 30, '🎮 統合ゲーム体験 (1キー)', {
         fontFamily: 'Arial',
-        fontSize: '20px',
+				fontSize: '18px',
         color: '#3498db',
         stroke: '#000000',
         strokeThickness: 2,
@@ -76,11 +76,35 @@ export class TitleScene extends Phaser.Scene {
       this.startIntegratedGame()
     })
 
+		// シナリオデモオプション
+		const scenarioOption = this.add
+			.text(width / 2, height / 2 + 70, '📖 シナリオデモ (2キー)', {
+				fontFamily: 'Arial',
+				fontSize: '18px',
+				color: '#9b59b6',
+				stroke: '#000000',
+				strokeThickness: 2,
+			})
+			.setOrigin(0.5)
+			.setInteractive()
+
+		scenarioOption.on('pointerover', () => {
+			scenarioOption.setScale(1.1)
+		})
+
+		scenarioOption.on('pointerout', () => {
+			scenarioOption.setScale(1.0)
+		})
+
+		scenarioOption.on('pointerdown', () => {
+			this.startScenarioDemo()
+		})
+
     // 従来のテストオプション
     const originalTestOption = this.add
-      .text(width / 2, height / 2 + 100, '🧪 従来のテスト (2キー)', {
+			.text(width / 2, height / 2 + 110, '🧪 従来のテスト (3キー)', {
         fontFamily: 'Arial',
-        fontSize: '20px',
+				fontSize: '18px',
         color: '#e74c3c',
         stroke: '#000000',
         strokeThickness: 2,
@@ -102,7 +126,7 @@ export class TitleScene extends Phaser.Scene {
 
     // 説明テキスト
     this.add
-      .text(width / 2, height / 2 + 170, '統合ゲーム: シナリオ・選択肢・エフェクトの全機能\n従来テスト: キャラクター表示のみ', {
+			.text(width / 2, height / 2 + 170, '統合ゲーム: 全機能デモ\nシナリオデモ: 本格ストーリー体験\n従来テスト: キャラクター表示のみ', {
         fontFamily: 'Arial',
         fontSize: '14px',
         color: '#bdc3c7',
@@ -120,8 +144,13 @@ export class TitleScene extends Phaser.Scene {
       this.startIntegratedGame()
     })
 
-    // 数字キー 2: 従来テスト
+		// 数字キー 2: シナリオデモ
     this.input.keyboard?.addKey('TWO').on('down', () => {
+			this.startScenarioDemo()
+		})
+
+		// 数字キー 3: 従来テスト
+		this.input.keyboard?.addKey('THREE').on('down', () => {
       this.startOriginalTest()
     })
 
@@ -140,6 +169,16 @@ export class TitleScene extends Phaser.Scene {
       this.scene.start('GameScene') // まずは既存のGameSceneで確認
     })
   }
+
+	/**
+	 * シナリオデモを開始
+	 */
+	private startScenarioDemo(): void {
+		this.cameras.main.fadeOut(500, 0, 0, 0)
+		this.cameras.main.once('camerafadeoutcomplete', () => {
+			this.scene.start('ScenarioScene')
+		})
+	}
 
   /**
    * 従来のテストを開始
