@@ -1,6 +1,8 @@
 open NUnit.Framework
 
-let fizz_buzz n = "1"
+let to_string n = "1"
+
+let fizz_buzz n = to_string n
 
 [<TestFixture>]
 type FizzBuzzTest() =
