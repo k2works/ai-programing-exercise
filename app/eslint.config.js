@@ -6,6 +6,9 @@ import prettier from 'eslint-config-prettier'
 export default [
   eslint.configs.recommended,
   {
+    ignores: ['dist/**', 'node_modules/**', 'coverage/**'],
+  },
+  {
     files: ['**/*.js'],
     languageOptions: {
       ecmaVersion: 'latest',
