@@ -6,7 +6,7 @@ vi.mock('phaser', () => ({
   default: {
     AUTO: 'AUTO',
     Scene: class MockScene {
-      constructor(config: any) {
+      constructor(config: string | { key: string }) {
         this.scene = config
       }
     },
