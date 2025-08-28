@@ -32,3 +32,9 @@ let ``1から100までのFizzBuzzの配列を返す`` () =
     result.[4] |> should equal "Buzz"
     result.[14] |> should equal "FizzBuzz"
     result.Length |> should equal 100
+
+[<Fact>]
+let ``タイプ1の場合_3でも5でも割り切れない数値を返す`` () =
+    fizz_buzz (1) |> should equal "1"
+    fizz_buzz (2) |> should equal "2"
+    fizz_buzz (4) |> should equal "4"
