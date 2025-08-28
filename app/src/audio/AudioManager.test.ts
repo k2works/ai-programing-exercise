@@ -20,13 +20,13 @@ describe('AudioManager', () => {
           once: vi.fn(),
           isPlaying: false,
           volume: 1,
-          destroy: vi.fn()
+          destroy: vi.fn(),
         }),
-        stopAll: vi.fn()
+        stopAll: vi.fn(),
       },
       tweens: {
-        add: vi.fn()
-      }
+        add: vi.fn(),
+      },
     } as unknown as Phaser.Scene
 
     audioManager = new AudioManager(scene)
@@ -74,7 +74,7 @@ describe('AudioManager', () => {
       expect(onVolumeChange).toHaveBeenCalledWith({
         master: 0.5,
         bgm: 0.7,
-        se: 0.8
+        se: 0.8,
       })
     })
   })
@@ -100,7 +100,7 @@ describe('AudioManager', () => {
 
     it('BGMを一時停止・再開できる', () => {
       audioManager.playBgm('test-bgm')
-      
+
       audioManager.pauseBgm()
       const mockSound = (scene.sound.add as ReturnType<typeof vi.fn>).mock.results[0].value
       expect(mockSound.pause).toHaveBeenCalled()
@@ -112,15 +112,15 @@ describe('AudioManager', () => {
     it('同じBGMが再生中の場合は何もしない', () => {
       // 初回再生
       audioManager.playBgm('test-bgm')
-      
+
       // 現在のBGMを再生中に設定
       const currentBgm = audioManager['currentBgm']
       if (currentBgm) {
         currentBgm.isPlaying = true
       }
-      
+
       vi.clearAllMocks() // モックをリセット
-      
+
       // 同じBGMを再度再生
       audioManager.playBgm('test-bgm')
 
@@ -159,7 +159,7 @@ describe('AudioManager', () => {
     it('全てのSEを停止できる', () => {
       audioManager.playSe('se1')
       audioManager.playSe('se2')
-      
+
       audioManager.stopAllSe()
 
       // Phaser の stopAll が呼ばれることを確認するためのテスト
@@ -179,9 +179,9 @@ describe('AudioManager', () => {
 
     it('BGMをフェードアウトできる', async () => {
       audioManager.playBgm('test-bgm')
-      
+
       const fadePromise = audioManager.fadeOutBgm(500)
-      
+
       expect(fadePromise).toBeDefined()
       // フェード完了の確認は統合テストで実施
     })
@@ -199,9 +199,9 @@ describe('AudioManager', () => {
     it('ミュート時は音量が0になる', () => {
       audioManager.setMasterVolume(0.8)
       audioManager.setMuted(true)
-      
+
       audioManager.playBgm('test-bgm')
-      
+
       const mockSound = (scene.sound.add as ReturnType<typeof vi.fn>).mock.results[0].value
       expect(mockSound.setVolume).toHaveBeenCalledWith(0)
     })
@@ -211,7 +211,7 @@ describe('AudioManager', () => {
     it('オーディオマネージャーが正しく破棄される', () => {
       audioManager.playBgm('test-bgm')
       audioManager.playSe('test-se')
-      
+
       audioManager.destroy()
 
       expect(scene.sound.stopAll).toHaveBeenCalled()

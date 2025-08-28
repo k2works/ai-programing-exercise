@@ -15,9 +15,9 @@ describe('SoundEffect', () => {
           stop: vi.fn(),
           setVolume: vi.fn(),
           isPlaying: false,
-          destroy: vi.fn()
-        })
-      }
+          destroy: vi.fn(),
+        }),
+      },
     } as unknown as Phaser.Scene
   })
 
@@ -80,7 +80,7 @@ describe('SoundEffect', () => {
       const mockAudioManager = {
         getSeVolume: vi.fn().mockReturnValue(0.8),
         getMasterVolume: vi.fn().mockReturnValue(0.7),
-        isMuted: vi.fn().mockReturnValue(false)
+        isMuted: vi.fn().mockReturnValue(false),
       }
 
       soundEffect = new SoundEffect(scene, mockAudioManager)
@@ -94,7 +94,7 @@ describe('SoundEffect', () => {
       const mockAudioManager = {
         getSeVolume: vi.fn().mockReturnValue(0.8),
         getMasterVolume: vi.fn().mockReturnValue(0.7),
-        isMuted: vi.fn().mockReturnValue(true)
+        isMuted: vi.fn().mockReturnValue(true),
       }
 
       soundEffect = new SoundEffect(scene, mockAudioManager)

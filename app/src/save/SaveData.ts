@@ -1,11 +1,16 @@
 /**
+ * ゲームフラグの値の型
+ */
+export type GameFlagValue = string | number | boolean
+
+/**
  * キャラクターの状態を表すインターフェース
  */
 export interface CharacterState {
   mood?: string
   position?: string
   expression?: string
-  [key: string]: any
+  [key: string]: string | number | boolean | undefined
 }
 
 /**
@@ -15,7 +20,7 @@ export interface SaveDataParams {
   scenarioId?: string
   stepIndex?: number
   characterStates?: Record<string, CharacterState>
-  gameFlags?: Record<string, any>
+  gameFlags?: Record<string, GameFlagValue>
   playerName?: string
   playTime?: number
   saveDate?: Date
@@ -28,7 +33,7 @@ export interface SaveDataJSON {
   scenarioId: string
   stepIndex: number
   characterStates: Record<string, CharacterState>
-  gameFlags: Record<string, any>
+  gameFlags: Record<string, GameFlagValue>
   playerName: string
   playTime: number
   saveDate: string
@@ -42,7 +47,7 @@ export class SaveData {
   private scenarioId: string = ''
   private stepIndex: number = 0
   private characterStates: Record<string, CharacterState> = {}
-  private gameFlags: Record<string, any> = {}
+  private gameFlags: Record<string, GameFlagValue> = {}
   private playerName: string = ''
   private playTime: number = 0
   private saveDate: Date = new Date()
@@ -138,14 +143,14 @@ export class SaveData {
   setCharacterState(characterId: string, state: CharacterState): void {
     this.characterStates[characterId] = {
       ...this.characterStates[characterId],
-      ...state
+      ...state,
     }
   }
 
   /**
    * すべてのゲームフラグを取得
    */
-  getGameFlags(): Record<string, any> {
+  getGameFlags(): Record<string, GameFlagValue> {
     return { ...this.gameFlags }
   }
 
@@ -153,7 +158,7 @@ export class SaveData {
    * 指定したゲームフラグの値を取得
    * @param flagName フラグ名
    */
-  getGameFlag(flagName: string): any {
+  getGameFlag(flagName: string): GameFlagValue | undefined {
     return this.gameFlags[flagName]
   }
 
@@ -162,7 +167,7 @@ export class SaveData {
    * @param flagName フラグ名
    * @param value フラグ値
    */
-  setGameFlag(flagName: string, value: any): void {
+  setGameFlag(flagName: string, value: GameFlagValue): void {
     this.gameFlags[flagName] = value
   }
 
@@ -230,7 +235,7 @@ export class SaveData {
       gameFlags: this.gameFlags,
       playerName: this.playerName,
       playTime: this.playTime,
-      saveDate: this.saveDate.toISOString()
+      saveDate: this.saveDate.toISOString(),
     }
   }
 
@@ -246,7 +251,7 @@ export class SaveData {
       gameFlags: json.gameFlags,
       playerName: json.playerName,
       playTime: json.playTime,
-      saveDate: new Date(json.saveDate)
+      saveDate: new Date(json.saveDate),
     })
   }
 }

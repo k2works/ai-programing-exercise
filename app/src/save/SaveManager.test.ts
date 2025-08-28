@@ -9,12 +9,12 @@ const localStorageMock = {
   removeItem: vi.fn(),
   clear: vi.fn(),
   length: 0,
-  key: vi.fn()
+  key: vi.fn(),
 }
 
 // グローバルのlocalStorageをモック化
 Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock
+  value: localStorageMock,
 })
 
 describe('SaveManager', () => {
@@ -41,7 +41,7 @@ describe('SaveManager', () => {
       const saveData = new SaveData({
         scenarioId: 'test_scenario',
         stepIndex: 5,
-        playerName: 'テストプレイヤー'
+        playerName: 'テストプレイヤー',
       })
 
       const result = saveManager.save(1, saveData)
@@ -84,7 +84,7 @@ describe('SaveManager', () => {
         gameFlags: { testFlag: true },
         playerName: 'ロードプレイヤー',
         playTime: 1500,
-        saveDate: new Date().toISOString()
+        saveDate: new Date().toISOString(),
       }
 
       localStorageMock.getItem.mockReturnValue(JSON.stringify(originalData))
@@ -147,14 +147,14 @@ describe('SaveManager', () => {
         playTime: 1000,
         saveDate: '2023-01-01T10:00:00.000Z',
         scenarioId: 'chapter1',
-        stepIndex: 5
+        stepIndex: 5,
       }
       const mockSaveData2 = {
-        playerName: 'Player2', 
+        playerName: 'Player2',
         playTime: 2000,
         saveDate: '2023-01-02T15:30:00.000Z',
         scenarioId: 'chapter2',
-        stepIndex: 10
+        stepIndex: 10,
       }
 
       localStorageMock.getItem
@@ -174,7 +174,7 @@ describe('SaveManager', () => {
         playTime: 1000,
         saveDate: new Date('2023-01-01T10:00:00.000Z'),
         scenarioId: 'chapter1',
-        stepIndex: 5
+        stepIndex: 5,
       })
       expect(slotInfos[1]).toEqual({
         slotNumber: 2,
@@ -183,7 +183,7 @@ describe('SaveManager', () => {
         playTime: 0,
         saveDate: null,
         scenarioId: '',
-        stepIndex: 0
+        stepIndex: 0,
       })
       expect(slotInfos[2]).toEqual({
         slotNumber: 3,
@@ -192,7 +192,7 @@ describe('SaveManager', () => {
         playTime: 2000,
         saveDate: new Date('2023-01-02T15:30:00.000Z'),
         scenarioId: 'chapter2',
-        stepIndex: 10
+        stepIndex: 10,
       })
     })
   })
@@ -220,7 +220,7 @@ describe('SaveManager', () => {
       expect(result).toBe(true)
       // デフォルト10スロット分のremoveItemが呼ばれる
       expect(localStorageMock.removeItem).toHaveBeenCalledTimes(10)
-      
+
       // 各スロットの削除を確認
       for (let i = 1; i <= 10; i++) {
         expect(localStorageMock.removeItem).toHaveBeenCalledWith(`novel_game_save_${i}`)
@@ -233,7 +233,7 @@ describe('SaveManager', () => {
       // モックをリセットしてエラーを解除
       localStorageMock.setItem.mockRestore()
       localStorageMock.setItem = vi.fn()
-      
+
       const saveData = new SaveData({ playerName: 'オートセーブテスト' })
       const result = saveManager.autoSave(saveData)
 
@@ -252,7 +252,7 @@ describe('SaveManager', () => {
         gameFlags: {},
         playerName: 'オートプレイヤー',
         playTime: 3000,
-        saveDate: new Date().toISOString()
+        saveDate: new Date().toISOString(),
       }
 
       localStorageMock.getItem.mockReturnValue(JSON.stringify(autoSaveData))

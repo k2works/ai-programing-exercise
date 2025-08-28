@@ -20,8 +20,10 @@ export class AudioManager {
   private seVolume: number = 0.8
   private muted: boolean = false
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private currentBgm: any = null
   private currentBgmKey: string | null = null
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private activeSounds: any[] = []
 
   // 音量変更コールバック
@@ -93,7 +95,7 @@ export class AudioManager {
       this.onVolumeChange({
         master: this.masterVolume,
         bgm: this.bgmVolume,
-        se: this.seVolume
+        se: this.seVolume,
       })
     }
   }
@@ -113,7 +115,7 @@ export class AudioManager {
     // 新しいBGMを再生
     this.currentBgm = this.scene.sound.add(key)
     this.currentBgmKey = key
-    
+
     this.currentBgm.setLoop(true)
     this.updateBgmVolume()
     this.currentBgm.play()
@@ -164,7 +166,7 @@ export class AudioManager {
   playSe(key: string): void {
     const sound = this.scene.sound.add(key)
     const volume = this.muted ? 0 : this.masterVolume * this.seVolume
-    
+
     sound.setVolume(volume)
     sound.play()
 
@@ -179,6 +181,7 @@ export class AudioManager {
   /**
    * アクティブサウンドリストから音を削除
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private removeSoundFromActive(sound: any): void {
     const index = this.activeSounds.indexOf(sound)
     if (index > -1) {
@@ -199,17 +202,17 @@ export class AudioManager {
    */
   fadeInBgm(key: string, duration: number): void {
     this.playBgm(key)
-    
+
     if (this.currentBgm) {
       // 音量を0から開始してフェードイン
       this.currentBgm.setVolume(0)
-      
+
       // Phaserのトゥイーンを使用してフェードイン
       this.scene.tweens.add({
         targets: this.currentBgm,
         volume: this.muted ? 0 : this.masterVolume * this.bgmVolume,
         duration: duration,
-        ease: 'Linear'
+        ease: 'Linear',
       })
     }
   }
@@ -232,7 +235,7 @@ export class AudioManager {
         onComplete: () => {
           this.stopBgm()
           resolve()
-        }
+        },
       })
     })
   }
@@ -242,9 +245,9 @@ export class AudioManager {
    */
   private updateCurrentSoundsVolume(): void {
     this.updateBgmVolume()
-    
+
     // アクティブなSEの音量も更新
-    this.activeSounds.forEach(sound => {
+    this.activeSounds.forEach((sound) => {
       const volume = this.muted ? 0 : this.masterVolume * this.seVolume
       sound.setVolume(volume)
     })

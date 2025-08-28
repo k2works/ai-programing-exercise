@@ -72,7 +72,7 @@ export class SaveManager {
     try {
       const key = this.getSaveKey(slotNumber)
       const jsonData = localStorage.getItem(key)
-      
+
       if (!jsonData) {
         return null
       }
@@ -120,7 +120,7 @@ export class SaveManager {
             playTime: parsedData.playTime,
             saveDate: new Date(parsedData.saveDate),
             scenarioId: parsedData.scenarioId,
-            stepIndex: parsedData.stepIndex
+            stepIndex: parsedData.stepIndex,
           })
         } catch {
           // 無効なデータの場合は未使用として扱う
@@ -194,7 +194,7 @@ export class SaveManager {
   loadAutoSave(): SaveData | null {
     try {
       const jsonData = localStorage.getItem(this.autoSaveKey)
-      
+
       if (!jsonData) {
         return null
       }
@@ -238,7 +238,7 @@ export class SaveManager {
       playTime: 0,
       saveDate: null,
       scenarioId: '',
-      stepIndex: 0
+      stepIndex: 0,
     }
   }
 }

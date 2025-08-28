@@ -27,14 +27,16 @@ describe('SaveData', () => {
         gameFlags: { firstMeeting: true },
         playerName: 'プレイヤー',
         playTime: 3600000,
-        saveDate: new Date('2023-01-01')
+        saveDate: new Date('2023-01-01'),
       }
 
       saveData = new SaveData(initialData)
 
       expect(saveData.getScenarioId()).toBe('chapter1')
       expect(saveData.getStepIndex()).toBe(5)
-      expect(saveData.getCharacterStates()).toEqual({ alice: { mood: 'happy', position: 'center' } })
+      expect(saveData.getCharacterStates()).toEqual({
+        alice: { mood: 'happy', position: 'center' },
+      })
       expect(saveData.getGameFlags()).toEqual({ firstMeeting: true })
       expect(saveData.getPlayerName()).toBe('プレイヤー')
       expect(saveData.getPlayTime()).toBe(3600000)
@@ -153,7 +155,7 @@ describe('SaveData', () => {
         gameFlags: { testFlag: true },
         playerName: 'テストプレイヤー',
         playTime: 2000,
-        saveDate: saveData.getSaveDate().toISOString()
+        saveDate: saveData.getSaveDate().toISOString(),
       })
     })
 
@@ -165,7 +167,7 @@ describe('SaveData', () => {
         gameFlags: { restoredFlag: false },
         playerName: '復元プレイヤー',
         playTime: 4000,
-        saveDate: '2023-06-15T10:30:00.000Z'
+        saveDate: '2023-06-15T10:30:00.000Z',
       }
 
       const restoredData = SaveData.fromJSON(jsonData)
