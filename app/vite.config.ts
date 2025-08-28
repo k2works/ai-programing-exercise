@@ -6,14 +6,23 @@ export default defineConfig({
   build: {
     outDir: '../dist',
     emptyOutDir: true,
-		assetsDir: 'assets',
+    assetsDir: 'assets',
   },
   server: {
     port: 3000,
     open: true,
   },
-	assetsInclude: ['**/*.png', '**/*.jpg', '**/*.jpeg', '**/*.gif', '**/*.svg', '**/*.mp3', '**/*.wav', '**/*.ogg'],
-	optimizeDeps: {
-		include: ['phaser']
-	}
+  assetsInclude: [
+    '**/*.png',
+    '**/*.jpg',
+    '**/*.jpeg',
+    '**/*.gif',
+    '**/*.svg',
+    '**/*.mp3',
+    '**/*.wav',
+    '**/*.ogg',
+  ],
+  optimizeDeps: {
+    include: ['phaser'],
+  },
 })

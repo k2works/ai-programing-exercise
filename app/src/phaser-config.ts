@@ -1,10 +1,13 @@
-import Phaser from 'phaser';
+import Phaser from 'phaser'
+import { LoadingScene } from './scene/LoadingScene'
+import { TitleScene } from './scene/TitleScene'
+import { TestScene } from './scene/TestScene'
 
 /**
- * 基本的なPhaserゲーム設定のテストクラス
+ * ノベルゲーム用のPhaser3設定クラス
  */
 export class PhaserGameConfig {
-  private config: Phaser.Types.Core.GameConfig;
+  private config: Phaser.Types.Core.GameConfig
 
   constructor() {
     this.config = {
@@ -13,26 +16,22 @@ export class PhaserGameConfig {
       height: 600,
       backgroundColor: '#2c3e50',
       parent: 'game-container',
-      scene: {
-        preload: this.preload,
-        create: this.create,
+      scene: [LoadingScene, TitleScene, TestScene],
+      physics: {
+        default: 'arcade',
+        arcade: {
+          gravity: { y: 0, x: 0 },
+          debug: false,
+        },
       },
-    };
+    }
   }
 
   public getConfig(): Phaser.Types.Core.GameConfig {
-    return this.config;
-  }
-
-  private preload(): void {
-    // アセット読み込み用（現在は空）
-  }
-
-  private create(): void {
-    // シーン作成用（現在は空）
+    return this.config
   }
 
   public createGame(): Phaser.Game {
-    return new Phaser.Game(this.config);
+    return new Phaser.Game(this.config)
   }
 }
