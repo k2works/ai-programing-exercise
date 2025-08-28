@@ -39,6 +39,7 @@ export default [
         HTMLCanvasElement: 'readonly',
         CanvasRenderingContext2D: 'readonly',
         WebGLRenderingContext: 'readonly',
+        localStorage: 'readonly',
         console: 'readonly',
       },
     },
