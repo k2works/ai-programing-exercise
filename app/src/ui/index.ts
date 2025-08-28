@@ -6,3 +6,5 @@
 export { Button, type ButtonStyle } from './Button'
 export { Menu, type MenuItem } from './Menu'
 export { SettingsPanel, type GameSettings } from './SettingsPanel'
+export { ChoiceButton } from './ChoiceButton'
+export { ChoicePanel } from './ChoicePanel'
