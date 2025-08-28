@@ -49,7 +49,11 @@ type FizzBuzzTest() =
         Assert.That(result.[14], Is.EqualTo("FizzBuzz"))
         Assert.That(result.Length, Is.EqualTo(100))
 
+let print_1_to_100() =
+    create_fizz_buzz_list()
+    |> Array.iter (printfn "%s")
+
 [<EntryPoint>]
 let main argv =
-    printfn "Hello from F#"
+    print_1_to_100()
     0
