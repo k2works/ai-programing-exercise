@@ -1,4 +1,4 @@
-﻿namespace MRS.Domain.ValueObjects;
+namespace MRS.Domain.ValueObjects;
 
 /// <summary>
 /// ユーザーIDを表すバリューオブジェクト
