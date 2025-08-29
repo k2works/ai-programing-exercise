@@ -63,6 +63,29 @@ public class Room : IEquatable<Room>
     }
 
     /// <summary>
+    /// データベースからの復元用コンストラクタ
+    /// </summary>
+    /// <param name="roomId">会議室ID</param>
+    /// <param name="roomName">会議室名</param>
+    /// <param name="capacity">収容人数</param>
+    /// <param name="isActive">アクティブ状態</param>
+    /// <param name="createdAt">作成日時</param>
+    /// <param name="updatedAt">更新日時</param>
+    /// <exception cref="ArgumentNullException">必須パラメータがnullの場合</exception>
+    /// <exception cref="ArgumentException">収容人数が無効な場合</exception>
+    public Room(RoomId roomId, Name roomName, int capacity, bool isActive, DateTime createdAt, DateTime updatedAt)
+    {
+        RoomId = roomId ?? throw new ArgumentNullException(nameof(roomId));
+        RoomName = roomName ?? throw new ArgumentNullException(nameof(roomName));
+
+        ValidateCapacity(capacity);
+        Capacity = capacity;
+        IsActive = isActive;
+        CreatedAt = createdAt;
+        UpdatedAt = updatedAt;
+    }
+
+    /// <summary>
     /// 会議室名を変更します
     /// </summary>
     /// <param name="newRoomName">新しい会議室名</param>

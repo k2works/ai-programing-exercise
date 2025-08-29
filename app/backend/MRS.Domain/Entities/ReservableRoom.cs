@@ -49,10 +49,30 @@ public class ReservableRoom : IEquatable<ReservableRoom>
         ReservableRoomId = reservableRoomId ?? throw new ArgumentNullException(nameof(reservableRoomId));
         RoomId = roomId ?? throw new ArgumentNullException(nameof(roomId));
         RoomName = roomName ?? throw new ArgumentNullException(nameof(roomName));
-
+        
         IsAvailable = true;
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// データベースからの復元用コンストラクタ
+    /// </summary>
+    /// <param name="reservableRoomId">予約可能会議室ID</param>
+    /// <param name="roomId">会議室ID</param>
+    /// <param name="roomName">会議室名</param>
+    /// <param name="isAvailable">利用可能状態</param>
+    /// <param name="createdAt">作成日時</param>
+    /// <param name="updatedAt">更新日時</param>
+    /// <exception cref="ArgumentNullException">必須パラメータがnullの場合</exception>
+    public ReservableRoom(ReservableRoomId reservableRoomId, RoomId roomId, Name roomName, bool isAvailable, DateTime createdAt, DateTime updatedAt)
+    {
+        ReservableRoomId = reservableRoomId ?? throw new ArgumentNullException(nameof(reservableRoomId));
+        RoomId = roomId ?? throw new ArgumentNullException(nameof(roomId));
+        RoomName = roomName ?? throw new ArgumentNullException(nameof(roomName));
+        IsAvailable = isAvailable;
+        CreatedAt = createdAt;
+        UpdatedAt = updatedAt;
     }
 
     /// <summary>

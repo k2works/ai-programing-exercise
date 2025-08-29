@@ -1,4 +1,5 @@
-using Microsoft.EntityFrameworkCore;
+using System.Data;
+using Microsoft.Data.Sqlite;
 using Xunit;
 using MRS.Infrastructure.Data;
 using MRS.Infrastructure.Repositories;
@@ -8,34 +9,73 @@ using MRS.Domain.ValueObjects;
 namespace MRS.Infrastructure.Tests.Repositories;
 
 /// <summary>
-/// UserRepositoryのテスト
+/// UserRepositoryのテスト（Dapper版）
 /// </summary>
 public class UserRepositoryTests : IDisposable
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IDbConnection _connection;
+    private readonly IDbConnectionFactory _connectionFactory;
     private readonly UserRepository _userRepository;
 
     public UserRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
+        // SQLiteインメモリデータベースを使用
+        _connection = new SqliteConnection("Data Source=:memory:");
+        _connection.Open();
+        
+        _connectionFactory = new TestConnectionFactory(_connection);
+        _userRepository = new UserRepository(_connectionFactory);
+        
+        // テーブル作成
+        InitializeDatabase();
+    }
 
-        _context = new ApplicationDbContext(options);
-        _userRepository = new UserRepository(_context);
+    private void InitializeDatabase()
+    {
+        const string createTableSql = @"
+            CREATE TABLE IF NOT EXISTS Users (
+                UserId TEXT NOT NULL PRIMARY KEY,
+                Name TEXT NOT NULL UNIQUE,
+                HashedPassword TEXT NOT NULL,
+                Role TEXT NOT NULL,
+                IsActive INTEGER NOT NULL DEFAULT 1,
+                CreatedAt TEXT NOT NULL,
+                UpdatedAt TEXT NOT NULL
+            )";
+
+        using var command = _connection.CreateCommand();
+        command.CommandText = createTableSql;
+        command.ExecuteNonQuery();
+    }
+
+    private void EnsureTableExists()
+    {
+        // 毎回テーブル作成を実行（IF NOT EXISTSで安全）
+        InitializeDatabase();
+        
+        // テーブルが実際に存在するかデバッグ確認
+        const string checkTableSql = "SELECT name FROM sqlite_master WHERE type='table' AND name='Users'";
+        using var command = _connection.CreateCommand();
+        command.CommandText = checkTableSql;
+        var result = command.ExecuteScalar();
+        
+        if (result == null)
+        {
+            throw new InvalidOperationException("Usersテーブルの作成に失敗しました");
+        }
     }
 
     [Fact]
     public async Task GetByIdAsync_ExistingUser_ShouldReturnUser()
     {
         // Arrange
+        EnsureTableExists(); // テーブルの存在を確認
         var userId = new UserId("user001");
         var userName = new Name("山田太郎");
         var password = new Password("Password123!");
         
         var user = new User(userId, userName, password);
         await _userRepository.AddAsync(user);
-        await _context.SaveChangesAsync();
 
         // Act
         var result = await _userRepository.GetByIdAsync(userId);
@@ -51,6 +91,7 @@ public class UserRepositoryTests : IDisposable
     public async Task GetByIdAsync_NonExistingUser_ShouldReturnNull()
     {
         // Arrange
+        EnsureTableExists();
         var userId = new UserId("nonexistent");
 
         // Act
@@ -64,6 +105,7 @@ public class UserRepositoryTests : IDisposable
     public async Task AddAsync_ValidUser_ShouldAddToDatabase()
     {
         // Arrange
+        EnsureTableExists();
         var userId = new UserId("user002");
         var userName = new Name("佐藤花子");
         var password = new Password("Password456!");
@@ -72,11 +114,9 @@ public class UserRepositoryTests : IDisposable
 
         // Act
         await _userRepository.AddAsync(user);
-        await _context.SaveChangesAsync();
 
-        // Assert
-        var savedUser = await _context.Users
-            .FirstOrDefaultAsync(u => u.UserId == userId);
+        // Assert - 追加したユーザーを取得して確認
+        var savedUser = await _userRepository.GetByIdAsync(userId);
         Assert.NotNull(savedUser);
         Assert.Equal(userId, savedUser.UserId);
         Assert.Equal(userName, savedUser.Name);
@@ -86,13 +126,13 @@ public class UserRepositoryTests : IDisposable
     public async Task UpdateAsync_ExistingUser_ShouldUpdateDatabase()
     {
         // Arrange
+        EnsureTableExists();
         var userId = new UserId("user003");
         var userName = new Name("田中一郎");
         var password = new Password("Password789!");
         
         var user = new User(userId, userName, password);
         await _userRepository.AddAsync(user);
-        await _context.SaveChangesAsync();
 
         // 名前を変更
         var newUserName = new Name("田中二郎");
@@ -100,7 +140,6 @@ public class UserRepositoryTests : IDisposable
 
         // Act
         await _userRepository.UpdateAsync(user);
-        await _context.SaveChangesAsync();
 
         // Assert
         var updatedUser = await _userRepository.GetByIdAsync(userId);
@@ -112,17 +151,16 @@ public class UserRepositoryTests : IDisposable
     public async Task DeleteAsync_ExistingUser_ShouldRemoveFromDatabase()
     {
         // Arrange
+        EnsureTableExists();
         var userId = new UserId("user004");
         var userName = new Name("鈴木三郎");
         var password = new Password("Password321!");
         
         var user = new User(userId, userName, password);
         await _userRepository.AddAsync(user);
-        await _context.SaveChangesAsync();
 
         // Act
         await _userRepository.DeleteAsync(userId);
-        await _context.SaveChangesAsync();
 
         // Assert
         var deletedUser = await _userRepository.GetByIdAsync(userId);
@@ -133,13 +171,13 @@ public class UserRepositoryTests : IDisposable
     public async Task GetByNameAsync_ExistingName_ShouldReturnUser()
     {
         // Arrange
+        EnsureTableExists();
         var userId = new UserId("user005");
         var userName = new Name("高橋四郎");
         var password = new Password("Password654!");
         
         var user = new User(userId, userName, password);
         await _userRepository.AddAsync(user);
-        await _context.SaveChangesAsync();
 
         // Act
         var result = await _userRepository.GetByNameAsync(userName);
@@ -154,6 +192,7 @@ public class UserRepositoryTests : IDisposable
     public async Task GetByNameAsync_NonExistingName_ShouldReturnNull()
     {
         // Arrange
+        EnsureTableExists();
         var userName = new Name("存在しないユーザー");
 
         // Act
@@ -167,6 +206,7 @@ public class UserRepositoryTests : IDisposable
     public async Task GetAllAsync_MultipleUsers_ShouldReturnAllUsers()
     {
         // Arrange
+        EnsureTableExists();
         var users = new List<User>
         {
             new(new UserId("user006"), new Name("ユーザー1"), new Password("Password1!")),
@@ -178,7 +218,6 @@ public class UserRepositoryTests : IDisposable
         {
             await _userRepository.AddAsync(user);
         }
-        await _context.SaveChangesAsync();
 
         // Act
         var result = await _userRepository.GetAllAsync();
@@ -193,6 +232,61 @@ public class UserRepositoryTests : IDisposable
 
     public void Dispose()
     {
-        _context.Dispose();
+        _connection.Dispose();
+    }
+
+    /// <summary>
+    /// テスト用の接続ファクトリー
+    /// </summary>
+    private class TestConnectionFactory : IDbConnectionFactory
+    {
+        private readonly IDbConnection _connection;
+
+        public TestConnectionFactory(IDbConnection connection)
+        {
+            _connection = connection;
+        }
+
+        public IDbConnection CreateConnection()
+        {
+            // 共有接続をDispose()されないようにラップ
+            return new NonDisposableConnectionWrapper(_connection);
+        }
+    }
+    
+    /// <summary>
+    /// Dispose()を無効化する接続ラッパー
+    /// </summary>
+    private class NonDisposableConnectionWrapper : IDbConnection
+    {
+        private readonly IDbConnection _connection;
+
+        public NonDisposableConnectionWrapper(IDbConnection connection)
+        {
+            _connection = connection;
+        }
+
+        public string ConnectionString 
+        { 
+            get => _connection.ConnectionString; 
+            set => _connection.ConnectionString = value; 
+        }
+
+        public int ConnectionTimeout => _connection.ConnectionTimeout;
+        public string Database => _connection.Database;
+        public ConnectionState State => _connection.State;
+
+        public IDbTransaction BeginTransaction() => _connection.BeginTransaction();
+        public IDbTransaction BeginTransaction(IsolationLevel il) => _connection.BeginTransaction(il);
+        public void ChangeDatabase(string databaseName) => _connection.ChangeDatabase(databaseName);
+        public void Close() => _connection.Close();
+        public IDbCommand CreateCommand() => _connection.CreateCommand();
+        public void Open() => _connection.Open();
+
+        // Dispose()を無効化
+        public void Dispose()
+        {
+            // 何もしない - 実際の接続は閉じない
+        }
     }
 }
