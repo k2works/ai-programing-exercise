@@ -18,6 +18,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PHP_VER=8.1 \
     GHC_VER=9.4.8 \
     GO_VER=1.22.0 \
+    DOTNET_VER=9.0 \
     RUST_VER=stable \
     C_VER=11 \
     CPP_VER=20 \
@@ -244,7 +245,7 @@ RUN apt-get update && apt-get install -y \
     && dpkg -i packages-microsoft-prod.deb \
     && rm packages-microsoft-prod.deb \
     && apt-get update \
-    && apt-get install -y dotnet-sdk-8.0 \
+    && apt-get install -y dotnet-sdk-${DOTNET_VER} \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
