@@ -19,15 +19,15 @@ public class ReservableRoomTests
         // Act
         var reservableRoom = new ReservableRoom(_reservableRoomId, _roomId, _roomName);
 
-                // Assert
+        // Assert
         Assert.NotNull(reservableRoom);
-        Assert.Equal(reservableRoomId, reservableRoom.ReservableRoomId);
-        Assert.Equal(roomId, reservableRoom.RoomId);
-        Assert.Equal(roomName, reservableRoom.RoomName);
+        Assert.Equal(_reservableRoomId, reservableRoom.ReservableRoomId);
+        Assert.Equal(_roomId, reservableRoom.RoomId);
+        Assert.Equal(_roomName, reservableRoom.RoomName);
         Assert.True(reservableRoom.IsAvailable);
-        
-        // 作成日時の比較は1秒以内の差を許容
-        Assert.True(System.Math.Abs((reservableRoom.CreatedAt - createdAt).TotalSeconds) < 1);
+        Assert.True(reservableRoom.CreatedAt <= DateTime.UtcNow);
+        Assert.True(reservableRoom.UpdatedAt <= DateTime.UtcNow);
+        Assert.Equal(reservableRoom.CreatedAt, reservableRoom.UpdatedAt);
     }
 
     [Fact]
