@@ -37,20 +37,22 @@ public class JwtMiddleware
     /// <param name="context">HTTPコンテキスト</param>
     public async Task InvokeAsync(HttpContext context)
     {
+        // 認証不要のパスをスキップ
+        if (ShouldSkipAuthentication(context))
+        {
+            await _next(context);
+            return;
+        }
+
         try
         {
             await AttachUserToContext(context);
         }
-        catch (UnauthorizedAccessException ex)
-        {
-            LogAuthenticationError(_logger, ex);
-            context.Response.StatusCode = 401;
-            return;
-        }
         catch (Exception ex)
         {
-            LogAuthenticationError(_logger, ex);
-            context.Response.StatusCode = 401;
+            // 予期しないエラーのみログ出力（認証エラーは既にAttachUserToContextで処理済み）
+            _logger.LogError(ex, "JWT認証処理で予期しないエラーが発生しました");
+            context.Response.StatusCode = 500;
             return;
         }
 
@@ -70,11 +72,19 @@ public class JwtMiddleware
             return;
         }
 
-        var authService = context.RequestServices.GetRequiredService<IAuthService>();
-        var userInfo = await authService.ValidateTokenAsync(token, context.RequestAborted);
-        
-        // ユーザー情報をコンテキストに設定
-        context.Items["User"] = userInfo;
+        try
+        {
+            var authService = context.RequestServices.GetRequiredService<IAuthService>();
+            var userInfo = await authService.ValidateTokenAsync(token, context.RequestAborted);
+            
+            // ユーザー情報をコンテキストに設定
+            context.Items["User"] = userInfo;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            // 無効なトークンの場合は、認証なしで続行（認可が必要なエンドポイントで後でチェック）
+            return;
+        }
     }
 
     /// <summary>
@@ -98,5 +108,29 @@ public class JwtMiddleware
         }
 
         return authHeader[bearerPrefix.Length..];
+    }
+
+    /// <summary>
+    /// 認証をスキップするパスかどうかを判定
+    /// </summary>
+    /// <param name="context">HTTPコンテキスト</param>
+    /// <returns>認証をスキップする場合true</returns>
+    private static bool ShouldSkipAuthentication(HttpContext context)
+    {
+        var path = context.Request.Path.Value?.ToLowerInvariant();
+        
+        // 認証不要のパス
+        var publicPaths = new[]
+        {
+            "/swagger",
+            "/swagger/index.html",
+            "/swagger/v1/swagger.json",
+            "/api/auth/login",
+            "/_framework",
+            "/favicon.ico"
+        };
+
+        return !string.IsNullOrEmpty(path) && 
+               publicPaths.Any(publicPath => path.StartsWith(publicPath, StringComparison.OrdinalIgnoreCase));
     }
 }

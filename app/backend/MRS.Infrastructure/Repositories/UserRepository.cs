@@ -26,6 +26,11 @@ public class UserRepository : IUserRepository
     /// </summary>
     private async Task InitializeDatabaseAsync()
     {
+        using var connection = _connectionFactory.CreateConnection();
+        
+        // SQLiteでFOREIGN KEY制約を有効化
+        await connection.ExecuteAsync("PRAGMA foreign_keys = ON");
+        
         const string createTableSql = @"
             CREATE TABLE IF NOT EXISTS Users (
                 UserId VARCHAR(50) NOT NULL PRIMARY KEY,
@@ -40,7 +45,6 @@ public class UserRepository : IUserRepository
             CREATE INDEX IF NOT EXISTS idx_users_name ON Users(Name);
             ";
 
-        using var connection = _connectionFactory.CreateConnection();
         await connection.ExecuteAsync(createTableSql);
 
         // サンプルデータ挿入（BCryptハッシュを使用）

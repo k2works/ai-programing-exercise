@@ -24,7 +24,13 @@ public class RoomRepository : IRoomRepository
     /// </summary>
     private async Task InitializeDatabaseAsync()
     {
-        const string createTableSql = @"
+        using var connection = _connectionFactory.CreateConnection();
+        
+        // SQLiteでFOREIGN KEY制約を有効化
+        await connection.ExecuteAsync("PRAGMA foreign_keys = ON");
+        
+        // Roomsテーブルを先に作成
+        const string createRoomsTableSql = @"
             CREATE TABLE IF NOT EXISTS Rooms (
                 RoomId VARCHAR(50) NOT NULL PRIMARY KEY,
                 RoomName VARCHAR(100) NOT NULL,
@@ -32,8 +38,21 @@ public class RoomRepository : IRoomRepository
                 IsActive BOOLEAN NOT NULL DEFAULT true,
                 CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 UpdatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-            );
+            );";
 
+        await connection.ExecuteAsync(createRoomsTableSql);
+        
+        // Roomsテーブルにサンプルデータを挿入
+        const string insertRoomsDataSql = @"
+            INSERT OR REPLACE INTO Rooms (RoomId, RoomName, Capacity, IsActive, CreatedAt, UpdatedAt) VALUES
+            ('room-001', '会議室A', 8, true, datetime('now'), datetime('now')),
+            ('room-002', '会議室B', 12, true, datetime('now'), datetime('now')),
+            ('room-003', '会議室C', 20, true, datetime('now'), datetime('now'));";
+
+        await connection.ExecuteAsync(insertRoomsDataSql);
+        
+        // ReservableRoomsテーブルを作成（外部キー制約あり）
+        const string createReservableRoomsTableSql = @"
             CREATE TABLE IF NOT EXISTS ReservableRooms (
                 ReservableRoomId VARCHAR(50) NOT NULL PRIMARY KEY,
                 RoomId VARCHAR(50) NOT NULL,
@@ -43,25 +62,18 @@ public class RoomRepository : IRoomRepository
                 UpdatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (RoomId) REFERENCES Rooms(RoomId) ON DELETE RESTRICT
             );
+            CREATE INDEX IF NOT EXISTS idx_reservablerooms_roomid ON ReservableRooms(RoomId);";
 
-            CREATE INDEX IF NOT EXISTS idx_reservablerooms_roomid ON ReservableRooms(RoomId);
-            ";
-
-        const string sampleDataSql = @"
-            INSERT OR REPLACE INTO Rooms (RoomId, RoomName, Capacity, IsActive, CreatedAt, UpdatedAt) VALUES
-            ('room-001', '会議室A', 8, true, datetime('now'), datetime('now')),
-            ('room-002', '会議室B', 12, true, datetime('now'), datetime('now')),
-            ('room-003', '会議室C', 20, true, datetime('now'), datetime('now'));
-
+        await connection.ExecuteAsync(createReservableRoomsTableSql);
+        
+        // ReservableRoomsテーブルにサンプルデータを挿入
+        const string insertReservableRoomsDataSql = @"
             INSERT OR REPLACE INTO ReservableRooms (ReservableRoomId, RoomId, RoomName, IsAvailable, CreatedAt, UpdatedAt) VALUES
             ('resv-001', 'room-001', '会議室A', true, datetime('now'), datetime('now')),
             ('resv-002', 'room-002', '会議室B', true, datetime('now'), datetime('now')),
-            ('resv-003', 'room-003', '会議室C', true, datetime('now'), datetime('now'));
-            ";
+            ('resv-003', 'room-003', '会議室C', true, datetime('now'), datetime('now'));";
 
-        using var connection = _connectionFactory.CreateConnection();
-        await connection.ExecuteAsync(createTableSql);
-        await connection.ExecuteAsync(sampleDataSql);
+        await connection.ExecuteAsync(insertReservableRoomsDataSql);
     }
 
     /// <summary>
