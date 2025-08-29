@@ -96,9 +96,10 @@ curl -X GET http://localhost:8080/api/rooms \
 
 1. ページ上部の **Authorize** ボタン（鍵アイコン）をクリック
 2. 表示されたダイアログで:
-   - Value欄に `Bearer {コピーしたトークン}` を入力
-   - **注意**: `Bearer` の後に半角スペースを入れてからトークンを貼り付け
-   - 例: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMSIsImlhdCI6MTcwOTI3...`
+   - Value欄に **トークンの値のみ** を入力（Bearerプレフィックスは自動で付きます）
+   - **重要**: `Bearer` は入力不要！トークンの値だけを貼り付け
+   - ✅ 正しい例: `eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMSIsImlhdCI6MTcwOTI3...`
+   - ❌ 間違い例: `Bearer eyJhbGciOiJIUzI1NiJ9...`
 3. **Authorize** ボタンをクリック
 4. **Close** ボタンでダイアログを閉じる
 
@@ -110,22 +111,36 @@ curl -X GET http://localhost:8080/api/rooms \
 
 ## ⚠️ よくある間違い
 
-### ❌ 間違い1: Bearer を付け忘れる
+### curlコマンドの場合
+#### ❌ 間違い1: Bearer を付け忘れる
 ```
 Authorization: eyJhbGciOiJIUzI1NiJ9...  ← NG
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...  ← OK
 ```
 
-### ❌ 間違い2: ダブルクォートも含めてコピー
+#### ❌ 間違い2: ダブルクォートも含めてコピー
 ```
 Authorization: Bearer "eyJhbGciOiJIUzI1NiJ9..."  ← NG
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...    ← OK
 ```
 
-### ❌ 間違い3: スペースを忘れる
+#### ❌ 間違い3: スペースを忘れる
 ```
 Authorization: BearereyJhbGciOiJIUzI1NiJ9...  ← NG
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9... ← OK
+```
+
+### Swagger UIの場合
+#### ❌ 間違い1: Bearerを手動で付ける
+```
+Bearer eyJhbGciOiJIUzI1NiJ9...  ← NG（自動で付くので不要）
+eyJhbGciOiJIUzI1NiJ9...        ← OK（トークンの値のみ）
+```
+
+#### ❌ 間違い2: ダブルクォートも含める
+```
+"eyJhbGciOiJIUzI1NiJ9..."  ← NG
+eyJhbGciOiJIUzI1NiJ9...    ← OK
 ```
 
 ## 🔄 トークンのリフレッシュ
@@ -156,6 +171,24 @@ curl -X POST http://localhost:8080/api/auth/refresh \
 
 ## 💡 Tips
 
-- Postmanを使うともっと簡単にテストできます
+- **Swagger UI推奨**: ブラウザから簡単にAPIテストできるのでSwagger UIの使用を推奨
+- Postmanを使う場合は従来通り `Bearer {トークン}` の形式で設定
 - Chrome拡張の「ModHeader」を使えばブラウザでも認証ヘッダーを設定できます
 - 開発時は `JWT_SECRET` 環境変数を固定値にすると、サーバー再起動してもトークンが有効のまま使えます
+
+## 🔑 認証方式の違い
+
+| ツール | Bearer プレフィックス | 入力例 |
+|--------|---------------------|--------|
+| curl | **必要** | `Bearer eyJhbGci...` |
+| Postman | **必要** | `Bearer eyJhbGci...` |
+| **Swagger UI** | **不要** | `eyJhbGci...` |
+| ModHeader | **必要** | `Bearer eyJhbGci...` |
+
+## 🚨 重要な変更点
+
+**2025-08-29更新**: Swagger UIでの認証方式を修正しました
+- **旧**: `Bearer {トークン}` を手動入力
+- **新**: トークンの値のみ入力（Bearerは自動付与）
+
+これにより、Swagger UIでの認証がより簡単になりました！
