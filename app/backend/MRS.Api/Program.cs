@@ -8,6 +8,7 @@ builder.Services.AddControllers();
 // Add application services - will be mocked in tests
 // TODO: Replace with real implementations
 builder.Services.AddScoped<IAuthService>(sp => throw new NotImplementedException("IAuthService not implemented"));
+builder.Services.AddScoped<IRoomService>(sp => throw new NotImplementedException("IRoomService not implemented"));
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
