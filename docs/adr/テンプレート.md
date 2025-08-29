@@ -1,14 +1,3 @@
----
-title: ADR
-description: 
-published: true
-date: 2025-03-10T01:05:05.643Z
-tags: 
-editor: markdown
-dateCreated: 2025-03-10T01:05:05.643Z
----
-
-
 # Sample
 
 アーキテクチャ決定の簡単な説明
