@@ -1,4 +1,4 @@
-﻿using MRS.Domain.ValueObjects;
+using MRS.Domain.ValueObjects;
 
 namespace MRS.Domain.Tests;
 

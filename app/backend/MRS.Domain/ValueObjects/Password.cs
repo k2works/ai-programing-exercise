@@ -108,9 +108,9 @@ public sealed record Password
     private static bool IsValidBCryptHash(string hash)
     {
         // BCryptハッシュは$2a$、$2b$、$2x$、$2y$で始まる
-        return hash.StartsWith("$2a$") || 
-               hash.StartsWith("$2b$") || 
-               hash.StartsWith("$2x$") || 
+        return hash.StartsWith("$2a$") ||
+               hash.StartsWith("$2b$") ||
+               hash.StartsWith("$2x$") ||
                hash.StartsWith("$2y$");
     }
 }

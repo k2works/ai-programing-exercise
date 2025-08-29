@@ -23,7 +23,7 @@ public sealed record Name
             throw new ArgumentException("名前は必須です。", nameof(value));
 
         var trimmedValue = value.Trim();
-        
+
         if (string.IsNullOrEmpty(trimmedValue))
             throw new ArgumentException("名前は必須です。", nameof(value));
 

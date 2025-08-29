@@ -53,10 +53,10 @@ public class Room : IEquatable<Room>
     {
         RoomId = roomId ?? throw new ArgumentNullException(nameof(roomId));
         RoomName = roomName ?? throw new ArgumentNullException(nameof(roomName));
-        
+
         ValidateCapacity(capacity);
         Capacity = capacity;
-        
+
         IsActive = true;
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
