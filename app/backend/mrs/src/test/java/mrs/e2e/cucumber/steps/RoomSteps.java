@@ -43,7 +43,7 @@ public class RoomSteps {
         assertThat(token).isNotBlank();
     }
 
-    @When("I request GET /api/rooms")
+    @When("I request GET \\/api\\/rooms")
     public void i_request_get_rooms() throws Exception {
         lastResponse = mockMvc.perform(get("/api/rooms").header("Authorization", "Bearer " + token))
             .andReturn();
