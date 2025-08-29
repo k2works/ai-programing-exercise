@@ -1,10 +1,11 @@
 package mrs.security;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
@@ -24,7 +25,7 @@ public class JwtService {
     @Value("${JWT_SECRET:Y2hhbmdlLW1lLWNoYW5nZS1tZS1jaGFuZ2UtbWUtY2hhbmdlLW1l}")
     String secret;
 
-    private Key key() {
+    private SecretKey key() {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         return Keys.hmacShaKeyFor(keyBytes);
     }
@@ -40,5 +41,14 @@ public class JwtService {
             .expiration(Date.from(exp))
             .signWith(key(), SignatureAlgorithm.HS256)
             .compact();
+    }
+
+    public Claims parseAndValidate(String token) {
+        return Jwts.parser()
+            .requireIssuer(issuer)
+            .verifyWith(key())
+            .build()
+            .parseSignedClaims(token)
+            .getPayload();
     }
 }

@@ -7,6 +7,10 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import mrs.security.JwtAuthenticationFilter;
+import mrs.security.JwtService;
 
 @Configuration
 @EnableMethodSecurity
@@ -22,7 +26,16 @@ public class WebSecurityConfig {
                 .anyRequest().authenticated()
             )
             .httpBasic(Customizer.withDefaults());
-        // TODO: Add JWT OncePerRequestFilter before UsernamePasswordAuthenticationFilter
+        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() { return new JwtAuthenticationFilter(jwtService()); }
+
+    @Bean
+    public JwtService jwtService() { return new JwtService(); }
 }
