@@ -1,6 +1,14 @@
+using MRS.Application.Ports;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddControllers();
+
+// Add application services - will be mocked in tests
+// TODO: Replace with real implementations
+builder.Services.AddScoped<IAuthService>(sp => throw new NotImplementedException("IAuthService not implemented"));
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -13,6 +21,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Add controller mapping
+app.MapControllers();
 
 var summaries = new[]
 {
@@ -39,3 +50,6 @@ sealed record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 }
+
+// Make Program class accessible for testing
+public partial class Program { }
