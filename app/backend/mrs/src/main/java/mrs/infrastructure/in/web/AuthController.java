@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+    private static final String KEY_MESSAGE = "message";
     private final JwtService jwtService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
@@ -31,7 +32,7 @@ public class AuthController {
         String rawPassword = body.getOrDefault("password", "");
 
         if (userId.isBlank() || rawPassword.isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of("message", "username and password are required"));
+            return ResponseEntity.badRequest().body(Map.of(KEY_MESSAGE, "username and password are required"));
         }
 
         User user = userMapper.findById(userId);
@@ -39,13 +40,13 @@ public class AuthController {
             String token = jwtService.createAccessToken(user.getUserId(), Map.of("roles", user.getRole()));
             return ResponseEntity.ok(Map.of("accessToken", token));
         }
-        return ResponseEntity.status(401).body(Map.of("message", "invalid credentials"));
+        return ResponseEntity.status(401).body(Map.of(KEY_MESSAGE, "invalid credentials"));
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<?> refresh(@RequestHeader(name = "Authorization", required = false) String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(401).body(Map.of("message", "missing bearer token"));
+            return ResponseEntity.status(401).body(Map.of(KEY_MESSAGE, "missing bearer token"));
         }
         String token = authHeader.substring(7);
         try {
@@ -55,7 +56,7 @@ public class AuthController {
             String newToken = jwtService.createAccessToken(userId, Map.of("roles", roles));
             return ResponseEntity.ok(Map.of("accessToken", newToken));
         } catch (Exception e) {
-            return ResponseEntity.status(401).body(Map.of("message", "invalid token"));
+            return ResponseEntity.status(401).body(Map.of(KEY_MESSAGE, "invalid token"));
         }
     }
 }

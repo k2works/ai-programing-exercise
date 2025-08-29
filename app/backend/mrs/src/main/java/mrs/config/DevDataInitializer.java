@@ -5,8 +5,10 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 @Component
+@SuppressFBWarnings(value = "EI2", justification = "Spring-managed beans (JdbcTemplate, Encoder) are immutable service references here")
 public class DevDataInitializer implements ApplicationRunner {
     private final JdbcTemplate jdbcTemplate;
     private final BCryptPasswordEncoder encoder;

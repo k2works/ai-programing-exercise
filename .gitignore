@@ -1078,3 +1078,6 @@ rebar3.crashdump
 *.iml
 docs/wiki
 CLAUDE.local.md
+
+# Local gradle cache dir used by CI-stability workaround
+.gradle-tmp/
