@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mrs.infrastructure.out.db.RoomMapper">
+  <resultMap id="roomMap" type="mrs.application.domain.model.MeetingRoom">
+    <id property="roomId" column="room_id" />
+    <result property="roomName" column="room_name" />
+  </resultMap>
+
+  <resultMap id="reservableMap" type="mrs.application.domain.model.ReservableRoom">
+    <id property="roomId" column="room_id" />
+    <result property="reservableDate" column="reservable_date" />
+  </resultMap>
+
+  <select id="findAllRooms" resultMap="roomMap">
+    SELECT room_id, room_name FROM meeting_room ORDER BY room_id
+  </select>
+
+  <select id="findReservableByDate" parameterType="date" resultMap="reservableMap">
+    SELECT room_id, reservable_date
+    FROM reservable_room
+    WHERE reservable_date = #{date}
+    ORDER BY room_id
+  </select>
+</mapper>
