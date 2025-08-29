@@ -16,6 +16,52 @@ public class RoomRepository : IRoomRepository
     public RoomRepository(IDbConnectionFactory connectionFactory)
     {
         _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
+        InitializeDatabaseAsync().GetAwaiter().GetResult();
+    }
+
+    /// <summary>
+    /// データベース初期化（テーブル作成とサンプルデータ挿入）
+    /// </summary>
+    private async Task InitializeDatabaseAsync()
+    {
+        const string createTableSql = @"
+            CREATE TABLE IF NOT EXISTS Rooms (
+                RoomId VARCHAR(50) NOT NULL PRIMARY KEY,
+                RoomName VARCHAR(100) NOT NULL,
+                Capacity INTEGER NOT NULL,
+                IsActive BOOLEAN NOT NULL DEFAULT true,
+                CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                UpdatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE IF NOT EXISTS ReservableRooms (
+                ReservableRoomId VARCHAR(50) NOT NULL PRIMARY KEY,
+                RoomId VARCHAR(50) NOT NULL,
+                RoomName VARCHAR(100) NOT NULL,
+                IsAvailable BOOLEAN NOT NULL DEFAULT true,
+                CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                UpdatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (RoomId) REFERENCES Rooms(RoomId) ON DELETE RESTRICT
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_reservablerooms_roomid ON ReservableRooms(RoomId);
+            ";
+
+        const string sampleDataSql = @"
+            INSERT OR REPLACE INTO Rooms (RoomId, RoomName, Capacity, IsActive, CreatedAt, UpdatedAt) VALUES
+            ('room-001', '会議室A', 8, true, datetime('now'), datetime('now')),
+            ('room-002', '会議室B', 12, true, datetime('now'), datetime('now')),
+            ('room-003', '会議室C', 20, true, datetime('now'), datetime('now'));
+
+            INSERT OR REPLACE INTO ReservableRooms (ReservableRoomId, RoomId, RoomName, IsAvailable, CreatedAt, UpdatedAt) VALUES
+            ('resv-001', 'room-001', '会議室A', true, datetime('now'), datetime('now')),
+            ('resv-002', 'room-002', '会議室B', true, datetime('now'), datetime('now')),
+            ('resv-003', 'room-003', '会議室C', true, datetime('now'), datetime('now'));
+            ";
+
+        using var connection = _connectionFactory.CreateConnection();
+        await connection.ExecuteAsync(createTableSql);
+        await connection.ExecuteAsync(sampleDataSql);
     }
 
     /// <summary>

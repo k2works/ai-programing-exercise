@@ -1,4 +1,5 @@
 using System.Data;
+using BCrypt.Net;
 using Dapper;
 using MRS.Application.Ports;
 using MRS.Domain.Entities;
@@ -17,6 +18,44 @@ public class UserRepository : IUserRepository
     public UserRepository(IDbConnectionFactory connectionFactory)
     {
         _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
+        InitializeDatabaseAsync().GetAwaiter().GetResult();
+    }
+
+    /// <summary>
+    /// データベース初期化（テーブル作成とサンプルデータ挿入）
+    /// </summary>
+    private async Task InitializeDatabaseAsync()
+    {
+        const string createTableSql = @"
+            CREATE TABLE IF NOT EXISTS Users (
+                UserId VARCHAR(50) NOT NULL PRIMARY KEY,
+                Name VARCHAR(100) NOT NULL UNIQUE,
+                HashedPassword VARCHAR(255) NOT NULL,
+                Role VARCHAR(50) NOT NULL,
+                IsActive BOOLEAN NOT NULL DEFAULT true,
+                CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                UpdatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_users_name ON Users(Name);
+            ";
+
+        using var connection = _connectionFactory.CreateConnection();
+        await connection.ExecuteAsync(createTableSql);
+
+        // サンプルデータ挿入（BCryptハッシュを使用）
+        var hashedPassword = BCrypt.Net.BCrypt.HashPassword("password123");
+        
+        const string insertUserSql = @"
+            INSERT OR REPLACE INTO Users (UserId, Name, HashedPassword, Role, IsActive, CreatedAt, UpdatedAt) 
+            VALUES (@UserId, @Name, @HashedPassword, @Role, @IsActive, @CreatedAt, @UpdatedAt)";
+
+        await connection.ExecuteAsync(insertUserSql, new[]
+        {
+            new { UserId = "admin01", Name = "管理者", HashedPassword = hashedPassword, Role = "Admin", IsActive = true, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
+            new { UserId = "user01", Name = "田中太郎", HashedPassword = hashedPassword, Role = "Member", IsActive = true, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
+            new { UserId = "user02", Name = "佐藤花子", HashedPassword = hashedPassword, Role = "Member", IsActive = true, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now }
+        });
     }
 
     /// <summary>
