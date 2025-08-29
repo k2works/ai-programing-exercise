@@ -7,6 +7,7 @@ import mrs.application.domain.model.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,5 +40,22 @@ public class AuthController {
             return ResponseEntity.ok(Map.of("accessToken", token));
         }
         return ResponseEntity.status(401).body(Map.of("message", "invalid credentials"));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestHeader(name = "Authorization", required = false) String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body(Map.of("message", "missing bearer token"));
+        }
+        String token = authHeader.substring(7);
+        try {
+            var claims = jwtService.parseAndValidate(token);
+            String userId = claims.getSubject();
+            Object roles = claims.get("roles");
+            String newToken = jwtService.createAccessToken(userId, Map.of("roles", roles));
+            return ResponseEntity.ok(Map.of("accessToken", newToken));
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(Map.of("message", "invalid token"));
+        }
     }
 }
