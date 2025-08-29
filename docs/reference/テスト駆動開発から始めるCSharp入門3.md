@@ -85,7 +85,7 @@ FizzBuzzApplication --> FizzBuzz
 
 ### 前提条件
 
-- .NET 8.0 SDK
+- .NET 9.0 SDK
 - Visual Studio Code または Visual Studio
 - C#と.NETの基本的な知識
 - テスト駆動開発の基本概念

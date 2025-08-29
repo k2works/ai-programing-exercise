@@ -79,7 +79,7 @@ $ dotnet --version
 8.0.412
 ```
 
-.NET 8.0が利用できることが確認できました。続いて、FizzBuzzプロジェクトを作成します。
+.NET 9.0が利用できることが確認できました。続いて、FizzBuzzプロジェクトを作成します。
 
 ``` bash
 $ dotnet new sln -n FizzBuzzCSharp
