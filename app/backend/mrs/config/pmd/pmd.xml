@@ -3,9 +3,7 @@
          xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.github.io/pmd-7.0.0/ruleset_2_0_0.xsd">
-    <description>PMD rules for MRS. Cyclomatic Complexity max = 7.</description>
-
-    <rule ref="category/java/codestyle.xml/TooManyStaticImports"/>
+    <description>PMD rules for MRS - Cyclomatic Complexity and code quality.</description>
 
     <!-- Cyclomatic Complexity -->
     <rule ref="category/java/design.xml/CyclomaticComplexity">
@@ -16,6 +14,7 @@
     </rule>
 
     <!-- Basic code quality -->
+    <rule ref="category/java/codestyle.xml/TooManyStaticImports"/>
     <rule ref="category/java/errorprone.xml/AvoidDuplicateLiterals"/>
     <rule ref="category/java/errorprone.xml/NullAssignment"/>
 </ruleset>
