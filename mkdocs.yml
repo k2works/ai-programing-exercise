@@ -17,7 +17,7 @@ theme:
     - search.highlight
 
 extra_css:
-  - docs/mkdocs/assets/css/extra.css
+  - docs/assets/css/extra.css
 
 markdown_extensions:
   - pymdownx.highlight
@@ -57,3 +57,6 @@ plugins:
 
 nav:
   - Home: index.md
+  - 要件:
+      - 仕様: requirements/仕様.md
+      - リリース計画: requirements/リリース計画.md
