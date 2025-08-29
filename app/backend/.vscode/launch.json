@@ -1,0 +1,47 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch MRS.Api",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/app/backend/MRS.Api/bin/Debug/net9.0/MRS.Api.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/app/backend",
+            "console": "internalConsole",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "https://localhost:7001;http://localhost:5001"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/app/backend/Views"
+            }
+        },
+        {
+            "name": "Launch MRS.Api (No Browser)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/app/backend/MRS.Api/bin/Debug/net9.0/MRS.Api.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/app/backend",
+            "console": "internalConsole",
+            "stopAtEntry": false,
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "https://localhost:7001;http://localhost:5001"
+            }
+        },
+        {
+            "name": "Attach to Process",
+            "type": "coreclr",
+            "request": "attach"
+        }
+    ]
+}

@@ -1,0 +1,104 @@
+is_global = true
+
+# Enable all FxCop analyzers
+dotnet_analyzer_diagnostic.category-design.severity = warning
+dotnet_analyzer_diagnostic.category-documentation.severity = suggestion
+dotnet_analyzer_diagnostic.category-globalization.severity = warning
+dotnet_analyzer_diagnostic.category-maintainability.severity = warning
+dotnet_analyzer_diagnostic.category-naming.severity = warning
+dotnet_analyzer_diagnostic.category-performance.severity = warning
+dotnet_analyzer_diagnostic.category-reliability.severity = error
+dotnet_analyzer_diagnostic.category-security.severity = error
+dotnet_analyzer_diagnostic.category-style.severity = suggestion
+dotnet_analyzer_diagnostic.category-usage.severity = warning
+
+# Cyclomatic complexity rule - Maximum complexity of 7
+dotnet_diagnostic.CA1502.severity = error
+dotnet_code_quality.CA1502.cyclomatic_complexity = 7
+
+# Method length and parameter count
+dotnet_diagnostic.CA1505.severity = warning  # Avoid unmaintainable code (lines of code)
+dotnet_diagnostic.CA1506.severity = warning  # Avoid excessive class coupling
+
+# Specific rules for clean code
+dotnet_diagnostic.CA1031.severity = warning  # Do not catch general exception types
+dotnet_diagnostic.CA1034.severity = warning  # Nested types should not be visible
+dotnet_diagnostic.CA1040.severity = error    # Avoid empty interfaces
+dotnet_diagnostic.CA1062.severity = suggestion # Validate arguments of public methods
+dotnet_diagnostic.CA1303.severity = suggestion # Do not pass literals as localized parameters
+dotnet_diagnostic.CA1304.severity = suggestion # Specify CultureInfo
+dotnet_diagnostic.CA1305.severity = suggestion # Specify IFormatProvider
+dotnet_diagnostic.CA1307.severity = suggestion # Specify StringComparison
+dotnet_diagnostic.CA1308.severity = warning  # Normalize strings to uppercase
+dotnet_diagnostic.CA1309.severity = suggestion # Use ordinal StringComparison
+dotnet_diagnostic.CA1310.severity = suggestion # Specify StringComparison for correctness
+
+# Security rules
+dotnet_diagnostic.CA2100.severity = error    # Review SQL queries for security vulnerabilities
+dotnet_diagnostic.CA2119.severity = error    # Seal methods that satisfy private interfaces
+dotnet_diagnostic.CA3001.severity = error    # Review code for SQL injection vulnerabilities
+dotnet_diagnostic.CA3003.severity = error    # Review code for file path injection vulnerabilities
+dotnet_diagnostic.CA3004.severity = error    # Review code for information disclosure vulnerabilities
+dotnet_diagnostic.CA3006.severity = error    # Review code for process command injection vulnerabilities
+dotnet_diagnostic.CA3007.severity = error    # Review code for open redirect vulnerabilities
+dotnet_diagnostic.CA3008.severity = error    # Review code for XPath injection vulnerabilities
+dotnet_diagnostic.CA3009.severity = error    # Review code for XML injection vulnerabilities
+dotnet_diagnostic.CA3010.severity = error    # Review code for XAML injection vulnerabilities
+dotnet_diagnostic.CA3011.severity = error    # Review code for DLL injection vulnerabilities
+dotnet_diagnostic.CA3012.severity = error    # Review code for regex injection vulnerabilities
+
+# Performance rules
+dotnet_diagnostic.CA1810.severity = suggestion # Initialize reference type static fields inline
+dotnet_diagnostic.CA1812.severity = suggestion # Avoid uninstantiated internal classes
+dotnet_diagnostic.CA1813.severity = suggestion # Avoid unsealed attributes
+dotnet_diagnostic.CA1814.severity = suggestion # Prefer jagged arrays over multidimensional
+dotnet_diagnostic.CA1815.severity = suggestion # Override equals and operator equals on value types
+dotnet_diagnostic.CA1819.severity = suggestion # Properties should not return arrays
+dotnet_diagnostic.CA1820.severity = suggestion # Test for empty strings using string length
+dotnet_diagnostic.CA1821.severity = warning  # Remove empty Finalizers
+dotnet_diagnostic.CA1822.severity = suggestion # Mark members as static
+dotnet_diagnostic.CA1823.severity = warning  # Avoid unused private fields
+dotnet_diagnostic.CA1824.severity = suggestion # Mark assemblies with NeutralResourcesLanguageAttribute
+dotnet_diagnostic.CA1825.severity = suggestion # Avoid zero-length array allocations
+
+# Design rules
+dotnet_diagnostic.CA1000.severity = suggestion # Do not declare static members on generic types
+dotnet_diagnostic.CA1001.severity = error    # Types that own disposable fields should be disposable
+dotnet_diagnostic.CA1002.severity = suggestion # Do not expose generic lists
+dotnet_diagnostic.CA1003.severity = suggestion # Use generic event handler instances
+dotnet_diagnostic.CA1005.severity = suggestion # Avoid excessive parameters on generic types
+dotnet_diagnostic.CA1008.severity = suggestion # Enums should have zero value
+dotnet_diagnostic.CA1010.severity = suggestion # Collections should implement generic interface
+dotnet_diagnostic.CA1012.severity = suggestion # Abstract types should not have constructors
+dotnet_diagnostic.CA1014.severity = suggestion # Mark assemblies with CLSCompliant
+dotnet_diagnostic.CA1016.severity = suggestion # Mark assemblies with assembly version
+dotnet_diagnostic.CA1017.severity = suggestion # Mark assemblies with ComVisible
+dotnet_diagnostic.CA1018.severity = suggestion # Mark attributes with AttributeUsageAttribute
+dotnet_diagnostic.CA1019.severity = suggestion # Define accessors for attribute arguments
+dotnet_diagnostic.CA1021.severity = suggestion # Avoid out parameters
+dotnet_diagnostic.CA1024.severity = suggestion # Use properties where appropriate
+dotnet_diagnostic.CA1027.severity = suggestion # Mark enums with FlagsAttribute
+dotnet_diagnostic.CA1028.severity = suggestion # Enum Storage should be Int32
+dotnet_diagnostic.CA1030.severity = suggestion # Use events where appropriate
+dotnet_diagnostic.CA1032.severity = suggestion # Implement standard exception constructors
+dotnet_diagnostic.CA1033.severity = suggestion # Interface methods should be callable by child types
+dotnet_diagnostic.CA1036.severity = suggestion # Override methods on comparable types
+dotnet_diagnostic.CA1041.severity = suggestion # Provide ObsoleteAttribute message
+dotnet_diagnostic.CA1043.severity = suggestion # Use Integral Or String Argument For Indexers
+dotnet_diagnostic.CA1044.severity = suggestion # Properties should not be write only
+dotnet_diagnostic.CA1045.severity = suggestion # Do not pass types by reference
+dotnet_diagnostic.CA1046.severity = suggestion # Do not overload equality operator on reference types
+dotnet_diagnostic.CA1047.severity = suggestion # Do not declare protected member in sealed type
+dotnet_diagnostic.CA1050.severity = suggestion # Declare types in namespaces
+dotnet_diagnostic.CA1051.severity = suggestion # Do not declare visible instance fields
+dotnet_diagnostic.CA1052.severity = suggestion # Static holder types should be Static or NotInheritable
+dotnet_diagnostic.CA1053.severity = suggestion # Static holder types should not have default constructors
+dotnet_diagnostic.CA1054.severity = suggestion # Uri parameters should not be strings
+dotnet_diagnostic.CA1055.severity = suggestion # Uri return values should not be strings
+dotnet_diagnostic.CA1056.severity = suggestion # Uri properties should not be strings
+dotnet_diagnostic.CA1058.severity = suggestion # Types should not extend certain base types
+dotnet_diagnostic.CA1060.severity = suggestion # Move pinvokes to native methods class
+dotnet_diagnostic.CA1061.severity = suggestion # Do not hide base class methods
+dotnet_diagnostic.CA1063.severity = suggestion # Implement IDisposable Correctly
+dotnet_diagnostic.CA1064.severity = suggestion # Exceptions should be public
+dotnet_diagnostic.CA1065.severity = suggestion # Do not raise exceptions in unexpected locations
