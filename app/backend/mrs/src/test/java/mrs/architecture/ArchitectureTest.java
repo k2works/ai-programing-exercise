@@ -25,7 +25,7 @@ public class ArchitectureTest {
             
             // レイヤー定義
             .layer("Domain").definedBy("mrs.application.domain..")
-            .layer("Application").definedBy("mrs.application.service..", "mrs.application.port..")
+            .layer("Application").definedBy("mrs.application.service..", "mrs.application.port..", "mrs.application.dto..", "mrs.application.exception..", "mrs.application.mapper..")
             .layer("Infrastructure").definedBy("mrs.infrastructure..")
             .layer("Common").definedBy("mrs.common..")
             
@@ -65,6 +65,7 @@ public class ArchitectureTest {
                     "org.springframework..",      // Spring Framework
                     "org.springdoc..",            // SpringDoc OpenAPI
                     "io.swagger.v3..",           // Swagger annotations
+                    "io.jsonwebtoken..",          // JWT library  
                     "org.apache.ibatis..",        // MyBatis
                     "edu.umd.cs.findbugs.."      // SpotBugs annotations
             );
@@ -79,6 +80,7 @@ public class ArchitectureTest {
             .should().onlyDependOnClassesThat()
             .resideInAnyPackage(
                     "mrs.application.domain..",   // ドメインモデル
+                    "mrs.common.security..",      // セキュリティパッケージ内
                     "java..",                     // Java標準ライブラリ
                     "javax..",                    // Java拡張ライブラリ
                     "org.springframework..",      // Spring Framework

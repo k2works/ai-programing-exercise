@@ -1,6 +1,9 @@
 package mrs.application.service;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import mrs.application.exception.AlreadyReservedException;
+import mrs.application.exception.ReservationNotFoundException;
+import mrs.application.exception.UnavailableReservationException;
 import mrs.application.port.in.ReservationUseCase;
 import mrs.application.domain.model.auth.User;
 import mrs.application.domain.model.reservation.Reservation;
@@ -69,24 +72,5 @@ public class ReservationService implements ReservationUseCase {
             throw new ReservationNotFoundException("予約が見つかりません。");
         }
         reservationPort.delete(reservationId);
-    }
-    
-    // 例外クラス
-    public static class UnavailableReservationException extends RuntimeException {
-        public UnavailableReservationException(String message) {
-            super(message);
-        }
-    }
-    
-    public static class AlreadyReservedException extends RuntimeException {
-        public AlreadyReservedException(String message) {
-            super(message);
-        }
-    }
-    
-    public static class ReservationNotFoundException extends RuntimeException {
-        public ReservationNotFoundException(String message) {
-            super(message);
-        }
     }
 }

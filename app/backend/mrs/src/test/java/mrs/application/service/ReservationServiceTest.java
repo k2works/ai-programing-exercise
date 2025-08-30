@@ -4,6 +4,9 @@ import mrs.application.domain.model.auth.User;
 import mrs.application.domain.model.reservation.Reservation;
 import mrs.application.domain.model.room.MeetingRoom;
 import mrs.application.domain.model.room.ReservableRoom;
+import mrs.application.exception.AlreadyReservedException;
+import mrs.application.exception.ReservationNotFoundException;
+import mrs.application.exception.UnavailableReservationException;
 import mrs.application.port.out.ReservableRoomPort;
 import mrs.application.port.out.ReservationPort;
 import org.junit.jupiter.api.BeforeEach;
@@ -102,8 +105,8 @@ class ReservationServiceTest {
                 .thenReturn(null);
 
         // Act & Assert
-        ReservationService.UnavailableReservationException exception = assertThrows(
-                ReservationService.UnavailableReservationException.class,
+        UnavailableReservationException exception = assertThrows(
+                UnavailableReservationException.class,
                 () -> reservationService.reserve(testReservation, testUser)
         );
         assertEquals("指定の日付・部屋の組合わせは予約できません。", exception.getMessage());
@@ -125,8 +128,8 @@ class ReservationServiceTest {
                 .thenReturn(Arrays.asList(existingReservation));
 
         // Act & Assert
-        ReservationService.AlreadyReservedException exception = assertThrows(
-                ReservationService.AlreadyReservedException.class,
+        AlreadyReservedException exception = assertThrows(
+                AlreadyReservedException.class,
                 () -> reservationService.reserve(testReservation, testUser)
         );
         assertEquals("入力の時間帯はすでに予約済みです。", exception.getMessage());
@@ -177,8 +180,8 @@ class ReservationServiceTest {
         when(reservationPort.findById(reservationId)).thenReturn(null);
 
         // Act & Assert
-        ReservationService.ReservationNotFoundException exception = assertThrows(
-                ReservationService.ReservationNotFoundException.class,
+        ReservationNotFoundException exception = assertThrows(
+                ReservationNotFoundException.class,
                 () -> reservationService.cancel(reservationId, testUser)
         );
         assertEquals("予約が見つかりません。", exception.getMessage());
@@ -208,8 +211,8 @@ class ReservationServiceTest {
                 .thenReturn(Arrays.asList(reservation1, reservation2, reservation3));
 
         // Act & Assert
-        ReservationService.AlreadyReservedException exception = assertThrows(
-                ReservationService.AlreadyReservedException.class,
+        AlreadyReservedException exception = assertThrows(
+                AlreadyReservedException.class,
                 () -> reservationService.reserve(testReservation, testUser)
         );
         assertEquals("入力の時間帯はすでに予約済みです。", exception.getMessage());

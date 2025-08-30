@@ -2,8 +2,12 @@ package mrs.infrastructure.in.web;
 
 import java.time.LocalDate;
 import java.util.List;
-import mrs.application.domain.model.room.MeetingRoom;
+import java.util.stream.Collectors;
 import mrs.application.domain.model.room.ReservableRoom;
+import mrs.application.domain.model.room.MeetingRoom;
+import mrs.application.dto.MeetingRoomDto;
+import mrs.application.dto.ReservableRoomDto;
+import mrs.application.mapper.DtoMapper;
 import mrs.application.port.in.RoomUseCase;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -28,9 +32,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class RoomController {
     private static final String MEDIA_TYPE_JSON = "application/json";
     private final RoomUseCase roomUseCase;
+    private final DtoMapper dtoMapper;
 
-    public RoomController(RoomUseCase roomUseCase) {
+    public RoomController(RoomUseCase roomUseCase, DtoMapper dtoMapper) {
         this.roomUseCase = roomUseCase;
+        this.dtoMapper = dtoMapper;
     }
 
     @GetMapping
@@ -58,8 +64,12 @@ public class RoomController {
             )
         )
     })
-    public ResponseEntity<List<MeetingRoom>> listRooms() {
-        return ResponseEntity.ok(roomUseCase.findAllMeetingRooms());
+    public ResponseEntity<List<MeetingRoomDto>> listRooms() {
+        List<MeetingRoom> rooms = roomUseCase.findAllMeetingRooms();
+        List<MeetingRoomDto> roomDtos = rooms.stream()
+            .map(dtoMapper::toMeetingRoomDto)
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(roomDtos);
     }
 
     @GetMapping("/{date}")
@@ -96,13 +106,17 @@ public class RoomController {
             )
         )
     })
-    public ResponseEntity<List<ReservableRoom>> listReservableByDate(
+    public ResponseEntity<List<ReservableRoomDto>> listReservableByDate(
         @Parameter(
             description = "予約対象日（YYYY-MM-DD形式）",
             example = "2025-08-30"
         )
         @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
-        return ResponseEntity.ok(roomUseCase.findReservableRooms(date));
+        List<ReservableRoom> reservableRooms = roomUseCase.findReservableRooms(date);
+        List<ReservableRoomDto> reservableRoomDtos = reservableRooms.stream()
+            .map(dtoMapper::toReservableRoomDto)
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(reservableRoomDtos);
     }
 }

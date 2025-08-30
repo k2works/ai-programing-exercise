@@ -1,11 +1,11 @@
 package mrs.infrastructure.in.web;
 
 import java.util.Map;
-import mrs.application.port.out.UserPort;
-import mrs.application.domain.model.auth.User;
-import mrs.common.security.JwtService;
+import mrs.application.dto.LoginRequest;
+import mrs.application.dto.LoginResponse;
+import mrs.application.exception.AuthenticationException;
+import mrs.application.port.in.AuthenticationUseCase;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,14 +27,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class AuthController {
     private static final String KEY_MESSAGE = "message";
     private static final String MEDIA_TYPE_JSON = "application/json";
-    private final JwtService jwtService;
-    private final BCryptPasswordEncoder passwordEncoder;
-    private final UserPort userPort;
+    private final AuthenticationUseCase authenticationUseCase;
 
-    public AuthController(JwtService jwtService, BCryptPasswordEncoder passwordEncoder, UserPort userPort) {
-        this.jwtService = jwtService;
-        this.passwordEncoder = passwordEncoder;
-        this.userPort = userPort;
+    public AuthController(AuthenticationUseCase authenticationUseCase) {
+        this.authenticationUseCase = authenticationUseCase;
     }
 
     @PostMapping("/login")
@@ -75,20 +71,16 @@ public class AuthController {
                 examples = @ExampleObject(value = "{\"username\": \"user1\", \"password\": \"demo\"}")
             )
         )
-        @RequestBody Map<String, String> body) {
-        String userId = body.getOrDefault("username", "");
-        String rawPassword = body.getOrDefault("password", "");
-
-        if (userId.isBlank() || rawPassword.isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of(KEY_MESSAGE, "username and password are required"));
+        @RequestBody LoginRequest loginRequest) {
+        try {
+            LoginResponse response = authenticationUseCase.authenticate(loginRequest);
+            return ResponseEntity.ok(response);
+        } catch (AuthenticationException e) {
+            if (e.getMessage().contains("required")) {
+                return ResponseEntity.badRequest().body(Map.of(KEY_MESSAGE, e.getMessage()));
+            }
+            return ResponseEntity.status(401).body(Map.of(KEY_MESSAGE, e.getMessage()));
         }
-
-        User user = userPort.findByUserId(userId);
-        if (user != null && passwordEncoder.matches(rawPassword, user.getPasswordHash())) {
-            String token = jwtService.createAccessToken(user.getUserId(), Map.of("roles", user.getRole()));
-            return ResponseEntity.ok(Map.of("accessToken", token));
-        }
-        return ResponseEntity.status(401).body(Map.of(KEY_MESSAGE, "invalid credentials"));
     }
 
     @PostMapping("/refresh")
@@ -123,13 +115,10 @@ public class AuthController {
         }
         String token = authHeader.substring(7);
         try {
-            var claims = jwtService.parseAndValidate(token);
-            String userId = claims.getSubject();
-            Object roles = claims.get("roles");
-            String newToken = jwtService.createAccessToken(userId, Map.of("roles", roles));
-            return ResponseEntity.ok(Map.of("accessToken", newToken));
-        } catch (Exception e) {
-            return ResponseEntity.status(401).body(Map.of(KEY_MESSAGE, "invalid token"));
+            LoginResponse response = authenticationUseCase.refreshToken(token);
+            return ResponseEntity.ok(response);
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(401).body(Map.of(KEY_MESSAGE, e.getMessage()));
         }
     }
 }

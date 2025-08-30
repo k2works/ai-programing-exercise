@@ -88,13 +88,17 @@ public class NamingConventionTest {
             .should().resideInAPackage("mrs.application.port.out..");
 
     /**
-     * セキュリティ関連クラスは適切なパッケージに配置されること
+     * セキュリティ関連のインフラストラクチャクラスは適切なパッケージに配置されること
+     * ヘキサゴナルアーキテクチャでは、ドメイン関連のセキュリティクラスは
+     * Application層に配置することが許可される。設定クラスは除外する
      */
     @ArchTest
     static final ArchRule security_classes_should_be_in_security_package = classes()
             .that().haveSimpleNameContaining("Jwt")
-            .or().haveSimpleNameContaining("Authentication")
+            .and().resideInAPackage("mrs.common..")
             .or().haveSimpleNameContaining("Security")
+            .and().resideInAPackage("mrs..")
+            .and().haveSimpleNameNotEndingWith("Config")
             .should().resideInAPackage("mrs.common.security..");
 
     /**

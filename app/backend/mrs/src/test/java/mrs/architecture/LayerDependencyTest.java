@@ -101,6 +101,8 @@ public class LayerDependencyTest {
             .should().onlyDependOnClassesThat()
             .resideInAnyPackage(
                     "mrs.application.domain..",     // ドメインモデル
+                    "mrs.application.dto..",        // データ転送オブジェクト
+                    "mrs.application.exception..",  // 例外クラス
                     "mrs.application.port..",       // ポートインターフェース
                     "java..",                       // Java標準ライブラリ
                     "javax..",                      // Java拡張ライブラリ
@@ -116,8 +118,11 @@ public class LayerDependencyTest {
             .that().resideInAPackage("mrs.infrastructure.in.web..")
             .should().onlyDependOnClassesThat()
             .resideInAnyPackage(
+                    "mrs.application.dto..",        // データ転送オブジェクト
+                    "mrs.application.exception..",  // 例外クラス
+                    "mrs.application.mapper..",     // マッパー
                     "mrs.application.port.in..",    // 入力ポート
-                    "mrs.common.security..",        // セキュリティサービス
+                    "mrs.infrastructure.in.web..",  // Web層内部（Mapper等）
                     "java..",                       // Java標準ライブラリ
                     "javax..",                      // Java拡張ライブラリ
                     "org.springframework..",        // Spring Framework

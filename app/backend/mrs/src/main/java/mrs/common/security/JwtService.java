@@ -51,4 +51,11 @@ public class JwtService {
             .parseSignedClaims(token)
             .getPayload();
     }
+
+    /**
+     * アクセストークンの有効期限（秒）を取得
+     */
+    public long getExpirationTime() {
+        return accessTtl.toSeconds();
+    }
 }
