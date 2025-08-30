@@ -5,6 +5,8 @@ build/
 out/
 !src/main/java/mrs/infrastructure/out/
 !src/main/java/mrs/application/port/out
+!src/test/java/mrs/infrastructure/out/
+!src/test/java/mrs/application/port/out
 
 # IDE
 .idea/
