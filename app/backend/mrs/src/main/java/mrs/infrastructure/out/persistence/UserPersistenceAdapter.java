@@ -1,7 +1,6 @@
-package mrs.infrastructure.out.persistence.adapter;
+package mrs.infrastructure.out.persistence;
 
 import mrs.application.domain.model.auth.User;
-import mrs.infrastructure.out.db.UserMapper;
 import mrs.application.port.out.UserPort;
 import org.springframework.stereotype.Component;
 

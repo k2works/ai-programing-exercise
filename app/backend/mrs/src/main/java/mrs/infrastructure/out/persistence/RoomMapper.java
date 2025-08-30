@@ -1,4 +1,4 @@
-package mrs.infrastructure.out.db;
+package mrs.infrastructure.out.persistence;
 
 import java.time.LocalDate;
 import java.util.List;

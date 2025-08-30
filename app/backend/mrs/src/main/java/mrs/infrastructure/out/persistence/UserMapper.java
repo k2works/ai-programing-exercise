@@ -1,4 +1,4 @@
-package mrs.infrastructure.out.db;
+package mrs.infrastructure.out.persistence;
 
 import mrs.application.domain.model.auth.User;
 import org.apache.ibatis.annotations.Mapper;

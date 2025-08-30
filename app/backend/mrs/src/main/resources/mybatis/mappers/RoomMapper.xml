@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="mrs.infrastructure.out.db.RoomMapper">
+<mapper namespace="mrs.infrastructure.out.persistence.RoomMapper">
   <resultMap id="roomMap" type="mrs.application.domain.model.room.MeetingRoom">
     <id property="roomId" column="room_id" />
     <result property="roomName" column="room_name" />

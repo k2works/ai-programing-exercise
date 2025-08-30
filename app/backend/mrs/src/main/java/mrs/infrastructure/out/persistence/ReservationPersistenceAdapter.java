@@ -1,7 +1,6 @@
-package mrs.infrastructure.out.persistence.adapter;
+package mrs.infrastructure.out.persistence;
 
 import mrs.application.domain.model.reservation.Reservation;
-import mrs.infrastructure.out.db.ReservationMapper;
 import mrs.application.port.out.ReservationPort;
 import org.springframework.stereotype.Component;
 

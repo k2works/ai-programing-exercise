@@ -1,7 +1,6 @@
-package mrs.infrastructure.out.persistence.adapter;
+package mrs.infrastructure.out.persistence;
 
 import mrs.application.domain.model.room.ReservableRoom;
-import mrs.infrastructure.out.db.RoomMapper;
 import mrs.application.port.out.ReservableRoomPort;
 import org.springframework.stereotype.Component;
 
