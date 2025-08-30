@@ -1,8 +1,5 @@
 package mrs.e2e.cucumber.steps;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.cucumber.spring.CucumberContextConfiguration;
@@ -12,12 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.context.annotation.Import;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.MediaType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,10 +22,6 @@ public class RoomSteps {
     @Autowired
     TestRestTemplate restTemplate;
 
-    @Autowired
-    ObjectMapper objectMapper;
-
-    private String token;
     private ResponseEntity<String> lastResponse;
 
     @When("I request GET {string}")

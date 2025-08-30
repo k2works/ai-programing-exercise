@@ -16,9 +16,13 @@ java {
     }
 }
 
-// 非推奨API警告を抑制
-tasks.withType(JavaCompile) {
-    options.compilerArgs += ["-Xlint:-deprecation"]
+// コンパイル時の警告を抑制
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs.addAll([
+        "-Xlint:none"
+    ])
+    options.deprecation = false
+    options.encoding = 'UTF-8'
 }
 
 repositories {
@@ -77,8 +81,8 @@ tasks.named('test') {
     // メモリとJVM設定
     maxHeapSize = '512m'
     jvmArgs = [
-        '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
-        '--add-opens', 'java.base/java.util=ALL-UNNAMED'
+        '-XX:+IgnoreUnrecognizedVMOptions',
+        '-Xshare:off'
     ]
     
     // 統合テストを一時的に除外
@@ -151,8 +155,8 @@ tasks.register('cucumberTest', Test) {
     // テスト実行時の設定
     maxHeapSize = '512m'
     jvmArgs = [
-        '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
-        '--add-opens', 'java.base/java.util=ALL-UNNAMED'
+        '-XX:+IgnoreUnrecognizedVMOptions',
+        '-Xshare:off'
     ]
     
     testLogging {
