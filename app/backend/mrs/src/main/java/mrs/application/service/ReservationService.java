@@ -1,5 +1,6 @@
 package mrs.application.service;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import mrs.application.port.in.ReservationUseCase;
 import mrs.application.domain.model.auth.User;
 import mrs.application.domain.model.reservation.Reservation;
@@ -19,6 +20,7 @@ public class ReservationService implements ReservationUseCase {
     private final ReservationPort reservationPort;
     private final ReservableRoomPort reservableRoomPort;
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Dependencies are managed by Spring DI container and are safe")
     public ReservationService(ReservationPort reservationPort, ReservableRoomPort reservableRoomPort) {
         this.reservationPort = reservationPort;
         this.reservableRoomPort = reservableRoomPort;

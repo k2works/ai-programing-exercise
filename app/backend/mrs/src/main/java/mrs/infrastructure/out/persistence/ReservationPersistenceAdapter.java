@@ -1,5 +1,6 @@
 package mrs.infrastructure.out.persistence;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import mrs.application.domain.model.reservation.Reservation;
 import mrs.application.port.out.ReservationPort;
 import org.springframework.stereotype.Component;
@@ -11,6 +12,8 @@ import java.util.List;
 public class ReservationPersistenceAdapter implements ReservationPort {
     private final ReservationMapper reservationMapper;
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2",
+            justification = "ReservationMapper is managed by Spring DI container and is safe to store reference")
     public ReservationPersistenceAdapter(ReservationMapper reservationMapper) {
         this.reservationMapper = reservationMapper;
     }

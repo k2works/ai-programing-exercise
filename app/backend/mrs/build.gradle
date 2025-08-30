@@ -109,31 +109,3 @@ tasks.register('qualityCheck') {
     dependsOn 'checkstyleMain', 'checkstyleTest', 'pmdMain', 'pmdTest', 'spotbugsMain', 'spotbugsTest', 'test', 'jacocoTestReport'
 }
 
-// サイクロマティック複雑度レポート生成タスク（PMDの代替）
-tasks.register('cyclomaticComplexity') {
-    group = 'verification'
-    description = 'Generate cyclomatic complexity report using simple analysis'
-    doLast {
-        println "=== Cyclomatic Complexity Analysis ==="
-        println "注意: PMD（Java 17互換性問題）の代替として手動チェックを推奨"
-        println ""
-        println "推奨基準:"
-        println "- メソッドレベル: 複雑度 ≤ 7"
-        println "- クラスレベル: 複雑度 ≤ 12"
-        println ""
-        println "推奨ツール:"
-        println "1. IntelliJ IDEA: Analyze > Calculate Metrics"
-        println "2. Eclipse: Metrics Plugin"
-        println "3. SonarQube Community Edition"
-        println ""
-        println "対象ファイル（SwaggerConfig除外済み）:"
-        fileTree(dir: 'src/main/java', include: '**/*.java').each { file ->
-            if (!file.path.contains('SwaggerConfig')) {
-                def relativePath = file.path.replace(projectDir.path + File.separator + 'src' + File.separator + 'main' + File.separator + 'java' + File.separator, '')
-                println "  - ${relativePath}"
-            }
-        }
-        println ""
-        println "✅ SpotBugsとCheckstyleによる品質チェックは有効です"
-    }
-}
