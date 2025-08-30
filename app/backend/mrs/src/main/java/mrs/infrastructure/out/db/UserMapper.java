@@ -1,6 +1,6 @@
 package mrs.infrastructure.out.db;
 
-import mrs.domain.model.auth.User;
+import mrs.application.domain.model.auth.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

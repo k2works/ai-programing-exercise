@@ -2,12 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="mrs.infrastructure.out.db.RoomMapper">
-  <resultMap id="roomMap" type="mrs.domain.model.room.MeetingRoom">
+  <resultMap id="roomMap" type="mrs.application.domain.model.room.MeetingRoom">
     <id property="roomId" column="room_id" />
     <result property="roomName" column="room_name" />
   </resultMap>
 
-  <resultMap id="reservableMap" type="mrs.domain.model.room.ReservableRoom">
+  <resultMap id="reservableMap" type="mrs.application.domain.model.room.ReservableRoom">
     <id property="roomId" column="room_id" />
     <result property="reservableDate" column="reservable_date" />
   </resultMap>

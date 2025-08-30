@@ -2,9 +2,9 @@ package mrs.infrastructure.in.web;
 
 import java.time.LocalDate;
 import java.util.List;
-import mrs.domain.model.room.MeetingRoom;
-import mrs.domain.model.room.ReservableRoom;
-import mrs.port.in.RoomUseCase;
+import mrs.application.domain.model.room.MeetingRoom;
+import mrs.application.domain.model.room.ReservableRoom;
+import mrs.application.port.in.RoomUseCase;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

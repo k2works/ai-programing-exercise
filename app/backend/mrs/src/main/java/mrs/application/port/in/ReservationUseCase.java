@@ -1,7 +1,7 @@
-package mrs.port.in;
+package mrs.application.port.in;
 
-import mrs.domain.model.reservation.Reservation;
-import mrs.domain.model.auth.User;
+import mrs.application.domain.model.reservation.Reservation;
+import mrs.application.domain.model.auth.User;
 import java.time.LocalDate;
 import java.util.List;
 

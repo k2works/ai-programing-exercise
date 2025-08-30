@@ -1,11 +1,11 @@
 package mrs.application.service;
 
-import mrs.port.in.ReservationUseCase;
-import mrs.domain.model.auth.User;
-import mrs.domain.model.reservation.Reservation;
-import mrs.domain.model.room.ReservableRoom;
-import mrs.port.out.ReservableRoomPort;
-import mrs.port.out.ReservationPort;
+import mrs.application.port.in.ReservationUseCase;
+import mrs.application.domain.model.auth.User;
+import mrs.application.domain.model.reservation.Reservation;
+import mrs.application.domain.model.room.ReservableRoom;
+import mrs.application.port.out.ReservableRoomPort;
+import mrs.application.port.out.ReservationPort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

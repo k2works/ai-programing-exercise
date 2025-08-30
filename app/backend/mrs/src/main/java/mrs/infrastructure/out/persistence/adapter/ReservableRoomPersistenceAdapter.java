@@ -1,8 +1,8 @@
 package mrs.infrastructure.out.persistence.adapter;
 
-import mrs.domain.model.room.ReservableRoom;
+import mrs.application.domain.model.room.ReservableRoom;
 import mrs.infrastructure.out.db.RoomMapper;
-import mrs.port.out.ReservableRoomPort;
+import mrs.application.port.out.ReservableRoomPort;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;

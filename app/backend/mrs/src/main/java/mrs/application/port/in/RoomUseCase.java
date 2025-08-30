@@ -1,7 +1,7 @@
-package mrs.port.in;
+package mrs.application.port.in;
 
-import mrs.domain.model.room.MeetingRoom;
-import mrs.domain.model.room.ReservableRoom;
+import mrs.application.domain.model.room.MeetingRoom;
+import mrs.application.domain.model.room.ReservableRoom;
 import java.time.LocalDate;
 import java.util.List;
 

@@ -1,8 +1,8 @@
 package mrs.infrastructure.out.persistence.adapter;
 
-import mrs.domain.model.room.MeetingRoom;
+import mrs.application.domain.model.room.MeetingRoom;
 import mrs.infrastructure.out.db.RoomMapper;
-import mrs.port.out.MeetingRoomPort;
+import mrs.application.port.out.MeetingRoomPort;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

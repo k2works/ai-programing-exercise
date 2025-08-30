@@ -1,7 +1,7 @@
-package mrs.domain.model.reservation;
+package mrs.application.domain.model.reservation;
 
-import mrs.domain.model.auth.User;
-import mrs.domain.model.room.ReservableRoom;
+import mrs.application.domain.model.auth.User;
+import mrs.application.domain.model.room.ReservableRoom;
 import java.time.LocalTime;
 
 public class Reservation {

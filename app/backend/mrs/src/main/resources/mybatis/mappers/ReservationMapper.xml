@@ -2,15 +2,15 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="mrs.infrastructure.out.db.ReservationMapper">
     
-    <resultMap id="reservationMap" type="mrs.domain.model.reservation.Reservation">
+    <resultMap id="reservationMap" type="mrs.application.domain.model.reservation.Reservation">
         <id property="reservationId" column="reservation_id"/>
         <result property="startTime" column="start_time"/>
         <result property="endTime" column="end_time"/>
-        <association property="reservableRoom" javaType="mrs.domain.model.room.ReservableRoom">
+        <association property="reservableRoom" javaType="mrs.application.domain.model.room.ReservableRoom">
             <result property="roomId" column="room_id"/>
             <result property="reservableDate" column="reserved_date"/>
         </association>
-        <association property="user" javaType="mrs.domain.model.auth.User">
+        <association property="user" javaType="mrs.application.domain.model.auth.User">
             <result property="userId" column="user_id"/>
             <result property="name" column="user_name"/>
         </association>

@@ -1,8 +1,8 @@
 package mrs.infrastructure.out.persistence.adapter;
 
-import mrs.domain.model.reservation.Reservation;
+import mrs.application.domain.model.reservation.Reservation;
 import mrs.infrastructure.out.db.ReservationMapper;
-import mrs.port.out.ReservationPort;
+import mrs.application.port.out.ReservationPort;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;

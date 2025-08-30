@@ -1,6 +1,6 @@
 package mrs.infrastructure.out.db;
 
-import mrs.domain.model.reservation.Reservation;
+import mrs.application.domain.model.reservation.Reservation;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

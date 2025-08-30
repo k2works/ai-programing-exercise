@@ -1,4 +1,4 @@
-package mrs.domain.model.room;
+package mrs.application.domain.model.room;
 
 public class MeetingRoom {
     private Integer roomId;

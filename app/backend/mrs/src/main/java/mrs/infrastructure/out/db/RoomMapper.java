@@ -2,8 +2,8 @@ package mrs.infrastructure.out.db;
 
 import java.time.LocalDate;
 import java.util.List;
-import mrs.domain.model.room.MeetingRoom;
-import mrs.domain.model.room.ReservableRoom;
+import mrs.application.domain.model.room.MeetingRoom;
+import mrs.application.domain.model.room.ReservableRoom;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

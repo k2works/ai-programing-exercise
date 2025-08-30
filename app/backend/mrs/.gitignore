@@ -4,7 +4,7 @@ build/
 # out/ はIDEビルド出力だが、infrastructure/out 配下の実装は追跡対象
 out/
 !src/main/java/mrs/infrastructure/out/
-!src/main/java/mrs/port/out/
+!src/main/java/mrs/application/port/out
 
 # IDE
 .idea/

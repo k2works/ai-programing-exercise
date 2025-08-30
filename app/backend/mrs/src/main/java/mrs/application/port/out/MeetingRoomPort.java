@@ -1,6 +1,6 @@
-package mrs.port.out;
+package mrs.application.port.out;
 
-import mrs.domain.model.room.MeetingRoom;
+import mrs.application.domain.model.room.MeetingRoom;
 import java.util.List;
 
 public interface MeetingRoomPort {

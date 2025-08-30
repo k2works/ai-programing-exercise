@@ -1,4 +1,4 @@
-package mrs.domain.model.auth;
+package mrs.application.domain.model.auth;
 
 public class User {
     private String userId;

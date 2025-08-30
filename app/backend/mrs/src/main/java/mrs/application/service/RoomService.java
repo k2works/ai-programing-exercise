@@ -1,10 +1,10 @@
 package mrs.application.service;
 
-import mrs.port.in.RoomUseCase;
-import mrs.domain.model.room.MeetingRoom;
-import mrs.domain.model.room.ReservableRoom;
-import mrs.port.out.MeetingRoomPort;
-import mrs.port.out.ReservableRoomPort;
+import mrs.application.port.in.RoomUseCase;
+import mrs.application.domain.model.room.MeetingRoom;
+import mrs.application.domain.model.room.ReservableRoom;
+import mrs.application.port.out.MeetingRoomPort;
+import mrs.application.port.out.ReservableRoomPort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

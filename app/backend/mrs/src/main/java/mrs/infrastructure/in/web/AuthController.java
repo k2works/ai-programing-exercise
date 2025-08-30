@@ -2,8 +2,8 @@ package mrs.infrastructure.in.web;
 
 import java.util.Map;
 import mrs.security.JwtService;
-import mrs.port.out.UserPort;
-import mrs.domain.model.auth.User;
+import mrs.application.port.out.UserPort;
+import mrs.application.domain.model.auth.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
