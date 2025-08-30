@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mrs.infrastructure.out.db.ReservationMapper">
+    
+    <resultMap id="reservationMap" type="mrs.domain.model.reservation.Reservation">
+        <id property="reservationId" column="reservation_id"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <association property="reservableRoom" javaType="mrs.domain.model.room.ReservableRoom">
+            <result property="roomId" column="room_id"/>
+            <result property="reservableDate" column="reserved_date"/>
+        </association>
+        <association property="user" javaType="mrs.domain.model.auth.User">
+            <result property="userId" column="user_id"/>
+            <result property="name" column="user_name"/>
+        </association>
+    </resultMap>
+    
+    <select id="findByRoomIdAndDate" resultMap="reservationMap">
+        SELECT 
+            r.reservation_id,
+            r.start_time,
+            r.end_time,
+            r.room_id,
+            r.reserved_date,
+            r.user_id,
+            u.name AS user_name
+        FROM reservation r
+        INNER JOIN usr u ON r.user_id = u.user_id
+        WHERE r.room_id = #{roomId}
+        AND r.reserved_date = #{date}
+        ORDER BY r.start_time ASC
+    </select>
+    
+    <select id="findById" resultMap="reservationMap">
+        SELECT 
+            r.reservation_id,
+            r.start_time,
+            r.end_time,
+            r.room_id,
+            r.reserved_date,
+            r.user_id,
+            u.name AS user_name
+        FROM reservation r
+        INNER JOIN usr u ON r.user_id = u.user_id
+        WHERE r.reservation_id = #{reservationId}
+    </select>
+    
+    <insert id="insert" useGeneratedKeys="true" keyProperty="reservationId">
+        INSERT INTO reservation (start_time, end_time, reserved_date, room_id, user_id)
+        VALUES (#{startTime}, #{endTime}, #{reservableRoom.reservableDate}, #{reservableRoom.roomId}, #{user.userId})
+    </insert>
+    
+    <delete id="deleteById">
+        DELETE FROM reservation WHERE reservation_id = #{reservationId}
+    </delete>
+    
+</mapper>

@@ -2,14 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="mrs.infrastructure.out.db.UserMapper">
-  <resultMap id="userMap" type="mrs.application.domain.model.User">
+  <resultMap id="userMap" type="mrs.domain.model.auth.User">
     <id property="userId" column="user_id" />
     <result property="name" column="name" />
     <result property="passwordHash" column="password_hash" />
     <result property="role" column="role" />
   </resultMap>
 
-  <select id="findById" parameterType="string" resultMap="userMap">
+  <select id="findByUserId" parameterType="string" resultMap="userMap">
     SELECT user_id, name, password_hash, role
     FROM usr
     WHERE user_id = #{userId}

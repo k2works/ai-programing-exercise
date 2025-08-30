@@ -2,8 +2,8 @@ package mrs.infrastructure.in.web;
 
 import java.util.Map;
 import mrs.security.JwtService;
-import mrs.infrastructure.out.db.UserMapper;
-import mrs.application.domain.model.User;
+import mrs.port.out.UserPort;
+import mrs.domain.model.auth.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,12 +30,12 @@ public class AuthController {
     private static final String MEDIA_TYPE_JSON = "application/json";
     private final JwtService jwtService;
     private final BCryptPasswordEncoder passwordEncoder;
-    private final UserMapper userMapper;
+    private final UserPort userPort;
 
-    public AuthController(JwtService jwtService, BCryptPasswordEncoder passwordEncoder, UserMapper userMapper) {
+    public AuthController(JwtService jwtService, BCryptPasswordEncoder passwordEncoder, UserPort userPort) {
         this.jwtService = jwtService;
         this.passwordEncoder = passwordEncoder;
-        this.userMapper = userMapper;
+        this.userPort = userPort;
     }
 
     @PostMapping("/login")
@@ -84,7 +84,7 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of(KEY_MESSAGE, "username and password are required"));
         }
 
-        User user = userMapper.findById(userId);
+        User user = userPort.findByUserId(userId);
         if (user != null && passwordEncoder.matches(rawPassword, user.getPasswordHash())) {
             String token = jwtService.createAccessToken(user.getUserId(), Map.of("roles", user.getRole()));
             return ResponseEntity.ok(Map.of("accessToken", token));

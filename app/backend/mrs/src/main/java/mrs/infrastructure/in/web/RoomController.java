@@ -2,9 +2,9 @@ package mrs.infrastructure.in.web;
 
 import java.time.LocalDate;
 import java.util.List;
-import mrs.application.domain.model.MeetingRoom;
-import mrs.application.domain.model.ReservableRoom;
-import mrs.infrastructure.out.db.RoomMapper;
+import mrs.domain.model.room.MeetingRoom;
+import mrs.domain.model.room.ReservableRoom;
+import mrs.application.usecase.RoomUseCase;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,10 +27,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @SecurityRequirement(name = "bearerAuth")
 public class RoomController {
     private static final String MEDIA_TYPE_JSON = "application/json";
-    private final RoomMapper roomMapper;
+    private final RoomUseCase roomUseCase;
 
-    public RoomController(RoomMapper roomMapper) {
-        this.roomMapper = roomMapper;
+    public RoomController(RoomUseCase roomUseCase) {
+        this.roomUseCase = roomUseCase;
     }
 
     @GetMapping
@@ -59,7 +59,7 @@ public class RoomController {
         )
     })
     public ResponseEntity<List<MeetingRoom>> listRooms() {
-        return ResponseEntity.ok(roomMapper.findAllRooms());
+        return ResponseEntity.ok(roomUseCase.findAllMeetingRooms());
     }
 
     @GetMapping("/{date}")
@@ -103,6 +103,6 @@ public class RoomController {
         )
         @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
-        return ResponseEntity.ok(roomMapper.findReservableByDate(date));
+        return ResponseEntity.ok(roomUseCase.findReservableRooms(date));
     }
 }

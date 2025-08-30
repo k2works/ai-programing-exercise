@@ -16,6 +16,11 @@ java {
     }
 }
 
+// 非推奨API警告を抑制
+tasks.withType(JavaCompile) {
+    options.compilerArgs += ["-Xlint:-deprecation"]
+}
+
 repositories {
     mavenCentral()
 }

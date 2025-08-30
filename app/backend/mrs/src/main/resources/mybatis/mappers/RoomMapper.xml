@@ -2,12 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="mrs.infrastructure.out.db.RoomMapper">
-  <resultMap id="roomMap" type="mrs.application.domain.model.MeetingRoom">
+  <resultMap id="roomMap" type="mrs.domain.model.room.MeetingRoom">
     <id property="roomId" column="room_id" />
     <result property="roomName" column="room_name" />
   </resultMap>
 
-  <resultMap id="reservableMap" type="mrs.application.domain.model.ReservableRoom">
+  <resultMap id="reservableMap" type="mrs.domain.model.room.ReservableRoom">
     <id property="roomId" column="room_id" />
     <result property="reservableDate" column="reservable_date" />
   </resultMap>
@@ -21,5 +21,16 @@
     FROM reservable_room
     WHERE reservable_date = #{date}
     ORDER BY room_id
+  </select>
+  
+  <select id="findRoomById" resultMap="roomMap">
+    SELECT room_id, room_name FROM meeting_room WHERE room_id = #{roomId}
+  </select>
+  
+  <select id="findReservableByRoomIdAndDate" resultMap="reservableMap">
+    SELECT room_id, reservable_date
+    FROM reservable_room
+    WHERE room_id = #{roomId} AND reservable_date = #{date}
+    FOR UPDATE
   </select>
 </mapper>

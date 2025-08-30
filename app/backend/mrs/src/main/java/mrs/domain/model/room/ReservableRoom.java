@@ -1,4 +1,4 @@
-package mrs.application.domain.model;
+package mrs.domain.model.room;
 
 import java.time.LocalDate;
 
