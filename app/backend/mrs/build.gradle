@@ -165,6 +165,32 @@ tasks.register('cucumberTest', Test) {
     }
 }
 
+// 統合テスト（E2E）専用タスク
+tasks.register('integrationTest', Test) {
+    description = 'Runs integration tests including API smoke tests'
+    group = 'verification'
+    
+    useJUnitPlatform()
+    
+    // 統合テストだけをInclude
+    include '**/e2e/*Test.class'
+    
+    // テスト環境設定
+    systemProperty 'spring.profiles.active', 'test'
+    
+    // テスト実行時の設定
+    maxHeapSize = '512m'
+    jvmArgs = [
+        '-XX:+IgnoreUnrecognizedVMOptions',
+        '-Xshare:off'
+    ]
+    
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+    }
+}
+
 tasks.register('qualityCheck') {
     group = 'verification'
     dependsOn 'checkstyleMain', 'checkstyleTest', 'pmdMain', 'pmdTest', 'spotbugsMain', 'spotbugsTest', 'test', 'jacocoTestReport'
