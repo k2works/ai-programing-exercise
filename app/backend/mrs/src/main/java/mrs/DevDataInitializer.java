@@ -1,4 +1,4 @@
-package mrs.config;
+package mrs;
 
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;

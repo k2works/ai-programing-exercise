@@ -1,4 +1,4 @@
-package mrs.security;
+package mrs.common.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

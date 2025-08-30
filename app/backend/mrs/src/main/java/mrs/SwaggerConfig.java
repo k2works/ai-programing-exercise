@@ -1,4 +1,4 @@
-package mrs.config;
+package mrs;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;

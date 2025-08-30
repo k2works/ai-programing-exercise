@@ -1,5 +1,12 @@
-package mrs.config;
+package mrs;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import mrs.common.security.JwtAuthenticationFilter;
+import mrs.common.security.JwtService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -9,8 +16,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import mrs.security.JwtAuthenticationFilter;
-import mrs.security.JwtService;
 
 @Configuration
 @EnableMethodSecurity
@@ -36,6 +41,18 @@ public class WebSecurityConfig {
                 .anyRequest().authenticated()
             )
             .httpBasic(Customizer.withDefaults());
+
+        // ★ルートアクセス時、swagger-ui.htmlへリダイレクト
+        http.addFilterBefore((ServletRequest request, ServletResponse response, FilterChain chain) -> {
+            HttpServletRequest req = (HttpServletRequest) request;
+            HttpServletResponse res = (HttpServletResponse) response;
+            if ("/".equals(req.getRequestURI())) {
+                res.sendRedirect("/swagger-ui.html");
+                return;
+            }
+            chain.doFilter(request, response);
+        }, UsernamePasswordAuthenticationFilter.class);
+
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
