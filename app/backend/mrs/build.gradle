@@ -132,6 +132,35 @@ spotbugsMain {
     }
 }
 
+// Cucumber E2E テストタスク
+tasks.register('cucumberTest', Test) {
+    description = 'Runs Cucumber E2E tests'
+    group = 'verification'
+    
+    useJUnitPlatform()
+    
+    // CucumberテストだけをInclude
+    include '**/e2e/cucumber/**'
+    
+    // テスト環境設定
+    systemProperty 'spring.profiles.active', 'test'
+    systemProperty 'cucumber.junit-platform.naming-strategy', 'long'
+    systemProperty 'cucumber.features', 'src/test/resources/features'
+    systemProperty 'cucumber.glue', 'mrs.e2e.cucumber.steps'
+    
+    // テスト実行時の設定
+    maxHeapSize = '512m'
+    jvmArgs = [
+        '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+        '--add-opens', 'java.base/java.util=ALL-UNNAMED'
+    ]
+    
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+    }
+}
+
 tasks.register('qualityCheck') {
     group = 'verification'
     dependsOn 'checkstyleMain', 'checkstyleTest', 'pmdMain', 'pmdTest', 'spotbugsMain', 'spotbugsTest', 'test', 'jacocoTestReport'
