@@ -15,18 +15,25 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 @AnalyzeClasses(packages = "mrs", importOptions = ImportOption.DoNotIncludeTests.class)
 public class LayerDependencyTest {
 
+    private static final String DOMAIN_PACKAGE = "mrs.application.domain..";
+    private static final String SERVICE_PACKAGE = "mrs.application.service..";
+    private static final String PORT_PACKAGE = "mrs.application.port..";
+    private static final String INFRASTRUCTURE_PACKAGE = "mrs.infrastructure..";
+    private static final String COMMON_PACKAGE = "mrs.common..";
+    private static final String WEB_PACKAGE = "mrs.infrastructure.in.web..";
+
     /**
      * ドメイン層は他のアプリケーションレイヤーに依存してはいけない
      */
     @ArchTest
     static final ArchRule domain_should_not_depend_on_application_layer = noClasses()
-            .that().resideInAPackage("mrs.application.domain..")
+            .that().resideInAPackage(DOMAIN_PACKAGE)
             .should().dependOnClassesThat()
             .resideInAnyPackage(
-                    "mrs.application.service..",
-                    "mrs.application.port..",
-                    "mrs.infrastructure..",
-                    "mrs.common.."
+                    SERVICE_PACKAGE,
+                    PORT_PACKAGE,
+                    INFRASTRUCTURE_PACKAGE,
+                    COMMON_PACKAGE
             );
 
     /**
@@ -34,7 +41,7 @@ public class LayerDependencyTest {
      */
     @ArchTest
     static final ArchRule domain_should_not_depend_on_external_libraries = noClasses()
-            .that().resideInAPackage("mrs.application.domain..")
+            .that().resideInAPackage(DOMAIN_PACKAGE)
             .should().dependOnClassesThat()
             .resideInAnyPackage(
                     "org.springframework..",
@@ -49,20 +56,20 @@ public class LayerDependencyTest {
      */
     @ArchTest
     static final ArchRule application_service_should_not_depend_on_infrastructure = noClasses()
-            .that().resideInAPackage("mrs.application.service..")
+            .that().resideInAPackage(SERVICE_PACKAGE)
             .should().dependOnClassesThat()
-            .resideInAnyPackage("mrs.infrastructure..");
+            .resideInAnyPackage(INFRASTRUCTURE_PACKAGE);
 
     /**
      * ポートインターフェースは実装に依存してはいけない
      */
     @ArchTest
     static final ArchRule ports_should_not_depend_on_implementations = noClasses()
-            .that().resideInAPackage("mrs.application.port..")
+            .that().resideInAPackage(PORT_PACKAGE)
             .should().dependOnClassesThat()
             .resideInAnyPackage(
-                    "mrs.infrastructure..",
-                    "mrs.common.."
+                    INFRASTRUCTURE_PACKAGE,
+                    COMMON_PACKAGE
             );
 
     /**
@@ -70,40 +77,44 @@ public class LayerDependencyTest {
      */
     @ArchTest
     static final ArchRule web_should_not_depend_on_domain_directly = noClasses()
-            .that().resideInAPackage("mrs.infrastructure.in.web..")
+            .that().resideInAPackage(WEB_PACKAGE)
             .should().dependOnClassesThat()
-            .resideInAnyPackage("mrs.application.domain..");
+            .resideInAnyPackage(DOMAIN_PACKAGE);
 
     /**
      * 永続化層（アダプター）はWeb層に依存してはいけない
      */
+    private static final String PERSISTENCE_PACKAGE = "mrs.infrastructure.out.persistence..";
+
     @ArchTest
     static final ArchRule persistence_should_not_depend_on_web = noClasses()
-            .that().resideInAPackage("mrs.infrastructure.out.persistence..")
+            .that().resideInAPackage(PERSISTENCE_PACKAGE)
             .should().dependOnClassesThat()
-            .resideInAnyPackage("mrs.infrastructure.in.web..");
+            .resideInAnyPackage(WEB_PACKAGE);
 
     /**
      * 設定クラスはドメイン層に依存してはいけない
      */
+    private static final String CONFIG_PACKAGE = "mrs.infrastructure.config..";
+
     @ArchTest
     static final ArchRule config_should_not_depend_on_domain = noClasses()
-            .that().resideInAPackage("mrs.infrastructure.config..")
+            .that().resideInAPackage(CONFIG_PACKAGE)
             .should().dependOnClassesThat()
-            .resideInAnyPackage("mrs.application.domain..");
+            .resideInAnyPackage(DOMAIN_PACKAGE);
 
     /**
      * 各レイヤーは適切なパッケージにのみアクセス可能
      */
     @ArchTest
     static final ArchRule application_services_should_only_access_allowed_packages = classes()
-            .that().resideInAPackage("mrs.application.service..")
+            .that().resideInAPackage(SERVICE_PACKAGE)
             .should().onlyDependOnClassesThat()
             .resideInAnyPackage(
-                    "mrs.application.domain..",     // ドメインモデル
+                    DOMAIN_PACKAGE,                 // ドメインモデル
                     "mrs.application.dto..",        // データ転送オブジェクト
                     "mrs.application.exception..",  // 例外クラス
-                    "mrs.application.port..",       // ポートインターフェース
+                    PORT_PACKAGE,                   // ポートインターフェース
                     "java..",                       // Java標準ライブラリ
                     "javax..",                      // Java拡張ライブラリ
                     "org.springframework..",        // Spring Framework
@@ -115,14 +126,14 @@ public class LayerDependencyTest {
      */
     @ArchTest
     static final ArchRule web_controllers_should_only_access_allowed_packages = classes()
-            .that().resideInAPackage("mrs.infrastructure.in.web..")
+            .that().resideInAPackage(WEB_PACKAGE)
             .should().onlyDependOnClassesThat()
             .resideInAnyPackage(
                     "mrs.application.dto..",        // データ転送オブジェクト
                     "mrs.application.exception..",  // 例外クラス
                     "mrs.application.mapper..",     // マッパー
                     "mrs.application.port.in..",    // 入力ポート
-                    "mrs.infrastructure.in.web..",  // Web層内部（Mapper等）
+                    WEB_PACKAGE,                    // Web層内部（Mapper等）
                     "java..",                       // Java標準ライブラリ
                     "javax..",                      // Java拡張ライブラリ
                     "org.springframework..",        // Spring Framework

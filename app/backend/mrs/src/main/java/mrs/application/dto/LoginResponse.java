@@ -17,6 +17,11 @@ public class LoginResponse {
         this.expiresIn = expiresIn;
     }
 
+    // 利便性のための追加のgetterメソッド（テスト用）
+    public String getToken() {
+        return accessToken;
+    }
+
     public String getAccessToken() {
         return accessToken;
     }

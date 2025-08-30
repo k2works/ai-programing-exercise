@@ -14,12 +14,21 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 @AnalyzeClasses(packages = "mrs", importOptions = ImportOption.DoNotIncludeTests.class)
 public class NamingConventionTest {
 
+    private static final String WEB_PACKAGE = "mrs.infrastructure.in.web..";
+    private static final String SERVICE_PACKAGE = "mrs.application.service..";
+    private static final String PERSISTENCE_PACKAGE = "mrs.infrastructure.out.persistence..";
+    private static final String CONFIG_PACKAGE = "mrs.infrastructure.config..";
+    private static final String DOMAIN_MODEL_PACKAGE = "mrs.application.domain.model..";
+    private static final String INPUT_PORT_PACKAGE = "mrs.application.port.in..";
+    private static final String OUTPUT_PORT_PACKAGE = "mrs.application.port.out..";
+    private static final String PACKAGE_INFO_NAME = "package-info";
+
     /**
      * コントローラーは Controllerで終わること
      */
     @ArchTest
     static final ArchRule controllers_should_end_with_controller = classes()
-            .that().resideInAPackage("mrs.infrastructure.in.web..")
+            .that().resideInAPackage(WEB_PACKAGE)
             .should().haveSimpleNameEndingWith("Controller");
 
     /**
@@ -27,7 +36,7 @@ public class NamingConventionTest {
      */
     @ArchTest
     static final ArchRule services_should_end_with_service = classes()
-            .that().resideInAPackage("mrs.application.service..")
+            .that().resideInAPackage(SERVICE_PACKAGE)
             .should().haveSimpleNameEndingWith("Service");
 
     /**
@@ -35,9 +44,9 @@ public class NamingConventionTest {
      */
     @ArchTest
     static final ArchRule persistence_adapters_should_end_with_persistence_adapter = classes()
-            .that().resideInAPackage("mrs.infrastructure.out.persistence..")
+            .that().resideInAPackage(PERSISTENCE_PACKAGE)
             .and().areNotInterfaces()
-            .and().doNotHaveSimpleName("package-info")
+            .and().doNotHaveSimpleName(PACKAGE_INFO_NAME)
             .and().haveSimpleNameNotEndingWith("Mapper")  // MyBatis Mapperを除外
             .should().haveSimpleNameEndingWith("PersistenceAdapter");
 
@@ -46,9 +55,9 @@ public class NamingConventionTest {
      */
     @ArchTest
     static final ArchRule mybatis_mappers_should_end_with_mapper = classes()
-            .that().resideInAPackage("mrs.infrastructure.out.persistence..")
+            .that().resideInAPackage(PERSISTENCE_PACKAGE)
             .and().areInterfaces()
-            .and().doNotHaveSimpleName("package-info")
+            .and().doNotHaveSimpleName(PACKAGE_INFO_NAME)
             .should().haveSimpleNameEndingWith("Mapper");
 
     /**
@@ -56,9 +65,9 @@ public class NamingConventionTest {
      */
     @ArchTest
     static final ArchRule config_classes_should_end_with_config = classes()
-            .that().resideInAPackage("mrs.infrastructure.config..")
+            .that().resideInAPackage(CONFIG_PACKAGE)
             .and().areNotInterfaces()
-            .and().doNotHaveSimpleName("package-info")
+            .and().doNotHaveSimpleName(PACKAGE_INFO_NAME)
             .should().haveSimpleNameEndingWith("Config");
 
     /**
@@ -66,9 +75,9 @@ public class NamingConventionTest {
      */
     @ArchTest
     static final ArchRule domain_models_should_be_in_model_package = classes()
-            .that().resideInAPackage("mrs.application.domain.model..")
+            .that().resideInAPackage(DOMAIN_MODEL_PACKAGE)
             .and().areNotInterfaces()
-            .and().doNotHaveSimpleName("package-info")
+            .and().doNotHaveSimpleName(PACKAGE_INFO_NAME)
             .should().bePublic();
 
     /**
@@ -77,7 +86,7 @@ public class NamingConventionTest {
     @ArchTest
     static final ArchRule input_ports_should_be_in_port_in_package = classes()
             .that().haveSimpleNameEndingWith("UseCase")
-            .should().resideInAPackage("mrs.application.port.in..");
+            .should().resideInAPackage(INPUT_PORT_PACKAGE);
 
     /**
      * 出力ポートは適切なパッケージに配置されること
@@ -85,7 +94,7 @@ public class NamingConventionTest {
     @ArchTest
     static final ArchRule output_ports_should_be_in_port_out_package = classes()
             .that().haveSimpleNameEndingWith("Port")
-            .should().resideInAPackage("mrs.application.port.out..");
+            .should().resideInAPackage(OUTPUT_PORT_PACKAGE);
 
     /**
      * セキュリティ関連のインフラストラクチャクラスは適切なパッケージに配置されること
@@ -115,7 +124,7 @@ public class NamingConventionTest {
      */
     @ArchTest
     static final ArchRule controllers_should_be_annotated_with_rest_controller = classes()
-            .that().resideInAPackage("mrs.infrastructure.in.web..")
+            .that().resideInAPackage(WEB_PACKAGE)
             .and().haveSimpleNameEndingWith("Controller")
             .should().beAnnotatedWith("org.springframework.web.bind.annotation.RestController");
 
@@ -124,7 +133,7 @@ public class NamingConventionTest {
      */
     @ArchTest
     static final ArchRule services_should_be_annotated_with_service = classes()
-            .that().resideInAPackage("mrs.application.service..")
+            .that().resideInAPackage(SERVICE_PACKAGE)
             .and().haveSimpleNameEndingWith("Service")
             .should().beAnnotatedWith("org.springframework.stereotype.Service");
 
@@ -133,7 +142,7 @@ public class NamingConventionTest {
      */
     @ArchTest
     static final ArchRule persistence_adapters_should_be_annotated_with_component = classes()
-            .that().resideInAPackage("mrs.infrastructure.out.persistence..")
+            .that().resideInAPackage(PERSISTENCE_PACKAGE)
             .and().haveSimpleNameEndingWith("PersistenceAdapter")
             .should().beAnnotatedWith("org.springframework.stereotype.Component");
 
@@ -142,7 +151,7 @@ public class NamingConventionTest {
      */
     @ArchTest
     static final ArchRule mappers_should_be_annotated_with_mapper = classes()
-            .that().resideInAPackage("mrs.infrastructure.out.persistence..")
+            .that().resideInAPackage(PERSISTENCE_PACKAGE)
             .and().areInterfaces()
             .and().haveSimpleNameEndingWith("Mapper")
             .should().beAnnotatedWith("org.apache.ibatis.annotations.Mapper");

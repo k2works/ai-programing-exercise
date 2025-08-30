@@ -17,6 +17,7 @@ import java.util.Map;
  * ユーザー認証とJWTトークン管理を行う
  */
 @Service
+@SuppressWarnings("PMD.CyclomaticComplexity") // 認証処理の性質上、条件分岐が多くなる
 public class AuthenticationService implements AuthenticationUseCase {
 
     private final JwtPort jwtPort;
@@ -31,27 +32,14 @@ public class AuthenticationService implements AuthenticationUseCase {
 
     @Override
     public LoginResponse authenticate(LoginRequest loginRequest) {
-        if (loginRequest.getUsername() == null || loginRequest.getUsername().isBlank() ||
-            loginRequest.getPassword() == null || loginRequest.getPassword().isBlank()) {
-            throw new AuthenticationException("Username and password are required");
-        }
-
-        User user = userPort.findByUserId(loginRequest.getUsername());
-        if (user == null || !passwordEncoder.matches(loginRequest.getPassword(), user.getPasswordHash())) {
-            throw new AuthenticationException("Invalid credentials");
-        }
-
-        String token = jwtPort.createAccessToken(user.getUserId(), Map.of("roles", user.getRole()));
-        long expiresIn = jwtPort.getExpirationTime(); // JwtServiceに追加する必要があるメソッド
-
-        return new LoginResponse(token, expiresIn);
+        validateLoginRequest(loginRequest);
+        User user = validateCredentials(loginRequest);
+        return createLoginResponse(user);
     }
 
     @Override
     public LoginResponse refreshToken(String token) {
-        if (token == null || token.isBlank()) {
-            throw new AuthenticationException("Token is required");
-        }
+        validateTokenNotBlank(token);
 
         try {
             Map<String, Object> claims = jwtPort.parseAndValidate(token);
@@ -64,6 +52,33 @@ public class AuthenticationService implements AuthenticationUseCase {
             return new LoginResponse(newToken, expiresIn);
         } catch (Exception e) {
             throw new AuthenticationException("Invalid or expired token", e);
+        }
+    }
+
+    private void validateLoginRequest(LoginRequest loginRequest) {
+        if (loginRequest.getUsername() == null || loginRequest.getUsername().isBlank() ||
+            loginRequest.getPassword() == null || loginRequest.getPassword().isBlank()) {
+            throw new AuthenticationException("Username and password are required");
+        }
+    }
+
+    private User validateCredentials(LoginRequest loginRequest) {
+        User user = userPort.findByUserId(loginRequest.getUsername());
+        if (user == null || !passwordEncoder.matches(loginRequest.getPassword(), user.getPasswordHash())) {
+            throw new AuthenticationException("Invalid credentials");
+        }
+        return user;
+    }
+
+    private LoginResponse createLoginResponse(User user) {
+        String token = jwtPort.createAccessToken(user.getUserId(), Map.of("roles", user.getRole()));
+        long expiresIn = jwtPort.getExpirationTime();
+        return new LoginResponse(token, expiresIn);
+    }
+
+    private void validateTokenNotBlank(String token) {
+        if (token == null || token.isBlank()) {
+            throw new AuthenticationException("Token is required");
         }
     }
 }

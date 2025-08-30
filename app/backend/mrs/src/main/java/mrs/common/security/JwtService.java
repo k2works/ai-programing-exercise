@@ -2,7 +2,6 @@ package mrs.common.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import javax.crypto.SecretKey;
@@ -39,7 +38,7 @@ public class JwtService {
             .claims(claims)
             .issuedAt(Date.from(now))
             .expiration(Date.from(exp))
-            .signWith(key(), SignatureAlgorithm.HS256)
+            .signWith(key())
             .compact();
     }
 
