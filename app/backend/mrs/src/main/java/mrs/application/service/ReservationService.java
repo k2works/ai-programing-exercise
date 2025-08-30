@@ -1,6 +1,6 @@
 package mrs.application.service;
 
-import mrs.application.usecase.ReservationUseCase;
+import mrs.port.in.ReservationUseCase;
 import mrs.domain.model.auth.User;
 import mrs.domain.model.reservation.Reservation;
 import mrs.domain.model.room.ReservableRoom;

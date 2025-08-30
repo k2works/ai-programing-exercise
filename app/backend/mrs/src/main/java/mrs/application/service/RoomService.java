@@ -1,6 +1,6 @@
 package mrs.application.service;
 
-import mrs.application.usecase.RoomUseCase;
+import mrs.port.in.RoomUseCase;
 import mrs.domain.model.room.MeetingRoom;
 import mrs.domain.model.room.ReservableRoom;
 import mrs.port.out.MeetingRoomPort;

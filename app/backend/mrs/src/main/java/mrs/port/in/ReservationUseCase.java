@@ -1,4 +1,4 @@
-package mrs.application.usecase;
+package mrs.port.in;
 
 import mrs.domain.model.reservation.Reservation;
 import mrs.domain.model.auth.User;

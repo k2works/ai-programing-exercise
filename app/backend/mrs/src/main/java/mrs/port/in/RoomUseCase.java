@@ -1,4 +1,4 @@
-package mrs.application.usecase;
+package mrs.port.in;
 
 import mrs.domain.model.room.MeetingRoom;
 import mrs.domain.model.room.ReservableRoom;
