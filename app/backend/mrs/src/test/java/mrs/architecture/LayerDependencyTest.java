@@ -133,6 +133,7 @@ public class LayerDependencyTest {
                     "mrs.application.exception..",  // 例外クラス
                     "mrs.application.mapper..",     // マッパー
                     "mrs.application.port.in..",    // 入力ポート
+                    "mrs.application.port.out..",   // 出力ポート（UserPort等）
                     WEB_PACKAGE,                    // Web層内部（Mapper等）
                     "java..",                       // Java標準ライブラリ
                     "javax..",                      // Java拡張ライブラリ
@@ -140,6 +141,7 @@ public class LayerDependencyTest {
                     "org.springdoc..",              // SpringDoc OpenAPI
                     "io.swagger.v3..",             // Swagger annotations
                     "jakarta.servlet..",            // Servlet API
+                    "jakarta.validation..",         // Jakarta Validation
                     "org.slf4j..",                 // SLF4J logging
                     "edu.umd.cs.findbugs.."        // SpotBugs annotations
             );

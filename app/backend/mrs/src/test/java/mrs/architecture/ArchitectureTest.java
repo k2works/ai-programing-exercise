@@ -82,6 +82,9 @@ public class ArchitectureTest {
                     "io.swagger.v3..",           // Swagger annotations
                     "io.jsonwebtoken..",          // JWT library  
                     "org.apache.ibatis..",        // MyBatis
+                    "jakarta.servlet..",          // Servlet API
+                    "jakarta.validation..",       // Jakarta Validation
+                    "org.slf4j..",               // SLF4J logging
                     "edu.umd.cs.findbugs.."      // SpotBugs annotations
             );
 
