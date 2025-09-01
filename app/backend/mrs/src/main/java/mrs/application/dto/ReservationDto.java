@@ -35,8 +35,13 @@ public class ReservationDto {
     public LocalTime getEndTime() { return endTime; }
     public void setEndTime(LocalTime endTime) { this.endTime = endTime; }
 
-    public ReservableRoomDto getReservableRoom() { return reservableRoom; }
-    public void setReservableRoom(ReservableRoomDto reservableRoom) { this.reservableRoom = reservableRoom; }
+    public ReservableRoomDto getReservableRoom() { 
+        return reservableRoom;
+    }
+    
+    public void setReservableRoom(ReservableRoomDto reservableRoom) { 
+        this.reservableRoom = reservableRoom;
+    }
 
     public String getUserName() { return userName; }
     public void setUserName(String userName) { this.userName = userName; }

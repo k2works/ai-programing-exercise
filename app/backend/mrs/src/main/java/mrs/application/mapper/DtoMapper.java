@@ -1,5 +1,6 @@
 package mrs.application.mapper;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import mrs.application.domain.model.room.MeetingRoom;
 import mrs.application.domain.model.room.ReservableRoom;
 import mrs.application.domain.model.reservation.Reservation;
@@ -20,6 +21,8 @@ public class DtoMapper {
     private final ReservableRoomMapper reservableRoomMapper;
     private final ReservationMapper reservationMapper;
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", 
+        justification = "Spring managed beans are effectively immutable")
     public DtoMapper(
         MeetingRoomMapper meetingRoomMapper,
         ReservableRoomMapper reservableRoomMapper,
