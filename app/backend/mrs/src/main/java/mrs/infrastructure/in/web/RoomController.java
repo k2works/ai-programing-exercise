@@ -3,8 +3,6 @@ package mrs.infrastructure.in.web;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
-import mrs.application.domain.model.room.ReservableRoom;
-import mrs.application.domain.model.room.MeetingRoom;
 import mrs.application.dto.MeetingRoomDto;
 import mrs.application.dto.ReservableRoomDto;
 import mrs.application.mapper.DtoMapper;
@@ -65,8 +63,8 @@ public class RoomController {
         )
     })
     public ResponseEntity<List<MeetingRoomDto>> listRooms() {
-        List<MeetingRoom> rooms = roomUseCase.findAllMeetingRooms();
-        List<MeetingRoomDto> roomDtos = rooms.stream()
+        var rooms = roomUseCase.findAllMeetingRooms();
+        var roomDtos = rooms.stream()
             .map(dtoMapper::toMeetingRoomDto)
             .collect(Collectors.toList());
         return ResponseEntity.ok(roomDtos);
@@ -113,8 +111,8 @@ public class RoomController {
         )
         @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
-        List<ReservableRoom> reservableRooms = roomUseCase.findReservableRooms(date);
-        List<ReservableRoomDto> reservableRoomDtos = reservableRooms.stream()
+        var reservableRooms = roomUseCase.findReservableRooms(date);
+        var reservableRoomDtos = reservableRooms.stream()
             .map(dtoMapper::toReservableRoomDto)
             .collect(Collectors.toList());
         return ResponseEntity.ok(reservableRoomDtos);
