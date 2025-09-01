@@ -43,61 +43,61 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">ログイン</h2>
+    <div className="max-w-md mx-auto p-8 bg-white rounded-xl shadow-lg border border-gray-200">
+      <h2 className="text-3xl font-bold mb-8 text-center text-gray-800">ログイン</h2>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
+        <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-800 rounded">
+          <strong>エラー:</strong> {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-semibold text-gray-800 mb-2">
             ユーザーID
           </label>
           <input
             type="text"
             {...register('userId')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-800 bg-white"
             disabled={loading}
             placeholder="例: taro"
           />
           {errors.userId && (
-            <p className="mt-1 text-sm text-red-600">{errors.userId.message}</p>
+            <p className="mt-2 text-sm text-red-600 font-medium">{errors.userId.message}</p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-semibold text-gray-800 mb-2">
             パスワード
           </label>
           <input
             type="password"
             {...register('password')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-800 bg-white"
             disabled={loading}
             placeholder="パスワード"
           />
           {errors.password && (
-            <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+            <p className="mt-2 text-sm text-red-600 font-medium">{errors.password.message}</p>
           )}
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium rounded-md transition duration-200"
+          className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition duration-200 shadow-md hover:shadow-lg"
         >
           {loading ? 'ログイン中...' : 'ログイン'}
         </button>
       </form>
 
-      <div className="mt-4 p-3 bg-gray-100 rounded">
-        <p className="text-sm text-gray-600">デモ用ログイン情報:</p>
-        <p className="text-sm">ID: taro / Pass: pass123</p>
-        <p className="text-sm">ID: hanako / Pass: pass456</p>
+      <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <p className="text-sm font-semibold text-blue-800 mb-2">デモ用ログイン情報:</p>
+        <p className="text-sm text-blue-700 font-mono">ID: user1 / Pass: demo</p>
+        <p className="text-sm text-blue-700 font-mono">ID: admin1 / Pass: demo</p>
       </div>
     </div>
   );

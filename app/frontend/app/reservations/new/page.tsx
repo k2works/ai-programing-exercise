@@ -12,9 +12,9 @@ export default function NewReservationPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
       <div className="container mx-auto px-4">
-        <h1 className="text-3xl font-bold text-center mb-8">新規予約</h1>
+        <h1 className="text-4xl font-bold text-center mb-12 text-gray-800">新規予約</h1>
         <ReservationForm onSuccess={handleSuccess} />
       </div>
     </div>

@@ -8,6 +8,8 @@ public class LoginResponse {
     private String accessToken;
     private String tokenType = "Bearer";
     private long expiresIn;
+    private String userId;
+    private String userName;
 
     public LoginResponse() {
     }
@@ -15,6 +17,13 @@ public class LoginResponse {
     public LoginResponse(String accessToken, long expiresIn) {
         this.accessToken = accessToken;
         this.expiresIn = expiresIn;
+    }
+
+    public LoginResponse(String accessToken, long expiresIn, String userId, String userName) {
+        this.accessToken = accessToken;
+        this.expiresIn = expiresIn;
+        this.userId = userId;
+        this.userName = userName;
     }
 
     // 利便性のための追加のgetterメソッド（テスト用）
@@ -44,5 +53,21 @@ public class LoginResponse {
 
     public void setExpiresIn(long expiresIn) {
         this.expiresIn = expiresIn;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }

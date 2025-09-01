@@ -1,10 +1,13 @@
 package mrs.application.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * ログインリクエストDTO
  * Web層とアプリケーション層を分離するためのデータ転送オブジェクト
  */
 public class LoginRequest {
+    @JsonProperty("userId")
     private String username;
     private String password;
 

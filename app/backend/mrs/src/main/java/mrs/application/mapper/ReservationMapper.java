@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 /**
  * Reservation関連のマッピング処理
  */
-@Component
+@Component("reservationDtoMapper")
 public class ReservationMapper {
 
     private final ReservableRoomMapper reservableRoomMapper;

@@ -89,91 +89,91 @@ export default function ReservationForm({ onSuccess }: ReservationFormProps) {
   }
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6">会議室予約</h2>
+    <div className="max-w-lg mx-auto p-8 bg-white rounded-xl shadow-lg border border-gray-200">
+      <h2 className="text-3xl font-bold mb-8 text-gray-800 text-center">会議室予約</h2>
       
       {error && (
-        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
+        <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-800 rounded">
+          <strong>エラー:</strong> {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-semibold text-gray-800 mb-2">
             会議室
           </label>
           <select
             {...register('roomId', { valueAsNumber: true })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-800 bg-white"
             disabled={loading}
           >
-            <option value="">選択してください</option>
+            <option value="" className="text-gray-500">選択してください</option>
             {rooms.map((room) => (
-              <option key={room.roomId} value={room.roomId}>
+              <option key={room.roomId} value={room.roomId} className="text-gray-800">
                 {room.roomName}
               </option>
             ))}
           </select>
           {errors.roomId && (
-            <p className="mt-1 text-sm text-red-600">{errors.roomId.message}</p>
+            <p className="mt-2 text-sm text-red-600 font-medium">{errors.roomId.message}</p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-semibold text-gray-800 mb-2">
             予約日
           </label>
           <input
             type="date"
             {...register('reservableDate')}
             min={format(addDays(new Date(), 1), 'yyyy-MM-dd')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-800 bg-white"
             disabled={loading}
           />
           {errors.reservableDate && (
-            <p className="mt-1 text-sm text-red-600">{errors.reservableDate.message}</p>
+            <p className="mt-2 text-sm text-red-600 font-medium">{errors.reservableDate.message}</p>
           )}
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-800 mb-2">
               開始時間
             </label>
             <select
               {...register('startTime')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-800 bg-white"
               disabled={loading}
             >
               {timeOptions.map((time) => (
-                <option key={time} value={time}>
+                <option key={time} value={time} className="text-gray-800">
                   {time}
                 </option>
               ))}
             </select>
             {errors.startTime && (
-              <p className="mt-1 text-sm text-red-600">{errors.startTime.message}</p>
+              <p className="mt-2 text-sm text-red-600 font-medium">{errors.startTime.message}</p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-800 mb-2">
               終了時間
             </label>
             <select
               {...register('endTime')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-800 bg-white"
               disabled={loading}
             >
               {timeOptions.map((time) => (
-                <option key={time} value={time}>
+                <option key={time} value={time} className="text-gray-800">
                   {time}
                 </option>
               ))}
             </select>
             {errors.endTime && (
-              <p className="mt-1 text-sm text-red-600">{errors.endTime.message}</p>
+              <p className="mt-2 text-sm text-red-600 font-medium">{errors.endTime.message}</p>
             )}
           </div>
         </div>
@@ -181,7 +181,7 @@ export default function ReservationForm({ onSuccess }: ReservationFormProps) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium rounded-md transition duration-200"
+          className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition duration-200 shadow-md hover:shadow-lg"
         >
           {loading ? '予約中...' : '予約する'}
         </button>

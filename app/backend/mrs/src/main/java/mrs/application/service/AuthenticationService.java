@@ -73,7 +73,7 @@ public class AuthenticationService implements AuthenticationUseCase {
     private LoginResponse createLoginResponse(User user) {
         String token = jwtPort.createAccessToken(user.getUserId(), Map.of("roles", user.getRole()));
         long expiresIn = jwtPort.getExpirationTime();
-        return new LoginResponse(token, expiresIn);
+        return new LoginResponse(token, expiresIn, user.getUserId(), user.getName());
     }
 
     private void validateTokenNotBlank(String token) {

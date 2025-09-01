@@ -8,6 +8,7 @@ import mrs.application.dto.MeetingRoomDto;
 import mrs.application.dto.ReservableRoomDto;
 import mrs.application.dto.ReservationDto;
 import mrs.application.dto.ReservationRequest;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 /**
@@ -26,7 +27,7 @@ public class DtoMapper {
     public DtoMapper(
         MeetingRoomMapper meetingRoomMapper,
         ReservableRoomMapper reservableRoomMapper,
-        ReservationMapper reservationMapper
+        @Qualifier("reservationDtoMapper") ReservationMapper reservationMapper
     ) {
         this.meetingRoomMapper = meetingRoomMapper;
         this.reservableRoomMapper = reservableRoomMapper;
