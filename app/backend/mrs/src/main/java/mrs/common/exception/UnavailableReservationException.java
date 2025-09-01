@@ -1,4 +1,4 @@
-package mrs.application.exception;
+package mrs.common.exception;
 
 /**
  * 予約不可時の例外

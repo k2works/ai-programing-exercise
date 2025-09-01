@@ -1,9 +1,9 @@
 package mrs.application.service;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import mrs.application.exception.AlreadyReservedException;
-import mrs.application.exception.ReservationNotFoundException;
-import mrs.application.exception.UnavailableReservationException;
+import mrs.common.exception.AlreadyReservedException;
+import mrs.common.exception.ReservationNotFoundException;
+import mrs.common.exception.UnavailableReservationException;
 import mrs.application.port.in.ReservationUseCase;
 import mrs.application.domain.model.auth.User;
 import mrs.application.domain.model.reservation.Reservation;

@@ -1,4 +1,4 @@
-package mrs.application.exception;
+package mrs.common.exception;
 
 /**
  * 既に予約済みの場合の例外

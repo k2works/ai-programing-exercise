@@ -1,9 +1,9 @@
 package mrs.infrastructure.in.web;
 
-import mrs.application.exception.AlreadyReservedException;
-import mrs.application.exception.AuthenticationException;
-import mrs.application.exception.ReservationNotFoundException;
-import mrs.application.exception.UnavailableReservationException;
+import mrs.common.exception.AlreadyReservedException;
+import mrs.common.exception.AuthenticationException;
+import mrs.common.exception.ReservationNotFoundException;
+import mrs.common.exception.UnavailableReservationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;

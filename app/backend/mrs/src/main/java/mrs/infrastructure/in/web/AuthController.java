@@ -3,7 +3,7 @@ package mrs.infrastructure.in.web;
 import java.util.Map;
 import mrs.application.dto.LoginRequest;
 import mrs.application.dto.LoginResponse;
-import mrs.application.exception.AuthenticationException;
+import mrs.common.exception.AuthenticationException;
 import mrs.application.port.in.AuthenticationUseCase;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

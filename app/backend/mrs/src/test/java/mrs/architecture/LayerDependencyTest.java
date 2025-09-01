@@ -113,7 +113,7 @@ public class LayerDependencyTest {
             .resideInAnyPackage(
                     DOMAIN_PACKAGE,                 // ドメインモデル
                     "mrs.application.dto..",        // データ転送オブジェクト
-                    "mrs.application.exception..",  // 例外クラス
+                    COMMON_PACKAGE,                 // 共通（例外など）
                     "mrs.application.validation..", // バリデーション
                     PORT_PACKAGE,                   // ポートインターフェース
                     "java..",                       // Java標準ライブラリ
@@ -131,7 +131,7 @@ public class LayerDependencyTest {
             .should().onlyDependOnClassesThat()
             .resideInAnyPackage(
                     "mrs.application.dto..",        // データ転送オブジェクト
-                    "mrs.application.exception..",  // 例外クラス
+                    COMMON_PACKAGE,                 // 共通（例外など）
                     "mrs.application.mapper..",     // マッパー
                     "mrs.application.validation..", // バリデーション
                     "mrs.application.port.in..",    // 入力ポート

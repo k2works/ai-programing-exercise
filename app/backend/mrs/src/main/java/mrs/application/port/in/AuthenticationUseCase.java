@@ -2,7 +2,7 @@ package mrs.application.port.in;
 
 import mrs.application.dto.LoginRequest;
 import mrs.application.dto.LoginResponse;
-import mrs.application.exception.AuthenticationException;
+import mrs.common.exception.AuthenticationException;
 
 /**
  * 認証機能のユースケースインターフェース

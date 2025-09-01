@@ -1,4 +1,4 @@
-package mrs.application.exception;
+package mrs.common.exception;
 
 /**
  * 認証失敗時の例外

@@ -19,7 +19,7 @@ public class ArchitectureTest {
     private static final String APPLICATION_SERVICE_PACKAGE = "mrs.application.service..";
     private static final String APPLICATION_PORT_PACKAGE = "mrs.application.port..";
     private static final String APPLICATION_DTO_PACKAGE = "mrs.application.dto..";
-    private static final String APPLICATION_EXCEPTION_PACKAGE = "mrs.application.exception..";
+    private static final String COMMON_EXCEPTION_PACKAGE = "mrs.common.exception..";
     private static final String APPLICATION_MAPPER_PACKAGE = "mrs.application.mapper..";
     private static final String APPLICATION_VALIDATION_PACKAGE = "mrs.application.validation..";
     private static final String INFRASTRUCTURE_PACKAGE = "mrs.infrastructure..";
@@ -40,14 +40,14 @@ public class ArchitectureTest {
             // レイヤー定義
             .layer(DOMAIN_LAYER_NAME).definedBy(DOMAIN_PACKAGE)
             .layer(APPLICATION_LAYER_NAME).definedBy(APPLICATION_SERVICE_PACKAGE, APPLICATION_PORT_PACKAGE,
-                    APPLICATION_DTO_PACKAGE, APPLICATION_EXCEPTION_PACKAGE, APPLICATION_MAPPER_PACKAGE,
+                    APPLICATION_DTO_PACKAGE, APPLICATION_MAPPER_PACKAGE,
                     APPLICATION_VALIDATION_PACKAGE)
             .layer(INFRASTRUCTURE_LAYER_NAME).definedBy(INFRASTRUCTURE_PACKAGE)
             .layer(COMMON_LAYER_NAME).definedBy(COMMON_PACKAGE)
             
             // 依存関係ルール
             .whereLayer(DOMAIN_LAYER_NAME).mayNotAccessAnyLayer()  // ドメイン層は他に依存しない
-            .whereLayer(APPLICATION_LAYER_NAME).mayOnlyAccessLayers(DOMAIN_LAYER_NAME)  // アプリケーション層はドメイン層のみに依存
+            .whereLayer(APPLICATION_LAYER_NAME).mayOnlyAccessLayers(DOMAIN_LAYER_NAME, COMMON_LAYER_NAME)  // アプリケーション層はドメイン・共通層に依存
             .whereLayer(INFRASTRUCTURE_LAYER_NAME).mayOnlyAccessLayers(DOMAIN_LAYER_NAME, APPLICATION_LAYER_NAME, 
                     COMMON_LAYER_NAME)  // インフラ層は他の全レイヤーにアクセス可能
             .whereLayer(COMMON_LAYER_NAME).mayOnlyAccessLayers(DOMAIN_LAYER_NAME);  // 共通層はドメイン層のみに依存

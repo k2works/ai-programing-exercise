@@ -3,7 +3,7 @@ package mrs.application.service;
 import mrs.application.domain.model.auth.User;
 import mrs.application.dto.LoginRequest;
 import mrs.application.dto.LoginResponse;
-import mrs.application.exception.AuthenticationException;
+import mrs.common.exception.AuthenticationException;
 import mrs.application.port.out.JwtPort;
 import mrs.application.port.out.UserPort;
 import org.junit.jupiter.api.BeforeEach;
