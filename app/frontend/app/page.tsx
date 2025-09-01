@@ -6,8 +6,10 @@ import { authService } from '@/services/auth-service';
 
 export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
     setIsAuthenticated(authService.isAuthenticated());
   }, []);
 
@@ -20,7 +22,12 @@ export default function Home() {
         </div>
 
         <div className="space-y-4">
-          {isAuthenticated ? (
+          {!isClient ? (
+            // SSR中は認証状態未確定のためローディング表示
+            <div className="animate-pulse">
+              <div className="h-10 bg-gray-200 rounded"></div>
+            </div>
+          ) : isAuthenticated ? (
             <>
               <Link
                 href="/reservations/new"
