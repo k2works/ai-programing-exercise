@@ -29,6 +29,7 @@ public class NamingConventionTest {
     @ArchTest
     static final ArchRule controllers_should_end_with_controller = classes()
             .that().resideInAPackage(WEB_PACKAGE)
+            .and().haveSimpleNameNotEndingWith("Handler")  // ExceptionHandlerを除外
             .should().haveSimpleNameEndingWith("Controller");
 
     /**

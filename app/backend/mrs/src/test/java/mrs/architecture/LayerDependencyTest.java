@@ -114,6 +114,7 @@ public class LayerDependencyTest {
                     DOMAIN_PACKAGE,                 // ドメインモデル
                     "mrs.application.dto..",        // データ転送オブジェクト
                     "mrs.application.exception..",  // 例外クラス
+                    "mrs.application.validation..", // バリデーション
                     PORT_PACKAGE,                   // ポートインターフェース
                     "java..",                       // Java標準ライブラリ
                     "javax..",                      // Java拡張ライブラリ
@@ -132,6 +133,7 @@ public class LayerDependencyTest {
                     "mrs.application.dto..",        // データ転送オブジェクト
                     "mrs.application.exception..",  // 例外クラス
                     "mrs.application.mapper..",     // マッパー
+                    "mrs.application.validation..", // バリデーション
                     "mrs.application.port.in..",    // 入力ポート
                     "mrs.application.port.out..",   // 出力ポート（UserPort等）
                     WEB_PACKAGE,                    // Web層内部（Mapper等）

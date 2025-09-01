@@ -21,6 +21,7 @@ public class ArchitectureTest {
     private static final String APPLICATION_DTO_PACKAGE = "mrs.application.dto..";
     private static final String APPLICATION_EXCEPTION_PACKAGE = "mrs.application.exception..";
     private static final String APPLICATION_MAPPER_PACKAGE = "mrs.application.mapper..";
+    private static final String APPLICATION_VALIDATION_PACKAGE = "mrs.application.validation..";
     private static final String INFRASTRUCTURE_PACKAGE = "mrs.infrastructure..";
     private static final String COMMON_PACKAGE = "mrs.common..";
     private static final String DOMAIN_LAYER_NAME = "Domain";
@@ -39,7 +40,8 @@ public class ArchitectureTest {
             // レイヤー定義
             .layer(DOMAIN_LAYER_NAME).definedBy(DOMAIN_PACKAGE)
             .layer(APPLICATION_LAYER_NAME).definedBy(APPLICATION_SERVICE_PACKAGE, APPLICATION_PORT_PACKAGE,
-                    APPLICATION_DTO_PACKAGE, APPLICATION_EXCEPTION_PACKAGE, APPLICATION_MAPPER_PACKAGE)
+                    APPLICATION_DTO_PACKAGE, APPLICATION_EXCEPTION_PACKAGE, APPLICATION_MAPPER_PACKAGE, 
+                    APPLICATION_VALIDATION_PACKAGE)
             .layer(INFRASTRUCTURE_LAYER_NAME).definedBy(INFRASTRUCTURE_PACKAGE)
             .layer(COMMON_LAYER_NAME).definedBy(COMMON_PACKAGE)
             
