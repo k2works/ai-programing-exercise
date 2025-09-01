@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 
-const DynamicHomeContent = dynamic(() => import('@/components/home-content'), {
+const DynamicAuthProvider = dynamic(() => import('./auth-provider'), {
   ssr: false,
   loading: () => (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -11,6 +11,4 @@ const DynamicHomeContent = dynamic(() => import('@/components/home-content'), {
   ),
 });
 
-export default function Home() {
-  return <DynamicHomeContent />;
-}
+export default DynamicAuthProvider;

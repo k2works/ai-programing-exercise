@@ -1,8 +1,13 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import { ReactNode } from 'react';
 
-const DynamicHomeContent = dynamic(() => import('@/components/home-content'), {
+const NoSsr = ({ children }: { children: ReactNode }) => {
+  return <>{children}</>;
+};
+
+export default dynamic(() => Promise.resolve(NoSsr), {
   ssr: false,
   loading: () => (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -10,7 +15,3 @@ const DynamicHomeContent = dynamic(() => import('@/components/home-content'), {
     </div>
   ),
 });
-
-export default function Home() {
-  return <DynamicHomeContent />;
-}

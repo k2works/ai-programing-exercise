@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { setAuthToken } from '@/lib/api-client';
 
-const PUBLIC_PATHS = ['/login', '/'];
+const PUBLIC_PATHS = ['/auth/login', '/'];
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();

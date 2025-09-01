@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import AuthProvider from "@/components/auth-provider";
-import ClientOnly from "@/components/client-only";
+import DynamicAuthProvider from "@/components/dynamic-auth-provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -25,13 +24,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja">
+    <html lang="ja" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning
       >
-        <ClientOnly fallback={<div className="min-h-screen bg-gray-50" />}>
-          <AuthProvider>{children}</AuthProvider>
-        </ClientOnly>
+        <div suppressHydrationWarning>
+          <DynamicAuthProvider>{children}</DynamicAuthProvider>
+        </div>
       </body>
     </html>
   );
