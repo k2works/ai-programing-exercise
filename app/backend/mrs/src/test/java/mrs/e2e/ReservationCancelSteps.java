@@ -55,37 +55,30 @@ public class ReservationCancelSteps {
 
     @When("予約をキャンセルする")
     public void cancelReservation() {
-        response = given()
-            .baseUri(BASE_URL + port)
-            .header(AUTH_HEADER, BEARER_PREFIX + authToken)
-            .when()
-            .delete(RESERVATIONS_ENDPOINT + reservationId);
+        performDelete(reservationId, true);
     }
 
     @When("他人の予約をキャンセルしようとする")
     public void tryToCancelOthersReservation() {
-        response = given()
-            .baseUri(BASE_URL + port)
-            .header(AUTH_HEADER, BEARER_PREFIX + authToken)
-            .when()
-            .delete(RESERVATIONS_ENDPOINT + reservationId);
+        performDelete(reservationId, true);
     }
 
     @When("存在しない予約ID {int} をキャンセルしようとする")
     public void tryToCancelNonExistentReservation(int nonExistentId) {
-        response = given()
-            .baseUri(BASE_URL + port)
-            .header(AUTH_HEADER, BEARER_PREFIX + authToken)
-            .when()
-            .delete(RESERVATIONS_ENDPOINT + nonExistentId);
+        performDelete(nonExistentId, true);
     }
 
     @When("認証なしで予約をキャンセルしようとする")
     public void tryToCancelWithoutAuth() {
-        response = given()
-            .baseUri(BASE_URL + port)
-            .when()
-            .delete(RESERVATIONS_ENDPOINT + reservationId);
+        performDelete(reservationId, false);
+    }
+    
+    private void performDelete(Integer targetId, boolean withAuth) {
+        var request = given().baseUri(BASE_URL + port);
+        if (withAuth) {
+            request = request.header(AUTH_HEADER, BEARER_PREFIX + authToken);
+        }
+        response = request.when().delete(RESERVATIONS_ENDPOINT + targetId);
     }
 
     @Then("予約が削除されている")

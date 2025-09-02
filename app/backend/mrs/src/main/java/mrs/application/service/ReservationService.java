@@ -71,14 +71,22 @@ public class ReservationService implements ReservationUseCase {
             throw new ReservationNotFoundException("予約が見つかりません。");
         }
         
-        // 権限チェック: 管理者または予約の所有者のみキャンセル可能
-        boolean isAdmin = user.getRole() != null && user.getRole().equals("ADMIN");
-        boolean isOwner = reservation.getUser().getUserId().equals(user.getUserId());
-        
-        if (!isAdmin && !isOwner) {
-            throw new mrs.common.exception.UnauthorizedAccessException("他人の予約はキャンセルできません。");
-        }
-        
+        validateCancelPermission(reservation, user);
         reservationPort.delete(reservationId);
+    }
+    
+    private void validateCancelPermission(Reservation reservation, User user) {
+        if (isAdmin(user) || isOwner(reservation, user)) {
+            return;
+        }
+        throw new mrs.common.exception.UnauthorizedAccessException("他人の予約はキャンセルできません。");
+    }
+    
+    private boolean isAdmin(User user) {
+        return user.getRole() != null && "ADMIN".equals(user.getRole());
+    }
+    
+    private boolean isOwner(Reservation reservation, User user) {
+        return reservation.getUser().getUserId().equals(user.getUserId());
     }
 }
