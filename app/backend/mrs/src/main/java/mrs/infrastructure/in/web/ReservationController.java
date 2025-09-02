@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -156,5 +157,53 @@ public class ReservationController {
             .map(dtoMapper::toReservationDto)
             .collect(Collectors.toList());
         return ResponseEntity.ok(reservationDtos);
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(
+        summary = "予約キャンセル",
+        description = "指定された予約をキャンセルする（本人または管理者のみ可能）"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "204",
+            description = "予約が正常にキャンセルされました"
+        ),
+        @ApiResponse(
+            responseCode = "403",
+            description = "権限不足（他人の予約をキャンセルしようとした）",
+            content = @Content(
+                mediaType = MEDIA_TYPE_JSON,
+                examples = @ExampleObject(value = "{\"message\": \"Forbidden\"}")
+            )
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "予約が見つかりません",
+            content = @Content(
+                mediaType = MEDIA_TYPE_JSON,
+                examples = @ExampleObject(value = "{\"message\": \"予約が見つかりません。\"}")
+            )
+        ),
+        @ApiResponse(
+            responseCode = "401",
+            description = "認証が必要",
+            content = @Content(
+                mediaType = MEDIA_TYPE_JSON,
+                examples = @ExampleObject(value = "{\"message\": \"Unauthorized\"}")
+            )
+        )
+    })
+    public ResponseEntity<Void> cancelReservation(
+        @Parameter(
+            description = "予約ID",
+            example = "1"
+        )
+        @PathVariable Integer id,
+        @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        var user = userPort.findByUserId(userDetails.getUsername());
+        reservationUseCase.cancel(id, user);
+        return ResponseEntity.noContent().build();
     }
 }

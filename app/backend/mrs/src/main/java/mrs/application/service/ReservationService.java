@@ -65,12 +65,20 @@ public class ReservationService implements ReservationUseCase {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN') or #reservation.user.userId == principal.user.userId")
     public void cancel(Integer reservationId, User user) {
         Reservation reservation = reservationPort.findById(reservationId);
         if (reservation == null) {
             throw new ReservationNotFoundException("予約が見つかりません。");
         }
+        
+        // 権限チェック: 管理者または予約の所有者のみキャンセル可能
+        boolean isAdmin = user.getRole() != null && user.getRole().equals("ADMIN");
+        boolean isOwner = reservation.getUser().getUserId().equals(user.getUserId());
+        
+        if (!isAdmin && !isOwner) {
+            throw new mrs.common.exception.UnauthorizedAccessException("他人の予約はキャンセルできません。");
+        }
+        
         reservationPort.delete(reservationId);
     }
 }
