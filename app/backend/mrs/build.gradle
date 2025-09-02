@@ -116,6 +116,7 @@ pmd {
 pmdMain {
     exclude '**/config/SwaggerConfig.java'
     exclude '**/infrastructure/in/web/**'  // OpenAPIアノテーションがあるControllerも除外
+    exclude '**/application/dto/**'  // DTOクラスは単純なPOJOなのでCyclomaticComplexityチェックを除外
 }
 
 pmdTest {

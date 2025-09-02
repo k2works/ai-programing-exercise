@@ -2,7 +2,15 @@
 
 ## 概要
 
-AIプログラミングの実践的な学習と開発のためのプロジェクトです。複数のプログラミング言語（Java、Scala、Kotlin、Node.js、Ruby、Python、PHP、Go、Rust、.NET、C、C++、Erlang、Elixir、Prolog）をサポートする開発環境と、MkDocsを使用したドキュメント管理システムを提供します。
+AIプログラミングの実践的な学習と開発のためのプロジェクトです。会議室予約システム（MRS）の実装を通じて、複数のプログラミング言語での開発手法とAPIドキュメント管理システムを学習します。
+
+### プロジェクト構成
+
+- **バックエンド**: Spring Boot + MyBatis（Java 21）
+- **フロントエンド**: Next.js + TypeScript
+- **データベース**: H2 Database（開発環境）
+- **API仕様**: OpenAPI/Swagger
+- **ドキュメント**: MkDocs
 
 ### 目的
 
@@ -47,6 +55,61 @@ AIプログラミングの実践的な学習と開発のためのプロジェク
    ```
    http://localhost:8000
    ```
+
+## 会議室予約システム（MRS）
+
+### 機能
+
+- ユーザー認証（JWT）
+- 会議室予約作成
+- 予約状況表示・検索
+- 入力検証・重複チェック
+
+### API仕様
+
+Swagger UIで詳細なAPI仕様を確認できます：
+- **開発環境**: http://localhost:8083/swagger-ui.html
+- **API Docs**: http://localhost:8083/v3/api-docs
+
+### 主要エンドポイント
+
+#### 認証
+- `POST /api/auth/login` - ログイン
+- `POST /api/auth/refresh` - トークン更新
+
+#### 予約管理
+- `POST /api/reservations` - 予約作成
+- `GET /api/reservations/{date}` - 指定日の予約状況取得
+
+#### 会議室情報
+- `GET /api/rooms` - 会議室一覧取得
+- `GET /api/rooms/{date}` - 予約可能会議室取得
+
+### クイックスタート（開発環境）
+
+1. バックエンド起動
+   ```bash
+   cd app/backend/mrs
+   ./gradlew bootRun --args='--server.port=8083'
+   ```
+
+2. フロントエンド起動
+   ```bash
+   cd app/frontend
+   npm run dev
+   ```
+
+3. アプリケーションアクセス
+   - **フロントエンド**: http://localhost:3000
+   - **API仕様**: http://localhost:8083/swagger-ui.html
+
+### デモアカウント
+
+| ユーザーID | パスワード | 役割 |
+|-----------|----------|------|
+| taro | demo | 一般ユーザー |
+| hanako | demo | 一般ユーザー |
+| admin1 | demo | 管理者 |
 
 #### 開発環境
 
