@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { format } from 'date-fns';
 import { reservationService } from '@/services/reservation-service';
 import { Reservation, MeetingRoom } from '@/types/api';
+import { useAuth } from '@/hooks/use-auth';
+import CancelDialog from './cancel-dialog';
 
 interface ReservationListProps {
   date?: string;
@@ -19,6 +21,17 @@ export default function ReservationList({ date: initialDate, roomId }: Reservati
   const [selectedRoomId, setSelectedRoomId] = useState<number | undefined>(roomId);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cancelDialog, setCancelDialog] = useState<{
+    isOpen: boolean;
+    reservation: Reservation | null;
+    loading: boolean;
+  }>({
+    isOpen: false,
+    reservation: null,
+    loading: false
+  });
+
+  const { canCancelReservation } = useAuth();
 
   const loadRooms = useCallback(async () => {
     try {
@@ -68,6 +81,47 @@ export default function ReservationList({ date: initialDate, roomId }: Reservati
   const getRoomName = (roomId: number) => {
     const room = rooms.find(r => r.roomId === roomId);
     return room ? room.roomName : `会議室 ${roomId}`;
+  };
+
+  const handleCancelClick = (reservation: Reservation) => {
+    setCancelDialog({
+      isOpen: true,
+      reservation,
+      loading: false
+    });
+  };
+
+  const handleCancelConfirm = async () => {
+    if (!cancelDialog.reservation || !cancelDialog.reservation.reservationId) return;
+
+    setCancelDialog(prev => ({ ...prev, loading: true }));
+
+    try {
+      await reservationService.cancelReservation(cancelDialog.reservation.reservationId);
+      
+      // 予約一覧を再読み込み
+      await loadReservations();
+      
+      // ダイアログを閉じる
+      setCancelDialog({
+        isOpen: false,
+        reservation: null,
+        loading: false
+      });
+    } catch (err) {
+      setError('予約のキャンセルに失敗しました');
+      console.error(err);
+      setCancelDialog(prev => ({ ...prev, loading: false }));
+    }
+  };
+
+  const handleCancelClose = () => {
+    if (cancelDialog.loading) return;
+    setCancelDialog({
+      isOpen: false,
+      reservation: null,
+      loading: false
+    });
   };
 
   return (
@@ -141,6 +195,9 @@ export default function ReservationList({ date: initialDate, roomId }: Reservati
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                     予約者
                   </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                    操作
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -169,6 +226,16 @@ export default function ReservationList({ date: initialDate, roomId }: Reservati
                         ({reservation.userId})
                       </div>
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      {reservation.userId && canCancelReservation(reservation.userId) && (
+                        <button
+                          onClick={() => handleCancelClick(reservation)}
+                          className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-xs font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                        >
+                          キャンセル
+                        </button>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -180,7 +247,25 @@ export default function ReservationList({ date: initialDate, roomId }: Reservati
       {/* 凡例 */}
       <div className="mt-6 text-sm text-gray-600">
         <p>※ 表示される予約は選択した日付と会議室に基づいています</p>
+        <p>※ 自分の予約または管理者権限がある場合のみキャンセルできます</p>
       </div>
+
+      {/* キャンセル確認ダイアログ */}
+      <CancelDialog
+        isOpen={cancelDialog.isOpen}
+        onClose={handleCancelClose}
+        onConfirm={handleCancelConfirm}
+        reservation={cancelDialog.reservation && 
+          cancelDialog.reservation.reservationId &&
+          cancelDialog.reservation.userName ? {
+          reservationId: cancelDialog.reservation.reservationId,
+          startTime: cancelDialog.reservation.startTime,
+          endTime: cancelDialog.reservation.endTime,
+          roomName: getRoomName(cancelDialog.reservation.reservableRoom.roomId),
+          userName: cancelDialog.reservation.userName
+        } : null}
+        loading={cancelDialog.loading}
+      />
     </div>
   );
 }

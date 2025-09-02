@@ -30,5 +30,10 @@ export const reservationService = {
   async createReservation(request: ReservationRequest): Promise<Reservation> {
     const response = await apiClient.post('/reservations', request);
     return response.data;
+  },
+
+  // 予約キャンセル
+  async cancelReservation(reservationId: number): Promise<void> {
+    await apiClient.delete(`/reservations/${reservationId}`);
   }
 };
