@@ -33,7 +33,7 @@ public class ApiSmokeTest {
         // login
         MvcResult auth = mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"username\":\"user1\",\"password\":\"demo\"}"))
+                .content("{\"userId\":\"user1\",\"password\":\"demo\"}"))
             .andExpect(status().isOk())
             .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andReturn();

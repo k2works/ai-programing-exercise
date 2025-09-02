@@ -68,7 +68,7 @@ public class AuthController {
         @Parameter(
             description = "認証情報",
             content = @Content(
-                examples = @ExampleObject(value = "{\"username\": \"user1\", \"password\": \"demo\"}")
+                examples = @ExampleObject(value = "{\"userId\": \"user1\", \"password\": \"demo\"}")
             )
         )
         @RequestBody LoginRequest loginRequest) {

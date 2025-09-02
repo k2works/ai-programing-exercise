@@ -85,7 +85,7 @@ curl -X GET http://localhost:8080/api/rooms \
 3. Request bodyに以下を入力:
    ```json
    {
-     "username": "user1",
+     "userId": "user1",
      "password": "demo"
    }
    ```
