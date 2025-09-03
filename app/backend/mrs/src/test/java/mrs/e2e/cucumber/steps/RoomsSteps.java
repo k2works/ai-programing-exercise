@@ -71,6 +71,9 @@ public class RoomsSteps {
                 new HttpEntity<>(new HttpHeaders()),
                 String.class
             );
+        } catch (org.springframework.web.client.HttpClientErrorException e) {
+            // 401エラーをキャッチして適切に処理
+            lastResponse = ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
         } catch (Exception e) {
             lastResponse = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
         }
@@ -106,6 +109,9 @@ public class RoomsSteps {
                 entity,
                 String.class
             );
+        } catch (org.springframework.web.client.HttpClientErrorException e) {
+            // 400エラーをキャッチして適切に処理
+            lastResponse = ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
         } catch (Exception e) {
             lastResponse = ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid date format");
         }

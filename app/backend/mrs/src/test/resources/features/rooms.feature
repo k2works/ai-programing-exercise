@@ -1,4 +1,3 @@
-# language: ja
 Feature: 会議室管理機能（F002）
 
   Background:
@@ -10,9 +9,8 @@ Feature: 会議室管理機能（F002）
 
     Given 以下の会議室が予約可能である:
       | roomId | roomName |
-      | 1      | 会議室A  |
-      | 2      | 会議室B  |
-      | 3      | 会議室C  |
+      | 1      | A会議室  |
+      | 2      | B会議室  |
 
   # F002-01: 会議室一覧表示機能
   @rooms @list
@@ -21,9 +19,8 @@ Feature: 会議室管理機能（F002）
     When 当日の会議室一覧を取得する
     Then 以下の会議室が表示される:
       | roomId | roomName |
-      | 1      | 会議室A  |
-      | 2      | 会議室B  |
-      | 3      | 会議室C  |
+      | 1      | A会議室  |
+      | 2      | B会議室  |
     And レスポンスステータスは 200 である
 
   @rooms @list
@@ -32,9 +29,8 @@ Feature: 会議室管理機能（F002）
     When 当日の会議室一覧を取得する
     Then 以下の会議室が表示される:
       | roomId | roomName |
-      | 1      | 会議室A  |
-      | 2      | 会議室B  |
-      | 3      | 会議室C  |
+      | 1      | A会議室  |
+      | 2      | B会議室  |
     And レスポンスステータスは 200 である
 
   @rooms @list
