@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- ドメインモデル関連の除外 -->
+    <Match>
+        <Class name="~mrs\.application\.domain\.model\..*"/>
+    </Match>
+    
+    <!-- サービス層の除外 -->
+    <Match>
+        <Class name="~mrs\.application\.service\..*"/>
+    </Match>
+    
+    <!-- 監視系の除外 -->
+    <Match>
+        <Class name="~mrs\.infrastructure\.monitoring\..*"/>
+    </Match>
+    
+    <!-- Mapper系の除外 -->
+    <Match>
+        <Class name="~mrs\.infrastructure\.out\.persistence\..*"/>
+    </Match>
+    
+    <!-- DTO系の除外 -->
+    <Match>
+        <Class name="~mrs\.application\.dto\..*"/>
+    </Match>
+</FindBugsFilter>

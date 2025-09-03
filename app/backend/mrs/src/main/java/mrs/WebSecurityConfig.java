@@ -37,7 +37,8 @@ public class WebSecurityConfig {
                 .requestMatchers(
                     "/api/auth/login", 
                     "/api/auth/refresh", 
-                    "/actuator/health",
+                    "/api/user-registration/register",
+                    "/actuator/**",
                     "/swagger-ui/**",
                     "/swagger-ui.html",
                     "/v3/api-docs/**",
@@ -48,8 +49,7 @@ public class WebSecurityConfig {
                 .anyRequest().authenticated()
             )
             .httpBasic(Customizer.withDefaults())
-            // HTTPS強制・セキュリティヘッダー設定
-            .requiresChannel(channel -> channel.anyRequest().requiresSecure())
+            // セキュリティヘッダー設定（HTTPS強制はhttpsプロファイルのみ）
             .headers(headers -> headers
                 .frameOptions().deny()
                 .contentTypeOptions().and()
