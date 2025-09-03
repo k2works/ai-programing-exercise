@@ -1081,3 +1081,5 @@ CLAUDE.local.md
 
 # Local gradle cache dir used by CI-stability workaround
 .gradle-tmp/
+
+.claude
