@@ -4,6 +4,7 @@
   "description": "AIプログラミングの実践的な学習と開発のためのプロジェクト",
   "main": "index.js",
   "scripts": {
+    "start": "gulp dev",
     "journal": "gulp journal:generate",
     "docs:serve": "gulp mkdocs:serve",
     "docs:stop": "gulp mkdocs:stop",
