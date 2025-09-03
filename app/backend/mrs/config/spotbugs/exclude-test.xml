@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- E2Eテストコードの警告を除外 -->
+    <Match>
+        <Package name="mrs.e2e.cucumber.*" />
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" />
+    </Match>
+    <Match>
+        <Package name="mrs.e2e.cucumber.*" />
+        <Bug pattern="EI_EXPOSE_REP" />
+    </Match>
+    
+    <!-- パフォーマンステストコードの警告を除外 -->
+    <Match>
+        <Package name="mrs.performance.*" />
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" />
+    </Match>
+</FindBugsFilter>
