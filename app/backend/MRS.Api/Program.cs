@@ -88,7 +88,11 @@ if (app.Environment.IsDevelopment())
 }
 
 // Middleware pipeline
-app.UseHttpsRedirection();
+// 開発環境ではHTTPS強制を無効化
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 app.UseCors("AllowAll");
 
 // Add JWT Middleware

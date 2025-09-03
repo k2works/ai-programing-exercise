@@ -44,15 +44,9 @@ public class JwtMiddleware
             return;
         }
 
-        try
+        var shouldContinue = await AttachUserToContext(context);
+        if (!shouldContinue)
         {
-            await AttachUserToContext(context);
-        }
-        catch (Exception ex)
-        {
-            // 予期しないエラーのみログ出力（認証エラーは既にAttachUserToContextで処理済み）
-            _logger.LogError(ex, "JWT認証処理で予期しないエラーが発生しました");
-            context.Response.StatusCode = 500;
             return;
         }
 
@@ -63,13 +57,14 @@ public class JwtMiddleware
     /// JWTトークンからユーザー情報を取得してコンテキストに設定
     /// </summary>
     /// <param name="context">HTTPコンテキスト</param>
-    private async Task AttachUserToContext(HttpContext context)
+    /// <returns>処理を続行するかどうか</returns>
+    private async Task<bool> AttachUserToContext(HttpContext context)
     {
         var token = ExtractTokenFromHeader(context);
         if (string.IsNullOrEmpty(token))
         {
             // トークンがない場合は認証なしで続行
-            return;
+            return true;
         }
 
         try
@@ -79,11 +74,20 @@ public class JwtMiddleware
             
             // ユーザー情報をコンテキストに設定
             context.Items["User"] = userInfo;
+            return true;
         }
         catch (UnauthorizedAccessException)
         {
-            // 無効なトークンの場合は、認証なしで続行（認可が必要なエンドポイントで後でチェック）
-            return;
+            // 無効なトークンの場合は401を返す
+            context.Response.StatusCode = 401;
+            return false;
+        }
+        catch (Exception ex)
+        {
+            // その他の予期しないエラーの場合は401を返す
+            _logger.LogError(ex, "JWT認証処理で予期しないエラーが発生しました");
+            context.Response.StatusCode = 401;
+            return false;
         }
     }
 
