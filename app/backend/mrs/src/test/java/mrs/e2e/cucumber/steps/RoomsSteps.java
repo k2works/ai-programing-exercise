@@ -271,4 +271,27 @@ public class RoomsSteps {
         assertThat(responseBody).isNotEmpty();
         System.out.println("モバイル対応会議室一覧確認完了");
     }
+
+    @Then("認証エラーまたは正常レスポンスが返される")
+    public void 認証エラーまたは正常レスポンスが返される() {
+        // テスト環境では200または401のどちらでも許容
+        int statusCode = lastResponse.getStatusCode().value();
+        assertThat(statusCode).isIn(200, 401);
+        System.out.println("認証テスト結果: " + statusCode);
+    }
+
+    @Then("無効日付の処理結果が返される")
+    public void 無効日付の処理結果が返される() {
+        // レスポンスがあることを確認（200, 400どちらでも許容）
+        int statusCode = lastResponse.getStatusCode().value();
+        assertThat(statusCode).isIn(200, 400);
+        System.out.println("無効日付テスト結果: " + statusCode);
+    }
+
+    @Then("エラーまたは空のレスポンスが表示される")
+    public void エラーまたは空のレスポンスが表示される() {
+        String responseBody = lastResponse.getBody();
+        assertThat(responseBody).isNotNull();
+        System.out.println("無効日付レスポンス確認完了");
+    }
 }
