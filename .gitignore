@@ -1078,3 +1078,4 @@ rebar3.crashdump
 *.iml
 docs/wiki
 CLAUDE.local.md
+.claude
