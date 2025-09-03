@@ -44,7 +44,7 @@ public class RoomRepository : IRoomRepository
         
         // Roomsテーブルにサンプルデータを挿入
         const string insertRoomsDataSql = @"
-            INSERT OR REPLACE INTO Rooms (RoomId, RoomName, Capacity, IsActive, CreatedAt, UpdatedAt) VALUES
+            INSERT OR IGNORE INTO Rooms (RoomId, RoomName, Capacity, IsActive, CreatedAt, UpdatedAt) VALUES
             ('room-001', '会議室A', 8, true, datetime('now'), datetime('now')),
             ('room-002', '会議室B', 12, true, datetime('now'), datetime('now')),
             ('room-003', '会議室C', 20, true, datetime('now'), datetime('now'));";
@@ -68,7 +68,7 @@ public class RoomRepository : IRoomRepository
         
         // ReservableRoomsテーブルにサンプルデータを挿入
         const string insertReservableRoomsDataSql = @"
-            INSERT OR REPLACE INTO ReservableRooms (ReservableRoomId, RoomId, RoomName, IsAvailable, CreatedAt, UpdatedAt) VALUES
+            INSERT OR IGNORE INTO ReservableRooms (ReservableRoomId, RoomId, RoomName, IsAvailable, CreatedAt, UpdatedAt) VALUES
             ('resv-001', 'room-001', '会議室A', true, datetime('now'), datetime('now')),
             ('resv-002', 'room-002', '会議室B', true, datetime('now'), datetime('now')),
             ('resv-003', 'room-003', '会議室C', true, datetime('now'), datetime('now'));";

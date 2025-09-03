@@ -53,6 +53,9 @@ public class UserRepositoryTests : IDisposable
         // 毎回テーブル作成を実行（IF NOT EXISTSで安全）
         InitializeDatabase();
         
+        // テーブルのデータをクリーンアップ（テスト間の独立性を保証）
+        ClearDatabase();
+        
         // テーブルが実際に存在するかデバッグ確認
         const string checkTableSql = "SELECT name FROM sqlite_master WHERE type='table' AND name='Users'";
         using var command = _connection.CreateCommand();
@@ -63,6 +66,14 @@ public class UserRepositoryTests : IDisposable
         {
             throw new InvalidOperationException("Usersテーブルの作成に失敗しました");
         }
+    }
+    
+    private void ClearDatabase()
+    {
+        const string deleteSql = "DELETE FROM Users";
+        using var command = _connection.CreateCommand();
+        command.CommandText = deleteSql;
+        command.ExecuteNonQuery();
     }
 
     [Fact]
