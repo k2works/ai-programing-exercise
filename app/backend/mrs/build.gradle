@@ -90,9 +90,9 @@ tasks.named('test') {
     ]
     
     // 統合テストと負荷テストを一時的に除外
-    exclude '**/ApplicationSmokeTest.class'
-    exclude '**/ApiSmokeTest.class'
-    exclude '**/e2e/**'
+    // exclude '**/ApplicationSmokeTest.class'
+    // exclude '**/ApiSmokeTest.class'
+    // exclude '**/e2e/**'
     exclude '**/performance/**'
     // ArchUnitテストを一時的に除外（アーキテクチャ違反修正後に再有効化）
     exclude '**/ArchitectureTest.class'

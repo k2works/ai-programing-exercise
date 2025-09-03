@@ -3,15 +3,25 @@ package mrs.e2e.cucumber.steps;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
+import io.cucumber.spring.CucumberContextConfiguration;
+import mrs.config.TestBeansConfig;
+import mrs.config.TestSecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.*;
+import org.springframework.test.context.ActiveProfiles;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@CucumberContextConfiguration
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
+@Import({TestBeansConfig.class, TestSecurityConfig.class})
 public class CommonSteps {
 
     @Autowired
