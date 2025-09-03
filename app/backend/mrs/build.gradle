@@ -224,8 +224,9 @@ tasks.register('loadTest', Test) {
     
     useJUnitPlatform()
     
-    // 負荷テストだけをInclude
+    // 負荷テストを再有効化（依存性問題解決済み）
     include '**/performance/**'
+    // exclude '**/performance/**'
     
     // テスト環境設定
     systemProperty 'spring.profiles.active', 'test'

@@ -16,7 +16,7 @@
     SELECT room_id, room_name FROM meeting_room ORDER BY room_id
   </select>
 
-  <select id="findReservableByDate" parameterType="date" resultMap="reservableMap">
+  <select id="findReservableByDate" resultMap="reservableMap">
     SELECT room_id, reservable_date
     FROM reservable_room
     WHERE reservable_date = #{date}
@@ -30,7 +30,7 @@
   <select id="findReservableByRoomIdAndDate" resultMap="reservableMap">
     SELECT room_id, reservable_date
     FROM reservable_room
-    WHERE room_id = #{roomId} AND reservable_date = #{date}
+    WHERE room_id = #{roomId} AND reservable_date = #{date,jdbcType=DATE}
     FOR UPDATE
   </select>
 </mapper>

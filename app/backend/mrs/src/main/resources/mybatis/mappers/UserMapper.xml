@@ -14,4 +14,9 @@
     FROM usr
     WHERE user_id = #{userId}
   </select>
+  
+  <insert id="insert">
+    INSERT INTO usr (user_id, name, password_hash, role)
+    VALUES (#{userId}, #{name}, #{passwordHash}, #{role})
+  </insert>
 </mapper>

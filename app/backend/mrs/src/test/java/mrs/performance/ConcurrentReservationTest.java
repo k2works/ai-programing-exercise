@@ -6,11 +6,14 @@ import mrs.application.domain.model.reservation.Reservation;
 import mrs.application.domain.model.room.ReservableRoom;
 import mrs.application.domain.model.room.MeetingRoom;
 import mrs.application.domain.model.auth.User;
+import mrs.config.TestBeansConfig;
+import mrs.config.TestSecurityConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
@@ -29,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @SpringBootTest
 @ActiveProfiles("test")
+@Import({TestBeansConfig.class, TestSecurityConfig.class})
 @DisplayName("並行予約処理テスト")
 public class ConcurrentReservationTest {
 
@@ -37,6 +41,9 @@ public class ConcurrentReservationTest {
 
     @Autowired
     private RoomService roomService;
+
+    @Autowired
+    private mrs.infrastructure.out.persistence.UserMapper userMapper;
 
     private static final int CONCURRENT_USERS = 100;
     private static final int TIMEOUT_SECONDS = 30;
@@ -48,6 +55,24 @@ public class ConcurrentReservationTest {
     void setUp() {
         executorService = Executors.newFixedThreadPool(CONCURRENT_USERS);
         testDate = LocalDate.now().plusDays(1);
+        
+        // テスト用ユーザーを作成
+        for (int i = 1; i <= CONCURRENT_USERS; i++) {
+            String userId = String.format("user%03d", i);
+            try {
+                // ユーザーが既に存在するかチェック
+                if (userMapper.findByUserId(userId) == null) {
+                    mrs.application.domain.model.auth.User user = new mrs.application.domain.model.auth.User();
+                    user.setUserId(userId);
+                    user.setName("Test User " + i);
+                    user.setPasswordHash("dummy_hash");
+                    user.setRole("USER");
+                    userMapper.insert(user);
+                }
+            } catch (Exception e) {
+                // 重複エラーは無視
+            }
+        }
         
         // テスト用会議室を取得
         List<ReservableRoom> rooms = roomService.findReservableRooms(testDate);
@@ -94,8 +119,11 @@ public class ConcurrentReservationTest {
                         successCount.incrementAndGet();
                     }
                     
-                } catch (IllegalStateException e) {
+                } catch (mrs.common.exception.AlreadyReservedException e) {
                     // 重複予約による競合エラー
+                    conflictCount.incrementAndGet();
+                } catch (IllegalStateException e) {
+                    // その他の状態エラー
                     if (e.getMessage().contains("既に予約されています") || 
                         e.getMessage().contains("重複")) {
                         conflictCount.incrementAndGet();
@@ -124,6 +152,15 @@ public class ConcurrentReservationTest {
         System.out.println("成功数: " + successCount.get());
         System.out.println("競合数: " + conflictCount.get());
         System.out.println("エラー数: " + errorCount.get());
+        
+        // エラーの詳細を出力
+        if (!exceptions.isEmpty()) {
+            System.out.println("=== エラー詳細 ===");
+            for (int i = 0; i < Math.min(5, exceptions.size()); i++) {
+                System.out.println("エラー " + (i+1) + ": " + exceptions.get(i).getClass().getSimpleName() 
+                    + " - " + exceptions.get(i).getMessage());
+            }
+        }
         
         // 成功は1件のみであることを確認
         assertEquals(1, successCount.get(), 
