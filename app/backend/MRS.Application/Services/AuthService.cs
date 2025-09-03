@@ -24,8 +24,7 @@ public class AuthService : IAuthService
     /// </summary>
     public async Task<LoginResponseDto> LoginAsync(LoginRequestDto request, CancellationToken cancellationToken = default)
     {
-        if (request == null)
-            throw new ArgumentNullException(nameof(request));
+        ArgumentNullException.ThrowIfNull(request);
 
         // ユーザー検索
         var userId = new UserId(request.UserId);
@@ -68,8 +67,7 @@ public class AuthService : IAuthService
     /// </summary>
     public async Task<LoginResponseDto> RefreshTokenAsync(RefreshTokenRequestDto request, CancellationToken cancellationToken = default)
     {
-        if (request == null)
-            throw new ArgumentNullException(nameof(request));
+        ArgumentNullException.ThrowIfNull(request);
 
         // リフレッシュトークン検証
         if (!_jwtTokenService.ValidateRefreshToken(request.RefreshToken))
@@ -102,8 +100,7 @@ public class AuthService : IAuthService
     /// </summary>
     public async Task LogoutAsync(LogoutRequestDto request, CancellationToken cancellationToken = default)
     {
-        if (request == null)
-            throw new ArgumentNullException(nameof(request));
+        ArgumentNullException.ThrowIfNull(request);
 
         // リフレッシュトークンを無効化
         await _jwtTokenService.InvalidateRefreshTokenAsync(request.RefreshToken);

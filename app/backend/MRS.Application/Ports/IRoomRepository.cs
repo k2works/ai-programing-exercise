@@ -29,7 +29,7 @@ public interface IRoomRepository
     /// <param name="date">対象日</param>
     /// <param name="cancellationToken">キャンセルトークン</param>
     /// <returns>利用可能会議室一覧</returns>
-    Task<IEnumerable<ReservableRoom>> GetAvailableRoomsAsync(DateTime date, CancellationToken cancellationToken = default);
+    Task<IEnumerable<ReservableRoom>> GetAvailableRoomsAsync(DateTime targetDate, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// 会議室を追加
