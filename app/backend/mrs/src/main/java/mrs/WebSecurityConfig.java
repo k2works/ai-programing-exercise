@@ -17,6 +17,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -46,7 +47,32 @@ public class WebSecurityConfig {
                 ).permitAll()
                 .anyRequest().authenticated()
             )
-            .httpBasic(Customizer.withDefaults());
+            .httpBasic(Customizer.withDefaults())
+            // HTTPS強制・セキュリティヘッダー設定
+            .requiresChannel(channel -> channel.anyRequest().requiresSecure())
+            .headers(headers -> headers
+                .frameOptions().deny()
+                .contentTypeOptions().and()
+                .httpStrictTransportSecurity(hsts -> hsts
+                    .maxAgeInSeconds(31536000)
+                    .includeSubDomains(true))
+                .referrerPolicy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
+                .and()
+                .addHeaderWriter((request, response) -> {
+                    // Content Security Policy
+                    response.setHeader("Content-Security-Policy", 
+                        "default-src 'self'; " +
+                        "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+                        "style-src 'self' 'unsafe-inline'; " +
+                        "img-src 'self' data:; " +
+                        "font-src 'self'; " +
+                        "connect-src 'self'; " +
+                        "frame-ancestors 'none'");
+                    // Permissions Policy
+                    response.setHeader("Permissions-Policy", 
+                        "geolocation=(), microphone=(), camera=()");
+                })
+            );
 
         // ★ルートアクセス時、swagger-ui.htmlへリダイレクト
         http.addFilterBefore((ServletRequest request, ServletResponse response, FilterChain chain) -> {
@@ -76,10 +102,13 @@ public class WebSecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        // フロントエンドのオリジンを許可
+        // フロントエンドのオリジンを許可（HTTP + HTTPS）
         configuration.addAllowedOrigin("http://localhost:3000");
         configuration.addAllowedOrigin("http://localhost:3001");
         configuration.addAllowedOrigin("http://localhost:3002");
+        configuration.addAllowedOrigin("https://localhost:3000");
+        configuration.addAllowedOrigin("https://localhost:3001");
+        configuration.addAllowedOrigin("https://localhost:3002");
         
         // すべてのHTTPメソッドを許可
         configuration.addAllowedMethod("*");
