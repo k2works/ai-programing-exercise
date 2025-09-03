@@ -83,8 +83,8 @@ public class ConcurrentReservationTest {
                     reservation.setReservableRoom(testRoom);
                     User user = new User();
                     user.setUserId(userId);
-                    user.setFirstName("Test");
-                    user.setLastName("User");
+                    user.setName("Test User");
+                    user.setRole("USER");
                     reservation.setUser(user);
                     reservation.setStartTime(startTime);
                     reservation.setEndTime(endTime);
@@ -177,8 +177,8 @@ public class ConcurrentReservationTest {
                     reservation.setReservableRoom(room);
                     User user = new User();
                     user.setUserId(userId);
-                    user.setFirstName("Test");
-                    user.setLastName("User");
+                    user.setName("Test User");
+                    user.setRole("USER");
                     reservation.setUser(user);
                     reservation.setStartTime(startTime);
                     reservation.setEndTime(endTime);
@@ -241,8 +241,8 @@ public class ConcurrentReservationTest {
                         reservation.setReservableRoom(room);
                         User user = new User();
                     user.setUserId(userId);
-                    user.setFirstName("Test");
-                    user.setLastName("User");
+                    user.setName("Test User");
+                    user.setRole("USER");
                     reservation.setUser(user);
                         reservation.setStartTime(LocalTime.of(15, 0));
                         reservation.setEndTime(LocalTime.of(16, 0));
