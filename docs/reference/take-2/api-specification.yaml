@@ -1,0 +1,1219 @@
+openapi: 3.0.3
+info:
+  title: 会議室予約システム API
+  description: |
+    会議室予約システムのRESTful API仕様書
+    
+    ## 認証方式
+    - JWT Bearer Token認証
+    - 認証が必要なエンドポイントは🔒マークで表示
+    
+    ## 権限
+    - MEMBER: 会員（予約機能利用可能）
+    - STAFF: スタッフ（管理機能利用可能）
+    
+    ## エラーハンドリング
+    - 4xx: クライアントエラー
+    - 5xx: サーバーエラー
+    - エラーレスポンスは共通フォーマット
+    
+  version: 1.0.0
+  contact:
+    name: Development Team
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:8080/api
+    description: 開発環境
+  - url: https://api.meeting-room-system.com/api
+    description: 本番環境
+
+tags:
+  - name: Authentication
+    description: 認証関連 (REQ-001)
+  - name: Users
+    description: 利用者管理 (REQ-002)
+  - name: Meeting Rooms
+    description: 会議室管理・検索 (REQ-004, REQ-008)
+  - name: Reservations
+    description: 予約管理 (REQ-005, REQ-006, REQ-007)
+  - name: Inquiries
+    description: 問い合わせ管理 (REQ-003)
+
+paths:
+  # REQ-001: 認証
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: ログイン
+      description: |
+        ユーザー認証を行い、JWT トークンを発行します
+        - REQ-001: 利用者認証に対応
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              username: "member001"
+              password: "password123"
+      responses:
+        '200':
+          description: 認証成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /auth/logout:
+    post:
+      tags: [Authentication]
+      summary: ログアウト 🔒
+      description: 現在のセッションを無効化します
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # REQ-002: 利用者管理
+  /users:
+    get:
+      tags: [Users]
+      summary: 利用者一覧取得 🔒 (STAFF)
+      description: |
+        全利用者の一覧を取得します
+        - REQ-002: 利用者管理に対応
+        - STAFF権限が必要
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: role
+          in: query
+          schema:
+            $ref: '#/components/schemas/UserRole'
+          description: ロールでフィルタ
+        - name: enabled
+          in: query
+          schema:
+            type: boolean
+          description: 有効/無効フィルタ
+      responses:
+        '200':
+          description: 利用者一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    post:
+      tags: [Users]
+      summary: 利用者登録 🔒 (STAFF)
+      description: |
+        新規利用者を登録します
+        - REQ-002: 利用者管理に対応
+        - STAFF権限が必要
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: 利用者登録成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: ユーザー名またはメールアドレスが重複
+
+  /users/{userId}:
+    get:
+      tags: [Users]
+      summary: 利用者詳細取得 🔒
+      description: 指定された利用者の詳細情報を取得します
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: 利用者詳細
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Users]
+      summary: 利用者情報更新 🔒 (STAFF)
+      description: |
+        利用者情報を更新します
+        - REQ-002: 利用者管理に対応
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Users]
+      summary: 利用者削除 🔒 (STAFF)
+      description: |
+        利用者を削除します（論理削除）
+        - REQ-002: 利用者管理に対応
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # REQ-004: 会議室検索
+  /meeting-rooms/search:
+    get:
+      tags: [Meeting Rooms]
+      summary: 会議室検索
+      description: |
+        利用可能な会議室を検索します
+        - REQ-004: 会議室検索に対応
+        - 認証不要（公開検索）
+      parameters:
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          description: 予約希望日
+          example: "2024-12-01"
+        - name: startTime
+          in: query
+          required: true
+          schema:
+            type: string
+            format: time
+          description: 開始時刻
+          example: "10:00"
+        - name: endTime
+          in: query
+          required: true
+          schema:
+            type: string
+            format: time
+          description: 終了時刻
+          example: "12:00"
+        - name: minCapacity
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+          description: 最小定員
+          example: 6
+      responses:
+        '200':
+          description: 検索結果
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AvailableMeetingRoom'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  # REQ-008: 会議室管理
+  /meeting-rooms:
+    get:
+      tags: [Meeting Rooms]
+      summary: 会議室一覧取得 🔒 (STAFF)
+      description: |
+        全会議室の一覧を取得します
+        - REQ-008: 会議室管理に対応
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: isActive
+          in: query
+          schema:
+            type: boolean
+          description: 有効/無効フィルタ
+      responses:
+        '200':
+          description: 会議室一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MeetingRoomResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    post:
+      tags: [Meeting Rooms]
+      summary: 会議室登録 🔒 (STAFF)
+      description: |
+        新規会議室を登録します
+        - REQ-008: 会議室管理に対応
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMeetingRoomRequest'
+      responses:
+        '201':
+          description: 会議室登録成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingRoomResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /meeting-rooms/{roomId}:
+    get:
+      tags: [Meeting Rooms]
+      summary: 会議室詳細取得
+      description: 指定された会議室の詳細情報を取得します
+      parameters:
+        - $ref: '#/components/parameters/RoomId'
+      responses:
+        '200':
+          description: 会議室詳細
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingRoomResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Meeting Rooms]
+      summary: 会議室更新 🔒 (STAFF)
+      description: |
+        会議室情報を更新します
+        - REQ-008: 会議室管理に対応
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/RoomId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMeetingRoomRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingRoomResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Meeting Rooms]
+      summary: 会議室削除 🔒 (STAFF)
+      description: |
+        会議室を削除します（論理削除）
+        - REQ-008: 会議室管理に対応
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/RoomId'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # REQ-005,006,007: 予約管理
+  /reservations:
+    get:
+      tags: [Reservations]
+      summary: 予約一覧取得 🔒
+      description: |
+        予約一覧を取得します
+        - REQ-006: 予約確認に対応
+        - MEMBER: 自分の予約のみ
+        - STAFF: 全予約
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: userId
+          in: query
+          schema:
+            type: integer
+            format: int64
+          description: ユーザーID（STAFF権限時のみ有効）
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/ReservationStatus'
+          description: ステータスフィルタ
+        - name: dateFrom
+          in: query
+          schema:
+            type: string
+            format: date
+          description: 開始日
+        - name: dateTo
+          in: query
+          schema:
+            type: string
+            format: date
+          description: 終了日
+      responses:
+        '200':
+          description: 予約一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReservationResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      tags: [Reservations]
+      summary: 予約作成 🔒
+      description: |
+        新規予約を作成します
+        - REQ-005: 会議室予約に対応
+        - 重複チェック、営業時間チェック、定員チェックを実行
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReservationRequest'
+      responses:
+        '201':
+          description: 予約作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: 予約競合エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: "RESERVATION_CONFLICT"
+                message: "指定された時間帯は既に予約されています"
+                details: "2024-12-01 10:00-12:00は会議室A が予約済みです"
+
+  /reservations/{reservationId}:
+    get:
+      tags: [Reservations]
+      summary: 予約詳細取得 🔒
+      description: |
+        指定された予約の詳細情報を取得します
+        - REQ-006: 予約確認に対応
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ReservationId'
+      responses:
+        '200':
+          description: 予約詳細
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: 他人の予約へのアクセス（MEMBERの場合）
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Reservations]
+      summary: 予約取消 🔒
+      description: |
+        予約をキャンセルします
+        - REQ-007: 予約取消に対応
+        - 利用開始2時間前まで取消可能
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ReservationId'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: 他人の予約の取消（MEMBERの場合）
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: 取消期限超過
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: "CANCELLATION_DEADLINE_EXCEEDED"
+                message: "取消期限を過ぎています"
+                details: "利用開始2時間前まで取消可能です"
+
+  # REQ-003: 問い合わせ管理
+  /inquiries:
+    get:
+      tags: [Inquiries]
+      summary: 問い合わせ一覧取得 🔒 (STAFF)
+      description: |
+        問い合わせ一覧を取得します
+        - REQ-003: 問い合わせ管理に対応
+        - STAFF権限が必要
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/InquiryStatus'
+          description: ステータスフィルタ
+        - name: category
+          in: query
+          schema:
+            $ref: '#/components/schemas/InquiryCategory'
+          description: カテゴリフィルタ
+        - name: priority
+          in: query
+          schema:
+            $ref: '#/components/schemas/InquiryPriority'
+          description: 優先度フィルタ
+      responses:
+        '200':
+          description: 問い合わせ一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InquiryResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    post:
+      tags: [Inquiries]
+      summary: 問い合わせ送信
+      description: |
+        新規問い合わせを送信します
+        - REQ-003: 問い合わせ管理に対応
+        - 認証不要（ゲストも利用可能）
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInquiryRequest'
+      responses:
+        '201':
+          description: 問い合わせ送信成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InquiryResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /inquiries/{inquiryId}:
+    get:
+      tags: [Inquiries]
+      summary: 問い合わせ詳細取得 🔒 (STAFF)
+      description: |
+        指定された問い合わせの詳細情報を取得します
+        - REQ-003: 問い合わせ管理に対応
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/InquiryId'
+      responses:
+        '200':
+          description: 問い合わせ詳細
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InquiryResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Inquiries]
+      summary: 問い合わせ対応 🔒 (STAFF)
+      description: |
+        問い合わせに対応します（回答・ステータス更新）
+        - REQ-003: 問い合わせ管理に対応
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/InquiryId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RespondInquiryRequest'
+      responses:
+        '200':
+          description: 対応完了
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InquiryResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+      description: ユーザーID
+
+    RoomId:
+      name: roomId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+      description: 会議室ID
+
+    ReservationId:
+      name: reservationId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+      description: 予約ID
+
+    InquiryId:
+      name: inquiryId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+      description: 問い合わせID
+
+  schemas:
+    # 認証関連
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          example: "member001"
+        password:
+          type: string
+          format: password
+          example: "password123"
+
+    AuthResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: JWT アクセストークン
+        tokenType:
+          type: string
+          example: "Bearer"
+        expiresIn:
+          type: integer
+          description: トークン有効期限（秒）
+          example: 7200
+        user:
+          $ref: '#/components/schemas/UserResponse'
+
+    # ユーザー関連
+    UserRole:
+      type: string
+      enum: [STAFF, MEMBER]
+      description: ユーザー権限
+
+    CreateUserRequest:
+      type: object
+      required: [username, email, password, firstName, lastName, role]
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 50
+          pattern: '^[a-zA-Z0-9_]+$'
+          example: "member001"
+        email:
+          type: string
+          format: email
+          example: "member001@example.com"
+        password:
+          type: string
+          minLength: 8
+          format: password
+          example: "password123"
+        firstName:
+          type: string
+          maxLength: 50
+          example: "山田"
+        lastName:
+          type: string
+          maxLength: 50
+          example: "太郎"
+        role:
+          $ref: '#/components/schemas/UserRole'
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+          maxLength: 50
+        lastName:
+          type: string
+          maxLength: 50
+        email:
+          type: string
+          format: email
+        enabled:
+          type: boolean
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        username:
+          type: string
+          example: "member001"
+        email:
+          type: string
+          example: "member001@example.com"
+        firstName:
+          type: string
+          example: "山田"
+        lastName:
+          type: string
+          example: "太郎"
+        role:
+          $ref: '#/components/schemas/UserRole'
+        enabled:
+          type: boolean
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    # 会議室関連
+    CreateMeetingRoomRequest:
+      type: object
+      required: [roomNumber, roomName, capacity, location, hourlyRate]
+      properties:
+        roomNumber:
+          type: string
+          maxLength: 20
+          example: "A-101"
+        roomName:
+          type: string
+          maxLength: 100
+          example: "会議室A"
+        capacity:
+          type: integer
+          minimum: 1
+          example: 10
+        location:
+          type: string
+          maxLength: 200
+          example: "1階 東側"
+        description:
+          type: string
+          example: "プロジェクター完備"
+        hourlyRate:
+          type: number
+          format: decimal
+          minimum: 0
+          example: 1000
+        equipment:
+          type: array
+          items:
+            type: string
+          example: ["プロジェクター", "ホワイトボード", "WiFi"]
+
+    UpdateMeetingRoomRequest:
+      type: object
+      properties:
+        roomName:
+          type: string
+          maxLength: 100
+        capacity:
+          type: integer
+          minimum: 1
+        location:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        hourlyRate:
+          type: number
+          format: decimal
+          minimum: 0
+        equipment:
+          type: array
+          items:
+            type: string
+        isActive:
+          type: boolean
+
+    MeetingRoomResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        roomNumber:
+          type: string
+          example: "A-101"
+        roomName:
+          type: string
+          example: "会議室A"
+        capacity:
+          type: integer
+          example: 10
+        location:
+          type: string
+          example: "1階 東側"
+        description:
+          type: string
+          example: "プロジェクター完備"
+        hourlyRate:
+          type: number
+          format: decimal
+          example: 1000
+        equipment:
+          type: array
+          items:
+            type: string
+          example: ["プロジェクター", "ホワイトボード", "WiFi"]
+        isActive:
+          type: boolean
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    AvailableMeetingRoom:
+      allOf:
+        - $ref: '#/components/schemas/MeetingRoomResponse'
+        - type: object
+          properties:
+            availableTimeSlots:
+              type: array
+              items:
+                type: object
+                properties:
+                  startTime:
+                    type: string
+                    format: time
+                  endTime:
+                    type: string
+                    format: time
+              example:
+                - startTime: "09:00"
+                  endTime: "10:00"
+                - startTime: "14:00"
+                  endTime: "18:00"
+
+    # 予約関連
+    ReservationStatus:
+      type: string
+      enum: [CONFIRMED, CANCELLED]
+      description: 予約ステータス
+
+    CreateReservationRequest:
+      type: object
+      required: [meetingRoomId, reservationDate, startTime, endTime, purpose, attendeeCount]
+      properties:
+        meetingRoomId:
+          type: integer
+          format: int64
+          example: 1
+        reservationDate:
+          type: string
+          format: date
+          example: "2024-12-01"
+        startTime:
+          type: string
+          format: time
+          example: "10:00"
+        endTime:
+          type: string
+          format: time
+          example: "12:00"
+        purpose:
+          type: string
+          maxLength: 200
+          example: "プロジェクト打ち合わせ"
+        attendeeCount:
+          type: integer
+          minimum: 1
+          example: 6
+        notes:
+          type: string
+          example: "プロジェクター使用予定"
+
+    ReservationResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        user:
+          $ref: '#/components/schemas/UserResponse'
+        meetingRoom:
+          $ref: '#/components/schemas/MeetingRoomResponse'
+        reservationDate:
+          type: string
+          format: date
+          example: "2024-12-01"
+        startTime:
+          type: string
+          format: time
+          example: "10:00"
+        endTime:
+          type: string
+          format: time
+          example: "12:00"
+        purpose:
+          type: string
+          example: "プロジェクト打ち合わせ"
+        attendeeCount:
+          type: integer
+          example: 6
+        status:
+          $ref: '#/components/schemas/ReservationStatus'
+        notes:
+          type: string
+          example: "プロジェクター使用予定"
+        totalCost:
+          type: number
+          format: decimal
+          description: 利用料金（時間単価 × 利用時間）
+          example: 2000
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    # 問い合わせ関連
+    InquiryCategory:
+      type: string
+      enum: [GENERAL, RESERVATION, PRICING, TECHNICAL, COMPLAINT]
+      description: 問い合わせカテゴリ
+
+    InquiryPriority:
+      type: string
+      enum: [NORMAL, HIGH, URGENT]
+      description: 問い合わせ優先度
+
+    InquiryStatus:
+      type: string
+      enum: [OPEN, IN_PROGRESS, RESOLVED, CLOSED]
+      description: 問い合わせステータス
+
+    CreateInquiryRequest:
+      type: object
+      required: [subject, message, category]
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          description: 氏名（ゲストの場合は必須、ログイン済みの場合は任意）
+          example: "田中花子"
+        email:
+          type: string
+          format: email
+          description: メールアドレス（ゲストの場合は必須、ログイン済みの場合は任意）
+          example: "tanaka@example.com"
+        subject:
+          type: string
+          maxLength: 200
+          example: "予約方法について"
+        message:
+          type: string
+          example: "会議室の予約方法を教えてください。"
+        category:
+          $ref: '#/components/schemas/InquiryCategory'
+        priority:
+          $ref: '#/components/schemas/InquiryPriority'
+          default: NORMAL
+
+    RespondInquiryRequest:
+      type: object
+      required: [response, status]
+      properties:
+        response:
+          type: string
+          example: "会議室の予約は、ログイン後に会議室検索画面から行うことができます。"
+        status:
+          $ref: '#/components/schemas/InquiryStatus'
+
+    InquiryResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        user:
+          $ref: '#/components/schemas/UserResponse'
+          description: 会員の問い合わせの場合のみ
+        guestName:
+          type: string
+          example: "田中花子"
+          description: ゲストの問い合わせの場合のみ
+        guestEmail:
+          type: string
+          format: email
+          example: "tanaka@example.com"
+          description: ゲストの問い合わせの場合のみ
+        subject:
+          type: string
+          example: "予約方法について"
+        message:
+          type: string
+          example: "会議室の予約方法を教えてください。"
+        category:
+          $ref: '#/components/schemas/InquiryCategory'
+        priority:
+          $ref: '#/components/schemas/InquiryPriority'
+        status:
+          $ref: '#/components/schemas/InquiryStatus'
+        assignedStaff:
+          $ref: '#/components/schemas/UserResponse'
+          description: 担当スタッフ（割り当てられている場合のみ）
+        response:
+          type: string
+          example: "会議室の予約は、ログイン後に会議室検索画面から行うことができます。"
+          description: 回答（対応済みの場合のみ）
+        respondedAt:
+          type: string
+          format: date-time
+          description: 回答日時（対応済みの場合のみ）
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    # 共通レスポンス
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          description: エラーコード
+          example: "VALIDATION_ERROR"
+        message:
+          type: string
+          description: エラーメッセージ
+          example: "入力値に誤りがあります"
+        details:
+          type: string
+          description: 詳細情報
+          example: "パスワードは8文字以上で入力してください"
+        timestamp:
+          type: string
+          format: date-time
+          description: エラー発生時刻
+
+    SuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "処理が完了しました"
+        timestamp:
+          type: string
+          format: date-time
+
+  responses:
+    Success:
+      description: 処理成功
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SuccessResponse'
+
+    BadRequest:
+      description: リクエストが不正です
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: "VALIDATION_ERROR"
+            message: "入力値に誤りがあります"
+            details: "必須項目が不足しています"
+            timestamp: "2024-12-01T10:30:00Z"
+
+    Unauthorized:
+      description: 認証が必要です
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: "UNAUTHORIZED"
+            message: "認証が必要です"
+            details: "有効なJWTトークンを設定してください"
+            timestamp: "2024-12-01T10:30:00Z"
+
+    Forbidden:
+      description: 権限がありません
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: "FORBIDDEN"
+            message: "この操作を実行する権限がありません"
+            details: "STAFF権限が必要です"
+            timestamp: "2024-12-01T10:30:00Z"
+
+    NotFound:
+      description: リソースが見つかりません
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: "NOT_FOUND"
+            message: "指定されたリソースが見つかりません"
+            details: "ID: 123 の会議室は存在しません"
+            timestamp: "2024-12-01T10:30:00Z"
