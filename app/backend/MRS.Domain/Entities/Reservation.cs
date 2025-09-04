@@ -10,10 +10,16 @@ public class Reservation
     public string Title { get; private set; } = string.Empty;
     public TimeSlot TimeSlot { get; private set; } = null!;
     public IReadOnlyList<string> Participants { get; private set; } = new List<string>();
-    public string Status { get; private set; } = "confirmed";
+    public ReservationStatus Status { get; private set; } = ReservationStatus.Confirmed;
     public int RowVersion { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
+    
+    public DateTime? CancelledAt { get; private set; }
+    public string? CancelledBy { get; private set; }
+    public string? CancellationReason { get; private set; }
+    
+    public bool IsCancelled => Status == ReservationStatus.Cancelled || Status == ReservationStatus.CancelledByAdmin;
 
     private Reservation() { }
 
@@ -44,7 +50,7 @@ public class Reservation
             Title = title,
             TimeSlot = timeSlot,
             Participants = participants?.ToList().AsReadOnly() ?? new List<string>().AsReadOnly(),
-            Status = "confirmed",
+            Status = ReservationStatus.Confirmed,
             RowVersion = 0,
             CreatedAt = now,
             UpdatedAt = now
@@ -74,16 +80,55 @@ public class Reservation
         RowVersion++;
     }
 
+    public void CancelByUser(CancellationRequest cancellationRequest, string userId)
+    {
+        ArgumentNullException.ThrowIfNull(cancellationRequest);
+        
+        if (string.IsNullOrWhiteSpace(userId))
+            throw new ArgumentException("User ID cannot be null or empty.", nameof(userId));
+            
+        if (IsCancelled)
+            throw new InvalidOperationException("The reservation is already cancelled.");
+            
+        if (UserId != userId)
+            throw new UnauthorizedAccessException("Only the reservation owner can cancel their reservation.");
+            
+        Status = ReservationStatus.Cancelled;
+        CancelledAt = DateTime.UtcNow;
+        CancelledBy = userId;
+        CancellationReason = cancellationRequest.Reason;
+        UpdatedAt = DateTime.UtcNow;
+        RowVersion++;
+    }
+    
+    public void CancelByAdmin(CancellationRequest cancellationRequest, string adminId)
+    {
+        ArgumentNullException.ThrowIfNull(cancellationRequest);
+        
+        if (string.IsNullOrWhiteSpace(adminId))
+            throw new ArgumentException("Admin ID cannot be null or empty.", nameof(adminId));
+            
+        if (IsCancelled)
+            throw new InvalidOperationException("The reservation is already cancelled.");
+            
+        Status = ReservationStatus.CancelledByAdmin;
+        CancelledAt = DateTime.UtcNow;
+        CancelledBy = adminId;
+        CancellationReason = cancellationRequest.Reason;
+        UpdatedAt = DateTime.UtcNow;
+        RowVersion++;
+    }
+
     public void Cancel()
     {
-        Status = "cancelled";
+        Status = ReservationStatus.Cancelled;
         UpdatedAt = DateTime.UtcNow;
         RowVersion++;
     }
 
     public bool IsConflictWith(TimeSlot otherTimeSlot)
     {
-        if (Status == "cancelled")
+        if (IsCancelled)
             return false;
 
         return TimeSlot.OverlapsWith(otherTimeSlot);
@@ -110,7 +155,13 @@ public class Reservation
             Title = title,
             TimeSlot = timeSlot,
             Participants = participants.AsReadOnly(),
-            Status = status,
+            Status = status.ToLowerInvariant() switch
+            {
+                "confirmed" => ReservationStatus.Confirmed,
+                "cancelled" => ReservationStatus.Cancelled,
+                "cancelledbyadmin" => ReservationStatus.CancelledByAdmin,
+                _ => Enum.Parse<ReservationStatus>(status, true)
+            },
             RowVersion = rowVersion,
             CreatedAt = createdAt,
             UpdatedAt = updatedAt

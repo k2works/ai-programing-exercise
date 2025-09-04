@@ -18,6 +18,10 @@ public class ReservationDomainService
             if (existing.RoomId != newReservation.RoomId)
                 return false;
             
+            // キャンセル済み予約は除外
+            if (existing.IsCancelled)
+                return false;
+            
             // 時間帯の重複をチェック
             return newReservation.TimeSlot.OverlapsWith(existing.TimeSlot);
         });
