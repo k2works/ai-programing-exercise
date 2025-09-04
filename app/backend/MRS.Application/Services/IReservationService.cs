@@ -12,4 +12,5 @@ public interface IReservationService
     Task<ReservationDto> CreateReservationAsync(CreateReservationRequest request);
     Task<ReservationDto> UpdateReservationAsync(string reservationId, UpdateReservationRequest request, int expectedRowVersion);
     Task<bool> CancelReservationAsync(string reservationId);
+    Task<bool> CancelReservationWithDetailsAsync(string reservationId, CancelReservationRequest request);
 }
