@@ -188,7 +188,7 @@ public class ReservationRepository : IReservationRepository
             reservation.Status,
             CurrentRowVersion = reservation.RowVersion,
             NewRowVersion = reservation.RowVersion + 1,
-            reservation.UpdatedAt
+            UpdatedAt = DateTime.UtcNow
         });
 
         if (rowsAffected > 0)
@@ -213,23 +213,24 @@ public class ReservationRepository : IReservationRepository
 
     private static Reservation MapToReservation(dynamic row)
     {
-        var participants = string.IsNullOrEmpty(row.Participants) 
+        var participantsString = row.Participants?.ToString() ?? string.Empty;
+        var participants = string.IsNullOrEmpty(participantsString) 
             ? new List<string>()
-            : JsonSerializer.Deserialize<List<string>>(row.Participants) ?? new List<string>();
+            : JsonSerializer.Deserialize<List<string>>(participantsString) ?? new List<string>();
 
-        var timeSlot = new TimeSlot(row.StartTime, row.EndTime);
+        var timeSlot = new TimeSlot(DateTime.Parse(row.StartTime.ToString()), DateTime.Parse(row.EndTime.ToString()));
         
         return Reservation.Restore(
-            row.ReservationId,
-            row.RoomId,
-            row.UserId,
-            row.Title,
+            row.ReservationId.ToString(),
+            row.RoomId.ToString(),
+            row.UserId.ToString(),
+            row.Title.ToString(),
             timeSlot,
             participants,
-            row.Status,
-            row.RowVersion,
-            row.CreatedAt,
-            row.UpdatedAt
+            row.Status.ToString(),
+            Convert.ToInt32(row.RowVersion),
+            DateTime.Parse(row.CreatedAt.ToString()),
+            DateTime.Parse(row.UpdatedAt.ToString())
         );
     }
 }

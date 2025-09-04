@@ -1,4 +1,5 @@
 using System.Data;
+using Dapper;
 using MRS.Domain.Entities;
 using MRS.Domain.ValueObjects;
 using MRS.Infrastructure.Data;
@@ -225,13 +226,22 @@ public class ReservationRepositoryTests : IDisposable
         var timeSlot = new TimeSlot(DateTime.UtcNow.AddHours(1), DateTime.UtcNow.AddHours(2));
         var reservation = Reservation.Create("room1", "user1", "Original Title", timeSlot, new List<string>());
         var reservationId = await _repository.CreateAsync(reservation);
-        reservation.SetReservationId(reservationId);
+        
+        // データベースから最新の予約を取得
+        var dbReservation = await _repository.GetByIdAsync(reservationId);
+        Assert.NotNull(dbReservation);
+        
+        // Update 前のRowVersionを保存
+        var originalRowVersion = dbReservation.RowVersion;
 
         var newTimeSlot = new TimeSlot(DateTime.UtcNow.AddHours(2), DateTime.UtcNow.AddHours(3));
-        reservation.Update("Updated Title", newTimeSlot, new List<string> { "new-participant" });
+        dbReservation.Update("Updated Title", newTimeSlot, new List<string> { "new-participant" });
+        
+        // UpdateAsync用にRowVersionを元に戻す（楽観的ロック用）
+        dbReservation.UpdateRowVersion(originalRowVersion);
 
         // Act
-        var result = await _repository.UpdateAsync(reservation);
+        var result = await _repository.UpdateAsync(dbReservation);
 
         // Assert
         Assert.True(result);
