@@ -1,0 +1,276 @@
+/* 予約一覧のスタイル */
+
+.reservation-list-container {
+  margin-top: 32px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.section-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.view-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.view-btn {
+  padding: 8px 16px;
+  border: 1px solid #dee2e6;
+  background-color: #f8f9fa;
+  color: #495057;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.view-btn:hover {
+  background-color: #e9ecef;
+}
+
+.view-btn.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.refresh-btn {
+  padding: 8px 16px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.refresh-btn:hover {
+  background-color: #218838;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.error-message {
+  background-color: #fff5f5;
+  border: 1px solid #fed7d7;
+  color: #c53030;
+  padding: 16px;
+  border-radius: 4px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.error-message button {
+  background-color: #c53030;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.error-message button:hover {
+  background-color: #9b2c2c;
+}
+
+.no-reservations {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+  font-size: 1.1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px dashed #dee2e6;
+}
+
+.reservations-list {
+  display: grid;
+  gap: 16px;
+}
+
+.reservation-card {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.reservation-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.reservation-card.upcoming {
+  border-left: 4px solid #28a745;
+}
+
+.reservation-card.past {
+  opacity: 0.7;
+  border-left: 4px solid #6c757d;
+}
+
+.reservation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.reservation-title {
+  margin: 0;
+  color: #333;
+  font-size: 1.2rem;
+  font-weight: 600;
+  flex: 1;
+  margin-right: 16px;
+}
+
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.status-confirmed {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-cancelled {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.status-default {
+  background-color: #e2e3e5;
+  color: #495057;
+}
+
+.reservation-details {
+  display: grid;
+  gap: 8px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.detail-row .label {
+  font-weight: 500;
+  color: #555;
+  min-width: 80px;
+  font-size: 0.9rem;
+}
+
+.detail-row .value {
+  color: #333;
+  text-align: right;
+  flex: 1;
+  font-size: 0.9rem;
+}
+
+.reservation-actions {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.edit-btn {
+  padding: 6px 12px;
+  background-color: #ffc107;
+  color: #212529;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background-color 0.2s;
+}
+
+.edit-btn:hover:not(:disabled) {
+  background-color: #e0a800;
+}
+
+.edit-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* モバイル対応 */
+@media (max-width: 768px) {
+  .section-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .view-controls {
+    justify-content: space-between;
+  }
+
+  .view-btn,
+  .refresh-btn {
+    flex: 1;
+    text-align: center;
+  }
+
+  .reservation-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .reservation-title {
+    margin-right: 0;
+  }
+
+  .detail-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+  }
+
+  .detail-row .value {
+    text-align: left;
+    font-weight: 500;
+  }
+
+  .reservation-actions {
+    justify-content: stretch;
+  }
+
+  .edit-btn {
+    flex: 1;
+  }
+}

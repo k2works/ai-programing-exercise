@@ -64,6 +64,35 @@ export interface ReservableRoom {
   updatedAt: string;
 }
 
+export interface Reservation {
+  reservationId: string;
+  roomId: string;
+  userId: string;
+  title: string;
+  startTime: string;
+  endTime: string;
+  participants: string[];
+  status: string;
+  rowVersion: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateReservationRequest {
+  roomId: string;
+  title: string;
+  startTime: string;
+  endTime: string;
+  participants?: string[];
+}
+
+export interface UpdateReservationRequest {
+  title: string;
+  startTime: string;
+  endTime: string;
+  participants?: string[];
+}
+
 // API サービス関数
 export class ApiService {
   // 認証関連
@@ -106,6 +135,45 @@ export class ApiService {
   static async getAvailableRooms(date?: string): Promise<ReservableRoom[]> {
     const params = date ? { date } : {};
     const response = await api.get('/rooms/available', { params });
+    return response.data;
+  }
+
+  // 予約関連
+  static async createReservation(request: CreateReservationRequest): Promise<Reservation> {
+    const response = await api.post('/reservations', request);
+    return response.data;
+  }
+
+  static async getReservations(roomId?: string, startDate?: string, endDate?: string): Promise<Reservation[]> {
+    const params: any = {};
+    if (roomId) params.roomId = roomId;
+    if (startDate) params.startDate = startDate;
+    if (endDate) params.endDate = endDate;
+    
+    const response = await api.get('/reservations', { params });
+    return response.data;
+  }
+
+  static async getMyReservations(): Promise<Reservation[]> {
+    const response = await api.get('/reservations/my');
+    return response.data;
+  }
+
+  static async getReservationById(id: string): Promise<Reservation> {
+    const response = await api.get(`/reservations/${id}`);
+    return response.data;
+  }
+
+  static async updateReservation(
+    id: string, 
+    request: UpdateReservationRequest, 
+    expectedRowVersion: number
+  ): Promise<Reservation> {
+    const response = await api.put(`/reservations/${id}`, request, {
+      headers: {
+        'If-Match': expectedRowVersion.toString()
+      }
+    });
     return response.data;
   }
 

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ApiService, Room } from '../services/api';
+import ReservationForm from './ReservationForm';
+import ReservationList from './ReservationList';
 import './RoomList.css';
 
 interface RoomListProps {
@@ -15,6 +17,8 @@ const RoomList: React.FC<RoomListProps> = ({ userInfo, onLogout }) => {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+  const [showReservationForm, setShowReservationForm] = useState(false);
 
   useEffect(() => {
     loadRooms();
@@ -42,6 +46,22 @@ const RoomList: React.FC<RoomListProps> = ({ userInfo, onLogout }) => {
     } finally {
       onLogout();
     }
+  };
+
+  const handleReserveRoom = (room: Room) => {
+    setSelectedRoom(room);
+    setShowReservationForm(true);
+  };
+
+  const handleReservationSuccess = () => {
+    setShowReservationForm(false);
+    setSelectedRoom(null);
+    // 予約一覧の更新をトリガーする（ReservationListコンポーネントで自動更新されます）
+  };
+
+  const handleReservationCancel = () => {
+    setShowReservationForm(false);
+    setSelectedRoom(null);
   };
 
   if (isLoading) {
@@ -89,7 +109,10 @@ const RoomList: React.FC<RoomListProps> = ({ userInfo, onLogout }) => {
                 <p><strong>状態:</strong> {room.isActive ? '利用可能' : '利用不可'}</p>
               </div>
               {room.isActive && (
-                <button className="reserve-btn">
+                <button 
+                  className="reserve-btn"
+                  onClick={() => handleReserveRoom(room)}
+                >
                   予約する
                 </button>
               )}
@@ -103,6 +126,17 @@ const RoomList: React.FC<RoomListProps> = ({ userInfo, onLogout }) => {
           </div>
         )}
       </main>
+
+      <ReservationList userInfo={userInfo} />
+
+      {showReservationForm && selectedRoom && (
+        <ReservationForm
+          roomId={selectedRoom.roomId}
+          roomName={selectedRoom.roomName}
+          onSuccess={handleReservationSuccess}
+          onCancel={handleReservationCancel}
+        />
+      )}
     </div>
   );
 };
