@@ -18,7 +18,7 @@ public record ReservationDto(
 
 public record CreateReservationRequest(
     [Required] string RoomId,
-    [Required] string UserId,
+    string UserId,
     [Required] string Title,
     [Required] DateTime StartTime,
     [Required] DateTime EndTime,
