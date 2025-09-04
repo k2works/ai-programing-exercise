@@ -103,7 +103,7 @@ public class ReservationRepository : IReservationRepository
             SELECT COUNT(*) 
             FROM Reservations 
             WHERE RoomId = @RoomId 
-              AND Status = 'confirmed'
+              AND Status = 'Confirmed'
               AND StartTime < @EndTime 
               AND EndTime > @StartTime";
         
@@ -151,7 +151,7 @@ public class ReservationRepository : IReservationRepository
             StartTime = reservation.TimeSlot.StartTime,
             EndTime = reservation.TimeSlot.EndTime,
             Participants = participantsJson,
-            reservation.Status,
+            Status = reservation.Status.ToString(),
             reservation.RowVersion,
             reservation.CreatedAt,
             reservation.UpdatedAt
@@ -185,7 +185,7 @@ public class ReservationRepository : IReservationRepository
             StartTime = reservation.TimeSlot.StartTime,
             EndTime = reservation.TimeSlot.EndTime,
             Participants = participantsJson,
-            reservation.Status,
+            Status = reservation.Status.ToString(),
             CurrentRowVersion = reservation.RowVersion,
             NewRowVersion = reservation.RowVersion + 1,
             UpdatedAt = DateTime.UtcNow

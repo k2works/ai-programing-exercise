@@ -153,7 +153,7 @@ public static class ReservationExtensions
             reservation.TimeSlot.StartTime,
             reservation.TimeSlot.EndTime,
             reservation.Participants.ToList(),
-            reservation.Status,
+            reservation.Status.ToString(),
             reservation.RowVersion,
             reservation.CreatedAt,
             reservation.UpdatedAt

@@ -24,7 +24,7 @@ public class ReservationTests
         Assert.Equal(title, reservation.Title);
         Assert.Equal(timeSlot, reservation.TimeSlot);
         Assert.Equal(participants.Count, reservation.Participants.Count);
-        Assert.Equal("confirmed", reservation.Status);
+        Assert.Equal(ReservationStatus.Confirmed, reservation.Status);
         Assert.Equal(0, reservation.RowVersion);
     }
 
@@ -173,7 +173,7 @@ public class ReservationTests
         reservation.Cancel();
 
         // Assert
-        Assert.Equal("cancelled", reservation.Status);
+        Assert.Equal(ReservationStatus.Cancelled, reservation.Status);
         Assert.Equal(1, reservation.RowVersion);
     }
 
@@ -236,7 +236,7 @@ public class ReservationTests
         var title = "Test Meeting";
         var timeSlot = new TimeSlot(DateTime.UtcNow.AddHours(1), DateTime.UtcNow.AddHours(2));
         var participants = new List<string> { "participant1" };
-        var status = "confirmed";
+        var status = "Confirmed";
         var rowVersion = 5;
         var createdAt = DateTime.UtcNow.AddDays(-1);
         var updatedAt = DateTime.UtcNow;
@@ -252,7 +252,7 @@ public class ReservationTests
         Assert.Equal(timeSlot, reservation.TimeSlot);
         Assert.Single(reservation.Participants);
         Assert.Equal("participant1", reservation.Participants[0]);
-        Assert.Equal(status, reservation.Status);
+        Assert.Equal(ReservationStatus.Confirmed, reservation.Status);
         Assert.Equal(rowVersion, reservation.RowVersion);
         Assert.Equal(createdAt, reservation.CreatedAt);
         Assert.Equal(updatedAt, reservation.UpdatedAt);

@@ -170,7 +170,11 @@ public class ReservationRepositoryTests : IDisposable
         var timeSlot = new TimeSlot(DateTime.UtcNow.AddHours(1), DateTime.UtcNow.AddHours(2));
         var reservation = Reservation.Create(roomId, "user1", "Existing Meeting", timeSlot, new List<string>());
         
-        await _repository.CreateAsync(reservation);
+        var createdId = await _repository.CreateAsync(reservation);
+        
+        // Debug: 実際に保存されたデータを確認
+        var savedReservation = await _repository.GetByIdAsync(createdId);
+        Assert.NotNull(savedReservation);
 
         var conflictingStartTime = DateTime.UtcNow.AddHours(1).AddMinutes(30);
         var conflictingEndTime = DateTime.UtcNow.AddHours(2).AddMinutes(30);
