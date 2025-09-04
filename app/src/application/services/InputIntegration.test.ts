@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { GameServiceImpl } from './GameService';
 import { SimpleDependencyContainer } from '../ports/DependencyContainer';
 import type { GameRepository } from '../ports/GameRepository';
-import type { InputHandler } from '../ports/InputHandler';
+
 import type { GameRenderer } from '../ports/GameRenderer';
 import { KeyboardInputHandler } from '../../infrastructure/input/KeyboardInputHandler';
 import { TouchInputHandler } from '../../infrastructure/input/TouchInputHandler';
@@ -454,7 +454,7 @@ describe('ゲーム操作統合テスト', () => {
         });
 
         // Act (touchStartなしでtouchEnd)
-        const gesture = touchInputHandler.handleTouchEnd(touchEndEvent);
+        const gesture = touchInputHandler.handleTouchInput(touchEndEvent);
 
         // Assert
         expect(gesture).toBeNull();

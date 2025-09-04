@@ -20,7 +20,7 @@
     "check:full": "npm run format:check && npm run lint && npm run test && npm run build && npm run test:e2e"
   },
   "dependencies": {
-    "framer-motion": "^10.16.0",
+    "framer-motion": "^10.18.0",
     "jsdom": "^26.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

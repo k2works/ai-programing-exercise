@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
 import { GameBoard } from './GameBoard';
 import { createGameField, placePuyo } from '../../domain/models/GameField';
 import { createPuyo } from '../../domain/models/Puyo';
@@ -163,6 +163,59 @@ describe('GameBoard', () => {
 
       const gameField = screen.getByTestId('game-field');
       expect(gameField).toHaveClass('responsive-game-field');
+    });
+  });
+
+  describe('アニメーション機能', () => {
+    it('ぷよ消去アニメーションが表示される', async () => {
+      const clearingPuyos = [
+        { position: createPosition(2, 5), color: 'red' as const },
+        { position: createPosition(3, 5), color: 'red' as const },
+      ];
+      const onComplete = vi.fn();
+
+      render(
+        <GameBoard
+          field={emptyField}
+          clearingPuyos={clearingPuyos}
+          onClearAnimationComplete={onComplete}
+        />
+      );
+
+      // アニメーション要素が表示されることを確認（要件4.4）
+      expect(screen.getByTestId('puyo-clear-animation')).toBeInTheDocument();
+    });
+
+    it('アニメーション完了後にコールバックが呼ばれる', async () => {
+      const clearingPuyos = [
+        { position: createPosition(1, 1), color: 'blue' as const },
+      ];
+      const onComplete = vi.fn();
+
+      render(
+        <GameBoard
+          field={emptyField}
+          clearingPuyos={clearingPuyos}
+          onClearAnimationComplete={onComplete}
+        />
+      );
+
+      // アニメーション完了を待機
+      await waitFor(() => {
+        expect(onComplete).toHaveBeenCalledTimes(1);
+      }, { timeout: 500 });
+    });
+
+    it('消去するぷよがない場合はアニメーションが表示されない', () => {
+      render(
+        <GameBoard
+          field={emptyField}
+          clearingPuyos={[]}
+        />
+      );
+
+      // アニメーション要素が表示されないことを確認
+      expect(screen.queryByTestId('puyo-clear-animation')).not.toBeInTheDocument();
     });
   });
 });

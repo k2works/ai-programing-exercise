@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import type { GameField } from '../../domain/models/GameField';
 import type { PuyoColor } from '../../domain/types/PuyoColor';
+import type { Position } from '../../domain/types/Position';
+import { AnimationEffects } from './AnimationEffects';
 import styles from './GameBoard.module.css';
 
 /**
@@ -8,6 +10,8 @@ import styles from './GameBoard.module.css';
  */
 export interface GameBoardProps {
   field: GameField;
+  clearingPuyos?: Array<{ position: Position; color: PuyoColor }>;
+  onClearAnimationComplete?: () => void;
   className?: string;
 }
 
@@ -29,16 +33,34 @@ const getPuyoColorName = (color: PuyoColor): string => {
  * ゲームボードコンポーネント
  * 要件10.1: 12×6のゲームフィールドを表示
  * 要件10.2: ぷよを適切な色で表示
+ * 要件4.4: ぷよ消去アニメーション
  */
 export const GameBoard: React.FC<GameBoardProps> = ({
   field,
+  clearingPuyos = [],
+  onClearAnimationComplete,
   className = '',
 }) => {
+  const [showClearAnimation, setShowClearAnimation] = useState(false);
+
+  // ぷよ消去アニメーションのトリガー
+  useEffect(() => {
+    if (clearingPuyos.length > 0) {
+      setShowClearAnimation(true);
+    }
+  }, [clearingPuyos]);
+
+  // アニメーション完了処理
+  const handleClearAnimationComplete = () => {
+    setShowClearAnimation(false);
+    onClearAnimationComplete?.();
+  };
   return (
     <div
       data-testid="game-field"
       className={`${styles['responsive-game-field']} responsive-game-field ${className}`}
       aria-label="ぷよぷよゲームフィールド"
+      style={{ position: 'relative' }}
     >
       {field.puyos.map((row, y) =>
         row.map((puyo, x) => {
@@ -60,6 +82,16 @@ export const GameBoard: React.FC<GameBoardProps> = ({
             />
           );
         })
+      )}
+
+      {/* ぷよ消去アニメーション */}
+      {showClearAnimation && clearingPuyos.length > 0 && (
+        <AnimationEffects
+          type="puyo-clear"
+          puyoPositions={clearingPuyos}
+          duration={400}
+          onComplete={handleClearAnimationComplete}
+        />
       )}
     </div>
   );

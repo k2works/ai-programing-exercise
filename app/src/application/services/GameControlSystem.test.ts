@@ -6,9 +6,7 @@ import type { InputHandler } from '../ports/InputHandler';
 import type { GameRenderer } from '../ports/GameRenderer';
 import {
   createGameState,
-  createPuyoPair,
   createScore,
-  type GameState,
 } from '../../domain/models/GameState';
 import { createGameField, placePuyo } from '../../domain/models/GameField';
 import { createPuyo } from '../../domain/models/Puyo';
@@ -336,7 +334,7 @@ describe('ゲーム開始・終了機能 統合テスト', () => {
       const currentPuyoPair = gameService.generatePuyoPair();
       const nextPuyoPair = gameService.generatePuyoPair();
 
-      const existingState = createGameState(
+      createGameState(
         field,
         currentPuyoPair,
         nextPuyoPair,

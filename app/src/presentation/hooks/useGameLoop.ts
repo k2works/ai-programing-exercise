@@ -126,20 +126,66 @@ export const useGameLoop = (
    * ゲームループを再開する（停止してから開始）
    */
   const restart = useCallback((): void => {
-    stop();
+    // 直接停止処理を実行
+    setIsRunning(false);
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+
     // 次のフレームで開始（状態更新の完了を待つ）
     setTimeout(() => {
-      start();
+      setIsRunning(true);
+
+      const scheduleNextTick = (): void => {
+        timerRef.current = setTimeout(async () => {
+          if (!isRunningRef.current) {
+            return;
+          }
+
+          await executeTick();
+
+          if (isRunningRef.current && timerRef.current !== null) {
+            scheduleNextTick();
+          }
+        }, intervalRef.current);
+      };
+
+      scheduleNextTick();
     }, 0);
-  }, [start, stop]);
+  }, [executeTick]); // start, stop への依存を削除
 
   // 間隔が変更された場合はループを再開
   useEffect(() => {
-    if (isRunning) {
-      restart();
+    if (isRunningRef.current) {
+      // 直接停止・開始を行い、restart関数への依存を避ける
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+      
+      // 次のフレームで開始（状態更新の完了を待つ）
+      setTimeout(() => {
+        if (isRunningRef.current) {
+          const scheduleNextTick = (): void => {
+            timerRef.current = setTimeout(async () => {
+              if (!isRunningRef.current) {
+                return;
+              }
+
+              await executeTick();
+
+              if (isRunningRef.current && timerRef.current !== null) {
+                scheduleNextTick();
+              }
+            }, intervalRef.current);
+          };
+
+          scheduleNextTick();
+        }
+      }, 0);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [interval]); // isRunning, restart は依存配列に含めない（無限ループを防ぐ）
+  }, [interval, executeTick]); // restart への依存を削除
 
   // コンポーネントのアンマウント時にループを停止
   useEffect(() => {

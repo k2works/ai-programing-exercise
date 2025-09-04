@@ -1,0 +1,16 @@
+{
+  "name": "ぷよぷよゲーム",
+  "short_name": "ぷよぷよ",
+  "description": "TypeScript + React で作られたぷよぷよゲーム",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#4ecdc4",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}
