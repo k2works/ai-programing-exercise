@@ -1,4 +1,7 @@
-import type { GameRenderer, AnimationConfig } from '../../application/ports/GameRenderer';
+import type {
+  GameRenderer,
+  AnimationConfig,
+} from '../../application/ports/GameRenderer';
 import type { PuyoPair } from '../../domain/models/GameState';
 import type { GameField } from '../../domain/models/GameField';
 import type { Puyo } from '../../domain/models/Puyo';
@@ -171,7 +174,7 @@ export class CanvasGameRenderer implements GameRenderer {
       const alpha = step % 2 === 0 ? 0.3 : 1.0;
       this.context.globalAlpha = alpha;
 
-      positions.forEach(pos => {
+      positions.forEach((pos) => {
         const x = pos.x * cellSize;
         const y = pos.y * cellSize;
         this.context!.fillStyle = '#ffffff';
@@ -184,7 +187,7 @@ export class CanvasGameRenderer implements GameRenderer {
     this.context.globalAlpha = 1.0;
 
     // 最終的に消去
-    positions.forEach(pos => {
+    positions.forEach((pos) => {
       const x = pos.x * cellSize;
       const y = pos.y * cellSize;
       this.context!.clearRect(x, y, cellSize, cellSize);
@@ -195,7 +198,12 @@ export class CanvasGameRenderer implements GameRenderer {
     fromPositions: ReadonlyArray<Position>,
     toPositions: ReadonlyArray<Position>
   ): Promise<void> {
-    if (!this.context || !this.canvas || fromPositions.length !== toPositions.length) return;
+    if (
+      !this.context ||
+      !this.canvas ||
+      fromPositions.length !== toPositions.length
+    )
+      return;
 
     const duration = this.config.puyoFallDuration;
     const steps = 10;
@@ -213,11 +221,21 @@ export class CanvasGameRenderer implements GameRenderer {
         const cellSize = 40;
 
         // 前の位置をクリア
-        this.context!.clearRect(fromPos.x * cellSize, fromPos.y * cellSize, cellSize, cellSize);
+        this.context!.clearRect(
+          fromPos.x * cellSize,
+          fromPos.y * cellSize,
+          cellSize,
+          cellSize
+        );
 
         // 新しい位置に描画
         this.context!.fillStyle = '#0066cc'; // 仮の色
-        this.context!.fillRect(fromPos.x * cellSize, currentY * cellSize, cellSize, cellSize);
+        this.context!.fillRect(
+          fromPos.x * cellSize,
+          currentY * cellSize,
+          cellSize,
+          cellSize
+        );
       });
 
       await this.wait(stepDuration);
@@ -295,7 +313,7 @@ export class CanvasGameRenderer implements GameRenderer {
    */
   private getPuyoColor(color: string): string {
     if (!color) return '#cccccc';
-    
+
     const colorMap: Record<string, string> = {
       red: '#ff0000',
       blue: '#0066cc',
@@ -311,6 +329,6 @@ export class CanvasGameRenderer implements GameRenderer {
    * @param ms 待機時間（ミリ秒）
    */
   private async wait(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }

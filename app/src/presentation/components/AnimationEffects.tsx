@@ -56,7 +56,7 @@ export const AnimationEffects: React.FC<AnimationEffectsProps> = ({
       mediaQuery.addEventListener('change', handleChange);
       return () => mediaQuery.removeEventListener('change', handleChange);
     }
-    
+
     return undefined;
   }, []);
 
@@ -86,7 +86,7 @@ export const AnimationEffects: React.FC<AnimationEffectsProps> = ({
       case 'puyo-clear':
         return {
           initial: { scale: 1, opacity: 1 },
-          animate: { 
+          animate: {
             scale: [1, 1.2, 0],
             opacity: [1, 0.8, 0],
             rotate: [0, 180, 360],
@@ -96,7 +96,7 @@ export const AnimationEffects: React.FC<AnimationEffectsProps> = ({
       case 'chain':
         return {
           initial: { scale: 0, opacity: 0, y: 50 },
-          animate: { 
+          animate: {
             scale: [0, 1.3, 1],
             opacity: [0, 1, 1],
             y: [50, -20, 0],
@@ -106,7 +106,7 @@ export const AnimationEffects: React.FC<AnimationEffectsProps> = ({
       case 'game-over':
         return {
           initial: { scale: 0, opacity: 0 },
-          animate: { 
+          animate: {
             scale: [0, 1.1, 1],
             opacity: [0, 1, 1],
           },
@@ -115,7 +115,7 @@ export const AnimationEffects: React.FC<AnimationEffectsProps> = ({
       case 'all-clear':
         return {
           initial: { scale: 0, opacity: 0, rotate: -180 },
-          animate: { 
+          animate: {
             scale: [0, 1.2, 1],
             opacity: [0, 1, 1],
             rotate: [-180, 0, 0],
@@ -163,10 +163,10 @@ export const AnimationEffects: React.FC<AnimationEffectsProps> = ({
                 }}
               />
             ))}
-            
+
             {/* スクリーンリーダー用 */}
-            <div 
-              className="sr-only" 
+            <div
+              className="sr-only"
               aria-live="polite"
               aria-label="アニメーション状況"
             >
@@ -181,7 +181,7 @@ export const AnimationEffects: React.FC<AnimationEffectsProps> = ({
   // 連鎖アニメーション
   if (type === 'chain') {
     const isHighChain = chainCount >= 5;
-    
+
     return (
       <AnimatePresence>
         {isVisible && (
@@ -201,16 +201,16 @@ export const AnimationEffects: React.FC<AnimationEffectsProps> = ({
             <div className={`${styles['chain-text']} chain-text`}>
               {chainCount}連鎖！
             </div>
-            
+
             {isHighChain && (
               <div className={`${styles['chain-sparkles']} chain-sparkles`}>
                 ✨✨✨
               </div>
             )}
-            
+
             {/* スクリーンリーダー用 */}
-            <div 
-              className="sr-only" 
+            <div
+              className="sr-only"
               aria-live="polite"
               aria-label="アニメーション状況"
             >
@@ -243,12 +243,14 @@ export const AnimationEffects: React.FC<AnimationEffectsProps> = ({
             <div className={`${styles['game-over-text']} game-over-text`}>
               GAME OVER
             </div>
-            
-            <div className={`${styles['game-over-overlay']} game-over-overlay`} />
-            
+
+            <div
+              className={`${styles['game-over-overlay']} game-over-overlay`}
+            />
+
             {/* スクリーンリーダー用 */}
-            <div 
-              className="sr-only" 
+            <div
+              className="sr-only"
               aria-live="polite"
               aria-label="アニメーション状況"
             >
@@ -281,7 +283,7 @@ export const AnimationEffects: React.FC<AnimationEffectsProps> = ({
             <div className={`${styles['all-clear-text']} all-clear-text`}>
               ALL CLEAR!
             </div>
-            
+
             {bonusScore && (
               <motion.div
                 data-testid="bonus-score"
@@ -293,18 +295,21 @@ export const AnimationEffects: React.FC<AnimationEffectsProps> = ({
                 +{bonusScore.toLocaleString()}
               </motion.div>
             )}
-            
-            <div className={`${styles['all-clear-sparkles']} all-clear-sparkles`}>
+
+            <div
+              className={`${styles['all-clear-sparkles']} all-clear-sparkles`}
+            >
               🎉✨🎊✨🎉
             </div>
-            
+
             {/* スクリーンリーダー用 */}
-            <div 
-              className="sr-only" 
+            <div
+              className="sr-only"
               aria-live="polite"
               aria-label="アニメーション状況"
             >
-              全消しが発生しました{bonusScore ? `。ボーナス${bonusScore}点獲得` : ''}
+              全消しが発生しました
+              {bonusScore ? `。ボーナス${bonusScore}点獲得` : ''}
             </div>
           </motion.div>
         )}

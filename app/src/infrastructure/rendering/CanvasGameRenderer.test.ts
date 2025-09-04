@@ -108,9 +108,9 @@ describe('CanvasGameRenderer', () => {
 
     it('空のフィールドを描画できる', () => {
       const field = createGameField();
-      
+
       renderer.renderGameField(field);
-      
+
       // clearRectが呼ばれることを確認（フィールドクリア）
       expect(mockContext.clearRect).toHaveBeenCalled();
     });
@@ -118,16 +118,16 @@ describe('CanvasGameRenderer', () => {
     it('ぷよが配置されたフィールドを描画できる', () => {
       const field = createGameField();
       const redPuyo = createPuyo('red-1', 'red', { x: 2, y: 11 });
-      
+
       // フィールドを変更可能にするため、新しい配列を作成
-      const newPuyos = field.puyos.map(row => [...row]);
+      const newPuyos = field.puyos.map((row) => [...row]);
       if (newPuyos[11]) {
         newPuyos[11][2] = redPuyo; // 最下段に配置
       }
-      
+
       const modifiedField = {
         ...field,
-        puyos: newPuyos
+        puyos: newPuyos,
       };
 
       renderer.renderGameField(modifiedField);
@@ -195,7 +195,11 @@ describe('CanvasGameRenderer', () => {
       renderer.renderNextPuyoPreview(nextPuyo);
 
       // NEXTラベルとぷよが描画されることを確認
-      expect(mockContext.fillText).toHaveBeenCalledWith('NEXT', expect.any(Number), expect.any(Number));
+      expect(mockContext.fillText).toHaveBeenCalledWith(
+        'NEXT',
+        expect.any(Number),
+        expect.any(Number)
+      );
       expect(mockContext.fillRect).toHaveBeenCalledTimes(2); // 2つのぷよ
     });
   });
@@ -210,7 +214,11 @@ describe('CanvasGameRenderer', () => {
 
       renderer.renderScore(score);
 
-      expect(mockContext.fillText).toHaveBeenCalledWith('Score: 12345', expect.any(Number), expect.any(Number));
+      expect(mockContext.fillText).toHaveBeenCalledWith(
+        'Score: 12345',
+        expect.any(Number),
+        expect.any(Number)
+      );
     });
   });
 
@@ -224,7 +232,11 @@ describe('CanvasGameRenderer', () => {
 
       renderer.renderChainCount(chainCount);
 
-      expect(mockContext.fillText).toHaveBeenCalledWith('3 Chain!', expect.any(Number), expect.any(Number));
+      expect(mockContext.fillText).toHaveBeenCalledWith(
+        '3 Chain!',
+        expect.any(Number),
+        expect.any(Number)
+      );
       expect(mockContext.fillStyle).toBe('#ff0000');
     });
 
@@ -250,7 +262,11 @@ describe('CanvasGameRenderer', () => {
 
       const highlightPromise = renderer.highlightScore(scoreGain);
 
-      expect(mockContext.fillText).toHaveBeenCalledWith('+500', expect.any(Number), expect.any(Number));
+      expect(mockContext.fillText).toHaveBeenCalledWith(
+        '+500',
+        expect.any(Number),
+        expect.any(Number)
+      );
       expect(mockContext.fillStyle).toBe('#00ff00');
 
       // 1秒後に自動でクリアされることを確認
@@ -272,7 +288,10 @@ describe('CanvasGameRenderer', () => {
     });
 
     it('消去アニメーションを再生できる', async () => {
-      const positions = [{ x: 2, y: 10 }, { x: 3, y: 10 }];
+      const positions = [
+        { x: 2, y: 10 },
+        { x: 3, y: 10 },
+      ];
 
       // アニメーションを開始
       const animationPromise = renderer.playEraseAnimation(positions);
@@ -292,7 +311,10 @@ describe('CanvasGameRenderer', () => {
       const toPositions = [{ x: 2, y: 10 }];
 
       // アニメーションを開始
-      const animationPromise = renderer.playFallAnimation(fromPositions, toPositions);
+      const animationPromise = renderer.playFallAnimation(
+        fromPositions,
+        toPositions
+      );
 
       // 全てのタイマーを一度に進める
       await vi.runAllTimersAsync();

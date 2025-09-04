@@ -87,7 +87,11 @@ describe('ゲーム操作統合テスト', () => {
   ): GameState => {
     const field = createGameField();
     const mainPuyo = createPuyo('main-test', 'red', puyoPairPosition);
-    const subPuyo = createPuyo('sub-test', 'blue', createPosition(puyoPairPosition.x, puyoPairPosition.y + 1));
+    const subPuyo = createPuyo(
+      'sub-test',
+      'blue',
+      createPosition(puyoPairPosition.x, puyoPairPosition.y + 1)
+    );
     const currentPuyoPair = createPuyoPair(
       mainPuyo,
       subPuyo,
@@ -116,7 +120,7 @@ describe('ゲーム操作統合テスト', () => {
       it('左矢印キーでぷよを左に移動できるべき（要件2.1）', async () => {
         // Arrange
         const gameState = createTestGameState(createPosition(2, 5));
-        
+
         // Act
         const result = await gameService.movePuyo('left', gameState);
 
@@ -129,7 +133,7 @@ describe('ゲーム操作統合テスト', () => {
       it('右矢印キーでぷよを右に移動できるべき（要件2.2）', async () => {
         // Arrange
         const gameState = createTestGameState(createPosition(2, 5));
-        
+
         // Act
         const result = await gameService.movePuyo('right', gameState);
 
@@ -142,7 +146,7 @@ describe('ゲーム操作統合テスト', () => {
       it('上矢印キー・スペースキーでぷよを回転できるべき（要件2.3）', async () => {
         // Arrange
         const gameState = createTestGameState(createPosition(2, 5));
-        
+
         // Act
         const result = await gameService.rotatePuyo(gameState);
 
@@ -157,7 +161,7 @@ describe('ゲーム操作統合テスト', () => {
       it('下矢印キーでぷよを高速落下できるべき（要件2.4）', async () => {
         // Arrange
         const gameState = createTestGameState(createPosition(2, 1));
-        
+
         // Act
         const result = await gameService.dropPuyo(gameState);
 
@@ -175,7 +179,7 @@ describe('ゲーム操作統合テスト', () => {
       it('左端での左移動が無効化されるべき（要件2.5）', async () => {
         // Arrange: 左端に配置
         const gameState = createTestGameState(createPosition(0, 5));
-        
+
         // Act
         const result = await gameService.movePuyo('left', gameState);
 
@@ -187,7 +191,7 @@ describe('ゲーム操作統合テスト', () => {
       it('右端での右移動が無効化されるべき（要件2.5）', async () => {
         // Arrange: 右端に配置
         const gameState = createTestGameState(createPosition(5, 5));
-        
+
         // Act
         const result = await gameService.movePuyo('right', gameState);
 
@@ -199,7 +203,11 @@ describe('ゲーム操作統合テスト', () => {
       it('他のぷよとの重なり時に移動が無効化されるべき（要件2.6）', async () => {
         // Arrange: フィールドに障害物を配置
         let field = createGameField();
-        const blockingPuyo = createPuyo('blocking', 'green', createPosition(1, 5));
+        const blockingPuyo = createPuyo(
+          'blocking',
+          'green',
+          createPosition(1, 5)
+        );
         field = placePuyo(field, blockingPuyo, createPosition(1, 5));
 
         const mainPuyo = createPuyo('main-test', 'red', createPosition(2, 5));
@@ -225,7 +233,7 @@ describe('ゲーム操作統合テスト', () => {
           true,
           true
         );
-        
+
         // Act
         const result = await gameService.movePuyo('left', gameState);
 
@@ -239,7 +247,7 @@ describe('ゲーム操作統合テスト', () => {
       it('ゲーム停止中は操作が無効化されるべき', async () => {
         // Arrange
         const gameState = createTestGameState(createPosition(2, 5), false); // isPlaying = false
-        
+
         // Act
         const moveResult = await gameService.movePuyo('left', gameState);
         const rotateResult = await gameService.rotatePuyo(gameState);
@@ -255,7 +263,7 @@ describe('ゲーム操作統合テスト', () => {
       it('ゲームオーバー中は操作が無効化されるべき', async () => {
         // Arrange
         const gameState = createTestGameState(createPosition(2, 5), true, true); // isGameOver = true
-        
+
         // Act
         const moveResult = await gameService.movePuyo('left', gameState);
         const rotateResult = await gameService.rotatePuyo(gameState);
@@ -279,7 +287,7 @@ describe('ゲーム操作統合テスト', () => {
           createPosition(2, 5),
           0,
           false, // canMove = false
-          true   // isFixed = true
+          true // isFixed = true
         );
         const nextPuyoPair = createPuyoPair(mainPuyo, subPuyo);
         const score = createScore();
@@ -294,7 +302,7 @@ describe('ゲーム操作統合テスト', () => {
           true,
           true
         );
-        
+
         // Act
         const moveResult = await gameService.movePuyo('left', gameState);
         const rotateResult = await gameService.rotatePuyo(gameState);
@@ -314,13 +322,13 @@ describe('ゲーム操作統合テスト', () => {
       it('左スワイプでぷよを左に移動できるべき（要件9.1）', async () => {
         // Arrange
         const gameState = createTestGameState(createPosition(2, 5));
-        
+
         // タッチイベントをシミュレート
         const touchStartEvent = new TouchEvent('touchstart', {
-          touches: [{ clientX: 100, clientY: 100 } as Touch]
+          touches: [{ clientX: 100, clientY: 100 } as Touch],
         });
         const touchEndEvent = new TouchEvent('touchend', {
-          changedTouches: [{ clientX: 50, clientY: 100 } as Touch] // 左にスワイプ
+          changedTouches: [{ clientX: 50, clientY: 100 } as Touch], // 左にスワイプ
         });
 
         touchInputHandler.handleTouchInput(touchStartEvent);
@@ -329,7 +337,7 @@ describe('ゲーム操作統合テスト', () => {
         // Act
         if (action === 'MOVE_LEFT') {
           const result = await gameService.movePuyo('left', gameState);
-          
+
           // Assert
           expect(result.currentPuyoPair.position.x).toBe(1);
           expect(result.currentPuyoPair.position.y).toBe(5);
@@ -339,13 +347,13 @@ describe('ゲーム操作統合テスト', () => {
       it('右スワイプでぷよを右に移動できるべき（要件9.1）', async () => {
         // Arrange
         const gameState = createTestGameState(createPosition(2, 5));
-        
+
         // タッチイベントをシミュレート
         const touchStartEvent = new TouchEvent('touchstart', {
-          touches: [{ clientX: 100, clientY: 100 } as Touch]
+          touches: [{ clientX: 100, clientY: 100 } as Touch],
         });
         const touchEndEvent = new TouchEvent('touchend', {
-          changedTouches: [{ clientX: 150, clientY: 100 } as Touch] // 右にスワイプ
+          changedTouches: [{ clientX: 150, clientY: 100 } as Touch], // 右にスワイプ
         });
 
         touchInputHandler.handleTouchInput(touchStartEvent);
@@ -354,7 +362,7 @@ describe('ゲーム操作統合テスト', () => {
         // Act
         if (action === 'MOVE_RIGHT') {
           const result = await gameService.movePuyo('right', gameState);
-          
+
           // Assert
           expect(result.currentPuyoPair.position.x).toBe(3);
           expect(result.currentPuyoPair.position.y).toBe(5);
@@ -364,13 +372,13 @@ describe('ゲーム操作統合テスト', () => {
       it('タップでぷよを回転できるべき（要件9.2）', async () => {
         // Arrange
         const gameState = createTestGameState(createPosition(2, 5));
-        
+
         // タッチイベントをシミュレート
         const touchStartEvent = new TouchEvent('touchstart', {
-          touches: [{ clientX: 100, clientY: 100 } as Touch]
+          touches: [{ clientX: 100, clientY: 100 } as Touch],
         });
         const touchEndEvent = new TouchEvent('touchend', {
-          changedTouches: [{ clientX: 105, clientY: 105 } as Touch] // 小さな移動（タップ）
+          changedTouches: [{ clientX: 105, clientY: 105 } as Touch], // 小さな移動（タップ）
         });
 
         touchInputHandler.handleTouchInput(touchStartEvent);
@@ -379,7 +387,7 @@ describe('ゲーム操作統合テスト', () => {
         // Act
         if (action === 'ROTATE') {
           const result = await gameService.rotatePuyo(gameState);
-          
+
           // Assert
           expect([0, 90]).toContain(result.currentPuyoPair.rotation);
         }
@@ -388,13 +396,13 @@ describe('ゲーム操作統合テスト', () => {
       it('下方向スワイプでぷよを高速落下できるべき（要件9.3）', async () => {
         // Arrange
         const gameState = createTestGameState(createPosition(2, 1));
-        
+
         // タッチイベントをシミュレート
         const touchStartEvent = new TouchEvent('touchstart', {
-          touches: [{ clientX: 100, clientY: 100 } as Touch]
+          touches: [{ clientX: 100, clientY: 100 } as Touch],
         });
         const touchEndEvent = new TouchEvent('touchend', {
-          changedTouches: [{ clientX: 100, clientY: 200 } as Touch] // 下にスワイプ
+          changedTouches: [{ clientX: 100, clientY: 200 } as Touch], // 下にスワイプ
         });
 
         touchInputHandler.handleTouchInput(touchStartEvent);
@@ -403,7 +411,7 @@ describe('ゲーム操作統合テスト', () => {
         // Act
         if (action === 'DROP') {
           const result = await gameService.dropPuyo(gameState);
-          
+
           // Assert
           // 高速落下処理が実行されることを確認
           expect(result).toBeDefined();
@@ -416,10 +424,10 @@ describe('ゲーム操作統合テスト', () => {
       it('スワイプ閾値未満の移動はタップとして認識されるべき', () => {
         // Arrange
         const touchStartEvent = new TouchEvent('touchstart', {
-          touches: [{ clientX: 100, clientY: 100 } as Touch]
+          touches: [{ clientX: 100, clientY: 100 } as Touch],
         });
         const touchEndEvent = new TouchEvent('touchend', {
-          changedTouches: [{ clientX: 105, clientY: 105 } as Touch] // 小さな移動
+          changedTouches: [{ clientX: 105, clientY: 105 } as Touch], // 小さな移動
         });
 
         // Act
@@ -433,10 +441,10 @@ describe('ゲーム操作統合テスト', () => {
       it('スワイプ閾値以上の移動はスワイプとして認識されるべき', () => {
         // Arrange
         const touchStartEvent = new TouchEvent('touchstart', {
-          touches: [{ clientX: 100, clientY: 100 } as Touch]
+          touches: [{ clientX: 100, clientY: 100 } as Touch],
         });
         const touchEndEvent = new TouchEvent('touchend', {
-          changedTouches: [{ clientX: 200, clientY: 100 } as Touch] // 大きな移動
+          changedTouches: [{ clientX: 200, clientY: 100 } as Touch], // 大きな移動
         });
 
         // Act
@@ -450,7 +458,7 @@ describe('ゲーム操作統合テスト', () => {
       it('無効なタッチイベントはnullを返すべき', () => {
         // Arrange
         const touchEndEvent = new TouchEvent('touchend', {
-          changedTouches: [{ clientX: 100, clientY: 100 } as Touch]
+          changedTouches: [{ clientX: 100, clientY: 100 } as Touch],
         });
 
         // Act (touchStartなしでtouchEnd)
@@ -466,19 +474,20 @@ describe('ゲーム操作統合テスト', () => {
     it('キーボードとタッチの同時入力が適切に処理されるべき（要件9.4）', async () => {
       // Arrange
       const gameState = createTestGameState(createPosition(2, 5));
-      
+
       // キーボード入力をシミュレート
       const keyboardEvent = new KeyboardEvent('keydown', { key: 'ArrowLeft' });
-      const keyboardAction = keyboardInputHandler.handleKeyboardInput(keyboardEvent);
-      
+      const keyboardAction =
+        keyboardInputHandler.handleKeyboardInput(keyboardEvent);
+
       // タッチ入力をシミュレート
       const touchStartEvent = new TouchEvent('touchstart', {
-        touches: [{ clientX: 100, clientY: 100 } as Touch]
+        touches: [{ clientX: 100, clientY: 100 } as Touch],
       });
       const touchEndEvent = new TouchEvent('touchend', {
-        changedTouches: [{ clientX: 150, clientY: 100 } as Touch] // 右スワイプ
+        changedTouches: [{ clientX: 150, clientY: 100 } as Touch], // 右スワイプ
       });
-      
+
       touchInputHandler.handleTouchInput(touchStartEvent);
       const touchAction = touchInputHandler.handleTouchInput(touchEndEvent);
 
@@ -497,13 +506,19 @@ describe('ゲーム操作統合テスト', () => {
     it('入力の優先順位が適切に処理されるべき', async () => {
       // Arrange
       const gameState = createTestGameState(createPosition(2, 5));
-      
+
       // 複数の入力を同時に処理
-      const keyboardLeftEvent = new KeyboardEvent('keydown', { key: 'ArrowLeft' });
-      const keyboardRightEvent = new KeyboardEvent('keydown', { key: 'ArrowRight' });
-      
-      const leftAction = keyboardInputHandler.handleKeyboardInput(keyboardLeftEvent);
-      const rightAction = keyboardInputHandler.handleKeyboardInput(keyboardRightEvent);
+      const keyboardLeftEvent = new KeyboardEvent('keydown', {
+        key: 'ArrowLeft',
+      });
+      const keyboardRightEvent = new KeyboardEvent('keydown', {
+        key: 'ArrowRight',
+      });
+
+      const leftAction =
+        keyboardInputHandler.handleKeyboardInput(keyboardLeftEvent);
+      const rightAction =
+        keyboardInputHandler.handleKeyboardInput(keyboardRightEvent);
 
       // Act & Assert
       expect(leftAction).toBe('MOVE_LEFT');
@@ -512,7 +527,7 @@ describe('ゲーム操作統合テスト', () => {
       // 最後の有効な入力が適用される
       const leftResult = await gameService.movePuyo('left', gameState);
       const rightResult = await gameService.movePuyo('right', leftResult);
-      
+
       expect(rightResult.currentPuyoPair.position.x).toBe(2); // 元の位置に戻る
     });
   });
@@ -521,37 +536,45 @@ describe('ゲーム操作統合テスト', () => {
     it('キーボード入力からゲーム状態更新までの完全なフローが動作するべき', async () => {
       // Arrange
       const initialGameState = createTestGameState(createPosition(2, 5));
-      
+
       // Act: 一連の操作を実行
       // 1. 左移動
       const leftMoveEvent = new KeyboardEvent('keydown', { key: 'ArrowLeft' });
-      const leftAction = keyboardInputHandler.handleKeyboardInput(leftMoveEvent);
+      const leftAction =
+        keyboardInputHandler.handleKeyboardInput(leftMoveEvent);
       expect(leftAction).toBe('MOVE_LEFT');
-      
-      const afterLeftMove = await gameService.movePuyo('left', initialGameState);
+
+      const afterLeftMove = await gameService.movePuyo(
+        'left',
+        initialGameState
+      );
       expect(afterLeftMove.currentPuyoPair.position.x).toBe(1);
-      
+
       // 2. 回転
       const rotateEvent = new KeyboardEvent('keydown', { key: 'ArrowUp' });
-      const rotateAction = keyboardInputHandler.handleKeyboardInput(rotateEvent);
+      const rotateAction =
+        keyboardInputHandler.handleKeyboardInput(rotateEvent);
       expect(rotateAction).toBe('ROTATE');
-      
+
       const afterRotate = await gameService.rotatePuyo(afterLeftMove);
       expect([0, 90]).toContain(afterRotate.currentPuyoPair.rotation);
-      
+
       // 3. 右移動
-      const rightMoveEvent = new KeyboardEvent('keydown', { key: 'ArrowRight' });
-      const rightAction = keyboardInputHandler.handleKeyboardInput(rightMoveEvent);
+      const rightMoveEvent = new KeyboardEvent('keydown', {
+        key: 'ArrowRight',
+      });
+      const rightAction =
+        keyboardInputHandler.handleKeyboardInput(rightMoveEvent);
       expect(rightAction).toBe('MOVE_RIGHT');
-      
+
       const afterRightMove = await gameService.movePuyo('right', afterRotate);
       expect(afterRightMove.currentPuyoPair.position.x).toBe(2);
-      
+
       // 4. 高速落下
       const dropEvent = new KeyboardEvent('keydown', { key: 'ArrowDown' });
       const dropAction = keyboardInputHandler.handleKeyboardInput(dropEvent);
       expect(dropAction).toBe('DROP');
-      
+
       const afterDrop = await gameService.dropPuyo(afterRightMove);
       expect(afterDrop).toBeDefined();
       expect(afterDrop.currentPuyoPair).toBeDefined();
@@ -563,53 +586,56 @@ describe('ゲーム操作統合テスト', () => {
     it('タッチ入力からゲーム状態更新までの完全なフローが動作するべき', async () => {
       // Arrange
       const initialGameState = createTestGameState(createPosition(2, 5));
-      
+
       // Act: タッチ操作の一連のフロー
       // 1. 左スワイプ
       let touchStartEvent = new TouchEvent('touchstart', {
-        touches: [{ clientX: 100, clientY: 100 } as Touch]
+        touches: [{ clientX: 100, clientY: 100 } as Touch],
       });
       let touchEndEvent = new TouchEvent('touchend', {
-        changedTouches: [{ clientX: 50, clientY: 100 } as Touch]
+        changedTouches: [{ clientX: 50, clientY: 100 } as Touch],
       });
-      
+
       touchInputHandler.handleTouchInput(touchStartEvent);
       let action = touchInputHandler.handleTouchInput(touchEndEvent);
-      
+
       expect(action).toBe('MOVE_LEFT');
-      
-      const afterLeftSwipe = await gameService.movePuyo('left', initialGameState);
+
+      const afterLeftSwipe = await gameService.movePuyo(
+        'left',
+        initialGameState
+      );
       expect(afterLeftSwipe.currentPuyoPair.position.x).toBe(1);
-      
+
       // 2. タップ（回転）
       touchStartEvent = new TouchEvent('touchstart', {
-        touches: [{ clientX: 100, clientY: 100 } as Touch]
+        touches: [{ clientX: 100, clientY: 100 } as Touch],
       });
       touchEndEvent = new TouchEvent('touchend', {
-        changedTouches: [{ clientX: 105, clientY: 105 } as Touch]
+        changedTouches: [{ clientX: 105, clientY: 105 } as Touch],
       });
-      
+
       touchInputHandler.handleTouchInput(touchStartEvent);
       action = touchInputHandler.handleTouchInput(touchEndEvent);
-      
+
       expect(action).toBe('ROTATE');
-      
+
       const afterTap = await gameService.rotatePuyo(afterLeftSwipe);
       expect([0, 90]).toContain(afterTap.currentPuyoPair.rotation);
-      
+
       // 3. 下スワイプ（高速落下）
       touchStartEvent = new TouchEvent('touchstart', {
-        touches: [{ clientX: 100, clientY: 100 } as Touch]
+        touches: [{ clientX: 100, clientY: 100 } as Touch],
       });
       touchEndEvent = new TouchEvent('touchend', {
-        changedTouches: [{ clientX: 100, clientY: 200 } as Touch]
+        changedTouches: [{ clientX: 100, clientY: 200 } as Touch],
       });
-      
+
       touchInputHandler.handleTouchInput(touchStartEvent);
       action = touchInputHandler.handleTouchInput(touchEndEvent);
-      
+
       expect(action).toBe('DROP');
-      
+
       const afterDownSwipe = await gameService.dropPuyo(afterTap);
       expect(afterDownSwipe).toBeDefined();
       expect(afterDownSwipe.currentPuyoPair).toBeDefined();
@@ -622,11 +648,13 @@ describe('ゲーム操作統合テスト', () => {
   describe('エラーハンドリングと操作の無効化', () => {
     it('無効な入力が適切に処理されるべき', () => {
       // Arrange
-      const invalidKeyEvent = new KeyboardEvent('keydown', { key: 'InvalidKey' });
-      
+      const invalidKeyEvent = new KeyboardEvent('keydown', {
+        key: 'InvalidKey',
+      });
+
       // Act
       const action = keyboardInputHandler.handleKeyboardInput(invalidKeyEvent);
-      
+
       // Assert
       expect(action).toBeNull();
     });
@@ -637,7 +665,7 @@ describe('ゲーム操作統合テスト', () => {
         new Error('Repository error')
       );
       const gameState = createTestGameState(createPosition(2, 5));
-      
+
       // Act & Assert
       await expect(gameService.movePuyo('left', gameState)).rejects.toThrow(
         'Repository error'
@@ -647,10 +675,10 @@ describe('ゲーム操作統合テスト', () => {
     it('境界値での操作が適切に処理されるべき', async () => {
       // Arrange: 上端に配置
       const gameState = createTestGameState(createPosition(2, 0));
-      
+
       // Act: 上方向への回転を試行
       const result = await gameService.rotatePuyo(gameState);
-      
+
       // Assert: 回転が制限される場合がある
       expect(typeof result.currentPuyoPair.rotation).toBe('number');
       expect([0, 90, 180, 270]).toContain(result.currentPuyoPair.rotation);
@@ -661,7 +689,7 @@ describe('ゲーム操作統合テスト', () => {
     it('連続した入力操作が適切に処理されるべき', async () => {
       // Arrange
       let gameState = createTestGameState(createPosition(2, 5));
-      
+
       // Act: 連続した操作
       const operations = [
         () => gameService.movePuyo('left', gameState),
@@ -669,13 +697,13 @@ describe('ゲーム操作統合テスト', () => {
         () => gameService.rotatePuyo(gameState),
         () => gameService.movePuyo('left', gameState),
       ];
-      
+
       // 各操作を順次実行
       for (const operation of operations) {
         const result = await operation();
         gameState = result;
       }
-      
+
       // Assert: 最終状態が有効であることを確認
       expect(gameState.currentPuyoPair).toBeDefined();
       expect(gameState.currentPuyoPair.position).toBeDefined();
@@ -686,16 +714,16 @@ describe('ゲーム操作統合テスト', () => {
       // Arrange
       const gameState = createTestGameState(createPosition(2, 5));
       const startTime = Date.now();
-      
+
       // Act: 高頻度の操作をシミュレート
       const promises = [];
       for (let i = 0; i < 10; i++) {
         promises.push(gameService.movePuyo('left', gameState));
       }
-      
+
       await Promise.all(promises);
       const endTime = Date.now();
-      
+
       // Assert: 処理時間が合理的であることを確認
       expect(endTime - startTime).toBeLessThan(1000); // 1秒以内
       expect(mockRepository.saveGameState).toHaveBeenCalled();

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { PuyoPair } from '../../domain/models/GameState';
 import type { PuyoColor } from '../../domain/types/PuyoColor';
 import styles from './NextPuyoDisplay.module.css';
@@ -30,50 +30,76 @@ const getPuyoColorName = (color: PuyoColor): string => {
 /**
  * 次のぷよ表示コンポーネント
  * 要件10.3: NEXTぷよとして予告表示
+ * パフォーマンス最適化: React.memo、useMemo使用
  */
-export const NextPuyoDisplay: React.FC<NextPuyoDisplayProps> = ({
-  nextPuyoPair,
-  visible = true,
-  size = 'normal',
-  className = '',
-}) => {
-  const containerClasses = [
-    styles['responsive-next-puyo'],
-    styles['vertical-layout'],
-    styles[`size-${size}`],
-    'responsive-next-puyo',
-    'vertical-layout',
-    `size-${size}`,
-    visible ? '' : `${styles['hidden']} hidden`,
-    className,
-  ]
-    .filter(Boolean)
-    .join(' ');
+export const NextPuyoDisplay: React.FC<NextPuyoDisplayProps> = React.memo(
+  ({ nextPuyoPair, visible = true, size = 'normal', className = '' }) => {
+    // クラス名のメモ化
+    const containerClasses = useMemo(
+      () =>
+        [
+          styles['responsive-next-puyo'],
+          styles['vertical-layout'],
+          styles[`size-${size}`],
+          'responsive-next-puyo',
+          'vertical-layout',
+          `size-${size}`,
+          visible ? '' : `${styles['hidden']} hidden`,
+          className,
+        ]
+          .filter(Boolean)
+          .join(' '),
+      [size, visible, className]
+    );
 
-  return (
-    <div
-      data-testid="next-puyo-display"
-      className={containerClasses}
-      aria-label="次のぷよ"
-    >
+    // ぷよの色名のメモ化
+    const mainPuyoColorName = useMemo(
+      () => getPuyoColorName(nextPuyoPair.main.color),
+      [nextPuyoPair.main.color]
+    );
+    const subPuyoColorName = useMemo(
+      () => getPuyoColorName(nextPuyoPair.sub.color),
+      [nextPuyoPair.sub.color]
+    );
+
+    // ぷよのクラス名のメモ化
+    const mainPuyoClasses = useMemo(
+      () =>
+        `${styles['puyo']} ${styles[nextPuyoPair.main.color]} ${styles['main-puyo']} puyo ${nextPuyoPair.main.color} main-puyo`,
+      [nextPuyoPair.main.color]
+    );
+
+    const subPuyoClasses = useMemo(
+      () =>
+        `${styles['puyo']} ${styles[nextPuyoPair.sub.color]} ${styles['sub-puyo']} puyo ${nextPuyoPair.sub.color} sub-puyo`,
+      [nextPuyoPair.sub.color]
+    );
+
+    return (
       <div
-        data-testid="next-puyo-label"
-        className={`${styles['next-label']} next-label`}
+        data-testid="next-puyo-display"
+        className={containerClasses}
+        aria-label="次のぷよ"
       >
-        NEXT
+        <div
+          data-testid="next-puyo-label"
+          className={`${styles['next-label']} next-label`}
+        >
+          NEXT
+        </div>
+
+        <div
+          data-testid="next-main-puyo"
+          className={mainPuyoClasses}
+          aria-label={`次のメインぷよ: ${mainPuyoColorName}`}
+        />
+
+        <div
+          data-testid="next-sub-puyo"
+          className={subPuyoClasses}
+          aria-label={`次のサブぷよ: ${subPuyoColorName}`}
+        />
       </div>
-
-      <div
-        data-testid="next-main-puyo"
-        className={`${styles['puyo']} ${styles[nextPuyoPair.main.color]} ${styles['main-puyo']} puyo ${nextPuyoPair.main.color} main-puyo`}
-        aria-label={`次のメインぷよ: ${getPuyoColorName(nextPuyoPair.main.color)}`}
-      />
-
-      <div
-        data-testid="next-sub-puyo"
-        className={`${styles['puyo']} ${styles[nextPuyoPair.sub.color]} ${styles['sub-puyo']} puyo ${nextPuyoPair.sub.color} sub-puyo`}
-        aria-label={`次のサブぷよ: ${getPuyoColorName(nextPuyoPair.sub.color)}`}
-      />
-    </div>
-  );
-};
+    );
+  }
+);

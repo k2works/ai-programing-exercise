@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { Score } from '../../domain/models/GameState';
 import styles from './ScoreDisplay.module.css';
 
@@ -23,68 +23,95 @@ const formatScore = (score: number): string => {
  * スコア表示コンポーネント
  * 要件8.1: 現在のスコアを常に画面に表示
  * 要件8.2: スコアが更新されると即座に反映
+ * パフォーマンス最適化: React.memo、useMemo使用
  */
-export const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
-  score,
-  highlight = false,
-  animate = false,
-  className = '',
-}) => {
-  const containerClasses = [
-    styles['responsive-score-display'],
-    'responsive-score-display',
-    highlight ? `${styles['highlight']} highlight` : '',
-    className,
-  ]
-    .filter(Boolean)
-    .join(' ');
+export const ScoreDisplay: React.FC<ScoreDisplayProps> = React.memo(
+  ({ score, highlight = false, animate = false, className = '' }) => {
+    // クラス名のメモ化
+    const containerClasses = useMemo(
+      () =>
+        [
+          styles['responsive-score-display'],
+          'responsive-score-display',
+          highlight ? `${styles['highlight']} highlight` : '',
+          className,
+        ]
+          .filter(Boolean)
+          .join(' '),
+      [highlight, className]
+    );
 
-  const scoreClasses = [
-    animate ? `${styles['animate-score-update']} animate-score-update` : '',
-  ]
-    .filter(Boolean)
-    .join(' ');
+    const scoreClasses = useMemo(
+      () =>
+        [
+          animate
+            ? `${styles['animate-score-update']} animate-score-update`
+            : '',
+        ]
+          .filter(Boolean)
+          .join(' '),
+      [animate]
+    );
 
-  return (
-    <div
-      data-testid="score-display"
-      className={containerClasses}
-      aria-label="スコア表示"
-    >
+    // フォーマット済みスコアのメモ化（安全性チェック付き）
+    const formattedScore = useMemo(
+      () => formatScore(score?.current ?? 0),
+      [score?.current]
+    );
+    const formattedChainBonus = useMemo(
+      () => formatScore(score?.lastChainBonus ?? 0),
+      [score?.lastChainBonus]
+    );
+    const formattedAllClearBonus = useMemo(
+      () => formatScore(score?.allClearBonus ?? 0),
+      [score?.allClearBonus]
+    );
+    const formattedTotalBonus = useMemo(
+      () => formatScore(score?.totalBonus ?? 0),
+      [score?.totalBonus]
+    );
+
+    return (
       <div
-        data-testid="current-score"
-        className={scoreClasses}
-        aria-label={`現在のスコア: ${formatScore(score.current)}点`}
+        data-testid="score-display"
+        className={containerClasses}
+        aria-label="スコア表示"
       >
-        {formatScore(score.current)}
+        <div
+          data-testid="current-score"
+          className={scoreClasses}
+          aria-label={`現在のスコア: ${formattedScore}点`}
+        >
+          {formattedScore}
+        </div>
+
+        {(score?.lastChainBonus ?? 0) > 0 && (
+          <div
+            data-testid="chain-bonus"
+            aria-label={`連鎖ボーナス: ${formattedChainBonus}点`}
+          >
+            連鎖ボーナス: +{formattedChainBonus}
+          </div>
+        )}
+
+        {(score?.allClearBonus ?? 0) > 0 && (
+          <div
+            data-testid="all-clear-bonus"
+            aria-label={`全消しボーナス: ${formattedAllClearBonus}点`}
+          >
+            全消しボーナス: +{formattedAllClearBonus}
+          </div>
+        )}
+
+        {(score?.totalBonus ?? 0) > 0 && (
+          <div
+            data-testid="total-bonus"
+            aria-label={`総ボーナス: ${formattedTotalBonus}点`}
+          >
+            総ボーナス: +{formattedTotalBonus}
+          </div>
+        )}
       </div>
-
-      {score.lastChainBonus > 0 && (
-        <div
-          data-testid="chain-bonus"
-          aria-label={`連鎖ボーナス: ${formatScore(score.lastChainBonus)}点`}
-        >
-          連鎖ボーナス: +{formatScore(score.lastChainBonus)}
-        </div>
-      )}
-
-      {score.allClearBonus > 0 && (
-        <div
-          data-testid="all-clear-bonus"
-          aria-label={`全消しボーナス: ${formatScore(score.allClearBonus)}点`}
-        >
-          全消しボーナス: +{formatScore(score.allClearBonus)}
-        </div>
-      )}
-
-      {score.totalBonus > 0 && (
-        <div
-          data-testid="total-bonus"
-          aria-label={`総ボーナス: ${formatScore(score.totalBonus)}点`}
-        >
-          総ボーナス: +{formatScore(score.totalBonus)}
-        </div>
-      )}
-    </div>
-  );
-};
+    );
+  }
+);

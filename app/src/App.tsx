@@ -17,14 +17,14 @@ const App: React.FC = () => {
   const dependencies = useMemo(() => {
     // リポジトリの初期化
     const gameRepository = new LocalStorageGameRepository();
-    
+
     // レンダラーの初期化
     const gameRenderer = new CanvasGameRenderer();
-    
+
     // 入力ハンドラーの初期化
     const keyboardInputHandler = new KeyboardInputHandler();
     const touchInputHandler = new TouchInputHandler();
-    
+
     // 複合入力ハンドラーの作成
     const inputHandler: InputHandler = {
       handleKeyboardInput: (event: KeyboardEvent) => {
@@ -57,7 +57,7 @@ const App: React.FC = () => {
     container.registerGameRepository(gameRepository);
     container.registerInputHandler(inputHandler);
     container.registerGameRenderer(gameRenderer);
-    
+
     // ゲームサービスの初期化
     const gameService = new GameServiceImpl(container);
 

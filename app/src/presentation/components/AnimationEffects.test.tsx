@@ -13,11 +13,11 @@ const mockAnimationConfig = {
 describe('AnimationEffects', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // matchMediaのモック
     Object.defineProperty(window, 'matchMedia', {
       writable: true,
-      value: vi.fn().mockImplementation(query => ({
+      value: vi.fn().mockImplementation((query) => ({
         matches: false,
         media: query,
         onchange: null,
@@ -50,7 +50,7 @@ describe('AnimationEffects', () => {
 
       // アニメーション要素が表示されることを確認（要件4.4）
       expect(screen.getByTestId('puyo-clear-animation')).toBeInTheDocument();
-      
+
       // 各ぷよの消去エフェクトが表示されることを確認
       puyoPositions.forEach((_, index) => {
         expect(screen.getByTestId(`puyo-clear-${index}`)).toBeInTheDocument();
@@ -60,7 +60,9 @@ describe('AnimationEffects', () => {
 
     it('アニメーション完了後にコールバックが呼ばれる', async () => {
       const onComplete = vi.fn();
-      const puyoPositions = [{ position: { x: 2, y: 5 }, color: 'blue' as PuyoColor }];
+      const puyoPositions = [
+        { position: { x: 2, y: 5 }, color: 'blue' as PuyoColor },
+      ];
 
       render(
         <AnimationEffects
@@ -72,9 +74,12 @@ describe('AnimationEffects', () => {
       );
 
       // アニメーション完了を待機
-      await waitFor(() => {
-        expect(onComplete).toHaveBeenCalledTimes(1);
-      }, { timeout: 200 });
+      await waitFor(
+        () => {
+          expect(onComplete).toHaveBeenCalledTimes(1);
+        },
+        { timeout: 200 }
+      );
     });
   });
 
@@ -91,10 +96,10 @@ describe('AnimationEffects', () => {
 
       // 連鎖アニメーション要素が表示されることを確認（要件5.3）
       expect(screen.getByTestId('chain-animation')).toBeInTheDocument();
-      
+
       // 連鎖数が表示されることを確認
       expect(screen.getByText('3連鎖！')).toBeInTheDocument();
-      
+
       // 連鎖アニメーションのクラスが適用されることを確認
       expect(screen.getByTestId('chain-animation')).toHaveClass('chain-effect');
     });
@@ -110,7 +115,9 @@ describe('AnimationEffects', () => {
       );
 
       // 高連鎖エフェクトが表示されることを確認
-      expect(screen.getByTestId('chain-animation')).toHaveClass('high-chain-effect');
+      expect(screen.getByTestId('chain-animation')).toHaveClass(
+        'high-chain-effect'
+      );
       expect(screen.getByText('7連鎖！')).toBeInTheDocument();
     });
   });
@@ -127,12 +134,14 @@ describe('AnimationEffects', () => {
 
       // ゲームオーバーアニメーション要素が表示されることを確認（要件6.2）
       expect(screen.getByTestId('game-over-animation')).toBeInTheDocument();
-      
+
       // ゲームオーバーテキストが表示されることを確認
       expect(screen.getByText('GAME OVER')).toBeInTheDocument();
-      
+
       // アニメーションクラスが適用されることを確認
-      expect(screen.getByTestId('game-over-animation')).toHaveClass('game-over-effect');
+      expect(screen.getByTestId('game-over-animation')).toHaveClass(
+        'game-over-effect'
+      );
     });
   });
 
@@ -148,12 +157,14 @@ describe('AnimationEffects', () => {
 
       // 全消しアニメーション要素が表示されることを確認（要件7.2）
       expect(screen.getByTestId('all-clear-animation')).toBeInTheDocument();
-      
+
       // 全消しテキストが表示されることを確認
       expect(screen.getByText('ALL CLEAR!')).toBeInTheDocument();
-      
+
       // 全消しエフェクトクラスが適用されることを確認
-      expect(screen.getByTestId('all-clear-animation')).toHaveClass('all-clear-effect');
+      expect(screen.getByTestId('all-clear-animation')).toHaveClass(
+        'all-clear-effect'
+      );
     });
 
     it('全消しボーナススコアが表示される', () => {
@@ -168,14 +179,16 @@ describe('AnimationEffects', () => {
 
       // ボーナススコアが表示されることを確認
       expect(screen.getByText('+8,400')).toBeInTheDocument();
-      expect(screen.getByTestId('bonus-score')).toHaveClass('bonus-score-animation');
+      expect(screen.getByTestId('bonus-score')).toHaveClass(
+        'bonus-score-animation'
+      );
     });
   });
 
   describe('パフォーマンス最適化', () => {
     it('アニメーションが60FPSで実行される', () => {
       const onComplete = vi.fn();
-      
+
       render(
         <AnimationEffects
           type="puyo-clear"
@@ -186,7 +199,9 @@ describe('AnimationEffects', () => {
       );
 
       // アニメーション要素にパフォーマンス最適化クラスが適用されることを確認（要件10.4）
-      expect(screen.getByTestId('puyo-clear-animation')).toHaveClass('optimized-animation');
+      expect(screen.getByTestId('puyo-clear-animation')).toHaveClass(
+        'optimized-animation'
+      );
     });
 
     it('複数のアニメーションが同時実行される', () => {
@@ -216,7 +231,7 @@ describe('AnimationEffects', () => {
   describe('アクセシビリティ対応', () => {
     it('アニメーション無効設定時にアニメーションが無効化される', () => {
       // prefers-reduced-motionをモック
-      const mockMatchMedia = vi.fn().mockImplementation(query => ({
+      const mockMatchMedia = vi.fn().mockImplementation((query) => ({
         matches: query === '(prefers-reduced-motion: reduce)',
         media: query,
         onchange: null,
@@ -226,7 +241,7 @@ describe('AnimationEffects', () => {
         removeEventListener: vi.fn(),
         dispatchEvent: vi.fn(),
       }));
-      
+
       Object.defineProperty(window, 'matchMedia', {
         writable: true,
         value: mockMatchMedia,

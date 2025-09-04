@@ -4,10 +4,7 @@ import { SimpleDependencyContainer } from '../ports/DependencyContainer';
 import type { GameRepository } from '../ports/GameRepository';
 import type { InputHandler } from '../ports/InputHandler';
 import type { GameRenderer } from '../ports/GameRenderer';
-import {
-  createGameState,
-  createScore,
-} from '../../domain/models/GameState';
+import { createGameState, createScore } from '../../domain/models/GameState';
 import { createGameField, placePuyo } from '../../domain/models/GameField';
 import { createPuyo } from '../../domain/models/Puyo';
 import { createPosition } from '../../domain/types/Position';
@@ -145,7 +142,7 @@ describe('ゲーム開始・終了機能 統合テスト', () => {
       // Act
       const firstGame = await gameService.startNewGame();
       // 少し待ってから2回目を実行（IDの重複を避けるため）
-      await new Promise(resolve => setTimeout(resolve, 1));
+      await new Promise((resolve) => setTimeout(resolve, 1));
       const secondGame = await gameService.startNewGame();
 
       // Assert
@@ -156,13 +153,13 @@ describe('ゲーム開始・終了機能 統合テスト', () => {
       expect(secondGame.isPlaying).toBe(true);
       expect(firstGame.score.current).toBe(0);
       expect(secondGame.score.current).toBe(0);
-      
+
       // 組ぷよが生成されていることを確認
       expect(firstGame.currentPuyoPair).toBeDefined();
       expect(secondGame.currentPuyoPair).toBeDefined();
       expect(firstGame.nextPuyoPair).toBeDefined();
       expect(secondGame.nextPuyoPair).toBeDefined();
-      
+
       // IDが異なることを確認（時間ベースのIDなので、異なる時刻で生成される）
       expect(firstGame.currentPuyoPair.main.id).not.toBe(
         secondGame.currentPuyoPair.main.id
@@ -170,7 +167,7 @@ describe('ゲーム開始・終了機能 統合テスト', () => {
       expect(firstGame.currentPuyoPair.sub.id).not.toBe(
         secondGame.currentPuyoPair.sub.id
       );
-      
+
       expect(mockRepository.saveGameState).toHaveBeenCalledTimes(2);
     });
   });
@@ -179,11 +176,19 @@ describe('ゲーム開始・終了機能 統合テスト', () => {
     it('新しい組ぷよが生成位置に配置できない場合にゲームオーバーを判定するべき（要件7.1）', () => {
       // Arrange: フィールドの上部を埋める
       let field = createGameField();
-      
+
       // 生成位置（2, 0）と（2, 1）にぷよを配置してゲームオーバー状態を作る
-      const blockingPuyo1 = createPuyo('blocking-1', 'red', createPosition(2, 0));
-      const blockingPuyo2 = createPuyo('blocking-2', 'blue', createPosition(2, 1));
-      
+      const blockingPuyo1 = createPuyo(
+        'blocking-1',
+        'red',
+        createPosition(2, 0)
+      );
+      const blockingPuyo2 = createPuyo(
+        'blocking-2',
+        'blue',
+        createPosition(2, 1)
+      );
+
       field = placePuyo(field, blockingPuyo1, createPosition(2, 0));
       field = placePuyo(field, blockingPuyo2, createPosition(2, 1));
 
@@ -231,7 +236,7 @@ describe('ゲーム開始・終了機能 統合テスト', () => {
     it('フィールドの一部が埋まっていても配置可能な場合はゲームオーバーでないべき', () => {
       // Arrange: フィールドの下部のみ埋める
       let field = createGameField();
-      
+
       // 下部にぷよを配置（上部は空いている）
       const bottomPuyo = createPuyo('bottom', 'red', createPosition(0, 11));
       field = placePuyo(field, bottomPuyo, createPosition(0, 11));
@@ -260,11 +265,19 @@ describe('ゲーム開始・終了機能 統合テスト', () => {
     it('ゲームオーバー状態でゲーム終了処理が適切に動作するべき（要件7.2, 7.3）', async () => {
       // Arrange: ゲームオーバー状態を作成
       let field = createGameField();
-      
+
       // 生成位置を埋めてゲームオーバー状態にする
-      const blockingPuyo1 = createPuyo('blocking-1', 'red', createPosition(2, 0));
-      const blockingPuyo2 = createPuyo('blocking-2', 'blue', createPosition(2, 1));
-      
+      const blockingPuyo1 = createPuyo(
+        'blocking-1',
+        'red',
+        createPosition(2, 0)
+      );
+      const blockingPuyo2 = createPuyo(
+        'blocking-2',
+        'blue',
+        createPosition(2, 1)
+      );
+
       field = placePuyo(field, blockingPuyo1, createPosition(2, 0));
       field = placePuyo(field, blockingPuyo2, createPosition(2, 1));
 
@@ -294,7 +307,7 @@ describe('ゲーム開始・終了機能 統合テスト', () => {
       // Arrange
       const finalScore = createScore(12000, 3000, 1000, 4000);
       let field = createGameField();
-      
+
       const blockingPuyo = createPuyo('blocking', 'red', createPosition(2, 0));
       field = placePuyo(field, blockingPuyo, createPosition(2, 0));
 
@@ -326,7 +339,7 @@ describe('ゲーム開始・終了機能 統合テスト', () => {
       // Arrange: 既存のゲーム状態を作成
       const existingScore = createScore(5000, 1000, 0, 1000);
       let field = createGameField();
-      
+
       // フィールドにぷよを配置
       const existingPuyo = createPuyo('existing', 'red', createPosition(0, 11));
       field = placePuyo(field, existingPuyo, createPosition(0, 11));
@@ -378,7 +391,7 @@ describe('ゲーム開始・終了機能 統合テスト', () => {
       // Act
       const firstReset = await gameService.resetGame();
       // 少し待ってから2回目を実行（IDの重複を避けるため）
-      await new Promise(resolve => setTimeout(resolve, 1));
+      await new Promise((resolve) => setTimeout(resolve, 1));
       const secondReset = await gameService.resetGame();
 
       // Assert
@@ -389,7 +402,7 @@ describe('ゲーム開始・終了機能 統合テスト', () => {
       expect(firstReset.currentPuyoPair.sub.id).not.toBe(
         secondReset.currentPuyoPair.sub.id
       );
-      
+
       // より重要なのは、ゲーム状態が独立していることを確認
       expect(firstReset.score.current).toBe(0);
       expect(secondReset.score.current).toBe(0);
@@ -399,7 +412,7 @@ describe('ゲーム開始・終了機能 統合テスト', () => {
       expect(secondReset.isPlaying).toBe(true);
       expect(firstReset.gameStarted).toBe(true);
       expect(secondReset.gameStarted).toBe(true);
-      
+
       expect(mockRepository.saveGameState).toHaveBeenCalledTimes(2);
     });
   });

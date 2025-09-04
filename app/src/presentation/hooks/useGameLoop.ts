@@ -163,7 +163,7 @@ export const useGameLoop = (
         clearTimeout(timerRef.current);
         timerRef.current = null;
       }
-      
+
       // 次のフレームで開始（状態更新の完了を待つ）
       setTimeout(() => {
         if (isRunningRef.current) {

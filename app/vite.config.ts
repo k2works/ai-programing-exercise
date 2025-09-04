@@ -15,6 +15,34 @@ export default defineConfig({
       '@/presentation': resolve(__dirname, './src/presentation'),
     },
   },
+  build: {
+    // バンドルサイズ最適化
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true, // console.logを削除
+        drop_debugger: true, // debuggerを削除
+      },
+    },
+    rollupOptions: {
+      output: {
+        // チャンク分割による最適化
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          zustand: ['zustand'],
+          framer: ['framer-motion'],
+        },
+      },
+    },
+    // バンドルサイズ警告の閾値
+    chunkSizeWarningLimit: 1000,
+  },
+  // 開発時のパフォーマンス最適化
+  server: {
+    hmr: {
+      overlay: false, // エラーオーバーレイを無効化してパフォーマンス向上
+    },
+  },
   test: {
     globals: true,
     environment: 'jsdom',

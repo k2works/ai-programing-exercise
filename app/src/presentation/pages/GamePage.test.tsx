@@ -1,4 +1,3 @@
-
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { act } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -11,24 +10,48 @@ import type { CanvasGameRenderer } from '../../infrastructure/rendering/CanvasGa
 // モックの作成
 const mockGameService: GameService = {
   startNewGame: vi.fn().mockResolvedValue({
-    field: { puyos: Array(12).fill(null).map(() => Array(6).fill(null)) },
+    field: {
+      puyos: Array(12)
+        .fill(null)
+        .map(() => Array(6).fill(null)),
+    },
     currentPuyoPair: {
-      main: { id: 'main-1', color: 'red', position: { x: 2, y: 0 }, isFixed: false },
-      sub: { id: 'sub-1', color: 'blue', position: { x: 2, y: 1 }, isFixed: false },
+      main: {
+        id: 'main-1',
+        color: 'red',
+        position: { x: 2, y: 0 },
+        isFixed: false,
+      },
+      sub: {
+        id: 'sub-1',
+        color: 'blue',
+        position: { x: 2, y: 1 },
+        isFixed: false,
+      },
       position: { x: 2, y: 0 },
-      rotation: 0
+      rotation: 0,
     },
     nextPuyoPair: {
-      main: { id: 'next-main-1', color: 'green', position: { x: 2, y: 0 }, isFixed: false },
-      sub: { id: 'next-sub-1', color: 'yellow', position: { x: 2, y: 1 }, isFixed: false },
+      main: {
+        id: 'next-main-1',
+        color: 'green',
+        position: { x: 2, y: 0 },
+        isFixed: false,
+      },
+      sub: {
+        id: 'next-sub-1',
+        color: 'yellow',
+        position: { x: 2, y: 1 },
+        isFixed: false,
+      },
       position: { x: 2, y: 0 },
-      rotation: 0
+      rotation: 0,
     },
     score: { current: 0, chainBonus: 0, allClearBonus: 0 },
     isGameOver: false,
     chainCount: 0,
     isPlaying: true,
-    gameStarted: true
+    gameStarted: true,
   }),
   movePuyo: vi.fn(),
   rotatePuyo: vi.fn(),
@@ -82,65 +105,65 @@ describe('GamePage', () => {
   describe('完全なゲーム画面の統合テスト', () => {
     it('ゲームページが正しくレンダリングされる', () => {
       render(
-        <GamePage 
-          gameService={mockGameService} 
-          inputHandler={mockInputHandler} 
+        <GamePage
+          gameService={mockGameService}
+          inputHandler={mockInputHandler}
           gameRenderer={mockGameRenderer}
         />
       );
 
       // メインコンテナが存在することを確認
       expect(screen.getByTestId('game-page')).toBeInTheDocument();
-      
+
       // ゲームタイトルが表示されることを確認
       expect(screen.getByText('ぷよぷよゲーム')).toBeInTheDocument();
     });
 
     it('全ての主要コンポーネントが表示される', () => {
       render(
-        <GamePage 
-          gameService={mockGameService} 
-          inputHandler={mockInputHandler} 
+        <GamePage
+          gameService={mockGameService}
+          inputHandler={mockInputHandler}
           gameRenderer={mockGameRenderer}
         />
       );
 
       // ゲームフィールドが表示される（要件10.1）
       expect(screen.getByTestId('game-field')).toBeInTheDocument();
-      
+
       // スコア表示が表示される（要件8.1）
       expect(screen.getByTestId('score-display')).toBeInTheDocument();
-      
+
       // 次のぷよ表示が表示される（要件10.3）
       expect(screen.getByTestId('next-puyo-display')).toBeInTheDocument();
-      
+
       // 新しいゲームボタンが表示される（要件1.1）
       expect(screen.getByText('新しいゲーム')).toBeInTheDocument();
     });
 
     it('レスポンシブレイアウトが適用される', () => {
       render(
-        <GamePage 
-          gameService={mockGameService} 
-          inputHandler={mockInputHandler} 
+        <GamePage
+          gameService={mockGameService}
+          inputHandler={mockInputHandler}
           gameRenderer={mockGameRenderer}
         />
       );
 
       const gameContainer = screen.getByTestId('game-container');
-      
+
       // レスポンシブクラスが適用されていることを確認
       expect(gameContainer).toHaveClass('responsive-layout');
-      
+
       // グリッドレイアウトが適用されていることを確認
       expect(gameContainer).toHaveClass('game-layout');
     });
 
     it('ゲーム操作ボタンが正しく動作する', async () => {
       render(
-        <GamePage 
-          gameService={mockGameService} 
-          inputHandler={mockInputHandler} 
+        <GamePage
+          gameService={mockGameService}
+          inputHandler={mockInputHandler}
           gameRenderer={mockGameRenderer}
         />
       );
@@ -157,9 +180,9 @@ describe('GamePage', () => {
 
     it('キーボード入力が正しく処理される', () => {
       render(
-        <GamePage 
-          gameService={mockGameService} 
-          inputHandler={mockInputHandler} 
+        <GamePage
+          gameService={mockGameService}
+          inputHandler={mockInputHandler}
           gameRenderer={mockGameRenderer}
         />
       );
@@ -183,9 +206,9 @@ describe('GamePage', () => {
 
       await act(async () => {
         render(
-          <GamePage 
-            gameService={mockGameService} 
-            inputHandler={mockInputHandler} 
+          <GamePage
+            gameService={mockGameService}
+            inputHandler={mockInputHandler}
             gameRenderer={mockGameRenderer}
           />
         );
@@ -220,9 +243,9 @@ describe('GamePage', () => {
 
       await act(async () => {
         render(
-          <GamePage 
-            gameService={mockGameService} 
-            inputHandler={mockInputHandler} 
+          <GamePage
+            gameService={mockGameService}
+            inputHandler={mockInputHandler}
             gameRenderer={mockGameRenderer}
           />
         );
@@ -230,11 +253,11 @@ describe('GamePage', () => {
 
       // メインランドマークが存在することを確認
       expect(screen.getByRole('main')).toBeInTheDocument();
-      
+
       // ゲームフィールドにaria-labelが設定されていることを確認
       const gameField = screen.getByTestId('game-field');
       expect(gameField).toHaveAttribute('aria-label');
-      
+
       // スコア表示にaria-labelが設定されていることを確認
       const scoreDisplay = screen.getByTestId('score-display');
       expect(scoreDisplay).toHaveAttribute('aria-label');
@@ -242,9 +265,9 @@ describe('GamePage', () => {
 
     it('キーボードナビゲーションが可能である', () => {
       render(
-        <GamePage 
-          gameService={mockGameService} 
-          inputHandler={mockInputHandler} 
+        <GamePage
+          gameService={mockGameService}
+          inputHandler={mockInputHandler}
           gameRenderer={mockGameRenderer}
         />
       );
@@ -252,7 +275,7 @@ describe('GamePage', () => {
       // 新しいゲームボタンがフォーカス可能であることを確認
       const newGameButton = screen.getByText('新しいゲーム');
       expect(newGameButton).toHaveAttribute('tabIndex');
-      
+
       // フォーカスを設定
       newGameButton.focus();
       expect(document.activeElement).toBe(newGameButton);
@@ -260,16 +283,18 @@ describe('GamePage', () => {
 
     it('スクリーンリーダー対応のテキストが提供される', () => {
       render(
-        <GamePage 
-          gameService={mockGameService} 
-          inputHandler={mockInputHandler} 
+        <GamePage
+          gameService={mockGameService}
+          inputHandler={mockInputHandler}
           gameRenderer={mockGameRenderer}
         />
       );
 
       // ゲーム状態の説明テキストが存在することを確認
-      expect(screen.getByRole('main', { name: /ぷよぷよゲーム/ })).toBeInTheDocument();
-      
+      expect(
+        screen.getByRole('main', { name: /ぷよぷよゲーム/ })
+      ).toBeInTheDocument();
+
       // 操作説明が存在することを確認
       expect(screen.getByText(/矢印キーで移動/)).toBeInTheDocument();
     });
@@ -283,9 +308,9 @@ describe('GamePage', () => {
       };
 
       render(
-        <GamePage 
-          gameService={errorGameService} 
-          inputHandler={mockInputHandler} 
+        <GamePage
+          gameService={errorGameService}
+          inputHandler={mockInputHandler}
           gameRenderer={mockGameRenderer}
         />
       );
@@ -312,9 +337,9 @@ describe('GamePage', () => {
       };
 
       render(
-        <GamePage 
-          gameService={mockGameService} 
-          inputHandler={errorInputHandler} 
+        <GamePage
+          gameService={mockGameService}
+          inputHandler={errorInputHandler}
           gameRenderer={mockGameRenderer}
         />
       );
@@ -329,9 +354,9 @@ describe('GamePage', () => {
   describe('パフォーマンステスト', () => {
     it('大量の状態更新でも適切にレンダリングされる', async () => {
       render(
-        <GamePage 
-          gameService={mockGameService} 
-          inputHandler={mockInputHandler} 
+        <GamePage
+          gameService={mockGameService}
+          inputHandler={mockInputHandler}
           gameRenderer={mockGameRenderer}
         />
       );
@@ -349,9 +374,9 @@ describe('GamePage', () => {
 
     it('メモリリークが発生しない', () => {
       const { unmount } = render(
-        <GamePage 
-          gameService={mockGameService} 
-          inputHandler={mockInputHandler} 
+        <GamePage
+          gameService={mockGameService}
+          inputHandler={mockInputHandler}
           gameRenderer={mockGameRenderer}
         />
       );

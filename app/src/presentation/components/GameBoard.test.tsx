@@ -201,21 +201,21 @@ describe('GameBoard', () => {
       );
 
       // アニメーション完了を待機
-      await waitFor(() => {
-        expect(onComplete).toHaveBeenCalledTimes(1);
-      }, { timeout: 500 });
+      await waitFor(
+        () => {
+          expect(onComplete).toHaveBeenCalledTimes(1);
+        },
+        { timeout: 500 }
+      );
     });
 
     it('消去するぷよがない場合はアニメーションが表示されない', () => {
-      render(
-        <GameBoard
-          field={emptyField}
-          clearingPuyos={[]}
-        />
-      );
+      render(<GameBoard field={emptyField} clearingPuyos={[]} />);
 
       // アニメーション要素が表示されないことを確認
-      expect(screen.queryByTestId('puyo-clear-animation')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('puyo-clear-animation')
+      ).not.toBeInTheDocument();
     });
   });
 });
