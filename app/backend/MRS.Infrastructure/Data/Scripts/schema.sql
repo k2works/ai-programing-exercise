@@ -33,21 +33,33 @@ CREATE TABLE IF NOT EXISTS ReservableRooms (
     FOREIGN KEY (RoomId) REFERENCES Rooms(RoomId) ON DELETE RESTRICT
 );
 
--- Reservations Table (for future implementation)
--- CREATE TABLE IF NOT EXISTS Reservations (
---     ReservationId VARCHAR(50) NOT NULL PRIMARY KEY,
---     ReservableRoomId VARCHAR(50) NOT NULL,
---     UserId VARCHAR(50) NOT NULL,
---     StartTime TIMESTAMP NOT NULL,
---     EndTime TIMESTAMP NOT NULL,
---     CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
---     FOREIGN KEY (ReservableRoomId) REFERENCES ReservableRooms(ReservableRoomId) ON DELETE RESTRICT,
---     FOREIGN KEY (UserId) REFERENCES Users(UserId) ON DELETE RESTRICT
--- );
+-- Reservations Table
+CREATE TABLE IF NOT EXISTS Reservations (
+    ReservationId VARCHAR(50) NOT NULL PRIMARY KEY,
+    RoomId VARCHAR(50) NOT NULL,
+    UserId VARCHAR(50) NOT NULL,
+    Title VARCHAR(200) NOT NULL,
+    StartTime TIMESTAMP NOT NULL,
+    EndTime TIMESTAMP NOT NULL,
+    Participants TEXT,  -- JSON配列として格納
+    Status VARCHAR(20) DEFAULT 'confirmed',
+    RowVersion INTEGER DEFAULT 0,  -- 楽観的ロック用
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (RoomId) REFERENCES Rooms(RoomId) ON DELETE RESTRICT,
+    FOREIGN KEY (UserId) REFERENCES Users(UserId) ON DELETE RESTRICT
+);
 
 -- Indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_users_name ON Users(Name);
 CREATE INDEX IF NOT EXISTS idx_reservablerooms_roomid ON ReservableRooms(RoomId);
--- CREATE INDEX IF NOT EXISTS idx_reservations_reservableroomid ON Reservations(ReservableRoomId);
--- CREATE INDEX IF NOT EXISTS idx_reservations_userid ON Reservations(UserId);
--- CREATE INDEX IF NOT EXISTS idx_reservations_time ON Reservations(ReservableRoomId, StartTime, EndTime);
+
+-- 予約テーブルのインデックス
+CREATE INDEX IF NOT EXISTS idx_reservations_room_time ON Reservations(RoomId, StartTime, EndTime);
+CREATE INDEX IF NOT EXISTS idx_reservations_user ON Reservations(UserId);
+CREATE INDEX IF NOT EXISTS idx_reservations_date ON Reservations(DATE(StartTime));
+
+-- 重複予約防止制約（同一会議室・時間帯）
+CREATE UNIQUE INDEX IF NOT EXISTS idx_no_overlapping_reservations 
+ON Reservations(RoomId, StartTime, EndTime) 
+WHERE Status = 'confirmed';
