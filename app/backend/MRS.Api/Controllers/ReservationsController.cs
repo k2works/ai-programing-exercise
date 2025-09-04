@@ -219,4 +219,73 @@ public class ReservationsController : ControllerBase
             return Conflict(ex.Message);
         }
     }
+
+    /// <summary>
+    /// 予約キャンセル
+    /// </summary>
+    /// <param name="reservationId">予約ID</param>
+    /// <param name="request">キャンセルリクエスト</param>
+    /// <returns>キャンセル結果</returns>
+    /// <response code="200">予約のキャンセルに成功</response>
+    /// <response code="400">リクエストデータが無効</response>
+    /// <response code="401">権限がない</response>
+    /// <response code="404">指定された予約が見つからない</response>
+    /// <response code="409">既にキャンセル済み</response>
+    [HttpPost("{reservationId}/cancel")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> CancelReservation(string reservationId, [FromBody] CancelReservationRequest request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        if (string.IsNullOrWhiteSpace(reservationId))
+        {
+            return BadRequest("予約IDは必須です。");
+        }
+
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return BadRequest("ユーザーIDが取得できません。");
+        }
+
+        var isAdmin = User.IsInRole("Admin");
+
+        try
+        {
+            var requestWithUserId = request with { UserId = userId, IsAdmin = isAdmin };
+            var success = await _reservationService.CancelReservationWithDetailsAsync(reservationId, requestWithUserId);
+            
+            if (success)
+            {
+                return Ok(new { message = "予約をキャンセルしました。" });
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "予約のキャンセルに失敗しました。");
+            }
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid("この予約をキャンセルする権限がありません。");
+        }
+        catch (InvalidOperationException ex)
+        {
+            if (ex.Message.Contains("not found") || ex.Message.Contains("見つからない"))
+            {
+                return NotFound(ex.Message);
+            }
+            return Conflict(ex.Message);
+        }
+    }
 }
