@@ -1,0 +1,398 @@
+/* 管理者キャンセルパネルのスタイル */
+
+.admin-panel-dialog {
+  max-width: 1000px;
+  width: 95%;
+  max-height: 85vh;
+}
+
+.admin-panel-dialog .dialog-body {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 20px 24px;
+}
+
+/* 管理者コントロール */
+.admin-controls {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.search-container {
+  flex: 2;
+  min-width: 250px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.filter-container {
+  flex: 1;
+  min-width: 150px;
+}
+
+.status-filter {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+  background-color: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.refresh-btn, .history-btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.refresh-btn {
+  background-color: #10b981;
+  color: white;
+}
+
+.refresh-btn:hover {
+  background-color: #059669;
+}
+
+.history-btn {
+  background-color: #6366f1;
+  color: white;
+}
+
+.history-btn:hover {
+  background-color: #5b21b6;
+}
+
+/* 読み込み・エラー・空状態 */
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.error-message {
+  background-color: #fff5f5;
+  border: 1px solid #fed7d7;
+  color: #c53030;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.error-message button {
+  background-color: #c53030;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.error-message button:hover {
+  background-color: #9b2c2c;
+}
+
+.no-reservations {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+  font-size: 1.1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px dashed #dee2e6;
+}
+
+/* 予約リスト */
+.admin-reservations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.admin-reservation-card {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.admin-reservation-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+/* 予約ヘッダー */
+.reservation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.reservation-title-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.reservation-title {
+  margin: 0;
+  color: #1f2937;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.status-confirmed {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-cancelled {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.status-default {
+  background-color: #e2e3e5;
+  color: #495057;
+}
+
+.reservation-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.time-indicator {
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.time-indicator.upcoming {
+  background-color: #ecfdf5;
+  color: #059669;
+}
+
+.time-indicator.past {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+/* 予約詳細 */
+.reservation-details {
+  margin-bottom: 16px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.detail-item.participants {
+  grid-column: 1 / -1;
+}
+
+.detail-item .label {
+  font-weight: 600;
+  color: #6b7280;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-item .value {
+  color: #1f2937;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* 予約アクション */
+.reservation-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.btn-small {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.history-btn-small {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.history-btn-small:hover {
+  background-color: #d1d5db;
+}
+
+.cancel-btn-small {
+  background-color: #dc2626;
+  color: white;
+}
+
+.cancel-btn-small:hover {
+  background-color: #b91c1c;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .admin-panel-dialog {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    border-radius: 0;
+    max-height: 100vh;
+  }
+
+  .admin-panel-dialog .dialog-body {
+    max-height: 80vh;
+    padding: 16px;
+  }
+
+  .admin-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .search-container,
+  .filter-container {
+    min-width: auto;
+  }
+
+  .action-buttons {
+    justify-content: stretch;
+  }
+
+  .refresh-btn, .history-btn {
+    flex: 1;
+  }
+
+  .reservation-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .reservation-title-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .reservation-meta {
+    justify-content: flex-start;
+  }
+
+  .detail-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .detail-item {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .detail-item.participants {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .reservation-actions {
+    justify-content: stretch;
+  }
+
+  .btn-small {
+    flex: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-reservation-card {
+    padding: 16px;
+  }
+
+  .reservation-title {
+    font-size: 1rem;
+  }
+
+  .detail-item .label {
+    font-size: 0.75rem;
+  }
+
+  .detail-item .value {
+    font-size: 0.85rem;
+  }
+}

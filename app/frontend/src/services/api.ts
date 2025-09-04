@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // API ベース URL（環境に応じて設定）
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5150/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5073/api';
 
 // Axios インスタンスを作成
 const api = axios.create({
@@ -93,6 +93,22 @@ export interface UpdateReservationRequest {
   participants?: string[];
 }
 
+export interface CancelReservationRequest {
+  reason: string;
+}
+
+export interface CancellationAuditLog {
+  auditId: string;
+  reservationId: string;
+  action: string;
+  performedBy: string;
+  performedAt: string;
+  reason?: string;
+  adminComment?: string;
+  userRole: string;
+  reservation?: Reservation;
+}
+
 // API サービス関数
 export class ApiService {
   // 認証関連
@@ -174,6 +190,16 @@ export class ApiService {
         'If-Match': expectedRowVersion.toString()
       }
     });
+    return response.data;
+  }
+
+  static async cancelReservation(id: string, request: CancelReservationRequest): Promise<void> {
+    await api.post(`/reservations/${id}/cancel`, request);
+  }
+
+  static async getCancellationLogs(reservationId?: string): Promise<CancellationAuditLog[]> {
+    const params = reservationId ? { reservationId } : {};
+    const response = await api.get('/cancellation-logs', { params });
     return response.data;
   }
 

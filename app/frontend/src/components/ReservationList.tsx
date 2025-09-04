@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ApiService, Reservation } from '../services/api';
+import CancelReservationDialog from './CancelReservationDialog';
 import './ReservationList.css';
 
 interface ReservationListProps {
@@ -15,6 +16,8 @@ const ReservationList: React.FC<ReservationListProps> = ({ userInfo }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'my' | 'all'>('my');
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
 
   useEffect(() => {
     loadReservations();
@@ -94,6 +97,30 @@ const ReservationList: React.FC<ReservationListProps> = ({ userInfo }) => {
 
   const isPast = (endTime: string) => {
     return new Date(endTime) < new Date();
+  };
+
+  const handleCancelClick = (reservation: Reservation) => {
+    setSelectedReservation(reservation);
+    setCancelDialogOpen(true);
+  };
+
+  const handleCancelDialogClose = () => {
+    setCancelDialogOpen(false);
+    setSelectedReservation(null);
+  };
+
+  const handleCancelSuccess = () => {
+    loadReservations(); // 予約リストを再読み込み
+  };
+
+  const canCancelReservation = (reservation: Reservation) => {
+    // 過去の予約やキャンセル済み予約はキャンセル不可
+    if (isPast(reservation.endTime) || reservation.status !== 'confirmed') {
+      return false;
+    }
+    
+    // 本人または管理者はキャンセル可能
+    return reservation.userId === userInfo.userId || userInfo.role === 'Admin';
   };
 
   const sortedReservations = [...reservations].sort((a, b) => {
@@ -197,17 +224,34 @@ const ReservationList: React.FC<ReservationListProps> = ({ userInfo }) => {
                 </div>
               </div>
               
-              {reservation.userId === userInfo.userId && isUpcoming(reservation.startTime) && reservation.status === 'confirmed' && (
+              {canCancelReservation(reservation) && (
                 <div className="reservation-actions">
-                  <button className="edit-btn" disabled>
-                    編集（実装予定）
+                  <button 
+                    className="cancel-btn"
+                    onClick={() => handleCancelClick(reservation)}
+                    title="予約をキャンセル"
+                  >
+                    キャンセル
                   </button>
+                  {reservation.userId === userInfo.userId && (
+                    <button className="edit-btn" disabled>
+                      編集（実装予定）
+                    </button>
+                  )}
                 </div>
               )}
             </div>
           ))
         )}
       </div>
+
+      <CancelReservationDialog
+        isOpen={cancelDialogOpen}
+        reservation={selectedReservation}
+        userInfo={userInfo}
+        onClose={handleCancelDialogClose}
+        onSuccess={handleCancelSuccess}
+      />
     </div>
   );
 };

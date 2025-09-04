@@ -1,0 +1,230 @@
+/* キャンセル履歴ダイアログのスタイル */
+
+.cancellation-history-dialog {
+  max-width: 800px;
+  width: 95%;
+  max-height: 80vh;
+}
+
+.cancellation-history-dialog .dialog-body {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+/* 読み込み・エラー・空状態 */
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.error-message {
+  background-color: #fff5f5;
+  border: 1px solid #fed7d7;
+  color: #c53030;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.error-message button {
+  background-color: #c53030;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.error-message button:hover {
+  background-color: #9b2c2c;
+}
+
+.no-logs {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+  font-size: 1.1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px dashed #dee2e6;
+}
+
+/* ログエントリー */
+.logs-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.log-entry {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s;
+}
+
+.log-entry:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* ログヘッダー */
+.log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.log-action {
+  flex: 1;
+}
+
+.action-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.action-cancelled {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.action-restored {
+  background-color: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+.log-time {
+  color: #6b7280;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* ログ詳細 */
+.log-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.detail-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.detail-row .label {
+  font-weight: 600;
+  color: #374151;
+  min-width: 120px;
+  flex-shrink: 0;
+  font-size: 0.9rem;
+}
+
+.detail-row .value {
+  color: #1f2937;
+  flex: 1;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.reason-text {
+  font-style: italic;
+  background-color: #f9fafb;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border-left: 3px solid #3b82f6;
+}
+
+.admin-comment {
+  font-style: italic;
+  background-color: #fffbeb;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border-left: 3px solid #f59e0b;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .cancellation-history-dialog {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    border-radius: 0;
+    max-height: 100vh;
+  }
+
+  .cancellation-history-dialog .dialog-body {
+    max-height: 70vh;
+  }
+
+  .log-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    text-align: left;
+  }
+
+  .log-time {
+    text-align: left;
+    font-size: 0.8rem;
+  }
+
+  .detail-row {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .detail-row .label {
+    min-width: auto;
+    font-size: 0.8rem;
+    color: #6b7280;
+  }
+
+  .detail-row .value {
+    font-size: 0.9rem;
+    margin-left: 0;
+  }
+
+  .action-badge {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .log-entry {
+    padding: 16px;
+  }
+
+  .detail-row .label {
+    font-size: 0.75rem;
+  }
+
+  .detail-row .value {
+    font-size: 0.85rem;
+  }
+
+  .reason-text,
+  .admin-comment {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
+}

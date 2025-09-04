@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { ApiService, Room } from '../services/api';
 import ReservationForm from './ReservationForm';
 import ReservationList from './ReservationList';
+import AdminCancellationPanel from './AdminCancellationPanel';
+import CancellationHistory from './CancellationHistory';
 import './RoomList.css';
 
 interface RoomListProps {
@@ -19,6 +21,8 @@ const RoomList: React.FC<RoomListProps> = ({ userInfo, onLogout }) => {
   const [error, setError] = useState<string | null>(null);
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [showReservationForm, setShowReservationForm] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [showHistoryDialog, setShowHistoryDialog] = useState(false);
 
   useEffect(() => {
     loadRooms();
@@ -64,6 +68,22 @@ const RoomList: React.FC<RoomListProps> = ({ userInfo, onLogout }) => {
     setSelectedRoom(null);
   };
 
+  const handleOpenAdminPanel = () => {
+    setShowAdminPanel(true);
+  };
+
+  const handleCloseAdminPanel = () => {
+    setShowAdminPanel(false);
+  };
+
+  const handleOpenHistoryDialog = () => {
+    setShowHistoryDialog(true);
+  };
+
+  const handleCloseHistoryDialog = () => {
+    setShowHistoryDialog(false);
+  };
+
   if (isLoading) {
     return (
       <div className="room-list-container">
@@ -78,9 +98,21 @@ const RoomList: React.FC<RoomListProps> = ({ userInfo, onLogout }) => {
         <h1>会議室予約システム (MRS)</h1>
         <div className="user-info">
           <span>ようこそ、{userInfo.name}さん ({userInfo.role})</span>
-          <button onClick={handleLogout} className="logout-btn">
-            ログアウト
-          </button>
+          <div className="user-actions">
+            {userInfo.role === 'Admin' && (
+              <>
+                <button onClick={handleOpenAdminPanel} className="admin-btn">
+                  管理機能
+                </button>
+                <button onClick={handleOpenHistoryDialog} className="history-btn">
+                  履歴表示
+                </button>
+              </>
+            )}
+            <button onClick={handleLogout} className="logout-btn">
+              ログアウト
+            </button>
+          </div>
         </div>
       </header>
 
@@ -137,6 +169,20 @@ const RoomList: React.FC<RoomListProps> = ({ userInfo, onLogout }) => {
           onCancel={handleReservationCancel}
         />
       )}
+
+      {/* 管理者専用パネル */}
+      <AdminCancellationPanel
+        isOpen={showAdminPanel}
+        userInfo={userInfo}
+        onClose={handleCloseAdminPanel}
+      />
+
+      {/* キャンセル履歴ダイアログ */}
+      <CancellationHistory
+        isOpen={showHistoryDialog}
+        userInfo={userInfo}
+        onClose={handleCloseHistoryDialog}
+      />
     </div>
   );
 };
