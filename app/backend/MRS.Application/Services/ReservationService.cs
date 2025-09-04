@@ -1,6 +1,7 @@
 using MRS.Application.DTOs;
 using MRS.Application.Ports;
 using MRS.Domain.Entities;
+using MRS.Domain.Services;
 using MRS.Domain.ValueObjects;
 
 namespace MRS.Application.Services;
@@ -8,10 +9,16 @@ namespace MRS.Application.Services;
 public class ReservationService : IReservationService
 {
     private readonly IReservationRepository _reservationRepository;
+    private readonly IUserRepository _userRepository;
+    private readonly AdminPermissionService _adminPermissionService;
 
-    public ReservationService(IReservationRepository reservationRepository)
+    public ReservationService(
+        IReservationRepository reservationRepository,
+        IUserRepository userRepository)
     {
         _reservationRepository = reservationRepository ?? throw new ArgumentNullException(nameof(reservationRepository));
+        _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+        _adminPermissionService = new AdminPermissionService();
     }
 
     public async Task<ReservationDto?> GetReservationByIdAsync(string reservationId)
@@ -138,6 +145,37 @@ public class ReservationService : IReservationService
             throw new ArgumentException("Reservation ID cannot be null or empty.", nameof(reservationId));
 
         return await _reservationRepository.DeleteAsync(reservationId);
+    }
+
+    public async Task<bool> CancelReservationWithDetailsAsync(string reservationId, CancelReservationRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(reservationId))
+            throw new ArgumentException("Reservation ID cannot be null or empty.", nameof(reservationId));
+
+        if (request == null)
+            throw new ArgumentNullException(nameof(request));
+
+        var reservation = await _reservationRepository.GetByIdAsync(reservationId);
+        if (reservation == null)
+            throw new InvalidOperationException("Reservation not found.");
+
+        var user = await _userRepository.GetByIdAsync(new UserId(request.UserId));
+        if (user == null)
+            throw new InvalidOperationException("User not found.");
+
+        var cancellationRequest = CancellationRequest.Create(request.Reason, DateTime.UtcNow);
+
+        if (request.IsAdmin || _adminPermissionService.CanCancelOthersReservations(user))
+        {
+            reservation.CancelByAdmin(cancellationRequest, request.UserId);
+        }
+        else
+        {
+            reservation.CancelByUser(cancellationRequest, request.UserId);
+        }
+
+        var success = await _reservationRepository.UpdateAsync(reservation);
+        return success;
     }
 }
 

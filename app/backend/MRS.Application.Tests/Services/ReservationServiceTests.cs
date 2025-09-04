@@ -10,12 +10,14 @@ namespace MRS.Application.Tests.Services;
 public class ReservationServiceTests
 {
     private readonly Mock<IReservationRepository> _mockRepository;
+    private readonly Mock<IUserRepository> _mockUserRepository;
     private readonly ReservationService _service;
 
     public ReservationServiceTests()
     {
         _mockRepository = new Mock<IReservationRepository>();
-        _service = new ReservationService(_mockRepository.Object);
+        _mockUserRepository = new Mock<IUserRepository>();
+        _service = new ReservationService(_mockRepository.Object, _mockUserRepository.Object);
     }
 
     [Fact]
