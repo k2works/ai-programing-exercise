@@ -204,7 +204,7 @@ public class ReservationsController : ControllerBase
             
             if (existingReservation.UserId != userId)
             {
-                return Forbid("他のユーザーの予約は更新できません。");
+                return Forbid();
             }
 
             var reservation = await _reservationService.UpdateReservationAsync(reservationId, request, expectedRowVersion);
@@ -277,7 +277,7 @@ public class ReservationsController : ControllerBase
         }
         catch (UnauthorizedAccessException)
         {
-            return Forbid("この予約をキャンセルする権限がありません。");
+            return Forbid();
         }
         catch (InvalidOperationException ex)
         {
