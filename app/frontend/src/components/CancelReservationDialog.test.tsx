@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import CancelReservationDialog from './CancelReservationDialog';
 import { ApiService } from '../services/api';
@@ -109,53 +109,79 @@ describe('CancelReservationDialog', () => {
 
   describe('フォームバリデーションテスト', () => {
     test('理由が空の場合はエラーメッセージが表示される', async () => {
-      const user = userEvent;
       render(<CancelReservationDialog {...mockProps} />);
       
       const cancelButton = screen.getByText('予約をキャンセル');
-      await user.click(cancelButton);
       
-      expect(screen.getByText('キャンセル理由を入力してください。')).toBeInTheDocument();
+      // submitイベントをトリガー  
+      const form = cancelButton.closest('form');
+      expect(form).toBeInTheDocument();
+      
+      await act(async () => {
+        fireEvent.submit(form!);
+      });
+      
+      await waitFor(() => {
+        expect(screen.getByText('キャンセル理由を入力してください。')).toBeInTheDocument();
+      });
     });
 
     test('理由が500文字を超える場合はエラーメッセージが表示される', async () => {
-      const user = userEvent;
       render(<CancelReservationDialog {...mockProps} />);
       
-      const textarea = screen.getByLabelText('キャンセル理由 *');
+      const textarea = screen.getByLabelText('キャンセル理由 *') as HTMLTextAreaElement;
       const longText = 'a'.repeat(501);
       
-      await user.type(textarea, longText);
+      // maxLengthを一時的に無効にして長いテキストを設定
+      textarea.removeAttribute('maxlength');
       
-      const cancelButton = screen.getByText('予約をキャンセル');
-      await user.click(cancelButton);
+      await act(async () => {
+        fireEvent.change(textarea, { target: { value: longText } });
+      });
       
-      expect(screen.getByText('キャンセル理由は500文字以内で入力してください。')).toBeInTheDocument();
+      const form = textarea.closest('form');
+      
+      await act(async () => {
+        fireEvent.submit(form!);
+      });
+      
+      await waitFor(() => {
+        expect(screen.getByText('キャンセル理由は500文字以内で入力してください。')).toBeInTheDocument();
+      });
     });
 
     test('文字数カウントが正しく表示される', async () => {
-      const user = userEvent;
       render(<CancelReservationDialog {...mockProps} />);
       
       const textarea = screen.getByLabelText('キャンセル理由 *');
-      await user.type(textarea, 'テストの理由です');
       
-      expect(screen.getByText('8/500文字')).toBeInTheDocument();
+      await act(async () => {
+        await userEvent.type(textarea, 'テストの理由です');
+      });
+      
+      await waitFor(() => {
+        expect(screen.getByText('8/500文字')).toBeInTheDocument();
+      });
     });
   });
 
   describe('キャンセル処理テスト', () => {
     test('正常なキャンセル処理が完了する', async () => {
-      const user = userEvent;
       mockedApiService.cancelReservation.mockResolvedValue();
       
       render(<CancelReservationDialog {...mockProps} />);
       
       const textarea = screen.getByLabelText('キャンセル理由 *');
-      await user.type(textarea, '会議が延期になりました');
+      
+      await act(async () => {
+        await userEvent.type(textarea, '会議が延期になりました');
+      });
       
       const cancelButton = screen.getByText('予約をキャンセル');
-      await user.click(cancelButton);
+      
+      await act(async () => {
+        await userEvent.click(cancelButton);
+      });
       
       await waitFor(() => {
         expect(mockedApiService.cancelReservation).toHaveBeenCalledWith('res-001', {
@@ -168,7 +194,6 @@ describe('CancelReservationDialog', () => {
     });
 
     test('キャンセル処理中はボタンが無効になる', async () => {
-      const user = userEvent;
       // レスポンスを遅延させる
       mockedApiService.cancelReservation.mockImplementation(
         () => new Promise(resolve => setTimeout(resolve, 1000))
@@ -177,18 +202,25 @@ describe('CancelReservationDialog', () => {
       render(<CancelReservationDialog {...mockProps} />);
       
       const textarea = screen.getByLabelText('キャンセル理由 *');
-      await user.type(textarea, 'テストの理由');
+      
+      await act(async () => {
+        await userEvent.type(textarea, 'テストの理由');
+      });
       
       const cancelButton = screen.getByText('予約をキャンセル');
-      await user.click(cancelButton);
+      
+      await act(async () => {
+        await userEvent.click(cancelButton);
+      });
       
       // ローディング状態の確認
-      expect(screen.getByText('キャンセル中...')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('キャンセル中...')).toBeInTheDocument();
+      });
       expect(cancelButton).toBeDisabled();
     });
 
     test('API エラー時にエラーメッセージが表示される', async () => {
-      const user = userEvent;
       mockedApiService.cancelReservation.mockRejectedValue({
         response: {
           status: 401,
@@ -199,10 +231,16 @@ describe('CancelReservationDialog', () => {
       render(<CancelReservationDialog {...mockProps} />);
       
       const textarea = screen.getByLabelText('キャンセル理由 *');
-      await user.type(textarea, 'テストの理由');
+      
+      await act(async () => {
+        await userEvent.type(textarea, 'テストの理由');
+      });
       
       const cancelButton = screen.getByText('予約をキャンセル');
-      await user.click(cancelButton);
+      
+      await act(async () => {
+        await userEvent.click(cancelButton);
+      });
       
       await waitFor(() => {
         expect(screen.getByText('この予約をキャンセルする権限がありません。')).toBeInTheDocument();
@@ -210,7 +248,6 @@ describe('CancelReservationDialog', () => {
     });
 
     test('404 エラー時に適切なメッセージが表示される', async () => {
-      const user = userEvent;
       mockedApiService.cancelReservation.mockRejectedValue({
         response: { status: 404 }
       });
@@ -218,10 +255,16 @@ describe('CancelReservationDialog', () => {
       render(<CancelReservationDialog {...mockProps} />);
       
       const textarea = screen.getByLabelText('キャンセル理由 *');
-      await user.type(textarea, 'テストの理由');
+      
+      await act(async () => {
+        await userEvent.type(textarea, 'テストの理由');
+      });
       
       const cancelButton = screen.getByText('予約をキャンセル');
-      await user.click(cancelButton);
+      
+      await act(async () => {
+        await userEvent.click(cancelButton);
+      });
       
       await waitFor(() => {
         expect(screen.getByText('予約が見つかりません。既にキャンセルされている可能性があります。')).toBeInTheDocument();
@@ -229,7 +272,6 @@ describe('CancelReservationDialog', () => {
     });
 
     test('409 エラー時に適切なメッセージが表示される', async () => {
-      const user = userEvent;
       mockedApiService.cancelReservation.mockRejectedValue({
         response: { status: 409 }
       });
@@ -237,10 +279,16 @@ describe('CancelReservationDialog', () => {
       render(<CancelReservationDialog {...mockProps} />);
       
       const textarea = screen.getByLabelText('キャンセル理由 *');
-      await user.type(textarea, 'テストの理由');
+      
+      await act(async () => {
+        await userEvent.type(textarea, 'テストの理由');
+      });
       
       const cancelButton = screen.getByText('予約をキャンセル');
-      await user.click(cancelButton);
+      
+      await act(async () => {
+        await userEvent.click(cancelButton);
+      });
       
       await waitFor(() => {
         expect(screen.getByText('この予約は既にキャンセルされています。')).toBeInTheDocument();
@@ -250,21 +298,25 @@ describe('CancelReservationDialog', () => {
 
   describe('ダイアログの操作テスト', () => {
     test('閉じるボタンでダイアログが閉じられる', async () => {
-      const user = userEvent;
       render(<CancelReservationDialog {...mockProps} />);
       
       const closeButton = screen.getByText('×');
-      await user.click(closeButton);
+      
+      await act(async () => {
+        await userEvent.click(closeButton);
+      });
       
       expect(mockProps.onClose).toHaveBeenCalled();
     });
 
     test('キャンセルボタンでダイアログが閉じられる', async () => {
-      const user = userEvent;
       render(<CancelReservationDialog {...mockProps} />);
       
       const cancelButton = screen.getByText('キャンセル');
-      await user.click(cancelButton);
+      
+      await act(async () => {
+        await userEvent.click(cancelButton);
+      });
       
       expect(mockProps.onClose).toHaveBeenCalled();
     });
