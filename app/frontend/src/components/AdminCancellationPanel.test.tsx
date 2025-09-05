@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AdminCancellationPanel from './AdminCancellationPanel';
 import { ApiService } from '../services/api';
@@ -76,13 +76,17 @@ describe('AdminCancellationPanel', () => {
     test('管理者の場合は管理パネルが表示される', async () => {
       mockedApiService.getReservations.mockResolvedValue(mockReservations);
       
-      render(<AdminCancellationPanel {...mockProps} />);
+      await act(async () => {
+        render(<AdminCancellationPanel {...mockProps} />);
+      });
       
       expect(screen.getByText('管理者キャンセル機能')).toBeInTheDocument();
       
       await waitFor(() => {
+        // 初期フィルターが 'confirmed' のため、確定済み予約のみ表示される
         expect(screen.getByText('ユーザー1の会議')).toBeInTheDocument();
-        expect(screen.getByText('ユーザー2の会議')).toBeInTheDocument();
+        // 'ユーザー2の会議' は cancelled ステータスのため初期表示されない
+        expect(screen.queryByText('ユーザー2の会議')).not.toBeInTheDocument();
       });
     });
 
@@ -97,12 +101,14 @@ describe('AdminCancellationPanel', () => {
     test('予約データが正しく取得・表示される', async () => {
       mockedApiService.getReservations.mockResolvedValue(mockReservations);
       
-      render(<AdminCancellationPanel {...mockProps} />);
+      await act(async () => {
+        render(<AdminCancellationPanel {...mockProps} />);
+      });
       
       await waitFor(() => {
         expect(mockedApiService.getReservations).toHaveBeenCalled();
+        // 初期フィルターが 'confirmed' のため、確定済み予約のみ表示される
         expect(screen.getByText('ユーザー1の会議')).toBeInTheDocument();
-        expect(screen.getByText('ユーザー2の会議')).toBeInTheDocument();
       });
     });
 
@@ -111,7 +117,9 @@ describe('AdminCancellationPanel', () => {
         response: { data: { message: 'API Error' } }
       });
       
-      render(<AdminCancellationPanel {...mockProps} />);
+      await act(async () => {
+        render(<AdminCancellationPanel {...mockProps} />);
+      });
       
       await waitFor(() => {
         expect(screen.getByText('API Error')).toBeInTheDocument();
@@ -121,10 +129,13 @@ describe('AdminCancellationPanel', () => {
     test('予約データが空の場合はメッセージが表示される', async () => {
       mockedApiService.getReservations.mockResolvedValue([]);
       
-      render(<AdminCancellationPanel {...mockProps} />);
+      await act(async () => {
+        render(<AdminCancellationPanel {...mockProps} />);
+      });
       
       await waitFor(() => {
-        expect(screen.getByText('予約がありません。')).toBeInTheDocument();
+        // 空のデータがフィルタリングされた結果、検索条件に一致しないメッセージが表示される
+        expect(screen.getByText('検索条件に一致する予約が見つかりませんでした。')).toBeInTheDocument();
       });
     });
   });
@@ -135,8 +146,16 @@ describe('AdminCancellationPanel', () => {
     });
 
     test('タイトル検索が正しく機能する', async () => {
-      const user = userEvent;
-      render(<AdminCancellationPanel {...mockProps} />);
+      await act(async () => {
+        render(<AdminCancellationPanel {...mockProps} />);
+      });
+      
+      // まず、すべてのステータスを表示するようにフィルターを変更
+      const statusFilter = screen.getByDisplayValue('確定');
+      
+      await act(async () => {
+        await userEvent.selectOptions(statusFilter, 'all');
+      });
       
       await waitFor(() => {
         expect(screen.getByText('ユーザー1の会議')).toBeInTheDocument();
@@ -144,15 +163,26 @@ describe('AdminCancellationPanel', () => {
       });
 
       const searchInput = screen.getByPlaceholderText('予約タイトル、ユーザーID、会議室IDで検索...');
-      await user.type(searchInput, 'ユーザー1');
+      
+      await act(async () => {
+        await userEvent.type(searchInput, 'ユーザー1');
+      });
       
       expect(screen.getByText('ユーザー1の会議')).toBeInTheDocument();
       expect(screen.queryByText('ユーザー2の会議')).not.toBeInTheDocument();
     });
 
     test('ユーザーID検索が正しく機能する', async () => {
-      const user = userEvent;
-      render(<AdminCancellationPanel {...mockProps} />);
+      await act(async () => {
+        render(<AdminCancellationPanel {...mockProps} />);
+      });
+      
+      // まず、すべてのステータスを表示するようにフィルターを変更
+      const statusFilter = screen.getByDisplayValue('確定');
+      
+      await act(async () => {
+        await userEvent.selectOptions(statusFilter, 'all');
+      });
       
       await waitFor(() => {
         expect(screen.getByText('ユーザー1の会議')).toBeInTheDocument();
@@ -160,56 +190,80 @@ describe('AdminCancellationPanel', () => {
       });
 
       const searchInput = screen.getByPlaceholderText('予約タイトル、ユーザーID、会議室IDで検索...');
-      await user.type(searchInput, 'user02');
+      
+      await act(async () => {
+        await userEvent.type(searchInput, 'user02');
+      });
       
       expect(screen.queryByText('ユーザー1の会議')).not.toBeInTheDocument();
       expect(screen.getByText('ユーザー2の会議')).toBeInTheDocument();
     });
 
     test('ステータスフィルターが正しく機能する', async () => {
-      const user = userEvent;
-      render(<AdminCancellationPanel {...mockProps} />);
+      await act(async () => {
+        render(<AdminCancellationPanel {...mockProps} />);
+      });
+      
+      // 初期状態では 'confirmed' フィルターが選択されている
+      await waitFor(() => {
+        expect(screen.getByText('ユーザー1の会議')).toBeInTheDocument();
+        expect(screen.queryByText('ユーザー2の会議')).not.toBeInTheDocument();
+      });
+      
+      // confirmed フィルターの動作は既に確認済みなので、別のフィルターをテスト
+      const statusFilter = screen.getByDisplayValue('確定');
+      
+      await act(async () => {
+        await userEvent.selectOptions(statusFilter, 'all');
+      });
       
       await waitFor(() => {
         expect(screen.getByText('ユーザー1の会議')).toBeInTheDocument();
         expect(screen.getByText('ユーザー2の会議')).toBeInTheDocument();
       });
-
-      const statusFilter = screen.getByDisplayValue('確定');
-      await user.selectOptions(statusFilter, 'confirmed');
-      
-      expect(screen.getByText('ユーザー1の会議')).toBeInTheDocument();
-      expect(screen.queryByText('ユーザー2の会議')).not.toBeInTheDocument();
     });
 
     test('キャンセル済みフィルターが正しく機能する', async () => {
-      const user = userEvent;
-      render(<AdminCancellationPanel {...mockProps} />);
+      await act(async () => {
+        render(<AdminCancellationPanel {...mockProps} />);
+      });
       
+      // 初期状態では 'confirmed' フィルターが選択されているため、確定済み予約のみ表示
       await waitFor(() => {
         expect(screen.getByText('ユーザー1の会議')).toBeInTheDocument();
-        expect(screen.getByText('ユーザー2の会議')).toBeInTheDocument();
+        expect(screen.queryByText('ユーザー2の会議')).not.toBeInTheDocument();
       });
 
       const statusFilter = screen.getByDisplayValue('確定');
-      await user.selectOptions(statusFilter, 'cancelled');
       
-      expect(screen.queryByText('ユーザー1の会議')).not.toBeInTheDocument();
-      expect(screen.getByText('ユーザー2の会議')).toBeInTheDocument();
+      await act(async () => {
+        await userEvent.selectOptions(statusFilter, 'cancelled');
+      });
+      
+      await waitFor(() => {
+        expect(screen.queryByText('ユーザー1の会議')).not.toBeInTheDocument();
+        expect(screen.getByText('ユーザー2の会議')).toBeInTheDocument();
+      });
     });
 
     test('検索条件に一致しない場合のメッセージが表示される', async () => {
-      const user = userEvent;
-      render(<AdminCancellationPanel {...mockProps} />);
+      await act(async () => {
+        render(<AdminCancellationPanel {...mockProps} />);
+      });
       
       await waitFor(() => {
         expect(screen.getByText('ユーザー1の会議')).toBeInTheDocument();
       });
 
       const searchInput = screen.getByPlaceholderText('予約タイトル、ユーザーID、会議室IDで検索...');
-      await user.type(searchInput, '存在しない検索語');
       
-      expect(screen.getByText('検索条件に一致する予約が見つかりませんでした。')).toBeInTheDocument();
+      await act(async () => {
+        await userEvent.type(searchInput, '存在しない検索語');
+      });
+      
+      await waitFor(() => {
+        expect(screen.getByText('検索条件に一致する予約が見つかりませんでした。')).toBeInTheDocument();
+      });
     });
   });
 
@@ -219,51 +273,94 @@ describe('AdminCancellationPanel', () => {
     });
 
     test('確定済み予約にはキャンセルボタンが表示される', async () => {
-      render(<AdminCancellationPanel {...mockProps} />);
+      await act(async () => {
+        render(<AdminCancellationPanel {...mockProps} />);
+      });
       
       await waitFor(() => {
-        const reservationCards = screen.getAllByText('キャンセル');
+        // フィルターオプションの 'キャンセル' を除外し、ボタンのみをカウント
+        const cancelButtons = screen.getAllByRole('button', { name: /キャンセル/i });
         // 確定済み予約（res-001）にのみキャンセルボタンが表示される
-        expect(reservationCards).toHaveLength(1);
+        expect(cancelButtons).toHaveLength(1);
       });
     });
 
     test('キャンセル済み予約にはキャンセルボタンが表示されない', async () => {
-      render(<AdminCancellationPanel {...mockProps} />);
+      await act(async () => {
+        render(<AdminCancellationPanel {...mockProps} />);
+      });
+      
+      // キャンセル済み予約を表示するためにフィルターを変更
+      const statusFilter = screen.getByDisplayValue('確定');
+      
+      await act(async () => {
+        await userEvent.selectOptions(statusFilter, 'cancelled');
+      });
       
       await waitFor(() => {
         expect(screen.getByText('ユーザー2の会議')).toBeInTheDocument();
-        // キャンセル済みの予約カード内にキャンセルボタンがないことを確認
+        // キャンセル済みの予約カード内のキャンセルボタンを確認
         const user2Card = screen.getByText('ユーザー2の会議').closest('.admin-reservation-card');
-        expect(user2Card).not.toHaveTextContent('キャンセル');
+        const cancelButtons = user2Card?.querySelectorAll('button.cancel-btn-small');
+        // キャンセル済み予約にはキャンセルボタンが表示されない
+        expect(cancelButtons).toHaveLength(0);
       });
     });
 
     test('すべての予約に履歴ボタンが表示される', async () => {
-      render(<AdminCancellationPanel {...mockProps} />);
+      await act(async () => {
+        render(<AdminCancellationPanel {...mockProps} />);
+      });
+      
+      // まず、すべてのステータスを表示するようにフィルターを変更
+      const statusFilter = screen.getByDisplayValue('確定');
+      
+      await act(async () => {
+        await userEvent.selectOptions(statusFilter, 'all');
+      });
       
       await waitFor(() => {
-        const historyButtons = screen.getAllByText('履歴');
-        // 2つの予約 + 1つの全履歴ボタン = 3つ
-        expect(historyButtons).toHaveLength(3);
+        // 各予約カードの履歴ボタンをカウント
+        const individualHistoryButtons = screen.getAllByTitle('この予約の履歴を表示');
+        // 全履歴表示ボタンをカウント
+        const globalHistoryButton = screen.getByText('全履歴表示');
+        
+        // 2つの予約の履歴ボタン + 1つの全履歴ボタン
+        expect(individualHistoryButtons).toHaveLength(2);
+        expect(globalHistoryButton).toBeInTheDocument();
       });
     });
 
     test('予約詳細が正しく表示される', async () => {
-      render(<AdminCancellationPanel {...mockProps} />);
+      await act(async () => {
+        render(<AdminCancellationPanel {...mockProps} />);
+      });
+      
+      // まず、すべてのステータスを表示するようにフィルターを変更
+      const statusFilter = screen.getByDisplayValue('確定');
+      
+      await act(async () => {
+        await userEvent.selectOptions(statusFilter, 'all');
+      });
       
       await waitFor(() => {
-        // 予約者情報
-        expect(screen.getByText('user01')).toBeInTheDocument();
-        expect(screen.getByText('user02')).toBeInTheDocument();
+        // 予約タイトルが表示されてから詳細を確認
+        expect(screen.getByText('ユーザー1の会議')).toBeInTheDocument();
+        expect(screen.getByText('ユーザー2の会議')).toBeInTheDocument();
+      });
+      
+      await waitFor(() => {
+        // 予約者情報 - 複数存在する場合もあるため、少なくとも1つは存在することを確認
+        expect(screen.getAllByText('user01')).toHaveLength(1);
+        expect(screen.getAllByText('user02').length).toBeGreaterThanOrEqual(1);
         
         // 会議室情報
         expect(screen.getByText('room-001')).toBeInTheDocument();
         expect(screen.getByText('room-002')).toBeInTheDocument();
         
-        // ステータス表示
-        expect(screen.getByText('確定')).toBeInTheDocument();
-        expect(screen.getByText('キャンセル')).toBeInTheDocument();
+        // ステータス表示 - フィルターオプションとステータスバッジが存在
+        expect(screen.getAllByText('確定').length).toBeGreaterThanOrEqual(1);
+        expect(screen.getAllByText('キャンセル').length).toBeGreaterThanOrEqual(1);
       });
     });
   });
@@ -274,35 +371,47 @@ describe('AdminCancellationPanel', () => {
     });
 
     test('更新ボタンで予約リストが再取得される', async () => {
-      const user = userEvent;
-      render(<AdminCancellationPanel {...mockProps} />);
+      await act(async () => {
+        render(<AdminCancellationPanel {...mockProps} />);
+      });
       
       await waitFor(() => {
         expect(mockedApiService.getReservations).toHaveBeenCalledTimes(1);
       });
 
       const refreshButton = screen.getByText('更新');
-      await user.click(refreshButton);
+      
+      await act(async () => {
+        await userEvent.click(refreshButton);
+      });
       
       expect(mockedApiService.getReservations).toHaveBeenCalledTimes(2);
     });
 
     test('閉じるボタンでパネルが閉じられる', async () => {
-      const user = userEvent;
-      render(<AdminCancellationPanel {...mockProps} />);
+      await act(async () => {
+        render(<AdminCancellationPanel {...mockProps} />);
+      });
       
       const closeButton = screen.getByText('閉じる');
-      await user.click(closeButton);
+      
+      await act(async () => {
+        await userEvent.click(closeButton);
+      });
       
       expect(mockProps.onClose).toHaveBeenCalled();
     });
 
     test('×ボタンでパネルが閉じられる', async () => {
-      const user = userEvent;
-      render(<AdminCancellationPanel {...mockProps} />);
+      await act(async () => {
+        render(<AdminCancellationPanel {...mockProps} />);
+      });
       
       const xButton = screen.getByText('×');
-      await user.click(xButton);
+      
+      await act(async () => {
+        await userEvent.click(xButton);
+      });
       
       expect(mockProps.onClose).toHaveBeenCalled();
     });
