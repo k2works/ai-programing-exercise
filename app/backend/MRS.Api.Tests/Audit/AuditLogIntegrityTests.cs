@@ -6,15 +6,16 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using Xunit;
+using MRS.Api.Tests;
 
 namespace MRS.Api.Tests.Audit
 {
-    public class AuditLogIntegrityTests : IClassFixture<WebApplicationFactory<Program>>
+    public class AuditLogIntegrityTests : IClassFixture<TestWebApplicationFactory>
     {
-        private readonly WebApplicationFactory<Program> _factory;
+        private readonly TestWebApplicationFactory _factory;
         private readonly HttpClient _client;
 
-        public AuditLogIntegrityTests(WebApplicationFactory<Program> factory)
+        public AuditLogIntegrityTests(TestWebApplicationFactory factory)
         {
             _factory = factory;
             _client = _factory.CreateClient();
@@ -364,7 +365,8 @@ namespace MRS.Api.Tests.Audit
         // ヘルパーメソッド
         private async Task<string> GetUserToken(string userId, string role)
         {
-            return $"test-token-{userId}-{role}";
+            await Task.Delay(1);
+            return $"test-token-{userId}";
         }
 
         private async Task<string> GetAdminToken(string userId, string role)
