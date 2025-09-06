@@ -61,12 +61,26 @@ public class JwtMiddleware
     private async Task<bool> AttachUserToContext(HttpContext context)
     {
         var token = ExtractTokenFromHeader(context);
+        var path = context.Request.Path.Value;
+        
         if (string.IsNullOrEmpty(token))
         {
-            // トークンがない場合は認証なしで続行
+            _logger.LogInformation("JWT トークンが見つかりません。Path: {Path}", path);
+            
+            // 保護されたエンドポイントの場合は401を返す
+            if (IsProtectedEndpoint(context))
+            {
+                _logger.LogWarning("保護されたエンドポイント {Path} にトークンなしでアクセス", path);
+                context.Response.StatusCode = 401;
+                return false;
+            }
+            // パブリックエンドポイントの場合は認証なしで続行
+            _logger.LogInformation("パブリックエンドポイント {Path} は認証なしで続行", path);
             return true;
         }
 
+        _logger.LogInformation("JWT トークンを検証中。Path: {Path}", path);
+        
         try
         {
             var authService = context.RequestServices.GetRequiredService<IAuthService>();
@@ -74,18 +88,20 @@ public class JwtMiddleware
             
             // ユーザー情報をコンテキストに設定
             context.Items["User"] = userInfo;
+            _logger.LogInformation("JWT 認証成功。User: {UserId}, Path: {Path}", userInfo?.UserId, path);
             return true;
         }
-        catch (UnauthorizedAccessException)
+        catch (UnauthorizedAccessException ex)
         {
             // 無効なトークンの場合は401を返す
+            _logger.LogWarning(ex, "無効なJWTトークン。Path: {Path}", path);
             context.Response.StatusCode = 401;
             return false;
         }
         catch (Exception ex)
         {
             // その他の予期しないエラーの場合は401を返す
-            _logger.LogError(ex, "JWT認証処理で予期しないエラーが発生しました");
+            _logger.LogError(ex, "JWT認証処理で予期しないエラーが発生しました。Path: {Path}", path);
             context.Response.StatusCode = 401;
             return false;
         }
@@ -131,10 +147,35 @@ public class JwtMiddleware
             "/swagger/v1/swagger.json",
             "/api/auth/login",
             "/_framework",
-            "/favicon.ico"
+            "/favicon.ico",
+            "/health",
+            "/healthchecks",
+            "/metrics"
         };
 
         return !string.IsNullOrEmpty(path) && 
                publicPaths.Any(publicPath => path.StartsWith(publicPath, StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
+    /// 保護されたエンドポイントかどうかを判定
+    /// </summary>
+    /// <param name="context">HTTPコンテキスト</param>
+    /// <returns>保護されたエンドポイントの場合true</returns>
+    private static bool IsProtectedEndpoint(HttpContext context)
+    {
+        var path = context.Request.Path.Value?.ToLowerInvariant();
+        
+        // 保護されたパス（認証が必要）
+        var protectedPaths = new[]
+        {
+            "/api/rooms",
+            "/api/reservations",
+            "/api/users",
+            "/api/backup"
+        };
+
+        return !string.IsNullOrEmpty(path) && 
+               protectedPaths.Any(protectedPath => path.StartsWith(protectedPath, StringComparison.OrdinalIgnoreCase));
     }
 }

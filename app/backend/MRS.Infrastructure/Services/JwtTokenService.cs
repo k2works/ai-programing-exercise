@@ -78,9 +78,18 @@ public class JwtTokenService : IJwtTokenService
             }, out SecurityToken validatedToken);
 
             var jwtToken = (JwtSecurityToken)validatedToken;
-            var userId = jwtToken.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value;
-            var name = jwtToken.Claims.First(x => x.Type == ClaimTypes.Name).Value;
-            var role = jwtToken.Claims.First(x => x.Type == ClaimTypes.Role).Value;
+            
+            // デバッグ：利用可能なクレームを出力
+            Console.WriteLine("Available Claims:");
+            foreach (var claim in jwtToken.Claims)
+            {
+                Console.WriteLine($"  Type: {claim.Type}, Value: {claim.Value}");
+            }
+            
+            // JWTでは短いクレーム名が使用される
+            var userId = jwtToken.Claims.First(x => x.Type == "nameid").Value;
+            var name = jwtToken.Claims.First(x => x.Type == "unique_name").Value;
+            var role = jwtToken.Claims.First(x => x.Type == "role").Value;
 
             return new UserInfoDto
             {

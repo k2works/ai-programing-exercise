@@ -25,10 +25,10 @@ public class RoomRepository : IRoomRepository
     private async Task InitializeDatabaseAsync()
     {
         using var connection = _connectionFactory.CreateConnection();
-        
+
         // SQLiteでFOREIGN KEY制約を有効化
         await connection.ExecuteAsync("PRAGMA foreign_keys = ON");
-        
+
         // Roomsテーブルを先に作成
         const string createRoomsTableSql = @"
             CREATE TABLE IF NOT EXISTS Rooms (
@@ -41,7 +41,7 @@ public class RoomRepository : IRoomRepository
             );";
 
         await connection.ExecuteAsync(createRoomsTableSql);
-        
+
         // Roomsテーブルにサンプルデータを挿入
         const string insertRoomsDataSql = @"
             INSERT OR IGNORE INTO Rooms (RoomId, RoomName, Capacity, IsActive, CreatedAt, UpdatedAt) VALUES
@@ -50,7 +50,7 @@ public class RoomRepository : IRoomRepository
             ('room-003', '会議室C', 20, true, datetime('now'), datetime('now'));";
 
         await connection.ExecuteAsync(insertRoomsDataSql);
-        
+
         // ReservableRoomsテーブルを作成（外部キー制約あり）
         const string createReservableRoomsTableSql = @"
             CREATE TABLE IF NOT EXISTS ReservableRooms (
@@ -65,7 +65,7 @@ public class RoomRepository : IRoomRepository
             CREATE INDEX IF NOT EXISTS idx_reservablerooms_roomid ON ReservableRooms(RoomId);";
 
         await connection.ExecuteAsync(createReservableRoomsTableSql);
-        
+
         // ReservableRoomsテーブルにサンプルデータを挿入
         const string insertReservableRoomsDataSql = @"
             INSERT OR IGNORE INTO ReservableRooms (ReservableRoomId, RoomId, RoomName, IsAvailable, CreatedAt, UpdatedAt) VALUES
