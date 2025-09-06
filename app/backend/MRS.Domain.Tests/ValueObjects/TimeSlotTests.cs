@@ -41,11 +41,11 @@ public class TimeSlotTests
     }
 
     [Theory]
-    [InlineData("2023-01-01 10:00", "2023-01-01 12:00", "2023-01-01 11:00", "2023-01-01 13:00", true)] // Overlapping
+    [InlineData("2023-01-01 10:00", "2023-01-01 12:00", "2023-01-01 11:00", "2023-01-01 13:00", true)] // Overlapping - partial overlap at end
     [InlineData("2023-01-01 10:00", "2023-01-01 12:00", "2023-01-01 12:00", "2023-01-01 14:00", false)] // Adjacent (no overlap)
     [InlineData("2023-01-01 10:00", "2023-01-01 12:00", "2023-01-01 08:00", "2023-01-01 10:00", false)] // Adjacent (no overlap)
-    [InlineData("2023-01-01 10:00", "2023-01-01 12:00", "2023-01-01 09:00", "2023-01-01 11:00", true)] // Overlapping
-    [InlineData("2023-01-01 10:00", "2023-01-01 12:00", "2023-01-01 11:00", "2023-01-01 13:00", true)] // Overlapping
+    [InlineData("2023-01-01 10:00", "2023-01-01 12:00", "2023-01-01 09:00", "2023-01-01 11:00", true)] // Overlapping - partial overlap at start
+    [InlineData("2023-01-01 10:00", "2023-01-01 12:00", "2023-01-01 13:00", "2023-01-01 15:00", false)] // No overlap - completely after
     [InlineData("2023-01-01 10:00", "2023-01-01 12:00", "2023-01-01 08:00", "2023-01-01 14:00", true)] // Completely containing
     [InlineData("2023-01-01 10:00", "2023-01-01 12:00", "2023-01-01 10:30", "2023-01-01 11:30", true)] // Completely contained
     public void OverlapsWith_WithVariousTimeSlots_ReturnsExpectedResult(
