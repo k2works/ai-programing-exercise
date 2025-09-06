@@ -6,8 +6,36 @@ using MRS.Infrastructure.Data;
 using MRS.Infrastructure.Repositories;
 using Microsoft.OpenApi.Models;
 using OpenTelemetry.Metrics;
+using Serilog;
+using Serilog.Formatting.Compact;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .Enrich.WithEnvironmentName()
+    .Enrich.WithMachineName()
+    .Enrich.WithProcessId()
+    .Enrich.WithThreadId()
+    .WriteTo.Console(new CompactJsonFormatter())
+    .WriteTo.File(
+        new CompactJsonFormatter(),
+        path: "logs/mrs-.log",
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 30,
+        buffered: true,
+        flushToDiskInterval: TimeSpan.FromSeconds(5))
+    .WriteTo.File(
+        path: "logs/security/security-.log",
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 90,
+        restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Warning,
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}")
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -39,6 +67,15 @@ builder.Services.AddScoped<IReservationService, ReservationService>();
 // Add Metrics
 builder.Services.AddMetrics();
 builder.Services.AddSingleton<IMetricsService, MetricsService>();
+
+// Add Security Services
+builder.Services.AddScoped<ISecurityLogService, SecurityLogService>();
+
+// Add Rate Limiting
+builder.Services.AddRateLimitingServices();
+
+// Add Data Protection
+builder.Services.AddDataProtection();
 
 // Add OpenTelemetry Metrics
 builder.Services.AddOpenTelemetry()
@@ -221,6 +258,13 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 app.UseCors("AllowAll");
+
+// Add Rate Limiting
+app.UseRateLimiter();
+app.UseCustomRateLimiting();
+
+// Add Security Logging
+app.UseSecurityLogging();
 
 // Add JWT Middleware
 app.UseMiddleware<JwtMiddleware>();
