@@ -5,6 +5,7 @@ using MRS.Application.DTOs;
 using MRS.Api.Services;
 using System.Security.Claims;
 using System.Diagnostics;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace MRS.Api.Controllers;
 
@@ -18,16 +19,19 @@ public class ReservationsController : ControllerBase
 {
     private readonly IReservationService _reservationService;
     private readonly IMetricsService _metricsService;
+    private readonly ISecurityLogService _securityLogService;
 
     /// <summary>
     /// ReservationsControllerのコンストラクタ
     /// </summary>
     /// <param name="reservationService">予約サービス</param>
     /// <param name="metricsService">メトリクスサービス</param>
-    public ReservationsController(IReservationService reservationService, IMetricsService metricsService)
+    /// <param name="securityLogService">セキュリティログサービス</param>
+    public ReservationsController(IReservationService reservationService, IMetricsService metricsService, ISecurityLogService securityLogService)
     {
         _reservationService = reservationService ?? throw new ArgumentNullException(nameof(reservationService));
         _metricsService = metricsService ?? throw new ArgumentNullException(nameof(metricsService));
+        _securityLogService = securityLogService ?? throw new ArgumentNullException(nameof(securityLogService));
     }
 
     /// <summary>
@@ -39,6 +43,7 @@ public class ReservationsController : ControllerBase
     /// <response code="400">リクエストデータが無効</response>
     /// <response code="409">予約が重複している</response>
     [HttpPost]
+    [EnableRateLimiting("ReservationPolicy")]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ReservationDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -50,8 +55,12 @@ public class ReservationsController : ControllerBase
         }
 
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var username = User.Identity?.Name;
+        var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+
         if (string.IsNullOrEmpty(userId))
         {
+            _securityLogService.LogUnauthorizedAccess("Reservation Creation", username, ipAddress);
             return BadRequest("ユーザーIDが取得できません。");
         }
 
@@ -64,15 +73,22 @@ public class ReservationsController : ControllerBase
             
             _metricsService.IncrementReservationCreated();
             _metricsService.RecordReservationDuration(stopwatch.ElapsedMilliseconds);
+            _securityLogService.LogDataAccess("Reservations", username ?? userId, "予約作成", ipAddress);
             
             return CreatedAtAction(nameof(GetReservationById), new { reservationId = reservation.ReservationId }, reservation);
         }
         catch (ArgumentException ex)
         {
+            _securityLogService.LogSecurityViolation("ReservationCreationError", ex.Message, username, ipAddress);
             return BadRequest(ex.Message);
         }
         catch (InvalidOperationException ex)
         {
+            if (ex.Message.Contains("conflict") || ex.Message.Contains("重複"))
+            {
+                _metricsService.IncrementReservationConflict();
+            }
+            _securityLogService.LogSecurityViolation("ReservationConflict", ex.Message, username, ipAddress);
             return Conflict(ex.Message);
         }
     }
