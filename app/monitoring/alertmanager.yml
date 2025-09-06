@@ -1,0 +1,176 @@
+global:
+  smtp_smarthost: 'localhost:587'
+  smtp_from: 'alerts@company.com'
+  smtp_require_tls: false
+
+route:
+  group_by: ['alertname', 'severity', 'service']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 24h
+  receiver: 'default'
+  routes:
+    - match:
+        severity: critical
+      receiver: 'critical-alerts'
+      group_wait: 10s
+      repeat_interval: 1h
+    
+    - match:
+        severity: security
+      receiver: 'security-alerts'
+      group_wait: 5s
+      repeat_interval: 30m
+    
+    - match:
+        severity: warning
+      receiver: 'warning-alerts'
+      repeat_interval: 4h
+    
+    - match:
+        severity: info
+      receiver: 'info-alerts'
+      repeat_interval: 24h
+
+receivers:
+  - name: 'default'
+    email_configs:
+      - to: 'ops@company.com'
+        subject: '[MRS] Alert: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+        body: |
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          
+          Details:
+          {{ range $key, $value := .Labels }}
+          - {{ $key }}: {{ $value }}
+          {{ end }}
+          {{ end }}
+        headers:
+          X-Priority: 'normal'
+
+  - name: 'critical-alerts'
+    email_configs:
+      - to: 'ops@company.com,dev@company.com,manager@company.com'
+        subject: '[MRS CRITICAL] {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+        body: |
+          🚨 CRITICAL ALERT 🚨
+          
+          {{ range .Alerts }}
+          Service: {{ .Labels.service }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Started: {{ .StartsAt | humanizeTimestamp }}
+          
+          Details:
+          {{ range $key, $value := .Labels }}
+          - {{ $key }}: {{ $value }}
+          {{ end }}
+          {{ end }}
+          
+          Please take immediate action!
+        headers:
+          X-Priority: 'high'
+    slack_configs:
+      - api_url: '#{SLACK_WEBHOOK_URL}#'
+        channel: '#mrs-alerts'
+        color: 'danger'
+        title: '🚨 MRS Critical Alert'
+        text: |
+          {{ range .Alerts }}
+          **{{ .Annotations.summary }}**
+          {{ .Annotations.description }}
+          Service: {{ .Labels.service }}
+          {{ end }}
+
+  - name: 'security-alerts'
+    email_configs:
+      - to: 'security@company.com,ops@company.com'
+        subject: '[MRS SECURITY] {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+        body: |
+          🔒 SECURITY ALERT 🔒
+          
+          {{ range .Alerts }}
+          Service: {{ .Labels.service }}
+          Security Event: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Time: {{ .StartsAt | humanizeTimestamp }}
+          
+          Details:
+          {{ range $key, $value := .Labels }}
+          - {{ $key }}: {{ $value }}
+          {{ end }}
+          {{ end }}
+          
+          Immediate security review required!
+        headers:
+          X-Priority: 'high'
+    slack_configs:
+      - api_url: '#{SLACK_WEBHOOK_URL}#'
+        channel: '#security-alerts'
+        color: 'warning'
+        title: '🔒 MRS Security Alert'
+        text: |
+          {{ range .Alerts }}
+          **{{ .Annotations.summary }}**
+          {{ .Annotations.description }}
+          {{ end }}
+
+  - name: 'warning-alerts'
+    email_configs:
+      - to: 'ops@company.com'
+        subject: '[MRS Warning] {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+        body: |
+          ⚠️ Warning Alert
+          
+          {{ range .Alerts }}
+          Service: {{ .Labels.service }}
+          Warning: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          
+          Details:
+          {{ range $key, $value := .Labels }}
+          - {{ $key }}: {{ $value }}
+          {{ end }}
+          {{ end }}
+        headers:
+          X-Priority: 'normal'
+    slack_configs:
+      - api_url: '#{SLACK_WEBHOOK_URL}#'
+        channel: '#mrs-monitoring'
+        color: 'warning'
+        title: '⚠️ MRS Warning'
+        text: |
+          {{ range .Alerts }}
+          **{{ .Annotations.summary }}**
+          {{ .Annotations.description }}
+          {{ end }}
+
+  - name: 'info-alerts'
+    email_configs:
+      - to: 'dev@company.com'
+        subject: '[MRS Info] {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+        body: |
+          ℹ️ Info Alert
+          
+          {{ range .Alerts }}
+          Service: {{ .Labels.service }}
+          Info: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          {{ end }}
+        headers:
+          X-Priority: 'low'
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['service', 'alertname']
+  
+  - source_match:
+      severity: 'warning'
+    target_match:
+      severity: 'info'
+    equal: ['service', 'alertname']

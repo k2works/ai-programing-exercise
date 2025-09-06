@@ -1,0 +1,340 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "MRS - Meeting Room System Dashboard",
+    "tags": ["mrs", "monitoring", "production"],
+    "style": "dark",
+    "timezone": "browser",
+    "refresh": "30s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "System Health Overview",
+        "type": "stat",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+        "targets": [
+          {
+            "expr": "up{job=\"mrs-api\"}",
+            "legendFormat": "API Status",
+            "refId": "A"
+          },
+          {
+            "expr": "mrs_health_checks_status{check_name=\"database\"}",
+            "legendFormat": "Database",
+            "refId": "B"
+          },
+          {
+            "expr": "mrs_health_checks_status{check_name=\"memory\"}",
+            "legendFormat": "Memory",
+            "refId": "C"
+          },
+          {
+            "expr": "mrs_health_checks_status{check_name=\"disk_space\"}",
+            "legendFormat": "Disk",
+            "refId": "D"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                { "color": "red", "value": 0 },
+                { "color": "green", "value": 1 }
+              ]
+            },
+            "unit": "none",
+            "min": 0,
+            "max": 1
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "orientation": "auto",
+          "textMode": "auto",
+          "colorMode": "background"
+        }
+      },
+      {
+        "id": 2,
+        "title": "Memory Usage",
+        "type": "timeseries",
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+        "targets": [
+          {
+            "expr": "mrs_memory_usage_mb",
+            "legendFormat": "Memory Usage (MB)",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "palette-classic" },
+            "unit": "decmbytes",
+            "thresholds": {
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 500 },
+                { "color": "red", "value": 1024 }
+              ]
+            }
+          }
+        },
+        "options": {
+          "legend": {
+            "calcs": ["last", "max"],
+            "displayMode": "table",
+            "placement": "bottom"
+          }
+        }
+      },
+      {
+        "id": 3,
+        "title": "Disk Usage",
+        "type": "gauge",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+        "targets": [
+          {
+            "expr": "mrs_disk_usage_percentage",
+            "legendFormat": "Disk Usage %",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "thresholds" },
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 70 },
+                { "color": "orange", "value": 80 },
+                { "color": "red", "value": 90 }
+              ]
+            }
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"]
+          },
+          "orientation": "auto"
+        }
+      },
+      {
+        "id": 4,
+        "title": "Reservation Activity",
+        "type": "timeseries",
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+        "targets": [
+          {
+            "expr": "rate(mrs_reservations_created_total[5m])",
+            "legendFormat": "Reservations Created/sec",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(mrs_reservations_cancelled_total[5m])",
+            "legendFormat": "Reservations Cancelled/sec", 
+            "refId": "B"
+          },
+          {
+            "expr": "rate(mrs_reservation_conflicts_total[5m])",
+            "legendFormat": "Conflicts/sec",
+            "refId": "C"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "palette-classic" },
+            "unit": "ops"
+          }
+        }
+      },
+      {
+        "id": 5,
+        "title": "Authentication Metrics",
+        "type": "stat",
+        "gridPos": { "h": 8, "w": 8, "x": 0, "y": 16 },
+        "targets": [
+          {
+            "expr": "rate(mrs_logins_success_total[5m])",
+            "legendFormat": "Success Rate",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(mrs_logins_failure_total[5m])",
+            "legendFormat": "Failure Rate",
+            "refId": "B"
+          },
+          {
+            "expr": "rate(mrs_unauthorized_access_total[5m])",
+            "legendFormat": "Unauthorized/sec",
+            "refId": "C"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "thresholds" },
+            "unit": "ops",
+            "thresholds": {
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 0.1 },
+                { "color": "red", "value": 1 }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 6,
+        "title": "Response Time Distribution",
+        "type": "heatmap", 
+        "gridPos": { "h": 8, "w": 8, "x": 8, "y": 16 },
+        "targets": [
+          {
+            "expr": "rate(mrs_reservation_duration_ms_bucket[5m])",
+            "legendFormat": "{{le}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ms"
+          }
+        }
+      },
+      {
+        "id": 7,
+        "title": "Room Utilization by Hour",
+        "type": "timeseries",
+        "gridPos": { "h": 8, "w": 8, "x": 16, "y": 16 },
+        "targets": [
+          {
+            "expr": "mrs_room_utilization_percentage",
+            "legendFormat": "Room {{room_id}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "palette-classic" },
+            "unit": "percent",
+            "min": 0,
+            "max": 100
+          }
+        }
+      },
+      {
+        "id": 8,
+        "title": "Database & Health Check Errors",
+        "type": "table",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
+        "targets": [
+          {
+            "expr": "increase(mrs_database_errors_total[1h])",
+            "legendFormat": "Database Errors",
+            "refId": "A"
+          },
+          {
+            "expr": "increase(mrs_health_check_failures_total[1h])",
+            "legendFormat": "Health Check Failures - {{check_name}}",
+            "refId": "B"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "thresholds" },
+            "thresholds": {
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 1 },
+                { "color": "red", "value": 5 }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 9,
+        "title": "Peak Hour Usage Pattern",
+        "type": "bargauge",
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
+        "targets": [
+          {
+            "expr": "mrs_peak_hour_usage_total",
+            "legendFormat": "Hour {{hour}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "continuous-GrYlRd" },
+            "unit": "short"
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"]
+          },
+          "orientation": "horizontal"
+        }
+      },
+      {
+        "id": 10,
+        "title": "User Session Duration",
+        "type": "histogram",
+        "gridPos": { "h": 8, "w": 24, "x": 0, "y": 32 },
+        "targets": [
+          {
+            "expr": "rate(mrs_user_session_duration_minutes_bucket[5m])",
+            "legendFormat": "{{le}} minutes",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "min"
+          }
+        }
+      }
+    ],
+    "annotations": {
+      "list": [
+        {
+          "name": "Deployments",
+          "datasource": "prometheus",
+          "enable": true,
+          "expr": "changes(process_start_time_seconds[5m]) > 0",
+          "iconColor": "blue",
+          "textFormat": "Restart detected"
+        }
+      ]
+    },
+    "templating": {
+      "list": [
+        {
+          "name": "environment",
+          "type": "query",
+          "query": "label_values(environment)",
+          "current": {
+            "text": "production",
+            "value": "production"
+          }
+        }
+      ]
+    }
+  }
+}

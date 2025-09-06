@@ -1,0 +1,182 @@
+groups:
+  - name: MRS System Alerts
+    rules:
+      # High Memory Usage Alert
+      - alert: HighMemoryUsage
+        expr: mrs_memory_usage_mb > 800
+        for: 5m
+        labels:
+          severity: warning
+          service: mrs-api
+        annotations:
+          summary: "High memory usage detected"
+          description: "MRS API memory usage is {{ $value }}MB, which exceeds the 800MB threshold."
+
+      # Critical Memory Usage Alert
+      - alert: CriticalMemoryUsage
+        expr: mrs_memory_usage_mb > 1024
+        for: 1m
+        labels:
+          severity: critical
+          service: mrs-api
+        annotations:
+          summary: "Critical memory usage detected"
+          description: "MRS API memory usage is {{ $value }}MB, which exceeds the critical 1024MB threshold."
+
+      # High Disk Usage Alert
+      - alert: HighDiskUsage
+        expr: mrs_disk_usage_percentage > 85
+        for: 10m
+        labels:
+          severity: warning
+          service: mrs-api
+        annotations:
+          summary: "High disk usage detected"
+          description: "Disk usage is {{ $value }}%, which exceeds the 85% threshold."
+
+      # Database Connection Failure
+      - alert: DatabaseConnectionFailure
+        expr: increase(mrs_health_check_failures_total{check_name="database"}[5m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          service: mrs-api
+        annotations:
+          summary: "Database connection failure"
+          description: "Database health check has failed {{ $value }} times in the last 5 minutes."
+
+      # High Unauthorized Access Attempts
+      - alert: HighUnauthorizedAccess
+        expr: rate(mrs_unauthorized_access_total[5m]) > 2
+        for: 5m
+        labels:
+          severity: security
+          service: mrs-api
+        annotations:
+          summary: "High rate of unauthorized access attempts"
+          description: "Unauthorized access rate is {{ $value }} attempts/sec, indicating potential security threat."
+
+      # API Service Down
+      - alert: APIServiceDown
+        expr: up{job="mrs-api"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: mrs-api
+        annotations:
+          summary: "MRS API service is down"
+          description: "MRS API service has been down for more than 2 minutes."
+
+      # High Response Time
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(mrs_reservation_duration_ms_bucket[5m])) > 3000
+        for: 10m
+        labels:
+          severity: warning
+          service: mrs-api
+        annotations:
+          summary: "High API response time"
+          description: "95th percentile response time is {{ $value }}ms, exceeding 3000ms threshold."
+
+      # High Reservation Conflict Rate
+      - alert: HighReservationConflictRate
+        expr: rate(mrs_reservation_conflicts_total[10m]) > 0.5
+        for: 10m
+        labels:
+          severity: warning
+          service: mrs-api
+        annotations:
+          summary: "High reservation conflict rate"
+          description: "Reservation conflict rate is {{ $value }} conflicts/sec, indicating potential system issues."
+
+      # Low Login Success Rate
+      - alert: LowLoginSuccessRate
+        expr: rate(mrs_logins_success_total[5m]) / (rate(mrs_logins_success_total[5m]) + rate(mrs_logins_failure_total[5m])) < 0.8
+        for: 15m
+        labels:
+          severity: warning
+          service: mrs-api
+        annotations:
+          summary: "Low login success rate"
+          description: "Login success rate is {{ $value | humanizePercentage }}, below 80% threshold."
+
+      # Database Error Rate
+      - alert: HighDatabaseErrorRate
+        expr: rate(mrs_database_errors_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          service: mrs-api
+        annotations:
+          summary: "High database error rate"
+          description: "Database error rate is {{ $value }} errors/sec, indicating potential database issues."
+
+  - name: Infrastructure Alerts
+    rules:
+      # Container High CPU Usage
+      - alert: ContainerHighCPU
+        expr: rate(container_cpu_usage_seconds_total{name="mrs-api"}[5m]) * 100 > 80
+        for: 10m
+        labels:
+          severity: warning
+          service: mrs-api
+        annotations:
+          summary: "Container high CPU usage"
+          description: "Container {{ $labels.name }} CPU usage is {{ $value }}%"
+
+      # Container High Memory Usage
+      - alert: ContainerHighMemory
+        expr: container_memory_usage_bytes{name="mrs-api"} / container_spec_memory_limit_bytes{name="mrs-api"} * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: mrs-api
+        annotations:
+          summary: "Container high memory usage"
+          description: "Container {{ $labels.name }} memory usage is {{ $value }}%"
+
+      # Host High Load Average
+      - alert: HostHighLoad
+        expr: node_load15 > 2
+        for: 10m
+        labels:
+          severity: warning
+          service: infrastructure
+        annotations:
+          summary: "Host high load average"
+          description: "Host load average is {{ $value }} (15m average)"
+
+      # Host Low Disk Space
+      - alert: HostLowDiskSpace
+        expr: (node_filesystem_avail_bytes * 100) / node_filesystem_size_bytes < 10
+        for: 5m
+        labels:
+          severity: critical
+          service: infrastructure
+        annotations:
+          summary: "Host low disk space"
+          description: "Filesystem {{ $labels.mountpoint }} has only {{ $value }}% available space"
+
+  - name: Business Logic Alerts
+    rules:
+      # Unusual Peak Hour Pattern
+      - alert: UnusualReservationPattern
+        expr: rate(mrs_reservations_created_total[1h]) > 10 or rate(mrs_reservations_created_total[1h]) == 0
+        for: 1h
+        labels:
+          severity: info
+          service: mrs-api
+        annotations:
+          summary: "Unusual reservation pattern detected"
+          description: "Reservation creation rate is {{ $value }} reservations/sec, which is unusual for this time."
+
+      # High Cancellation Rate
+      - alert: HighCancellationRate
+        expr: rate(mrs_reservations_cancelled_total[1h]) / rate(mrs_reservations_created_total[1h]) > 0.3
+        for: 30m
+        labels:
+          severity: info
+          service: mrs-api
+        annotations:
+          summary: "High cancellation rate"
+          description: "Cancellation rate is {{ $value | humanizePercentage }} of total reservations, above 30% threshold."
