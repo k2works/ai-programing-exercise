@@ -1,0 +1,18 @@
+{
+  "HealthChecksUI": {
+    "HealthChecks": [
+      {
+        "Name": "MRS API",
+        "Uri": "https://localhost:7280/health"
+      },
+      {
+        "Name": "MRS API (HTTP)",
+        "Uri": "http://localhost:5080/health"
+      }
+    ],
+    "Webhooks": [],
+    "EvaluationTimeInSeconds": 30,
+    "MinimumSecondsBetweenFailureNotifications": 300,
+    "MaximumHistoryEntriesPerEndpoint": 50
+  }
+}

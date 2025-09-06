@@ -1,9 +1,11 @@
 using MRS.Api.Middleware;
+using MRS.Api.Services;
 using MRS.Application.Ports;
 using MRS.Application.Services;
 using MRS.Infrastructure.Data;
 using MRS.Infrastructure.Repositories;
 using Microsoft.OpenApi.Models;
+using OpenTelemetry.Metrics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +35,58 @@ builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
+
+// Add Metrics
+builder.Services.AddMetrics();
+builder.Services.AddSingleton<IMetricsService, MetricsService>();
+
+// Add OpenTelemetry Metrics
+builder.Services.AddOpenTelemetry()
+    .WithMetrics(builder =>
+    {
+        builder
+            .AddMeter("MRS.Api")
+            .AddRuntimeInstrumentation()
+            .AddHttpClientInstrumentation()
+            .AddAspNetCoreInstrumentation()
+            .AddPrometheusExporter();
+    });
+
+// Add Health Checks
+builder.Services.AddHealthChecks()
+    .AddCheck("database", () => 
+    {
+        try
+        {
+            var connectionFactory = builder.Services.BuildServiceProvider().GetService<IDbConnectionFactory>();
+            using var connection = connectionFactory?.CreateConnection();
+            connection?.Open();
+            return Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy("Database connection successful");
+        }
+        catch (Exception ex)
+        {
+            return Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Unhealthy($"Database connection failed: {ex.Message}");
+        }
+    })
+    .AddCheck("memory", () => 
+    {
+        var allocated = GC.GetTotalMemory(false);
+        var data = new Dictionary<string, object>()
+        {
+            { "allocated", allocated },
+            { "gen0", GC.CollectionCount(0) },
+            { "gen1", GC.CollectionCount(1) },
+            { "gen2", GC.CollectionCount(2) }
+        };
+        var result = allocated < 100_000_000 
+            ? Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy("Memory usage is normal", data)
+            : Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Degraded("Memory usage is high", null, data);
+        return result;
+    });
+
+// Add Health Checks UI
+builder.Services.AddHealthChecksUI()
+    .AddInMemoryStorage();
 
 // Add Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
@@ -104,6 +158,23 @@ app.UseAuthorization();
 
 // Add controller mapping
 app.MapControllers();
+
+// Add Health Checks endpoints
+app.MapHealthChecks("/health");
+app.MapHealthChecks("/health/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions()
+{
+    Predicate = check => check.Tags.Contains("ready")
+});
+app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions()
+{
+    Predicate = _ => false
+});
+
+// Add Health Checks UI
+app.MapHealthChecksUI();
+
+// Add Prometheus metrics endpoint
+app.MapPrometheusScrapingEndpoint();
 
 app.Run();
 
