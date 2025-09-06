@@ -71,6 +71,11 @@ builder.Services.AddSingleton<IMetricsService, MetricsService>();
 // Add Security Services
 builder.Services.AddScoped<ISecurityLogService, SecurityLogService>();
 
+// Add Backup Services
+builder.Services.AddScoped<IBackupService, SqliteBackupService>();
+builder.Services.AddHostedService<BackupSchedulerService>();
+builder.Services.AddHostedService<DisasterRecoveryTestService>();
+
 // Add Rate Limiting
 builder.Services.AddRateLimitingServices();
 
