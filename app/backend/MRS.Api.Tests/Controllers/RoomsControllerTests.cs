@@ -9,14 +9,14 @@ using MRS.Application.DTOs.Rooms;
 
 namespace MRS.Api.Tests.Controllers;
 
-public class RoomsControllerTests : IClassFixture<WebApplicationFactory<Program>>
+public class RoomsControllerTests : IClassFixture<TestWebApplicationFactory>
 {
     private readonly WebApplicationFactory<Program> _factory;
     private readonly HttpClient _client;
     private readonly Mock<IRoomService> _mockRoomService;
     private readonly JsonSerializerOptions _jsonOptions;
 
-    public RoomsControllerTests(WebApplicationFactory<Program> factory)
+    public RoomsControllerTests(TestWebApplicationFactory factory)
     {
         _mockRoomService = new Mock<IRoomService>();
         
@@ -43,6 +43,10 @@ public class RoomsControllerTests : IClassFixture<WebApplicationFactory<Program>
         });
         
         _client = _factory.CreateClient();
+        
+        // テスト用の認証ヘッダーを設定
+        _client.DefaultRequestHeaders.Authorization = 
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", "test-token-user01");
     }
 
     [Fact]
