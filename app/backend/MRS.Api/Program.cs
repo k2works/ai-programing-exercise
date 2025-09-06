@@ -61,28 +61,99 @@ builder.Services.AddHealthChecks()
             var connectionFactory = builder.Services.BuildServiceProvider().GetService<IDbConnectionFactory>();
             using var connection = connectionFactory?.CreateConnection();
             connection?.Open();
-            return Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy("Database connection successful");
+            using var command = connection?.CreateCommand();
+            command.CommandText = "SELECT COUNT(*) FROM Users";
+            var userCount = command.ExecuteScalar();
+            return Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy($"Database connection successful. Users: {userCount}");
         }
         catch (Exception ex)
         {
             return Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Unhealthy($"Database connection failed: {ex.Message}");
         }
-    })
+    }, tags: new[] { "ready", "database" })
     .AddCheck("memory", () => 
     {
         var allocated = GC.GetTotalMemory(false);
+        var availableMemory = GC.GetTotalMemory(true);
         var data = new Dictionary<string, object>()
         {
-            { "allocated", allocated },
-            { "gen0", GC.CollectionCount(0) },
-            { "gen1", GC.CollectionCount(1) },
-            { "gen2", GC.CollectionCount(2) }
+            { "allocated_bytes", allocated },
+            { "available_bytes", availableMemory },
+            { "allocated_mb", allocated / 1024 / 1024 },
+            { "gen0_collections", GC.CollectionCount(0) },
+            { "gen1_collections", GC.CollectionCount(1) },
+            { "gen2_collections", GC.CollectionCount(2) }
         };
-        var result = allocated < 100_000_000 
-            ? Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy("Memory usage is normal", data)
-            : Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Degraded("Memory usage is high", null, data);
-        return result;
-    });
+        
+        // 500MB を超えたら警告、1GB を超えたら危険
+        var allocatedMB = allocated / 1024 / 1024;
+        if (allocatedMB < 500)
+        {
+            return Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy($"Memory usage normal: {allocatedMB}MB", data);
+        }
+        else if (allocatedMB < 1024)
+        {
+            return Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Degraded($"Memory usage high: {allocatedMB}MB", null, data);
+        }
+        else
+        {
+            return Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Unhealthy($"Memory usage critical: {allocatedMB}MB", null, data);
+        }
+    }, tags: new[] { "ready", "memory" })
+    .AddCheck("disk_space", () =>
+    {
+        try
+        {
+            var drive = new DriveInfo(AppDomain.CurrentDomain.BaseDirectory);
+            var freeSpaceGB = drive.AvailableFreeSpace / 1024 / 1024 / 1024;
+            var totalSpaceGB = drive.TotalSize / 1024 / 1024 / 1024;
+            var usagePercentage = ((double)(totalSpaceGB - freeSpaceGB) / totalSpaceGB) * 100;
+            
+            var data = new Dictionary<string, object>()
+            {
+                { "free_space_gb", freeSpaceGB },
+                { "total_space_gb", totalSpaceGB },
+                { "usage_percentage", usagePercentage }
+            };
+            
+            if (usagePercentage < 80)
+            {
+                return Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy($"Disk usage normal: {usagePercentage:F1}% ({freeSpaceGB}GB free)", data);
+            }
+            else if (usagePercentage < 90)
+            {
+                return Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Degraded($"Disk usage high: {usagePercentage:F1}% ({freeSpaceGB}GB free)", null, data);
+            }
+            else
+            {
+                return Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Unhealthy($"Disk usage critical: {usagePercentage:F1}% ({freeSpaceGB}GB free)", null, data);
+            }
+        }
+        catch (Exception ex)
+        {
+            return Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Unhealthy($"Disk space check failed: {ex.Message}");
+        }
+    }, tags: new[] { "ready", "disk" })
+    .AddCheck("application", () =>
+    {
+        try
+        {
+            var uptime = DateTime.UtcNow - System.Diagnostics.Process.GetCurrentProcess().StartTime.ToUniversalTime();
+            var data = new Dictionary<string, object>()
+            {
+                { "uptime_minutes", uptime.TotalMinutes },
+                { "process_id", Environment.ProcessId },
+                { "machine_name", Environment.MachineName },
+                { "dotnet_version", Environment.Version.ToString() }
+            };
+            
+            return Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy($"Application healthy. Uptime: {uptime.TotalMinutes:F1} minutes", data);
+        }
+        catch (Exception ex)
+        {
+            return Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Unhealthy($"Application check failed: {ex.Message}");
+        }
+    }, tags: new[] { "live", "application" });
 
 // Add Health Checks UI
 builder.Services.AddHealthChecksUI()
