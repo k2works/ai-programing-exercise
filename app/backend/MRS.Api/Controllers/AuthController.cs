@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MRS.Application.Ports;
 using MRS.Application.DTOs.Auth;
+using MRS.Api.Services;
 
 namespace MRS.Api.Controllers;
 
@@ -9,10 +10,12 @@ namespace MRS.Api.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
+    private readonly IMetricsService _metricsService;
 
-    public AuthController(IAuthService authService)
+    public AuthController(IAuthService authService, IMetricsService metricsService)
     {
         _authService = authService;
+        _metricsService = metricsService;
     }
 
     /// <summary>
@@ -24,10 +27,12 @@ public class AuthController : ControllerBase
         try
         {
             var response = await _authService.LoginAsync(request);
+            _metricsService.IncrementLoginSuccess();
             return Ok(response);
         }
         catch (UnauthorizedAccessException)
         {
+            _metricsService.IncrementLoginFailure();
             return Unauthorized();
         }
     }

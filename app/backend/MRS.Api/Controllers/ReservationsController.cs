@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MRS.Application.Services;
 using MRS.Application.DTOs;
+using MRS.Api.Services;
 using System.Security.Claims;
+using System.Diagnostics;
 
 namespace MRS.Api.Controllers;
 
@@ -15,14 +17,17 @@ namespace MRS.Api.Controllers;
 public class ReservationsController : ControllerBase
 {
     private readonly IReservationService _reservationService;
+    private readonly IMetricsService _metricsService;
 
     /// <summary>
     /// ReservationsControllerのコンストラクタ
     /// </summary>
     /// <param name="reservationService">予約サービス</param>
-    public ReservationsController(IReservationService reservationService)
+    /// <param name="metricsService">メトリクスサービス</param>
+    public ReservationsController(IReservationService reservationService, IMetricsService metricsService)
     {
         _reservationService = reservationService ?? throw new ArgumentNullException(nameof(reservationService));
+        _metricsService = metricsService ?? throw new ArgumentNullException(nameof(metricsService));
     }
 
     /// <summary>
@@ -52,8 +57,14 @@ public class ReservationsController : ControllerBase
 
         try
         {
+            var stopwatch = Stopwatch.StartNew();
             var requestWithUserId = request with { UserId = userId };
             var reservation = await _reservationService.CreateReservationAsync(requestWithUserId);
+            stopwatch.Stop();
+            
+            _metricsService.IncrementReservationCreated();
+            _metricsService.RecordReservationDuration(stopwatch.ElapsedMilliseconds);
+            
             return CreatedAtAction(nameof(GetReservationById), new { reservationId = reservation.ReservationId }, reservation);
         }
         catch (ArgumentException ex)
@@ -264,6 +275,7 @@ public class ReservationsController : ControllerBase
             
             if (success)
             {
+                _metricsService.IncrementReservationCancelled();
                 return Ok(new { message = "予約をキャンセルしました。" });
             }
             else
