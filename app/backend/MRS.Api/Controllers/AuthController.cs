@@ -35,18 +35,18 @@ public class AuthController : ControllerBase
         {
             var response = await _authService.LoginAsync(request);
             _metricsService.IncrementLoginSuccess();
-            _securityLogService.LogLoginAttempt(request.Username, true, ipAddress, userAgent);
+            _securityLogService.LogLoginAttempt(request.UserId, true, ipAddress, userAgent);
             return Ok(response);
         }
         catch (UnauthorizedAccessException)
         {
             _metricsService.IncrementLoginFailure();
-            _securityLogService.LogLoginAttempt(request.Username, false, ipAddress, userAgent);
+            _securityLogService.LogLoginAttempt(request.UserId, false, ipAddress, userAgent);
             return Unauthorized(new { message = "Invalid username or password" });
         }
         catch (Exception ex)
         {
-            _securityLogService.LogSecurityViolation("LoginError", ex.Message, request.Username, ipAddress);
+            _securityLogService.LogSecurityViolation("LoginError", ex.Message, request.UserId, ipAddress);
             return StatusCode(500, new { message = "An error occurred during login" });
         }
     }

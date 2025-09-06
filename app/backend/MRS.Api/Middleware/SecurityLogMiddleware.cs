@@ -1,5 +1,6 @@
 using MRS.Api.Services;
 using System.Security.Claims;
+using System.Security;
 
 namespace MRS.Api.Middleware;
 
@@ -69,6 +70,14 @@ public class SecurityLogMiddleware
         var path = context.Request.Path.Value?.ToLower();
         var method = context.Request.Method;
 
+        LogAuthEndpoints(context, securityLogService, path, ipAddress, userAgent, username);
+        LogApiEndpoints(context, securityLogService, path, method, ipAddress, username);
+        DetectAnomalousAccess(context, securityLogService, ipAddress, username);
+    }
+
+    private void LogAuthEndpoints(HttpContext context, ISecurityLogService securityLogService,
+        string? path, string? ipAddress, string? userAgent, string? username)
+    {
         switch (path)
         {
             case "/api/auth/login":
@@ -88,59 +97,81 @@ public class SecurityLogMiddleware
                     securityLogService.LogLogout(username, ipAddress);
                 }
                 break;
+        }
+    }
 
+    private void LogApiEndpoints(HttpContext context, ISecurityLogService securityLogService,
+        string? path, string method, string? ipAddress, string? username)
+    {
+        switch (path)
+        {
             case var reservationPath when reservationPath?.StartsWith("/api/reservations") == true:
-                if (context.Response.StatusCode == 200 && !string.IsNullOrEmpty(username))
-                {
-                    var action = method switch
-                    {
-                        "GET" => "予約データ閲覧",
-                        "POST" => "予約作成",
-                        "PUT" => "予約更新",
-                        "DELETE" => "予約削除",
-                        _ => $"予約操作({method})"
-                    };
-                    securityLogService.LogDataAccess("Reservations", username, action, ipAddress);
-                }
-                else if (context.Response.StatusCode == 401)
-                {
-                    securityLogService.LogUnauthorizedAccess($"予約システム({method})", username, ipAddress);
-                }
-                else if (context.Response.StatusCode == 403)
-                {
-                    securityLogService.LogPermissionDenied($"予約システム({method})", username ?? "Unknown", ipAddress);
-                }
+                LogReservationEndpoint(context, securityLogService, method, ipAddress, username);
                 break;
 
             case var roomPath when roomPath?.StartsWith("/api/rooms") == true:
-                if (context.Response.StatusCode == 200 && !string.IsNullOrEmpty(username))
-                {
-                    var action = method switch
-                    {
-                        "GET" => "会議室データ閲覧",
-                        "POST" => "会議室作成",
-                        "PUT" => "会議室更新",
-                        "DELETE" => "会議室削除",
-                        _ => $"会議室操作({method})"
-                    };
-                    securityLogService.LogDataAccess("Rooms", username, action, ipAddress);
-                }
+                LogRoomEndpoint(context, securityLogService, method, ipAddress, username);
                 break;
 
             case var adminPath when adminPath?.StartsWith("/api/admin") == true:
-                if (context.Response.StatusCode == 200 && !string.IsNullOrEmpty(username))
-                {
-                    securityLogService.LogDataAccess("AdminPanel", username, $"管理者操作({method})", ipAddress);
-                }
-                else if (context.Response.StatusCode == 403)
-                {
-                    securityLogService.LogPermissionDenied("AdminPanel", username ?? "Unknown", ipAddress);
-                }
+                LogAdminEndpoint(context, securityLogService, method, ipAddress, username);
                 break;
         }
+    }
 
-        // 異常なアクセスパターンの検出
-        DetectAnomalousAccess(context, securityLogService, ipAddress, username);
+    private void LogReservationEndpoint(HttpContext context, ISecurityLogService securityLogService,
+        string method, string? ipAddress, string? username)
+    {
+        if (context.Response.StatusCode == 200 && !string.IsNullOrEmpty(username))
+        {
+            var action = method switch
+            {
+                "GET" => "予約データ閲覧",
+                "POST" => "予約作成",
+                "PUT" => "予約更新",
+                "DELETE" => "予約削除",
+                _ => $"予約操作({method})"
+            };
+            securityLogService.LogDataAccess("Reservations", username, action, ipAddress);
+        }
+        else if (context.Response.StatusCode == 401)
+        {
+            securityLogService.LogUnauthorizedAccess($"予約システム({method})", username, ipAddress);
+        }
+        else if (context.Response.StatusCode == 403)
+        {
+            securityLogService.LogPermissionDenied($"予約システム({method})", username ?? "Unknown", ipAddress);
+        }
+    }
+
+    private void LogRoomEndpoint(HttpContext context, ISecurityLogService securityLogService,
+        string method, string? ipAddress, string? username)
+    {
+        if (context.Response.StatusCode == 200 && !string.IsNullOrEmpty(username))
+        {
+            var action = method switch
+            {
+                "GET" => "会議室データ閲覧",
+                "POST" => "会議室作成",
+                "PUT" => "会議室更新",
+                "DELETE" => "会議室削除",
+                _ => $"会議室操作({method})"
+            };
+            securityLogService.LogDataAccess("Rooms", username, action, ipAddress);
+        }
+    }
+
+    private void LogAdminEndpoint(HttpContext context, ISecurityLogService securityLogService,
+        string method, string? ipAddress, string? username)
+    {
+        if (context.Response.StatusCode == 200 && !string.IsNullOrEmpty(username))
+        {
+            securityLogService.LogDataAccess("AdminPanel", username, $"管理者操作({method})", ipAddress);
+        }
+        else if (context.Response.StatusCode == 403)
+        {
+            securityLogService.LogPermissionDenied("AdminPanel", username ?? "Unknown", ipAddress);
+        }
     }
 
     private void DetectAnomalousAccess(HttpContext context, ISecurityLogService securityLogService, 
