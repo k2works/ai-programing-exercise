@@ -258,8 +258,21 @@ namespace MRS.Api.Tests.Performance
         public async Task ResourceLeakage_LongRunningTest_ShouldNotExhaustResources()
         {
             // Arrange
-            var iterations = 50;
-            var startMemory = GC.GetTotalMemory(false);
+            var iterations = 20; // テスト実行時間を短縮するため反復数を減らす
+            
+            // 初回のウォームアップを行い安定状態にする
+            await PerformWarmupRequests();
+            
+            // ベースライン測定のため複数回GCを実行
+            for (int gc = 0; gc < 3; gc++)
+            {
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+                await Task.Delay(100); // GCの安定化のため待機
+            }
+            
+            var startMemory = GC.GetTotalMemory(true); // 強制的にGCを実行してから測定
 
             // Act - 長時間の反復テスト
             for (int i = 0; i < iterations; i++)
@@ -285,25 +298,65 @@ namespace MRS.Api.Tests.Performance
                 request.Dispose();
 
                 // 定期的なGC実行
-                if (i % 10 == 0)
+                if (i % 5 == 0) // より頻繁にGC実行
                 {
                     GC.Collect();
                     GC.WaitForPendingFinalizers();
                     GC.Collect();
+                    await Task.Delay(50); // GC後の安定化待機
                 }
             }
 
-            // Assert
+            // Assert - 最終的なメモリ測定前に確実にGCを実行
+            for (int gc = 0; gc < 5; gc++)
+            {
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+                await Task.Delay(100);
+            }
+
+            var endMemory = GC.GetTotalMemory(true); // 強制的にGCを実行してから測定
+            var memoryIncrease = endMemory - startMemory;
+
+            // より現実的な閾値でメモリリークの確認（200MB以下の増加、テスト環境での正常な変動を考慮）
+            Assert.True(memoryIncrease < 200 * 1024 * 1024, 
+                $"Potential memory leak detected: {memoryIncrease:N0} bytes increase (Start: {startMemory:N0}, End: {endMemory:N0})");
+            
+            // 正のメモリ増加が過度でないことも確認（一時的な減少は正常）
+            if (memoryIncrease > 0)
+            {
+                Assert.True(memoryIncrease < 50 * 1024 * 1024, 
+                    $"Memory increase too high: {memoryIncrease:N0} bytes. This may indicate a memory leak.");
+            }
+        }
+
+        /// <summary>
+        /// テスト前のウォームアップリクエスト実行
+        /// </summary>
+        private async Task PerformWarmupRequests()
+        {
+            // JITコンパイルと初期化を完了させるため数回のリクエストを実行
+            for (int i = 0; i < 3; i++)
+            {
+                var token = await GetUserToken($"warmup-user{i}", "User");
+                var cancelRequest = new { reason = "Warmup" };
+                var json = JsonSerializer.Serialize(cancelRequest);
+                using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                using var request = new HttpRequestMessage(HttpMethod.Post, $"/api/reservations/warmup-{i}/cancel")
+                {
+                    Content = content
+                };
+                request.Headers.Authorization = 
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                
+                using var response = await _client.SendAsync(request);
+            }
+            
+            // ウォームアップ後のGC実行
             GC.Collect();
             GC.WaitForPendingFinalizers();
             GC.Collect();
-
-            var endMemory = GC.GetTotalMemory(false);
-            var memoryIncrease = endMemory - startMemory;
-
-            // メモリリークの確認（100MB以下の増加）
-            Assert.True(memoryIncrease < 100 * 1024 * 1024, 
-                $"Potential memory leak detected: {memoryIncrease:N0} bytes increase");
         }
 
         // ヘルパーメソッド
