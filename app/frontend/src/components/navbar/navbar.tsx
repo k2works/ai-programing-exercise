@@ -6,8 +6,8 @@ import {
   HStack,
 } from '@chakra-ui/react';
 
-import { Button } from '../button';
-import { Link } from '../link';
+import { Button } from '@/components/button';
+import { Link } from '@/components/link';
 
 export const Navbar = () => {
   return (

@@ -7,8 +7,8 @@ import {
 } from '@chakra-ui/react';
 import { QuestionOutlineIcon } from '@chakra-ui/icons';
 
-import { Button } from '../button';
-import { Link } from '../link';
+import { Button } from '@/components/button';
+import { Link } from '@/components/link';
 
 export type NotFoundProps = {
   title?: string;

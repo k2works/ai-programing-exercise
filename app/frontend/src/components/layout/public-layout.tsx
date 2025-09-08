@@ -1,7 +1,7 @@
 import { Box } from '@chakra-ui/react';
 import { ReactNode } from 'react';
 
-import { Link } from '../link';
+import { Link } from '@/components/link';
 
 type PublicLayoutProps = {
   children: ReactNode;

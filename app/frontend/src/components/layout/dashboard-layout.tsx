@@ -4,9 +4,9 @@ import {
 } from '@chakra-ui/react';
 import { ReactNode } from 'react';
 
-import { Link } from '../link';
-import { Navbar } from '../navbar';
-import { useUser } from '../../testing/test-data';
+import { Link } from '@/components/link';
+import { Navbar } from '@/components/navbar';
+import { useUser } from '@/testing/test-data';
 
 type DashboardLayoutProps = {
   children: ReactNode;
