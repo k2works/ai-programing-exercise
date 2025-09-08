@@ -37,13 +37,13 @@ const getTableColumns = (
     {
       title: '',
       field: 'id',
-      render: ({ entry: { id } }) => {
+      render: (entry) => {
         return (
           <Link
             href={
               type === 'public'
-                ? `/organizations/${organizationId}/jobs/${id}`
-                : `/dashboard/jobs/${id}`
+                ? `/organizations/${organizationId}/jobs/${entry.id}`
+                : `/dashboard/jobs/${entry.id}`
             }
           >
             View

@@ -5,29 +5,35 @@ import { apiClient } from '@/lib/api-client';
 import { Job } from '../types';
 
 type GetJobsOptions = {
-  params: {
+  params?: {
     organizationId: string | undefined;
   };
+  enabled?: boolean;
+  retry?: number;
 };
 
 export const getJobs = ({
-  params,
-}: GetJobsOptions): Promise<Job[]> => {
+  params = { organizationId: undefined },
+}: { params?: { organizationId: string | undefined } }): Promise<Job[]> => {
   return apiClient.get('/jobs', {
     params,
   });
 };
 
-export const useJobs = ({ params }: GetJobsOptions) => {
-  const { data, isFetching, isFetched } = useQuery({
+export const useJobs = ({ params, enabled, retry = 1 }: GetJobsOptions = { params: { organizationId: undefined } }) => {
+  const { data, isFetching, isFetched, isError, error, fetchStatus } = useQuery({
     queryKey: ['jobs', params],
     queryFn: () => getJobs({ params }),
-    enabled: !!params.organizationId,
-    initialData: [],
+    enabled,
+    retry,
   });
 
   return {
     data,
-    isLoading: isFetching && !isFetched,
+    isLoading: isFetching && !isFetched && !isError,
+    isError,
+    error,
+    isSuccess: isFetched && !isError,
+    fetchStatus,
   };
 };
