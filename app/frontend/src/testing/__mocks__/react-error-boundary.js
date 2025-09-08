@@ -12,9 +12,11 @@ export const useErrorHandler = () => {
 };
 
 export const withErrorBoundary = (Component, errorBoundaryConfig) => {
-  return (props) => {
+  const WrappedComponent = (props) => {
     return React.createElement(ErrorBoundary, errorBoundaryConfig, 
       React.createElement(Component, props)
     );
   };
+  WrappedComponent.displayName = `withErrorBoundary(${Component.displayName || Component.name || 'Component'})`;
+  return WrappedComponent;
 };
