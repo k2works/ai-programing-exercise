@@ -4,46 +4,45 @@ import {
   Container,
   Heading,
   Text,
-  SimpleGrid,
   Stack,
-  Badge,
-  Flex,
-  Icon
 } from '@chakra-ui/react'
-import { FiMapPin, FiClock, FiDollarSign } from 'react-icons/fi'
 
 import { Button } from '@/components/button'
 import { Link } from '@/components/link'
 import { SEO } from '@/components/seo'
+import { JobsList, type Job } from '@/features/jobs'
 
 const Home: NextPage = () => {
-  const sampleJobs = [
+  const sampleJobs: Job[] = [
     {
       id: '1',
-      title: 'フロントエンドエンジニア',
-      company: '株式会社テックイノベーション',
+      organizationId: 'org-1',
+      position: 'フロントエンドエンジニア',
+      department: 'エンジニアリング',
       location: '東京都渋谷区',
-      employmentType: 'フルタイム',
-      salaryRange: '600万円〜900万円',
-      postedAt: '2日前'
+      info: 'React、TypeScript を使用した Web アプリケーション開発。モダンな技術スタックでユーザー体験を向上させるフロントエンド開発をお任せします。',
+      createdAt: '2025-09-06T00:00:00Z',
+      updatedAt: '2025-09-06T00:00:00Z'
     },
     {
       id: '2',
-      title: 'バックエンドエンジニア',
-      company: '株式会社クラウドソリューション',
+      organizationId: 'org-2',
+      position: 'バックエンドエンジニア',
+      department: 'エンジニアリング',
       location: '大阪府大阪市',
-      employmentType: 'フルタイム',
-      salaryRange: '700万円〜1000万円',
-      postedAt: '3日前'
+      info: 'Node.js、Python を使用したサーバーサイド開発。スケーラブルで高パフォーマンスな API 設計・実装を担当していただきます。',
+      createdAt: '2025-09-05T00:00:00Z',
+      updatedAt: '2025-09-05T00:00:00Z'
     },
     {
       id: '3',
-      title: 'UI/UXデザイナー',
-      company: '株式会社デザインスタジオ',
+      organizationId: 'org-3',
+      position: 'UI/UXデザイナー',
+      department: 'デザイン',
       location: '神奈川県横浜市',
-      employmentType: 'リモート',
-      salaryRange: '500万円〜800万円',
-      postedAt: '1週間前'
+      info: 'ユーザー中心設計によるプロダクト体験の向上。Figma を使用したデザインシステム構築とプロトタイプ作成を行います。',
+      createdAt: '2025-09-01T00:00:00Z',
+      updatedAt: '2025-09-01T00:00:00Z'
     }
   ]
 
@@ -82,55 +81,14 @@ const Home: NextPage = () => {
               <Heading id="jobs-heading" size="lg" textAlign="center" as="h2">
                 注目の求人
               </Heading>
-            
-            <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-              {sampleJobs.map((job) => (
-                <Box 
-                  key={job.id} 
-                  p={6} 
-                  borderWidth={1} 
-                  borderRadius="lg" 
-                  _hover={{ shadow: 'md' }} 
-                  cursor="pointer"
-                >
-                  <Stack spacing={4}>
-                    <Stack spacing={2}>
-                      <Heading size="md">{job.title}</Heading>
-                      <Text color="gray.600">{job.company}</Text>
-                    </Stack>
-                    
-                    <Stack spacing={2}>
-                      <Flex align="center" gap={2}>
-                        <Icon as={FiMapPin} color="gray.500" />
-                        <Text fontSize="sm" color="gray.600">{job.location}</Text>
-                      </Flex>
-                      
-                      <Flex align="center" gap={2}>
-                        <Icon as={FiDollarSign} color="gray.500" />
-                        <Text fontSize="sm" color="gray.600">{job.salaryRange}</Text>
-                      </Flex>
-                      
-                      <Flex align="center" justify="space-between">
-                        <Badge colorScheme="blue" variant="subtle">
-                          {job.employmentType}
-                        </Badge>
-                        <Flex align="center" gap={1}>
-                          <Icon as={FiClock} color="gray.500" />
-                          <Text fontSize="sm" color="gray.500">{job.postedAt}</Text>
-                        </Flex>
-                      </Flex>
-                    </Stack>
-                    
-                    <Link href={`/jobs/${job.id}`}>
-                      <Button variant="outline">
-                        詳細を見る
-                      </Button>
-                    </Link>
-                  </Stack>
-                </Box>
-              ))}
-            </SimpleGrid>
-            
+              
+              <JobsList 
+                type="public"
+                jobs={sampleJobs}
+                organizationId="org-public"
+                isLoading={false}
+              />
+              
               <Box textAlign="center">
                 <Link href="/jobs">
                   <Button variant="outline">
