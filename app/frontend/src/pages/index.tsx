@@ -1,11 +1,9 @@
 import type { NextPage } from 'next'
-import Head from 'next/head'
 import {
   Box,
   Container,
   Heading,
   Text,
-  Button,
   SimpleGrid,
   Stack,
   Badge,
@@ -13,6 +11,10 @@ import {
   Icon
 } from '@chakra-ui/react'
 import { FiMapPin, FiClock, FiDollarSign } from 'react-icons/fi'
+
+import { Button } from '@/components/button'
+import { Link } from '@/components/link'
+import { SEO } from '@/components/seo'
 
 const Home: NextPage = () => {
   const sampleJobs = [
@@ -47,32 +49,28 @@ const Home: NextPage = () => {
 
   return (
     <>
-      <Head>
-        <title>Job Board - 求人検索プラットフォーム</title>
-        <meta name="description" content="React Job Board Application - 求人情報管理プラットフォーム" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <SEO 
+        title="Job Board - 求人検索プラットフォーム"
+        description="React Job Board Application - 求人情報管理プラットフォーム。理想の仕事を見つけて、効率的な採用活動をサポートします。"
+      />
 
       <Box as="main" role="main">
         {/* Hero Section */}
-        <Box bg="blue.50" py={20}>
+        <Box bg="gray.50" py={20}>
           <Container maxW="container.xl">
             <Stack textAlign="center" spacing={8}>
-              <Heading size="2xl" color="gray.800">
+              <Heading size="2xl" color="primary">
                 理想の仕事を見つけよう
               </Heading>
               <Text fontSize="xl" color="gray.600" maxW="2xl" mx="auto">
                 求人情報管理プラットフォーム。求人検索から応募まで、
                 効率的な採用活動をサポートします。
               </Text>
-              <Button 
-                colorScheme="blue" 
-                size="lg" 
-                px={8}
-                aria-label="求人検索ページに移動"
-              >
-                求人を探す
-              </Button>
+              <Link href="/jobs">
+                <Button variant="solid">
+                  求人を探す
+                </Button>
+              </Link>
             </Stack>
           </Container>
         </Box>
@@ -123,37 +121,35 @@ const Home: NextPage = () => {
                       </Flex>
                     </Stack>
                     
-                    <Button 
-                      colorScheme="blue" 
-                      variant="outline" 
-                      size="sm"
-                      aria-label={`${job.title}の詳細を見る`}
-                    >
-                      詳細を見る
-                    </Button>
+                    <Link href={`/jobs/${job.id}`}>
+                      <Button variant="outline">
+                        詳細を見る
+                      </Button>
+                    </Link>
                   </Stack>
                 </Box>
               ))}
             </SimpleGrid>
             
               <Box textAlign="center">
-                <Button 
-                  variant="outline" 
-                  size="lg"
-                  aria-label="すべての求人一覧ページに移動"
-                >
-                  すべての求人を見る
-                </Button>
+                <Link href="/jobs">
+                  <Button variant="outline">
+                    すべての求人を見る
+                  </Button>
+                </Link>
               </Box>
             </Stack>
           </Container>
         </Box>
 
         {/* Footer */}
-        <Box as="footer" role="contentinfo" bg="gray.50" py={8}>
+        <Box as="footer" role="contentinfo" bg="primary" color="primaryAccent" py={8}>
           <Container maxW="container.xl">
-            <Text textAlign="center" color="gray.600">
-              © 2025 Job Board Application. React Application Architecture for Production.
+            <Text textAlign="center">
+              © 2025 Job Board Application. Powered by{' '}
+              <Link variant="solid" href="/">
+                Jobs App
+              </Link>
             </Text>
           </Container>
         </Box>
