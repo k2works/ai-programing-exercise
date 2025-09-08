@@ -15,19 +15,25 @@ import {
 export type DataTableColumn<T> = {
   title: string;
   field: keyof T;
-  render?: ({ entry }: { entry: T }) => ReactNode;
+  render?: (entry: T) => ReactNode;
 };
 
 export type DataTableProps<T> = {
   data: T[];
   columns: DataTableColumn<T>[];
   isLoading?: boolean;
+  actions?: (entry: T) => ReactNode;
+  emptyMessage?: string;
+  className?: string;
 };
 
 export const DataTable = <T extends Record<string, any>>({
   data,
   columns,
   isLoading = false,
+  actions,
+  emptyMessage = 'No data available',
+  className,
 }: DataTableProps<T>) => {
   if (isLoading) {
     return (
@@ -44,14 +50,14 @@ export const DataTable = <T extends Record<string, any>>({
     return (
       <Center h="200px">
         <Text color="gray.600" fontSize="lg">
-          No data available
+          {emptyMessage}
         </Text>
       </Center>
     );
   }
 
   return (
-    <Box overflowX="auto">
+    <Box overflowX="auto" className={className}>
       <Table variant="simple">
         <Thead bg="gray.50">
           <Tr>
@@ -60,6 +66,11 @@ export const DataTable = <T extends Record<string, any>>({
                 {column.title}
               </Th>
             ))}
+            {actions && (
+              <Th color="gray.700" fontWeight="semibold">
+                Actions
+              </Th>
+            )}
           </Tr>
         </Thead>
         <Tbody>
@@ -68,11 +79,16 @@ export const DataTable = <T extends Record<string, any>>({
               {columns.map((column, colIndex) => (
                 <Td key={colIndex} py={4}>
                   {column.render 
-                    ? column.render({ entry }) 
+                    ? column.render(entry) 
                     : String(entry[column.field] || '')
                   }
                 </Td>
               ))}
+              {actions && (
+                <Td py={4}>
+                  {actions(entry)}
+                </Td>
+              )}
             </Tr>
           ))}
         </Tbody>
