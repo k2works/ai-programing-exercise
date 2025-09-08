@@ -10,9 +10,11 @@ import {
 import { Button } from '@/components/button'
 import { Link } from '@/components/link'
 import { SEO } from '@/components/seo'
-import { JobsList, type Job } from '@/features/jobs'
+import { JobsList, type Job, useJobs } from '@/features/jobs'
 
 const Home: NextPage = () => {
+  const { data: jobs, isLoading, isError } = useJobs()
+
   const sampleJobs: Job[] = [
     {
       id: '1',
@@ -45,6 +47,14 @@ const Home: NextPage = () => {
       updatedAt: '2025-09-01T00:00:00Z'
     }
   ]
+
+  if (isError) {
+    return (
+      <Box as="main" role="main" textAlign="center" py={20}>
+        <Text color="red.500" fontSize="lg">Something went wrong</Text>
+      </Box>
+    )
+  }
 
   return (
     <>
@@ -84,9 +94,9 @@ const Home: NextPage = () => {
               
               <JobsList 
                 type="public"
-                jobs={sampleJobs}
+                jobs={jobs || sampleJobs}
                 organizationId="org-public"
-                isLoading={false}
+                isLoading={isLoading}
               />
               
               <Box textAlign="center">
