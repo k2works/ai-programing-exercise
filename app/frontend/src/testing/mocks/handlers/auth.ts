@@ -4,7 +4,7 @@ import { db } from '../seed-db';
 
 export const authHandlers = [
   rest.post(`${API_URL}/auth/login`, async (req, res, ctx) => {
-    const { email, password } = req.body;
+    const { email, password } = await req.json() as { email: string; password: string };
     
     const user = db.user.findFirst({
       where: {
@@ -32,12 +32,12 @@ export const authHandlers = [
   }),
 
   rest.post(`${API_URL}/auth/register`, async (req, res, ctx) => {
-    const userData = req.body;
+    const userData = await req.json() as any;
     
     const existingUser = db.user.findFirst({
       where: {
         email: {
-          equals: userData.email,
+          equals: userData.email as string,
         },
       },
     });
@@ -50,7 +50,7 @@ export const authHandlers = [
     }
 
     const newUser = db.user.create({
-      ...userData,
+      ...(userData as object),
       id: String(Date.now()),
     });
 

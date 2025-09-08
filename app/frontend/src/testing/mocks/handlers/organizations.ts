@@ -31,10 +31,10 @@ export const organizationsHandlers = [
   }),
 
   rest.post(`${API_URL}/organizations`, async (req, res, ctx) => {
-    const orgData = req.body;
+    const orgData = await req.json() as any;
     
     const newOrg = db.organization.create({
-      ...orgData,
+      ...(orgData as object),
       id: String(Date.now()),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -48,7 +48,7 @@ export const organizationsHandlers = [
 
   rest.patch(`${API_URL}/organizations/:id`, async (req, res, ctx) => {
     const { id } = req.params;
-    const updates = req.body;
+    const updates = await req.json() as any;
     
     const organization = db.organization.findFirst({
       where: {
@@ -72,7 +72,7 @@ export const organizationsHandlers = [
         },
       },
       data: {
-        ...updates,
+        ...(updates as object),
         updatedAt: new Date().toISOString(),
       },
     });

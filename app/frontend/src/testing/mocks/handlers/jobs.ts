@@ -41,10 +41,10 @@ export const jobsHandlers = [
   }),
 
   rest.post(`${API_URL}/jobs`, async (req, res, ctx) => {
-    const jobData = req.body;
+    const jobData = await req.json() as any;
     
     const newJob = db.job.create({
-      ...jobData,
+      ...(jobData as object),
       id: String(Date.now()),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -58,7 +58,7 @@ export const jobsHandlers = [
 
   rest.patch(`${API_URL}/jobs/:id`, async (req, res, ctx) => {
     const { id } = req.params;
-    const updates = req.body;
+    const updates = await req.json() as any;
     
     const job = db.job.findFirst({
       where: {
@@ -82,7 +82,7 @@ export const jobsHandlers = [
         },
       },
       data: {
-        ...updates,
+        ...(updates as object),
         updatedAt: new Date().toISOString(),
       },
     });
