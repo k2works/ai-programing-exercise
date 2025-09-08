@@ -1,6 +1,6 @@
 import type { AppProps } from 'next/app';
 
-import { AppProvider } from '../providers/app';
+import { AppProvider } from '@/lib';
 
 const App = ({ Component, pageProps }: AppProps) => {
   return (
