@@ -6,7 +6,7 @@ import { ReactNode } from 'react';
 
 import { Link } from '@/components/link';
 import { Navbar } from '@/components/navbar';
-import { useUser } from '@/testing/test-data';
+// import { useUser } from '@/testing/test-data';
 
 type DashboardLayoutProps = {
   children: ReactNode;
@@ -15,7 +15,7 @@ type DashboardLayoutProps = {
 export const DashboardLayout = ({
   children,
 }: DashboardLayoutProps) => {
-  const user = useUser();
+  // const user = useUser();
 
   return (
     <Box as="section" h="100vh" overflowY="auto">
@@ -25,7 +25,7 @@ export const DashboardLayout = ({
       </Container>
       <Box py="8" textAlign="center">
         <Link
-          href={`/organizations/${user.data?.organizationId}`}
+          href="/organizations/1"
         >
           View Public Organization Page
         </Link>
