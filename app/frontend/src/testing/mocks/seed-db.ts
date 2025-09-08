@@ -11,6 +11,8 @@ export const db = factory({
     password: String,
     role: String,
     organizationId: String,
+    createdAt: String,
+    updatedAt: String,
   },
   job: {
     id: primaryKey(() => uid()),
@@ -19,6 +21,8 @@ export const db = factory({
     location: String,
     info: String,
     organizationId: String,
+    createdAt: String,
+    updatedAt: String,
   },
   organization: {
     id: primaryKey(() => uid()),
@@ -26,6 +30,8 @@ export const db = factory({
     email: String,
     phone: String,
     info: String,
+    createdAt: String,
+    updatedAt: String,
   },
 });
 

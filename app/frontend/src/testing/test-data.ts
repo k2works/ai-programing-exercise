@@ -28,6 +28,8 @@ export const testData = {
       lastName: 'User',
       role: 'USER',
       organizationId: '1',
+      createdAt: '2025-09-01T00:00:00Z',
+      updatedAt: '2025-09-01T00:00:00Z',
     },
     {
       id: '2',
@@ -37,6 +39,8 @@ export const testData = {
       lastName: 'User',
       role: 'ADMIN',
       organizationId: '1',
+      createdAt: '2025-09-01T00:00:00Z',
+      updatedAt: '2025-09-01T00:00:00Z',
     },
   ] as User[],
   jobs: [
@@ -47,6 +51,8 @@ export const testData = {
       location: 'London',
       info: 'Great opportunity for a software engineer',
       organizationId: '1',
+      createdAt: '2025-09-01T00:00:00Z',
+      updatedAt: '2025-09-01T00:00:00Z',
     },
     {
       id: '2',
@@ -55,6 +61,8 @@ export const testData = {
       location: 'New York',
       info: 'Lead our product strategy',
       organizationId: '1',
+      createdAt: '2025-09-01T00:00:00Z',
+      updatedAt: '2025-09-01T00:00:00Z',
     },
     {
       id: '3',
@@ -63,6 +71,8 @@ export const testData = {
       location: 'San Francisco',
       info: 'Design beautiful user experiences',
       organizationId: '1',
+      createdAt: '2025-09-01T00:00:00Z',
+      updatedAt: '2025-09-01T00:00:00Z',
     },
   ] as Job[],
   organizations: [
@@ -72,6 +82,8 @@ export const testData = {
       email: 'org@test.com',
       phone: '123-456-7890',
       info: 'A test organization for testing purposes',
+      createdAt: '2025-09-01T00:00:00Z',
+      updatedAt: '2025-09-01T00:00:00Z',
     },
     {
       id: '2',
@@ -79,6 +91,8 @@ export const testData = {
       email: 'another@test.com',
       phone: '098-765-4321',
       info: 'Another test organization',
+      createdAt: '2025-09-01T00:00:00Z',
+      updatedAt: '2025-09-01T00:00:00Z',
     },
   ] as Organization[],
 };
@@ -91,6 +105,8 @@ export const createJob = (overrides: Partial<Job> = {}): Job => ({
   location: 'Default Location',
   info: 'Default info',
   organizationId: '1',
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
   ...overrides,
 });
 
@@ -102,6 +118,8 @@ export const createUser = (overrides: Partial<User> = {}): User => ({
   lastName: 'User',
   role: 'USER',
   organizationId: '1',
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
   ...overrides,
 });
 
@@ -111,5 +129,7 @@ export const createOrganization = (overrides: Partial<Organization> = {}): Organ
   email: 'default-org@test.com',
   phone: '000-000-0000',
   info: 'Default organization info',
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
   ...overrides,
 });
