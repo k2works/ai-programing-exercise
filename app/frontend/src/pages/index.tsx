@@ -53,7 +53,7 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Box>
+      <Box as="main" role="main">
         {/* Hero Section */}
         <Box bg="blue.50" py={20}>
           <Container maxW="container.xl">
@@ -65,7 +65,12 @@ const Home: NextPage = () => {
                 求人情報管理プラットフォーム。求人検索から応募まで、
                 効率的な採用活動をサポートします。
               </Text>
-              <Button colorScheme="blue" size="lg" px={8}>
+              <Button 
+                colorScheme="blue" 
+                size="lg" 
+                px={8}
+                aria-label="求人検索ページに移動"
+              >
                 求人を探す
               </Button>
             </Stack>
@@ -73,11 +78,12 @@ const Home: NextPage = () => {
         </Box>
 
         {/* Featured Jobs Section */}
-        <Container maxW="container.xl" py={16}>
-          <Stack spacing={8}>
-            <Heading size="lg" textAlign="center">
-              注目の求人
-            </Heading>
+        <Box as="section" aria-labelledby="jobs-heading">
+          <Container maxW="container.xl" py={16}>
+            <Stack spacing={8}>
+              <Heading id="jobs-heading" size="lg" textAlign="center" as="h2">
+                注目の求人
+              </Heading>
             
             <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
               {sampleJobs.map((job) => (
@@ -117,7 +123,12 @@ const Home: NextPage = () => {
                       </Flex>
                     </Stack>
                     
-                    <Button colorScheme="blue" variant="outline" size="sm">
+                    <Button 
+                      colorScheme="blue" 
+                      variant="outline" 
+                      size="sm"
+                      aria-label={`${job.title}の詳細を見る`}
+                    >
                       詳細を見る
                     </Button>
                   </Stack>
@@ -125,16 +136,21 @@ const Home: NextPage = () => {
               ))}
             </SimpleGrid>
             
-            <Box textAlign="center">
-              <Button variant="outline" size="lg">
-                すべての求人を見る
-              </Button>
-            </Box>
-          </Stack>
-        </Container>
+              <Box textAlign="center">
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  aria-label="すべての求人一覧ページに移動"
+                >
+                  すべての求人を見る
+                </Button>
+              </Box>
+            </Stack>
+          </Container>
+        </Box>
 
         {/* Footer */}
-        <Box bg="gray.50" py={8}>
+        <Box as="footer" role="contentinfo" bg="gray.50" py={8}>
           <Container maxW="container.xl">
             <Text textAlign="center" color="gray.600">
               © 2025 Job Board Application. React Application Architecture for Production.
