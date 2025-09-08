@@ -12,6 +12,7 @@ import { ErrorBoundary, ErrorBoundaryPropsWithFallback } from 'react-error-bound
 
 import { theme } from '@/config/theme';
 import { queryClient } from '@/lib/react-query';
+import { NotificationCenter } from '@/components/notification-center';
 
 type AppProviderProps = {
   children: ReactNode;
@@ -50,6 +51,7 @@ export const AppProvider = ({
         <QueryClientProvider client={queryClient}>
           <ReactQueryDevtools initialIsOpen={false} />
           {children}
+          <NotificationCenter />
         </QueryClientProvider>
       </ErrorBoundary>
     </ChakraProvider>
