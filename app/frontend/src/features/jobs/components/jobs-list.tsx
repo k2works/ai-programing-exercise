@@ -1,9 +1,6 @@
 import { Box } from '@chakra-ui/react';
 
-import {
-  DataTable,
-  DataTableProps,
-} from '@/components/data-table';
+import { DataTable, DataTableProps } from '@/components/data-table';
 import { Link } from '@/components/link';
 
 import { Job } from '../types';
@@ -17,10 +14,7 @@ export type JobsListProps = {
   organizationId: string;
 };
 
-const getTableColumns = (
-  organizationId: string,
-  type: JobListType
-) => {
+const getTableColumns = (organizationId: string, type: JobListType) => {
   const tableColumns: DataTableProps<Job>['columns'] = [
     {
       title: 'Position',
@@ -62,10 +56,7 @@ export const JobsList = ({
   organizationId,
   type,
 }: JobsListProps) => {
-  const tableColumns = getTableColumns(
-    organizationId,
-    type
-  );
+  const tableColumns = getTableColumns(organizationId, type);
 
   return (
     <Box data-testid="jobs-list">

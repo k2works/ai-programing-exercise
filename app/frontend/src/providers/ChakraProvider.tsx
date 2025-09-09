@@ -1,11 +1,11 @@
-'use client'
+'use client';
 
-import { ChakraProvider as BaseChakraProvider } from '@chakra-ui/react'
+import { ChakraProvider as BaseChakraProvider } from '@chakra-ui/react';
 
 interface ChakraProviderProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 export const ChakraProvider: React.FC<ChakraProviderProps> = ({ children }) => {
-  return <BaseChakraProvider>{children}</BaseChakraProvider>
-}
+  return <BaseChakraProvider>{children}</BaseChakraProvider>;
+};

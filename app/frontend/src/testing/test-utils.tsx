@@ -1,9 +1,4 @@
-import {
-  render,
-  screen,
-  waitFor,
-  within,
-} from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ReactElement } from 'react';
 
@@ -28,12 +23,8 @@ export const checkTableValues = <T extends Entity>({
   columns: Array<keyof T>;
 }) => {
   data.forEach((entry, index) => {
-    const selector = container
-      ? within(container)
-      : screen;
-    const row = selector.getByTestId(
-      `table-row-${index}`
-    );
+    const selector = container ? within(container) : screen;
+    const row = selector.getByTestId(`table-row-${index}`);
 
     columns.forEach((column) => {
       const cell = within(row).getByRole('cell', {
@@ -54,9 +45,7 @@ export const waitForLoadingToFinish = () => {
         ...screen.queryAllByText(/loading/i),
       ];
 
-      loaders.forEach((loader) =>
-        expect(loader).not.toBeInTheDocument()
-      );
+      loaders.forEach((loader) => expect(loader).not.toBeInTheDocument());
     },
     {
       timeout: 4000,

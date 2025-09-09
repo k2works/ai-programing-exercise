@@ -42,7 +42,7 @@ export const seedDb = () => {
   db.organization.deleteMany({ where: {} });
 
   // Seed with test data
-  testData.users.forEach(user => db.user.create(user));
-  testData.jobs.forEach(job => db.job.create(job));
-  testData.organizations.forEach(org => db.organization.create(org));
+  testData.users.forEach((user) => db.user.create(user));
+  testData.jobs.forEach((job) => db.job.create(job));
+  testData.organizations.forEach((org) => db.organization.create(org));
 };

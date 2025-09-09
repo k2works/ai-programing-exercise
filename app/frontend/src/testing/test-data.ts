@@ -123,7 +123,9 @@ export const createUser = (overrides: Partial<User> = {}): User => ({
   ...overrides,
 });
 
-export const createOrganization = (overrides: Partial<Organization> = {}): Organization => ({
+export const createOrganization = (
+  overrides: Partial<Organization> = {}
+): Organization => ({
   id: uid(),
   name: 'Default Organization',
   email: 'default-org@test.com',

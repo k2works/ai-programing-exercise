@@ -1,11 +1,11 @@
-import { 
-  Alert, 
-  AlertIcon, 
-  AlertTitle, 
+import {
+  Alert,
+  AlertIcon,
+  AlertTitle,
   AlertDescription,
   CloseButton,
   VStack,
-  Box
+  Box,
 } from '@chakra-ui/react';
 
 import { useNotifications } from '@/stores/notifications';
@@ -33,9 +33,7 @@ export const NotificationCenter = () => {
             <Box flex="1">
               <AlertTitle>{notification.title}</AlertTitle>
               {notification.message && (
-                <AlertDescription>
-                  {notification.message}
-                </AlertDescription>
+                <AlertDescription>{notification.message}</AlertDescription>
               )}
             </Box>
             <CloseButton

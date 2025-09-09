@@ -4,7 +4,9 @@ import { testData } from '@/testing/test-data';
 
 describe('JobsList Component', () => {
   it('should render the jobs list correctly', async () => {
-    appRender(<JobsList jobs={testData.jobs} organizationId="org-1" type="dashboard" />);
+    appRender(
+      <JobsList jobs={testData.jobs} organizationId="org-1" type="dashboard" />
+    );
 
     // テーブルが表示されることを確認
     expect(screen.getByRole('table')).toBeInTheDocument();
@@ -29,14 +31,19 @@ describe('JobsList Component', () => {
   });
 
   it('should render view buttons for each job', () => {
-    appRender(<JobsList jobs={testData.jobs} organizationId="org-1" type="dashboard" />);
+    appRender(
+      <JobsList jobs={testData.jobs} organizationId="org-1" type="dashboard" />
+    );
 
     const viewButtons = screen.getAllByRole('link', { name: /view/i });
     expect(viewButtons).toHaveLength(testData.jobs.length);
 
     // 各ボタンが正しいURLを持つことを確認
     viewButtons.forEach((button, index) => {
-      expect(button).toHaveAttribute('href', `/dashboard/jobs/${testData.jobs[index].id}`);
+      expect(button).toHaveAttribute(
+        'href',
+        `/dashboard/jobs/${testData.jobs[index].id}`
+      );
     });
   });
 });

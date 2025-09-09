@@ -1,10 +1,4 @@
-import { 
-  Box, 
-  Text, 
-  VStack, 
-  Icon,
-  Center 
-} from '@chakra-ui/react';
+import { Box, Text, VStack, Icon, Center } from '@chakra-ui/react';
 import { QuestionOutlineIcon } from '@chakra-ui/icons';
 
 import { Button } from '@/components/button';
@@ -21,7 +15,7 @@ export const NotFound = ({
   title = 'Page Not Found',
   message = 'The page you are looking for does not exist.',
   actionLabel = 'Go Back Home',
-  actionHref = '/'
+  actionHref = '/',
 }: NotFoundProps) => {
   return (
     <Center h="400px">
@@ -36,9 +30,7 @@ export const NotFound = ({
           </Text>
         </VStack>
         <Link href={actionHref}>
-          <Button variant="solid">
-            {actionLabel}
-          </Button>
+          <Button variant="solid">{actionLabel}</Button>
         </Link>
       </VStack>
     </Center>

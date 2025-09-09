@@ -1,10 +1,5 @@
 import { InfoOutlineIcon } from '@chakra-ui/icons';
-import {
-  Box,
-  Container,
-  Flex,
-  HStack,
-} from '@chakra-ui/react';
+import { Box, Container, Flex, HStack } from '@chakra-ui/react';
 
 import { Button } from '@/components/button';
 import { Link } from '@/components/link';
@@ -31,9 +26,7 @@ export const Navbar = () => {
           <HStack>
             <Button
               variant="outline"
-              onClick={() =>
-                console.log('Logging Out...')
-              }
+              onClick={() => console.log('Logging Out...')}
             >
               Log Out
             </Button>

@@ -1,19 +1,13 @@
-import type { NextPage } from 'next'
-import {
-  Box,
-  Container,
-  Heading,
-  Text,
-  Stack,
-} from '@chakra-ui/react'
+import type { NextPage } from 'next';
+import { Box, Container, Heading, Text, Stack } from '@chakra-ui/react';
 
-import { Button } from '@/components/button'
-import { Link } from '@/components/link'
-import { SEO } from '@/components/seo'
-import { JobsList, type Job, useJobs } from '@/features/jobs'
+import { Button } from '@/components/button';
+import { Link } from '@/components/link';
+import { SEO } from '@/components/seo';
+import { JobsList, type Job, useJobs } from '@/features/jobs';
 
 const Home: NextPage = () => {
-  const { data: jobs, isLoading, isError } = useJobs()
+  const { data: jobs, isLoading, isError } = useJobs();
 
   const sampleJobs: Job[] = [
     {
@@ -24,7 +18,7 @@ const Home: NextPage = () => {
       location: '東京都渋谷区',
       info: 'React、TypeScript を使用した Web アプリケーション開発。モダンな技術スタックでユーザー体験を向上させるフロントエンド開発をお任せします。',
       createdAt: '2025-09-06T00:00:00Z',
-      updatedAt: '2025-09-06T00:00:00Z'
+      updatedAt: '2025-09-06T00:00:00Z',
     },
     {
       id: '2',
@@ -34,7 +28,7 @@ const Home: NextPage = () => {
       location: '大阪府大阪市',
       info: 'Node.js、Python を使用したサーバーサイド開発。スケーラブルで高パフォーマンスな API 設計・実装を担当していただきます。',
       createdAt: '2025-09-05T00:00:00Z',
-      updatedAt: '2025-09-05T00:00:00Z'
+      updatedAt: '2025-09-05T00:00:00Z',
     },
     {
       id: '3',
@@ -44,21 +38,23 @@ const Home: NextPage = () => {
       location: '神奈川県横浜市',
       info: 'ユーザー中心設計によるプロダクト体験の向上。Figma を使用したデザインシステム構築とプロトタイプ作成を行います。',
       createdAt: '2025-09-01T00:00:00Z',
-      updatedAt: '2025-09-01T00:00:00Z'
-    }
-  ]
+      updatedAt: '2025-09-01T00:00:00Z',
+    },
+  ];
 
   if (isError) {
     return (
       <Box as="main" role="main" textAlign="center" py={20}>
-        <Text color="red.500" fontSize="lg">Something went wrong</Text>
+        <Text color="red.500" fontSize="lg">
+          Something went wrong
+        </Text>
       </Box>
-    )
+    );
   }
 
   return (
     <>
-      <SEO 
+      <SEO
         title="Job Board - 求人検索プラットフォーム"
         description="React Job Board Application - 求人情報管理プラットフォーム。理想の仕事を見つけて、効率的な採用活動をサポートします。"
       />
@@ -76,9 +72,7 @@ const Home: NextPage = () => {
                 効率的な採用活動をサポートします。
               </Text>
               <Link href="/jobs">
-                <Button variant="solid">
-                  求人を探す
-                </Button>
+                <Button variant="solid">求人を探す</Button>
               </Link>
             </Stack>
           </Container>
@@ -91,19 +85,17 @@ const Home: NextPage = () => {
               <Heading id="jobs-heading" size="lg" textAlign="center" as="h2">
                 注目の求人
               </Heading>
-              
-              <JobsList 
+
+              <JobsList
                 type="public"
                 jobs={jobs || sampleJobs}
                 organizationId="org-public"
                 isLoading={isLoading}
               />
-              
+
               <Box textAlign="center">
                 <Link href="/jobs">
-                  <Button variant="outline">
-                    すべての求人を見る
-                  </Button>
+                  <Button variant="outline">すべての求人を見る</Button>
                 </Link>
               </Box>
             </Stack>
@@ -111,7 +103,13 @@ const Home: NextPage = () => {
         </Box>
 
         {/* Footer */}
-        <Box as="footer" role="contentinfo" bg="primary" color="primaryAccent" py={8}>
+        <Box
+          as="footer"
+          role="contentinfo"
+          bg="primary"
+          color="primaryAccent"
+          py={8}
+        >
           <Container maxW="container.xl">
             <Text textAlign="center">
               © 2025 Job Board Application. Powered by{' '}
@@ -123,7 +121,7 @@ const Home: NextPage = () => {
         </Box>
       </Box>
     </>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;

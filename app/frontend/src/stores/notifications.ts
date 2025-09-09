@@ -2,11 +2,7 @@ import { createStore, useStore } from 'zustand';
 
 import { uid } from '@/utils/uid';
 
-export type NotificationType =
-  | 'info'
-  | 'warning'
-  | 'success'
-  | 'error';
+export type NotificationType = 'info' | 'warning' | 'success' | 'error';
 
 export type Notification = {
   id: string;
@@ -18,22 +14,17 @@ export type Notification = {
 
 export type NotificationsStore = {
   notifications: Notification[];
-  showNotification: (
-    notification: Omit<Notification, 'id'>
-  ) => void;
+  showNotification: (notification: Omit<Notification, 'id'>) => void;
   dismissNotification: (id: string) => void;
 };
 
-export const notificationsStore =
-  createStore<NotificationsStore>((set, get) => ({
+export const notificationsStore = createStore<NotificationsStore>(
+  (set, get) => ({
     notifications: [],
     showNotification: (notification) => {
       const id = uid();
       set((state) => ({
-        notifications: [
-          ...state.notifications,
-          { id, ...notification },
-        ],
+        notifications: [...state.notifications, { id, ...notification }],
       }));
       if (notification.duration) {
         setTimeout(() => {
@@ -48,23 +39,19 @@ export const notificationsStore =
         ),
       }));
     },
-  }));
+  })
+);
 
-export const useNotifications = () =>
-  useStore(notificationsStore);
+export const useNotifications = () => useStore(notificationsStore);
 
 // Specialized selectors
 export const useActiveNotifications = () =>
-  useStore(notificationsStore, (state) => 
-    state.notifications.filter(n => n.type === 'error')
+  useStore(notificationsStore, (state) =>
+    state.notifications.filter((n) => n.type === 'error')
   );
 
 export const useNotificationCount = () =>
-  useStore(notificationsStore, (state) => 
-    state.notifications.length
-  );
+  useStore(notificationsStore, (state) => state.notifications.length);
 
 export const useHasNotifications = () =>
-  useStore(notificationsStore, (state) => 
-    state.notifications.length > 0
-  );
+  useStore(notificationsStore, (state) => state.notifications.length > 0);

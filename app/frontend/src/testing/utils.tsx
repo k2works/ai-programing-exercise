@@ -6,11 +6,7 @@ import { theme } from '@/config/theme';
 
 // Chakra UI付きでコンポーネントをレンダリングするヘルパー
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <ChakraProvider theme={theme}>
-      {children}
-    </ChakraProvider>
-  );
+  return <ChakraProvider theme={theme}>{children}</ChakraProvider>;
 };
 
 const customRender = (

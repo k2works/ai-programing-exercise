@@ -78,17 +78,12 @@ export const DataTable = <T extends Record<string, any>>({
             <Tr key={rowIndex} _hover={{ bg: 'gray.50' }}>
               {columns.map((column, colIndex) => (
                 <Td key={colIndex} py={4}>
-                  {column.render 
-                    ? column.render(entry) 
-                    : String(entry[column.field] || '')
-                  }
+                  {column.render
+                    ? column.render(entry)
+                    : String(entry[column.field] || '')}
                 </Td>
               ))}
-              {actions && (
-                <Td py={4}>
-                  {actions(entry)}
-                </Td>
-              )}
+              {actions && <Td py={4}>{actions(entry)}</Td>}
             </Tr>
           ))}
         </Tbody>

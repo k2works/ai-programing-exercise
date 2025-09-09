@@ -5,10 +5,7 @@ export type LoadingProps = {
   size?: 'sm' | 'md' | 'lg' | 'xl';
 };
 
-export const Loading = ({ 
-  text = 'Loading...', 
-  size = 'md' 
-}: LoadingProps) => {
+export const Loading = ({ text = 'Loading...', size = 'md' }: LoadingProps) => {
   return (
     <Center h="200px">
       <VStack spacing={4}>

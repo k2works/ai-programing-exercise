@@ -4,8 +4,11 @@ import { db } from '../seed-db';
 
 export const authHandlers = [
   rest.post(`${API_URL}/auth/login`, async (req, res, ctx) => {
-    const { email, password } = await req.json() as { email: string; password: string };
-    
+    const { email, password } = (await req.json()) as {
+      email: string;
+      password: string;
+    };
+
     const user = db.user.findFirst({
       where: {
         email: {
@@ -32,8 +35,8 @@ export const authHandlers = [
   }),
 
   rest.post(`${API_URL}/auth/register`, async (req, res, ctx) => {
-    const userData = await req.json() as any;
-    
+    const userData = (await req.json()) as any;
+
     const existingUser = db.user.findFirst({
       where: {
         email: {
@@ -67,12 +70,9 @@ export const authHandlers = [
 
   rest.get(`${API_URL}/auth/me`, (req, res, ctx) => {
     const authHeader = req.headers.get('Authorization');
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res(
-        ctx.status(401),
-        ctx.json({ message: 'Unauthorized' })
-      );
+      return res(ctx.status(401), ctx.json({ message: 'Unauthorized' }));
     }
 
     const user = db.user.findFirst({
@@ -84,10 +84,7 @@ export const authHandlers = [
     });
 
     if (!user) {
-      return res(
-        ctx.status(401),
-        ctx.json({ message: 'User not found' })
-      );
+      return res(ctx.status(401), ctx.json({ message: 'User not found' }));
     }
 
     const { password: _, ...userWithoutPassword } = user;

@@ -7,9 +7,7 @@ type PublicLayoutProps = {
   children: ReactNode;
 };
 
-export const PublicLayout = ({
-  children,
-}: PublicLayoutProps) => {
+export const PublicLayout = ({ children }: PublicLayoutProps) => {
   return (
     <Box maxW="container.lg" mx="auto" h="full">
       <Box minH="80%" mx="4">

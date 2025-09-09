@@ -10,12 +10,7 @@ describe('DataTable Component', () => {
   ];
 
   it('should render table with data', () => {
-    appRender(
-      <DataTable
-        data={testData.jobs}
-        columns={columns}
-      />
-    );
+    appRender(<DataTable data={testData.jobs} columns={columns} />);
 
     // テーブルが表示される
     expect(screen.getByRole('table')).toBeInTheDocument();
@@ -35,11 +30,7 @@ describe('DataTable Component', () => {
 
   it('should render empty state when no data', () => {
     appRender(
-      <DataTable
-        data={[]}
-        columns={columns}
-        emptyMessage="No data available"
-      />
+      <DataTable data={[]} columns={columns} emptyMessage="No data available" />
     );
 
     expect(screen.getByText('No data available')).toBeInTheDocument();
@@ -51,11 +42,7 @@ describe('DataTable Component', () => {
     ));
 
     appRender(
-      <DataTable
-        data={testData.jobs}
-        columns={columns}
-        actions={actions}
-      />
+      <DataTable data={testData.jobs} columns={columns} actions={actions} />
     );
 
     // Actions ヘッダーが表示される
@@ -88,15 +75,12 @@ describe('DataTable Component', () => {
       },
     ];
 
-    appRender(
-      <DataTable
-        data={testData.jobs}
-        columns={customColumns}
-      />
-    );
+    appRender(<DataTable data={testData.jobs} columns={customColumns} />);
 
     testData.jobs.forEach((job) => {
-      expect(screen.getByText(`${job.position} - ${job.department}`)).toBeInTheDocument();
+      expect(
+        screen.getByText(`${job.position} - ${job.department}`)
+      ).toBeInTheDocument();
     });
   });
 });

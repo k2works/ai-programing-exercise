@@ -1,10 +1,10 @@
-'use client'
+'use client';
 
-import { ChakraProvider } from './ChakraProvider'
-import { QueryProvider } from './QueryProvider'
+import { ChakraProvider } from './ChakraProvider';
+import { QueryProvider } from './QueryProvider';
 
 interface AppProvidersProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
@@ -12,5 +12,5 @@ export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
     <QueryProvider>
       <ChakraProvider>{children}</ChakraProvider>
     </QueryProvider>
-  )
-}
+  );
+};

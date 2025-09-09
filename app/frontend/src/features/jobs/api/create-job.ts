@@ -16,9 +16,9 @@ export const useCreateJob = () => {
     onSuccess: (newJob) => {
       // キャッシュの無効化
       queryClient.invalidateQueries({
-        queryKey: ['jobs']
+        queryKey: ['jobs'],
       });
-      
+
       // 楽観的更新
       queryClient.setQueryData<Job[]>(
         ['jobs', { organizationId: newJob.organizationId }],

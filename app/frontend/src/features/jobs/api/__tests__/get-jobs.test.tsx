@@ -9,10 +9,7 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 
 describe('useJobs Hook', () => {
   it('should fetch jobs successfully', async () => {
-    const { result } = renderHook(
-      () => useJobs(),
-      { wrapper }
-    );
+    const { result } = renderHook(() => useJobs(), { wrapper });
 
     // 初期状態：ローディング中
     expect(result.current.isLoading).toBe(true);
@@ -30,10 +27,7 @@ describe('useJobs Hook', () => {
   });
 
   it('should return jobs from mock data', async () => {
-    const { result } = renderHook(
-      () => useJobs(),
-      { wrapper }
-    );
+    const { result } = renderHook(() => useJobs(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true);
@@ -44,10 +38,9 @@ describe('useJobs Hook', () => {
   });
 
   it('should handle query options', async () => {
-    const { result } = renderHook(
-      () => useJobs({ enabled: false }),
-      { wrapper }
-    );
+    const { result } = renderHook(() => useJobs({ enabled: false }), {
+      wrapper,
+    });
 
     // enabled: false の場合、クエリは実行されない
     expect(result.current.isLoading).toBe(false);

@@ -23,10 +23,7 @@ describe('Error Handling', () => {
       })
     );
 
-    const { result } = renderHook(
-      () => useJobs({ retry: 0 }),
-      { wrapper }
-    );
+    const { result } = renderHook(() => useJobs({ retry: 0 }), { wrapper });
 
     // エラー状態になるまで待つ
     await waitFor(() => {
@@ -56,19 +53,22 @@ describe('Error Handling', () => {
       isError: true,
       error: new Error('Server error occurred'),
     });
-    
+
     jest.doMock('../get-jobs', () => ({
       useJobs: mockUseJobs,
     }));
 
     const { default: HomePage } = await import('@/pages/index');
-    
+
     appRender(<HomePage />);
 
     // エラーメッセージが表示されるまで待つ
-    await waitFor(() => {
-      expect(screen.getByText(/something went wrong/i)).toBeInTheDocument();
-    }, { timeout: 1000 });
+    await waitFor(
+      () => {
+        expect(screen.getByText(/something went wrong/i)).toBeInTheDocument();
+      },
+      { timeout: 1000 }
+    );
   });
 
   it('should handle network errors', async () => {
@@ -79,14 +79,14 @@ describe('Error Handling', () => {
       })
     );
 
-    const { result } = renderHook(
-      () => useJobs({ retry: 0 }),
-      { wrapper }
-    );
+    const { result } = renderHook(() => useJobs({ retry: 0 }), { wrapper });
 
-    await waitFor(() => {
-      expect(result.current.isError).toBe(true);
-    }, { timeout: 10000 });
+    await waitFor(
+      () => {
+        expect(result.current.isError).toBe(true);
+      },
+      { timeout: 10000 }
+    );
 
     expect(result.current.error).toBeDefined();
   });
@@ -94,18 +94,12 @@ describe('Error Handling', () => {
   it('should handle 404 errors', async () => {
     server.use(
       rest.get(`${API_URL}/jobs/:id`, (req, res, ctx) => {
-        return res(
-          ctx.status(404),
-          ctx.json({ message: 'Job not found' })
-        );
+        return res(ctx.status(404), ctx.json({ message: 'Job not found' }));
       })
     );
 
     // 404エラーの処理をテスト
-    const { result } = renderHook(
-      () => useJobs(),
-      { wrapper }
-    );
+    const { result } = renderHook(() => useJobs(), { wrapper });
 
     // ここでは404でもjobsリストは空配列として扱われる可能性
     await waitFor(() => {
@@ -120,24 +114,21 @@ describe('Error Handling', () => {
       rest.get(`${API_URL}/jobs`, (req, res, ctx) => {
         attemptCount++;
         if (attemptCount < 2) {
-          return res(
-            ctx.status(500),
-            ctx.json({ message: 'Temporary error' })
-          );
+          return res(ctx.status(500), ctx.json({ message: 'Temporary error' }));
         }
         return res(ctx.json([]));
       })
     );
 
-    const { result } = renderHook(
-      () => useJobs(),
-      { wrapper }
-    );
+    const { result } = renderHook(() => useJobs(), { wrapper });
 
     // リトライ後に成功するまで待つ
-    await waitFor(() => {
-      expect(result.current.isSuccess).toBe(true);
-    }, { timeout: 5000 });
+    await waitFor(
+      () => {
+        expect(result.current.isSuccess).toBe(true);
+      },
+      { timeout: 5000 }
+    );
 
     expect(attemptCount).toBeGreaterThanOrEqual(2);
   });

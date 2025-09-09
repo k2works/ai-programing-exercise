@@ -1,7 +1,4 @@
-import {
-  Box,
-  Container,
-} from '@chakra-ui/react';
+import { Box, Container } from '@chakra-ui/react';
 import { ReactNode } from 'react';
 
 import { Link } from '@/components/link';
@@ -12,9 +9,7 @@ type DashboardLayoutProps = {
   children: ReactNode;
 };
 
-export const DashboardLayout = ({
-  children,
-}: DashboardLayoutProps) => {
+export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   // const user = useUser();
 
   return (
@@ -24,11 +19,7 @@ export const DashboardLayout = ({
         {children}
       </Container>
       <Box py="8" textAlign="center">
-        <Link
-          href="/organizations/1"
-        >
-          View Public Organization Page
-        </Link>
+        <Link href="/organizations/1">View Public Organization Page</Link>
       </Box>
     </Box>
   );

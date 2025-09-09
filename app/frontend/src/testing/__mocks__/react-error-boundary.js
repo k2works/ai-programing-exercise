@@ -1,8 +1,18 @@
 // Mock for react-error-boundary
 import React from 'react';
 
-export const ErrorBoundary = ({ children, fallback, FallbackComponent, fallbackRender, onError }) => {
-  return React.createElement('div', { 'data-testid': 'error-boundary' }, children);
+export const ErrorBoundary = ({
+  children,
+  fallback,
+  FallbackComponent,
+  fallbackRender,
+  onError,
+}) => {
+  return React.createElement(
+    'div',
+    { 'data-testid': 'error-boundary' },
+    children
+  );
 };
 
 export const useErrorHandler = () => {
@@ -13,7 +23,9 @@ export const useErrorHandler = () => {
 
 export const withErrorBoundary = (Component, errorBoundaryConfig) => {
   const WrappedComponent = (props) => {
-    return React.createElement(ErrorBoundary, errorBoundaryConfig, 
+    return React.createElement(
+      ErrorBoundary,
+      errorBoundaryConfig,
       React.createElement(Component, props)
     );
   };

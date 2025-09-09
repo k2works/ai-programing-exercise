@@ -5,7 +5,7 @@ import { db } from '../seed-db';
 export const jobsHandlers = [
   rest.get(`${API_URL}/jobs`, (req, res, ctx) => {
     const organizationId = req.url.searchParams.get('organizationId');
-    
+
     const jobs = organizationId
       ? db.job.findMany({
           where: {
@@ -21,7 +21,7 @@ export const jobsHandlers = [
 
   rest.get(`${API_URL}/jobs/:id`, (req, res, ctx) => {
     const { id } = req.params;
-    
+
     const job = db.job.findFirst({
       where: {
         id: {
@@ -31,18 +31,15 @@ export const jobsHandlers = [
     });
 
     if (!job) {
-      return res(
-        ctx.status(404),
-        ctx.json({ message: 'Job not found' })
-      );
+      return res(ctx.status(404), ctx.json({ message: 'Job not found' }));
     }
 
     return res(ctx.json(job));
   }),
 
   rest.post(`${API_URL}/jobs`, async (req, res, ctx) => {
-    const jobData = await req.json() as any;
-    
+    const jobData = (await req.json()) as any;
+
     const newJob = db.job.create({
       ...(jobData as object),
       id: String(Date.now()),
@@ -50,16 +47,13 @@ export const jobsHandlers = [
       updatedAt: new Date().toISOString(),
     });
 
-    return res(
-      ctx.status(201),
-      ctx.json(newJob)
-    );
+    return res(ctx.status(201), ctx.json(newJob));
   }),
 
   rest.patch(`${API_URL}/jobs/:id`, async (req, res, ctx) => {
     const { id } = req.params;
-    const updates = await req.json() as any;
-    
+    const updates = (await req.json()) as any;
+
     const job = db.job.findFirst({
       where: {
         id: {
@@ -69,10 +63,7 @@ export const jobsHandlers = [
     });
 
     if (!job) {
-      return res(
-        ctx.status(404),
-        ctx.json({ message: 'Job not found' })
-      );
+      return res(ctx.status(404), ctx.json({ message: 'Job not found' }));
     }
 
     const updatedJob = db.job.update({
@@ -92,7 +83,7 @@ export const jobsHandlers = [
 
   rest.delete(`${API_URL}/jobs/:id`, (req, res, ctx) => {
     const { id } = req.params;
-    
+
     const job = db.job.findFirst({
       where: {
         id: {
@@ -102,10 +93,7 @@ export const jobsHandlers = [
     });
 
     if (!job) {
-      return res(
-        ctx.status(404),
-        ctx.json({ message: 'Job not found' })
-      );
+      return res(ctx.status(404), ctx.json({ message: 'Job not found' }));
     }
 
     db.job.delete({

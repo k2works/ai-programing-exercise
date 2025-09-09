@@ -35,12 +35,7 @@ export const Button = ({
   ...props
 }: ButtonProps) => {
   return (
-    <ChakraButton
-      {...props}
-      {...variants[variant]}
-      type={type}
-      leftIcon={icon}
-    >
+    <ChakraButton {...props} {...variants[variant]} type={type} leftIcon={icon}>
       {children}
     </ChakraButton>
   );

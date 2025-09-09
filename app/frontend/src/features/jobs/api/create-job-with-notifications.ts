@@ -8,15 +8,15 @@ import { Job } from '../types';
 export const useCreateJobWithNotifications = () => {
   const queryClient = useQueryClient();
   const { showNotification } = useNotifications();
-  
+
   return useMutation({
     mutationFn: createJob,
     onSuccess: (job) => {
       // キャッシュの無効化
       queryClient.invalidateQueries({
-        queryKey: ['jobs']
+        queryKey: ['jobs'],
       });
-      
+
       // 成功通知
       showNotification({
         type: 'success',
@@ -24,7 +24,7 @@ export const useCreateJobWithNotifications = () => {
         message: `${job.position} has been successfully created.`,
         duration: 5000,
       });
-      
+
       // 楽観的更新
       queryClient.setQueryData<Job[]>(
         ['jobs', { organizationId: job.organizationId }],

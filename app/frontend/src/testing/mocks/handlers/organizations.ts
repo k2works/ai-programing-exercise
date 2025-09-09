@@ -11,7 +11,7 @@ export const organizationsHandlers = [
 
   rest.get(`${API_URL}/organizations/:id`, (req, res, ctx) => {
     const { id } = req.params;
-    
+
     const organization = db.organization.findFirst({
       where: {
         id: {
@@ -31,8 +31,8 @@ export const organizationsHandlers = [
   }),
 
   rest.post(`${API_URL}/organizations`, async (req, res, ctx) => {
-    const orgData = await req.json() as any;
-    
+    const orgData = (await req.json()) as any;
+
     const newOrg = db.organization.create({
       ...(orgData as object),
       id: String(Date.now()),
@@ -40,16 +40,13 @@ export const organizationsHandlers = [
       updatedAt: new Date().toISOString(),
     });
 
-    return res(
-      ctx.status(201),
-      ctx.json(newOrg)
-    );
+    return res(ctx.status(201), ctx.json(newOrg));
   }),
 
   rest.patch(`${API_URL}/organizations/:id`, async (req, res, ctx) => {
     const { id } = req.params;
-    const updates = await req.json() as any;
-    
+    const updates = (await req.json()) as any;
+
     const organization = db.organization.findFirst({
       where: {
         id: {
@@ -82,7 +79,7 @@ export const organizationsHandlers = [
 
   rest.delete(`${API_URL}/organizations/:id`, (req, res, ctx) => {
     const { id } = req.params;
-    
+
     const organization = db.organization.findFirst({
       where: {
         id: {
