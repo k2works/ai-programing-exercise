@@ -1,5 +1,10 @@
-import HomePage from '../index';
-import { appRender, screen, waitFor, waitForLoadingToFinish } from '@/testing/test-utils';
+import HomePage from '../pages/index';
+import {
+  appRender,
+  screen,
+  waitFor,
+  waitForLoadingToFinish,
+} from '@/testing/test-utils';
 import { testData } from '@/testing/test-data';
 
 // Next.js router のモック
@@ -22,7 +27,9 @@ describe('HomePage', () => {
     appRender(<HomePage />);
 
     // ページタイトルが表示される
-    expect(screen.getByRole('heading', { name: /理想の仕事を見つけよう/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: /理想の仕事を見つけよう/i })
+    ).toBeInTheDocument();
 
     // ローディング完了を待つ
     await waitForLoadingToFinish();
