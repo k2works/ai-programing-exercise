@@ -14,3 +14,11 @@ export type { LoadingProps } from './loading';
 
 export { NotFound } from './not-found';
 export type { NotFoundProps } from './not-found';
+
+// Data Components
+export { DataTable } from './data-table';
+export type { DataTableProps } from './data-table';
+
+// Form Components
+export { FormField } from './form';
+export type { FormFieldProps } from './form';
