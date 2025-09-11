@@ -42,13 +42,13 @@ const persistImpl: PersistImpl = (config, options) => (set, get, store) => {
   };
 
   // Create initial state with stored values merged in
-  const initialState = config(persistedSet, get, store);
+  config(persistedSet, get, store);
   
   // Use set to properly initialize with stored state
   if (Object.keys(initialStoredState).length > 0) {
     // Filter out functions from stored state to avoid overriding actions
     const stateToRestore = Object.fromEntries(
-      Object.entries(initialStoredState).filter(([_, value]) => typeof value !== 'function')
+      Object.entries(initialStoredState).filter(([, value]) => typeof value !== 'function')
     );
     set(stateToRestore as Parameters<typeof set>[0], false);
   }

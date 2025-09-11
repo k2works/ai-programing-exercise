@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { api } from '@/lib/api-client';
+import { fetchClient } from '@/lib/fetch-client';
 import { useNotifications } from '@/stores/notifications';
 
 import { CreateJobData, Job } from '../types';
@@ -8,16 +8,21 @@ import { CreateJobData, Job } from '../types';
 export const createJob = (
   data: CreateJobData
 ): Promise<Job> => {
-  return api.post('/jobs', data);
+  return fetchClient.post('/jobs', data);
 };
 
-export const useCreateJob = () => {
+interface UseCreateJobOptions {
+  onSuccess?: (data: Job) => void;
+  onError?: (error: Error) => void;
+}
+
+export const useCreateJob = (options?: UseCreateJobOptions) => {
   const queryClient = useQueryClient();
   const { showNotification } = useNotifications();
 
   return useMutation({
     mutationFn: createJob,
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({
         queryKey: ['jobs'],
       });
@@ -26,13 +31,23 @@ export const useCreateJob = () => {
         title: 'Job Created',
         message: 'Job has been created successfully.',
       });
+      
+      // オプションのコールバック実行
+      if (options?.onSuccess) {
+        options.onSuccess(data);
+      }
     },
-    onError: () => {
+    onError: (error) => {
       showNotification({
         type: 'error',
         title: 'Something went wrong',
         message: 'Failed to create job.',
       });
+      
+      // オプションのコールバック実行
+      if (options?.onError) {
+        options.onError(error);
+      }
     },
   });
 };

@@ -1,7 +1,7 @@
 'use client';
 
 import { DashboardLayout } from '@/layouts';
-import { Button, Link } from '@/components';
+import { Link } from '@/components';
 
 export default function JobsDemoPage() {
   return (

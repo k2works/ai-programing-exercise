@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { api } from '@/lib/api-client';
+import { fetchClient } from '@/lib/fetch-client';
 
 import { Job } from '../types';
 
 export const getJobs = (): Promise<Job[]> => {
-  return api.get('/jobs');
+  return fetchClient.get('/jobs');
 };
 
 export const useJobs = () => {

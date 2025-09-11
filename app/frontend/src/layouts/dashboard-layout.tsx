@@ -1,7 +1,6 @@
 import { ReactNode } from 'react';
 import { Navbar } from '@/components/navbar';
 import { Link } from '@/components/link';
-import { useUser } from '@/testing/test-data';
 
 type DashboardLayoutProps = {
   children: ReactNode;
@@ -10,7 +9,8 @@ type DashboardLayoutProps = {
 export const DashboardLayout = ({
   children,
 }: DashboardLayoutProps) => {
-  const user = useUser();
+  // TODO: 実際の認証システムが実装されたら useUser Hook を追加
+  const mockOrganizationId = '1';
 
   return (
     <section className="min-h-screen flex flex-col">
@@ -22,7 +22,7 @@ export const DashboardLayout = ({
       
       <footer className="py-8 text-center border-t border-gray-200 bg-gray-50">
         <Link
-          href={`/organizations/${user.data?.organizationId}`}
+          href={`/organizations/${mockOrganizationId}`}
           className="text-primary-600 hover:text-primary-700"
         >
           View Public Organization Page

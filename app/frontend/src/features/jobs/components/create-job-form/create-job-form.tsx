@@ -10,10 +10,12 @@ import { CreateJobData } from '../../types';
 
 export type CreateJobFormProps = {
   onSuccess?: () => void;
+  onCancel?: () => void;
 };
 
 export const CreateJobForm = ({
   onSuccess,
+  onCancel,
 }: CreateJobFormProps) => {
   const createJobMutation = useCreateJob();
   
@@ -93,13 +95,15 @@ export const CreateJobForm = ({
           <Button
             type="button"
             variant="outline"
-            onClick={() => window.history.back()}
+            onClick={onCancel}
           >
             Cancel
           </Button>
           <Button
             type="submit"
+            data-testid="submit-create-job"
             isLoading={createJobMutation.isPending}
+            loadingText="Creating..."
             size="lg"
           >
             Create Job

@@ -15,6 +15,7 @@ export const Loading = ({ text = 'Loading...', size = 'md' }: LoadingProps) => {
     <div className="flex flex-col items-center justify-center min-h-[200px] space-y-4">
       <div className="relative">
         <div
+          data-testid="loading-spinner"
           className={`${sizeClasses[size]} border-4 border-gray-200 border-t-primary-600 rounded-full animate-spin`}
         />
       </div>

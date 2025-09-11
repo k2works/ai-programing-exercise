@@ -6,6 +6,7 @@ export type Job = Entity & {
   info: string;
   location: string;
   department: string;
+  status: 'active' | 'draft' | 'closed';
 };
 
 export type CreateJobData = Pick<

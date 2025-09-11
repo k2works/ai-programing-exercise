@@ -16,6 +16,11 @@ const variants = {
     hover: 'hover:bg-primary-50',
     disabled: 'disabled:text-gray-400',
   },
+  danger: {
+    base: 'bg-red-600 text-white border-red-600',
+    hover: 'hover:bg-red-700 hover:border-red-700',
+    disabled: 'disabled:bg-gray-300 disabled:border-gray-300 disabled:text-gray-500',
+  },
 };
 
 const sizes = {
@@ -31,6 +36,7 @@ export type ButtonProps = {
   size?: keyof typeof sizes;
   isLoading?: boolean;
   isDisabled?: boolean;
+  loadingText?: string;
   onClick?: MouseEventHandler<HTMLButtonElement>;
   icon?: JSX.Element;
   className?: string;
@@ -44,6 +50,7 @@ export const Button = ({
   icon,
   isLoading = false,
   isDisabled = false,
+  loadingText,
   onClick,
   className = '',
   ...props
@@ -96,7 +103,7 @@ export const Button = ({
       {icon && !isLoading && (
         <span className={`${children ? 'mr-2' : ''}`}>{icon}</span>
       )}
-      {children}
+      {isLoading && loadingText ? loadingText : children}
     </button>
   );
 };

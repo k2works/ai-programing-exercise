@@ -1,7 +1,7 @@
 'use client';
 
 import { DashboardLayout } from '@/layouts';
-import { Button, DataTable, Loading } from '@/components';
+import { Button, Loading } from '@/components';
 import { JobsList, CreateJobForm } from '@/features/jobs';
 import { useJobs } from '@/features/jobs/api';
 import { useState } from 'react';
@@ -24,6 +24,7 @@ export default function JobsDashboardPage() {
             </p>
           </div>
           <Button 
+            data-testid="create-job-button"
             onClick={() => setIsCreateModalOpen(true)}
             icon={
               <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
@@ -60,7 +61,7 @@ export default function JobsDashboardPage() {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-800">Active Jobs</p>
-                <p className="text-2xl font-bold text-gray-900">{jobs?.filter(job => job.status === 'active')?.length || 0}</p>
+                <p className="text-2xl font-bold text-gray-900">{Array.isArray(jobs) ? jobs.filter(job => job.status === 'active').length : 0}</p>
               </div>
             </div>
           </div>
@@ -74,7 +75,7 @@ export default function JobsDashboardPage() {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-800">Draft Jobs</p>
-                <p className="text-2xl font-bold text-gray-900">{jobs?.filter(job => job.status === 'draft')?.length || 0}</p>
+                <p className="text-2xl font-bold text-gray-900">{Array.isArray(jobs) ? jobs.filter(job => job.status === 'draft').length : 0}</p>
               </div>
             </div>
           </div>
@@ -88,7 +89,7 @@ export default function JobsDashboardPage() {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-800">Closed Jobs</p>
-                <p className="text-2xl font-bold text-gray-900">{jobs?.filter(job => job.status === 'closed')?.length || 0}</p>
+                <p className="text-2xl font-bold text-gray-900">{Array.isArray(jobs) ? jobs.filter(job => job.status === 'closed').length : 0}</p>
               </div>
             </div>
           </div>
@@ -99,7 +100,7 @@ export default function JobsDashboardPage() {
           <div className="p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">All Jobs</h2>
             {isLoading ? (
-              <div className="flex justify-center py-8">
+              <div className="flex justify-center py-8" data-testid="loading">
                 <Loading text="Loading jobs..." />
               </div>
             ) : error ? (
@@ -114,7 +115,7 @@ export default function JobsDashboardPage() {
                 </Button>
               </div>
             ) : (
-              <JobsList jobs={jobs || []} />
+              <JobsList organizationId="1" type="dashboard" />
             )}
           </div>
         </div>

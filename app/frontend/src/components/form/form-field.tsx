@@ -7,6 +7,7 @@ export type FormFieldProps = {
   error?: FieldError;
   placeholder?: string;
   className?: string;
+  id?: string;
 } & Partial<ReturnType<UseFormRegister<Record<string, unknown>>>>;
 
 export const FormField = forwardRef<
@@ -19,8 +20,11 @@ export const FormField = forwardRef<
     error,
     placeholder,
     className = '',
+    id,
     ...inputProps
   } = props;
+  
+  const fieldId = id || inputProps.name || 'field';
 
   const baseClasses = [
     'w-full px-3 py-2 border rounded-lg',
@@ -35,13 +39,14 @@ export const FormField = forwardRef<
   return (
     <div className="space-y-1">
       {label && (
-        <label className="block text-sm font-medium text-gray-700">
+        <label htmlFor={fieldId} className="block text-sm font-medium text-gray-700">
           {label}
         </label>
       )}
       
       {type === 'textarea' ? (
         <textarea
+          id={fieldId}
           className={`${baseClasses} resize-vertical`}
           rows={6}
           placeholder={placeholder}
@@ -50,6 +55,7 @@ export const FormField = forwardRef<
         />
       ) : (
         <input
+          id={fieldId}
           type={type}
           className={baseClasses}
           placeholder={placeholder}
