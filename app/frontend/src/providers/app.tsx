@@ -7,5 +7,9 @@ type AppProviderProps = {
 export const AppProvider = ({
   children,
 }: AppProviderProps) => {
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+    </>
+  );
 };
