@@ -1,6 +1,7 @@
-import { createStore, useStore } from 'zustand';
+import { create, useStore } from 'zustand';
 
 import { uid } from '@/utils/uid';
+import { devtools } from '../middleware';
 
 export type NotificationType =
   | 'info'
@@ -24,31 +25,36 @@ export type NotificationsStore = {
   dismissNotification: (id: string) => void;
 };
 
-export const notificationsStore =
-  createStore<NotificationsStore>((set, get) => ({
-    notifications: [],
-    showNotification: (notification) => {
-      const id = uid();
-      set((state) => ({
-        notifications: [
-          ...state.notifications,
-          { id, ...notification },
-        ],
-      }));
-      if (notification.duration) {
-        setTimeout(() => {
-          get().dismissNotification(id);
-        }, notification.duration);
-      }
-    },
-    dismissNotification: (id) => {
-      set((state) => ({
-        notifications: state.notifications.filter(
-          (notification) => notification.id !== id
-        ),
-      }));
-    },
-  }));
+export const notificationsStore = create<NotificationsStore>(
+  devtools<NotificationsStore>(
+    (set, get) => ({
+      notifications: [],
+      showNotification: (notification) => {
+        const id = uid();
+        set((state) => ({
+          notifications: [
+            ...state.notifications,
+            { id, ...notification },
+          ],
+        }));
+        if (notification.duration) {
+          setTimeout(() => {
+            get().dismissNotification(id);
+          }, notification.duration);
+        }
+        return id;
+      },
+      dismissNotification: (id) => {
+        set((state) => ({
+          notifications: state.notifications.filter(
+            (notification) => notification.id !== id
+          ),
+        }));
+      },
+    }),
+    { name: 'notifications' }
+  )
+);
 
 export const useNotifications = () =>
   useStore(notificationsStore);
