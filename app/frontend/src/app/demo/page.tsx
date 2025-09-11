@@ -15,7 +15,7 @@ export default function DemoPage() {
           <h1 className="text-4xl font-bold text-gray-900">
             コンポーネントライブラリ
           </h1>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl text-gray-800">
             Tailwind CSS ベースの再利用可能なUIコンポーネント
           </p>
         </div>
@@ -136,6 +136,7 @@ export default function DemoPage() {
           <div className="flex flex-wrap gap-4">
             <Link href="/" variant="outline">ホームに戻る</Link>
             <Link href="/demo/jobs" variant="solid">Jobs Feature デモ</Link>
+            <Link href="/demo/client-state" variant="solid">Client State デモ</Link>
             <Link href="/dashboard/jobs" variant="outline">Jobs ダッシュボード</Link>
           </div>
         </section>
