@@ -1,5 +1,5 @@
 export const API_URL = process.env
-  .NEXT_PUBLIC_API_URL as string;
+  .NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
 export const API_MOCKING =
   process.env.NEXT_PUBLIC_API_MOCKING === 'true';
