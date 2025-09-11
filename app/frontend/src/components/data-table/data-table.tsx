@@ -25,7 +25,7 @@ export const DataTable = <Entry extends Entity>({
   if (data?.length === 0) {
     return (
       <div className="h-56 p-4 bg-gray-100 rounded-md flex items-center justify-center">
-        <span className="text-gray-600">No Data</span>
+        <span className="text-gray-800">No Data</span>
       </div>
     );
   }

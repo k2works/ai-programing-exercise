@@ -18,7 +18,7 @@ export const Loading = ({ text = 'Loading...', size = 'md' }: LoadingProps) => {
           className={`${sizeClasses[size]} border-4 border-gray-200 border-t-primary-600 rounded-full animate-spin`}
         />
       </div>
-      <p className="text-gray-600 text-sm font-medium">{text}</p>
+      <p className="text-gray-800 text-sm font-medium">{text}</p>
     </div>
   );
 };

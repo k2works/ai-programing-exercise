@@ -15,7 +15,7 @@ export const PublicLayout = ({
       </main>
       
       <footer className="py-8 text-center border-t border-gray-200">
-        <p className="text-gray-600">
+        <p className="text-gray-800">
           Powered by{' '}
           <Link href="/" className="font-medium">
             Jobs App
