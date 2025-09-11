@@ -1,21 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { JobsList, CreateJobForm, CreateJobData } from '@/features/jobs';
+import { JobsList, CreateJobForm } from '@/features/jobs';
 import { DashboardLayout } from '@/layouts';
-import { mockJobs } from '@/testing/mock-data';
 import { Button, Link } from '@/components';
 
 export default function JobsDemoPage() {
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleCreateJob = async (data: CreateJobData) => {
-    setIsLoading(true);
-    // シミュレートされた API 呼び出し
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    console.log('Creating job:', data);
-    setIsLoading(false);
+  const handleCreateSuccess = () => {
     setShowCreateForm(false);
   };
 
@@ -56,8 +49,7 @@ export default function JobsDemoPage() {
             </h2>
             <div className="bg-white p-8 rounded-lg shadow-lg">
               <CreateJobForm
-                onSubmit={handleCreateJob}
-                isLoading={isLoading}
+                onSuccess={handleCreateSuccess}
               />
             </div>
           </section>
@@ -74,10 +66,8 @@ export default function JobsDemoPage() {
             
             <div className="bg-white p-6 rounded-lg shadow-lg">
               <JobsList
-                jobs={mockJobs}
                 type="dashboard"
                 organizationId="org-1"
-                isLoading={false}
               />
             </div>
 
@@ -87,10 +77,8 @@ export default function JobsDemoPage() {
               </h3>
               <div className="bg-gray-50 p-6 rounded-lg">
                 <JobsList
-                  jobs={mockJobs.slice(0, 3)}
                   type="public"
                   organizationId="org-1"
-                  isLoading={false}
                 />
               </div>
             </div>

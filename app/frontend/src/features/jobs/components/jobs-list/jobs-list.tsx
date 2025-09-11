@@ -1,14 +1,13 @@
 import { DataTable, DataTableProps } from '@/components/data-table';
 import { Link } from '@/components/link';
 
+import { useJobs } from '../../api';
 import { Job } from '../../types';
 
 type JobListType = 'dashboard' | 'public';
 
 export type JobsListProps = {
   type: JobListType;
-  jobs: Job[];
-  isLoading?: boolean;
   organizationId: string;
 };
 
@@ -53,11 +52,11 @@ const getTableColumns = (
 };
 
 export const JobsList = ({
-  jobs,
-  isLoading,
   organizationId,
   type,
 }: JobsListProps) => {
+  const { data: jobs, isLoading } = useJobs();
+  
   const tableColumns = getTableColumns(
     organizationId,
     type
@@ -66,8 +65,8 @@ export const JobsList = ({
   return (
     <div data-testid="jobs-list">
       <DataTable
-        isLoading={isLoading || false}
-        data={jobs}
+        isLoading={isLoading}
+        data={jobs || []}
         columns={tableColumns}
       />
     </div>

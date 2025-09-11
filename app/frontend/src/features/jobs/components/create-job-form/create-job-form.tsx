@@ -5,22 +5,33 @@ import { useForm } from 'react-hook-form';
 import { Button } from '@/components/button';
 import { FormField } from '@/components/form';
 
+import { useCreateJob } from '../../api';
 import { CreateJobData } from '../../types';
 
 export type CreateJobFormProps = {
-  onSubmit: (data: CreateJobData) => void;
-  isLoading?: boolean;
+  onSuccess?: () => void;
 };
 
 export const CreateJobForm = ({
-  onSubmit,
-  isLoading = false,
+  onSuccess,
 }: CreateJobFormProps) => {
+  const createJobMutation = useCreateJob();
+  
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<CreateJobData>();
+
+  const onSubmit = (data: CreateJobData) => {
+    createJobMutation.mutate(data, {
+      onSuccess: () => {
+        reset();
+        onSuccess?.();
+      },
+    });
+  };
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -88,7 +99,7 @@ export const CreateJobForm = ({
           </Button>
           <Button
             type="submit"
-            isLoading={isLoading}
+            isLoading={createJobMutation.isPending}
             size="lg"
           >
             Create Job
