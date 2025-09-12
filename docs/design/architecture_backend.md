@@ -28,8 +28,9 @@
 - **選択理由**: ドメインモデルありで永続化モデル単一の場合に最適
 - **特徴**: 高いテスト容易性とドメインロジックの独立性を実現
 
-**テスト戦略**: ピラミッド形テスト
+**テスト戦略**: ピラミッド形テスト + BDD
 - **構成**: ユニットテスト80%、統合テスト15%、E2Eテスト5%
+- **BDD受け入れテスト**: Cucumber によるビジネス要件検証
 - **重点**: ドメインロジックの徹底検証
 
 ## 2. アーキテクチャ詳細設計
@@ -396,10 +397,11 @@ public class JpaReservationRepository implements ReservationRepository {
 - **開発・テスト環境**: H2 Database (In-Memory)
 
 **ビルド・テストツール**
-- **Maven**: 依存関係管理・ビルドツール
+- **Gradle**: 8.14 - 依存関係管理・ビルドツール（高速ビルド、増分ビルド）
 - **JUnit 5**: ユニットテスト
 - **Testcontainers**: 統合テスト
 - **ArchUnit**: アーキテクチャテスト
+- **Cucumber**: 7.18.0 - BDD受け入れテスト
 
 #### 2.4.2 プロジェクト構成
 
@@ -435,8 +437,11 @@ src/main/java/
 
 **コード品質の維持**
 - SonarQube による静的解析
-- Checkstyle・PMD による コーディング規約チェック
-- SpotBugs によるバグ検出
+- Checkstyle 10.12.3 による コーディング規約チェック
+- PMD 7.0.0 による複雑度・コード品質分析（Java 21対応）
+- SpotBugs 6.0.7 によるバグ検出
+- JaCoCo 0.8.12 によるテストカバレッジ測定
+- OWASP Dependency Check 8.4.0 による脆弱性チェック
 
 #### 2.5.2 テスト戦略
 
@@ -484,6 +489,38 @@ class ArchitectureTest {
             .should().onlyDependOnClassesIn(
                 "..domain..", "java..", "org.springframework.stereotype.."
             );
+    }
+}
+```
+
+**BDD受け入れテスト**（Cucumber）
+```gherkin
+# language: ja
+フィーチャ: 会議室予約機能
+  会員として会議室の予約・確認・キャンセルを行いたい
+
+  シナリオ: 正常な会議室予約
+    前提 会員"田中太郎"としてログインしている
+    もし "小会議室A"を"2025-01-15 14:00"から"2025-01-15 16:00"まで予約する
+    ならば 予約が正常に完了する
+    かつ 予約ステータスが"確定"である
+```
+
+```java
+@CucumberContextConfiguration
+@SpringBootTest
+@ActiveProfiles("test")
+public class CucumberSpringConfiguration { }
+
+public class ReservationSteps {
+    @前提("会員{string}としてログインしている")
+    public void 会員としてログイン(String userName) {
+        // 認証処理の実装
+    }
+    
+    @もし("{string}を{string}から{string}まで予約する")
+    public void 会議室を予約する(String roomName, String startTime, String endTime) {
+        // 予約作成ロジックの実装
     }
 }
 ```
@@ -538,6 +575,23 @@ public class CreateReservationRequest {
 ```
 
 ## 3. 実装ロードマップ
+
+### 3.0 現在の実装状況（2025-09-12）
+
+**✅ 完了済み**:
+- ヘキサゴナルアーキテクチャの基盤設定
+- パッケージ構造の完全実装（application, domain, infrastructure, shared）
+- Spring Boot 3.3.2 + Java 21 環境構築
+- 品質管理ツール統合（Gradle, JaCoCo, Checkstyle, PMD, SpotBugs）
+- データベース設定（H2/PostgreSQL, Flyway）
+- 基本テスト環境（JUnit 5, ArchUnit, Testcontainers）
+
+**⏳ 実装待ち**:
+- ドメインエンティティ・値オブジェクト
+- ユースケース・ドメインサービス
+- リポジトリ実装
+- Web API エンドポイント
+- セキュリティ設定
 
 ### 3.1 フェーズ1: コア機能（MVP）
 - ドメインモデル基盤構築
