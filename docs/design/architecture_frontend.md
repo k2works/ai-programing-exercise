@@ -24,7 +24,7 @@
 
 **レンダリング戦略**: SPA（Single Page Application）
 - **選択理由**: 内部ツール・ダッシュボード的性質で高いインタラクティビティが重要
-- **技術選択**: React 18 + TypeScript
+- **技術選択**: React 19 + TypeScript
 
 **プロジェクト構造**: 標準11フォルダ構成
 - **選択理由**: 中規模プロジェクトで将来的な拡張性を考慮
@@ -141,36 +141,36 @@ src/
 **基盤技術**
 ```json
 {
-  "react": "^18.3.0",
-  "typescript": "^5.4.0",
-  "vite": "^5.2.0"
+  "react": "^19.1.1",
+  "typescript": "^5.8.3",
+  "vite": "^7.1.5"
 }
 ```
 
 **ルーティング・状態管理**
 ```json
 {
-  "react-router-dom": "^6.23.0",
-  "zustand": "^4.5.0",
-  "@tanstack/react-query": "^5.28.0"
+  "react-router-dom": "^6.30.1",
+  "zustand": "^4.5.7",
+  "@tanstack/react-query": "^5.87.4"
 }
 ```
 
 **UI・スタイリング**
 ```json
 {
-  "tailwindcss": "^3.4.0",
-  "clsx": "^2.1.0",
-  "lucide-react": "^0.365.0"
+  "tailwindcss": "^3.4.17",
+  "clsx": "^2.1.1",
+  "lucide-react": "^0.378.0"
 }
 ```
 
 **フォーム・バリデーション**
 ```json
 {
-  "react-hook-form": "^7.51.0",
-  "zod": "^3.22.0",
-  "@hookform/resolvers": "^3.3.0"
+  "react-hook-form": "^7.62.0",
+  "zod": "^3.25.76",
+  "@hookform/resolvers": "^3.10.0"
 }
 ```
 
@@ -179,20 +179,21 @@ src/
 **開発ツール**
 ```json
 {
-  "@vitejs/plugin-react": "^4.2.0",
-  "eslint": "^8.57.0",
-  "prettier": "^3.2.0",
-  "@typescript-eslint/eslint-plugin": "^7.6.0"
+  "@vitejs/plugin-react": "^5.0.0",
+  "eslint": "^9.33.0",
+  "prettier": "^3.6.2",
+  "@typescript-eslint/eslint-plugin": "^8.39.1"
 }
 ```
 
 **テストツール**
 ```json
 {
-  "vitest": "^1.4.0",
-  "@testing-library/react": "^14.2.0",
-  "@testing-library/jest-dom": "^6.4.0",
-  "msw": "^2.2.0"
+  "vitest": "^3.2.4",
+  "@testing-library/react": "^14.3.1",
+  "@testing-library/jest-dom": "^6.8.0",
+  "msw": "^2.11.2",
+  "dependency-cruiser": "^17.0.1"
 }
 ```
 
@@ -1154,9 +1155,143 @@ export function escapeHtml(text: string): string {
 ">
 ```
 
-## 10. 運用・監視
+## 10. アーキテクチャ品質管理
 
-### 10.1 エラー監視
+### 10.1 dependency-cruiser による依存関係管理
+
+#### 10.1.1 設定ファイル
+
+```javascript
+// .dependency-cruiser.mjs
+/** @type {import('dependency-cruiser').IConfiguration} */
+export default {
+  forbidden: [
+    // 循環依存を禁止
+    {
+      name: 'no-circular',
+      severity: 'error',
+      comment: 'This dependency is part of a circular relationship. You might want to revise your solution (i.e. use dependency inversion, make sure the modules have a single responsibility) ',
+      from: {},
+      to: {
+        circular: true
+      }
+    },
+    // 使われていないモジュール（orphan）の検出
+    {
+      name: 'no-orphans',
+      comment: "This is an orphan module - it's likely not used (anymore?). Either use it or remove it.",
+      severity: 'warn',
+      from: {
+        orphan: true,
+        pathNot: [
+          '(^|/)\\.[^/]+\\.(js|cjs|mjs|ts|json)$', // dot files
+          '\\.d\\.ts$', // TypeScript declaration files
+        ]
+      },
+      to: {}
+    },
+    // 非推奨パッケージの使用を禁止
+    {
+      name: 'not-to-deprecated',
+      comment: 'This module uses a (version of an) npm module that has been deprecated.',
+      severity: 'warn',
+      from: {},
+      to: {
+        dependencyTypes: ['deprecated']
+      }
+    },
+    // package.json に記載されていない依存関係を禁止
+    {
+      name: 'no-non-package-json',
+      severity: 'error',
+      comment: "This module depends on an npm package that isn't in the 'dependencies' or 'devDependencies' of your package.json.",
+      from: {},
+      to: {
+        dependencyTypes: ['npm-no-pkg', 'npm-unknown']
+      }
+    },
+    // 解決できないモジュールを禁止
+    {
+      name: 'not-to-unresolvable',
+      comment: "This module depends on a module that cannot be found ('resolved to disk').",
+      severity: 'error',
+      from: {},
+      to: {
+        couldNotResolve: true
+      }
+    }
+  ],
+  options: {
+    // TypeScript + React の設定
+    doNotFollow: {
+      path: 'node_modules'
+    },
+    includeOnly: '^src/',
+    tsPreCompilationDeps: true,
+    preserveSymlinks: false,
+    moduleSystems: ['amd', 'cjs', 'es6', 'tsd'],
+    tsConfig: {
+      fileName: 'tsconfig.json'
+    },
+    enhancedResolveOptions: {
+      exportsFields: ['exports'],
+      conditionNames: ['import', 'require', 'node', 'default']
+    }
+  }
+}
+```
+
+#### 10.1.2 npm スクリプト
+
+```json
+{
+  "scripts": {
+    "deps:check": "dependency-cruiser src",
+    "deps:graph": "dependency-cruiser --output-type dot src | dot -T svg > dependency-graph.svg",
+    "deps:report": "dependency-cruiser --output-type html src > dependency-report.html"
+  }
+}
+```
+
+#### 10.1.3 使用方法
+
+**基本チェック**
+```bash
+npm run deps:check
+```
+
+**依存関係グラフの生成（SVG形式）**
+```bash
+npm run deps:graph
+```
+
+**HTML レポートの生成**
+```bash
+npm run deps:report
+```
+
+#### 10.1.4 CI/CD 統合
+
+```yaml
+# .github/workflows/frontend.yml (抜粋)
+- name: Check dependencies
+  run: |
+    cd app/frontend/meeting-room-reservation-ui
+    npm run deps:check
+```
+
+#### 10.1.5 アーキテクチャルール
+
+dependency-cruiser により以下のアーキテクチャルールを自動検証：
+
+1. **循環依存の禁止**: モジュール間の循環依存を検出・防止
+2. **レイヤー依存**: 上位レイヤーから下位レイヤーへの一方向依存を強制
+3. **未使用モジュール検出**: デッドコードの早期発見
+4. **外部依存管理**: package.json に記載されていない依存関係の検出
+
+## 11. 運用・監視
+
+### 11.1 エラー監視
 
 ```typescript
 // lib/error-tracking.ts
@@ -1182,7 +1317,7 @@ class ErrorTracker {
 export { ErrorTracker };
 ```
 
-### 10.2 パフォーマンス監視
+### 11.2 パフォーマンス監視
 
 ```typescript
 // hooks/usePerformanceMetrics.ts
