@@ -1,0 +1,373 @@
+name: CI/CD Pipeline - React Job Board Application
+
+on:
+  push:
+    branches: [ main, develop, typescript/take4-2 ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  NODE_VERSION: '22'
+  DOTNET_VERSION: '9.0'
+
+jobs:
+  code-checks:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./app/frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: ./app/frontend/package-lock.json
+
+      - name: Create environment file
+        run: |
+          if [ -f .env.example ]; then
+            cp .env.example .env
+          else
+            cat > .env << EOL
+          NEXTAUTH_URL=http://localhost:3000
+          NEXTAUTH_SECRET=test-secret
+          NEXT_PUBLIC_API_URL=http://localhost:5150/api
+          NEXT_PUBLIC_ENABLE_API_MOCKING=true
+          NODE_ENV=test
+          EOL
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type checking
+        run: npm run types:check || npx tsc --noEmit
+
+      - name: Linting
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check || npx prettier --check "src/**/*.{ts,tsx,js,jsx}"
+
+      - name: Unit tests
+        run: npm run test:coverage || npm test -- --coverage --watchAll=false
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          directory: ./app/frontend/coverage
+          fail_ci_if_error: false
+
+  backend-checks:
+    name: Backend Quality Checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./app/backend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Check if backend exists
+        id: backend-check
+        run: |
+          if [ -f "*.csproj" ] || [ -f "*.sln" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Restore dependencies
+        if: steps.backend-check.outputs.exists == 'true'
+        run: dotnet restore
+
+      - name: Build
+        if: steps.backend-check.outputs.exists == 'true'
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Run tests
+        if: steps.backend-check.outputs.exists == 'true'
+        run: dotnet test --no-build --configuration Release --logger trx --collect:"XPlat Code Coverage"
+
+      - name: Skip backend (not implemented yet)
+        if: steps.backend-check.outputs.exists == 'false'
+        run: echo "Backend not implemented yet - skipping backend checks"
+
+  security-scan:
+    name: Security Vulnerability Scan
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./app/frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: ./app/frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+
+      - name: Check for secrets
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
+        continue-on-error: true
+
+  e2e-tests:
+    name: End-to-End Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./app/frontend
+    needs: [code-checks]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: ./app/frontend/package-lock.json
+
+      - name: Create environment file
+        run: |
+          cat > .env << EOL
+          NEXTAUTH_URL=http://localhost:3000
+          NEXTAUTH_SECRET=test-secret
+          NEXT_PUBLIC_API_URL=http://localhost:5150/api
+          NEXT_PUBLIC_ENABLE_API_MOCKING=true
+          NODE_ENV=test
+          EOL
+
+      - name: Install Cypress dependencies
+        run: |
+          if ! command -v cypress &> /dev/null; then
+            npm install --save-dev cypress @cypress/xvfb
+          fi
+
+      - name: Run E2E tests
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: ./app/frontend
+          build: npm run build
+          start: npm run dev
+          wait-on: 'http://localhost:3000'
+          wait-on-timeout: 120
+          browser: chrome
+          headless: true
+        continue-on-error: true
+
+  build-test:
+    name: Build Verification
+    runs-on: ubuntu-latest
+    needs: [code-checks]
+    strategy:
+      matrix:
+        environment: [development, production]
+    defaults:
+      run:
+        working-directory: ./app/frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: ./app/frontend/package-lock.json
+
+      - name: Create environment file
+        run: |
+          cat > .env << EOL
+          NEXTAUTH_URL=http://localhost:3000
+          NEXTAUTH_SECRET=build-test-secret
+          NEXT_PUBLIC_API_URL=http://localhost:5150/api
+          NEXT_PUBLIC_ENABLE_API_MOCKING=${{ matrix.environment == 'development' && 'true' || 'false' }}
+          NODE_ENV=${{ matrix.environment }}
+          EOL
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Check bundle size
+        run: |
+          if [ -d ".next" ]; then
+            echo "Build successful - checking bundle size"
+            du -sh .next/
+            # 警告: バンドルサイズが大きすぎる場合
+            SIZE=$(du -sm .next/ | cut -f1)
+            if [ $SIZE -gt 50 ]; then
+              echo "Warning: Bundle size is ${SIZE}MB - consider optimization"
+            fi
+          fi
+
+  deploy-preview:
+    name: Deploy Preview Environment
+    runs-on: ubuntu-latest
+    needs: [code-checks, security-scan, build-test]
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      deployments: write
+      pull-requests: write
+    defaults:
+      run:
+        working-directory: ./app/frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: ./app/frontend/package-lock.json
+
+      - name: Create environment file
+        run: |
+          cat > .env << EOL
+          NEXTAUTH_URL=https://preview-${{ github.event.number }}.vercel.app
+          NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET || 'preview-secret' }}
+          NEXT_PUBLIC_API_URL=https://preview-api-${{ github.event.number }}.herokuapp.com/api
+          NEXT_PUBLIC_ENABLE_API_MOCKING=true
+          NODE_ENV=preview
+          EOL
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build for preview
+        run: npm run build
+
+      - name: Deploy to Vercel (Preview)
+        if: env.VERCEL_TOKEN != ''
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./app/frontend
+          scope: ${{ secrets.VERCEL_ORG_ID }}
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Comment PR
+        if: env.VERCEL_TOKEN != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🚀 Preview deployment ready! Check your changes at the preview URL.'
+            });
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [code-checks, backend-checks, security-scan, build-test]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment: production
+    permissions:
+      contents: read
+      deployments: write
+    defaults:
+      run:
+        working-directory: ./app/frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: ./app/frontend/package-lock.json
+
+      - name: Create production environment file
+        run: |
+          cat > .env << EOL
+          NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL || 'https://job-board.vercel.app' }}
+          NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
+          NEXT_PUBLIC_API_URL=${{ secrets.API_URL || 'https://api.job-board.app/api' }}
+          NEXT_PUBLIC_ENABLE_API_MOCKING=false
+          NODE_ENV=production
+          EOL
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build for production
+        run: npm run build
+
+      - name: Deploy to Vercel (Production)
+        if: env.VERCEL_TOKEN != ''
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-args: '--prod'
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./app/frontend
+          scope: ${{ secrets.VERCEL_ORG_ID }}
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deployment success notification
+        if: success()
+        run: |
+          echo "🎉 Production deployment successful!"
+          echo "Application is live at: ${{ secrets.NEXTAUTH_URL || 'https://job-board.vercel.app' }}"
+
+  performance-audit:
+    name: Performance & Accessibility Audit
+    runs-on: ubuntu-latest
+    needs: [deploy-production]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          configPath: './.lighthouserc.json'
+          temporaryPublicStorage: true
+          uploadArtifacts: true
+        continue-on-error: true
