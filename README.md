@@ -1,281 +1,443 @@
-# 実践 AIプログラミング
+# React Job Board Application - AI Programming Exercise
 
 ## 概要
 
-AIプログラミングの実践的な学習と開発のためのプロジェクトです。複数のプログラミング言語（Java、Scala、Kotlin、Node.js、Ruby、Python、PHP、Go、Rust、.NET、C、C++、Erlang、Elixir、Prolog）をサポートする開発環境と、MkDocsを使用したドキュメント管理システムを提供します。
+React Job Board Application は求人掲載・管理・応募システムであり、求職者・採用担当者・組織管理者の3つの役割に対応したWebアプリケーションです。
 
 ### 目的
 
-- AIプログラミングの実践的な学習環境の提供
-- 複数言語（Java、Scala、Kotlin、Node.js、Ruby、Python、PHP、Go、Rust、.NET、C、C++、Erlang、Elixir、Prolog）での開発サポート
-- ドキュメント駆動開発の促進
-- プログラミング学習リソースの集約
+- **React アプリケーション アーキテクチャ** の実践的実装
+- **XP（エクストリーム プログラミング）** 手法による開発
+- **CI/CD パイプライン** の構築と運用
+- **テスト駆動開発（TDD）** の実践
 
-### 前提
+### 技術スタック
 
-| ソフトウェア | バージョン   | 備考 |
-| :----------- |:--------| :--- |
-| Docker       | 最新     | 開発環境の構築に必要 |
-| Docker Compose | 最新   | 複数コンテナの管理に必要 |
-| Git          | 最新     | バージョン管理に必要 |
+#### フロントエンド
+- **Framework**: Next.js 14.2+ (Pages Router)
+- **Language**: TypeScript 5.0+
+- **State Management**: Zustand + React Query
+- **UI Library**: Tailwind CSS + React Hook Form
+- **Testing**: Jest + React Testing Library + Cypress
+- **Build**: Webpack 5 + SWC
 
-## 構成
+#### バックエンド  
+- **Framework**: .NET 9.0 Web API
+- **Language**: C# 12.0
+- **Database**: SQLite (開発) / PostgreSQL (本番)
+- **Authentication**: JWT
+- **Testing**: xUnit + NSubstitute
 
-- [構築](#構築)
-- [配置](#配置)
-- [運用](#運用)
-- [開発](#開発)
+#### 開発・運用
+- **CI/CD**: GitHub Actions
+- **Deployment**: Vercel (Frontend) + Railway/Heroku (Backend)
+- **Monitoring**: Lighthouse CI
+- **Package Manager**: npm (Frontend) / NuGet (Backend)
 
-## 詳細
+---
 
-### 構築
-
-#### Quick Start
-
-1. リポジトリをクローン
-   ```
-   git clone https://github.com/k2works/ai-programing-exercise.git
-   cd ai-programing-exercise
-   ```
-
-2. Dockerコンテナを起動
-   ```
-   docker-compose up -d
-   ```
-
-3. ドキュメントサイトにアクセス
-   ```
-   http://localhost:8000
-   ```
-
-#### 開発環境
-
-プロジェクトは以下の開発環境を提供します：
-
-- **ベースOS**: Ubuntu 22.04
-- **言語環境**:
-  - Java 21.0.2 (via SDKMAN)
-  - Maven 3.9.4 / Gradle 8.10.2
-  - Scala 3.4.0 (via SDKMAN)
-  - Kotlin 2.0.0 (via SDKMAN)
-  - Clojure 1.12.1 (via 公式インストーラー)
-  - Node.js 22 (via NVM)
-  - Ruby 3.4.4 (via rbenv)
-  - Python 3.12 (システムパッケージ)
-  - uv (最新バージョン、Pythonパッケージマネージャー)
-  - PHP 8.1 (via Ondrej PPA)
-  - Composer (PHPパッケージマネージャー)
-  - Haskell 9.4.8 (via GHCup)
-  - Go 1.22.0 (via 公式バイナリ)
-  - Rust stable (via rustup)
-  - .NET 8.0 (via Microsoft パッケージリポジトリ)
-  - C言語 (C11標準, GCC)
-  - C++ (C++20標準, G++, Clang)
-  - Erlang 26.2.1 (via Erlang Solutions)
-  - Elixir 1.16.1 (via Erlang Solutions)
-  - Prolog (SWI-Prolog 9.0.4)
-- **ドキュメント環境**:
-  - MkDocs (Python 3.11ベース)
-  - Material for MkDocsテーマ
-  - PlantUML / Mermaidによる図表サポート
-
-#### プロジェクト構造
+## プロジェクト構造
 
 ```
 ai-programing-exercise/
-├── Dockerfile              # 開発環境のDockerfile
-├── README.md               # このファイル
-├── docker-compose.yml      # Docker Compose設定
-├── docs/                   # ドキュメントディレクトリ
-│   ├── Dockerfile          # MkDocs用Dockerfile
-│   ├── assets/             # CSS/JSアセット
-│   └── index.md            # メインドキュメントページ
-└── mkdocs.yml              # MkDocs設定ファイル
+├── app/
+│   ├── frontend/                 # Next.js React アプリケーション
+│   │   ├── src/
+│   │   │   ├── components/       # 再利用可能なコンポーネント
+│   │   │   ├── features/         # 機能別モジュール
+│   │   │   ├── pages/           # Next.js ページコンポーネント
+│   │   │   ├── hooks/           # カスタムフック
+│   │   │   ├── stores/          # Zustand ストア
+│   │   │   ├── types/           # TypeScript 型定義
+│   │   │   └── testing/         # テスト用ヘルパー
+│   │   ├── cypress/             # E2E テスト
+│   │   ├── next.config.js       # Next.js 設定
+│   │   ├── jest.config.js       # Jest 設定
+│   │   └── package.json
+│   └── backend/                 # .NET Web API (実装予定)
+│       ├── JobBoard.Api/        # API プロジェクト
+│       ├── JobBoard.Core/       # ビジネスロジック
+│       └── JobBoard.Tests/      # テストプロジェクト
+├── docs/                        # ドキュメント
+│   ├── development/             # 開発計画・仕様
+│   ├── reference/              # 技術リファレンス
+│   └── requirements/           # 要件定義
+├── .github/workflows/          # CI/CD パイプライン
+├── .env.example               # 環境変数テンプレート
+├── vercel.json               # Vercel デプロイ設定
+└── README.md
 ```
 
-**[⬆ back to top](#構成)**
+---
 
-### 配置
+## セットアップ
 
-ドキュメントはGitHub Pagesを通じて公開することができます。リポジトリの設定でGitHub Pagesを有効にし、`/site`ディレクトリを公開ソースとして設定してください。
+### 前提条件
 
-**[⬆ back to top](#構成)**
+| ツール | バージョン | 用途 |
+|--------|-----------|------|
+| Node.js | 22.x | フロントエンド実行環境 |
+| npm | 10.x | パッケージ管理 |
+| .NET SDK | 9.0 | バックエンド実行環境 |
+| Git | 最新 | バージョン管理 |
 
-### 運用
+### インストール
 
-#### ドキュメントの編集
-
-1. ローカル環境でMkDocsサーバーを起動
-   ```
-   docker-compose up mkdocs
-   ```
-   または、Gulpタスクを使用:
-   ```
-   npm run docs:serve
-   ```
-
-2. ブラウザで http://localhost:8000 にアクセスして編集結果をプレビュー
-
-3. `docs/`ディレクトリ内のMarkdownファイルを編集
-
-4. 変更をコミットしてプッシュ
-   ```
-   git add .
-   git commit -m "ドキュメントの更新"
-   git push
+1. **リポジトリのクローン**
+   ```bash
+   git clone https://github.com/your-username/ai-programing-exercise.git
+   cd ai-programing-exercise
    ```
 
-#### Gulpタスクの使用
+2. **環境変数の設定**
+   ```bash
+   cp .env.example .env
+   # 必要に応じて .env ファイルを編集
+   ```
 
-プロジェクトには以下のGulpタスクが用意されています：
+3. **フロントエンドのセットアップ**
+   ```bash
+   cd app/frontend
+   npm install
+   ```
 
-##### MkDocsタスク
+4. **バックエンドのセットアップ** (実装後)
+   ```bash
+   cd app/backend
+   dotnet restore
+   ```
 
-- MkDocsサーバーの起動:
-  ```
-  npm run docs:serve
-  ```
-  または
-  ```
-  npx gulp mkdocs:serve
-  ```
+### 開発サーバーの起動
 
-- MkDocsサーバーの停止:
-  ```
-  npm run docs:stop
-  ```
-  または
-  ```
-  npx gulp mkdocs:stop
-  ```
+#### フロントエンド
+```bash
+cd app/frontend
+npm run dev
+# http://localhost:3000 でアクセス
+```
 
-- MkDocsドキュメントのビルド:
-  ```
-  npm run docs:build
-  ```
-  または
-  ```
-  npx gulp mkdocs:build
-  ```
+#### バックエンド (実装後)
+```bash
+cd app/backend
+dotnet run
+# http://localhost:5150/api でアクセス
+```
 
-##### 作業履歴（ジャーナル）タスク
+---
 
-- すべてのコミット日付の作業履歴を生成:
-  ```
-  npm run journal
-  ```
-  または
-  ```
-  npx gulp journal:generate
-  ```
+## 開発ガイド
 
-- 特定の日付の作業履歴を生成:
-  ```
-  npx gulp journal:generate:date --date=YYYY-MM-DD
-  ```
-  (例: `npx gulp journal:generate:date --date=2023-04-01`)
+### XP（エクストリーム プログラミング）実践
 
-生成された作業履歴は `docs/journal/` ディレクトリに保存され、各ファイルには指定された日付のコミット情報が含まれます。
+本プロジェクトは XP の価値とプラクティスに基づいて開発されます：
 
-#### GitHub Container Registry
+**XP の価値**:
+- **コミュニケーション**: オープンで正直な対話
+- **シンプリシティ**: 最もシンプルな解決策を追求
+- **フィードバック**: 迅速で頻繁なフィードバックループ
+- **勇気**: 変更と改善への積極的な姿勢
 
-このプロジェクトでは、GitHub Container Registry（GHCR）を使用してコンテナイメージを管理しています。
+**主要プラクティス**:
+- **テスト駆動開発（TDD）**: Red-Green-Refactorサイクル
+- **ペアプログラミング**: 知識共有と品質向上
+- **継続的インテグレーション**: 頻繁なコード統合
+- **リファクタリング**: 継続的なコード改善
+- **小さなリリース**: 2週間イテレーションでの価値提供
 
-##### 自動ビルド・プッシュ
+### テスト戦略
 
-タグをプッシュすると、GitHub Actionsが自動的にコンテナイメージをビルドし、GHCRにプッシュします。
+#### テストピラミッド
+- **ユニットテスト**: ビジネスロジック・バリデーション (90%以上)
+- **統合テスト**: API・コンポーネント連携 (中程度)
+- **E2Eテスト**: ユーザーシナリオ (最小限・重要パス)
+
+#### フロントエンドテスト
+```bash
+# ユニット・統合テスト実行
+npm test
+
+# カバレッジ付きテスト
+npm run test:coverage
+
+# E2Eテスト実行
+npm run cypress:run
+
+# E2Eテスト（インタラクティブ）
+npm run cypress:open
+```
+
+#### バックエンドテスト (実装後)
+```bash
+# テスト実行
+dotnet test
+
+# カバレッジ付きテスト
+dotnet test --collect:"XPlat Code Coverage"
+```
+
+### コード品質
+
+#### ESLint・Prettier
+```bash
+# リント実行
+npm run lint
+
+# フォーマット実行
+npm run format
+
+# 型チェック
+npm run types:check
+```
+
+#### コミット前チェック
+Git pre-commit hooks により以下が自動実行されます：
+- ESLint による静的解析
+- Prettier によるフォーマット
+- TypeScript 型チェック
+- ユニットテスト実行
+
+---
+
+## CI/CD パイプライン
+
+### GitHub Actions ワークフロー
+
+#### code-checks
+- **トリガー**: プッシュ・プルリクエスト
+- **実行内容**: 
+  - TypeScript型チェック
+  - ESLint
+  - Prettier フォーマットチェック  
+  - Jest ユニットテスト
+  - カバレッジレポート
+
+#### security-scan
+- **トリガー**: プッシュ・プルリクエスト
+- **実行内容**:
+  - npm audit による脆弱性チェック
+  - TruffleHog によるシークレット検出
+
+#### e2e-tests
+- **トリガー**: main/develop ブランチへのプッシュ
+- **実行内容**: Cypress E2E テスト実行
+
+#### build-test
+- **トリガー**: コードチェック完了後
+- **実行内容**: 
+  - 開発・本番環境でのビルド確認
+  - バンドルサイズチェック
+
+#### deploy-preview
+- **トリガー**: プルリクエスト作成時
+- **実行内容**: Vercel プレビュー環境デプロイ
+
+#### deploy-production
+- **トリガー**: main ブランチへのマージ
+- **実行内容**: Vercel 本番環境デプロイ
+
+#### performance-audit  
+- **トリガー**: 本番デプロイ完了後
+- **実行内容**: Lighthouse パフォーマンス監査
+
+### 品質ゲート
+
+全デプロイメントで以下の品質基準をクリアする必要があります：
+
+| 項目 | 基準値 |
+|------|--------|
+| テストカバレッジ | 80%以上 |
+| TypeScript型エラー | 0件 |
+| ESLint エラー | 0件 |
+| セキュリティ脆弱性 | 高・重大 0件 |
+| Lighthouse Performance | 80点以上 |
+| Lighthouse Accessibility | 90点以上 |
+
+---
+
+## デプロイメント
+
+### 環境構成
+
+| 環境 | URL | 用途 |
+|------|-----|------|
+| Development | http://localhost:3000 | ローカル開発 |
+| Preview | https://preview-{PR}.vercel.app | PR レビュー用 |
+| Production | https://job-board.vercel.app | 本番環境 |
+
+### 環境変数
+
+各環境で以下の環境変数を設定：
 
 ```bash
-# タグを作成してプッシュ
-git tag 0.0.x
-git push origin 0.0.x
+# 認証設定
+NEXTAUTH_URL=https://your-domain.com
+NEXTAUTH_SECRET=your-secret-key
+
+# API設定
+NEXT_PUBLIC_API_URL=https://api.your-domain.com/api
+NEXT_PUBLIC_ENABLE_API_MOCKING=false
+
+# 機能フラグ
+NEXT_PUBLIC_ENABLE_ANALYTICS=true
+NEXT_PUBLIC_ENABLE_NOTIFICATIONS=true
+
+# セキュリティ
+JWT_SECRET=your-jwt-secret
 ```
 
-##### イメージの取得・実行
+### デプロイ手順
 
-GHCRからイメージを取得して実行するには：
+#### Vercel への手動デプロイ
+```bash
+# Vercel CLI インストール
+npm install -g vercel
+
+# プロジェクトリンク
+cd app/frontend
+vercel
+
+# 本番デプロイ
+vercel --prod
+```
+
+#### Railway への Backend デプロイ (実装後)
+```bash
+# Railway CLI インストール
+npm install -g @railway/cli
+
+# プロジェクト初期化
+railway login
+railway init
+
+# デプロイ
+railway up
+```
+
+---
+
+## モニタリング・運用
+
+### パフォーマンス監視
+
+- **Lighthouse CI**: 継続的パフォーマンス監視
+- **Core Web Vitals**: ユーザー体験指標追跡
+- **Bundle Analyzer**: バンドルサイズ最適化
+
+### エラー追跡
+
+- **React Error Boundary**: フロントエンドエラー処理
+- **Sentry**: エラーレポート（オプション）
+- **Console ログ**: 開発環境デバッグ
+
+### アクセシビリティ
+
+- **cypress-axe**: 自動アクセシビリティテスト
+- **ESLint a11y**: 静的解析
+- **WCAG 2.1 AA**: 準拠レベル目標
+
+---
+
+## 貢献方法
+
+### ブランチ戦略
+
+```
+main (本番)
+├── develop (開発統合)
+├── feature/US001-job-search (機能開発)
+├── feature/US005-user-registration (機能開発)
+└── hotfix/critical-bug (緊急修正)
+```
+
+### プルリクエスト
+
+1. **ブランチ作成**: `feature/US001-description`
+2. **実装**: TDD サイクルに従った開発
+3. **テスト**: 全テスト成功確認
+4. **プルリクエスト作成**: テンプレートに従った記述
+5. **レビュー**: 2人以上の承認
+6. **マージ**: Squash and merge
+
+### コミットメッセージ
 
 ```bash
-# イメージをプル
-docker pull ghcr.io/k2works/ai-programing-exercise/core:0.0.x
-
+# 形式: type(scope): description
+feat(auth): ユーザー登録機能を追加
+fix(search): 検索結果の表示バグを修正
+test(jobs): 求人作成のE2Eテストを追加
+docs(readme): セットアップ手順を更新
 ```
 
-認証が必要な場合は、以下のコマンドでログインします：
+---
 
+## トラブルシューティング
+
+### よくある問題
+
+#### ビルドエラー
 ```bash
-# GitHub Personal Access Tokenでログイン
-echo $GITHUB_TOKEN | docker login ghcr.io -u <username> --password-stdin
+# 依存関係の再インストール
+rm -rf node_modules package-lock.json
+npm install
+
+# TypeScript型エラー
+npm run types:check
 ```
 
-##### 権限設定
+#### テスト失敗
+```bash
+# テストキャッシュクリア
+npm test -- --clearCache
 
-- リポジトリの設定で「Actions」の権限を適切に設定する必要があります
-- `GITHUB_TOKEN`に`packages: write`権限が付与されています
+# 特定テスト実行
+npm test -- --testNamePattern="User Login"
+```
 
-##### イメージの管理
+#### Cypress テスト
+```bash
+# Cypress バイナリ再インストール
+npx cypress install
 
-- プライベートリポジトリの場合、イメージもプライベートになります
-- パッケージの可視性はリポジトリ設定から変更可能です
-- 古いイメージは手動で削除する必要があります
+# ヘッドレスモードで実行
+npm run cypress:run
+```
 
-**[⬆ back to top](#構成)**
+### ログ確認
 
-### 開発
+#### フロントエンド
+```bash
+# 開発サーバーログ
+npm run dev
 
-#### 開発環境の利用
+# ビルドログ
+npm run build
+```
 
-1. 開発コンテナを起動
-   ```
-   docker build -t ai-programming-dev .
-   docker run -it -v $(pwd):/srv ai-programming-dev bash
-   ```
+#### バックエンド (実装後)
+```bash
+# アプリケーションログ
+dotnet run --verbosity detailed
 
-2. 各言語環境を利用
-   - Java: `java -version`
-   - Scala: `scala -version`
-   - Kotlin: `kotlin -version`
-   - Node.js: `node -v`
-   - Clojure: `clojure -version`
-   - Ruby: `ruby -v`
-   - Python: `python3 --version`
-   - uv: `uv --version`
-   - PHP: `php -v`
-   - Composer: `composer --version`
-   - Haskell: `ghc --version`
-   - Go: `go version`
-   - Rust: `rustc --version`
-   - .NET: `dotnet --version`
-   - C: `gcc --version`
-   - C++: `g++ --version` または `clang++ --version`
-   - Erlang: `erl -version`
-   - Elixir: `elixir --version`
-   - Prolog: `swipl --version`
+# テストログ
+dotnet test --logger console --verbosity normal
+```
 
-#### ドキュメント作成
+---
 
-- PlantUMLやMermaidを使用して図表を作成可能
-- Markdownで記述し、MkDocsでプレビュー
+## ライセンス
 
-**[⬆ back to top](#構成)**
+このプロジェクトは MIT ライセンスの下で公開されています。詳細は [LICENSE](LICENSE) ファイルを参照してください。
 
-## 参照
+---
 
-- [MkDocs 公式サイト](https://www.mkdocs.org/)
-- [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/)
-- [PlantUML](https://plantuml.com/)
-- [Mermaid](https://mermaid-js.github.io/mermaid/)
-- [SDKMAN](https://sdkman.io/)
-- [Scala](https://www.scala-lang.org/)
-- [Kotlin](https://kotlinlang.org/)
-- [Clojure](https://clojure.org/)
-- [rbenv](https://github.com/rbenv/rbenv)
-- [NVM](https://github.com/nvm-sh/nvm)
-- [uv](https://github.com/astral-sh/uv)
-- [Haskell](https://www.haskell.org/)
-- [GHCup](https://www.haskell.org/ghcup/)
-- [Rust](https://www.rust-lang.org/)
-- [rustup](https://rustup.rs/)
-- [Erlang](https://www.erlang.org/)
-- [Elixir](https://elixir-lang.org/)
-- [Prolog](https://www.swi-prolog.org/)
+## 関連リンク
+
+- **プロジェクト Wiki**: 詳細な技術仕様
+- **API ドキュメント**: Swagger/OpenAPI 仕様書
+- **デザインシステム**: Storybook コンポーネントライブラリ  
+- **パフォーマンス監視**: Lighthouse CI レポート
+
+---
+
+**最終更新**: 2025-09-12  
+**メンテナー**: AI Programming Exercise Team
