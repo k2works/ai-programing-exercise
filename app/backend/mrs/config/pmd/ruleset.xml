@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<ruleset name="Custom Rules"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0
+         https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+    
+    <description>MRS カスタム PMD ルールセット</description>
+    
+    <!-- 基本ルールセット -->
+    <rule ref="category/java/bestpractices.xml">
+        <exclude name="JUnitTestContainsTooManyAsserts"/>
+        <exclude name="JUnitAssertionsShouldIncludeMessage"/>
+    </rule>
+    
+    <rule ref="category/java/codestyle.xml">
+        <exclude name="AtLeastOneConstructor"/>
+        <exclude name="CommentDefaultAccessModifier"/>
+        <exclude name="OnlyOneReturn"/>
+        <exclude name="TooManyStaticImports"/>
+    </rule>
+    
+    <rule ref="category/java/design.xml">
+        <!-- 循環複雑度を7に制限 -->
+        <exclude name="CyclomaticComplexity"/>
+        <exclude name="LawOfDemeter"/>
+        <exclude name="LoosePackageCoupling"/>
+    </rule>
+    
+    <!-- 循環複雑度のカスタム設定 -->
+    <rule ref="category/java/design.xml/CyclomaticComplexity">
+        <properties>
+            <property name="classReportLevel" value="80"/>
+            <property name="methodReportLevel" value="7"/>
+            <property name="cycloOptions" value=""/>
+        </properties>
+    </rule>
+    
+    <!-- 認知複雑度の設定 -->
+    <rule ref="category/java/design.xml/CognitiveComplexity">
+        <properties>
+            <property name="reportLevel" value="7"/>
+        </properties>
+    </rule>
+    
+    <!-- データクラスの検出を除外 -->
+    <rule ref="category/java/design.xml/DataClass">
+        <properties>
+            <property name="violationSuppressRegex" value=".*DTO$|.*Request$|.*Response$|.*Entity$"/>
+        </properties>
+    </rule>
+    
+    <rule ref="category/java/errorprone.xml">
+        <exclude name="DataflowAnomalyAnalysis"/>
+    </rule>
+    
+    <rule ref="category/java/performance.xml"/>
+    
+    <rule ref="category/java/security.xml"/>
+</ruleset>

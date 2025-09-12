@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    <!-- H2 Database の dev/test 環境での使用は許可 -->
+    <suppress>
+        <notes><![CDATA[
+            H2 Database は開発・テスト環境でのみ使用される
+        ]]></notes>
+        <gav regex="true">^com\.h2database:h2:.*$</gav>
+        <cve>CVE-2018-10054</cve>
+        <cve>CVE-2022-45868</cve>
+    </suppress>
+    
+    <!-- Spring Boot の既知の false positive -->
+    <suppress>
+        <notes><![CDATA[
+            Spring Boot の tomcat-embed は適切にセキュリティアップデートされている
+        ]]></notes>
+        <gav regex="true">^org\.apache\.tomcat\.embed:.*:.*$</gav>
+    </suppress>
+</suppressions>
