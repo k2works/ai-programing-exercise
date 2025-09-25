@@ -57,3 +57,33 @@ plugins:
 
 nav:
   - Home: index.md
+  - 分析:
+    - コンテキスト図: requirements/コンテキスト図.md
+    - インセプションデッキ: requirements/インセプションデッキ.md
+    - 要件定義: requirements/requirements.md
+    - ユーザーストーリー: requirements/ユーザーストーリー.md
+    - ユースケース: requirements/ユースケース.md
+  - 設計:
+    - アーキテクチャ: design/アーキテクチャ.md
+    - バックエンドアーキテクチャ: design/architecture_backend.md
+    - フロントエンドアーキテクチャ: design/architecture_frontend.md
+    - データモデル: design/data-model.md
+    - ドメインモデル: design/domain-model.md
+    - UI設計: design/ui_design.md
+    - 技術スタック: design/tech_stack.md
+    - 非機能要件: design/non-functional.md
+    - テスト戦略: design/test_strategy.md
+    - 運用設計: design/operation.md
+  - 開発:
+    - 開発ガイド: development/開発ガイド.md
+  - 運用:
+    - 運用ガイド: operation/運用ガイド.md
+  - ADR:
+    - ADRテンプレート: adr/ADRテンプレート.md
+  - リファレンス:
+    - よいソフトウェアとは: reference/よいソフトウェアとは.md
+    - 開発ガイド: reference/開発ガイド.md
+    - コーディングとテストガイド: reference/コーディングとテストガイド.md
+    - Javaアプリケーション環境構築ガイド: reference/Javaアプリケーション環境構築ガイド.md
+  - プロジェクト日誌:
+    - 日誌: journal/日誌.md
