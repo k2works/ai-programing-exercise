@@ -62,3 +62,79 @@ model Employee {
 
   @@map("社員マスタ")
 }
+
+// 商品分類マスタ
+model ProductCategory {
+  categoryCode String   @id(map: "pk_product_category") @map("商品分類コード") @db.VarChar(8)
+  name         String?  @map("商品分類名") @db.VarChar(30)
+  layer        Int      @default(0) @map("商品分類階層")
+  path         String?  @map("商品分類パス") @db.VarChar(100)
+  lowestType   Int?     @default(0) @map("最下層区分")
+  createDate   DateTime @default(dbgenerated("CURRENT_DATE")) @map("作成日時") @db.Timestamp(6)
+  creator      String?  @map("作成者名") @db.VarChar(12)
+  updateDate   DateTime @default(dbgenerated("CURRENT_DATE")) @map("更新日時") @db.Timestamp(6)
+  updater      String?  @map("更新者名") @db.VarChar(12)
+
+  @@map("商品分類マスタ")
+}
+
+// 商品マスタ
+model Product {
+  prodCode          String             @id(map: "pk_products") @map("商品コード") @db.VarChar(16)
+  fullname          String             @map("商品正式名") @db.VarChar(40)
+  name              String             @map("商品略称") @db.VarChar(10)
+  kana              String             @map("商品名カナ") @db.VarChar(20)
+  prodType          String?            @map("商品区分") @db.VarChar(1)
+  serialNo          String?            @map("製品型番") @db.VarChar(40)
+  unitprice         Int                @default(0) @map("販売単価")
+  poPrice           Int?               @default(0) @map("仕入単価")
+  primeCost         Int                @default(0) @map("売上原価")
+  taxType           Int                @default(1) @map("税区分")
+  categoryCode      String?            @map("商品分類コード") @db.VarChar(8)
+  wideUseType       Int?               @map("雑区分")
+  stockManageType   Int?               @default(1) @map("在庫管理対象区分")
+  stockReserveType  Int?               @map("在庫引当区分")
+  supCode           String             @map("仕入先コード") @db.VarChar(8)
+  supSubNo          Int?               @map("仕入先枝番")
+  createDate        DateTime           @default(dbgenerated("CURRENT_DATE")) @map("作成日時") @db.Timestamp(6)
+  creator           String?            @map("作成者名") @db.VarChar(12)
+  updateDate        DateTime           @default(dbgenerated("CURRENT_DATE")) @map("更新日時") @db.Timestamp(6)
+  updater           String?            @map("更新者名") @db.VarChar(12)
+
+  pricebycustomers  PriceByCustomer[]
+  alternateProducts AlternateProduct[]
+
+  @@map("商品マスタ")
+}
+
+// 顧客別販売単価
+model PriceByCustomer {
+  prodCode   String   @map("商品コード") @db.VarChar(16)
+  compCode   String   @map("取引先コード") @db.VarChar(8)
+  unitprice  Int      @default(0) @map("販売単価")
+  createDate DateTime @default(dbgenerated("CURRENT_DATE")) @map("作成日時") @db.Timestamp(6)
+  creator    String?  @map("作成者名") @db.VarChar(12)
+  updateDate DateTime @default(dbgenerated("CURRENT_DATE")) @map("更新日時") @db.Timestamp(6)
+  updater    String?  @map("更新者名") @db.VarChar(12)
+
+  products Product? @relation(fields: [prodCode], references: [prodCode])
+
+  @@id([prodCode, compCode], map: "pk_pricebycustomer")
+  @@map("顧客別販売単価")
+}
+
+// 代替商品
+model AlternateProduct {
+  prodCode    String   @map("商品コード") @db.VarChar(16)
+  altProdCode String   @map("代替商品コード") @db.VarChar(16)
+  priority    Int?     @default(1) @map("優先順位")
+  createDate  DateTime @default(dbgenerated("CURRENT_DATE")) @map("作成日時") @db.Timestamp(6)
+  creator     String?  @map("作成者名") @db.VarChar(12)
+  updateDate  DateTime @default(dbgenerated("CURRENT_DATE")) @map("更新日時") @db.Timestamp(6)
+  updater     String?  @map("更新者名") @db.VarChar(12)
+
+  products Product? @relation(fields: [prodCode], references: [prodCode])
+
+  @@id([prodCode, altProdCode], map: "pk_alternate_products")
+  @@map("代替商品")
+}
