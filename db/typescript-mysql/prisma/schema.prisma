@@ -5,15 +5,15 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// generator zod {
-//   provider                         = "zod-prisma-types"
-//   output                           = "../src/generated/zod"
-//   createRelationValuesTypes        = true
-//   createPartialTypes               = true
-//   createOptionalDefaultValuesTypes = true
-//   useDecimalJs                     = true
-//   prismaJsonNullability            = true
-// }
+generator zod {
+  provider                         = "zod-prisma-types"
+  output                           = "../src/generated/zod"
+  createRelationValuesTypes        = true
+  createPartialTypes               = true
+  createOptionalDefaultValuesTypes = true
+  useDecimalJs                     = true
+  prismaJsonNullability            = true
+}
 
 generator comments {
   provider = "prisma-db-comments-generator"
@@ -26,12 +26,70 @@ datasource db {
 
 /// 部門マスタテーブル
 model Department {
-  /// 部門コード（主キー）
-  deptCode   String    @id @map("dept_code") @db.VarChar(6)
+  /// 部門コード
+  deptCode   String    @map("dept_code") @db.VarChar(6)
+  /// 開始日
+  startDate  DateTime  @default(now()) @map("start_date") @db.DateTime(6)
+  /// 終了日
+  endDate    DateTime? @default(dbgenerated("'2100-12-31 00:00:00'")) @map("end_date") @db.DateTime(6)
   /// 部門名
-  name       String?   @map("name") @db.VarChar(40)
+  name       String?   @db.VarChar(40)
   /// 組織階層
-  layer      Int       @default(0) @map("layer")
+  layer      Int       @db.Int
+  /// 部門パス
+  psth       String    @db.VarChar(100)
+  /// 最下層区分
+  lowestType Int       @map("lowest_type") @db.Int
+  /// 伝票入力可否
+  slitYn     Int       @map("slit_yn") @db.Int
+  /// 作成日時
+  createDate DateTime  @default(now()) @map("create_date") @db.DateTime(6)
+  /// 作成者名
+  creator    String?   @db.VarChar(12)
+  /// 更新日時
+  updateDate DateTime  @default(now()) @map("update_date") @db.DateTime(6)
+  /// 更新者名
+  updater    String?   @db.VarChar(12)
 
+  employees Employee[]
+
+  // 履歴管理のため、部門コードと適用開始日で複合主キーとする
+  @@id([deptCode, startDate])
   @@map("department")
+}
+
+/// 社員マスタテーブル
+model Employee {
+  /// 社員コード
+  empCode       String   @id @map("emp_code") @db.VarChar(10)
+  /// 社員名
+  name          String?  @db.VarChar(20)
+  /// 社員名カナ
+  kana          String?  @db.VarChar(40)
+  /// パスワード
+  loginPassword String?  @map("login_password") @db.VarChar(8)
+  /// 電話番号
+  tel           String?  @db.VarChar(13)
+  /// FAX番号
+  fax           String?  @db.VarChar(13)
+  /// 部門コード
+  deptCode      String   @map("dept_code") @db.VarChar(6)
+  /// 開始日
+  startDate     DateTime @default(now()) @map("start_date") @db.DateTime(6)
+  /// 職種コード
+  occuCode      String   @map("occu_code") @db.VarChar(2)
+  /// 承認権限コード
+  approvalCode  String   @map("approval_code") @db.VarChar(2)
+  /// 作成日時
+  createDate    DateTime @default(now()) @map("create_date") @db.DateTime(6)
+  /// 作成者名
+  creator       String?  @db.VarChar(12)
+  /// 更新日時
+  updateDate    DateTime @default(now()) @map("update_date") @db.DateTime(6)
+  /// 更新者名
+  updater       String?  @db.VarChar(12)
+
+  department Department @relation(fields: [deptCode, startDate], references: [deptCode, startDate])
+
+  @@map("employee")
 }
