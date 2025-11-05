@@ -61,6 +61,7 @@ docker-compose up -d
 #### 4. データベースの確認
 
 Adminer（データベース管理ツール）にアクセス：
+
 - URL: http://localhost:8080
 - PostgreSQL の場合:
   - システム: PostgreSQL
@@ -289,10 +290,12 @@ docker-compose up -d schemaspy-viewer
 ```
 
 SchemaSpy Viewer にアクセス：
+
 - URL: http://localhost:8081
 - ER 図、テーブル定義、リレーションシップなどを確認できます
 
 **注意事項:**
+
 - SchemaSpy は PostgreSQL データベースのスキーマを解析します
 - 初回実行時はイメージのダウンロードに時間がかかります
 - 生成されたファイルは `schemaspy-output/` に保存されます（Git 管理対象外）
@@ -337,6 +340,6 @@ TDDサイクルに従って開発を進めます：
 
 ## 参考資料
 
-- [実践データベース設計_TypeScript.md](../../docs/wiki/記事/データベース/実践データベース設計_TypeScript.md)
+- [実践データベース設計\_TypeScript.md](../../docs/wiki/記事/データベース/実践データベース設計_TypeScript.md)
 - [Prisma公式ドキュメント](https://www.prisma.io/docs)
 - [Vitest公式ドキュメント](https://vitest.dev)

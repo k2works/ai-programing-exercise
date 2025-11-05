@@ -8,7 +8,7 @@ describe('Zod バリデーション例', () => {
       id: z.number().int().positive(),
       name: z.string().min(1).max(100),
       email: z.string().email(),
-      age: z.number().int().min(0).max(150).optional(),
+      age: z.number().int().min(0).max(150).optional()
     })
 
     // 正常なデータ
@@ -16,7 +16,7 @@ describe('Zod バリデーション例', () => {
       id: 1,
       name: 'John Doe',
       email: 'john@example.com',
-      age: 30,
+      age: 30
     }
 
     const result = UserSchema.safeParse(validData)
@@ -30,14 +30,14 @@ describe('Zod バリデーション例', () => {
     const UserSchema = z.object({
       id: z.number().int().positive(),
       name: z.string().min(1),
-      email: z.string().email(),
+      email: z.string().email()
     })
 
     // 不正なデータ（emailが不正）
     const invalidData = {
       id: 1,
       name: 'John Doe',
-      email: 'invalid-email',
+      email: 'invalid-email'
     }
 
     const result = UserSchema.safeParse(invalidData)
@@ -52,14 +52,14 @@ describe('Zod バリデーション例', () => {
     const UserSchema = z.object({
       id: z.number(),
       name: z.string(),
-      email: z.string().email(),
+      email: z.string().email()
     })
 
     // 部分的なデータのみを許可
     const PartialUserSchema = UserSchema.partial()
 
     const partialData = {
-      name: 'John Doe',
+      name: 'John Doe'
     }
 
     const result = PartialUserSchema.safeParse(partialData)
@@ -71,12 +71,12 @@ describe('Zod バリデーション例', () => {
       id: z.number(),
       name: z.string(),
       role: z.string().default('user'),
-      isActive: z.boolean().default(true),
+      isActive: z.boolean().default(true)
     })
 
     const dataWithoutDefaults = {
       id: 1,
-      name: 'John Doe',
+      name: 'John Doe'
     }
 
     const result = UserSchema.parse(dataWithoutDefaults)
@@ -87,13 +87,13 @@ describe('Zod バリデーション例', () => {
   test('配列のバリデーション', () => {
     const TagSchema = z.object({
       id: z.number(),
-      name: z.string(),
+      name: z.string()
     })
 
     const UserSchema = z.object({
       id: z.number(),
       name: z.string(),
-      tags: z.array(TagSchema),
+      tags: z.array(TagSchema)
     })
 
     const userData = {
@@ -101,8 +101,8 @@ describe('Zod バリデーション例', () => {
       name: 'John Doe',
       tags: [
         { id: 1, name: 'admin' },
-        { id: 2, name: 'developer' },
-      ],
+        { id: 2, name: 'developer' }
+      ]
     }
 
     const result = UserSchema.safeParse(userData)
@@ -110,11 +110,7 @@ describe('Zod バリデーション例', () => {
   })
 
   test('Union 型のバリデーション', () => {
-    const StatusSchema = z.union([
-      z.literal('active'),
-      z.literal('inactive'),
-      z.literal('pending'),
-    ])
+    const StatusSchema = z.union([z.literal('active'), z.literal('inactive'), z.literal('pending')])
 
     expect(StatusSchema.safeParse('active').success).toBe(true)
     expect(StatusSchema.safeParse('inactive').success).toBe(true)
