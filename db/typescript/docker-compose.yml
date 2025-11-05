@@ -64,6 +64,47 @@ services:
       - postgres
       - mysql
 
+  # SchemaSpy - データベーススキーマ可視化ツール
+  schemaspy:
+    build:
+      context: ./docker/schemaspy
+      dockerfile: Dockerfile
+    container_name: sales-management-schemaspy
+    volumes:
+      - ./schemaspy-output:/output
+    environment:
+      - LANG=ja_JP.UTF-8
+      - LC_ALL=ja_JP.UTF-8
+    command: >
+      -t pgsql
+      -host postgres
+      -port 5432
+      -db ${POSTGRES_DB:-sales_management}
+      -u ${POSTGRES_USER:-postgres}
+      -p ${POSTGRES_PASSWORD:-postgres}
+      -s public
+      -charset UTF-8
+      -connprops useUnicode\\=true;characterEncoding\\=UTF-8
+    networks:
+      - db_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Nginx - SchemaSpy の結果を表示
+  schemaspy-viewer:
+    image: nginx:alpine
+    container_name: sales-management-schemaspy-viewer
+    restart: unless-stopped
+    ports:
+      - "${SCHEMASPY_PORT:-8081}:80"
+    volumes:
+      - ./schemaspy-output:/usr/share/nginx/html:ro
+    networks:
+      - db_network
+    depends_on:
+      - schemaspy
+
 volumes:
   postgres_data:
     driver: local
