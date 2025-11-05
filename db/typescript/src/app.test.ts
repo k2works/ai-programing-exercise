@@ -23,7 +23,12 @@ import {
   PurchaseOrderDetailOptionalDefaultsSchema,
   PurchaseOptionalDefaultsSchema,
   PurchaseDetailOptionalDefaultsSchema,
-  StockOptionalDefaultsSchema
+  StockOptionalDefaultsSchema,
+  BankAccountOptionalDefaultsSchema,
+  InvoiceOptionalDefaultsSchema,
+  InvoiceDetailOptionalDefaultsSchema,
+  CreditOptionalDefaultsSchema,
+  PaymentOptionalDefaultsSchema
 } from './generated/zod'
 
 const prisma = new PrismaClient()
@@ -749,6 +754,8 @@ const salesDetails = [
 describe('受注と売上', () => {
   beforeEach(async () => {
     // 各テストの前にテーブルをクリーンな状態にする
+    await prisma.invoiceDetail.deleteMany()
+    await prisma.invoice.deleteMany()
     await prisma.salesDetail.deleteMany()
     await prisma.sales.deleteMany()
     await prisma.orderDetail.deleteMany()
@@ -1074,5 +1081,216 @@ describe('発注・仕入・在庫管理', () => {
     expect(result?.purchases).toHaveLength(1)
     expect(result?.purchases[0].puNo).toBe('PU0000001')
     expect(result?.purchases[0].purchaseDetails).toHaveLength(1)
+  })
+})
+
+// テスト用の入金口座データ
+const bankAccounts = [
+  BankAccountOptionalDefaultsSchema.parse({
+    bankAcutCode: 'BANK0001',
+    bankName: 'テスト銀行',
+    branchName: '本店',
+    accountType: 1,
+    accountNo: '1234567',
+    creator: 'TEST_USER',
+    updater: 'TEST_USER'
+  })
+]
+
+// テスト用の請求データ
+const invoices = [
+  InvoiceOptionalDefaultsSchema.parse({
+    invoiceNo: 'INV0000001',
+    invoicedDate: new Date('2023-05-01'),
+    compCode: 'CMP00001',
+    custSubNo: 0,
+    lastReceived: 0,
+    monthSales: 100000,
+    monthReceived: 0,
+    monthInvoice: 110000,
+    cmpTax: 10000,
+    invoiceReceived: 0,
+    createDate: new Date('2025-11-05'),
+    creator: 'TEST_USER',
+    updateDate: new Date('2025-11-05'),
+    updater: 'TEST_USER'
+  })
+]
+
+// テスト用の請求明細データ
+const invoiceDetails = [
+  InvoiceDetailOptionalDefaultsSchema.parse({
+    invoiceNo: 'INV0000001',
+    rowNo: 1,
+    salesNo: 'SAL0000001',
+    salesRowNo: 1,
+    salesAmnt: 100000,
+    invoicedAmnt: 110000,
+    createDate: new Date('2025-11-05'),
+    creator: 'TEST_USER',
+    updateDate: new Date('2025-11-05'),
+    updater: 'TEST_USER'
+  })
+]
+
+// テスト用の入金データ
+const credits = [
+  CreditOptionalDefaultsSchema.parse({
+    creditNo: 'CRD0000001',
+    creditDate: new Date('2023-05-15'),
+    deptCode: '11101',
+    startDate: new Date('2021-01-01'),
+    custCode: 'CMP00001',
+    custSubNo: 0,
+    invoiceNo: 'INV0000001',
+    payMethodType: 1,
+    bankAcutCode: 'BANK0001',
+    receivedAmnt: 110000,
+    received: 110000,
+    createDate: new Date('2025-11-05'),
+    creator: 'TEST_USER',
+    updateDate: new Date('2025-11-05'),
+    updater: 'TEST_USER',
+    updatePlgDate: new Date('2025-11-05'),
+    updatePgm: null
+  })
+]
+
+// テスト用の支払データ
+const payments = [
+  PaymentOptionalDefaultsSchema.parse({
+    payNo: 'PAY0000001',
+    payDate: 20230515,
+    deptCode: '11101',
+    startDate: new Date('2021-01-01'),
+    supCode: 'SUP00001',
+    supSubNo: 0,
+    payMethodType: 1,
+    payAmnt: 50000,
+    cmpTax: 5000,
+    completeFlg: 1,
+    createDate: new Date('2025-11-05'),
+    creator: 'TEST_USER',
+    updateDate: new Date('2025-11-05'),
+    updater: 'TEST_USER'
+  })
+]
+
+describe('請求・入金・支払管理', () => {
+  beforeEach(async () => {
+    // 各テストの前にテーブルをクリーンな状態にする
+    await prisma.payment.deleteMany()
+    await prisma.credit.deleteMany()
+    await prisma.invoiceDetail.deleteMany()
+    await prisma.invoice.deleteMany()
+    await prisma.bankAccount.deleteMany()
+    await prisma.salesDetail.deleteMany()
+    await prisma.sales.deleteMany()
+    await prisma.orderDetail.deleteMany()
+    await prisma.order.deleteMany()
+    await prisma.customer.deleteMany()
+    await prisma.supplier.deleteMany()
+    await prisma.companyCategoryGroup.deleteMany()
+    await prisma.companyCategory.deleteMany()
+    await prisma.categoryType.deleteMany()
+    await prisma.company.deleteMany()
+    await prisma.companyGroup.deleteMany()
+    await prisma.employee.deleteMany()
+    await prisma.department.deleteMany()
+
+    // 前提データの登録
+    await prisma.$transaction(async (prisma) => {
+      await prisma.department.createMany({ data: departments })
+      await prisma.employee.createMany({ data: employees })
+      await prisma.companyGroup.createMany({ data: companyGroups })
+      await prisma.company.createMany({ data: companies })
+      await prisma.customer.createMany({ data: customers })
+      await prisma.supplier.createMany({ data: suppliers })
+      await prisma.bankAccount.createMany({ data: bankAccounts })
+      // 請求のために売上データも登録
+      await prisma.order.createMany({ data: orders })
+      await prisma.orderDetail.createMany({ data: orderDetails })
+      await prisma.sales.createMany({ data: sales })
+      await prisma.salesDetail.createMany({ data: salesDetails })
+    })
+  })
+
+  test('請求を登録できる', async () => {
+    const expected = invoices.map((i) => {
+      return {
+        ...i,
+        invoiceDetails: invoiceDetails.filter((id) => id.invoiceNo === i.invoiceNo)
+      }
+    })
+
+    await prisma.$transaction(async (prisma) => {
+      await prisma.invoice.createMany({ data: invoices })
+      await prisma.invoiceDetail.createMany({ data: invoiceDetails })
+    })
+
+    const result = await prisma.invoice.findMany({
+      include: {
+        invoiceDetails: true
+      }
+    })
+
+    expect(result).toEqual(expected)
+  })
+
+  test('入金を登録できる', async () => {
+    // 前提: 請求データを登録
+    await prisma.$transaction(async (prisma) => {
+      await prisma.invoice.createMany({ data: invoices })
+      await prisma.invoiceDetail.createMany({ data: invoiceDetails })
+    })
+
+    await prisma.credit.createMany({ data: credits })
+    const result = await prisma.credit.findMany()
+    expect(result).toEqual(credits)
+  })
+
+  test('支払を登録できる', async () => {
+    await prisma.payment.createMany({ data: payments })
+    const result = await prisma.payment.findMany()
+    expect(result).toEqual(payments)
+  })
+
+  test('売上から請求、入金への流れを追跡できる', async () => {
+    // 売上→請求→入金の一連の流れを登録
+    await prisma.$transaction(async (prisma) => {
+      await prisma.invoice.createMany({ data: invoices })
+      await prisma.invoiceDetail.createMany({ data: invoiceDetails })
+      await prisma.credit.createMany({ data: credits })
+    })
+
+    // 売上データを請求、入金データと一緒に取得
+    const salesResult = await prisma.sales.findUnique({
+      where: { salesNo: sales[0].salesNo },
+      include: {
+        salesDetails: {
+          include: {
+            invoiceDetails: {
+              include: {
+                invoice: {
+                  include: {
+                    credits: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    })
+
+    expect(salesResult).toBeTruthy()
+    expect(salesResult?.salesNo).toBe('SAL0000001')
+    expect(salesResult?.salesDetails).toHaveLength(1)
+    expect(salesResult?.salesDetails[0].invoiceDetails).toHaveLength(1)
+    expect(salesResult?.salesDetails[0].invoiceDetails[0].invoiceNo).toBe('INV0000001')
+    expect(salesResult?.salesDetails[0].invoiceDetails[0].invoice.credits).toHaveLength(1)
+    expect(salesResult?.salesDetails[0].invoiceDetails[0].invoice.credits[0].creditNo).toBe(
+      'CRD0000001'
+    )
   })
 })

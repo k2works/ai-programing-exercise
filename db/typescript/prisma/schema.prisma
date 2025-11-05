@@ -397,7 +397,8 @@ model SalesDetail {
   updateDate       DateTime  @default(dbgenerated("CURRENT_DATE")) @map("更新日時") @db.Timestamp(6)
   updater          String?   @map("更新者名") @db.VarChar(12)
 
-  sales Sales @relation(fields: [salesNo], references: [salesNo])
+  sales          Sales           @relation(fields: [salesNo], references: [salesNo])
+  invoiceDetails InvoiceDetail[]
 
   @@id([salesNo, rowNo], map: "pk_sales_details")
   @@map("売上データ明細")
@@ -525,4 +526,110 @@ model Stock {
 
   @@id([whCode, prodCode, rotNo, stockType, qualityType], map: "pk_stock")
   @@map("在庫データ")
+}
+
+// 入金口座マスタ
+model BankAccount {
+  bankAcutCode String   @id(map: "pk_bank_account") @map("入金口座コード") @db.VarChar(8)
+  bankName     String   @map("銀行名") @db.VarChar(40)
+  branchName   String   @map("支店名") @db.VarChar(40)
+  accountType  Int?     @default(1) @map("口座種別")
+  accountNo    String   @map("口座番号") @db.VarChar(20)
+  createDate   DateTime @default(dbgenerated("CURRENT_DATE")) @map("作成日時") @db.Timestamp(6)
+  creator      String?  @map("作成者名") @db.VarChar(12)
+  updateDate   DateTime @default(dbgenerated("CURRENT_DATE")) @map("更新日時") @db.Timestamp(6)
+  updater      String?  @map("更新者名") @db.VarChar(12)
+
+  credits Credit[]
+
+  @@map("入金口座マスタ")
+}
+
+// 請求データ
+model Invoice {
+  invoiceNo       String    @id(map: "pk_invoice") @map("請求番号") @db.VarChar(10)
+  invoicedDate    DateTime? @map("請求日") @db.Timestamp(6)
+  compCode        String    @map("取引先コード") @db.VarChar(8)
+  custSubNo       Int?      @default(0) @map("顧客枝番")
+  lastReceived    Int?      @default(0) @map("前回入金額")
+  monthSales      Int?      @default(0) @map("当月売上額")
+  monthReceived   Int?      @default(0) @map("当月入金額")
+  monthInvoice    Int?      @default(0) @map("当月請求額")
+  cmpTax          Int       @default(0) @map("消費税金額")
+  invoiceReceived Int?      @default(0) @map("請求消込金額")
+  createDate      DateTime  @default(dbgenerated("CURRENT_DATE")) @map("作成日時") @db.Timestamp(6)
+  creator         String?   @map("作成者") @db.VarChar(12)
+  updateDate      DateTime  @default(dbgenerated("CURRENT_DATE")) @map("更新日時") @db.Timestamp(6)
+  updater         String?   @map("更新者") @db.VarChar(12)
+
+  invoiceDetails InvoiceDetail[]
+  credits        Credit[]
+
+  @@map("請求データ")
+}
+
+// 請求データ明細
+model InvoiceDetail {
+  invoiceNo    String   @map("請求番号") @db.VarChar(10)
+  rowNo        Int      @map("請求行番号")
+  salesNo      String   @map("売上番号") @db.VarChar(10)
+  salesRowNo   Int      @map("売上行番号")
+  salesAmnt    Int      @default(0) @map("売上金額")
+  invoicedAmnt Int      @default(0) @map("請求金額")
+  createDate   DateTime @default(dbgenerated("CURRENT_DATE")) @map("作成日時") @db.Timestamp(6)
+  creator      String?  @map("作成者") @db.VarChar(12)
+  updateDate   DateTime @default(dbgenerated("CURRENT_DATE")) @map("更新日時") @db.Timestamp(6)
+  updater      String?  @map("更新者") @db.VarChar(12)
+
+  invoice     Invoice     @relation(fields: [invoiceNo], references: [invoiceNo])
+  salesDetail SalesDetail @relation(fields: [salesNo, salesRowNo], references: [salesNo, rowNo])
+
+  @@id([invoiceNo, rowNo], map: "pk_invoice_details")
+  @@map("請求データ明細")
+}
+
+// 入金データ
+model Credit {
+  creditNo      String    @id(map: "pk_credit") @map("入金番号") @db.VarChar(10)
+  creditDate    DateTime? @map("入金日") @db.Timestamp(6)
+  deptCode      String    @map("部門コード") @db.VarChar(6)
+  startDate     DateTime  @default(dbgenerated("CURRENT_DATE")) @map("開始日") @db.Timestamp(6)
+  custCode      String    @map("顧客コード") @db.VarChar(8)
+  custSubNo     Int?      @default(0) @map("顧客枝番")
+  invoiceNo     String?   @map("請求番号") @db.VarChar(10)
+  payMethodType Int?      @default(1) @map("支払方法区分")
+  bankAcutCode  String?   @map("入金口座コード") @db.VarChar(8)
+  receivedAmnt  Int?      @default(0) @map("入金金額")
+  received      Int?      @default(0) @map("消込金額")
+  createDate    DateTime  @default(dbgenerated("CURRENT_DATE")) @map("作成日時") @db.Timestamp(6)
+  creator       String?   @map("作成者") @db.VarChar(12)
+  updateDate    DateTime  @default(dbgenerated("CURRENT_DATE")) @map("更新日時") @db.Timestamp(6)
+  updater       String?   @map("更新者") @db.VarChar(12)
+  updatePlgDate DateTime? @default(dbgenerated("CURRENT_DATE")) @map("プログラム更新日時") @db.Timestamp(6)
+  updatePgm     String?   @map("更新プログラム名") @db.VarChar(50)
+
+  invoice     Invoice?     @relation(fields: [invoiceNo], references: [invoiceNo])
+  bankAccount BankAccount? @relation(fields: [bankAcutCode], references: [bankAcutCode])
+
+  @@map("入金データ")
+}
+
+// 支払データ
+model Payment {
+  payNo         String   @id(map: "pk_pay") @map("支払番号") @db.VarChar(10)
+  payDate       Int?     @default(0) @map("支払日")
+  deptCode      String   @map("部門コード") @db.VarChar(6)
+  startDate     DateTime @default(dbgenerated("CURRENT_DATE")) @map("部門開始日") @db.Timestamp(6)
+  supCode       String   @map("仕入先コード") @db.VarChar(8)
+  supSubNo      Int?     @default(0) @map("仕入先枝番")
+  payMethodType Int?     @default(1) @map("支払方法区分")
+  payAmnt       Int?     @default(0) @map("支払金額")
+  cmpTax        Int      @default(0) @map("消費税合計")
+  completeFlg   Int      @default(0) @map("支払完了フラグ")
+  createDate    DateTime @default(dbgenerated("CURRENT_DATE")) @map("作成日時") @db.Timestamp(6)
+  creator       String?  @map("作成者") @db.VarChar(12)
+  updateDate    DateTime @default(dbgenerated("CURRENT_DATE")) @map("更新日時") @db.Timestamp(6)
+  updater       String?  @map("更新者") @db.VarChar(12)
+
+  @@map("支払データ")
 }
