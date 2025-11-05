@@ -18,6 +18,8 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:generate": "prisma generate",
     "prisma:studio": "prisma studio",
+    "schemaspy": "docker-compose run --rm schemaspy",
+    "schemaspy:view": "docker-compose up schemaspy-viewer",
     "setup": "npm install && npm run check"
   },
   "devDependencies": {

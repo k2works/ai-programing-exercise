@@ -28,6 +28,12 @@ export const generate = shell.task(['npm run prisma:generate'])
 // Prisma Studio起動
 export const studio = shell.task(['npm run prisma:studio'])
 
+// SchemaSpy実行
+export const schemaspy = shell.task(['npm run schemaspy'])
+
+// SchemaSpy Viewer起動
+export const schemaspyView = shell.task(['npm run schemaspy:view'])
+
 // 全体チェックタスク（自動修正付き）
 export const checkAndFix = series(lintFix, format, test)
 
