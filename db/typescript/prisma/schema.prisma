@@ -177,6 +177,7 @@ model Company {
   customers             Customer[]
   suppliers             Supplier[]
   companyCategoryGroups CompanyCategoryGroup[]
+  creditBalance         CreditBalance?
 
   @@map("取引先マスタ")
 }
@@ -632,4 +633,30 @@ model Payment {
   updater       String?  @map("更新者") @db.VarChar(12)
 
   @@map("支払データ")
+}
+
+// 与信残高データ
+model CreditBalance {
+  compCode     String   @id(map: "pk_credit_balance") @map("取引先コード") @db.VarChar(8)
+  orderBalance Int?     @default(0) @map("受注残高")
+  recBalance   Int?     @default(0) @map("債権残高")
+  payBalance   Int?     @default(0) @map("債務残高")
+  createDate   DateTime @default(dbgenerated("CURRENT_DATE")) @map("作成日時") @db.Timestamp(6)
+  creator      String?  @map("作成者名") @db.VarChar(12)
+  updateDate   DateTime @default(dbgenerated("CURRENT_DATE")) @map("更新日時") @db.Timestamp(6)
+  updater      String?  @map("更新者名") @db.VarChar(12)
+
+  company Company @relation(fields: [compCode], references: [compCode])
+
+  @@map("与信残高データ")
+}
+
+// 自動採番マスタ
+model AutoNumber {
+  slipType   String   @map("伝票種別コード") @db.VarChar(2)
+  yearmonth  DateTime @map("年月") @db.Timestamp(6)
+  lastSlipNo Int      @default(0) @map("最終伝票番号")
+
+  @@id([slipType, yearmonth])
+  @@map("自動採番マスタ")
 }

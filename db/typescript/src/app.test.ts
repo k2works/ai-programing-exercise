@@ -28,7 +28,9 @@ import {
   InvoiceOptionalDefaultsSchema,
   InvoiceDetailOptionalDefaultsSchema,
   CreditOptionalDefaultsSchema,
-  PaymentOptionalDefaultsSchema
+  PaymentOptionalDefaultsSchema,
+  CreditBalanceOptionalDefaultsSchema,
+  AutoNumberOptionalDefaultsSchema
 } from './generated/zod'
 
 const prisma = new PrismaClient()
@@ -560,6 +562,7 @@ const companyCategoryGroups = [
 describe('取引先マスタ', () => {
   beforeEach(async () => {
     // 各テストの前にテーブルをクリーンな状態にする
+    await prisma.creditBalance.deleteMany()
     await prisma.companyCategoryGroup.deleteMany()
     await prisma.companyCategory.deleteMany()
     await prisma.categoryType.deleteMany()
@@ -761,6 +764,7 @@ describe('受注と売上', () => {
     await prisma.orderDetail.deleteMany()
     await prisma.order.deleteMany()
     await prisma.customer.deleteMany()
+    await prisma.creditBalance.deleteMany()
     await prisma.companyCategoryGroup.deleteMany()
     await prisma.companyCategory.deleteMany()
     await prisma.categoryType.deleteMany()
@@ -978,6 +982,7 @@ describe('発注・仕入・在庫管理', () => {
     await prisma.warehouse.deleteMany()
     await prisma.customer.deleteMany()
     await prisma.supplier.deleteMany()
+    await prisma.creditBalance.deleteMany()
     await prisma.companyCategoryGroup.deleteMany()
     await prisma.companyCategory.deleteMany()
     await prisma.categoryType.deleteMany()
@@ -1190,6 +1195,7 @@ describe('請求・入金・支払管理', () => {
     await prisma.order.deleteMany()
     await prisma.customer.deleteMany()
     await prisma.supplier.deleteMany()
+    await prisma.creditBalance.deleteMany()
     await prisma.companyCategoryGroup.deleteMany()
     await prisma.companyCategory.deleteMany()
     await prisma.categoryType.deleteMany()
@@ -1292,5 +1298,87 @@ describe('請求・入金・支払管理', () => {
     expect(salesResult?.salesDetails[0].invoiceDetails[0].invoice.credits[0].creditNo).toBe(
       'CRD0000001'
     )
+  })
+})
+
+// テスト用の与信残高データ
+const creditBalances = [
+  CreditBalanceOptionalDefaultsSchema.parse({
+    compCode: 'COMP001',
+    orderBalance: 500000,
+    recBalance: 300000,
+    payBalance: 200000,
+    createDate: new Date('2025-11-05'),
+    creator: 'TEST_USER',
+    updateDate: new Date('2025-11-05'),
+    updater: 'TEST_USER'
+  })
+]
+
+// テスト用の自動採番データ
+const autoNumbers = [
+  AutoNumberOptionalDefaultsSchema.parse({
+    slipType: 'OR',
+    yearmonth: new Date('2025-11-01'),
+    lastSlipNo: 100
+  }),
+  AutoNumberOptionalDefaultsSchema.parse({
+    slipType: 'SA',
+    yearmonth: new Date('2025-11-01'),
+    lastSlipNo: 200
+  })
+]
+
+describe('与信管理と自動採番', () => {
+  beforeEach(async () => {
+    // 各テストの前にテーブルをクリーンな状態にする
+    await prisma.creditBalance.deleteMany()
+    await prisma.autoNumber.deleteMany()
+    await prisma.customer.deleteMany()
+    await prisma.supplier.deleteMany()
+    await prisma.companyCategoryGroup.deleteMany()
+    await prisma.companyCategory.deleteMany()
+    await prisma.categoryType.deleteMany()
+    await prisma.company.deleteMany()
+    await prisma.companyGroup.deleteMany()
+
+    // 前提データの登録（与信残高のために取引先を登録）
+    await prisma.$transaction(async (prisma) => {
+      await prisma.companyGroup.createMany({ data: companyGroups })
+      await prisma.company.createMany({ data: companies })
+    })
+  })
+
+  test('与信残高を登録できる', async () => {
+    await prisma.creditBalance.createMany({ data: creditBalances })
+    const result = await prisma.creditBalance.findMany()
+    expect(result).toEqual(creditBalances)
+  })
+
+  test('自動採番を登録できる', async () => {
+    await prisma.autoNumber.createMany({ data: autoNumbers })
+    const result = await prisma.autoNumber.findMany()
+    expect(result).toEqual(autoNumbers)
+  })
+
+  // eslint-disable-next-line complexity
+  test('取引先と与信残高を関連付けて取得できる', async () => {
+    // 与信残高を登録
+    await prisma.creditBalance.createMany({ data: creditBalances })
+
+    // 取引先を与信残高と一緒に取得
+    const result = await prisma.company.findUnique({
+      where: { compCode: companies[0].compCode },
+      include: {
+        creditBalance: true
+      }
+    })
+
+    expect(result).toBeTruthy()
+    expect(result?.compCode).toBe('COMP001')
+    expect(result?.creditBalance).toBeTruthy()
+    expect(result?.creditBalance?.orderBalance).toBe(500000)
+    expect(result?.creditBalance?.recBalance).toBe(300000)
+    expect(result?.creditBalance?.payBalance).toBe(200000)
   })
 })
