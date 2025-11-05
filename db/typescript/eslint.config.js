@@ -26,7 +26,7 @@ export default [
       ...prettierConfig.rules,
       'prettier/prettier': 'error',
       // 循環的複雑度の制限 - 7を超える場合はエラー
-      'complexity': ['error', { max: 7 }],
+      complexity: ['error', { max: 7 }],
       // 認知的複雑度の制限 - 4を超える場合はエラー
       'sonarjs/cognitive-complexity': ['error', 4],
       // その他の推奨ルール
@@ -45,6 +45,15 @@ export default [
     }
   },
   {
-    ignores: ['dist/**', 'node_modules/**', 'coverage/**', '*.config.js', 'prisma/**']
+    ignores: [
+      'dist/**',
+      'node_modules/**',
+      'coverage/**',
+      '*.config.js',
+      'prisma/**',
+      'schemaspy-output/**',
+      'src/generated/**',
+      'gulpfile.js'
+    ]
   }
 ]
