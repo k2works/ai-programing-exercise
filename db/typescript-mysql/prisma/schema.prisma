@@ -93,3 +93,379 @@ model Employee {
 
   @@map("employee")
 }
+
+/// 商品分類マスタテーブル
+model ProductCategory {
+  /// 商品分類コード
+  categoryCode String   @id @map("category_code") @db.VarChar(8)
+  /// 商品分類名
+  name         String?  @db.VarChar(30)
+  /// 商品分類階層
+  layer        Int      @db.Int
+  /// 商品分類パス
+  path         String?  @db.VarChar(100)
+  /// 最下層区分
+  lowestType   Int?     @map("lowest_type") @db.Int
+  /// 作成日時
+  createDate   DateTime @default(now()) @map("create_date") @db.DateTime(6)
+  /// 作成者名
+  creator      String?  @db.VarChar(12)
+  /// 更新日時
+  updateDate   DateTime @default(now()) @map("update_date") @db.DateTime(6)
+  /// 更新者名
+  updater      String?  @db.VarChar(12)
+
+  @@map("product_category")
+}
+
+/// 商品マスタテーブル
+model Product {
+  /// 商品コード
+  prodCode          String             @id @map("prod_code") @db.VarChar(16)
+  /// 商品正式名
+  fullname          String             @db.VarChar(40)
+  /// 商品略称
+  name              String             @db.VarChar(10)
+  /// 商品名カナ
+  kana              String             @db.VarChar(20)
+  /// 商品区分
+  prodType          String?            @map("prod_type") @db.VarChar(1)
+  /// 製品型番
+  serialNo          String?            @map("serial_no") @db.VarChar(40)
+  /// 販売単価
+  unitprice         Int                @db.Int
+  /// 仕入単価
+  poPrice           Int?               @map("po_price") @db.Int
+  /// 売上原価
+  primeCost         Int                @map("prime_cost") @db.Int
+  /// 税区分
+  taxType           Int                @map("tax_type") @db.Int
+  /// 商品分類コード
+  categoryCode      String?            @map("category_code") @db.VarChar(8)
+  /// 雑区分
+  wideUseType       Int?               @map("wide_use_type") @db.Int
+  /// 在庫管理対象区分
+  stockManageType   Int?               @map("stock_manage_type") @db.Int
+  /// 在庫引当区分
+  stockReserveType  Int?               @map("stock_reserve_type") @db.Int
+  /// 仕入先コード
+  supCode           String             @map("sup_code") @db.VarChar(8)
+  /// 仕入先枝番
+  supSubNo          Int?               @map("sup_sub_no") @db.Int
+  /// 作成日時
+  createDate        DateTime           @default(now()) @map("create_date") @db.DateTime(6)
+  /// 作成者名
+  creator           String?            @db.VarChar(12)
+  /// 更新日時
+  updateDate        DateTime           @default(now()) @map("update_date") @db.DateTime(6)
+  /// 更新者名
+  updater           String?            @db.VarChar(12)
+
+  pricebycustomers  PriceByCustomer[]
+  alternateProducts AlternateProduct[]
+
+  @@map("product")
+}
+
+/// 顧客別販売単価テーブル
+model PriceByCustomer {
+  /// 商品コード
+  prodCode   String   @map("prod_code") @db.VarChar(16)
+  /// 得意先コード
+  compCode   String   @map("comp_code") @db.VarChar(8)
+  /// 販売単価
+  unitprice  Int      @db.Int
+  /// 作成日時
+  createDate DateTime @default(now()) @map("create_date") @db.DateTime(6)
+  /// 作成者名
+  creator    String?  @db.VarChar(12)
+  /// 更新日時
+  updateDate DateTime @default(now()) @map("update_date") @db.DateTime(6)
+  /// 更新者名
+  updater    String?  @db.VarChar(12)
+
+  products Product? @relation(fields: [prodCode], references: [prodCode])
+
+  @@id([prodCode, compCode])
+  @@map("price_by_customer")
+}
+
+/// 代替商品テーブル
+model AlternateProduct {
+  /// 商品コード
+  prodCode          String   @map("prod_code") @db.VarChar(16)
+  /// 代替商品コード
+  alternateProdCode String   @map("alternate_prod_code") @db.VarChar(16)
+  /// 優先順位
+  priority          Int      @db.Int
+  /// 作成日時
+  createDate        DateTime @default(now()) @map("create_date") @db.DateTime(6)
+  /// 作成者名
+  creator           String?  @db.VarChar(12)
+  /// 更新日時
+  updateDate        DateTime @default(now()) @map("update_date") @db.DateTime(6)
+  /// 更新者名
+  updater           String?  @db.VarChar(12)
+
+  products Product? @relation(fields: [prodCode], references: [prodCode])
+
+  @@id([prodCode, alternateProdCode])
+  @@map("alternate_product")
+}
+
+/// 取引先グループマスタテーブル
+model CompanyGroup {
+  /// 取引先グループコード
+  compGroupCode String    @id @map("comp_group_code") @db.VarChar(4)
+  /// 取引先グループ名
+  groupName     String?   @map("group_name") @db.VarChar(40)
+  /// 作成日時
+  createDate    DateTime  @default(now()) @map("create_date") @db.DateTime(6)
+  /// 作成者名
+  creator       String?   @db.VarChar(12)
+  /// 更新日時
+  updateDate    DateTime  @default(now()) @map("update_date") @db.DateTime(6)
+  /// 更新者名
+  updater       String?   @db.VarChar(12)
+
+  companies Company[]
+
+  @@map("company_group")
+}
+
+/// 取引先マスタテーブル
+model Company {
+  /// 取引先コード
+  compCode      String   @id @map("comp_code") @db.VarChar(8)
+  /// 取引先名
+  name          String   @db.VarChar(40)
+  /// 取引先名カナ
+  kana          String?  @db.VarChar(40)
+  /// 仕入先区分
+  supType       Int?     @map("sup_type") @db.Int
+  /// 郵便番号
+  zipCode       String?  @map("zip_code") @db.Char(8)
+  /// 都道府県
+  state         String?  @db.VarChar(4)
+  /// 住所１
+  address1      String?  @db.VarChar(40)
+  /// 住所２
+  address2      String?  @db.VarChar(40)
+  /// 取引禁止フラグ
+  noSalesFlg    Int?     @map("no_sales_flg") @db.Int
+  /// 雑区分
+  wideUseType   Int?     @map("wide_use_type") @db.Int
+  /// 取引先グループコード
+  compGroupCode String   @map("comp_group_code") @db.VarChar(4)
+  /// 与信限度額
+  maxCredit     Int?     @map("max_credit") @db.Int
+  /// 与信一時増加枠
+  tempCreditUp  Int?     @map("temp_credit_up") @db.Int
+  /// 作成日時
+  createDate    DateTime @default(now()) @map("create_date") @db.DateTime(6)
+  /// 作成者名
+  creator       String?  @db.VarChar(12)
+  /// 更新日時
+  updateDate    DateTime @default(now()) @map("update_date") @db.DateTime(6)
+  /// 更新者名
+  updater       String?  @db.VarChar(12)
+
+  companyGroup          CompanyGroup?          @relation(fields: [compGroupCode], references: [compGroupCode])
+  customers             Customer[]
+  suppliers             Supplier[]
+  companyCategoryGroups CompanyCategoryGroup[]
+
+  @@map("company")
+}
+
+/// 顧客マスタテーブル
+model Customer {
+  /// 顧客コード
+  custCode        String   @map("cust_code") @db.VarChar(8)
+  /// 顧客枝番
+  custSubNo       Int      @map("cust_sub_no") @db.Int
+  /// 顧客区分
+  custType        Int?     @map("cust_type") @db.Int
+  /// 請求先コード
+  arCode          String   @map("ar_code") @db.VarChar(8)
+  /// 請求先枝番
+  arSubNo         Int?     @map("ar_sub_no") @db.Int
+  /// 回収先コード
+  payerCode       String   @map("payer_code") @db.VarChar(8)
+  /// 回収先枝番
+  payerSubNo      Int?     @map("payer_sub_no") @db.Int
+  /// 顧客名
+  name            String   @db.VarChar(40)
+  /// 顧客名カナ
+  kana            String?  @db.VarChar(40)
+  /// 自社担当者コード
+  empCode         String   @map("emp_code") @db.VarChar(10)
+  /// 顧客担当者名
+  custUserName    String?  @map("cust_user_name") @db.VarChar(20)
+  /// 顧客部門名
+  custUserDepName String?  @map("cust_user_dep_name") @db.VarChar(40)
+  /// 顧客郵便番号
+  custZipCode     String?  @map("cust_zip_code") @db.Char(8)
+  /// 顧客都道府県
+  custState       String?  @map("cust_state") @db.VarChar(4)
+  /// 顧客住所１
+  custAddress1    String?  @map("cust_address1") @db.VarChar(40)
+  /// 顧客住所２
+  custAddress2    String?  @map("cust_address2") @db.VarChar(40)
+  /// 顧客電話番号
+  custTel         String?  @map("cust_tel") @db.VarChar(13)
+  /// 顧客ＦＡＸ番号
+  custFax         String?  @map("cust_fax") @db.VarChar(13)
+  /// 顧客メールアドレス
+  custEmail       String?  @map("cust_email") @db.VarChar(100)
+  /// 顧客請求区分
+  custArType      Int?     @map("cust_ar_type") @db.Int
+  /// 顧客締日１
+  custCloseDate1  Int      @map("cust_close_date1") @db.Int
+  /// 顧客支払月１
+  custPayMonths1  Int?     @map("cust_pay_months1") @db.Int
+  /// 顧客支払日１
+  custPayDates1   Int?     @map("cust_pay_dates1") @db.Int
+  /// 顧客支払方法１
+  custPayMethod1  Int?     @map("cust_pay_method1") @db.Int
+  /// 顧客締日２
+  custCloseDate2  Int      @map("cust_close_date2") @db.Int
+  /// 顧客支払月２
+  custPayMonths2  Int?     @map("cust_pay_months2") @db.Int
+  /// 顧客支払日２
+  custPayDates2   Int?     @map("cust_pay_dates2") @db.Int
+  /// 顧客支払方法２
+  custPayMethod2  Int?     @map("cust_pay_method2") @db.Int
+  /// 作成日時
+  createDate      DateTime @default(now()) @map("create_date") @db.DateTime(6)
+  /// 作成者名
+  creator         String?  @db.VarChar(12)
+  /// 更新日時
+  updateDate      DateTime @default(now()) @map("update_date") @db.DateTime(6)
+  /// 更新者名
+  updater         String?  @db.VarChar(12)
+
+  company Company @relation(fields: [custCode], references: [compCode])
+
+  @@id([custCode, custSubNo])
+  @@map("customer")
+}
+
+/// 仕入先マスタテーブル
+model Supplier {
+  /// 仕入先コード
+  supCode       String   @map("sup_code") @db.VarChar(8)
+  /// 仕入先枝番
+  supSubNo      Int      @map("sup_sub_no") @db.Int
+  /// 仕入先名
+  name          String   @db.VarChar(40)
+  /// 仕入先名カナ
+  kana          String?  @db.VarChar(40)
+  /// 仕入先担当者名
+  supEmpName    String?  @map("sup_emp_name") @db.VarChar(20)
+  /// 仕入先部門名
+  supDepName    String?  @map("sup_dep_name") @db.VarChar(40)
+  /// 仕入先郵便番号
+  supZipCode    String?  @map("sup_zip_code") @db.Char(8)
+  /// 仕入先都道府県
+  supState      String?  @map("sup_state") @db.VarChar(4)
+  /// 仕入先住所１
+  supAddress1   String?  @map("sup_address1") @db.VarChar(40)
+  /// 仕入先住所２
+  supAddress2   String?  @map("sup_address2") @db.VarChar(40)
+  /// 仕入先電話番号
+  supTel        String?  @map("sup_tel") @db.VarChar(13)
+  /// 仕入先ＦＡＸ番号
+  supFax        String?  @map("sup_fax") @db.VarChar(13)
+  /// 仕入先メールアドレス
+  supEmail      String?  @map("sup_email") @db.VarChar(100)
+  /// 仕入先締日
+  supCloseDate  Int      @map("sup_close_date") @db.Int
+  /// 仕入先支払月
+  supPayMonths  Int?     @map("sup_pay_months") @db.Int
+  /// 仕入先支払日
+  supPayDates   Int?     @map("sup_pay_dates") @db.Int
+  /// 仕入先支払方法
+  payMethodType Int?     @map("pay_method_type") @db.Int
+  /// 作成日時
+  createDate    DateTime @default(now()) @map("create_date") @db.DateTime(6)
+  /// 作成者名
+  creator       String?  @db.VarChar(12)
+  /// 更新日時
+  updateDate    DateTime @default(now()) @map("update_date") @db.DateTime(6)
+  /// 更新者名
+  updater       String?  @db.VarChar(12)
+
+  company Company @relation(fields: [supCode], references: [compCode])
+
+  @@id([supCode, supSubNo])
+  @@map("supplier")
+}
+
+/// 取引先分類種別マスタテーブル
+model CategoryType {
+  /// 取引先分類種別コード
+  categoryTypeCode  String            @id @map("category_type_code") @db.VarChar(2)
+  /// 取引先分類種別名
+  categoryTypeName  String?           @map("category_type_name") @db.VarChar(20)
+  /// 作成日時
+  createDate        DateTime          @default(now()) @map("create_date") @db.DateTime(6)
+  /// 作成者名
+  creator           String?           @db.VarChar(12)
+  /// 更新日時
+  updateDate        DateTime          @default(now()) @map("update_date") @db.DateTime(6)
+  /// 更新者名
+  updater           String?           @db.VarChar(12)
+
+  companyCategories CompanyCategory[]
+
+  @@map("category_type")
+}
+
+/// 取引先分類マスタテーブル
+model CompanyCategory {
+  /// 取引先分類種別コード
+  categoryTypeCode      String                 @map("category_type_code") @db.VarChar(2)
+  /// 取引先分類コード
+  compCateCode          String                 @map("comp_cate_code") @db.VarChar(8)
+  /// 取引先分類名
+  compCateName          String?                @map("comp_cate_name") @db.VarChar(30)
+  /// 作成日時
+  createDate            DateTime               @default(now()) @map("create_date") @db.DateTime(6)
+  /// 作成者名
+  creator               String?                @db.VarChar(12)
+  /// 更新日時
+  updateDate            DateTime               @default(now()) @map("update_date") @db.DateTime(6)
+  /// 更新者名
+  updater               String?                @db.VarChar(12)
+
+  companyCategoryGroups CompanyCategoryGroup[]
+  categoryType          CategoryType?          @relation(fields: [categoryTypeCode], references: [categoryTypeCode])
+
+  @@id([categoryTypeCode, compCateCode])
+  @@map("company_category")
+}
+
+/// 取引先分類グループテーブル
+model CompanyCategoryGroup {
+  /// 取引先分類種別コード
+  categoryTypeCode String   @map("category_type_code") @db.VarChar(2)
+  /// 取引先分類コード
+  compCateCode     String   @map("comp_cate_code") @db.VarChar(8)
+  /// 取引先コード
+  compCode         String   @map("comp_code") @db.VarChar(8)
+  /// 作成日時
+  createDate       DateTime @default(now()) @map("create_date") @db.DateTime(6)
+  /// 作成者名
+  creator          String?  @db.VarChar(12)
+  /// 更新日時
+  updateDate       DateTime @default(now()) @map("update_date") @db.DateTime(6)
+  /// 更新者名
+  updater          String?  @db.VarChar(12)
+
+  companyCategory CompanyCategory @relation(fields: [categoryTypeCode, compCateCode], references: [categoryTypeCode, compCateCode])
+  company         Company?        @relation(fields: [compCode], references: [compCode])
+
+  @@id([categoryTypeCode, compCode, compCateCode])
+  @@map("company_category_group")
+}
