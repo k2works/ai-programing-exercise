@@ -17,7 +17,13 @@ import {
   OrderOptionalDefaultsSchema,
   OrderDetailOptionalDefaultsSchema,
   SalesOptionalDefaultsSchema,
-  SalesDetailOptionalDefaultsSchema
+  SalesDetailOptionalDefaultsSchema,
+  WarehouseOptionalDefaultsSchema,
+  PurchaseOrderOptionalDefaultsSchema,
+  PurchaseOrderDetailOptionalDefaultsSchema,
+  PurchaseOptionalDefaultsSchema,
+  PurchaseDetailOptionalDefaultsSchema,
+  StockOptionalDefaultsSchema
 } from './generated/zod'
 
 const prisma = new PrismaClient()
@@ -844,5 +850,229 @@ describe('受注と売上', () => {
     expect(result?.sales).toHaveLength(1)
     expect(result?.sales[0].salesNo).toBe('SAL0000001')
     expect(result?.sales[0].salesDetails).toHaveLength(1)
+  })
+})
+
+// テスト用の倉庫データ
+const warehouses = [
+  WarehouseOptionalDefaultsSchema.parse({
+    whCode: 'WH1',
+    name: '東京倉庫',
+    createDate: new Date('2023-05-15'),
+    creator: 'admin',
+    updateDate: new Date('2023-05-15'),
+    updater: 'admin'
+  })
+]
+
+// テスト用の発注データ
+const purchaseOrders = [
+  PurchaseOrderOptionalDefaultsSchema.parse({
+    poNo: 'PO0000001',
+    poDate: new Date('2023-05-15'),
+    orderNo: 'ORD0000001',
+    supCode: 'COMP001',
+    supSubNo: 1,
+    empCode: 'EMP001',
+    dueDate: new Date('2023-05-25'),
+    whCode: 'WH1',
+    poAmnt: 80000,
+    cmpTax: 8000,
+    slipComment: '通常発注',
+    createDate: new Date('2023-05-15'),
+    creator: 'admin',
+    updateDate: new Date('2023-05-15'),
+    updater: 'admin'
+  })
+]
+
+// テスト用の発注明細データ
+const purchaseOrderDetails = [
+  PurchaseOrderDetailOptionalDefaultsSchema.parse({
+    poNo: 'PO0000001',
+    poRowNo: 1,
+    prodCode: 'PROD001',
+    prodName: 'テスト商品A',
+    unitprice: 40000,
+    quantity: 2,
+    arrivedQty: 0,
+    completeFlg: 0,
+    dueDate: new Date('2023-05-25'),
+    createDate: new Date('2023-05-15'),
+    creator: 'admin',
+    updateDate: new Date('2023-05-15'),
+    updater: 'admin'
+  })
+]
+
+// テスト用の仕入データ
+const purchases = [
+  PurchaseOptionalDefaultsSchema.parse({
+    puNo: 'PU0000001',
+    puDate: new Date('2023-05-20'),
+    supCode: 'COMP001',
+    supSubNo: 1,
+    empCode: 'EMP001',
+    startDate: new Date('2021-01-01'),
+    poNo: 'PO0000001',
+    deptCode: '11101',
+    puAmmount: 80000,
+    cmpTax: 8000,
+    slipComment: '通常仕入',
+    createDate: new Date('2023-05-20'),
+    creator: 'admin',
+    updateDate: new Date('2023-05-20'),
+    updater: 'admin'
+  })
+]
+
+// テスト用の仕入明細データ
+const purchaseDetails = [
+  PurchaseDetailOptionalDefaultsSchema.parse({
+    puNo: 'PU0000001',
+    puRowNo: 1,
+    prodCode: 'PROD001',
+    prodName: 'テスト商品A',
+    unitprice: 40000,
+    quantity: 2,
+    createDate: new Date('2023-05-20'),
+    creator: 'admin',
+    updateDate: new Date('2023-05-20'),
+    updater: 'admin'
+  })
+]
+
+// テスト用の在庫データ
+const stocks = [
+  StockOptionalDefaultsSchema.parse({
+    whCode: 'WH1',
+    prodCode: 'PROD001',
+    rotNo: 'LOT001',
+    stockType: '1',
+    qualityType: 'G',
+    actual: 10,
+    valid: 10,
+    lastDeliveryDate: null,
+    createDate: new Date('2023-05-20'),
+    creator: 'admin',
+    updateDate: new Date('2023-05-20'),
+    updater: 'admin'
+  })
+]
+
+describe('発注・仕入・在庫管理', () => {
+  beforeEach(async () => {
+    // 各テストの前にテーブルをクリーンな状態にする
+    await prisma.stock.deleteMany()
+    await prisma.purchaseDetail.deleteMany()
+    await prisma.purchase.deleteMany()
+    await prisma.purchaseOrderDetail.deleteMany()
+    await prisma.purchaseOrder.deleteMany()
+    await prisma.warehouse.deleteMany()
+    await prisma.customer.deleteMany()
+    await prisma.supplier.deleteMany()
+    await prisma.companyCategoryGroup.deleteMany()
+    await prisma.companyCategory.deleteMany()
+    await prisma.categoryType.deleteMany()
+    await prisma.company.deleteMany()
+    await prisma.companyGroup.deleteMany()
+    await prisma.employee.deleteMany()
+    await prisma.department.deleteMany()
+
+    // 前提データの登録
+    await prisma.$transaction(async (prisma) => {
+      await prisma.department.createMany({ data: departments })
+      await prisma.employee.createMany({ data: employees })
+      await prisma.companyGroup.createMany({ data: companyGroups })
+      await prisma.company.createMany({ data: companies })
+      await prisma.supplier.createMany({ data: suppliers })
+      await prisma.warehouse.createMany({ data: warehouses })
+    })
+  })
+
+  test('発注を登録できる', async () => {
+    const expected = purchaseOrders.map((po) => {
+      return {
+        ...po,
+        purchaseOrderDetails: purchaseOrderDetails.filter((pod) => pod.poNo === po.poNo)
+      }
+    })
+
+    await prisma.$transaction(async (prisma) => {
+      await prisma.purchaseOrder.createMany({ data: purchaseOrders })
+      await prisma.purchaseOrderDetail.createMany({ data: purchaseOrderDetails })
+    })
+
+    const result = await prisma.purchaseOrder.findMany({
+      include: {
+        purchaseOrderDetails: true
+      }
+    })
+
+    expect(result).toEqual(expected)
+  })
+
+  test('仕入を登録できる', async () => {
+    // 前提: 発注データを登録
+    await prisma.$transaction(async (prisma) => {
+      await prisma.purchaseOrder.createMany({ data: purchaseOrders })
+      await prisma.purchaseOrderDetail.createMany({ data: purchaseOrderDetails })
+    })
+
+    const expected = purchases.map((p) => {
+      return {
+        ...p,
+        purchaseDetails: purchaseDetails.filter((pd) => pd.puNo === p.puNo)
+      }
+    })
+
+    await prisma.$transaction(async (prisma) => {
+      await prisma.purchase.createMany({ data: purchases })
+      await prisma.purchaseDetail.createMany({ data: purchaseDetails })
+    })
+
+    const result = await prisma.purchase.findMany({
+      include: {
+        purchaseDetails: true
+      }
+    })
+
+    expect(result).toEqual(expected)
+  })
+
+  test('在庫を登録できる', async () => {
+    await prisma.stock.createMany({ data: stocks })
+    const result = await prisma.stock.findMany()
+    expect(result).toEqual(stocks)
+  })
+
+  test('発注から仕入への流れを追跡できる', async () => {
+    // 発注→仕入の一連の流れを登録
+    await prisma.$transaction(async (prisma) => {
+      await prisma.purchaseOrder.createMany({ data: purchaseOrders })
+      await prisma.purchaseOrderDetail.createMany({ data: purchaseOrderDetails })
+      await prisma.purchase.createMany({ data: purchases })
+      await prisma.purchaseDetail.createMany({ data: purchaseDetails })
+    })
+
+    // 発注データを仕入データと一緒に取得
+    const result = await prisma.purchaseOrder.findUnique({
+      where: { poNo: purchaseOrders[0].poNo },
+      include: {
+        purchaseOrderDetails: true,
+        purchases: {
+          include: {
+            purchaseDetails: true
+          }
+        }
+      }
+    })
+
+    expect(result).toBeTruthy()
+    expect(result?.poNo).toBe('PO0000001')
+    expect(result?.purchaseOrderDetails).toHaveLength(1)
+    expect(result?.purchases).toHaveLength(1)
+    expect(result?.purchases[0].puNo).toBe('PU0000001')
+    expect(result?.purchases[0].purchaseDetails).toHaveLength(1)
   })
 })
