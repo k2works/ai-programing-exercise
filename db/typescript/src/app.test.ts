@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'vitest'
 import { PrismaClient } from '@prisma/client'
 import {
@@ -33,7 +34,19 @@ import {
   AutoNumberOptionalDefaultsSchema
 } from './generated/zod'
 
-const prisma = new PrismaClient()
+/**
+ * テスト実行時は TEST_DATABASE_URL を使用する
+ */
+const isTest = process.env.VITEST === 'true' || process.env.NODE_ENV === 'test'
+const databaseUrl = isTest ? process.env.TEST_DATABASE_URL : process.env.DATABASE_URL
+
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: databaseUrl
+    }
+  }
+})
 
 beforeAll(async () => {
   // テストデータベースへの接続確認
