@@ -19,3 +19,46 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+// 部門マスタ
+model Department {
+  deptCode   String    @map("部門コード") @db.VarChar(6)
+  startDate  DateTime  @default(dbgenerated("CURRENT_DATE")) @map("開始日") @db.Timestamp(6)
+  endDate    DateTime? @default(dbgenerated("'2100-12-31 00:00:00'::timestamp without time zone")) @map("終了日") @db.Timestamp(6)
+  name       String?   @map("部門名") @db.VarChar(40)
+  layer      Int       @default(0) @map("組織階層")
+  psth       String    @map("部門パス") @db.VarChar(100)
+  lowestType Int       @default(0) @map("最下層区分")
+  slitYn     Int       @default(1) @map("伝票入力可否")
+  createDate DateTime  @default(dbgenerated("CURRENT_DATE")) @map("作成日時") @db.Timestamp(6)
+  creator    String?   @map("作成者名") @db.VarChar(12)
+  updateDate DateTime  @default(dbgenerated("CURRENT_DATE")) @map("更新日時") @db.Timestamp(6)
+  updater    String?   @map("更新者名") @db.VarChar(12)
+
+  employees Employee[]
+
+  @@id([deptCode, startDate], map: "pk_department")
+  @@map("部門マスタ")
+}
+
+// 社員マスタ
+model Employee {
+  empCode       String     @id(map: "pk_employee") @map("社員コード") @db.VarChar(10)
+  name          String?    @map("社員名") @db.VarChar(20)
+  kana          String?    @map("社員名カナ") @db.VarChar(40)
+  loginPassword String?    @map("パスワード") @db.VarChar(8)
+  tel           String?    @map("電話番号") @db.VarChar(13)
+  fax           String?    @map("FAX番号") @db.VarChar(13)
+  deptCode      String     @map("部門コード") @db.VarChar(6)
+  startDate     DateTime   @default(dbgenerated("CURRENT_DATE")) @map("開始日") @db.Timestamp(6)
+  occuCode      String     @map("職種コード") @db.VarChar(2)
+  approvalCode  String     @map("承認権限コード") @db.VarChar(2)
+  createDate    DateTime   @default(dbgenerated("CURRENT_DATE")) @map("作成日時") @db.Timestamp(6)
+  creator       String?    @map("作成者名") @db.VarChar(12)
+  updateDate    DateTime   @default(dbgenerated("CURRENT_DATE")) @map("更新日時") @db.Timestamp(6)
+  updater       String?    @map("更新者名") @db.VarChar(12)
+
+  department Department @relation(fields: [deptCode, startDate], references: [deptCode, startDate])
+
+  @@map("社員マスタ")
+}
