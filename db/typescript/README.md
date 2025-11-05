@@ -276,6 +276,27 @@ docker-compose exec postgres psql -U postgres -d sales_management
 docker-compose exec mysql mysql -u user -p sales_management
 ```
 
+### SchemaSpy（スキーマ可視化）
+
+SchemaSpy を使ってデータベーススキーマを可視化できます。
+
+```bash
+# SchemaSpy を実行してスキーマドキュメントを生成
+docker-compose run --rm schemaspy
+
+# 生成されたドキュメントを Web ブラウザで表示
+docker-compose up -d schemaspy-viewer
+```
+
+SchemaSpy Viewer にアクセス：
+- URL: http://localhost:8081
+- ER 図、テーブル定義、リレーションシップなどを確認できます
+
+**注意事項:**
+- SchemaSpy は PostgreSQL データベースのスキーマを解析します
+- 初回実行時はイメージのダウンロードに時間がかかります
+- 生成されたファイルは `schemaspy-output/` に保存されます（Git 管理対象外）
+
 ## ディレクトリ構造
 
 ```

@@ -24,3 +24,6 @@ prisma/migrations/
 
 # Generated files
 src/generated/
+
+# SchemaSpy
+schemaspy-output/
