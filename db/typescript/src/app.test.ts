@@ -6,7 +6,14 @@ import {
   ProductCategoryOptionalDefaultsSchema,
   ProductOptionalDefaultsSchema,
   PriceByCustomerOptionalDefaultsSchema,
-  AlternateProductOptionalDefaultsSchema
+  AlternateProductOptionalDefaultsSchema,
+  CompanyGroupOptionalDefaultsSchema,
+  CompanyOptionalDefaultsSchema,
+  CustomerOptionalDefaultsSchema,
+  SupplierOptionalDefaultsSchema,
+  CategoryTypeOptionalDefaultsSchema,
+  CompanyCategoryOptionalDefaultsSchema,
+  CompanyCategoryGroupOptionalDefaultsSchema
 } from './generated/zod'
 
 const prisma = new PrismaClient()
@@ -394,5 +401,246 @@ describe('商品マスタ', () => {
     // 2. テーブルが空になったか検証
     const result = await prisma.product.findMany()
     expect(result).toEqual([])
+  })
+})
+
+// テスト用の取引先グループデータ
+const companyGroups = [
+  CompanyGroupOptionalDefaultsSchema.parse({
+    compGroupCode: 'GRP1',
+    groupName: '主要取引先',
+    createDate: new Date('2021-01-01'),
+    creator: 'admin',
+    updateDate: new Date('2021-01-01'),
+    updater: 'admin'
+  })
+]
+
+// テスト用の取引先データ
+const companies = [
+  CompanyOptionalDefaultsSchema.parse({
+    compCode: 'COMP001',
+    name: '株式会社サンプル商事',
+    kana: 'カブシキガイシャサンプルショウジ',
+    supType: 1,
+    zipCode: '100-0001',
+    state: '東京都',
+    address1: '千代田区千代田1-1-1',
+    address2: 'サンプルビル10F',
+    noSalesFlg: 0,
+    wideUseType: 0,
+    compGroupCode: 'GRP1',
+    maxCredit: 10000000,
+    tempCreditUp: 2000000,
+    createDate: new Date('2021-01-01'),
+    creator: 'admin',
+    updateDate: new Date('2021-01-01'),
+    updater: 'admin'
+  })
+]
+
+// テスト用の顧客データ
+const customers = [
+  CustomerOptionalDefaultsSchema.parse({
+    custCode: 'COMP001',
+    custSubNo: 1,
+    custType: 1,
+    arCode: 'COMP001',
+    arSubNo: 1,
+    payerCode: 'COMP001',
+    payerSubNo: 1,
+    name: '株式会社サンプル商事 本社',
+    kana: 'カブシキガイシャサンプルショウジ ホンシャ',
+    empCode: 'EMP999',
+    custUserName: '山田太郎',
+    custUserDepName: '営業部',
+    custZipCode: '100-0001',
+    custState: '東京都',
+    custAddress1: '千代田区千代田1-1-1',
+    custAddress2: 'サンプルビル10F',
+    custTel: '03-1234-5678',
+    custFax: '03-1234-5679',
+    custEmail: 'yamada@sample.co.jp',
+    custArType: 1,
+    custCloseDate1: 31,
+    custPayMonths1: 1,
+    custPayDates1: 25,
+    custPayMethod1: 1,
+    custCloseDate2: 15,
+    custPayMonths2: 1,
+    custPayDates2: 10,
+    custPayMethod2: 2,
+    createDate: new Date('2021-01-01'),
+    creator: 'admin',
+    updateDate: new Date('2021-01-01'),
+    updater: 'admin'
+  })
+]
+
+// テスト用の仕入先データ
+const suppliers = [
+  SupplierOptionalDefaultsSchema.parse({
+    supCode: 'COMP001',
+    supSubNo: 1,
+    name: '株式会社サンプル商事 仕入部',
+    kana: 'カブシキガイシャサンプルショウジ シイレブ',
+    supEmpName: '鈴木一郎',
+    supDepName: '営業部',
+    supZipCode: '100-0001',
+    supState: '東京都',
+    supAddress1: '千代田区千代田1-1-1',
+    supAddress2: 'サンプルビル10F',
+    supTel: '03-1234-5678',
+    supFax: '03-1234-5679',
+    supEmail: 'suzuki@sample.co.jp',
+    supCloseDate: 31,
+    supPayMonths: 2,
+    supPayDates: 25,
+    payMethodType: 1,
+    createDate: new Date('2021-01-01'),
+    creator: 'admin',
+    updateDate: new Date('2021-01-01'),
+    updater: 'admin'
+  })
+]
+
+// テスト用の取引先分類種別データ
+const categoryTypes = [
+  CategoryTypeOptionalDefaultsSchema.parse({
+    categoryTypeCode: '01',
+    categoryTypeName: '業種',
+    createDate: new Date('2021-01-01'),
+    creator: 'admin',
+    updateDate: new Date('2021-01-01'),
+    updater: 'admin'
+  })
+]
+
+// テスト用の取引先分類データ
+const companyCategories = [
+  CompanyCategoryOptionalDefaultsSchema.parse({
+    categoryTypeCode: '01',
+    compCateCode: 'IT001',
+    compCateName: 'IT業',
+    createDate: new Date('2021-01-01'),
+    creator: 'admin',
+    updateDate: new Date('2021-01-01'),
+    updater: 'admin'
+  })
+]
+
+// テスト用の取引先分類所属データ
+const companyCategoryGroups = [
+  CompanyCategoryGroupOptionalDefaultsSchema.parse({
+    categoryTypeCode: '01',
+    compCateCode: 'IT001',
+    compCode: 'COMP001',
+    createDate: new Date('2021-01-01'),
+    creator: 'admin',
+    updateDate: new Date('2021-01-01'),
+    updater: 'admin'
+  })
+]
+
+describe('取引先マスタ', () => {
+  beforeEach(async () => {
+    // 各テストの前にテーブルをクリーンな状態にする
+    await prisma.companyCategoryGroup.deleteMany()
+    await prisma.companyCategory.deleteMany()
+    await prisma.categoryType.deleteMany()
+    await prisma.customer.deleteMany()
+    await prisma.supplier.deleteMany()
+    await prisma.company.deleteMany()
+    await prisma.companyGroup.deleteMany()
+  })
+
+  test('取引先を登録できる', async () => {
+    // Company, Customer, Supplierをまとめて登録
+    await prisma.$transaction(async (prisma) => {
+      await prisma.companyGroup.createMany({ data: companyGroups })
+      await prisma.company.createMany({ data: companies })
+      await prisma.customer.createMany({ data: customers })
+      await prisma.supplier.createMany({ data: suppliers })
+    })
+
+    // 関連モデルを含めて取得し、検証
+    const result = await prisma.company.findMany({
+      include: {
+        customers: true,
+        suppliers: true
+      }
+    })
+
+    const expected = companies.map((c) => ({
+      ...c,
+      customers: customers.filter((cust) => cust.custCode === c.compCode),
+      suppliers: suppliers.filter((sup) => sup.supCode === c.compCode)
+    }))
+
+    expect(result).toEqual(expected)
+  })
+
+  test('取引先をグループ化できる', async () => {
+    // 前提: 取引先グループと取引先を登録
+    await prisma.$transaction(async (prisma) => {
+      await prisma.companyGroup.createMany({ data: companyGroups })
+      await prisma.company.createMany({ data: companies })
+    })
+
+    const expected = {
+      ...companyGroups[0],
+      companies: companies.filter((c) => c.compGroupCode === companyGroups[0].compGroupCode)
+    }
+
+    // 取引先グループを取得
+    const companyGroup = await prisma.companyGroup.findUnique({
+      where: { compGroupCode: companyGroups[0].compGroupCode }
+    })
+
+    // 所属する取引先を取得
+    const companiesInGroup = await prisma.company.findMany({
+      where: { compGroupCode: companyGroups[0].compGroupCode }
+    })
+
+    const result = {
+      ...companyGroup,
+      companies: companiesInGroup
+    }
+
+    expect(result).toEqual(expected)
+  })
+
+  test('取引先を分類で整理できる', async () => {
+    // 前提: 全データを登録
+    await prisma.$transaction(async (prisma) => {
+      await prisma.companyGroup.createMany({ data: companyGroups })
+      await prisma.company.createMany({ data: companies })
+      await prisma.categoryType.createMany({ data: categoryTypes })
+      await prisma.companyCategory.createMany({ data: companyCategories })
+      await prisma.companyCategoryGroup.createMany({ data: companyCategoryGroups })
+    })
+
+    // 取引先分類を含めて取得
+    const result = await prisma.company.findUnique({
+      where: { compCode: companies[0].compCode },
+      include: {
+        companyCategoryGroups: {
+          include: {
+            companyCategory: {
+              include: {
+                categoryType: true
+              }
+            }
+          }
+        }
+      }
+    })
+
+    expect(result).toBeTruthy()
+    expect(result?.companyCategoryGroups).toHaveLength(1)
+    expect(result?.companyCategoryGroups[0].companyCategory.compCateName).toBe('IT業')
+    expect(result?.companyCategoryGroups[0].companyCategory.categoryType.categoryTypeName).toBe(
+      '業種'
+    )
   })
 })
