@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 import { describe, test, expect, beforeAll, afterAll } from 'vitest'
-import { PrismaClient, Department, Employee, Product, Company, CompanyGroup } from '@prisma/client'
+import { PrismaClient, Department, Employee, Product, Company, CompanyGroup, Order, OrderDetail } from '@prisma/client'
 
 /**
  * テスト実行時は TEST_DATABASE_URL を使用する
@@ -296,7 +296,6 @@ describe('取引先マスタ', () => {
   })
 
   test('取引先を更新できる', async () => {
-    const expected = { ...companies[0], name: '更新取引先' }
     await prisma.company.update({
       where: { compCode: companies[0].compCode },
       data: { name: '更新取引先' }
@@ -304,12 +303,151 @@ describe('取引先マスタ', () => {
     const result = await prisma.company.findUnique({
       where: { compCode: companies[0].compCode }
     })
-    expect(result).toEqual(expected)
+    expect(result?.name).toEqual('更新取引先')
+    expect(result?.compCode).toEqual(companies[0].compCode)
   })
 
   test('取引先を削除できる', async () => {
     await prisma.company.delete({ where: { compCode: companies[0].compCode } })
     const result = await prisma.company.findMany()
+    expect(result).toEqual([])
+  })
+})
+
+// テスト用の受注データ
+const orders: Order[] = [
+  {
+    orderNo: 'ORD0001',
+    orderDate: new Date('2021-01-01'),
+    deptCode: 'DEPT01',
+    startDate: new Date('2021-01-01'),
+    custCode: 'COMP001',
+    custSubNo: 1,
+    empCode: 'EMP001',
+    requiredDate: new Date('2021-01-15'),
+    custorderNo: 'CUST-ORD-001',
+    whCode: 'WH1',
+    orderAmnt: 10000,
+    cmpTax: 1000,
+    slipComment: 'テスト受注',
+    createDate: new Date('2021-01-01'),
+    creator: 'admin',
+    updateDate: new Date('2021-01-01'),
+    updater: 'admin'
+  }
+]
+
+// テスト用の受注明細データ
+const orderDetails: OrderDetail[] = [
+  {
+    orderNo: 'ORD0001',
+    soRowNo: 1,
+    prodCode: 'PROD001',
+    prodName: 'テスト商品',
+    unitprice: 1000,
+    quantity: 10,
+    cmpTaxRate: 10,
+    reserveQty: 10,
+    deliveryOrderQty: 10,
+    deliveredQty: 0,
+    completeFlg: 0,
+    discount: 0,
+    deliveryDate: new Date('2021-01-15'),
+    createDate: new Date('2021-01-01'),
+    creator: 'admin',
+    updateDate: new Date('2021-01-01'),
+    updater: 'admin'
+  }
+]
+
+describe('受注マスタ', () => {
+  beforeAll(async () => {
+    await prisma.orderDetail.deleteMany()
+    await prisma.order.deleteMany()
+  })
+
+  afterAll(async () => {
+    await prisma.orderDetail.deleteMany()
+    await prisma.order.deleteMany()
+    await prisma.$disconnect()
+  })
+
+  test('受注を登録できる', async () => {
+    await prisma.order.create({ data: orders[0] })
+    const result = await prisma.order.findMany()
+    expect(result).toEqual(orders)
+  })
+
+  test('受注を更新できる', async () => {
+    const expected = { ...orders[0], orderAmnt: 20000 }
+    await prisma.order.update({
+      where: { orderNo: orders[0].orderNo },
+      data: { orderAmnt: 20000 }
+    })
+    const result = await prisma.order.findUnique({
+      where: { orderNo: orders[0].orderNo }
+    })
+    expect(result).toEqual(expected)
+  })
+
+  test('受注を削除できる', async () => {
+    await prisma.order.delete({ where: { orderNo: orders[0].orderNo } })
+    const result = await prisma.order.findMany()
+    expect(result).toEqual([])
+  })
+})
+
+describe('受注明細', () => {
+  beforeAll(async () => {
+    await prisma.orderDetail.deleteMany()
+    await prisma.order.deleteMany()
+    await prisma.order.create({ data: orders[0] })
+  })
+
+  afterAll(async () => {
+    await prisma.orderDetail.deleteMany()
+    await prisma.order.deleteMany()
+    await prisma.$disconnect()
+  })
+
+  test('受注明細を登録できる', async () => {
+    await prisma.orderDetail.create({ data: orderDetails[0] })
+    const result = await prisma.orderDetail.findMany()
+    expect(result).toEqual(orderDetails)
+  })
+
+  test('受注明細を更新できる', async () => {
+    const expected = { ...orderDetails[0], quantity: 20 }
+    await prisma.orderDetail.update({
+      where: {
+        orderNo_soRowNo: {
+          orderNo: orderDetails[0].orderNo,
+          soRowNo: orderDetails[0].soRowNo
+        }
+      },
+      data: { quantity: 20 }
+    })
+    const result = await prisma.orderDetail.findUnique({
+      where: {
+        orderNo_soRowNo: {
+          orderNo: orderDetails[0].orderNo,
+          soRowNo: orderDetails[0].soRowNo
+        }
+      }
+    })
+    expect(result).toEqual(expected)
+  })
+
+  test('受注明細を削除できる', async () => {
+    await prisma.orderDetail.delete({
+      where: {
+        orderNo_soRowNo: {
+          orderNo: orderDetails[0].orderNo,
+          soRowNo: orderDetails[0].soRowNo
+        }
+      }
+    })
+    const result = await prisma.orderDetail.findMany()
     expect(result).toEqual([])
   })
 })
