@@ -637,3 +637,206 @@ model SalesDetail {
   @@id([salesNo, rowNo])
   @@map("sales_detail")
 }
+
+/// 倉庫マスタテーブル
+model Warehouse {
+  /// 倉庫コード
+  whCode     String   @id @map("wh_code") @db.VarChar(3)
+  /// 倉庫名
+  name       String   @db.VarChar(40)
+  /// 作成日時
+  createDate DateTime @default(now()) @map("create_date") @db.DateTime(6)
+  /// 作成者名
+  creator    String?  @db.VarChar(12)
+  /// 更新日時
+  updateDate DateTime @default(now()) @map("update_date") @db.DateTime(6)
+  /// 更新者名
+  updater    String?  @db.VarChar(12)
+
+  stocks Stock[]
+
+  @@map("warehouse")
+}
+
+/// 発注データテーブル
+model PurchaseOrder {
+  /// 発注番号
+  poNo        String    @id @map("po_no") @db.VarChar(10)
+  /// 発注日
+  poDate      DateTime? @map("po_date") @db.DateTime(6)
+  /// 受注番号
+  orderNo     String    @map("order_no") @db.VarChar(10)
+  /// 仕入先コード
+  supCode     String    @map("sup_code") @db.VarChar(8)
+  /// 仕入先枝番
+  supSubNo    Int?      @map("sup_sub_no") @db.Int
+  /// 発注担当者コード
+  empCode     String    @map("emp_code") @db.VarChar(10)
+  /// 指定納期
+  dueDate     DateTime? @map("due_date") @db.DateTime(6)
+  /// 倉庫コード
+  whCode      String    @map("wh_code") @db.VarChar(3)
+  /// 発注金額合計
+  poAmnt      Int?      @map("po_amnt") @db.Int
+  /// 消費税合計
+  cmpTax      Int       @map("cmp_tax") @db.Int
+  /// 備考
+  slipComment String?   @map("slip_comment") @db.VarChar(1000)
+  /// 作成日時
+  createDate  DateTime  @default(now()) @map("create_date") @db.DateTime(6)
+  /// 作成者名
+  creator     String?   @db.VarChar(12)
+  /// 更新日時
+  updateDate  DateTime  @default(now()) @map("update_date") @db.DateTime(6)
+  /// 更新者名
+  updater     String?   @db.VarChar(12)
+
+  purchaseOrderDetails PurchaseOrderDetail[]
+
+  @@map("purchase_order")
+}
+
+/// 発注明細テーブル
+model PurchaseOrderDetail {
+  /// 発注番号
+  poNo         String    @map("po_no") @db.VarChar(10)
+  /// 発注行番号
+  poRowNo      Int       @map("po_row_no") @db.Int
+  /// 商品コード
+  prodCode     String    @map("prod_code") @db.VarChar(16)
+  /// 商品名
+  prodName     String    @map("prod_name") @db.VarChar(10)
+  /// 発注単価
+  unitprice    Int       @db.Int
+  /// 発注数量
+  quantity     Int       @db.Int
+  /// 消費税率
+  cmpTaxRate   Int?      @map("cmp_tax_rate") @db.Int
+  /// 入荷数量
+  receivedQty  Int?      @map("received_qty") @db.Int
+  /// 完了フラグ
+  completeFlg  Int       @map("complete_flg") @db.Int
+  /// 値引金額
+  discount     Int       @db.Int
+  /// 納期
+  deliveryDate DateTime? @map("delivery_date") @db.DateTime(6)
+  /// 作成日時
+  createDate   DateTime  @default(now()) @map("create_date") @db.DateTime(6)
+  /// 作成者名
+  creator      String?   @db.VarChar(12)
+  /// 更新日時
+  updateDate   DateTime  @default(now()) @map("update_date") @db.DateTime(6)
+  /// 更新者名
+  updater      String?   @db.VarChar(12)
+
+  purchaseOrder PurchaseOrder @relation(fields: [poNo], references: [poNo])
+
+  @@id([poNo, poRowNo])
+  @@map("purchase_order_detail")
+}
+
+/// 仕入データテーブル
+model Purchase {
+  /// 仕入番号
+  puNo        String    @id @map("pu_no") @db.VarChar(10)
+  /// 仕入日
+  puDate      DateTime? @map("pu_date") @db.DateTime(6)
+  /// 仕入先コード
+  supCode     String    @map("sup_code") @db.VarChar(8)
+  /// 仕入先枝番
+  supSubNo    Int?      @map("sup_sub_no") @db.Int
+  /// 仕入担当者コード
+  empCode     String    @map("emp_code") @db.VarChar(10)
+  /// 開始日
+  startDate   DateTime  @default(now()) @map("start_date") @db.DateTime(6)
+  /// 発注番号
+  poNo        String?   @map("po_no") @db.VarChar(10)
+  /// 部門コード
+  deptCode    String    @map("dept_code") @db.VarChar(6)
+  /// 仕入金額合計
+  puAmmount   Int?      @map("pu_ammount") @db.Int
+  /// 消費税合計
+  cmpTax      Int       @map("cmp_tax") @db.Int
+  /// 備考
+  slipComment String?   @map("slip_comment") @db.VarChar(1000)
+  /// 作成日時
+  createDate  DateTime  @default(now()) @map("create_date") @db.DateTime(6)
+  /// 作成者名
+  creator     String?   @db.VarChar(12)
+  /// 更新日時
+  updateDate  DateTime  @default(now()) @map("update_date") @db.DateTime(6)
+  /// 更新者名
+  updater     String?   @db.VarChar(12)
+
+  purchaseDetails PurchaseDetail[]
+
+  @@map("purchase")
+}
+
+/// 仕入明細テーブル
+model PurchaseDetail {
+  /// 仕入番号
+  puNo        String    @map("pu_no") @db.VarChar(10)
+  /// 仕入行番号
+  puRowNo     Int       @map("pu_row_no") @db.Int
+  /// 商品コード
+  prodCode    String    @map("prod_code") @db.VarChar(16)
+  /// 商品名
+  prodName    String    @map("prod_name") @db.VarChar(10)
+  /// 仕入単価
+  unitprice   Int       @db.Int
+  /// 仕入数量
+  quantity    Int       @db.Int
+  /// 消費税率
+  cmpTaxRate  Int?      @map("cmp_tax_rate") @db.Int
+  /// 値引金額
+  discount    Int       @db.Int
+  /// ロット番号
+  rotNo       String    @map("rot_no") @db.VarChar(20)
+  /// 作成日時
+  createDate  DateTime  @default(now()) @map("create_date") @db.DateTime(6)
+  /// 作成者名
+  creator     String?   @db.VarChar(12)
+  /// 更新日時
+  updateDate  DateTime  @default(now()) @map("update_date") @db.DateTime(6)
+  /// 更新者名
+  updater     String?   @db.VarChar(12)
+
+  purchase Purchase @relation(fields: [puNo], references: [puNo])
+
+  @@id([puNo, puRowNo])
+  @@map("purchase_detail")
+}
+
+/// 在庫データテーブル
+model Stock {
+  /// 倉庫コード
+  whCode           String    @map("wh_code") @db.VarChar(3)
+  /// 商品コード
+  prodCode         String    @map("prod_code") @db.VarChar(16)
+  /// ロット番号
+  rotNo            String    @map("rot_no") @db.VarChar(20)
+  /// 在庫区分
+  stockType        String    @map("stock_type") @db.VarChar(1)
+  /// 良品区分
+  qualityType      String    @map("quality_type") @db.VarChar(1)
+  /// 実在庫数
+  actual           Int       @db.Int
+  /// 有効在庫数
+  valid            Int       @db.Int
+  /// 最終出荷日
+  lastDeliveryDate DateTime? @map("last_delivery_date") @db.DateTime(6)
+  /// 作成日時
+  createDate       DateTime  @default(now()) @map("create_date") @db.DateTime(6)
+  /// 作成者名
+  creator          String?   @db.VarChar(12)
+  /// 更新日時
+  updateDate       DateTime  @default(now()) @map("update_date") @db.DateTime(6)
+  /// 更新者名
+  updater          String?   @db.VarChar(12)
+
+  warehouse Warehouse @relation(fields: [whCode], references: [whCode])
+
+  @@id([whCode, prodCode, rotNo, stockType, qualityType])
+  @@map("stock")
+}
