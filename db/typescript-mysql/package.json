@@ -21,6 +21,8 @@
     "prisma:generate": "prisma generate",
     "prisma:seed": "tsx src/seed.ts",
     "seed": "tsx src/seed.ts",
+    "api:dev": "tsx watch src/api/index.ts",
+    "api:start": "tsx src/api/index.ts",
     "schemaspy": "docker-compose run --rm schemaspy",
     "schemaspy:view": "docker-compose up schemaspy-viewer"
   },
