@@ -24,13 +24,13 @@ TDD（テスト駆動開発）アプローチに基づき、レイヤードア�
 
 ### 前提
 
-| ソフトウェア | バージョン | 備考 |
-| :----------- | :--------- | :--- |
-| Node.js      | 24.x       | LTS 推奨 |
-| MySQL        | 8.0        | Docker または ローカル |
+| ソフトウェア | バージョン | 備考                          |
+| :----------- | :--------- | :---------------------------- |
+| Node.js      | 24.x       | LTS 推奨                      |
+| MySQL        | 8.0        | Docker または ローカル        |
 | Docker       | 最新       | 任意（Docker Compose 使用時） |
-| TypeScript   | 5.9.x      | |
-| Prisma       | 6.18.x     | |
+| TypeScript   | 5.9.x      |                               |
+| Prisma       | 6.18.x     |                               |
 
 ## 構成
 
@@ -277,11 +277,13 @@ graph TB
 詳細は Swagger UI（`http://localhost:3000/docs`）を参照してください。
 
 **システム**
+
 - `GET /` - API 情報
 - `GET /health` - ヘルスチェック
 - `GET /docs` - Swagger UI
 
 **商品 API**
+
 - `POST /products` - 商品作成
 - `GET /products` - 商品一覧取得
 - `GET /products/:id` - 商品詳細取得

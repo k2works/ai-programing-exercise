@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 import { describe, test, expect, beforeAll, afterAll } from 'vitest'
 import {
   PrismaClient,
