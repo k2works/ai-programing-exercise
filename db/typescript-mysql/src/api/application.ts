@@ -5,14 +5,15 @@ import swagger from '@fastify/swagger'
 import swaggerUi from '@fastify/swagger-ui'
 import { CreateProductSchema, UpdateProductSchema } from './schemas/product'
 import { ProductService } from './service/product'
+import { ZodSchema } from 'zod'
 
 /**
  * Zod バリデーションヘルパー
  */
 function validateRequest<T>(
-  schema: any,
+  schema: ZodSchema<T>,
   body: unknown
-): { success: true; data: T } | { success: false; error: any } {
+): { success: true; data: T } | { success: false; error: unknown } {
   const result = schema.safeParse(body)
   if (result.success) {
     return { success: true, data: result.data }
@@ -73,7 +74,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   /**
    * ルートエンドポイント
    */
-  app.get('/', async (request: FastifyRequest, reply: FastifyReply) => {
+  app.get('/', async () => {
     return {
       message: 'Sales Management API',
       version: '1.0.0',
@@ -85,7 +86,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   /**
    * ヘルスチェックエンドポイント
    */
-  app.get('/health', async (request: FastifyRequest, reply: FastifyReply) => {
+  app.get('/health', async () => {
     return { status: 'ok' }
   })
 
@@ -360,10 +361,10 @@ export async function startServer(): Promise<void> {
 
   try {
     await app.listen({ port: 3000, host: '0.0.0.0' })
-    console.log('Server is running on http://localhost:3000')
-    console.log('Swagger UI is available at http://localhost:3000/docs')
+    app.log.info('Server is running on http://localhost:3000')
+    app.log.info('Swagger UI is available at http://localhost:3000/docs')
   } catch (err) {
     app.log.error(err)
-    process.exit(1)
+    throw err
   }
 }

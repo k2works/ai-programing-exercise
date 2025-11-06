@@ -14,6 +14,17 @@ export default [
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module'
+      },
+      globals: {
+        console: 'readonly',
+        process: 'readonly',
+        Buffer: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        global: 'readonly',
+        module: 'readonly',
+        require: 'readonly',
+        exports: 'writable'
       }
     },
     plugins: {
@@ -42,6 +53,13 @@ export default [
       '@typescript-eslint/no-unused-expressions': 'off',
       '@typescript-eslint/no-unused-vars': 'warn',
       'no-console': 'off'
+    }
+  },
+  {
+    files: ['**/seed.ts', '**/seeds/**/*.ts'],
+    rules: {
+      'no-console': 'off',
+      'sonarjs/cognitive-complexity': 'off'
     }
   },
   {
