@@ -1,6 +1,9 @@
 -- PostgreSQL 初期化スクリプト
 -- データベースの初期設定を行う
 
+-- テスト用データベースの作成
+CREATE DATABASE sales_management_test;
+
 -- 拡張機能の有効化（必要に応じて）
 -- CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- CREATE EXTENSION IF NOT EXISTS "pgcrypto";
@@ -12,4 +15,5 @@ SET timezone = 'Asia/Tokyo';
 DO $$
 BEGIN
     RAISE NOTICE 'PostgreSQL database initialized successfully';
+    RAISE NOTICE 'Test database created: sales_management_test';
 END $$;
