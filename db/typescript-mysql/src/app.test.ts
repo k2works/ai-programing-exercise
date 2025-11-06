@@ -18,7 +18,9 @@ import {
   Invoice,
   InvoiceDetail,
   Credit,
-  Payment
+  Payment,
+  CreditBalance,
+  AutoNumber
 } from '@prisma/client'
 
 /**
@@ -1104,6 +1106,116 @@ describe('支払マスタ', () => {
   test('支払を削除できる', async () => {
     await prisma.payment.delete({ where: { payNo: payments[0].payNo } })
     const result = await prisma.payment.findMany()
+    expect(result).toEqual([])
+  })
+})
+
+// テスト用の与信残高データ
+const creditBalances: CreditBalance[] = [
+  {
+    compCode: 'COMP001',
+    orderBalance: 500000,
+    recBalance: 300000,
+    payBalance: 200000,
+    createDate: new Date('2021-02-01'),
+    creator: 'admin',
+    updateDate: new Date('2021-02-01'),
+    updater: 'admin'
+  }
+]
+
+// テスト用の自動採番データ
+const autoNumbers: AutoNumber[] = [
+  {
+    slipType: 'OR',
+    yearmonth: new Date('2021-02-01'),
+    lastSilpNo: 100
+  }
+]
+
+describe('与信残高マスタ', () => {
+  beforeAll(async () => {
+    await prisma.creditBalance.deleteMany()
+  })
+
+  afterAll(async () => {
+    await prisma.creditBalance.deleteMany()
+    await prisma.$disconnect()
+  })
+
+  test('与信残高を登録できる', async () => {
+    await prisma.creditBalance.create({ data: creditBalances[0] })
+    const result = await prisma.creditBalance.findMany()
+    expect(result).toEqual(creditBalances)
+  })
+
+  test('与信残高を更新できる', async () => {
+    const expected = { ...creditBalances[0], orderBalance: 600000 }
+    await prisma.creditBalance.update({
+      where: { compCode: creditBalances[0].compCode },
+      data: { orderBalance: 600000 }
+    })
+    const result = await prisma.creditBalance.findUnique({
+      where: { compCode: creditBalances[0].compCode }
+    })
+    expect(result).toEqual(expected)
+  })
+
+  test('与信残高を削除できる', async () => {
+    await prisma.creditBalance.delete({ where: { compCode: creditBalances[0].compCode } })
+    const result = await prisma.creditBalance.findMany()
+    expect(result).toEqual([])
+  })
+})
+
+describe('自動採番マスタ', () => {
+  beforeAll(async () => {
+    await prisma.autoNumber.deleteMany()
+  })
+
+  afterAll(async () => {
+    await prisma.autoNumber.deleteMany()
+    await prisma.$disconnect()
+  })
+
+  test('自動採番を登録できる', async () => {
+    await prisma.autoNumber.create({ data: autoNumbers[0] })
+    const result = await prisma.autoNumber.findMany()
+    expect(result).toEqual(autoNumbers)
+  })
+
+  test('自動採番を更新できる', async () => {
+    const expected = { ...autoNumbers[0], lastSilpNo: 200 }
+    await prisma.autoNumber.update({
+      where: {
+        slipType_yearmonth: {
+          slipType: autoNumbers[0].slipType,
+          yearmonth: autoNumbers[0].yearmonth
+        }
+      },
+      data: { lastSilpNo: 200 }
+    })
+    const result = await prisma.autoNumber.findUnique({
+      where: {
+        slipType_yearmonth: {
+          slipType: autoNumbers[0].slipType,
+          yearmonth: autoNumbers[0].yearmonth
+        }
+      }
+    })
+    expect(result).toEqual(expected)
+  })
+
+  test('自動採番を削除できる', async () => {
+    await prisma.autoNumber.delete({
+      where: {
+        slipType_yearmonth: {
+          slipType: autoNumbers[0].slipType,
+          yearmonth: autoNumbers[0].yearmonth
+        }
+      }
+    })
+    const result = await prisma.autoNumber.findMany()
     expect(result).toEqual([])
   })
 })

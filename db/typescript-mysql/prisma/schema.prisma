@@ -981,3 +981,38 @@ model Payment {
 
   @@map("payment")
 }
+
+/// 与信残高データテーブル
+model CreditBalance {
+  /// 取引先コード
+  compCode     String   @id @map("comp_code") @db.VarChar(8)
+  /// 受注残高
+  orderBalance Int?     @map("order_balance") @db.Int
+  /// 債権残高
+  recBalance   Int?     @map("rec_balance") @db.Int
+  /// 債務残高
+  payBalance   Int?     @map("pay_balance") @db.Int
+  /// 作成日時
+  createDate   DateTime @default(now()) @map("create_date") @db.DateTime(6)
+  /// 作成者名
+  creator      String?  @db.VarChar(12)
+  /// 更新日時
+  updateDate   DateTime @default(now()) @map("update_date") @db.DateTime(6)
+  /// 更新者名
+  updater      String?  @db.VarChar(12)
+
+  @@map("credit_balance")
+}
+
+/// 自動採番マスタテーブル
+model AutoNumber {
+  /// 伝票種別コード
+  slipType   String   @map("slip_type") @db.VarChar(2)
+  /// 年月
+  yearmonth  DateTime @db.DateTime(6)
+  /// 最終伝票番号
+  lastSilpNo Int      @map("last_silp_no") @db.Int
+
+  @@id([slipType, yearmonth])
+  @@map("auto_number")
+}

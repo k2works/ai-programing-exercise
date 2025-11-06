@@ -1,0 +1,4 @@
+-- Prisma Database Comments Generator v1.3.0
+-- Note: This migration has been modified to remove stored procedures for shadow database compatibility
+-- Comments will be applied via a separate migration file
+-- This migration file is intentionally empty to maintain migration history consistency

@@ -1,0 +1,13 @@
+-- AlterTable
+ALTER TABLE `department` MODIFY `start_date` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    MODIFY `end_date` DATETIME(6) NULL DEFAULT '2100-12-31 00:00:00',
+    MODIFY `create_date` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    MODIFY `update_date` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6);
+
+-- AlterTable
+ALTER TABLE `employee` MODIFY `start_date` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    MODIFY `create_date` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    MODIFY `update_date` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6);
+
+-- AddForeignKey
+ALTER TABLE `employee` ADD CONSTRAINT `employee_dept_code_start_date_fkey` FOREIGN KEY (`dept_code`, `start_date`) REFERENCES `department`(`dept_code`, `start_date`) ON DELETE RESTRICT ON UPDATE CASCADE;

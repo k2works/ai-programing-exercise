@@ -1,0 +1,2109 @@
+{
+  "department": {
+    "table": {
+      "tableName": "department",
+      "comment": "部門マスタテーブル"
+    },
+    "columns": [
+      {
+        "tableName": "department",
+        "columnName": "dept_code",
+        "comment": "部門コード"
+      },
+      {
+        "tableName": "department",
+        "columnName": "start_date",
+        "comment": "開始日"
+      },
+      {
+        "tableName": "department",
+        "columnName": "end_date",
+        "comment": "終了日"
+      },
+      {
+        "tableName": "department",
+        "columnName": "name",
+        "comment": "部門名"
+      },
+      {
+        "tableName": "department",
+        "columnName": "layer",
+        "comment": "組織階層"
+      },
+      {
+        "tableName": "department",
+        "columnName": "psth",
+        "comment": "部門パス"
+      },
+      {
+        "tableName": "department",
+        "columnName": "lowest_type",
+        "comment": "最下層区分"
+      },
+      {
+        "tableName": "department",
+        "columnName": "slit_yn",
+        "comment": "伝票入力可否"
+      },
+      {
+        "tableName": "department",
+        "columnName": "create_date",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "department",
+        "columnName": "creator",
+        "comment": "作成者名"
+      },
+      {
+        "tableName": "department",
+        "columnName": "update_date",
+        "comment": "更新日時"
+      },
+      {
+        "tableName": "department",
+        "columnName": "updater",
+        "comment": "更新者名"
+      }
+    ]
+  },
+  "employee": {
+    "table": {
+      "tableName": "employee",
+      "comment": "社員マスタテーブル"
+    },
+    "columns": [
+      {
+        "tableName": "employee",
+        "columnName": "emp_code",
+        "comment": "社員コード"
+      },
+      {
+        "tableName": "employee",
+        "columnName": "name",
+        "comment": "社員名"
+      },
+      {
+        "tableName": "employee",
+        "columnName": "kana",
+        "comment": "社員名カナ"
+      },
+      {
+        "tableName": "employee",
+        "columnName": "login_password",
+        "comment": "パスワード"
+      },
+      {
+        "tableName": "employee",
+        "columnName": "tel",
+        "comment": "電話番号"
+      },
+      {
+        "tableName": "employee",
+        "columnName": "fax",
+        "comment": "FAX番号"
+      },
+      {
+        "tableName": "employee",
+        "columnName": "dept_code",
+        "comment": "部門コード"
+      },
+      {
+        "tableName": "employee",
+        "columnName": "start_date",
+        "comment": "開始日"
+      },
+      {
+        "tableName": "employee",
+        "columnName": "occu_code",
+        "comment": "職種コード"
+      },
+      {
+        "tableName": "employee",
+        "columnName": "approval_code",
+        "comment": "承認権限コード"
+      },
+      {
+        "tableName": "employee",
+        "columnName": "create_date",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "employee",
+        "columnName": "creator",
+        "comment": "作成者名"
+      },
+      {
+        "tableName": "employee",
+        "columnName": "update_date",
+        "comment": "更新日時"
+      },
+      {
+        "tableName": "employee",
+        "columnName": "updater",
+        "comment": "更新者名"
+      }
+    ]
+  },
+  "product_category": {
+    "table": {
+      "tableName": "product_category",
+      "comment": "商品分類マスタテーブル"
+    },
+    "columns": [
+      {
+        "tableName": "product_category",
+        "columnName": "category_code",
+        "comment": "商品分類コード"
+      },
+      {
+        "tableName": "product_category",
+        "columnName": "name",
+        "comment": "商品分類名"
+      },
+      {
+        "tableName": "product_category",
+        "columnName": "layer",
+        "comment": "商品分類階層"
+      },
+      {
+        "tableName": "product_category",
+        "columnName": "path",
+        "comment": "商品分類パス"
+      },
+      {
+        "tableName": "product_category",
+        "columnName": "lowest_type",
+        "comment": "最下層区分"
+      },
+      {
+        "tableName": "product_category",
+        "columnName": "create_date",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "product_category",
+        "columnName": "creator",
+        "comment": "作成者名"
+      },
+      {
+        "tableName": "product_category",
+        "columnName": "update_date",
+        "comment": "更新日時"
+      },
+      {
+        "tableName": "product_category",
+        "columnName": "updater",
+        "comment": "更新者名"
+      }
+    ]
+  },
+  "product": {
+    "table": {
+      "tableName": "product",
+      "comment": "商品マスタテーブル"
+    },
+    "columns": [
+      {
+        "tableName": "product",
+        "columnName": "prod_code",
+        "comment": "商品コード"
+      },
+      {
+        "tableName": "product",
+        "columnName": "fullname",
+        "comment": "商品正式名"
+      },
+      {
+        "tableName": "product",
+        "columnName": "name",
+        "comment": "商品略称"
+      },
+      {
+        "tableName": "product",
+        "columnName": "kana",
+        "comment": "商品名カナ"
+      },
+      {
+        "tableName": "product",
+        "columnName": "prod_type",
+        "comment": "商品区分"
+      },
+      {
+        "tableName": "product",
+        "columnName": "serial_no",
+        "comment": "製品型番"
+      },
+      {
+        "tableName": "product",
+        "columnName": "unitprice",
+        "comment": "販売単価"
+      },
+      {
+        "tableName": "product",
+        "columnName": "po_price",
+        "comment": "仕入単価"
+      },
+      {
+        "tableName": "product",
+        "columnName": "prime_cost",
+        "comment": "売上原価"
+      },
+      {
+        "tableName": "product",
+        "columnName": "tax_type",
+        "comment": "税区分"
+      },
+      {
+        "tableName": "product",
+        "columnName": "category_code",
+        "comment": "商品分類コード"
+      },
+      {
+        "tableName": "product",
+        "columnName": "wide_use_type",
+        "comment": "雑区分"
+      },
+      {
+        "tableName": "product",
+        "columnName": "stock_manage_type",
+        "comment": "在庫管理対象区分"
+      },
+      {
+        "tableName": "product",
+        "columnName": "stock_reserve_type",
+        "comment": "在庫引当区分"
+      },
+      {
+        "tableName": "product",
+        "columnName": "sup_code",
+        "comment": "仕入先コード"
+      },
+      {
+        "tableName": "product",
+        "columnName": "sup_sub_no",
+        "comment": "仕入先枝番"
+      },
+      {
+        "tableName": "product",
+        "columnName": "create_date",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "product",
+        "columnName": "creator",
+        "comment": "作成者名"
+      },
+      {
+        "tableName": "product",
+        "columnName": "update_date",
+        "comment": "更新日時"
+      },
+      {
+        "tableName": "product",
+        "columnName": "updater",
+        "comment": "更新者名"
+      }
+    ]
+  },
+  "price_by_customer": {
+    "table": {
+      "tableName": "price_by_customer",
+      "comment": "顧客別販売単価テーブル"
+    },
+    "columns": [
+      {
+        "tableName": "price_by_customer",
+        "columnName": "prod_code",
+        "comment": "商品コード"
+      },
+      {
+        "tableName": "price_by_customer",
+        "columnName": "comp_code",
+        "comment": "得意先コード"
+      },
+      {
+        "tableName": "price_by_customer",
+        "columnName": "unitprice",
+        "comment": "販売単価"
+      },
+      {
+        "tableName": "price_by_customer",
+        "columnName": "create_date",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "price_by_customer",
+        "columnName": "creator",
+        "comment": "作成者名"
+      },
+      {
+        "tableName": "price_by_customer",
+        "columnName": "update_date",
+        "comment": "更新日時"
+      },
+      {
+        "tableName": "price_by_customer",
+        "columnName": "updater",
+        "comment": "更新者名"
+      }
+    ]
+  },
+  "alternate_product": {
+    "table": {
+      "tableName": "alternate_product",
+      "comment": "代替商品テーブル"
+    },
+    "columns": [
+      {
+        "tableName": "alternate_product",
+        "columnName": "prod_code",
+        "comment": "商品コード"
+      },
+      {
+        "tableName": "alternate_product",
+        "columnName": "alternate_prod_code",
+        "comment": "代替商品コード"
+      },
+      {
+        "tableName": "alternate_product",
+        "columnName": "priority",
+        "comment": "優先順位"
+      },
+      {
+        "tableName": "alternate_product",
+        "columnName": "create_date",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "alternate_product",
+        "columnName": "creator",
+        "comment": "作成者名"
+      },
+      {
+        "tableName": "alternate_product",
+        "columnName": "update_date",
+        "comment": "更新日時"
+      },
+      {
+        "tableName": "alternate_product",
+        "columnName": "updater",
+        "comment": "更新者名"
+      }
+    ]
+  },
+  "company_group": {
+    "table": {
+      "tableName": "company_group",
+      "comment": "取引先グループマスタテーブル"
+    },
+    "columns": [
+      {
+        "tableName": "company_group",
+        "columnName": "comp_group_code",
+        "comment": "取引先グループコード"
+      },
+      {
+        "tableName": "company_group",
+        "columnName": "group_name",
+        "comment": "取引先グループ名"
+      },
+      {
+        "tableName": "company_group",
+        "columnName": "create_date",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "company_group",
+        "columnName": "creator",
+        "comment": "作成者名"
+      },
+      {
+        "tableName": "company_group",
+        "columnName": "update_date",
+        "comment": "更新日時"
+      },
+      {
+        "tableName": "company_group",
+        "columnName": "updater",
+        "comment": "更新者名"
+      }
+    ]
+  },
+  "company": {
+    "table": {
+      "tableName": "company",
+      "comment": "取引先マスタテーブル"
+    },
+    "columns": [
+      {
+        "tableName": "company",
+        "columnName": "comp_code",
+        "comment": "取引先コード"
+      },
+      {
+        "tableName": "company",
+        "columnName": "name",
+        "comment": "取引先名"
+      },
+      {
+        "tableName": "company",
+        "columnName": "kana",
+        "comment": "取引先名カナ"
+      },
+      {
+        "tableName": "company",
+        "columnName": "sup_type",
+        "comment": "仕入先区分"
+      },
+      {
+        "tableName": "company",
+        "columnName": "zip_code",
+        "comment": "郵便番号"
+      },
+      {
+        "tableName": "company",
+        "columnName": "state",
+        "comment": "都道府県"
+      },
+      {
+        "tableName": "company",
+        "columnName": "address1",
+        "comment": "住所１"
+      },
+      {
+        "tableName": "company",
+        "columnName": "address2",
+        "comment": "住所２"
+      },
+      {
+        "tableName": "company",
+        "columnName": "no_sales_flg",
+        "comment": "取引禁止フラグ"
+      },
+      {
+        "tableName": "company",
+        "columnName": "wide_use_type",
+        "comment": "雑区分"
+      },
+      {
+        "tableName": "company",
+        "columnName": "comp_group_code",
+        "comment": "取引先グループコード"
+      },
+      {
+        "tableName": "company",
+        "columnName": "max_credit",
+        "comment": "与信限度額"
+      },
+      {
+        "tableName": "company",
+        "columnName": "temp_credit_up",
+        "comment": "与信一時増加枠"
+      },
+      {
+        "tableName": "company",
+        "columnName": "create_date",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "company",
+        "columnName": "creator",
+        "comment": "作成者名"
+      },
+      {
+        "tableName": "company",
+        "columnName": "update_date",
+        "comment": "更新日時"
+      },
+      {
+        "tableName": "company",
+        "columnName": "updater",
+        "comment": "更新者名"
+      }
+    ]
+  },
+  "customer": {
+    "table": {
+      "tableName": "customer",
+      "comment": "顧客マスタテーブル"
+    },
+    "columns": [
+      {
+        "tableName": "customer",
+        "columnName": "cust_code",
+        "comment": "顧客コード"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "cust_sub_no",
+        "comment": "顧客枝番"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "cust_type",
+        "comment": "顧客区分"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "ar_code",
+        "comment": "請求先コード"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "ar_sub_no",
+        "comment": "請求先枝番"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "payer_code",
+        "comment": "回収先コード"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "payer_sub_no",
+        "comment": "回収先枝番"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "name",
+        "comment": "顧客名"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "kana",
+        "comment": "顧客名カナ"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "emp_code",
+        "comment": "自社担当者コード"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "cust_user_name",
+        "comment": "顧客担当者名"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "cust_user_dep_name",
+        "comment": "顧客部門名"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "cust_zip_code",
+        "comment": "顧客郵便番号"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "cust_state",
+        "comment": "顧客都道府県"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "cust_address1",
+        "comment": "顧客住所１"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "cust_address2",
+        "comment": "顧客住所２"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "cust_tel",
+        "comment": "顧客電話番号"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "cust_fax",
+        "comment": "顧客ＦＡＸ番号"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "cust_email",
+        "comment": "顧客メールアドレス"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "cust_ar_type",
+        "comment": "顧客請求区分"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "cust_close_date1",
+        "comment": "顧客締日１"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "cust_pay_months1",
+        "comment": "顧客支払月１"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "cust_pay_dates1",
+        "comment": "顧客支払日１"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "cust_pay_method1",
+        "comment": "顧客支払方法１"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "cust_close_date2",
+        "comment": "顧客締日２"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "cust_pay_months2",
+        "comment": "顧客支払月２"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "cust_pay_dates2",
+        "comment": "顧客支払日２"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "cust_pay_method2",
+        "comment": "顧客支払方法２"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "create_date",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "creator",
+        "comment": "作成者名"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "update_date",
+        "comment": "更新日時"
+      },
+      {
+        "tableName": "customer",
+        "columnName": "updater",
+        "comment": "更新者名"
+      }
+    ]
+  },
+  "supplier": {
+    "table": {
+      "tableName": "supplier",
+      "comment": "仕入先マスタテーブル"
+    },
+    "columns": [
+      {
+        "tableName": "supplier",
+        "columnName": "sup_code",
+        "comment": "仕入先コード"
+      },
+      {
+        "tableName": "supplier",
+        "columnName": "sup_sub_no",
+        "comment": "仕入先枝番"
+      },
+      {
+        "tableName": "supplier",
+        "columnName": "name",
+        "comment": "仕入先名"
+      },
+      {
+        "tableName": "supplier",
+        "columnName": "kana",
+        "comment": "仕入先名カナ"
+      },
+      {
+        "tableName": "supplier",
+        "columnName": "sup_emp_name",
+        "comment": "仕入先担当者名"
+      },
+      {
+        "tableName": "supplier",
+        "columnName": "sup_dep_name",
+        "comment": "仕入先部門名"
+      },
+      {
+        "tableName": "supplier",
+        "columnName": "sup_zip_code",
+        "comment": "仕入先郵便番号"
+      },
+      {
+        "tableName": "supplier",
+        "columnName": "sup_state",
+        "comment": "仕入先都道府県"
+      },
+      {
+        "tableName": "supplier",
+        "columnName": "sup_address1",
+        "comment": "仕入先住所１"
+      },
+      {
+        "tableName": "supplier",
+        "columnName": "sup_address2",
+        "comment": "仕入先住所２"
+      },
+      {
+        "tableName": "supplier",
+        "columnName": "sup_tel",
+        "comment": "仕入先電話番号"
+      },
+      {
+        "tableName": "supplier",
+        "columnName": "sup_fax",
+        "comment": "仕入先ＦＡＸ番号"
+      },
+      {
+        "tableName": "supplier",
+        "columnName": "sup_email",
+        "comment": "仕入先メールアドレス"
+      },
+      {
+        "tableName": "supplier",
+        "columnName": "sup_close_date",
+        "comment": "仕入先締日"
+      },
+      {
+        "tableName": "supplier",
+        "columnName": "sup_pay_months",
+        "comment": "仕入先支払月"
+      },
+      {
+        "tableName": "supplier",
+        "columnName": "sup_pay_dates",
+        "comment": "仕入先支払日"
+      },
+      {
+        "tableName": "supplier",
+        "columnName": "pay_method_type",
+        "comment": "仕入先支払方法"
+      },
+      {
+        "tableName": "supplier",
+        "columnName": "create_date",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "supplier",
+        "columnName": "creator",
+        "comment": "作成者名"
+      },
+      {
+        "tableName": "supplier",
+        "columnName": "update_date",
+        "comment": "更新日時"
+      },
+      {
+        "tableName": "supplier",
+        "columnName": "updater",
+        "comment": "更新者名"
+      }
+    ]
+  },
+  "category_type": {
+    "table": {
+      "tableName": "category_type",
+      "comment": "取引先分類種別マスタテーブル"
+    },
+    "columns": [
+      {
+        "tableName": "category_type",
+        "columnName": "category_type_code",
+        "comment": "取引先分類種別コード"
+      },
+      {
+        "tableName": "category_type",
+        "columnName": "category_type_name",
+        "comment": "取引先分類種別名"
+      },
+      {
+        "tableName": "category_type",
+        "columnName": "create_date",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "category_type",
+        "columnName": "creator",
+        "comment": "作成者名"
+      },
+      {
+        "tableName": "category_type",
+        "columnName": "update_date",
+        "comment": "更新日時"
+      },
+      {
+        "tableName": "category_type",
+        "columnName": "updater",
+        "comment": "更新者名"
+      }
+    ]
+  },
+  "company_category": {
+    "table": {
+      "tableName": "company_category",
+      "comment": "取引先分類マスタテーブル"
+    },
+    "columns": [
+      {
+        "tableName": "company_category",
+        "columnName": "category_type_code",
+        "comment": "取引先分類種別コード"
+      },
+      {
+        "tableName": "company_category",
+        "columnName": "comp_cate_code",
+        "comment": "取引先分類コード"
+      },
+      {
+        "tableName": "company_category",
+        "columnName": "comp_cate_name",
+        "comment": "取引先分類名"
+      },
+      {
+        "tableName": "company_category",
+        "columnName": "create_date",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "company_category",
+        "columnName": "creator",
+        "comment": "作成者名"
+      },
+      {
+        "tableName": "company_category",
+        "columnName": "update_date",
+        "comment": "更新日時"
+      },
+      {
+        "tableName": "company_category",
+        "columnName": "updater",
+        "comment": "更新者名"
+      }
+    ]
+  },
+  "company_category_group": {
+    "table": {
+      "tableName": "company_category_group",
+      "comment": "取引先分類グループテーブル"
+    },
+    "columns": [
+      {
+        "tableName": "company_category_group",
+        "columnName": "category_type_code",
+        "comment": "取引先分類種別コード"
+      },
+      {
+        "tableName": "company_category_group",
+        "columnName": "comp_cate_code",
+        "comment": "取引先分類コード"
+      },
+      {
+        "tableName": "company_category_group",
+        "columnName": "comp_code",
+        "comment": "取引先コード"
+      },
+      {
+        "tableName": "company_category_group",
+        "columnName": "create_date",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "company_category_group",
+        "columnName": "creator",
+        "comment": "作成者名"
+      },
+      {
+        "tableName": "company_category_group",
+        "columnName": "update_date",
+        "comment": "更新日時"
+      },
+      {
+        "tableName": "company_category_group",
+        "columnName": "updater",
+        "comment": "更新者名"
+      }
+    ]
+  },
+  "order": {
+    "table": {
+      "tableName": "order",
+      "comment": "受注データテーブル"
+    },
+    "columns": [
+      {
+        "tableName": "order",
+        "columnName": "order_no",
+        "comment": "受注番号"
+      },
+      {
+        "tableName": "order",
+        "columnName": "order_date",
+        "comment": "受注日"
+      },
+      {
+        "tableName": "order",
+        "columnName": "dept_code",
+        "comment": "部門コード"
+      },
+      {
+        "tableName": "order",
+        "columnName": "start_date",
+        "comment": "部門開始日"
+      },
+      {
+        "tableName": "order",
+        "columnName": "cust_code",
+        "comment": "顧客コード"
+      },
+      {
+        "tableName": "order",
+        "columnName": "cust_sub_no",
+        "comment": "顧客枝番"
+      },
+      {
+        "tableName": "order",
+        "columnName": "emp_code",
+        "comment": "社員コード"
+      },
+      {
+        "tableName": "order",
+        "columnName": "required_date",
+        "comment": "希望納期"
+      },
+      {
+        "tableName": "order",
+        "columnName": "custorder_no",
+        "comment": "客先注文番号"
+      },
+      {
+        "tableName": "order",
+        "columnName": "wh_code",
+        "comment": "倉庫コード"
+      },
+      {
+        "tableName": "order",
+        "columnName": "order_amnt",
+        "comment": "受注金額合計"
+      },
+      {
+        "tableName": "order",
+        "columnName": "cmp_tax",
+        "comment": "消費税合計"
+      },
+      {
+        "tableName": "order",
+        "columnName": "slip_comment",
+        "comment": "備考"
+      },
+      {
+        "tableName": "order",
+        "columnName": "create_date",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "order",
+        "columnName": "creator",
+        "comment": "作成者名"
+      },
+      {
+        "tableName": "order",
+        "columnName": "update_date",
+        "comment": "更新日時"
+      },
+      {
+        "tableName": "order",
+        "columnName": "updater",
+        "comment": "更新者名"
+      }
+    ]
+  },
+  "order_detail": {
+    "table": {
+      "tableName": "order_detail",
+      "comment": "受注明細テーブル"
+    },
+    "columns": [
+      {
+        "tableName": "order_detail",
+        "columnName": "order_no",
+        "comment": "受注番号"
+      },
+      {
+        "tableName": "order_detail",
+        "columnName": "so_row_no",
+        "comment": "受注行番号"
+      },
+      {
+        "tableName": "order_detail",
+        "columnName": "prod_code",
+        "comment": "商品コード"
+      },
+      {
+        "tableName": "order_detail",
+        "columnName": "prod_name",
+        "comment": "商品名"
+      },
+      {
+        "tableName": "order_detail",
+        "columnName": "unitprice",
+        "comment": "販売単価"
+      },
+      {
+        "tableName": "order_detail",
+        "columnName": "quantity",
+        "comment": "受注数量"
+      },
+      {
+        "tableName": "order_detail",
+        "columnName": "cmp_tax_rate",
+        "comment": "消費税率"
+      },
+      {
+        "tableName": "order_detail",
+        "columnName": "reserve_qty",
+        "comment": "引当数量"
+      },
+      {
+        "tableName": "order_detail",
+        "columnName": "delivery_order_qty",
+        "comment": "出荷指示数量"
+      },
+      {
+        "tableName": "order_detail",
+        "columnName": "delivered_qty",
+        "comment": "出荷済数量"
+      },
+      {
+        "tableName": "order_detail",
+        "columnName": "complete_flg",
+        "comment": "完了フラグ"
+      },
+      {
+        "tableName": "order_detail",
+        "columnName": "discount",
+        "comment": "値引金額"
+      },
+      {
+        "tableName": "order_detail",
+        "columnName": "delivery_date",
+        "comment": "納期"
+      },
+      {
+        "tableName": "order_detail",
+        "columnName": "create_date",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "order_detail",
+        "columnName": "creator",
+        "comment": "作成者名"
+      },
+      {
+        "tableName": "order_detail",
+        "columnName": "update_date",
+        "comment": "更新日時"
+      },
+      {
+        "tableName": "order_detail",
+        "columnName": "updater",
+        "comment": "更新者名"
+      }
+    ]
+  },
+  "sales": {
+    "table": {
+      "tableName": "sales",
+      "comment": "売上データテーブル"
+    },
+    "columns": [
+      {
+        "tableName": "sales",
+        "columnName": "sales_no",
+        "comment": "売上番号"
+      },
+      {
+        "tableName": "sales",
+        "columnName": "order_no",
+        "comment": "受注番号"
+      },
+      {
+        "tableName": "sales",
+        "columnName": "sales_date",
+        "comment": "売上日"
+      },
+      {
+        "tableName": "sales",
+        "columnName": "sales_type",
+        "comment": "売上区分"
+      },
+      {
+        "tableName": "sales",
+        "columnName": "dept_code",
+        "comment": "部門コード"
+      },
+      {
+        "tableName": "sales",
+        "columnName": "start_date",
+        "comment": "部門開始日"
+      },
+      {
+        "tableName": "sales",
+        "columnName": "comp_code",
+        "comment": "取引先コード"
+      },
+      {
+        "tableName": "sales",
+        "columnName": "emp_code",
+        "comment": "社員コード"
+      },
+      {
+        "tableName": "sales",
+        "columnName": "sales_amnt",
+        "comment": "売上金額合計"
+      },
+      {
+        "tableName": "sales",
+        "columnName": "cmp_tax",
+        "comment": "消費税合計"
+      },
+      {
+        "tableName": "sales",
+        "columnName": "slip_comment",
+        "comment": "備考"
+      },
+      {
+        "tableName": "sales",
+        "columnName": "updated_no",
+        "comment": "赤黒伝票番号"
+      },
+      {
+        "tableName": "sales",
+        "columnName": "orgnl_no",
+        "comment": "元伝票番号"
+      },
+      {
+        "tableName": "sales",
+        "columnName": "create_date",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "sales",
+        "columnName": "creator",
+        "comment": "作成者名"
+      },
+      {
+        "tableName": "sales",
+        "columnName": "update_date",
+        "comment": "更新日時"
+      },
+      {
+        "tableName": "sales",
+        "columnName": "updater",
+        "comment": "更新者名"
+      }
+    ]
+  },
+  "sales_detail": {
+    "table": {
+      "tableName": "sales_detail",
+      "comment": "売上明細テーブル"
+    },
+    "columns": [
+      {
+        "tableName": "sales_detail",
+        "columnName": "sales_no",
+        "comment": "売上番号"
+      },
+      {
+        "tableName": "sales_detail",
+        "columnName": "row_no",
+        "comment": "売上行番号"
+      },
+      {
+        "tableName": "sales_detail",
+        "columnName": "prod_code",
+        "comment": "商品コード"
+      },
+      {
+        "tableName": "sales_detail",
+        "columnName": "prod_name",
+        "comment": "商品名"
+      },
+      {
+        "tableName": "sales_detail",
+        "columnName": "unitprice",
+        "comment": "販売単価"
+      },
+      {
+        "tableName": "sales_detail",
+        "columnName": "delivered_qty",
+        "comment": "出荷数量"
+      },
+      {
+        "tableName": "sales_detail",
+        "columnName": "quantity",
+        "comment": "売上数量"
+      },
+      {
+        "tableName": "sales_detail",
+        "columnName": "discount",
+        "comment": "値引金額"
+      },
+      {
+        "tableName": "sales_detail",
+        "columnName": "invoiced_date",
+        "comment": "請求日"
+      },
+      {
+        "tableName": "sales_detail",
+        "columnName": "invoice_no",
+        "comment": "請求番号"
+      },
+      {
+        "tableName": "sales_detail",
+        "columnName": "invoice_delay_type",
+        "comment": "請求遅延区分"
+      },
+      {
+        "tableName": "sales_detail",
+        "columnName": "auto_journal_date",
+        "comment": "自動仕訳日"
+      },
+      {
+        "tableName": "sales_detail",
+        "columnName": "create_date",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "sales_detail",
+        "columnName": "creator",
+        "comment": "作成者名"
+      },
+      {
+        "tableName": "sales_detail",
+        "columnName": "update_date",
+        "comment": "更新日時"
+      },
+      {
+        "tableName": "sales_detail",
+        "columnName": "updater",
+        "comment": "更新者名"
+      }
+    ]
+  },
+  "warehouse": {
+    "table": {
+      "tableName": "warehouse",
+      "comment": "倉庫マスタテーブル"
+    },
+    "columns": [
+      {
+        "tableName": "warehouse",
+        "columnName": "wh_code",
+        "comment": "倉庫コード"
+      },
+      {
+        "tableName": "warehouse",
+        "columnName": "name",
+        "comment": "倉庫名"
+      },
+      {
+        "tableName": "warehouse",
+        "columnName": "create_date",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "warehouse",
+        "columnName": "creator",
+        "comment": "作成者名"
+      },
+      {
+        "tableName": "warehouse",
+        "columnName": "update_date",
+        "comment": "更新日時"
+      },
+      {
+        "tableName": "warehouse",
+        "columnName": "updater",
+        "comment": "更新者名"
+      }
+    ]
+  },
+  "purchase_order": {
+    "table": {
+      "tableName": "purchase_order",
+      "comment": "発注データテーブル"
+    },
+    "columns": [
+      {
+        "tableName": "purchase_order",
+        "columnName": "po_no",
+        "comment": "発注番号"
+      },
+      {
+        "tableName": "purchase_order",
+        "columnName": "po_date",
+        "comment": "発注日"
+      },
+      {
+        "tableName": "purchase_order",
+        "columnName": "order_no",
+        "comment": "受注番号"
+      },
+      {
+        "tableName": "purchase_order",
+        "columnName": "sup_code",
+        "comment": "仕入先コード"
+      },
+      {
+        "tableName": "purchase_order",
+        "columnName": "sup_sub_no",
+        "comment": "仕入先枝番"
+      },
+      {
+        "tableName": "purchase_order",
+        "columnName": "emp_code",
+        "comment": "発注担当者コード"
+      },
+      {
+        "tableName": "purchase_order",
+        "columnName": "due_date",
+        "comment": "指定納期"
+      },
+      {
+        "tableName": "purchase_order",
+        "columnName": "wh_code",
+        "comment": "倉庫コード"
+      },
+      {
+        "tableName": "purchase_order",
+        "columnName": "po_amnt",
+        "comment": "発注金額合計"
+      },
+      {
+        "tableName": "purchase_order",
+        "columnName": "cmp_tax",
+        "comment": "消費税合計"
+      },
+      {
+        "tableName": "purchase_order",
+        "columnName": "slip_comment",
+        "comment": "備考"
+      },
+      {
+        "tableName": "purchase_order",
+        "columnName": "create_date",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "purchase_order",
+        "columnName": "creator",
+        "comment": "作成者名"
+      },
+      {
+        "tableName": "purchase_order",
+        "columnName": "update_date",
+        "comment": "更新日時"
+      },
+      {
+        "tableName": "purchase_order",
+        "columnName": "updater",
+        "comment": "更新者名"
+      }
+    ]
+  },
+  "purchase_order_detail": {
+    "table": {
+      "tableName": "purchase_order_detail",
+      "comment": "発注明細テーブル"
+    },
+    "columns": [
+      {
+        "tableName": "purchase_order_detail",
+        "columnName": "po_no",
+        "comment": "発注番号"
+      },
+      {
+        "tableName": "purchase_order_detail",
+        "columnName": "po_row_no",
+        "comment": "発注行番号"
+      },
+      {
+        "tableName": "purchase_order_detail",
+        "columnName": "prod_code",
+        "comment": "商品コード"
+      },
+      {
+        "tableName": "purchase_order_detail",
+        "columnName": "prod_name",
+        "comment": "商品名"
+      },
+      {
+        "tableName": "purchase_order_detail",
+        "columnName": "unitprice",
+        "comment": "発注単価"
+      },
+      {
+        "tableName": "purchase_order_detail",
+        "columnName": "quantity",
+        "comment": "発注数量"
+      },
+      {
+        "tableName": "purchase_order_detail",
+        "columnName": "cmp_tax_rate",
+        "comment": "消費税率"
+      },
+      {
+        "tableName": "purchase_order_detail",
+        "columnName": "received_qty",
+        "comment": "入荷数量"
+      },
+      {
+        "tableName": "purchase_order_detail",
+        "columnName": "complete_flg",
+        "comment": "完了フラグ"
+      },
+      {
+        "tableName": "purchase_order_detail",
+        "columnName": "discount",
+        "comment": "値引金額"
+      },
+      {
+        "tableName": "purchase_order_detail",
+        "columnName": "delivery_date",
+        "comment": "納期"
+      },
+      {
+        "tableName": "purchase_order_detail",
+        "columnName": "create_date",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "purchase_order_detail",
+        "columnName": "creator",
+        "comment": "作成者名"
+      },
+      {
+        "tableName": "purchase_order_detail",
+        "columnName": "update_date",
+        "comment": "更新日時"
+      },
+      {
+        "tableName": "purchase_order_detail",
+        "columnName": "updater",
+        "comment": "更新者名"
+      }
+    ]
+  },
+  "purchase": {
+    "table": {
+      "tableName": "purchase",
+      "comment": "仕入データテーブル"
+    },
+    "columns": [
+      {
+        "tableName": "purchase",
+        "columnName": "pu_no",
+        "comment": "仕入番号"
+      },
+      {
+        "tableName": "purchase",
+        "columnName": "pu_date",
+        "comment": "仕入日"
+      },
+      {
+        "tableName": "purchase",
+        "columnName": "sup_code",
+        "comment": "仕入先コード"
+      },
+      {
+        "tableName": "purchase",
+        "columnName": "sup_sub_no",
+        "comment": "仕入先枝番"
+      },
+      {
+        "tableName": "purchase",
+        "columnName": "emp_code",
+        "comment": "仕入担当者コード"
+      },
+      {
+        "tableName": "purchase",
+        "columnName": "start_date",
+        "comment": "開始日"
+      },
+      {
+        "tableName": "purchase",
+        "columnName": "po_no",
+        "comment": "発注番号"
+      },
+      {
+        "tableName": "purchase",
+        "columnName": "dept_code",
+        "comment": "部門コード"
+      },
+      {
+        "tableName": "purchase",
+        "columnName": "pu_ammount",
+        "comment": "仕入金額合計"
+      },
+      {
+        "tableName": "purchase",
+        "columnName": "cmp_tax",
+        "comment": "消費税合計"
+      },
+      {
+        "tableName": "purchase",
+        "columnName": "slip_comment",
+        "comment": "備考"
+      },
+      {
+        "tableName": "purchase",
+        "columnName": "create_date",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "purchase",
+        "columnName": "creator",
+        "comment": "作成者名"
+      },
+      {
+        "tableName": "purchase",
+        "columnName": "update_date",
+        "comment": "更新日時"
+      },
+      {
+        "tableName": "purchase",
+        "columnName": "updater",
+        "comment": "更新者名"
+      }
+    ]
+  },
+  "purchase_detail": {
+    "table": {
+      "tableName": "purchase_detail",
+      "comment": "仕入明細テーブル"
+    },
+    "columns": [
+      {
+        "tableName": "purchase_detail",
+        "columnName": "pu_no",
+        "comment": "仕入番号"
+      },
+      {
+        "tableName": "purchase_detail",
+        "columnName": "pu_row_no",
+        "comment": "仕入行番号"
+      },
+      {
+        "tableName": "purchase_detail",
+        "columnName": "prod_code",
+        "comment": "商品コード"
+      },
+      {
+        "tableName": "purchase_detail",
+        "columnName": "prod_name",
+        "comment": "商品名"
+      },
+      {
+        "tableName": "purchase_detail",
+        "columnName": "unitprice",
+        "comment": "仕入単価"
+      },
+      {
+        "tableName": "purchase_detail",
+        "columnName": "quantity",
+        "comment": "仕入数量"
+      },
+      {
+        "tableName": "purchase_detail",
+        "columnName": "cmp_tax_rate",
+        "comment": "消費税率"
+      },
+      {
+        "tableName": "purchase_detail",
+        "columnName": "discount",
+        "comment": "値引金額"
+      },
+      {
+        "tableName": "purchase_detail",
+        "columnName": "rot_no",
+        "comment": "ロット番号"
+      },
+      {
+        "tableName": "purchase_detail",
+        "columnName": "create_date",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "purchase_detail",
+        "columnName": "creator",
+        "comment": "作成者名"
+      },
+      {
+        "tableName": "purchase_detail",
+        "columnName": "update_date",
+        "comment": "更新日時"
+      },
+      {
+        "tableName": "purchase_detail",
+        "columnName": "updater",
+        "comment": "更新者名"
+      }
+    ]
+  },
+  "stock": {
+    "table": {
+      "tableName": "stock",
+      "comment": "在庫データテーブル"
+    },
+    "columns": [
+      {
+        "tableName": "stock",
+        "columnName": "wh_code",
+        "comment": "倉庫コード"
+      },
+      {
+        "tableName": "stock",
+        "columnName": "prod_code",
+        "comment": "商品コード"
+      },
+      {
+        "tableName": "stock",
+        "columnName": "rot_no",
+        "comment": "ロット番号"
+      },
+      {
+        "tableName": "stock",
+        "columnName": "stock_type",
+        "comment": "在庫区分"
+      },
+      {
+        "tableName": "stock",
+        "columnName": "quality_type",
+        "comment": "良品区分"
+      },
+      {
+        "tableName": "stock",
+        "columnName": "actual",
+        "comment": "実在庫数"
+      },
+      {
+        "tableName": "stock",
+        "columnName": "valid",
+        "comment": "有効在庫数"
+      },
+      {
+        "tableName": "stock",
+        "columnName": "last_delivery_date",
+        "comment": "最終出荷日"
+      },
+      {
+        "tableName": "stock",
+        "columnName": "create_date",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "stock",
+        "columnName": "creator",
+        "comment": "作成者名"
+      },
+      {
+        "tableName": "stock",
+        "columnName": "update_date",
+        "comment": "更新日時"
+      },
+      {
+        "tableName": "stock",
+        "columnName": "updater",
+        "comment": "更新者名"
+      }
+    ]
+  },
+  "invoice": {
+    "table": {
+      "tableName": "invoice",
+      "comment": "請求データテーブル"
+    },
+    "columns": [
+      {
+        "tableName": "invoice",
+        "columnName": "invoice_no",
+        "comment": "請求番号"
+      },
+      {
+        "tableName": "invoice",
+        "columnName": "invoiced_date",
+        "comment": "請求日"
+      },
+      {
+        "tableName": "invoice",
+        "columnName": "comp_code",
+        "comment": "取引先コード"
+      },
+      {
+        "tableName": "invoice",
+        "columnName": "cust_sub_no",
+        "comment": "顧客枝番"
+      },
+      {
+        "tableName": "invoice",
+        "columnName": "last_received",
+        "comment": "前回入金額"
+      },
+      {
+        "tableName": "invoice",
+        "columnName": "month_sales",
+        "comment": "当月売上額"
+      },
+      {
+        "tableName": "invoice",
+        "columnName": "month_received",
+        "comment": "当月入金額"
+      },
+      {
+        "tableName": "invoice",
+        "columnName": "month_invoice",
+        "comment": "当月請求額"
+      },
+      {
+        "tableName": "invoice",
+        "columnName": "cmp_tax",
+        "comment": "消費税金額"
+      },
+      {
+        "tableName": "invoice",
+        "columnName": "invoice_received",
+        "comment": "請求消込金額"
+      },
+      {
+        "tableName": "invoice",
+        "columnName": "create_date",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "invoice",
+        "columnName": "creator",
+        "comment": "作成者"
+      },
+      {
+        "tableName": "invoice",
+        "columnName": "update_date",
+        "comment": "更新日時"
+      },
+      {
+        "tableName": "invoice",
+        "columnName": "updater",
+        "comment": "更新者"
+      }
+    ]
+  },
+  "invoice_detail": {
+    "table": {
+      "tableName": "invoice_detail",
+      "comment": "請求明細テーブル"
+    },
+    "columns": [
+      {
+        "tableName": "invoice_detail",
+        "columnName": "invoice_no",
+        "comment": "請求番号"
+      },
+      {
+        "tableName": "invoice_detail",
+        "columnName": "row_no",
+        "comment": "行番号"
+      },
+      {
+        "tableName": "invoice_detail",
+        "columnName": "sales_no",
+        "comment": "売上番号"
+      },
+      {
+        "tableName": "invoice_detail",
+        "columnName": "sales_row_no",
+        "comment": "売上行番号"
+      },
+      {
+        "tableName": "invoice_detail",
+        "columnName": "prod_code",
+        "comment": "商品コード"
+      },
+      {
+        "tableName": "invoice_detail",
+        "columnName": "quantity",
+        "comment": "数量"
+      },
+      {
+        "tableName": "invoice_detail",
+        "columnName": "unitprice",
+        "comment": "単価"
+      },
+      {
+        "tableName": "invoice_detail",
+        "columnName": "amount",
+        "comment": "金額"
+      },
+      {
+        "tableName": "invoice_detail",
+        "columnName": "create_date",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "invoice_detail",
+        "columnName": "creator",
+        "comment": "作成者"
+      },
+      {
+        "tableName": "invoice_detail",
+        "columnName": "update_date",
+        "comment": "更新日時"
+      },
+      {
+        "tableName": "invoice_detail",
+        "columnName": "updater",
+        "comment": "更新者"
+      }
+    ]
+  },
+  "credit": {
+    "table": {
+      "tableName": "credit",
+      "comment": "入金データテーブル"
+    },
+    "columns": [
+      {
+        "tableName": "credit",
+        "columnName": "credit_no",
+        "comment": "入金番号"
+      },
+      {
+        "tableName": "credit",
+        "columnName": "credit_date",
+        "comment": "入金日"
+      },
+      {
+        "tableName": "credit",
+        "columnName": "dept_code",
+        "comment": "部門コード"
+      },
+      {
+        "tableName": "credit",
+        "columnName": "start_date",
+        "comment": "開始日"
+      },
+      {
+        "tableName": "credit",
+        "columnName": "cust_code",
+        "comment": "顧客コード"
+      },
+      {
+        "tableName": "credit",
+        "columnName": "cust_sub_no",
+        "comment": "顧客枝番"
+      },
+      {
+        "tableName": "credit",
+        "columnName": "pay_method_type",
+        "comment": "支払方法区分"
+      },
+      {
+        "tableName": "credit",
+        "columnName": "bank_acut_code",
+        "comment": "入金口座コード"
+      },
+      {
+        "tableName": "credit",
+        "columnName": "received_amnt",
+        "comment": "入金金額"
+      },
+      {
+        "tableName": "credit",
+        "columnName": "received",
+        "comment": "消込金額"
+      },
+      {
+        "tableName": "credit",
+        "columnName": "create_date",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "credit",
+        "columnName": "creator",
+        "comment": "作成者"
+      },
+      {
+        "tableName": "credit",
+        "columnName": "update_date",
+        "comment": "更新日時"
+      },
+      {
+        "tableName": "credit",
+        "columnName": "updater",
+        "comment": "更新者"
+      },
+      {
+        "tableName": "credit",
+        "columnName": "update_plg_date",
+        "comment": "プログラム更新日時"
+      },
+      {
+        "tableName": "credit",
+        "columnName": "update_pgm",
+        "comment": "更新プログラム名"
+      }
+    ]
+  },
+  "payment": {
+    "table": {
+      "tableName": "payment",
+      "comment": "支払データテーブル"
+    },
+    "columns": [
+      {
+        "tableName": "payment",
+        "columnName": "pay_no",
+        "comment": "支払番号"
+      },
+      {
+        "tableName": "payment",
+        "columnName": "pay_date",
+        "comment": "支払日"
+      },
+      {
+        "tableName": "payment",
+        "columnName": "dept_code",
+        "comment": "部門コード"
+      },
+      {
+        "tableName": "payment",
+        "columnName": "start_date",
+        "comment": "部門開始日"
+      },
+      {
+        "tableName": "payment",
+        "columnName": "sup_code",
+        "comment": "仕入先コード"
+      },
+      {
+        "tableName": "payment",
+        "columnName": "sup_sub_no",
+        "comment": "仕入先枝番"
+      },
+      {
+        "tableName": "payment",
+        "columnName": "pay_method_type",
+        "comment": "支払方法区分"
+      },
+      {
+        "tableName": "payment",
+        "columnName": "pay_amnt",
+        "comment": "支払金額"
+      },
+      {
+        "tableName": "payment",
+        "columnName": "cmp_tax",
+        "comment": "消費税合計"
+      },
+      {
+        "tableName": "payment",
+        "columnName": "complete_flg",
+        "comment": "支払完了フラグ"
+      },
+      {
+        "tableName": "payment",
+        "columnName": "create_date",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "payment",
+        "columnName": "creator",
+        "comment": "作成者"
+      },
+      {
+        "tableName": "payment",
+        "columnName": "update_date",
+        "comment": "更新日時"
+      },
+      {
+        "tableName": "payment",
+        "columnName": "updater",
+        "comment": "更新者"
+      }
+    ]
+  },
+  "credit_balance": {
+    "table": {
+      "tableName": "credit_balance",
+      "comment": "与信残高データテーブル"
+    },
+    "columns": [
+      {
+        "tableName": "credit_balance",
+        "columnName": "comp_code",
+        "comment": "取引先コード"
+      },
+      {
+        "tableName": "credit_balance",
+        "columnName": "order_balance",
+        "comment": "受注残高"
+      },
+      {
+        "tableName": "credit_balance",
+        "columnName": "rec_balance",
+        "comment": "債権残高"
+      },
+      {
+        "tableName": "credit_balance",
+        "columnName": "pay_balance",
+        "comment": "債務残高"
+      },
+      {
+        "tableName": "credit_balance",
+        "columnName": "create_date",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "credit_balance",
+        "columnName": "creator",
+        "comment": "作成者名"
+      },
+      {
+        "tableName": "credit_balance",
+        "columnName": "update_date",
+        "comment": "更新日時"
+      },
+      {
+        "tableName": "credit_balance",
+        "columnName": "updater",
+        "comment": "更新者名"
+      }
+    ]
+  },
+  "auto_number": {
+    "table": {
+      "tableName": "auto_number",
+      "comment": "自動採番マスタテーブル"
+    },
+    "columns": [
+      {
+        "tableName": "auto_number",
+        "columnName": "slip_type",
+        "comment": "伝票種別コード"
+      },
+      {
+        "tableName": "auto_number",
+        "columnName": "yearmonth",
+        "comment": "年月"
+      },
+      {
+        "tableName": "auto_number",
+        "columnName": "last_silp_no",
+        "comment": "最終伝票番号"
+      }
+    ]
+  }
+}
