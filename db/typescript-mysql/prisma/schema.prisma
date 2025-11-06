@@ -840,3 +840,144 @@ model Stock {
   @@id([whCode, prodCode, rotNo, stockType, qualityType])
   @@map("stock")
 }
+
+/// 請求データテーブル
+model Invoice {
+  /// 請求番号
+  invoiceNo       String    @id @map("invoice_no") @db.VarChar(10)
+  /// 請求日
+  invoicedDate    DateTime? @map("invoiced_date") @db.DateTime(6)
+  /// 取引先コード
+  compCode        String    @map("comp_code") @db.VarChar(8)
+  /// 顧客枝番
+  custSubNo       Int?      @map("cust_sub_no") @db.Int
+  /// 前回入金額
+  lastReceived    Int?      @map("last_received") @db.Int
+  /// 当月売上額
+  monthSales      Int?      @map("month_sales") @db.Int
+  /// 当月入金額
+  monthReceived   Int?      @map("month_received") @db.Int
+  /// 当月請求額
+  monthInvoice    Int?      @map("month_invoice") @db.Int
+  /// 消費税金額
+  cmpTax          Int       @map("cmp_tax") @db.Int
+  /// 請求消込金額
+  invoiceReceived Int?      @map("invoice_received") @db.Int
+  /// 作成日時
+  createDate      DateTime  @default(now()) @map("create_date") @db.DateTime(6)
+  /// 作成者
+  creator         String?   @db.VarChar(12)
+  /// 更新日時
+  updateDate      DateTime  @default(now()) @map("update_date") @db.DateTime(6)
+  /// 更新者
+  updater         String?   @db.VarChar(12)
+
+  invoiceDetails InvoiceDetail[]
+
+  @@map("invoice")
+}
+
+/// 請求明細テーブル
+model InvoiceDetail {
+  /// 請求番号
+  invoiceNo  String   @map("invoice_no") @db.VarChar(10)
+  /// 行番号
+  rowNo      Int      @map("row_no") @db.Int
+  /// 売上番号
+  salesNo    String   @map("sales_no") @db.VarChar(10)
+  /// 売上行番号
+  salesRowNo Int      @map("sales_row_no") @db.Int
+  /// 商品コード
+  prodCode   String   @map("prod_code") @db.VarChar(16)
+  /// 数量
+  quantity   Int      @db.Int
+  /// 単価
+  unitprice  Int      @db.Int
+  /// 金額
+  amount     Int      @db.Int
+  /// 作成日時
+  createDate DateTime @default(now()) @map("create_date") @db.DateTime(6)
+  /// 作成者
+  creator    String?  @db.VarChar(12)
+  /// 更新日時
+  updateDate DateTime @default(now()) @map("update_date") @db.DateTime(6)
+  /// 更新者
+  updater    String?  @db.VarChar(12)
+
+  invoice Invoice @relation(fields: [invoiceNo], references: [invoiceNo])
+
+  @@id([invoiceNo, rowNo])
+  @@map("invoice_detail")
+}
+
+/// 入金データテーブル
+model Credit {
+  /// 入金番号
+  creditNo      String    @id @map("credit_no") @db.VarChar(10)
+  /// 入金日
+  creditDate    DateTime? @map("credit_date") @db.DateTime(6)
+  /// 部門コード
+  deptCode      String    @map("dept_code") @db.VarChar(6)
+  /// 開始日
+  startDate     DateTime  @default(now()) @map("start_date") @db.DateTime(6)
+  /// 顧客コード
+  custCode      String    @map("cust_code") @db.VarChar(8)
+  /// 顧客枝番
+  custSubNo     Int?      @map("cust_sub_no") @db.Int
+  /// 支払方法区分
+  payMethodType Int?      @map("pay_method_type") @db.Int
+  /// 入金口座コード
+  bankAcutCode  String?   @map("bank_acut_code") @db.VarChar(8)
+  /// 入金金額
+  receivedAmnt  Int?      @map("received_amnt") @db.Int
+  /// 消込金額
+  received      Int?      @db.Int
+  /// 作成日時
+  createDate    DateTime  @default(now()) @map("create_date") @db.DateTime(6)
+  /// 作成者
+  creator       String?   @db.VarChar(12)
+  /// 更新日時
+  updateDate    DateTime  @default(now()) @map("update_date") @db.DateTime(6)
+  /// 更新者
+  updater       String?   @db.VarChar(12)
+  /// プログラム更新日時
+  updatePlgDate DateTime? @default(now()) @map("update_plg_date") @db.DateTime(6)
+  /// 更新プログラム名
+  updatePgm     String?   @map("update_pgm") @db.VarChar(50)
+
+  @@map("credit")
+}
+
+/// 支払データテーブル
+model Payment {
+  /// 支払番号
+  payNo         String   @id @map("pay_no") @db.VarChar(10)
+  /// 支払日
+  payDate       Int?     @map("pay_date") @db.Int
+  /// 部門コード
+  deptCode      String   @map("dept_code") @db.VarChar(6)
+  /// 部門開始日
+  startDate     DateTime @default(now()) @map("start_date") @db.DateTime(6)
+  /// 仕入先コード
+  supCode       String   @map("sup_code") @db.VarChar(8)
+  /// 仕入先枝番
+  supSubNo      Int?     @map("sup_sub_no") @db.Int
+  /// 支払方法区分
+  payMethodType Int?     @map("pay_method_type") @db.Int
+  /// 支払金額
+  payAmnt       Int?     @map("pay_amnt") @db.Int
+  /// 消費税合計
+  cmpTax        Int      @map("cmp_tax") @db.Int
+  /// 支払完了フラグ
+  completeFlg   Int      @map("complete_flg") @db.Int
+  /// 作成日時
+  createDate    DateTime @default(now()) @map("create_date") @db.DateTime(6)
+  /// 作成者
+  creator       String?  @db.VarChar(12)
+  /// 更新日時
+  updateDate    DateTime @default(now()) @map("update_date") @db.DateTime(6)
+  /// 更新者
+  updater       String?  @db.VarChar(12)
+
+  @@map("payment")
+}

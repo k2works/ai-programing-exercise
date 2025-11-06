@@ -14,7 +14,11 @@ import {
   PurchaseOrderDetail,
   Purchase,
   PurchaseDetail,
-  Stock
+  Stock,
+  Invoice,
+  InvoiceDetail,
+  Credit,
+  Payment
 } from '@prisma/client'
 
 /**
@@ -858,6 +862,248 @@ describe('在庫マスタ', () => {
       }
     })
     const result = await prisma.stock.findMany()
+    expect(result).toEqual([])
+  })
+})
+
+// テスト用の請求データ
+const invoices: Invoice[] = [
+  {
+    invoiceNo: 'INV0001',
+    invoicedDate: new Date('2021-02-01'),
+    compCode: 'COMP001',
+    custSubNo: 1,
+    lastReceived: 50000,
+    monthSales: 100000,
+    monthReceived: 80000,
+    monthInvoice: 120000,
+    cmpTax: 12000,
+    invoiceReceived: 100000,
+    createDate: new Date('2021-02-01'),
+    creator: 'admin',
+    updateDate: new Date('2021-02-01'),
+    updater: 'admin'
+  }
+]
+
+// テスト用の請求明細データ
+const invoiceDetails: InvoiceDetail[] = [
+  {
+    invoiceNo: 'INV0001',
+    rowNo: 1,
+    salesNo: 'SAL0001',
+    salesRowNo: 1,
+    prodCode: 'PROD001',
+    quantity: 10,
+    unitprice: 1000,
+    amount: 10000,
+    createDate: new Date('2021-02-01'),
+    creator: 'admin',
+    updateDate: new Date('2021-02-01'),
+    updater: 'admin'
+  }
+]
+
+// テスト用の入金データ
+const credits: Credit[] = [
+  {
+    creditNo: 'CRE0001',
+    creditDate: new Date('2021-02-05'),
+    deptCode: 'DEPT01',
+    startDate: new Date('2021-02-01'),
+    custCode: 'COMP001',
+    custSubNo: 1,
+    payMethodType: 1,
+    bankAcutCode: 'BANK001',
+    receivedAmnt: 100000,
+    received: 100000,
+    createDate: new Date('2021-02-05'),
+    creator: 'admin',
+    updateDate: new Date('2021-02-05'),
+    updater: 'admin',
+    updatePlgDate: new Date('2021-02-05'),
+    updatePgm: 'credit_input'
+  }
+]
+
+// テスト用の支払データ
+const payments: Payment[] = [
+  {
+    payNo: 'PAY0001',
+    payDate: 20210210,
+    deptCode: 'DEPT01',
+    startDate: new Date('2021-02-01'),
+    supCode: 'COMP001',
+    supSubNo: 1,
+    payMethodType: 1,
+    payAmnt: 80000,
+    cmpTax: 8000,
+    completeFlg: 1,
+    createDate: new Date('2021-02-10'),
+    creator: 'admin',
+    updateDate: new Date('2021-02-10'),
+    updater: 'admin'
+  }
+]
+
+describe('請求マスタ', () => {
+  beforeAll(async () => {
+    await prisma.invoiceDetail.deleteMany()
+    await prisma.invoice.deleteMany()
+  })
+
+  afterAll(async () => {
+    await prisma.invoiceDetail.deleteMany()
+    await prisma.invoice.deleteMany()
+    await prisma.$disconnect()
+  })
+
+  test('請求を登録できる', async () => {
+    await prisma.invoice.create({ data: invoices[0] })
+    const result = await prisma.invoice.findMany()
+    expect(result).toEqual(invoices)
+  })
+
+  test('請求を更新できる', async () => {
+    const expected = { ...invoices[0], monthInvoice: 150000 }
+    await prisma.invoice.update({
+      where: { invoiceNo: invoices[0].invoiceNo },
+      data: { monthInvoice: 150000 }
+    })
+    const result = await prisma.invoice.findUnique({
+      where: { invoiceNo: invoices[0].invoiceNo }
+    })
+    expect(result).toEqual(expected)
+  })
+
+  test('請求を削除できる', async () => {
+    await prisma.invoice.delete({ where: { invoiceNo: invoices[0].invoiceNo } })
+    const result = await prisma.invoice.findMany()
+    expect(result).toEqual([])
+  })
+})
+
+describe('請求明細', () => {
+  beforeAll(async () => {
+    await prisma.invoiceDetail.deleteMany()
+    await prisma.invoice.deleteMany()
+    await prisma.invoice.create({ data: invoices[0] })
+  })
+
+  afterAll(async () => {
+    await prisma.invoiceDetail.deleteMany()
+    await prisma.invoice.deleteMany()
+    await prisma.$disconnect()
+  })
+
+  test('請求明細を登録できる', async () => {
+    await prisma.invoiceDetail.create({ data: invoiceDetails[0] })
+    const result = await prisma.invoiceDetail.findMany()
+    expect(result).toEqual(invoiceDetails)
+  })
+
+  test('請求明細を更新できる', async () => {
+    const expected = { ...invoiceDetails[0], quantity: 20 }
+    await prisma.invoiceDetail.update({
+      where: {
+        invoiceNo_rowNo: {
+          invoiceNo: invoiceDetails[0].invoiceNo,
+          rowNo: invoiceDetails[0].rowNo
+        }
+      },
+      data: { quantity: 20 }
+    })
+    const result = await prisma.invoiceDetail.findUnique({
+      where: {
+        invoiceNo_rowNo: {
+          invoiceNo: invoiceDetails[0].invoiceNo,
+          rowNo: invoiceDetails[0].rowNo
+        }
+      }
+    })
+    expect(result).toEqual(expected)
+  })
+
+  test('請求明細を削除できる', async () => {
+    await prisma.invoiceDetail.delete({
+      where: {
+        invoiceNo_rowNo: {
+          invoiceNo: invoiceDetails[0].invoiceNo,
+          rowNo: invoiceDetails[0].rowNo
+        }
+      }
+    })
+    const result = await prisma.invoiceDetail.findMany()
+    expect(result).toEqual([])
+  })
+})
+
+describe('入金マスタ', () => {
+  beforeAll(async () => {
+    await prisma.credit.deleteMany()
+  })
+
+  afterAll(async () => {
+    await prisma.credit.deleteMany()
+    await prisma.$disconnect()
+  })
+
+  test('入金を登録できる', async () => {
+    await prisma.credit.create({ data: credits[0] })
+    const result = await prisma.credit.findMany()
+    expect(result).toEqual(credits)
+  })
+
+  test('入金を更新できる', async () => {
+    const expected = { ...credits[0], receivedAmnt: 120000 }
+    await prisma.credit.update({
+      where: { creditNo: credits[0].creditNo },
+      data: { receivedAmnt: 120000 }
+    })
+    const result = await prisma.credit.findUnique({
+      where: { creditNo: credits[0].creditNo }
+    })
+    expect(result).toEqual(expected)
+  })
+
+  test('入金を削除できる', async () => {
+    await prisma.credit.delete({ where: { creditNo: credits[0].creditNo } })
+    const result = await prisma.credit.findMany()
+    expect(result).toEqual([])
+  })
+})
+
+describe('支払マスタ', () => {
+  beforeAll(async () => {
+    await prisma.payment.deleteMany()
+  })
+
+  afterAll(async () => {
+    await prisma.payment.deleteMany()
+    await prisma.$disconnect()
+  })
+
+  test('支払を登録できる', async () => {
+    await prisma.payment.create({ data: payments[0] })
+    const result = await prisma.payment.findMany()
+    expect(result).toEqual(payments)
+  })
+
+  test('支払を更新できる', async () => {
+    const expected = { ...payments[0], payAmnt: 90000 }
+    await prisma.payment.update({
+      where: { payNo: payments[0].payNo },
+      data: { payAmnt: 90000 }
+    })
+    const result = await prisma.payment.findUnique({
+      where: { payNo: payments[0].payNo }
+    })
+    expect(result).toEqual(expected)
+  })
+
+  test('支払を削除できる', async () => {
+    await prisma.payment.delete({ where: { payNo: payments[0].payNo } })
+    const result = await prisma.payment.findMany()
     expect(result).toEqual([])
   })
 })
