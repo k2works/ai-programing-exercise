@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.sales.domain.repository.PurchaseMapper">
+
+    <!-- ResultMap定義 -->
+    <resultMap id="purchaseResultMap" type="com.example.sales.domain.model.Purchase">
+        <id property="purchaseNo" column="仕入番号"/>
+        <result property="purchaseDate" column="仕入日"/>
+        <result property="supplierCode" column="仕入先コード"/>
+        <result property="supplierBranch" column="仕入先枝番"/>
+        <result property="employeeCode" column="社員コード"/>
+        <result property="startDate" column="開始日"/>
+        <result property="poNo" column="発注番号"/>
+        <result property="departmentCode" column="部門コード"/>
+        <result property="purchaseAmount" column="仕入金額合計"/>
+        <result property="consumptionTax" column="消費税合計"/>
+        <result property="slipComment" column="備考"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者名"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者名"/>
+    </resultMap>
+
+    <!-- INSERT -->
+    <insert id="insert" parameterType="com.example.sales.domain.model.Purchase">
+        INSERT INTO 仕入データ (
+            仕入番号,
+            仕入日,
+            仕入先コード,
+            仕入先枝番,
+            社員コード,
+            開始日,
+            発注番号,
+            部門コード,
+            仕入金額合計,
+            消費税合計,
+            備考,
+            作成者名,
+            更新者名
+        ) VALUES (
+            #{purchaseNo},
+            #{purchaseDate},
+            #{supplierCode},
+            #{supplierBranch},
+            #{employeeCode},
+            #{startDate},
+            #{poNo},
+            #{departmentCode},
+            #{purchaseAmount},
+            #{consumptionTax},
+            #{slipComment},
+            #{createdBy},
+            #{updatedBy}
+        )
+    </insert>
+
+    <!-- UPDATE -->
+    <update id="update" parameterType="com.example.sales.domain.model.Purchase">
+        UPDATE 仕入データ
+        SET
+            仕入日 = #{purchaseDate},
+            仕入先コード = #{supplierCode},
+            仕入先枝番 = #{supplierBranch},
+            社員コード = #{employeeCode},
+            開始日 = #{startDate},
+            発注番号 = #{poNo},
+            部門コード = #{departmentCode},
+            仕入金額合計 = #{purchaseAmount},
+            消費税合計 = #{consumptionTax},
+            備考 = #{slipComment},
+            更新日時 = CURRENT_TIMESTAMP,
+            更新者名 = #{updatedBy}
+        WHERE
+            仕入番号 = #{purchaseNo}
+    </update>
+
+    <!-- DELETE -->
+    <delete id="delete">
+        DELETE FROM 仕入データ
+        WHERE
+            仕入番号 = #{purchaseNo}
+    </delete>
+
+    <!-- SELECT BY ID -->
+    <select id="findById" resultMap="purchaseResultMap">
+        SELECT
+            仕入番号,
+            仕入日,
+            仕入先コード,
+            仕入先枝番,
+            社員コード,
+            開始日,
+            発注番号,
+            部門コード,
+            仕入金額合計,
+            消費税合計,
+            備考,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            仕入データ
+        WHERE
+            仕入番号 = #{purchaseNo}
+    </select>
+
+    <!-- SELECT ALL -->
+    <select id="findAll" resultMap="purchaseResultMap">
+        SELECT
+            仕入番号,
+            仕入日,
+            仕入先コード,
+            仕入先枝番,
+            社員コード,
+            開始日,
+            発注番号,
+            部門コード,
+            仕入金額合計,
+            消費税合計,
+            備考,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            仕入データ
+        ORDER BY
+            仕入番号
+    </select>
+
+    <!-- SELECT BY SUPPLIER CODE -->
+    <select id="findBySupplierCode" resultMap="purchaseResultMap">
+        SELECT
+            仕入番号,
+            仕入日,
+            仕入先コード,
+            仕入先枝番,
+            社員コード,
+            開始日,
+            発注番号,
+            部門コード,
+            仕入金額合計,
+            消費税合計,
+            備考,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            仕入データ
+        WHERE
+            仕入先コード = #{supplierCode}
+        ORDER BY
+            仕入番号
+    </select>
+
+    <!-- SELECT BY PO NO -->
+    <select id="findByPoNo" resultMap="purchaseResultMap">
+        SELECT
+            仕入番号,
+            仕入日,
+            仕入先コード,
+            仕入先枝番,
+            社員コード,
+            開始日,
+            発注番号,
+            部門コード,
+            仕入金額合計,
+            消費税合計,
+            備考,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            仕入データ
+        WHERE
+            発注番号 = #{poNo}
+        ORDER BY
+            仕入番号
+    </select>
+
+</mapper>

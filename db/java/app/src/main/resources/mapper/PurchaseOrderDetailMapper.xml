@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.sales.domain.repository.PurchaseOrderDetailMapper">
+
+    <!-- ResultMap定義 -->
+    <resultMap id="purchaseOrderDetailResultMap" type="com.example.sales.domain.model.PurchaseOrderDetail">
+        <id property="poNo" column="発注番号"/>
+        <id property="poLineNo" column="発注行番号"/>
+        <result property="productCode" column="商品コード"/>
+        <result property="productName" column="商品名"/>
+        <result property="poUnitPrice" column="発注単価"/>
+        <result property="poQuantity" column="発注数量"/>
+        <result property="expectedArrivalDate" column="入荷予定日"/>
+        <result property="receivedQuantity" column="入荷済数量"/>
+        <result property="completedFlag" column="完了フラグ"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者名"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者名"/>
+    </resultMap>
+
+    <!-- INSERT -->
+    <insert id="insert" parameterType="com.example.sales.domain.model.PurchaseOrderDetail">
+        INSERT INTO 発注データ明細 (
+            発注番号,
+            発注行番号,
+            商品コード,
+            商品名,
+            発注単価,
+            発注数量,
+            入荷予定日,
+            入荷済数量,
+            完了フラグ,
+            作成者名,
+            更新者名
+        ) VALUES (
+            #{poNo},
+            #{poLineNo},
+            #{productCode},
+            #{productName},
+            #{poUnitPrice},
+            #{poQuantity},
+            #{expectedArrivalDate},
+            #{receivedQuantity},
+            #{completedFlag},
+            #{createdBy},
+            #{updatedBy}
+        )
+    </insert>
+
+    <!-- UPDATE -->
+    <update id="update" parameterType="com.example.sales.domain.model.PurchaseOrderDetail">
+        UPDATE 発注データ明細
+        SET
+            商品コード = #{productCode},
+            商品名 = #{productName},
+            発注単価 = #{poUnitPrice},
+            発注数量 = #{poQuantity},
+            入荷予定日 = #{expectedArrivalDate},
+            入荷済数量 = #{receivedQuantity},
+            完了フラグ = #{completedFlag},
+            更新日時 = CURRENT_TIMESTAMP,
+            更新者名 = #{updatedBy}
+        WHERE
+            発注番号 = #{poNo}
+            AND 発注行番号 = #{poLineNo}
+    </update>
+
+    <!-- DELETE -->
+    <delete id="delete">
+        DELETE FROM 発注データ明細
+        WHERE
+            発注番号 = #{poNo}
+            AND 発注行番号 = #{poLineNo}
+    </delete>
+
+    <!-- SELECT BY ID -->
+    <select id="findById" resultMap="purchaseOrderDetailResultMap">
+        SELECT
+            発注番号,
+            発注行番号,
+            商品コード,
+            商品名,
+            発注単価,
+            発注数量,
+            入荷予定日,
+            入荷済数量,
+            完了フラグ,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            発注データ明細
+        WHERE
+            発注番号 = #{poNo}
+            AND 発注行番号 = #{poLineNo}
+    </select>
+
+    <!-- SELECT BY PO NO -->
+    <select id="findByPoNo" resultMap="purchaseOrderDetailResultMap">
+        SELECT
+            発注番号,
+            発注行番号,
+            商品コード,
+            商品名,
+            発注単価,
+            発注数量,
+            入荷予定日,
+            入荷済数量,
+            完了フラグ,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            発注データ明細
+        WHERE
+            発注番号 = #{poNo}
+        ORDER BY
+            発注行番号
+    </select>
+
+</mapper>

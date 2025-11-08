@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.sales.domain.repository.StockMapper">
+
+    <!-- ResultMap定義 -->
+    <resultMap id="stockResultMap" type="com.example.sales.domain.model.Stock">
+        <id property="warehouseCode" column="倉庫コード"/>
+        <id property="productCode" column="商品コード"/>
+        <id property="lotNo" column="ロット番号"/>
+        <id property="stockType" column="在庫区分"/>
+        <id property="qualityType" column="良品区分"/>
+        <result property="actualQuantity" column="実在庫数"/>
+        <result property="validQuantity" column="有効在庫数"/>
+        <result property="lastDeliveryDate" column="最終出荷日"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者名"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者名"/>
+    </resultMap>
+
+    <!-- INSERT -->
+    <insert id="insert" parameterType="com.example.sales.domain.model.Stock">
+        INSERT INTO 在庫データ (
+            倉庫コード,
+            商品コード,
+            ロット番号,
+            在庫区分,
+            良品区分,
+            実在庫数,
+            有効在庫数,
+            最終出荷日,
+            作成者名,
+            更新者名
+        ) VALUES (
+            #{warehouseCode},
+            #{productCode},
+            #{lotNo},
+            #{stockType},
+            #{qualityType},
+            #{actualQuantity},
+            #{validQuantity},
+            #{lastDeliveryDate},
+            #{createdBy},
+            #{updatedBy}
+        )
+    </insert>
+
+    <!-- UPDATE -->
+    <update id="update" parameterType="com.example.sales.domain.model.Stock">
+        UPDATE 在庫データ
+        SET
+            実在庫数 = #{actualQuantity},
+            有効在庫数 = #{validQuantity},
+            最終出荷日 = #{lastDeliveryDate},
+            更新日時 = CURRENT_TIMESTAMP,
+            更新者名 = #{updatedBy}
+        WHERE
+            倉庫コード = #{warehouseCode}
+            AND 商品コード = #{productCode}
+            AND ロット番号 = #{lotNo}
+            AND 在庫区分 = #{stockType}
+            AND 良品区分 = #{qualityType}
+    </update>
+
+    <!-- DELETE -->
+    <delete id="delete">
+        DELETE FROM 在庫データ
+        WHERE
+            倉庫コード = #{warehouseCode}
+            AND 商品コード = #{productCode}
+            AND ロット番号 = #{lotNo}
+            AND 在庫区分 = #{stockType}
+            AND 良品区分 = #{qualityType}
+    </delete>
+
+    <!-- SELECT BY ID -->
+    <select id="findById" resultMap="stockResultMap">
+        SELECT
+            倉庫コード,
+            商品コード,
+            ロット番号,
+            在庫区分,
+            良品区分,
+            実在庫数,
+            有効在庫数,
+            最終出荷日,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            在庫データ
+        WHERE
+            倉庫コード = #{warehouseCode}
+            AND 商品コード = #{productCode}
+            AND ロット番号 = #{lotNo}
+            AND 在庫区分 = #{stockType}
+            AND 良品区分 = #{qualityType}
+    </select>
+
+    <!-- SELECT BY WAREHOUSE CODE -->
+    <select id="findByWarehouseCode" resultMap="stockResultMap">
+        SELECT
+            倉庫コード,
+            商品コード,
+            ロット番号,
+            在庫区分,
+            良品区分,
+            実在庫数,
+            有効在庫数,
+            最終出荷日,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            在庫データ
+        WHERE
+            倉庫コード = #{warehouseCode}
+        ORDER BY
+            商品コード, ロット番号, 在庫区分, 良品区分
+    </select>
+
+    <!-- SELECT BY PRODUCT CODE -->
+    <select id="findByProductCode" resultMap="stockResultMap">
+        SELECT
+            倉庫コード,
+            商品コード,
+            ロット番号,
+            在庫区分,
+            良品区分,
+            実在庫数,
+            有効在庫数,
+            最終出荷日,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            在庫データ
+        WHERE
+            商品コード = #{productCode}
+        ORDER BY
+            倉庫コード, ロット番号, 在庫区分, 良品区分
+    </select>
+
+    <!-- UPDATE VALID QUANTITY -->
+    <update id="updateValidQuantity">
+        UPDATE 在庫データ
+        SET
+            有効在庫数 = #{validQuantity},
+            更新日時 = CURRENT_TIMESTAMP
+        WHERE
+            倉庫コード = #{warehouseCode}
+            AND 商品コード = #{productCode}
+            AND ロット番号 = #{lotNo}
+            AND 在庫区分 = #{stockType}
+            AND 良品区分 = #{qualityType}
+    </update>
+
+</mapper>

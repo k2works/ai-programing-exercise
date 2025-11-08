@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.sales.domain.repository.PurchaseDetailMapper">
+
+    <!-- ResultMap定義 -->
+    <resultMap id="purchaseDetailResultMap" type="com.example.sales.domain.model.PurchaseDetail">
+        <id property="purchaseNo" column="仕入番号"/>
+        <id property="purchaseLineNo" column="仕入行番号"/>
+        <result property="productCode" column="商品コード"/>
+        <result property="productName" column="商品名"/>
+        <result property="purchaseUnitPrice" column="仕入単価"/>
+        <result property="purchaseQuantity" column="仕入数量"/>
+        <result property="lotNo" column="ロット番号"/>
+        <result property="warehouseCode" column="倉庫コード"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者名"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者名"/>
+    </resultMap>
+
+    <!-- INSERT -->
+    <insert id="insert" parameterType="com.example.sales.domain.model.PurchaseDetail">
+        INSERT INTO 仕入データ明細 (
+            仕入番号,
+            仕入行番号,
+            商品コード,
+            商品名,
+            仕入単価,
+            仕入数量,
+            ロット番号,
+            倉庫コード,
+            作成者名,
+            更新者名
+        ) VALUES (
+            #{purchaseNo},
+            #{purchaseLineNo},
+            #{productCode},
+            #{productName},
+            #{purchaseUnitPrice},
+            #{purchaseQuantity},
+            #{lotNo},
+            #{warehouseCode},
+            #{createdBy},
+            #{updatedBy}
+        )
+    </insert>
+
+    <!-- UPDATE -->
+    <update id="update" parameterType="com.example.sales.domain.model.PurchaseDetail">
+        UPDATE 仕入データ明細
+        SET
+            商品コード = #{productCode},
+            商品名 = #{productName},
+            仕入単価 = #{purchaseUnitPrice},
+            仕入数量 = #{purchaseQuantity},
+            ロット番号 = #{lotNo},
+            倉庫コード = #{warehouseCode},
+            更新日時 = CURRENT_TIMESTAMP,
+            更新者名 = #{updatedBy}
+        WHERE
+            仕入番号 = #{purchaseNo}
+            AND 仕入行番号 = #{purchaseLineNo}
+    </update>
+
+    <!-- DELETE -->
+    <delete id="delete">
+        DELETE FROM 仕入データ明細
+        WHERE
+            仕入番号 = #{purchaseNo}
+            AND 仕入行番号 = #{purchaseLineNo}
+    </delete>
+
+    <!-- SELECT BY ID -->
+    <select id="findById" resultMap="purchaseDetailResultMap">
+        SELECT
+            仕入番号,
+            仕入行番号,
+            商品コード,
+            商品名,
+            仕入単価,
+            仕入数量,
+            ロット番号,
+            倉庫コード,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            仕入データ明細
+        WHERE
+            仕入番号 = #{purchaseNo}
+            AND 仕入行番号 = #{purchaseLineNo}
+    </select>
+
+    <!-- SELECT BY PURCHASE NO -->
+    <select id="findByPurchaseNo" resultMap="purchaseDetailResultMap">
+        SELECT
+            仕入番号,
+            仕入行番号,
+            商品コード,
+            商品名,
+            仕入単価,
+            仕入数量,
+            ロット番号,
+            倉庫コード,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            仕入データ明細
+        WHERE
+            仕入番号 = #{purchaseNo}
+        ORDER BY
+            仕入行番号
+    </select>
+
+</mapper>

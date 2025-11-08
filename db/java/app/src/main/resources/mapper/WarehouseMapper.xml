@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.sales.domain.repository.WarehouseMapper">
+
+    <!-- ResultMap定義 -->
+    <resultMap id="warehouseResultMap" type="com.example.sales.domain.model.Warehouse">
+        <id property="warehouseCode" column="倉庫コード"/>
+        <result property="warehouseName" column="倉庫名"/>
+        <result property="warehouseType" column="倉庫区分"/>
+        <result property="address" column="住所"/>
+        <result property="phoneNumber" column="電話番号"/>
+        <result property="managerCode" column="責任者コード"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者名"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者名"/>
+    </resultMap>
+
+    <!-- INSERT -->
+    <insert id="insert" parameterType="com.example.sales.domain.model.Warehouse">
+        INSERT INTO 倉庫マスタ (
+            倉庫コード,
+            倉庫名,
+            倉庫区分,
+            住所,
+            電話番号,
+            責任者コード,
+            作成者名,
+            更新者名
+        ) VALUES (
+            #{warehouseCode},
+            #{warehouseName},
+            #{warehouseType},
+            #{address},
+            #{phoneNumber},
+            #{managerCode},
+            #{createdBy},
+            #{updatedBy}
+        )
+    </insert>
+
+    <!-- UPDATE -->
+    <update id="update" parameterType="com.example.sales.domain.model.Warehouse">
+        UPDATE 倉庫マスタ
+        SET
+            倉庫名 = #{warehouseName},
+            倉庫区分 = #{warehouseType},
+            住所 = #{address},
+            電話番号 = #{phoneNumber},
+            責任者コード = #{managerCode},
+            更新日時 = CURRENT_TIMESTAMP,
+            更新者名 = #{updatedBy}
+        WHERE
+            倉庫コード = #{warehouseCode}
+    </update>
+
+    <!-- DELETE -->
+    <delete id="delete">
+        DELETE FROM 倉庫マスタ
+        WHERE
+            倉庫コード = #{warehouseCode}
+    </delete>
+
+    <!-- SELECT BY ID -->
+    <select id="findById" resultMap="warehouseResultMap">
+        SELECT
+            倉庫コード,
+            倉庫名,
+            倉庫区分,
+            住所,
+            電話番号,
+            責任者コード,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            倉庫マスタ
+        WHERE
+            倉庫コード = #{warehouseCode}
+    </select>
+
+    <!-- SELECT ALL -->
+    <select id="findAll" resultMap="warehouseResultMap">
+        SELECT
+            倉庫コード,
+            倉庫名,
+            倉庫区分,
+            住所,
+            電話番号,
+            責任者コード,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            倉庫マスタ
+        ORDER BY
+            倉庫コード
+    </select>
+
+</mapper>
