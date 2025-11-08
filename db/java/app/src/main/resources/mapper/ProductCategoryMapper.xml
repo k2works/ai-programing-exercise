@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.sales.domain.repository.ProductCategoryMapper">
+
+    <resultMap id="productCategoryResultMap" type="com.example.sales.domain.model.ProductCategory">
+        <id property="productCategoryCode" column="商品分類コード"/>
+        <result property="productCategoryName" column="商品分類名"/>
+        <result property="productCategoryLevel" column="商品分類階層"/>
+        <result property="productCategoryPath" column="商品分類パス"/>
+        <result property="lowestLevelFlag" column="最下層区分"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者名"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者名"/>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO 商品分類マスタ (
+            商品分類コード, 商品分類名, 商品分類階層, 商品分類パス, 最下層区分,
+            作成日時, 作成者名, 更新日時, 更新者名
+        ) VALUES (
+            #{productCategoryCode}, #{productCategoryName}, #{productCategoryLevel},
+            #{productCategoryPath}, #{lowestLevelFlag},
+            #{createdAt}, #{createdBy}, #{updatedAt}, #{updatedBy}
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE 商品分類マスタ
+        SET 商品分類名 = #{productCategoryName},
+            商品分類階層 = #{productCategoryLevel},
+            商品分類パス = #{productCategoryPath},
+            最下層区分 = #{lowestLevelFlag},
+            更新日時 = #{updatedAt},
+            更新者名 = #{updatedBy}
+        WHERE 商品分類コード = #{productCategoryCode}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM 商品分類マスタ
+        WHERE 商品分類コード = #{productCategoryCode}
+    </delete>
+
+    <select id="findById" resultMap="productCategoryResultMap">
+        SELECT * FROM 商品分類マスタ
+        WHERE 商品分類コード = #{productCategoryCode}
+    </select>
+
+    <select id="findAll" resultMap="productCategoryResultMap">
+        SELECT * FROM 商品分類マスタ
+        ORDER BY 商品分類階層, 商品分類コード
+    </select>
+
+    <select id="findByLevel" resultMap="productCategoryResultMap">
+        SELECT * FROM 商品分類マスタ
+        WHERE 商品分類階層 = #{level}
+        ORDER BY 商品分類コード
+    </select>
+
+    <select id="findByPathPrefix" resultMap="productCategoryResultMap">
+        SELECT * FROM 商品分類マスタ
+        WHERE 商品分類パス LIKE CONCAT(#{pathPrefix}, '%')
+        ORDER BY 商品分類階層, 商品分類コード
+    </select>
+
+</mapper>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.sales.domain.repository.PriceByCustomerMapper">
+
+    <resultMap id="priceByCustomerResultMap" type="com.example.sales.domain.model.PriceByCustomer">
+        <id property="productCode" column="商品コード"/>
+        <id property="customerCode" column="取引先コード"/>
+        <result property="sellingPrice" column="販売単価"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者名"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者名"/>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO 顧客別販売単価 (
+            商品コード, 取引先コード, 販売単価,
+            作成日時, 作成者名, 更新日時, 更新者名
+        ) VALUES (
+            #{productCode}, #{customerCode}, #{sellingPrice},
+            #{createdAt}, #{createdBy}, #{updatedAt}, #{updatedBy}
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE 顧客別販売単価
+        SET 販売単価 = #{sellingPrice},
+            更新日時 = #{updatedAt},
+            更新者名 = #{updatedBy}
+        WHERE 商品コード = #{productCode}
+          AND 取引先コード = #{customerCode}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM 顧客別販売単価
+        WHERE 商品コード = #{productCode}
+          AND 取引先コード = #{customerCode}
+    </delete>
+
+    <select id="findById" resultMap="priceByCustomerResultMap">
+        SELECT * FROM 顧客別販売単価
+        WHERE 商品コード = #{productCode}
+          AND 取引先コード = #{customerCode}
+    </select>
+
+    <select id="findByProductCode" resultMap="priceByCustomerResultMap">
+        SELECT * FROM 顧客別販売単価
+        WHERE 商品コード = #{productCode}
+        ORDER BY 取引先コード
+    </select>
+
+    <select id="findByCustomerCode" resultMap="priceByCustomerResultMap">
+        SELECT * FROM 顧客別販売単価
+        WHERE 取引先コード = #{customerCode}
+        ORDER BY 商品コード
+    </select>
+
+</mapper>

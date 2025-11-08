@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.sales.domain.repository.ProductMapper">
+
+    <resultMap id="productResultMap" type="com.example.sales.domain.model.Product">
+        <id property="productCode" column="商品コード"/>
+        <result property="productFormalName" column="商品正式名"/>
+        <result property="productAbbreviation" column="商品略称"/>
+        <result property="productNameKana" column="商品名カナ"/>
+        <result property="productType" column="商品区分"/>
+        <result property="modelNumber" column="製品型番"/>
+        <result property="sellingPrice" column="販売単価"/>
+        <result property="purchasePrice" column="仕入単価"/>
+        <result property="costOfSales" column="売上原価"/>
+        <result property="taxType" column="税区分"/>
+        <result property="productCategoryCode" column="商品分類コード"/>
+        <result property="miscellaneousType" column="雑区分"/>
+        <result property="inventoryManagementFlag" column="在庫管理対象区分"/>
+        <result property="inventoryAllocationFlag" column="在庫引当区分"/>
+        <result property="supplierCode" column="仕入先コード"/>
+        <result property="supplierBranch" column="仕入先枝番"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者名"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者名"/>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO 商品マスタ (
+            商品コード, 商品正式名, 商品略称, 商品名カナ, 商品区分, 製品型番,
+            販売単価, 仕入単価, 売上原価, 税区分, 商品分類コード, 雑区分,
+            在庫管理対象区分, 在庫引当区分, 仕入先コード, 仕入先枝番,
+            作成日時, 作成者名, 更新日時, 更新者名
+        ) VALUES (
+            #{productCode}, #{productFormalName}, #{productAbbreviation}, #{productNameKana},
+            #{productType}, #{modelNumber}, #{sellingPrice}, #{purchasePrice}, #{costOfSales},
+            #{taxType}, #{productCategoryCode}, #{miscellaneousType}, #{inventoryManagementFlag},
+            #{inventoryAllocationFlag}, #{supplierCode}, #{supplierBranch},
+            #{createdAt}, #{createdBy}, #{updatedAt}, #{updatedBy}
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE 商品マスタ
+        SET 商品正式名 = #{productFormalName},
+            商品略称 = #{productAbbreviation},
+            商品名カナ = #{productNameKana},
+            商品区分 = #{productType},
+            製品型番 = #{modelNumber},
+            販売単価 = #{sellingPrice},
+            仕入単価 = #{purchasePrice},
+            売上原価 = #{costOfSales},
+            税区分 = #{taxType},
+            商品分類コード = #{productCategoryCode},
+            雑区分 = #{miscellaneousType},
+            在庫管理対象区分 = #{inventoryManagementFlag},
+            在庫引当区分 = #{inventoryAllocationFlag},
+            仕入先コード = #{supplierCode},
+            仕入先枝番 = #{supplierBranch},
+            更新日時 = #{updatedAt},
+            更新者名 = #{updatedBy}
+        WHERE 商品コード = #{productCode}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM 商品マスタ
+        WHERE 商品コード = #{productCode}
+    </delete>
+
+    <select id="findById" resultMap="productResultMap">
+        SELECT * FROM 商品マスタ
+        WHERE 商品コード = #{productCode}
+    </select>
+
+    <select id="findAll" resultMap="productResultMap">
+        SELECT * FROM 商品マスタ
+        ORDER BY 商品コード
+    </select>
+
+    <select id="findByCategory" resultMap="productResultMap">
+        SELECT * FROM 商品マスタ
+        WHERE 商品分類コード = #{productCategoryCode}
+        ORDER BY 商品コード
+    </select>
+
+</mapper>

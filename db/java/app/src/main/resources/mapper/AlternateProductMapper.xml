@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.sales.domain.repository.AlternateProductMapper">
+
+    <resultMap id="alternateProductResultMap" type="com.example.sales.domain.model.AlternateProduct">
+        <id property="productCode" column="商品コード"/>
+        <id property="alternateProductCode" column="代替商品コード"/>
+        <result property="priority" column="優先順位"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者名"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者名"/>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO 代替商品 (
+            商品コード, 代替商品コード, 優先順位,
+            作成日時, 作成者名, 更新日時, 更新者名
+        ) VALUES (
+            #{productCode}, #{alternateProductCode}, #{priority},
+            #{createdAt}, #{createdBy}, #{updatedAt}, #{updatedBy}
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE 代替商品
+        SET 優先順位 = #{priority},
+            更新日時 = #{updatedAt},
+            更新者名 = #{updatedBy}
+        WHERE 商品コード = #{productCode}
+          AND 代替商品コード = #{alternateProductCode}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM 代替商品
+        WHERE 商品コード = #{productCode}
+          AND 代替商品コード = #{alternateProductCode}
+    </delete>
+
+    <select id="findByProductCode" resultMap="alternateProductResultMap">
+        SELECT * FROM 代替商品
+        WHERE 商品コード = #{productCode}
+        ORDER BY 優先順位
+    </select>
+
+    <select id="findAlternatesWithProductInfo" resultType="map">
+        SELECT
+            a.商品コード,
+            a.代替商品コード,
+            a.優先順位,
+            p.商品正式名,
+            p.販売単価
+        FROM 代替商品 a
+        INNER JOIN 商品マスタ p ON a.代替商品コード = p.商品コード
+        WHERE a.商品コード = #{productCode}
+        ORDER BY a.優先順位
+    </select>
+
+</mapper>
