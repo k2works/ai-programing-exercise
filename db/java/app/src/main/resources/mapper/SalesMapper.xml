@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.sales.domain.repository.SalesMapper">
+
+    <!-- ResultMap定義 -->
+    <resultMap id="salesResultMap" type="com.example.sales.domain.model.Sales">
+        <id property="salesNo" column="売上番号"/>
+        <result property="orderNo" column="受注番号"/>
+        <result property="salesDate" column="売上日"/>
+        <result property="salesDivision" column="売上区分"/>
+        <result property="departmentCode" column="部門コード"/>
+        <result property="startDate" column="開始日"/>
+        <result property="companyCode" column="取引先コード"/>
+        <result property="employeeCode" column="社員コード"/>
+        <result property="salesAmount" column="売上金額合計"/>
+        <result property="consumptionTax" column="消費税合計"/>
+        <result property="slipComment" column="備考"/>
+        <result property="redBlackSlipNo" column="赤黒伝票番号"/>
+        <result property="originalSlipNo" column="元伝票番号"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者名"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者名"/>
+    </resultMap>
+
+    <!-- INSERT -->
+    <insert id="insert" parameterType="com.example.sales.domain.model.Sales">
+        INSERT INTO 売上データ (
+            売上番号,
+            受注番号,
+            売上日,
+            売上区分,
+            部門コード,
+            開始日,
+            取引先コード,
+            社員コード,
+            売上金額合計,
+            消費税合計,
+            備考,
+            赤黒伝票番号,
+            元伝票番号,
+            作成者名,
+            更新者名
+        ) VALUES (
+            #{salesNo},
+            #{orderNo},
+            #{salesDate},
+            #{salesDivision},
+            #{departmentCode},
+            #{startDate},
+            #{companyCode},
+            #{employeeCode},
+            #{salesAmount},
+            #{consumptionTax},
+            #{slipComment},
+            #{redBlackSlipNo},
+            #{originalSlipNo},
+            #{createdBy},
+            #{updatedBy}
+        )
+    </insert>
+
+    <!-- UPDATE -->
+    <update id="update" parameterType="com.example.sales.domain.model.Sales">
+        UPDATE 売上データ
+        SET
+            受注番号 = #{orderNo},
+            売上日 = #{salesDate},
+            売上区分 = #{salesDivision},
+            部門コード = #{departmentCode},
+            開始日 = #{startDate},
+            取引先コード = #{companyCode},
+            社員コード = #{employeeCode},
+            売上金額合計 = #{salesAmount},
+            消費税合計 = #{consumptionTax},
+            備考 = #{slipComment},
+            赤黒伝票番号 = #{redBlackSlipNo},
+            元伝票番号 = #{originalSlipNo},
+            更新日時 = CURRENT_TIMESTAMP,
+            更新者名 = #{updatedBy}
+        WHERE
+            売上番号 = #{salesNo}
+    </update>
+
+    <!-- DELETE -->
+    <delete id="delete">
+        DELETE FROM 売上データ
+        WHERE
+            売上番号 = #{salesNo}
+    </delete>
+
+    <!-- SELECT BY ID -->
+    <select id="findById" resultMap="salesResultMap">
+        SELECT
+            売上番号,
+            受注番号,
+            売上日,
+            売上区分,
+            部門コード,
+            開始日,
+            取引先コード,
+            社員コード,
+            売上金額合計,
+            消費税合計,
+            備考,
+            赤黒伝票番号,
+            元伝票番号,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            売上データ
+        WHERE
+            売上番号 = #{salesNo}
+    </select>
+
+    <!-- SELECT BY ORDER NO -->
+    <select id="findByOrderNo" resultMap="salesResultMap">
+        SELECT
+            売上番号,
+            受注番号,
+            売上日,
+            売上区分,
+            部門コード,
+            開始日,
+            取引先コード,
+            社員コード,
+            売上金額合計,
+            消費税合計,
+            備考,
+            赤黒伝票番号,
+            元伝票番号,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            売上データ
+        WHERE
+            受注番号 = #{orderNo}
+        ORDER BY
+            売上番号
+    </select>
+
+    <!-- SELECT ALL -->
+    <select id="findAll" resultMap="salesResultMap">
+        SELECT
+            売上番号,
+            受注番号,
+            売上日,
+            売上区分,
+            部門コード,
+            開始日,
+            取引先コード,
+            社員コード,
+            売上金額合計,
+            消費税合計,
+            備考,
+            赤黒伝票番号,
+            元伝票番号,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            売上データ
+        ORDER BY
+            売上番号
+    </select>
+
+</mapper>

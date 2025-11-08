@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.sales.domain.repository.OrderMapper">
+
+    <!-- ResultMap定義 -->
+    <resultMap id="orderResultMap" type="com.example.sales.domain.model.Order">
+        <id property="orderNo" column="受注番号"/>
+        <result property="orderDate" column="受注日"/>
+        <result property="departmentCode" column="部門コード"/>
+        <result property="startDate" column="開始日"/>
+        <result property="customerCode" column="顧客コード"/>
+        <result property="customerBranch" column="顧客枝番"/>
+        <result property="employeeCode" column="社員コード"/>
+        <result property="requiredDate" column="希望納期"/>
+        <result property="customerOrderNo" column="客先注文番号"/>
+        <result property="warehouseCode" column="倉庫コード"/>
+        <result property="orderAmount" column="受注金額合計"/>
+        <result property="consumptionTax" column="消費税合計"/>
+        <result property="slipComment" column="備考"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者名"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者名"/>
+    </resultMap>
+
+    <!-- INSERT -->
+    <insert id="insert" parameterType="com.example.sales.domain.model.Order">
+        INSERT INTO 受注データ (
+            受注番号,
+            受注日,
+            部門コード,
+            開始日,
+            顧客コード,
+            顧客枝番,
+            社員コード,
+            希望納期,
+            客先注文番号,
+            倉庫コード,
+            受注金額合計,
+            消費税合計,
+            備考,
+            作成者名,
+            更新者名
+        ) VALUES (
+            #{orderNo},
+            #{orderDate},
+            #{departmentCode},
+            #{startDate},
+            #{customerCode},
+            #{customerBranch},
+            #{employeeCode},
+            #{requiredDate},
+            #{customerOrderNo},
+            #{warehouseCode},
+            #{orderAmount},
+            #{consumptionTax},
+            #{slipComment},
+            #{createdBy},
+            #{updatedBy}
+        )
+    </insert>
+
+    <!-- UPDATE -->
+    <update id="update" parameterType="com.example.sales.domain.model.Order">
+        UPDATE 受注データ
+        SET
+            受注日 = #{orderDate},
+            部門コード = #{departmentCode},
+            開始日 = #{startDate},
+            顧客コード = #{customerCode},
+            顧客枝番 = #{customerBranch},
+            社員コード = #{employeeCode},
+            希望納期 = #{requiredDate},
+            客先注文番号 = #{customerOrderNo},
+            倉庫コード = #{warehouseCode},
+            受注金額合計 = #{orderAmount},
+            消費税合計 = #{consumptionTax},
+            備考 = #{slipComment},
+            更新日時 = CURRENT_TIMESTAMP,
+            更新者名 = #{updatedBy}
+        WHERE
+            受注番号 = #{orderNo}
+    </update>
+
+    <!-- DELETE -->
+    <delete id="delete">
+        DELETE FROM 受注データ
+        WHERE
+            受注番号 = #{orderNo}
+    </delete>
+
+    <!-- SELECT BY ID -->
+    <select id="findById" resultMap="orderResultMap">
+        SELECT
+            受注番号,
+            受注日,
+            部門コード,
+            開始日,
+            顧客コード,
+            顧客枝番,
+            社員コード,
+            希望納期,
+            客先注文番号,
+            倉庫コード,
+            受注金額合計,
+            消費税合計,
+            備考,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            受注データ
+        WHERE
+            受注番号 = #{orderNo}
+    </select>
+
+    <!-- SELECT BY CUSTOMER CODE -->
+    <select id="findByCustomerCode" resultMap="orderResultMap">
+        SELECT
+            受注番号,
+            受注日,
+            部門コード,
+            開始日,
+            顧客コード,
+            顧客枝番,
+            社員コード,
+            希望納期,
+            客先注文番号,
+            倉庫コード,
+            受注金額合計,
+            消費税合計,
+            備考,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            受注データ
+        WHERE
+            顧客コード = #{customerCode}
+        ORDER BY
+            受注番号
+    </select>
+
+    <!-- SELECT ALL -->
+    <select id="findAll" resultMap="orderResultMap">
+        SELECT
+            受注番号,
+            受注日,
+            部門コード,
+            開始日,
+            顧客コード,
+            顧客枝番,
+            社員コード,
+            希望納期,
+            客先注文番号,
+            倉庫コード,
+            受注金額合計,
+            消費税合計,
+            備考,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            受注データ
+        ORDER BY
+            受注番号
+    </select>
+
+</mapper>
