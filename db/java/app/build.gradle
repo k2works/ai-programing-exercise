@@ -127,7 +127,7 @@ flyway {
     user = 'postgres'
     password = 'postgres'
     driver = 'org.postgresql.Driver'
-    locations = ["filesystem:${projectDir}/src/main/resources/db/migration"]
+    locations = ["classpath:db/migration"]
     baselineOnMigrate = true
     configurations = ['flywayMigration']
     connectRetries = 3
