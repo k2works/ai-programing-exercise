@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.sales.domain.repository.CompanyGroupMapper">
+
+    <!-- ResultMap定義 -->
+    <resultMap id="companyGroupResultMap" type="com.example.sales.domain.model.CompanyGroup">
+        <id property="companyGroupCode" column="取引先グループコード"/>
+        <result property="companyGroupName" column="取引先グループ名"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者名"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者名"/>
+    </resultMap>
+
+    <!-- INSERT -->
+    <insert id="insert" parameterType="com.example.sales.domain.model.CompanyGroup">
+        INSERT INTO 取引先グループマスタ (
+            取引先グループコード,
+            取引先グループ名,
+            作成者名,
+            更新者名
+        ) VALUES (
+            #{companyGroupCode},
+            #{companyGroupName},
+            #{createdBy},
+            #{updatedBy}
+        )
+    </insert>
+
+    <!-- UPDATE -->
+    <update id="update" parameterType="com.example.sales.domain.model.CompanyGroup">
+        UPDATE 取引先グループマスタ
+        SET
+            取引先グループ名 = #{companyGroupName},
+            更新日時 = CURRENT_TIMESTAMP,
+            更新者名 = #{updatedBy}
+        WHERE
+            取引先グループコード = #{companyGroupCode}
+    </update>
+
+    <!-- DELETE -->
+    <delete id="delete">
+        DELETE FROM 取引先グループマスタ
+        WHERE
+            取引先グループコード = #{companyGroupCode}
+    </delete>
+
+    <!-- SELECT BY ID -->
+    <select id="findById" resultMap="companyGroupResultMap">
+        SELECT
+            取引先グループコード,
+            取引先グループ名,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            取引先グループマスタ
+        WHERE
+            取引先グループコード = #{companyGroupCode}
+    </select>
+
+    <!-- SELECT ALL -->
+    <select id="findAll" resultMap="companyGroupResultMap">
+        SELECT
+            取引先グループコード,
+            取引先グループ名,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            取引先グループマスタ
+        ORDER BY
+            取引先グループコード
+    </select>
+
+</mapper>

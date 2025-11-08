@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.sales.domain.repository.CompanyCategoryGroupMapper">
+
+    <!-- ResultMap定義 -->
+    <resultMap id="companyCategoryGroupResultMap" type="com.example.sales.domain.model.CompanyCategoryGroup">
+        <id property="categoryTypeCode" column="取引先分類種別コード"/>
+        <id property="companyCategoryCode" column="取引先分類コード"/>
+        <id property="companyCode" column="取引先コード"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者名"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者名"/>
+    </resultMap>
+
+    <!-- INSERT -->
+    <insert id="insert" parameterType="com.example.sales.domain.model.CompanyCategoryGroup">
+        INSERT INTO 取引先分類所属マスタ (
+            取引先分類種別コード,
+            取引先分類コード,
+            取引先コード,
+            作成者名,
+            更新者名
+        ) VALUES (
+            #{categoryTypeCode},
+            #{companyCategoryCode},
+            #{companyCode},
+            #{createdBy},
+            #{updatedBy}
+        )
+    </insert>
+
+    <!-- UPDATE -->
+    <update id="update" parameterType="com.example.sales.domain.model.CompanyCategoryGroup">
+        UPDATE 取引先分類所属マスタ
+        SET
+            更新日時 = CURRENT_TIMESTAMP,
+            更新者名 = #{updatedBy}
+        WHERE
+            取引先分類種別コード = #{categoryTypeCode}
+            AND 取引先分類コード = #{companyCategoryCode}
+            AND 取引先コード = #{companyCode}
+    </update>
+
+    <!-- DELETE -->
+    <delete id="delete">
+        DELETE FROM 取引先分類所属マスタ
+        WHERE
+            取引先分類種別コード = #{categoryTypeCode}
+            AND 取引先分類コード = #{companyCategoryCode}
+            AND 取引先コード = #{companyCode}
+    </delete>
+
+    <!-- SELECT BY ID -->
+    <select id="findById" resultMap="companyCategoryGroupResultMap">
+        SELECT
+            取引先分類種別コード,
+            取引先分類コード,
+            取引先コード,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            取引先分類所属マスタ
+        WHERE
+            取引先分類種別コード = #{categoryTypeCode}
+            AND 取引先分類コード = #{companyCategoryCode}
+            AND 取引先コード = #{companyCode}
+    </select>
+
+    <!-- SELECT BY COMPANY CODE -->
+    <select id="findByCompanyCode" resultMap="companyCategoryGroupResultMap">
+        SELECT
+            取引先分類種別コード,
+            取引先分類コード,
+            取引先コード,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            取引先分類所属マスタ
+        WHERE
+            取引先コード = #{companyCode}
+        ORDER BY
+            取引先分類種別コード, 取引先分類コード
+    </select>
+
+    <!-- SELECT BY CATEGORY CODE -->
+    <select id="findByCategoryCode" resultMap="companyCategoryGroupResultMap">
+        SELECT
+            取引先分類種別コード,
+            取引先分類コード,
+            取引先コード,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            取引先分類所属マスタ
+        WHERE
+            取引先分類種別コード = #{categoryTypeCode}
+            AND 取引先分類コード = #{companyCategoryCode}
+        ORDER BY
+            取引先コード
+    </select>
+
+    <!-- SELECT ALL -->
+    <select id="findAll" resultMap="companyCategoryGroupResultMap">
+        SELECT
+            取引先分類種別コード,
+            取引先分類コード,
+            取引先コード,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            取引先分類所属マスタ
+        ORDER BY
+            取引先分類種別コード, 取引先分類コード, 取引先コード
+    </select>
+
+</mapper>

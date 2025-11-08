@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.sales.domain.repository.CompanyMapper">
+
+    <!-- ResultMap定義 -->
+    <resultMap id="companyResultMap" type="com.example.sales.domain.model.Company">
+        <id property="companyCode" column="取引先コード"/>
+        <result property="companyName" column="取引先名"/>
+        <result property="companyNameKana" column="取引先名カナ"/>
+        <result property="supplierType" column="仕入先区分"/>
+        <result property="zipCode" column="郵便番号"/>
+        <result property="state" column="都道府県"/>
+        <result property="address1" column="住所１"/>
+        <result property="address2" column="住所２"/>
+        <result property="noSalesFlag" column="取引禁止フラグ"/>
+        <result property="wideUseType" column="雑区分"/>
+        <result property="companyGroupCode" column="取引先グループコード"/>
+        <result property="maxCredit" column="与信限度額"/>
+        <result property="tempCreditUp" column="与信一時増加枠"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者名"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者名"/>
+    </resultMap>
+
+    <!-- INSERT -->
+    <insert id="insert" parameterType="com.example.sales.domain.model.Company">
+        INSERT INTO 取引先マスタ (
+            取引先コード,
+            取引先名,
+            取引先名カナ,
+            仕入先区分,
+            郵便番号,
+            都道府県,
+            住所１,
+            住所２,
+            取引禁止フラグ,
+            雑区分,
+            取引先グループコード,
+            与信限度額,
+            与信一時増加枠,
+            作成者名,
+            更新者名
+        ) VALUES (
+            #{companyCode},
+            #{companyName},
+            #{companyNameKana},
+            #{supplierType},
+            #{zipCode},
+            #{state},
+            #{address1},
+            #{address2},
+            #{noSalesFlag},
+            #{wideUseType},
+            #{companyGroupCode},
+            #{maxCredit},
+            #{tempCreditUp},
+            #{createdBy},
+            #{updatedBy}
+        )
+    </insert>
+
+    <!-- UPDATE -->
+    <update id="update" parameterType="com.example.sales.domain.model.Company">
+        UPDATE 取引先マスタ
+        SET
+            取引先名 = #{companyName},
+            取引先名カナ = #{companyNameKana},
+            仕入先区分 = #{supplierType},
+            郵便番号 = #{zipCode},
+            都道府県 = #{state},
+            住所１ = #{address1},
+            住所２ = #{address2},
+            取引禁止フラグ = #{noSalesFlag},
+            雑区分 = #{wideUseType},
+            取引先グループコード = #{companyGroupCode},
+            与信限度額 = #{maxCredit},
+            与信一時増加枠 = #{tempCreditUp},
+            更新日時 = CURRENT_TIMESTAMP,
+            更新者名 = #{updatedBy}
+        WHERE
+            取引先コード = #{companyCode}
+    </update>
+
+    <!-- DELETE -->
+    <delete id="delete">
+        DELETE FROM 取引先マスタ
+        WHERE
+            取引先コード = #{companyCode}
+    </delete>
+
+    <!-- SELECT BY ID -->
+    <select id="findById" resultMap="companyResultMap">
+        SELECT
+            取引先コード,
+            取引先名,
+            取引先名カナ,
+            仕入先区分,
+            郵便番号,
+            都道府県,
+            住所１,
+            住所２,
+            取引禁止フラグ,
+            雑区分,
+            取引先グループコード,
+            与信限度額,
+            与信一時増加枠,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            取引先マスタ
+        WHERE
+            取引先コード = #{companyCode}
+    </select>
+
+    <!-- SELECT ALL -->
+    <select id="findAll" resultMap="companyResultMap">
+        SELECT
+            取引先コード,
+            取引先名,
+            取引先名カナ,
+            仕入先区分,
+            郵便番号,
+            都道府県,
+            住所１,
+            住所２,
+            取引禁止フラグ,
+            雑区分,
+            取引先グループコード,
+            与信限度額,
+            与信一時増加枠,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            取引先マスタ
+        ORDER BY
+            取引先コード
+    </select>
+
+    <!-- SELECT BY GROUP CODE -->
+    <select id="findByGroupCode" resultMap="companyResultMap">
+        SELECT
+            取引先コード,
+            取引先名,
+            取引先名カナ,
+            仕入先区分,
+            郵便番号,
+            都道府県,
+            住所１,
+            住所２,
+            取引禁止フラグ,
+            雑区分,
+            取引先グループコード,
+            与信限度額,
+            与信一時増加枠,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            取引先マスタ
+        WHERE
+            取引先グループコード = #{companyGroupCode}
+        ORDER BY
+            取引先コード
+    </select>
+
+</mapper>

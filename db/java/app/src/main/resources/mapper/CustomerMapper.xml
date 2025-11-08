@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.sales.domain.repository.CustomerMapper">
+
+    <!-- ResultMap定義 -->
+    <resultMap id="customerResultMap" type="com.example.sales.domain.model.Customer">
+        <id property="customerCode" column="顧客コード"/>
+        <id property="customerBranch" column="顧客枝番"/>
+        <result property="customerType" column="顧客区分"/>
+        <result property="arCode" column="請求先コード"/>
+        <result property="arBranch" column="請求先枝番"/>
+        <result property="payerCode" column="回収先コード"/>
+        <result property="payerBranch" column="回収先枝番"/>
+        <result property="customerName" column="顧客名"/>
+        <result property="customerNameKana" column="顧客名カナ"/>
+        <result property="employeeCode" column="自社担当者コード"/>
+        <result property="customerUserName" column="顧客担当者名"/>
+        <result property="customerDepartmentName" column="顧客部門名"/>
+        <result property="customerZipCode" column="顧客郵便番号"/>
+        <result property="customerState" column="顧客都道府県"/>
+        <result property="customerAddress1" column="顧客住所１"/>
+        <result property="customerAddress2" column="顧客住所２"/>
+        <result property="customerTel" column="顧客電話番号"/>
+        <result property="customerFax" column="顧客ＦＡＸ番号"/>
+        <result property="customerEmail" column="顧客メールアドレス"/>
+        <result property="customerArType" column="顧客請求区分"/>
+        <result property="customerCloseDate1" column="顧客締日１"/>
+        <result property="customerPayMonths1" column="顧客支払月１"/>
+        <result property="customerPayDates1" column="顧客支払日１"/>
+        <result property="customerPayMethod1" column="顧客支払方法１"/>
+        <result property="customerCloseDate2" column="顧客締日２"/>
+        <result property="customerPayMonths2" column="顧客支払月２"/>
+        <result property="customerPayDates2" column="顧客支払日２"/>
+        <result property="customerPayMethod2" column="顧客支払方法２"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者名"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者名"/>
+    </resultMap>
+
+    <!-- INSERT -->
+    <insert id="insert" parameterType="com.example.sales.domain.model.Customer">
+        INSERT INTO 顧客マスタ (
+            顧客コード,
+            顧客枝番,
+            顧客区分,
+            請求先コード,
+            請求先枝番,
+            回収先コード,
+            回収先枝番,
+            顧客名,
+            顧客名カナ,
+            自社担当者コード,
+            顧客担当者名,
+            顧客部門名,
+            顧客郵便番号,
+            顧客都道府県,
+            顧客住所１,
+            顧客住所２,
+            顧客電話番号,
+            顧客ＦＡＸ番号,
+            顧客メールアドレス,
+            顧客請求区分,
+            顧客締日１,
+            顧客支払月１,
+            顧客支払日１,
+            顧客支払方法１,
+            顧客締日２,
+            顧客支払月２,
+            顧客支払日２,
+            顧客支払方法２,
+            作成者名,
+            更新者名
+        ) VALUES (
+            #{customerCode},
+            #{customerBranch},
+            #{customerType},
+            #{arCode},
+            #{arBranch},
+            #{payerCode},
+            #{payerBranch},
+            #{customerName},
+            #{customerNameKana},
+            #{employeeCode},
+            #{customerUserName},
+            #{customerDepartmentName},
+            #{customerZipCode},
+            #{customerState},
+            #{customerAddress1},
+            #{customerAddress2},
+            #{customerTel},
+            #{customerFax},
+            #{customerEmail},
+            #{customerArType},
+            #{customerCloseDate1},
+            #{customerPayMonths1},
+            #{customerPayDates1},
+            #{customerPayMethod1},
+            #{customerCloseDate2},
+            #{customerPayMonths2},
+            #{customerPayDates2},
+            #{customerPayMethod2},
+            #{createdBy},
+            #{updatedBy}
+        )
+    </insert>
+
+    <!-- UPDATE -->
+    <update id="update" parameterType="com.example.sales.domain.model.Customer">
+        UPDATE 顧客マスタ
+        SET
+            顧客区分 = #{customerType},
+            請求先コード = #{arCode},
+            請求先枝番 = #{arBranch},
+            回収先コード = #{payerCode},
+            回収先枝番 = #{payerBranch},
+            顧客名 = #{customerName},
+            顧客名カナ = #{customerNameKana},
+            自社担当者コード = #{employeeCode},
+            顧客担当者名 = #{customerUserName},
+            顧客部門名 = #{customerDepartmentName},
+            顧客郵便番号 = #{customerZipCode},
+            顧客都道府県 = #{customerState},
+            顧客住所１ = #{customerAddress1},
+            顧客住所２ = #{customerAddress2},
+            顧客電話番号 = #{customerTel},
+            顧客ＦＡＸ番号 = #{customerFax},
+            顧客メールアドレス = #{customerEmail},
+            顧客請求区分 = #{customerArType},
+            顧客締日１ = #{customerCloseDate1},
+            顧客支払月１ = #{customerPayMonths1},
+            顧客支払日１ = #{customerPayDates1},
+            顧客支払方法１ = #{customerPayMethod1},
+            顧客締日２ = #{customerCloseDate2},
+            顧客支払月２ = #{customerPayMonths2},
+            顧客支払日２ = #{customerPayDates2},
+            顧客支払方法２ = #{customerPayMethod2},
+            更新日時 = CURRENT_TIMESTAMP,
+            更新者名 = #{updatedBy}
+        WHERE
+            顧客コード = #{customerCode}
+            AND 顧客枝番 = #{customerBranch}
+    </update>
+
+    <!-- DELETE -->
+    <delete id="delete">
+        DELETE FROM 顧客マスタ
+        WHERE
+            顧客コード = #{customerCode}
+            AND 顧客枝番 = #{customerBranch}
+    </delete>
+
+    <!-- SELECT BY ID -->
+    <select id="findById" resultMap="customerResultMap">
+        SELECT
+            顧客コード,
+            顧客枝番,
+            顧客区分,
+            請求先コード,
+            請求先枝番,
+            回収先コード,
+            回収先枝番,
+            顧客名,
+            顧客名カナ,
+            自社担当者コード,
+            顧客担当者名,
+            顧客部門名,
+            顧客郵便番号,
+            顧客都道府県,
+            顧客住所１,
+            顧客住所２,
+            顧客電話番号,
+            顧客ＦＡＸ番号,
+            顧客メールアドレス,
+            顧客請求区分,
+            顧客締日１,
+            顧客支払月１,
+            顧客支払日１,
+            顧客支払方法１,
+            顧客締日２,
+            顧客支払月２,
+            顧客支払日２,
+            顧客支払方法２,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            顧客マスタ
+        WHERE
+            顧客コード = #{customerCode}
+            AND 顧客枝番 = #{customerBranch}
+    </select>
+
+    <!-- SELECT BY CUSTOMER CODE -->
+    <select id="findByCustomerCode" resultMap="customerResultMap">
+        SELECT
+            顧客コード,
+            顧客枝番,
+            顧客区分,
+            請求先コード,
+            請求先枝番,
+            回収先コード,
+            回収先枝番,
+            顧客名,
+            顧客名カナ,
+            自社担当者コード,
+            顧客担当者名,
+            顧客部門名,
+            顧客郵便番号,
+            顧客都道府県,
+            顧客住所１,
+            顧客住所２,
+            顧客電話番号,
+            顧客ＦＡＸ番号,
+            顧客メールアドレス,
+            顧客請求区分,
+            顧客締日１,
+            顧客支払月１,
+            顧客支払日１,
+            顧客支払方法１,
+            顧客締日２,
+            顧客支払月２,
+            顧客支払日２,
+            顧客支払方法２,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            顧客マスタ
+        WHERE
+            顧客コード = #{customerCode}
+        ORDER BY
+            顧客枝番
+    </select>
+
+    <!-- SELECT BY COMPANY CODE -->
+    <select id="findByCompanyCode" resultMap="customerResultMap">
+        SELECT
+            顧客コード,
+            顧客枝番,
+            顧客区分,
+            請求先コード,
+            請求先枝番,
+            回収先コード,
+            回収先枝番,
+            顧客名,
+            顧客名カナ,
+            自社担当者コード,
+            顧客担当者名,
+            顧客部門名,
+            顧客郵便番号,
+            顧客都道府県,
+            顧客住所１,
+            顧客住所２,
+            顧客電話番号,
+            顧客ＦＡＸ番号,
+            顧客メールアドレス,
+            顧客請求区分,
+            顧客締日１,
+            顧客支払月１,
+            顧客支払日１,
+            顧客支払方法１,
+            顧客締日２,
+            顧客支払月２,
+            顧客支払日２,
+            顧客支払方法２,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            顧客マスタ
+        WHERE
+            顧客コード = #{companyCode}
+        ORDER BY
+            顧客枝番
+    </select>
+
+    <!-- SELECT ALL -->
+    <select id="findAll" resultMap="customerResultMap">
+        SELECT
+            顧客コード,
+            顧客枝番,
+            顧客区分,
+            請求先コード,
+            請求先枝番,
+            回収先コード,
+            回収先枝番,
+            顧客名,
+            顧客名カナ,
+            自社担当者コード,
+            顧客担当者名,
+            顧客部門名,
+            顧客郵便番号,
+            顧客都道府県,
+            顧客住所１,
+            顧客住所２,
+            顧客電話番号,
+            顧客ＦＡＸ番号,
+            顧客メールアドレス,
+            顧客請求区分,
+            顧客締日１,
+            顧客支払月１,
+            顧客支払日１,
+            顧客支払方法１,
+            顧客締日２,
+            顧客支払月２,
+            顧客支払日２,
+            顧客支払方法２,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            顧客マスタ
+        ORDER BY
+            顧客コード, 顧客枝番
+    </select>
+
+</mapper>
