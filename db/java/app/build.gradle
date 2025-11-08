@@ -1,3 +1,9 @@
+buildscript {
+    dependencies {
+        classpath 'org.postgresql:postgresql:42.7.1'
+    }
+}
+
 plugins {
     id 'java'
     id 'application'
@@ -7,6 +13,7 @@ plugins {
     id 'com.github.spotbugs' version '6.0.7'
     id 'org.springframework.boot' version '3.2.0'
     id 'io.spring.dependency-management' version '1.1.4'
+    id 'org.flywaydb.flyway' version '9.22.3'
 }
 
 group = 'com.example.sales'
@@ -20,6 +27,10 @@ repositories {
     mavenCentral()
 }
 
+configurations {
+    flywayMigration
+}
+
 dependencies {
     // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -31,6 +42,7 @@ dependencies {
 
     // Flyway
     implementation 'org.flywaydb:flyway-core'
+    flywayMigration 'org.postgresql:postgresql:42.7.1'
 
     // Database
     runtimeOnly 'org.postgresql:postgresql'
@@ -107,6 +119,18 @@ tasks.named('spotbugsTest') {
             required = true
         }
     }
+}
+
+// Flyway設定
+flyway {
+    url = 'jdbc:postgresql://localhost:5432/sales_management?connectTimeout=30&socketTimeout=30'
+    user = 'postgres'
+    password = 'postgres'
+    driver = 'org.postgresql.Driver'
+    locations = ["filesystem:${projectDir}/src/main/resources/db/migration"]
+    baselineOnMigrate = true
+    configurations = ['flywayMigration']
+    connectRetries = 3
 }
 
 // 全体チェックタスク（自動修正は含まない）
