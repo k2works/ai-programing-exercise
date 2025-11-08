@@ -27,10 +27,6 @@ repositories {
     mavenCentral()
 }
 
-configurations {
-    flywayMigration
-}
-
 dependencies {
     // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -42,7 +38,6 @@ dependencies {
 
     // Flyway
     implementation 'org.flywaydb:flyway-core'
-    flywayMigration 'org.postgresql:postgresql:42.7.1'
 
     // Database
     runtimeOnly 'org.postgresql:postgresql'
@@ -122,14 +117,15 @@ tasks.named('spotbugsTest') {
 }
 
 // Flyway設定
+// Note: Gradle の configuration cache と完全な互換性がないため、
+// flywayMigrate タスクは --no-configuration-cache オプション付きで実行するか、
+// migrate.sh スクリプトを使用することを推奨
 flyway {
     url = 'jdbc:postgresql://localhost:5432/sales_management?connectTimeout=30&socketTimeout=30'
     user = 'postgres'
     password = 'postgres'
-    driver = 'org.postgresql.Driver'
     locations = ["classpath:db/migration"]
     baselineOnMigrate = true
-    configurations = ['flywayMigration']
     connectRetries = 3
 }
 
