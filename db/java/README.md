@@ -140,7 +140,17 @@ docker-compose up -d
 #### データベース
 
 ```bash
-# Flywayマイグレーション実行
+# Flywayマイグレーション実行（推奨）
+./migrate.sh
+
+# または、個別にSQLファイルを実行
+for file in app/src/main/resources/db/migration/V*.sql; do
+  docker exec -i sales-management-postgres psql -U postgres -d sales_management < "$file"
+done
+
+# Flywayマイグレーション実行（Gradleタスク）
+# Note: Windows環境では localhost 接続がタイムアウトする問題があるため、
+# 上記のスクリプトまたはコマンドを使用することを推奨
 ./gradlew flywayMigrate
 
 # Flyway情報表示
