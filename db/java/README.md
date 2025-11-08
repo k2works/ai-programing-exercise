@@ -139,6 +139,8 @@ docker-compose up -d
 
 #### データベース
 
+**重要**: Windows/WSL2 環境では `./gradlew flywayMigrate` が localhost 接続でタイムアウトします。以下の方法を使用してください。
+
 ```bash
 # Flywayマイグレーション実行（推奨）
 ./migrate.sh
@@ -147,14 +149,16 @@ docker-compose up -d
 for file in app/src/main/resources/db/migration/V*.sql; do
   docker exec -i sales-management-postgres psql -U postgres -d sales_management < "$file"
 done
+```
 
+以下の Gradle タスクは Linux/Mac 環境では動作する可能性があります：
+
+```bash
 # Flywayマイグレーション実行（Gradleタスク）
-# Note: Windows環境では localhost 接続がタイムアウトする問題があるため、
-# 上記のスクリプトまたはコマンドを使用することを推奨
-./gradlew flywayMigrate
+./gradlew flywayMigrate --no-configuration-cache
 
 # Flyway情報表示
-./gradlew flywayInfo
+./gradlew flywayInfo --no-configuration-cache
 ```
 
 #### その他
@@ -321,6 +325,28 @@ cd db/java
 # 再ビルド
 ./gradlew build
 ```
+
+### Flyway マイグレーションの問題
+
+**エラー**: `Unable to obtain connection from database` または接続タイムアウト
+
+**原因**: Windows/WSL2 環境では Gradle から localhost:5432 への接続がタイムアウトする問題があります。
+
+**解決策**:
+```bash
+# migrate.sh スクリプトを使用（推奨）
+./migrate.sh
+
+# または、手動で SQL ファイルを実行
+for file in app/src/main/resources/db/migration/V*.sql; do
+  docker exec -i sales-management-postgres psql -U postgres -d sales_management < "$file"
+done
+```
+
+**注意**:
+- この問題は Windows/WSL2 環境特有です
+- Linux/Mac 環境では `./gradlew flywayMigrate` が動作する可能性があります
+- テスト実行時は Testcontainers を使用するため、この問題は発生しません
 
 ## 次のステップ
 
