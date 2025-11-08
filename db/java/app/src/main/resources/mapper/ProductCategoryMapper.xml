@@ -19,11 +19,11 @@
     <insert id="insert">
         INSERT INTO 商品分類マスタ (
             商品分類コード, 商品分類名, 商品分類階層, 商品分類パス, 最下層区分,
-            作成日時, 作成者名, 更新日時, 更新者名
+            作成者名, 更新者名
         ) VALUES (
             #{productCategoryCode}, #{productCategoryName}, #{productCategoryLevel},
             #{productCategoryPath}, #{lowestLevelFlag},
-            #{createdAt}, #{createdBy}, #{updatedAt}, #{updatedBy}
+            #{createdBy}, #{updatedBy}
         )
     </insert>
 
