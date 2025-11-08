@@ -120,11 +120,10 @@ tasks.named('spotbugsTest') {
 }
 
 // Flyway設定
-// Note: Gradle の configuration cache と完全な互換性がないため、
-// flywayMigrate タスクは --no-configuration-cache オプション付きで実行するか、
-// migrate.sh スクリプトを使用することを推奨
+// 127.0.0.1 を明示的に指定してWSL2環境での接続を安定化
+// sslmode=disable でSSL接続を無効化
 flyway {
-    url = 'jdbc:postgresql://localhost:5432/sales_management?connectTimeout=30&socketTimeout=30'
+    url = 'jdbc:postgresql://127.0.0.1:5432/sales_management?sslmode=disable&connectTimeout=30&socketTimeout=30'
     user = 'postgres'
     password = 'postgres'
     locations = ["classpath:db/migration"]
