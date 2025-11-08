@@ -1,0 +1,68 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Gradle: Build",
+      "type": "shell",
+      "command": "${workspaceFolder}/gradlew",
+      "args": ["build"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Gradle: Test",
+      "type": "shell",
+      "command": "${workspaceFolder}/gradlew",
+      "args": ["test"],
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Gradle: Clean Build",
+      "type": "shell",
+      "command": "${workspaceFolder}/gradlew",
+      "args": ["clean", "build"],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Gradle: Boot Run",
+      "type": "shell",
+      "command": "${workspaceFolder}/gradlew",
+      "args": ["bootRun"],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Gradle: Check All",
+      "type": "shell",
+      "command": "${workspaceFolder}/gradlew",
+      "args": ["checkAll"],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

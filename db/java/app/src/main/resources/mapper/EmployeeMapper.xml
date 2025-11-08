@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.sales.domain.repository.EmployeeMapper">
+
+    <!-- ResultMap定義 -->
+    <resultMap id="employeeResultMap" type="com.example.sales.domain.model.Employee">
+        <id property="employeeCode" column="社員コード"/>
+        <result property="employeeName" column="社員名"/>
+        <result property="employeeNameKana" column="社員名カナ"/>
+        <result property="gender" column="性別"/>
+        <result property="birthDate" column="生年月日"/>
+        <result property="joinDate" column="入社年月日"/>
+        <result property="departmentCode" column="部門コード"/>
+        <result property="positionCode" column="役職コード"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者名"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者名"/>
+    </resultMap>
+
+    <!-- INSERT -->
+    <insert id="insert" parameterType="com.example.sales.domain.model.Employee">
+        INSERT INTO 社員マスタ (
+            社員コード,
+            社員名,
+            社員名カナ,
+            性別,
+            生年月日,
+            入社年月日,
+            部門コード,
+            役職コード,
+            作成者名,
+            更新者名
+        ) VALUES (
+            #{employeeCode},
+            #{employeeName},
+            #{employeeNameKana},
+            #{gender},
+            #{birthDate},
+            #{joinDate},
+            #{departmentCode},
+            #{positionCode},
+            #{createdBy},
+            #{updatedBy}
+        )
+    </insert>
+
+    <!-- UPDATE -->
+    <update id="update" parameterType="com.example.sales.domain.model.Employee">
+        UPDATE 社員マスタ
+        SET
+            社員名 = #{employeeName},
+            社員名カナ = #{employeeNameKana},
+            性別 = #{gender},
+            生年月日 = #{birthDate},
+            入社年月日 = #{joinDate},
+            部門コード = #{departmentCode},
+            役職コード = #{positionCode},
+            更新日時 = CURRENT_TIMESTAMP,
+            更新者名 = #{updatedBy}
+        WHERE
+            社員コード = #{employeeCode}
+    </update>
+
+    <!-- DELETE -->
+    <delete id="delete">
+        DELETE FROM 社員マスタ
+        WHERE
+            社員コード = #{employeeCode}
+    </delete>
+
+    <!-- SELECT BY ID -->
+    <select id="findById" resultMap="employeeResultMap">
+        SELECT
+            社員コード,
+            社員名,
+            社員名カナ,
+            性別,
+            生年月日,
+            入社年月日,
+            部門コード,
+            役職コード,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            社員マスタ
+        WHERE
+            社員コード = #{employeeCode}
+    </select>
+
+    <!-- SELECT ALL -->
+    <select id="findAll" resultMap="employeeResultMap">
+        SELECT
+            社員コード,
+            社員名,
+            社員名カナ,
+            性別,
+            生年月日,
+            入社年月日,
+            部門コード,
+            役職コード,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            社員マスタ
+        ORDER BY
+            社員コード
+    </select>
+
+    <!-- SELECT BY DEPARTMENT CODE -->
+    <select id="findByDepartmentCode" resultMap="employeeResultMap">
+        SELECT
+            社員コード,
+            社員名,
+            社員名カナ,
+            性別,
+            生年月日,
+            入社年月日,
+            部門コード,
+            役職コード,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            社員マスタ
+        WHERE
+            部門コード = #{departmentCode}
+        ORDER BY
+            社員コード
+    </select>
+
+</mapper>

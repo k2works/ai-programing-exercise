@@ -1,0 +1,26 @@
+{
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.import.gradle.home": null,
+  "java.import.gradle.wrapper.enabled": true,
+  "java.compile.nullAnalysis.mode": "automatic",
+
+  // Gradle設定
+  "gradle.nestedProjects": true,
+
+  // ターミナルのデフォルトディレクトリ
+  "terminal.integrated.cwd": "${workspaceFolder}",
+
+  // ファイル除外設定
+  "files.exclude": {
+    "**/.gradle": true,
+    "**/build": true,
+    "**/.idea": true
+  },
+
+  // 検索除外設定
+  "search.exclude": {
+    "**/.gradle": true,
+    "**/build": true,
+    "**/node_modules": true
+  }
+}

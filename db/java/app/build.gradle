@@ -1,0 +1,137 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'jacoco'
+    id 'checkstyle'
+    id 'pmd'
+    id 'com.github.spotbugs' version '6.0.7'
+    id 'org.springframework.boot' version '3.2.0'
+    id 'io.spring.dependency-management' version '1.1.4'
+}
+
+group = 'com.example.sales'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    sourceCompatibility = '21'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Spring Boot
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // MyBatis
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
+
+    // Flyway
+    implementation 'org.flywaydb:flyway-core'
+
+    // Database
+    runtimeOnly 'org.postgresql:postgresql'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    // Lombok (オプション)
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Test
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testImplementation 'org.assertj:assertj-core:3.24.2'
+    testImplementation 'org.testcontainers:testcontainers:1.19.3'
+    testImplementation 'org.testcontainers:postgresql:1.19.3'
+    testImplementation 'org.testcontainers:mysql:1.19.3'
+    testImplementation 'org.testcontainers:junit-jupiter:1.19.3'
+
+    // Bean Validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // SpotBugs
+    spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.12.0'
+}
+
+application {
+    mainClass = 'com.example.sales.App'
+}
+
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacoco {
+    toolVersion = "0.8.11"
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+checkstyle {
+    toolVersion = '10.12.5'
+    configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
+}
+
+pmd {
+    toolVersion = '6.55.0'
+    ruleSets = []
+    ruleSetFiles = files("${rootDir}/config/pmd/ruleset.xml")
+}
+
+spotbugs {
+    toolVersion = '4.8.3'
+}
+
+tasks.named('spotbugsMain') {
+    reports {
+        html {
+            required = true
+        }
+    }
+}
+
+tasks.named('spotbugsTest') {
+    reports {
+        html {
+            required = true
+        }
+    }
+}
+
+// 全体チェックタスク（自動修正は含まない）
+task checkAll {
+    dependsOn 'checkstyleMain', 'pmdMain', 'spotbugsMain', 'test'
+    group = 'verification'
+    description = 'Run all checks (checkstyle, pmd, spotbugs, test)'
+}
+
+// カバレッジレポート確認タスク
+task showCoverage {
+    dependsOn 'jacocoTestReport'
+    doLast {
+        println "Coverage report: file://${project.buildDir}/reports/jacoco/test/html/index.html"
+    }
+}
+
+// 開発用セットアップタスク
+task setup {
+    group = 'build setup'
+    description = 'Setup development environment'
+    doLast {
+        println 'Development environment setup complete!'
+        println '1. Database: docker-compose up -d postgres'
+        println '2. Run tests: ./gradlew test'
+        println '3. Check code: ./gradlew checkAll'
+    }
+}

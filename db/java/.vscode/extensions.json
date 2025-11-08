@@ -1,0 +1,24 @@
+{
+  "recommendations": [
+    // Java開発
+    "vscjava.vscode-java-pack",
+    "vscjava.vscode-gradle",
+
+    // Spring Boot
+    "vmware.vscode-spring-boot",
+    "vscjava.vscode-spring-initializr",
+    "vscjava.vscode-spring-boot-dashboard",
+
+    // データベース
+    "mtxr.sqltools",
+    "mtxr.sqltools-driver-pg",
+    "mtxr.sqltools-driver-mysql",
+
+    // コード品質
+    "sonarsource.sonarlint-vscode",
+
+    // ユーティリティ
+    "redhat.vscode-yaml",
+    "ms-azuretools.vscode-docker"
+  ]
+}
