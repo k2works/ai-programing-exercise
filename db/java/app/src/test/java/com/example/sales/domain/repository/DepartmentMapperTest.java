@@ -26,7 +26,22 @@ class DepartmentMapperTest extends AbstractDatabaseTest {
 
     @BeforeEach
     void setUp() {
-        // テストデータをクリア
+        // テストデータをクリア（外部キー制約により、参照元を先に削除）
+        // 第5章のテーブル
+        jdbcTemplate.execute("DELETE FROM 在庫データ");
+        jdbcTemplate.execute("DELETE FROM 仕入データ明細");
+        jdbcTemplate.execute("DELETE FROM 仕入データ");
+        jdbcTemplate.execute("DELETE FROM 発注データ明細");
+        jdbcTemplate.execute("DELETE FROM 発注データ");
+
+        // 第4章のテーブル
+        jdbcTemplate.execute("DELETE FROM 売上データ明細");
+        jdbcTemplate.execute("DELETE FROM 売上データ");
+        jdbcTemplate.execute("DELETE FROM 受注データ明細");
+        jdbcTemplate.execute("DELETE FROM 受注データ");
+
+        // 第3章以前のテーブル
+        jdbcTemplate.execute("DELETE FROM 社員マスタ");
         jdbcTemplate.execute("DELETE FROM 部門マスタ");
     }
 

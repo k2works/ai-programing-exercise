@@ -3,8 +3,10 @@ package com.example.sales.domain.model;
 import com.example.sales.AbstractDatabaseTest;
 import com.example.sales.domain.repository.ProductCategoryMapper;
 import com.example.sales.domain.repository.ProductMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -24,6 +26,32 @@ class ProductTest extends AbstractDatabaseTest {
 
     @Autowired
     private ProductCategoryMapper productCategoryMapper;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @BeforeEach
+    void setUp() {
+        // テストデータをクリア（外部キー制約により、参照元を先に削除）
+        // 第5章のテーブル
+        jdbcTemplate.execute("DELETE FROM 在庫データ");
+        jdbcTemplate.execute("DELETE FROM 仕入データ明細");
+        jdbcTemplate.execute("DELETE FROM 仕入データ");
+        jdbcTemplate.execute("DELETE FROM 発注データ明細");
+        jdbcTemplate.execute("DELETE FROM 発注データ");
+
+        // 第4章のテーブル
+        jdbcTemplate.execute("DELETE FROM 売上データ明細");
+        jdbcTemplate.execute("DELETE FROM 売上データ");
+        jdbcTemplate.execute("DELETE FROM 受注データ明細");
+        jdbcTemplate.execute("DELETE FROM 受注データ");
+
+        // 第3章以前のテーブル
+        jdbcTemplate.execute("DELETE FROM 顧客別販売単価");
+        jdbcTemplate.execute("DELETE FROM 代替商品");
+        jdbcTemplate.execute("DELETE FROM 商品マスタ");
+        jdbcTemplate.execute("DELETE FROM 商品分類マスタ");
+    }
 
     @Test
     void 商品を登録できる() {
