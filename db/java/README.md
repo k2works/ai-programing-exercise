@@ -139,26 +139,37 @@ docker-compose up -d
 
 #### データベース
 
-**重要**: Windows/WSL2 環境では `./gradlew flywayMigrate` が localhost 接続でタイムアウトします。以下の方法を使用してください。
+**Windows/WSL2 環境での Flyway 設定**
+
+Windows/WSL2 環境では、以下の設定により Flyway が正常に動作します：
+
+1. **接続 URL**: `127.0.0.1` を使用し、`sslmode=disable` を指定
+2. **タイムアウト設定**: `connectTimeout` と `socketTimeout` を設定
+3. **Configuration cache**: Flyway Gradle プラグインとの互換性のため無効化
+
+これらの設定は `app/build.gradle`、`app/src/main/resources/application.properties`、および `gradle.properties` に既に適用されています。
 
 ```bash
-# Flywayマイグレーション実行（推奨）
+# Flywayマイグレーション実行
+./gradlew flywayMigrate
+
+# Flyway情報表示
+./gradlew flywayInfo
+
+# Flyway修復（checksumの再計算）
+./gradlew flywayRepair
+```
+
+**代替方法**（Gradle タスクが利用できない場合）:
+
+```bash
+# migrate.sh スクリプトを使用
 ./migrate.sh
 
 # または、個別にSQLファイルを実行
 for file in app/src/main/resources/db/migration/V*.sql; do
   docker exec -i sales-management-postgres psql -U postgres -d sales_management < "$file"
 done
-```
-
-以下の Gradle タスクは Linux/Mac 環境では動作する可能性があります：
-
-```bash
-# Flywayマイグレーション実行（Gradleタスク）
-./gradlew flywayMigrate --no-configuration-cache
-
-# Flyway情報表示
-./gradlew flywayInfo --no-configuration-cache
 ```
 
 #### その他
@@ -330,11 +341,38 @@ cd db/java
 
 **エラー**: `Unable to obtain connection from database` または接続タイムアウト
 
-**原因**: Windows/WSL2 環境では Gradle から localhost:5432 への接続がタイムアウトする問題があります。
+**原因**: Windows/WSL2 環境では PostgreSQL への SSL 接続でタイムアウトが発生することがあります。
 
 **解決策**:
+
+このプロジェクトでは、以下の設定により問題を解決しています：
+
+1. **JDBC URL に `sslmode=disable` を追加**
+   ```properties
+   spring.datasource.url=jdbc:postgresql://127.0.0.1:5432/sales_management?sslmode=disable
+   ```
+
+2. **`localhost` の代わりに `127.0.0.1` を使用**
+   - WSL2 環境でより安定した接続が可能
+
+3. **タイムアウト設定の追加**
+   ```
+   ?sslmode=disable&connectTimeout=30&socketTimeout=30
+   ```
+
+これらの設定は `app/build.gradle` と `app/src/main/resources/application.properties` に既に適用されています。
+
+**Flyway Validation エラーが発生した場合**:
+
 ```bash
-# migrate.sh スクリプトを使用（推奨）
+# Flyway repair コマンドで checksum を再計算
+./gradlew flywayRepair
+```
+
+**代替方法**（上記で解決しない場合）:
+
+```bash
+# migrate.sh スクリプトを使用
 ./migrate.sh
 
 # または、手動で SQL ファイルを実行
@@ -342,11 +380,6 @@ for file in app/src/main/resources/db/migration/V*.sql; do
   docker exec -i sales-management-postgres psql -U postgres -d sales_management < "$file"
 done
 ```
-
-**注意**:
-- この問題は Windows/WSL2 環境特有です
-- Linux/Mac 環境では `./gradlew flywayMigrate` が動作する可能性があります
-- テスト実行時は Testcontainers を使用するため、この問題は発生しません
 
 ## 次のステップ
 

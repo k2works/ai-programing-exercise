@@ -97,7 +97,7 @@ services:
     container_name: sales-management-schemaspy-viewer
     restart: unless-stopped
     ports:
-      - "${SCHEMASPY_PORT:-8081}:80"
+      - "${SCHEMASPY_PORT:-8082}:80"
     volumes:
       - ./schemaspy-output:/usr/share/nginx/html:ro
     networks:
