@@ -120,8 +120,11 @@ docker-compose up -d
 # テスト実行
 ./gradlew test
 
-# Spring Bootアプリケーション起動
+# Spring Bootアプリケーション起動（ポート8081で起動）
 ./gradlew bootRun
+
+# アプリケーション起動確認
+# ブラウザで http://localhost:8081/swagger-ui/index.html にアクセス
 ```
 
 #### 品質チェック
@@ -185,6 +188,46 @@ done
 ./gradlew dependencies
 ```
 
+### API ドキュメント
+
+アプリケーション起動後、Swagger UI を使用して REST API を確認・テストできます。
+
+#### Swagger UI
+
+- **URL**: http://localhost:8081/swagger-ui/index.html
+- **アクセス方法**: アプリケーションを起動後、ブラウザで上記 URL にアクセス
+
+#### 利用可能な API エンドポイント
+
+**商品管理 API** (`/api/products`)
+- `GET /api/products` - 商品一覧の取得
+- `GET /api/products/{id}` - 商品詳細の取得
+- `POST /api/products` - 商品の登録
+- `PUT /api/products/{id}` - 商品の更新
+- `DELETE /api/products/{id}` - 商品の削除
+
+#### シードデータ
+
+開発環境（`spring.profiles.active=dev`）でアプリケーションを起動すると、以下のテストデータが自動的に投入されます：
+
+- **部門マスタ**: 21件
+- **社員マスタ**: 45件
+- **倉庫マスタ**: 2件
+- **取引先マスタ**: 14件
+- **商品マスタ**: 20件
+
+シードデータは `com.example.sales.seed.DataSeeder` クラスで管理されており、アプリケーション起動時に自動実行されます。
+
+**注意**: シードデータは一度投入されるとデータベースに保存されます。データをクリアしたい場合は、以下のコマンドでデータベースを再作成してください：
+
+```bash
+# データベースコンテナを停止し、ボリュームを削除
+docker-compose down -v
+
+# データベースコンテナを再起動
+docker-compose up -d postgres
+```
+
 ### データベース管理
 
 #### Adminer（Webベースのデータベース管理ツール）
@@ -213,7 +256,8 @@ docker-compose run --rm schemaspy
 docker-compose up -d schemaspy-viewer
 ```
 
-- URL: http://localhost:8081
+- URL: http://localhost:8082（SchemaSpyビューアー用）
+- **注意**: Spring Boot アプリケーション（ポート8081）とポートが異なります
 
 ### Docker Compose の便利なコマンド
 
