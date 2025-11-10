@@ -49,6 +49,13 @@ public class DataSeeder implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
+        // 既にデータが存在する場合はスキップ（冪等性を保証）
+        if (departmentMapper.findAll() != null && !departmentMapper.findAll().isEmpty()) {
+            System.out.println("シードデータは既に投入済みです。スキップします。");
+            return;
+        }
+
+        System.out.println("シードデータを投入中...");
         seedDepartments();
         seedEmployees();
         seedCompanyGroups();
@@ -58,6 +65,7 @@ public class DataSeeder implements ApplicationRunner {
         seedProductCategories();
         seedProducts();
         seedWarehouses();
+        System.out.println("シードデータの投入が完了しました。");
     }
 
     private void seedDepartments() {
@@ -103,6 +111,7 @@ public class DataSeeder implements ApplicationRunner {
         Department dept = new Department();
         dept.setDepartmentCode(code);
         dept.setStartDate(startDate);
+        dept.setEndDate(LocalDate.of(9999, 12, 31));  // 有効な部門は未来の日付を設定
         dept.setDepartmentName(name);
         dept.setOrganizationLevel(level);
         dept.setDepartmentPath(path);
@@ -200,13 +209,13 @@ public class DataSeeder implements ApplicationRunner {
     private void seedCompanyGroups() {
         LocalDateTime now = LocalDateTime.now();
         List<CompanyGroup> groups = new ArrayList<>();
-        groups.add(createCompanyGroup("GRP001", "百貨店", now));
-        groups.add(createCompanyGroup("GRP002", "スーパー", now));
-        groups.add(createCompanyGroup("GRP003", "ホテル・旅館", now));
-        groups.add(createCompanyGroup("GRP004", "飲食店", now));
-        groups.add(createCompanyGroup("GRP005", "観光施設", now));
-        groups.add(createCompanyGroup("GRP006", "食肉卸", now));
-        groups.add(createCompanyGroup("GRP007", "畜産業者", now));
+        groups.add(createCompanyGroup("GP01", "百貨店", now));
+        groups.add(createCompanyGroup("GP02", "スーパー", now));
+        groups.add(createCompanyGroup("GP03", "ホテル・旅館", now));
+        groups.add(createCompanyGroup("GP04", "飲食店", now));
+        groups.add(createCompanyGroup("GP05", "観光施設", now));
+        groups.add(createCompanyGroup("GP06", "食肉卸", now));
+        groups.add(createCompanyGroup("GP07", "畜産業者", now));
         groups.forEach(companyGroupMapper::insert);
     }
 
@@ -227,23 +236,23 @@ public class DataSeeder implements ApplicationRunner {
     }
 
     private void addCustomerCompanies(List<Company> companies, LocalDateTime now) {
-        companies.add(createCompany("CMP001", "地域百貨店", "チイキヒャッカテン", "GRP001", 1, now));
-        companies.add(createCompany("CMP002", "X県有名百貨店", "Xケンユウメイヒャッカテン", "GRP001", 1, now));
-        companies.add(createCompany("CMP003", "地域スーパーチェーン", "チイキスーパーチェーン", "GRP002", 1, now));
-        companies.add(createCompany("CMP004", "広域スーパーチェーン", "コウイキスーパーチェーン", "GRP002", 1, now));
-        companies.add(createCompany("CMP005", "シティホテルX", "シティホテルX", "GRP003", 1, now));
-        companies.add(createCompany("CMP006", "温泉旅館Y", "オンセンリョカンY", "GRP003", 1, now));
-        companies.add(createCompany("CMP007", "焼肉レストランA", "ヤキニクレストランA", "GRP004", 1, now));
-        companies.add(createCompany("CMP008", "イタリアンレストランB", "イタリアンレストランB", "GRP004", 1, now));
-        companies.add(createCompany("CMP009", "道の駅C", "ミチノエキC", "GRP005", 1, now));
-        companies.add(createCompany("CMP010", "観光センターD", "カンコウセンターD", "GRP005", 1, now));
+        companies.add(createCompany("CMP001", "地域百貨店", "チイキヒャッカテン", "GP01", 1, now));
+        companies.add(createCompany("CMP002", "X県有名百貨店", "Xケンユウメイヒャッカテン", "GP01", 1, now));
+        companies.add(createCompany("CMP003", "地域スーパーチェーン", "チイキスーパーチェーン", "GP02", 1, now));
+        companies.add(createCompany("CMP004", "広域スーパーチェーン", "コウイキスーパーチェーン", "GP02", 1, now));
+        companies.add(createCompany("CMP005", "シティホテルX", "シティホテルX", "GP03", 1, now));
+        companies.add(createCompany("CMP006", "温泉旅館Y", "オンセンリョカンY", "GP03", 1, now));
+        companies.add(createCompany("CMP007", "焼肉レストランA", "ヤキニクレストランA", "GP04", 1, now));
+        companies.add(createCompany("CMP008", "イタリアンレストランB", "イタリアンレストランB", "GP04", 1, now));
+        companies.add(createCompany("CMP009", "道の駅C", "ミチノエキC", "GP05", 1, now));
+        companies.add(createCompany("CMP010", "観光センターD", "カンコウセンターD", "GP05", 1, now));
     }
 
     private void addSupplierCompanies(List<Company> companies, LocalDateTime now) {
-        companies.add(createCompany("CMP011", "地域食肉卸A社", "チイキショクニクオロシAシャ", "GRP006", 2, now));
-        companies.add(createCompany("CMP012", "地域食肉卸B社", "チイキショクニクオロシBシャ", "GRP006", 2, now));
-        companies.add(createCompany("CMP013", "地域畜産農家", "チイキチクサンノウカ", "GRP007", 2, now));
-        companies.add(createCompany("CMP014", "県内畜産組合", "ケンナイチクサンクミアイ", "GRP007", 2, now));
+        companies.add(createCompany("CMP011", "地域食肉卸A社", "チイキショクニクオロシAシャ", "GP06", 2, now));
+        companies.add(createCompany("CMP012", "地域食肉卸B社", "チイキショクニクオロシBシャ", "GP06", 2, now));
+        companies.add(createCompany("CMP013", "地域畜産農家", "チイキチクサンノウカ", "GP07", 2, now));
+        companies.add(createCompany("CMP014", "県内畜産組合", "ケンナイチクサンクミアイ", "GP07", 2, now));
     }
 
     private Company createCompany(String code, String name, String kanaName, String groupCode,
@@ -467,8 +476,8 @@ public class DataSeeder implements ApplicationRunner {
     private void seedWarehouses() {
         LocalDateTime now = LocalDateTime.now();
         List<Warehouse> warehouses = new ArrayList<>();
-        warehouses.add(createWarehouse("WH001", "本社倉庫", 1, "X県X市Y町1-2-3", "000-0000-0000", "EMP00001", now));
-        warehouses.add(createWarehouse("WH002", "工場倉庫", 2, "X県X市Z町4-5-6", "000-0000-0001", "EMP00002", now));
+        warehouses.add(createWarehouse("W01", "本社倉庫", 1, "X県X市Y町1-2-3", "000-0000-0000", "EMP00001", now));
+        warehouses.add(createWarehouse("W02", "工場倉庫", 2, "X県X市Z町4-5-6", "000-0000-0001", "EMP00002", now));
         warehouses.forEach(warehouseMapper::insert);
     }
 
