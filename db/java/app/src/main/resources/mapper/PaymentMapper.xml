@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.sales.domain.repository.PaymentMapper">
+
+    <!-- ResultMap定義 -->
+    <resultMap id="paymentResultMap" type="com.example.sales.domain.model.Payment">
+        <id property="paymentNo" column="支払番号"/>
+        <result property="paymentDate" column="支払日"/>
+        <result property="departmentCode" column="部門コード"/>
+        <result property="startDate" column="部門開始日"/>
+        <result property="supplierCode" column="仕入先コード"/>
+        <result property="supplierBranch" column="仕入先枝番"/>
+        <result property="paymentMethodType" column="支払方法区分"/>
+        <result property="paymentAmount" column="支払金額"/>
+        <result property="consumptionTax" column="消費税合計"/>
+        <result property="completeFlag" column="支払完了フラグ"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者名"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者名"/>
+    </resultMap>
+
+    <!-- INSERT -->
+    <insert id="insert" parameterType="com.example.sales.domain.model.Payment">
+        INSERT INTO 支払データ (
+            支払番号,
+            支払日,
+            部門コード,
+            部門開始日,
+            仕入先コード,
+            仕入先枝番,
+            支払方法区分,
+            支払金額,
+            消費税合計,
+            支払完了フラグ,
+            作成者名,
+            更新者名
+        ) VALUES (
+            #{paymentNo},
+            #{paymentDate},
+            #{departmentCode},
+            #{startDate},
+            #{supplierCode},
+            #{supplierBranch},
+            #{paymentMethodType},
+            #{paymentAmount},
+            #{consumptionTax},
+            #{completeFlag},
+            #{createdBy},
+            #{updatedBy}
+        )
+    </insert>
+
+    <!-- UPDATE -->
+    <update id="update" parameterType="com.example.sales.domain.model.Payment">
+        UPDATE 支払データ
+        SET
+            支払日 = #{paymentDate},
+            部門コード = #{departmentCode},
+            部門開始日 = #{startDate},
+            仕入先コード = #{supplierCode},
+            仕入先枝番 = #{supplierBranch},
+            支払方法区分 = #{paymentMethodType},
+            支払金額 = #{paymentAmount},
+            消費税合計 = #{consumptionTax},
+            支払完了フラグ = #{completeFlag},
+            更新日時 = CURRENT_TIMESTAMP,
+            更新者名 = #{updatedBy}
+        WHERE
+            支払番号 = #{paymentNo}
+    </update>
+
+    <!-- DELETE -->
+    <delete id="delete">
+        DELETE FROM 支払データ
+        WHERE
+            支払番号 = #{paymentNo}
+    </delete>
+
+    <!-- SELECT BY ID -->
+    <select id="findById" resultMap="paymentResultMap">
+        SELECT
+            支払番号,
+            支払日,
+            部門コード,
+            部門開始日,
+            仕入先コード,
+            仕入先枝番,
+            支払方法区分,
+            支払金額,
+            消費税合計,
+            支払完了フラグ,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            支払データ
+        WHERE
+            支払番号 = #{paymentNo}
+    </select>
+
+    <!-- SELECT ALL -->
+    <select id="findAll" resultMap="paymentResultMap">
+        SELECT
+            支払番号,
+            支払日,
+            部門コード,
+            部門開始日,
+            仕入先コード,
+            仕入先枝番,
+            支払方法区分,
+            支払金額,
+            消費税合計,
+            支払完了フラグ,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            支払データ
+        ORDER BY
+            支払番号
+    </select>
+
+    <!-- SELECT BY SUPPLIER CODE -->
+    <select id="findBySupplierCode" resultMap="paymentResultMap">
+        SELECT
+            支払番号,
+            支払日,
+            部門コード,
+            部門開始日,
+            仕入先コード,
+            仕入先枝番,
+            支払方法区分,
+            支払金額,
+            消費税合計,
+            支払完了フラグ,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            支払データ
+        WHERE
+            仕入先コード = #{supplierCode}
+            AND 仕入先枝番 = #{supplierBranch}
+        ORDER BY
+            支払番号
+    </select>
+
+    <!-- SELECT BY PAYMENT DATE -->
+    <select id="findByPaymentDate" resultMap="paymentResultMap">
+        SELECT
+            支払番号,
+            支払日,
+            部門コード,
+            部門開始日,
+            仕入先コード,
+            仕入先枝番,
+            支払方法区分,
+            支払金額,
+            消費税合計,
+            支払完了フラグ,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            支払データ
+        WHERE
+            支払日 = #{paymentDate}
+        ORDER BY
+            支払番号
+    </select>
+
+</mapper>

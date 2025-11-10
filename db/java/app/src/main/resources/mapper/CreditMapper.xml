@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.sales.domain.repository.CreditMapper">
+
+    <!-- ResultMap定義 -->
+    <resultMap id="creditResultMap" type="com.example.sales.domain.model.Credit">
+        <id property="creditNo" column="入金番号"/>
+        <result property="creditDate" column="入金日"/>
+        <result property="departmentCode" column="部門コード"/>
+        <result property="startDate" column="開始日"/>
+        <result property="customerCode" column="顧客コード"/>
+        <result property="customerBranch" column="顧客枝番"/>
+        <result property="paymentMethodType" column="支払方法区分"/>
+        <result property="bankAccountCode" column="入金口座コード"/>
+        <result property="creditAmount" column="入金金額"/>
+        <result property="appliedAmount" column="消込金額"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者名"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者名"/>
+        <result property="programUpdateDate" column="プログラム更新日時"/>
+        <result property="updateProgramName" column="更新プログラム名"/>
+    </resultMap>
+
+    <!-- INSERT -->
+    <insert id="insert" parameterType="com.example.sales.domain.model.Credit">
+        INSERT INTO 入金データ (
+            入金番号,
+            入金日,
+            部門コード,
+            開始日,
+            顧客コード,
+            顧客枝番,
+            支払方法区分,
+            入金口座コード,
+            入金金額,
+            消込金額,
+            作成者名,
+            更新者名,
+            プログラム更新日時,
+            更新プログラム名
+        ) VALUES (
+            #{creditNo},
+            #{creditDate},
+            #{departmentCode},
+            #{startDate},
+            #{customerCode},
+            #{customerBranch},
+            #{paymentMethodType},
+            #{bankAccountCode},
+            #{creditAmount},
+            #{appliedAmount},
+            #{createdBy},
+            #{updatedBy},
+            #{programUpdateDate},
+            #{updateProgramName}
+        )
+    </insert>
+
+    <!-- UPDATE -->
+    <update id="update" parameterType="com.example.sales.domain.model.Credit">
+        UPDATE 入金データ
+        SET
+            入金日 = #{creditDate},
+            部門コード = #{departmentCode},
+            開始日 = #{startDate},
+            顧客コード = #{customerCode},
+            顧客枝番 = #{customerBranch},
+            支払方法区分 = #{paymentMethodType},
+            入金口座コード = #{bankAccountCode},
+            入金金額 = #{creditAmount},
+            消込金額 = #{appliedAmount},
+            更新日時 = CURRENT_TIMESTAMP,
+            更新者名 = #{updatedBy},
+            プログラム更新日時 = #{programUpdateDate},
+            更新プログラム名 = #{updateProgramName}
+        WHERE
+            入金番号 = #{creditNo}
+    </update>
+
+    <!-- DELETE -->
+    <delete id="delete">
+        DELETE FROM 入金データ
+        WHERE
+            入金番号 = #{creditNo}
+    </delete>
+
+    <!-- SELECT BY ID -->
+    <select id="findById" resultMap="creditResultMap">
+        SELECT
+            入金番号,
+            入金日,
+            部門コード,
+            開始日,
+            顧客コード,
+            顧客枝番,
+            支払方法区分,
+            入金口座コード,
+            入金金額,
+            消込金額,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名,
+            プログラム更新日時,
+            更新プログラム名
+        FROM
+            入金データ
+        WHERE
+            入金番号 = #{creditNo}
+    </select>
+
+    <!-- SELECT ALL -->
+    <select id="findAll" resultMap="creditResultMap">
+        SELECT
+            入金番号,
+            入金日,
+            部門コード,
+            開始日,
+            顧客コード,
+            顧客枝番,
+            支払方法区分,
+            入金口座コード,
+            入金金額,
+            消込金額,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名,
+            プログラム更新日時,
+            更新プログラム名
+        FROM
+            入金データ
+        ORDER BY
+            入金番号
+    </select>
+
+    <!-- SELECT BY CUSTOMER CODE -->
+    <select id="findByCustomerCode" resultMap="creditResultMap">
+        SELECT
+            入金番号,
+            入金日,
+            部門コード,
+            開始日,
+            顧客コード,
+            顧客枝番,
+            支払方法区分,
+            入金口座コード,
+            入金金額,
+            消込金額,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名,
+            プログラム更新日時,
+            更新プログラム名
+        FROM
+            入金データ
+        WHERE
+            顧客コード = #{customerCode}
+            AND 顧客枝番 = #{customerBranch}
+        ORDER BY
+            入金番号
+    </select>
+
+</mapper>

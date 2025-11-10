@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.sales.domain.repository.InvoiceDetailMapper">
+
+    <!-- ResultMap定義 -->
+    <resultMap id="invoiceDetailResultMap" type="com.example.sales.domain.model.InvoiceDetail">
+        <id property="invoiceNo" column="請求番号"/>
+        <id property="invoiceLineNo" column="請求行番号"/>
+        <result property="salesNo" column="売上番号"/>
+        <result property="salesLineNo" column="売上行番号"/>
+        <result property="invoiceAmount" column="請求金額"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者名"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者名"/>
+    </resultMap>
+
+    <!-- INSERT -->
+    <insert id="insert" parameterType="com.example.sales.domain.model.InvoiceDetail">
+        INSERT INTO 請求データ明細 (
+            請求番号,
+            請求行番号,
+            売上番号,
+            売上行番号,
+            請求金額,
+            作成者名,
+            更新者名
+        ) VALUES (
+            #{invoiceNo},
+            #{invoiceLineNo},
+            #{salesNo},
+            #{salesLineNo},
+            #{invoiceAmount},
+            #{createdBy},
+            #{updatedBy}
+        )
+    </insert>
+
+    <!-- UPDATE -->
+    <update id="update" parameterType="com.example.sales.domain.model.InvoiceDetail">
+        UPDATE 請求データ明細
+        SET
+            売上番号 = #{salesNo},
+            売上行番号 = #{salesLineNo},
+            請求金額 = #{invoiceAmount},
+            更新日時 = CURRENT_TIMESTAMP,
+            更新者名 = #{updatedBy}
+        WHERE
+            請求番号 = #{invoiceNo}
+            AND 請求行番号 = #{invoiceLineNo}
+    </update>
+
+    <!-- DELETE -->
+    <delete id="delete">
+        DELETE FROM 請求データ明細
+        WHERE
+            請求番号 = #{invoiceNo}
+            AND 請求行番号 = #{invoiceLineNo}
+    </delete>
+
+    <!-- SELECT BY ID -->
+    <select id="findById" resultMap="invoiceDetailResultMap">
+        SELECT
+            請求番号,
+            請求行番号,
+            売上番号,
+            売上行番号,
+            請求金額,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            請求データ明細
+        WHERE
+            請求番号 = #{invoiceNo}
+            AND 請求行番号 = #{invoiceLineNo}
+    </select>
+
+    <!-- SELECT BY INVOICE NO -->
+    <select id="findByInvoiceNo" resultMap="invoiceDetailResultMap">
+        SELECT
+            請求番号,
+            請求行番号,
+            売上番号,
+            売上行番号,
+            請求金額,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            請求データ明細
+        WHERE
+            請求番号 = #{invoiceNo}
+        ORDER BY
+            請求行番号
+    </select>
+
+    <!-- SELECT BY SALES DETAIL -->
+    <select id="findBySalesDetail" resultMap="invoiceDetailResultMap">
+        SELECT
+            請求番号,
+            請求行番号,
+            売上番号,
+            売上行番号,
+            請求金額,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            請求データ明細
+        WHERE
+            売上番号 = #{salesNo}
+            AND 売上行番号 = #{salesLineNo}
+        ORDER BY
+            請求番号, 請求行番号
+    </select>
+
+</mapper>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.sales.domain.repository.BankAccountMapper">
+
+    <!-- ResultMap定義 -->
+    <resultMap id="bankAccountResultMap" type="com.example.sales.domain.model.BankAccount">
+        <id property="bankAccountCode" column="入金口座コード"/>
+        <result property="accountHolder" column="口座名義"/>
+        <result property="bankName" column="銀行名"/>
+        <result property="branchName" column="支店名"/>
+        <result property="accountType" column="口座種別"/>
+        <result property="accountNumber" column="口座番号"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者名"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者名"/>
+    </resultMap>
+
+    <!-- INSERT -->
+    <insert id="insert" parameterType="com.example.sales.domain.model.BankAccount">
+        INSERT INTO 入金口座マスタ (
+            入金口座コード,
+            口座名義,
+            銀行名,
+            支店名,
+            口座種別,
+            口座番号,
+            作成者名,
+            更新者名
+        ) VALUES (
+            #{bankAccountCode},
+            #{accountHolder},
+            #{bankName},
+            #{branchName},
+            #{accountType},
+            #{accountNumber},
+            #{createdBy},
+            #{updatedBy}
+        )
+    </insert>
+
+    <!-- UPDATE -->
+    <update id="update" parameterType="com.example.sales.domain.model.BankAccount">
+        UPDATE 入金口座マスタ
+        SET
+            口座名義 = #{accountHolder},
+            銀行名 = #{bankName},
+            支店名 = #{branchName},
+            口座種別 = #{accountType},
+            口座番号 = #{accountNumber},
+            更新日時 = CURRENT_TIMESTAMP,
+            更新者名 = #{updatedBy}
+        WHERE
+            入金口座コード = #{bankAccountCode}
+    </update>
+
+    <!-- DELETE -->
+    <delete id="delete">
+        DELETE FROM 入金口座マスタ
+        WHERE
+            入金口座コード = #{bankAccountCode}
+    </delete>
+
+    <!-- SELECT BY ID -->
+    <select id="findById" resultMap="bankAccountResultMap">
+        SELECT
+            入金口座コード,
+            口座名義,
+            銀行名,
+            支店名,
+            口座種別,
+            口座番号,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            入金口座マスタ
+        WHERE
+            入金口座コード = #{bankAccountCode}
+    </select>
+
+    <!-- SELECT ALL -->
+    <select id="findAll" resultMap="bankAccountResultMap">
+        SELECT
+            入金口座コード,
+            口座名義,
+            銀行名,
+            支店名,
+            口座種別,
+            口座番号,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            入金口座マスタ
+        ORDER BY
+            入金口座コード
+    </select>
+
+</mapper>

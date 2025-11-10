@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.sales.domain.repository.InvoiceMapper">
+
+    <!-- ResultMap定義 -->
+    <resultMap id="invoiceResultMap" type="com.example.sales.domain.model.Invoice">
+        <id property="invoiceNo" column="請求番号"/>
+        <result property="invoiceDate" column="請求日"/>
+        <result property="companyCode" column="取引先コード"/>
+        <result property="customerBranch" column="顧客枝番"/>
+        <result property="lastReceivedAmount" column="前回入金額"/>
+        <result property="monthSalesAmount" column="当月売上額"/>
+        <result property="monthReceivedAmount" column="当月入金額"/>
+        <result property="monthInvoiceAmount" column="当月請求額"/>
+        <result property="consumptionTax" column="消費税金額"/>
+        <result property="invoiceReceivedAmount" column="請求消込金額"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者名"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者名"/>
+    </resultMap>
+
+    <!-- INSERT -->
+    <insert id="insert" parameterType="com.example.sales.domain.model.Invoice">
+        INSERT INTO 請求データ (
+            請求番号,
+            請求日,
+            取引先コード,
+            顧客枝番,
+            前回入金額,
+            当月売上額,
+            当月入金額,
+            当月請求額,
+            消費税金額,
+            請求消込金額,
+            作成者名,
+            更新者名
+        ) VALUES (
+            #{invoiceNo},
+            #{invoiceDate},
+            #{companyCode},
+            #{customerBranch},
+            #{lastReceivedAmount},
+            #{monthSalesAmount},
+            #{monthReceivedAmount},
+            #{monthInvoiceAmount},
+            #{consumptionTax},
+            #{invoiceReceivedAmount},
+            #{createdBy},
+            #{updatedBy}
+        )
+    </insert>
+
+    <!-- UPDATE -->
+    <update id="update" parameterType="com.example.sales.domain.model.Invoice">
+        UPDATE 請求データ
+        SET
+            請求日 = #{invoiceDate},
+            取引先コード = #{companyCode},
+            顧客枝番 = #{customerBranch},
+            前回入金額 = #{lastReceivedAmount},
+            当月売上額 = #{monthSalesAmount},
+            当月入金額 = #{monthReceivedAmount},
+            当月請求額 = #{monthInvoiceAmount},
+            消費税金額 = #{consumptionTax},
+            請求消込金額 = #{invoiceReceivedAmount},
+            更新日時 = CURRENT_TIMESTAMP,
+            更新者名 = #{updatedBy}
+        WHERE
+            請求番号 = #{invoiceNo}
+    </update>
+
+    <!-- DELETE -->
+    <delete id="delete">
+        DELETE FROM 請求データ
+        WHERE
+            請求番号 = #{invoiceNo}
+    </delete>
+
+    <!-- SELECT BY ID -->
+    <select id="findById" resultMap="invoiceResultMap">
+        SELECT
+            請求番号,
+            請求日,
+            取引先コード,
+            顧客枝番,
+            前回入金額,
+            当月売上額,
+            当月入金額,
+            当月請求額,
+            消費税金額,
+            請求消込金額,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            請求データ
+        WHERE
+            請求番号 = #{invoiceNo}
+    </select>
+
+    <!-- SELECT ALL -->
+    <select id="findAll" resultMap="invoiceResultMap">
+        SELECT
+            請求番号,
+            請求日,
+            取引先コード,
+            顧客枝番,
+            前回入金額,
+            当月売上額,
+            当月入金額,
+            当月請求額,
+            消費税金額,
+            請求消込金額,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            請求データ
+        ORDER BY
+            請求番号
+    </select>
+
+    <!-- SELECT BY COMPANY CODE -->
+    <select id="findByCompanyCode" resultMap="invoiceResultMap">
+        SELECT
+            請求番号,
+            請求日,
+            取引先コード,
+            顧客枝番,
+            前回入金額,
+            当月売上額,
+            当月入金額,
+            当月請求額,
+            消費税金額,
+            請求消込金額,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM
+            請求データ
+        WHERE
+            取引先コード = #{companyCode}
+        ORDER BY
+            請求番号
+    </select>
+
+</mapper>
