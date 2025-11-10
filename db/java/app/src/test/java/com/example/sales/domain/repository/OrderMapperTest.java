@@ -43,6 +43,13 @@ class OrderMapperTest extends AbstractDatabaseTest {
     @BeforeEach
     void setUp() {
         // テストデータをクリア（外部キー制約により、参照元を先に削除）
+        // 第6章のテーブル
+        jdbcTemplate.execute("DELETE FROM 請求データ明細");
+        jdbcTemplate.execute("DELETE FROM 請求データ");
+        jdbcTemplate.execute("DELETE FROM 入金データ");
+        jdbcTemplate.execute("DELETE FROM 支払データ");
+        jdbcTemplate.execute("DELETE FROM 入金口座マスタ");
+
         // 第5章のテーブル
         jdbcTemplate.execute("DELETE FROM 在庫データ");
         jdbcTemplate.execute("DELETE FROM 仕入データ明細");
