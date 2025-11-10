@@ -1,0 +1,16 @@
+is_global = true
+
+# Enable all analyzer rules
+dotnet_analyzer_diagnostic.category-design.severity = warning
+dotnet_analyzer_diagnostic.category-documentation.severity = suggestion
+dotnet_analyzer_diagnostic.category-globalization.severity = warning
+dotnet_analyzer_diagnostic.category-maintainability.severity = warning
+dotnet_analyzer_diagnostic.category-naming.severity = warning
+dotnet_analyzer_diagnostic.category-performance.severity = warning
+dotnet_analyzer_diagnostic.category-reliability.severity = warning
+dotnet_analyzer_diagnostic.category-security.severity = warning
+dotnet_analyzer_diagnostic.category-style.severity = suggestion
+dotnet_analyzer_diagnostic.category-usage.severity = warning
+
+# Cyclomatic complexity threshold
+dotnet_code_quality.CA1502.cyclomatic_complexity = 7
