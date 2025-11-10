@@ -27,4 +27,22 @@ public interface ProductMapper {
      * 商品分類コードで商品を検索
      */
     List<Product> findByCategory(@Param("productCategoryCode") String productCategoryCode);
+
+    /**
+     * 商品コードの存在チェック
+     */
+    boolean existsById(@Param("productCode") String productCode);
+
+    /**
+     * ページング対応の商品一覧取得
+     */
+    List<Product> findAllWithPaging(
+        @Param("offset") int offset,
+        @Param("limit") int limit
+    );
+
+    /**
+     * 商品の総件数取得
+     */
+    int count();
 }
