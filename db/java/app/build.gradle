@@ -101,6 +101,7 @@ pmd {
 
 spotbugs {
     toolVersion = '4.8.3'
+    excludeFilter = file("${rootDir}/config/spotbugs/exclude.xml")
 }
 
 tasks.named('spotbugsMain') {
