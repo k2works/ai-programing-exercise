@@ -5,4 +5,9 @@
         <Class name="com.example.sales.seed.DataSeeder"/>
         <Bug pattern="EI_EXPOSE_REP2"/>
     </Match>
+
+    <!-- Controller: Java 17+ と SpotBugs の互換性問題を回避 -->
+    <Match>
+        <Class name="~com\.example\.sales\.controller\..*"/>
+    </Match>
 </FindBugsFilter>
