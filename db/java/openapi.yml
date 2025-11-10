@@ -1,0 +1,283 @@
+openapi: 3.0.1
+info:
+  title: 販売管理システムAPI
+  description: MyBatisを使用した販売管理システムのREST API
+  contact:
+    name: API Support
+    email: support@example.com
+  version: 1.0.0
+servers:
+- url: http://localhost:8081
+  description: Generated server url
+tags:
+- name: Product
+  description: 商品管理API
+paths:
+  /api/products/{productCode}:
+    get:
+      tags:
+      - Product
+      summary: 商品取得
+      description: 指定された商品コードの商品を取得します
+      operationId: getProductById
+      parameters:
+      - name: productCode
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+    put:
+      tags:
+      - Product
+      summary: 商品更新
+      description: 指定された商品を更新します
+      operationId: updateProduct
+      parameters:
+      - name: productCode
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProductRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+    delete:
+      tags:
+      - Product
+      summary: 商品削除
+      description: 指定された商品を削除します
+      operationId: deleteProduct
+      parameters:
+      - name: productCode
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+  /api/products:
+    get:
+      tags:
+      - Product
+      summary: 商品一覧取得
+      description: すべての商品を取得します
+      operationId: getAllProducts
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductResponse'
+    post:
+      tags:
+      - Product
+      summary: 商品作成
+      description: 新しい商品を作成します
+      operationId: createProduct
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+  /health:
+    get:
+      tags:
+      - health-controller
+      operationId: health
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+  /api/products/page:
+    get:
+      tags:
+      - Product
+      summary: 商品一覧取得（ページング）
+      description: ページング対応で商品を取得します
+      operationId: getProducts
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PageResponseProductResponse'
+  /:
+    get:
+      tags:
+      - health-controller
+      operationId: root
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+components:
+  schemas:
+    UpdateProductRequest:
+      type: object
+      properties:
+        fullName:
+          maxLength: 40
+          minLength: 0
+          type: string
+        name:
+          maxLength: 10
+          minLength: 0
+          type: string
+        kanaName:
+          maxLength: 20
+          minLength: 0
+          type: string
+        unitPrice:
+          minimum: 0
+          type: integer
+          format: int32
+        primeCost:
+          minimum: 0
+          type: integer
+          format: int32
+        supplierCode:
+          maxLength: 8
+          minLength: 0
+          type: string
+    ProductResponse:
+      type: object
+      properties:
+        productCode:
+          type: string
+        fullName:
+          type: string
+        name:
+          type: string
+        kanaName:
+          type: string
+        unitPrice:
+          type: integer
+          format: int32
+        primeCost:
+          type: integer
+          format: int32
+        supplierCode:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+        updatedBy:
+          type: string
+    CreateProductRequest:
+      required:
+      - fullName
+      - kanaName
+      - name
+      - primeCost
+      - productCode
+      - supplierCode
+      - unitPrice
+      type: object
+      properties:
+        productCode:
+          maxLength: 16
+          minLength: 0
+          type: string
+        fullName:
+          maxLength: 40
+          minLength: 0
+          type: string
+        name:
+          maxLength: 10
+          minLength: 0
+          type: string
+        kanaName:
+          maxLength: 20
+          minLength: 0
+          type: string
+        unitPrice:
+          minimum: 0
+          type: integer
+          format: int32
+        primeCost:
+          minimum: 0
+          type: integer
+          format: int32
+        supplierCode:
+          maxLength: 8
+          minLength: 0
+          type: string
+    PageResponseProductResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductResponse'
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        total:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
