@@ -61,6 +61,10 @@ class InvoiceDetailMapperTest extends AbstractDatabaseTest {
     @BeforeEach
     void setUp() {
         // テストデータをクリア（外部キー制約により、参照元を先に削除）
+        // 第7章のテーブル
+        jdbcTemplate.execute("DELETE FROM 与信残高データ");
+        jdbcTemplate.execute("DELETE FROM 自動採番マスタ");
+
         // 第6章のテーブル
         jdbcTemplate.execute("DELETE FROM 請求データ明細");
         jdbcTemplate.execute("DELETE FROM 請求データ");

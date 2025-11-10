@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.sales.domain.repository.CreditBalanceMapper">
+
+    <!-- ResultMap定義 -->
+    <resultMap id="creditBalanceResultMap" type="com.example.sales.domain.model.CreditBalance">
+        <id property="companyCode" column="取引先コード"/>
+        <result property="orderBalance" column="受注残高"/>
+        <result property="receivableBalance" column="債権残高"/>
+        <result property="payableBalance" column="債務残高"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者名"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者名"/>
+    </resultMap>
+
+    <!-- INSERT -->
+    <insert id="insert" parameterType="com.example.sales.domain.model.CreditBalance">
+        INSERT INTO 与信残高データ (
+            取引先コード,
+            受注残高,
+            債権残高,
+            債務残高,
+            作成者名,
+            更新者名
+        ) VALUES (
+            #{companyCode},
+            #{orderBalance},
+            #{receivableBalance},
+            #{payableBalance},
+            #{createdBy},
+            #{updatedBy}
+        )
+    </insert>
+
+    <!-- UPDATE -->
+    <update id="update" parameterType="com.example.sales.domain.model.CreditBalance">
+        UPDATE 与信残高データ
+        SET
+            受注残高 = #{orderBalance},
+            債権残高 = #{receivableBalance},
+            債務残高 = #{payableBalance},
+            更新日時 = CURRENT_TIMESTAMP,
+            更新者名 = #{updatedBy}
+        WHERE
+            取引先コード = #{companyCode}
+    </update>
+
+    <!-- DELETE -->
+    <delete id="delete" parameterType="string">
+        DELETE FROM 与信残高データ
+        WHERE 取引先コード = #{companyCode}
+    </delete>
+
+    <!-- SELECT BY ID -->
+    <select id="findById" parameterType="string" resultMap="creditBalanceResultMap">
+        SELECT
+            取引先コード,
+            受注残高,
+            債権残高,
+            債務残高,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM 与信残高データ
+        WHERE 取引先コード = #{companyCode}
+    </select>
+
+    <!-- SELECT ALL -->
+    <select id="findAll" resultMap="creditBalanceResultMap">
+        SELECT
+            取引先コード,
+            受注残高,
+            債権残高,
+            債務残高,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM 与信残高データ
+        ORDER BY 取引先コード
+    </select>
+
+    <!-- 受注残高を更新 -->
+    <update id="updateOrderBalance">
+        UPDATE 与信残高データ
+        SET
+            受注残高 = #{amount},
+            更新日時 = CURRENT_TIMESTAMP
+        WHERE
+            取引先コード = #{companyCode}
+    </update>
+
+    <!-- 債権残高を更新 -->
+    <update id="updateReceivableBalance">
+        UPDATE 与信残高データ
+        SET
+            債権残高 = #{amount},
+            更新日時 = CURRENT_TIMESTAMP
+        WHERE
+            取引先コード = #{companyCode}
+    </update>
+
+    <!-- 債務残高を更新 -->
+    <update id="updatePayableBalance">
+        UPDATE 与信残高データ
+        SET
+            債務残高 = #{amount},
+            更新日時 = CURRENT_TIMESTAMP
+        WHERE
+            取引先コード = #{companyCode}
+    </update>
+
+    <!-- 与信限度額超過の取引先を検索 -->
+    <select id="findExceedingCreditLimit" parameterType="int" resultMap="creditBalanceResultMap">
+        SELECT
+            取引先コード,
+            受注残高,
+            債権残高,
+            債務残高,
+            作成日時,
+            作成者名,
+            更新日時,
+            更新者名
+        FROM 与信残高データ
+        WHERE (受注残高 + 債権残高) > #{creditLimit}
+        ORDER BY (受注残高 + 債権残高) DESC
+    </select>
+
+</mapper>

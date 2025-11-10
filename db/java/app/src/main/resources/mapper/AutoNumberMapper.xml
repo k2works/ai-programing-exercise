@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.sales.domain.repository.AutoNumberMapper">
+
+    <!-- ResultMap定義 -->
+    <resultMap id="autoNumberResultMap" type="com.example.sales.domain.model.AutoNumber">
+        <id property="slipType" column="伝票種別コード"/>
+        <id property="yearMonth" column="年月"/>
+        <result property="lastSlipNo" column="最終伝票番号"/>
+    </resultMap>
+
+    <!-- INSERT -->
+    <insert id="insert" parameterType="com.example.sales.domain.model.AutoNumber">
+        INSERT INTO 自動採番マスタ (
+            伝票種別コード,
+            年月,
+            最終伝票番号
+        ) VALUES (
+            #{slipType},
+            #{yearMonth},
+            #{lastSlipNo}
+        )
+    </insert>
+
+    <!-- UPDATE -->
+    <update id="update" parameterType="com.example.sales.domain.model.AutoNumber">
+        UPDATE 自動採番マスタ
+        SET
+            最終伝票番号 = #{lastSlipNo}
+        WHERE
+            伝票種別コード = #{slipType}
+            AND 年月 = #{yearMonth}
+    </update>
+
+    <!-- DELETE -->
+    <delete id="delete">
+        DELETE FROM 自動採番マスタ
+        WHERE
+            伝票種別コード = #{slipType}
+            AND 年月 = #{yearMonth}
+    </delete>
+
+    <!-- SELECT BY ID -->
+    <select id="findById" resultMap="autoNumberResultMap">
+        SELECT
+            伝票種別コード,
+            年月,
+            最終伝票番号
+        FROM 自動採番マスタ
+        WHERE
+            伝票種別コード = #{slipType}
+            AND 年月 = #{yearMonth}
+    </select>
+
+    <!-- SELECT ALL -->
+    <select id="findAll" resultMap="autoNumberResultMap">
+        SELECT
+            伝票種別コード,
+            年月,
+            最終伝票番号
+        FROM 自動採番マスタ
+        ORDER BY 伝票種別コード, 年月
+    </select>
+
+    <!-- FOR UPDATEでロックして取得 -->
+    <select id="findByIdForUpdate" resultMap="autoNumberResultMap">
+        SELECT
+            伝票種別コード,
+            年月,
+            最終伝票番号
+        FROM 自動採番マスタ
+        WHERE
+            伝票種別コード = #{slipType}
+            AND 年月 = #{yearMonth}
+        FOR UPDATE
+    </select>
+
+    <!-- 最終伝票番号をインクリメント -->
+    <update id="incrementLastSlipNo">
+        UPDATE 自動採番マスタ
+        SET
+            最終伝票番号 = 最終伝票番号 + 1
+        WHERE
+            伝票種別コード = #{slipType}
+            AND 年月 = #{yearMonth}
+    </update>
+
+    <!-- 新しい年月の採番レコードを初期化 -->
+    <insert id="initializeForNewMonth">
+        INSERT INTO 自動採番マスタ (
+            伝票種別コード,
+            年月,
+            最終伝票番号
+        ) VALUES (
+            #{slipType},
+            #{yearMonth},
+            0
+        )
+    </insert>
+
+</mapper>
