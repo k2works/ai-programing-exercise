@@ -49,6 +49,8 @@ dependencies {
     // Lombok (オプション)
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 
     // Test
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
@@ -62,6 +64,9 @@ dependencies {
 
     // Bean Validation
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // SpringDoc OpenAPI (Swagger UI)
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 
     // SpotBugs
     spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.12.0'
@@ -121,10 +126,10 @@ tasks.named('spotbugsTest') {
 }
 
 // Flyway設定
-// 127.0.0.1 を明示的に指定してWSL2環境での接続を安定化
+// ポート 5433 を使用（VS Code との競合を回避）
 // sslmode=disable でSSL接続を無効化
 flyway {
-    url = 'jdbc:postgresql://127.0.0.1:5432/sales_management?sslmode=disable&connectTimeout=30&socketTimeout=30'
+    url = 'jdbc:postgresql://localhost:5433/sales_management?sslmode=disable'
     user = 'postgres'
     password = 'postgres'
     locations = ["classpath:db/migration"]

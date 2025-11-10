@@ -1,8 +1,6 @@
 spring:
-  profiles:
-    active: dev
   datasource:
-    url: jdbc:postgresql://127.0.0.1:5432/sales_management?sslmode=disable
+    url: jdbc:postgresql://127.0.0.1:5433/sales_management?sslmode=disable
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
