@@ -21,6 +21,10 @@
     <Compile Include="Repositories/CategoryTypeRepository.fs" />
     <Compile Include="Repositories/CompanyCategoryRepository.fs" />
     <Compile Include="Repositories/CompanyCategoryGroupRepository.fs" />
+    <Compile Include="Repositories/OrderRepository.fs" />
+    <Compile Include="Repositories/OrderDetailRepository.fs" />
+    <Compile Include="Repositories/SalesRepository.fs" />
+    <Compile Include="Repositories/SalesDetailRepository.fs" />
     <Compile Include="Migrations/Migration_20250106_001_InitialSetup.fs" />
     <Compile Include="Migrations/Migration_20250106_002_CreateDepartmentTable.fs" />
     <Compile Include="Migrations/Migration_20250106_003_CreateEmployeeTable.fs" />
@@ -35,6 +39,10 @@
     <Compile Include="Migrations/Migration_20250106_012_CreateCategoryTypeTable.fs" />
     <Compile Include="Migrations/Migration_20250106_013_CreateCompanyCategoryTable.fs" />
     <Compile Include="Migrations/Migration_20250106_014_CreateCompanyCategoryGroupTable.fs" />
+    <Compile Include="Migrations/Migration_20250106_015_CreateOrderTable.fs" />
+    <Compile Include="Migrations/Migration_20250106_016_CreateOrderDetailTable.fs" />
+    <Compile Include="Migrations/Migration_20250106_017_CreateSalesTable.fs" />
+    <Compile Include="Migrations/Migration_20250106_018_CreateSalesDetailTable.fs" />
     <Compile Include="MigrationRunner.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
