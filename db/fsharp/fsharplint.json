@@ -10,6 +10,12 @@
   "hints": {
     "enabled": true
   },
+  "cyclomaticComplexity": {
+    "enabled": true,
+    "config": {
+      "maxComplexity": 15
+    }
+  },
   "typography": {
     "enabled": true,
     "indentation": {
@@ -29,6 +35,51 @@
       "enabled": true
     }
   },
+  "sourceLength": {
+    "enabled": true,
+    "maxLinesInFunction": {
+      "enabled": false
+    },
+    "maxLinesInLambdaFunction": {
+      "enabled": false
+    },
+    "maxLinesInMatchLambdaFunction": {
+      "enabled": false
+    },
+    "maxLinesInValue": {
+      "enabled": false
+    },
+    "maxLinesInConstructor": {
+      "enabled": false
+    },
+    "maxLinesInMember": {
+      "enabled": false
+    },
+    "maxLinesInProperty": {
+      "enabled": false
+    },
+    "maxLinesInModule": {
+      "enabled": false
+    },
+    "maxLinesInRecord": {
+      "enabled": false
+    },
+    "maxLinesInEnum": {
+      "enabled": false
+    },
+    "maxLinesInUnion": {
+      "enabled": false
+    },
+    "maxLinesInClass": {
+      "enabled": false
+    },
+    "maxCyclomaticComplexityForFunction": {
+      "enabled": true,
+      "config": {
+        "maxComplexity": 15
+      }
+    }
+  },
   "formatting": {
     "enabled": true,
     "typedItemSpacing": {
@@ -45,6 +96,36 @@
     },
     "classMemberSpacing": {
       "enabled": true
+    }
+  },
+  "numberOfItems": {
+    "enabled": true,
+    "maxNumberOfFunctionParameters": {
+      "enabled": true,
+      "config": {
+        "maxItems": 5
+      }
+    },
+    "maxNumberOfMembers": {
+      "enabled": false
+    },
+    "maxNumberOfItemsInTuple": {
+      "enabled": true,
+      "config": {
+        "maxItems": 4
+      }
+    },
+    "maxNumberOfBooleanOperatorsInCondition": {
+      "enabled": true,
+      "config": {
+        "maxItems": 4
+      }
+    },
+    "maxCyclomaticComplexity": {
+      "enabled": true,
+      "config": {
+        "maxComplexity": 15
+      }
     }
   },
   "conventions": {
