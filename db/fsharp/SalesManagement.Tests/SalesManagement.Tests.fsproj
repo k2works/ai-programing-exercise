@@ -8,6 +8,8 @@
   <ItemGroup>
     <Compile Include="DatabaseTestBase.fs" />
     <Compile Include="IntegrationTests/DatabaseConnectionTests.fs" />
+    <Compile Include="IntegrationTests/DepartmentTests.fs" />
+    <Compile Include="IntegrationTests/EmployeeTests.fs" />
     <Compile Include="Tests.fs" />
   </ItemGroup>
 

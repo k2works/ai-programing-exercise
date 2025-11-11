@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Models/Department.fs" />
+    <Compile Include="Models/Employee.fs" />
     <Compile Include="ComplexityTest.fs" />
     <Compile Include="Library.fs" />
   </ItemGroup>
