@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="DatabaseTestBase.fs" />
+    <Compile Include="IntegrationTests/DatabaseConnectionTests.fs" />
     <Compile Include="Tests.fs" />
   </ItemGroup>
 
