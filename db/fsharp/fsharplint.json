@@ -1,0 +1,96 @@
+{
+  "ignoreFiles": [
+    "**/obj/**/*.fs",
+    "**/bin/**/*.fs",
+    "**/.ionide/**/*.fs"
+  ],
+  "global": {
+    "numIndentationSpaces": 4
+  },
+  "hints": {
+    "enabled": true
+  },
+  "typography": {
+    "enabled": true,
+    "indentation": {
+      "enabled": true
+    },
+    "maxCharactersOnLine": {
+      "enabled": false
+    },
+    "trailingWhitespaceOnLine": {
+      "enabled": true,
+      "numberOfSpacesAllowed": 0
+    },
+    "maxLinesInFunction": {
+      "enabled": false
+    },
+    "trailingNewLineInFile": {
+      "enabled": true
+    }
+  },
+  "formatting": {
+    "enabled": true,
+    "typedItemSpacing": {
+      "enabled": true,
+      "config": {
+        "typeDefinitionSpacing": "SpaceAfter"
+      }
+    },
+    "unionDefinitionIndentation": {
+      "enabled": true
+    },
+    "moduleDeclSpacing": {
+      "enabled": true
+    },
+    "classMemberSpacing": {
+      "enabled": true
+    }
+  },
+  "conventions": {
+    "enabled": true,
+    "naming": {
+      "enabled": true,
+      "interfaceNames": {
+        "enabled": true,
+        "config": {
+          "naming": "PascalCase",
+          "prefix": "I"
+        }
+      },
+      "typeNames": {
+        "enabled": true,
+        "config": {
+          "naming": "PascalCase"
+        }
+      },
+      "recordFieldNames": {
+        "enabled": true,
+        "config": {
+          "naming": "PascalCase"
+        }
+      },
+      "enumCasesNames": {
+        "enabled": true,
+        "config": {
+          "naming": "PascalCase"
+        }
+      }
+    },
+    "recursiveAsyncFunction": {
+      "enabled": true
+    },
+    "redundantNewKeyword": {
+      "enabled": true
+    },
+    "nestedStatements": {
+      "enabled": false
+    },
+    "reimplementsFunction": {
+      "enabled": true
+    },
+    "canBeReplacedWithComposition": {
+      "enabled": true
+    }
+  }
+}
