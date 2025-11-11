@@ -10,6 +10,19 @@ var configuration = new ConfigurationBuilder()
 var connectionString = configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("接続文字列が設定されていません");
 
+Console.WriteLine("=== マイグレーション実行 ===");
+try
+{
+    MigrationRunner.MigrateDatabase(connectionString);
+    Console.WriteLine("マイグレーション完了\n");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"マイグレーションエラー: {ex.Message}");
+    Console.WriteLine(ex.StackTrace);
+    return;
+}
+
 // DataSeederの実行
 var seeder = new DataSeeder(connectionString);
 
