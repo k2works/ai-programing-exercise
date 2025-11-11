@@ -8,6 +8,10 @@
   <ItemGroup>
     <Compile Include="Models/Department.fs" />
     <Compile Include="Models/Employee.fs" />
+    <Compile Include="Models/ProductCategory.fs" />
+    <Compile Include="Models/Product.fs" />
+    <Compile Include="Models/PriceByCustomer.fs" />
+    <Compile Include="Models/AlternateProduct.fs" />
     <Compile Include="ComplexityTest.fs" />
     <Compile Include="Library.fs" />
   </ItemGroup>

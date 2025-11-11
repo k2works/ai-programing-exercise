@@ -10,6 +10,8 @@
     <Compile Include="IntegrationTests/DatabaseConnectionTests.fs" />
     <Compile Include="IntegrationTests/DepartmentTests.fs" />
     <Compile Include="IntegrationTests/EmployeeTests.fs" />
+    <Compile Include="IntegrationTests/ProductCategoryTests.fs" />
+    <Compile Include="IntegrationTests/ProductTests.fs" />
     <Compile Include="Tests.fs" />
   </ItemGroup>
 
