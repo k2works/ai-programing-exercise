@@ -4,6 +4,7 @@ open System
 open System.Threading.Tasks
 open Testcontainers.PostgreSql
 open SalesManagement.Infrastructure.MigrationRunner
+open SalesManagement.Infrastructure.OptionHandlerRegistration
 open Xunit
 
 /// <summary>
@@ -21,6 +22,9 @@ type DatabaseTestBase() =
     /// </summary>
     member this.InitializeAsync() =
         task {
+            // Dapper Option TypeHandler の登録
+            register()
+
             // PostgreSQLコンテナの設定と起動
             container <-
                 PostgreSqlBuilder()

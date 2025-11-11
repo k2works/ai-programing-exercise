@@ -5,6 +5,7 @@ open System
 /// <summary>
 /// 部門マスタのEntityレコード型
 /// </summary>
+[<CLIMutable>]
 type Department = {
     DepartmentCode: string
     StartDate: DateTime

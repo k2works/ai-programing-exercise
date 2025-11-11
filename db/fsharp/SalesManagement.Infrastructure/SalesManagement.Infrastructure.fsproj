@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="OptionHandler.fs" />
     <Compile Include="Repositories/DepartmentRepository.fs" />
     <Compile Include="Repositories/EmployeeRepository.fs" />
     <Compile Include="Migrations/Migration_20250106_001_InitialSetup.fs" />

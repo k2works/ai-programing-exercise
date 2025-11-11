@@ -5,6 +5,7 @@ open System
 /// <summary>
 /// 社員マスタのEntityレコード型
 /// </summary>
+[<CLIMutable>]
 type Employee = {
     EmployeeCode: string
     EmployeeName: string
