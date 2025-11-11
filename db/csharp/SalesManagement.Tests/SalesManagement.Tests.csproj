@@ -18,6 +18,7 @@
     </PackageReference>
     <PackageReference Include="FluentAssertions" Version="8.8.0" />
     <PackageReference Include="FluentMigrator.Runner" Version="7.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.10" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="Testcontainers" Version="4.8.1" />
     <PackageReference Include="Testcontainers.MySql" Version="4.8.1" />
@@ -33,6 +34,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SalesManagement.Domain\SalesManagement.Domain.csproj" />
     <ProjectReference Include="..\SalesManagement.Infrastructure\SalesManagement.Infrastructure.csproj" />
+    <ProjectReference Include="..\SalesManagement.Api\SalesManagement.Api.csproj" />
   </ItemGroup>
 
 </Project>
