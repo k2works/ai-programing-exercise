@@ -162,27 +162,82 @@ public class DataSeeder
         var now = DateTime.Now;
         var employees = new List<object>
         {
-            // 経営層
+            // 本社経営層（2名）
             new { Code = "E00001", Name = "山田 太郎", DeptCode = "000000", HireDate = new DateTime(1955, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
             new { Code = "E00002", Name = "佐藤 次郎", DeptCode = "000000", HireDate = new DateTime(1960, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
 
-            // 食肉製造・販売事業（正社員）
+            // 食肉製造・販売事業（正社員13名 + パート13名 = 26名）
+            // 事業部長
+            new { Code = "E10000", Name = "林 健一", DeptCode = "100000", HireDate = new DateTime(2000, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+
+            // 牛肉・豚肉・鶏肉課（正社員2名 + パート3名）
             new { Code = "E10001", Name = "鈴木 一郎", DeptCode = "111000", HireDate = new DateTime(2010, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
-            new { Code = "E10002", Name = "高橋 花子", DeptCode = "112000", HireDate = new DateTime(2012, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
-            new { Code = "E10003", Name = "田中 次郎", DeptCode = "121000", HireDate = new DateTime(2015, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
-            new { Code = "E10004", Name = "伊藤 三郎", DeptCode = "122000", HireDate = new DateTime(2016, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
-            new { Code = "E10005", Name = "渡辺 四郎", DeptCode = "131000", HireDate = new DateTime(2018, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
-            new { Code = "E10006", Name = "山本 五郎", DeptCode = "132000", HireDate = new DateTime(2019, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "E10002", Name = "松田 美咲", DeptCode = "111000", HireDate = new DateTime(2015, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "P10001", Name = "佐々木 花子", DeptCode = "111000", HireDate = new DateTime(2019, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "P10002", Name = "森田 春子", DeptCode = "111000", HireDate = new DateTime(2020, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "P10003", Name = "吉川 夏美", DeptCode = "111000", HireDate = new DateTime(2021, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
 
-            // 食肉加工品事業（正社員）
+            // 食肉加工品課（正社員2名 + パート3名）
+            new { Code = "E10003", Name = "高橋 花子", DeptCode = "112000", HireDate = new DateTime(2012, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "E10004", Name = "木村 和也", DeptCode = "112000", HireDate = new DateTime(2016, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "P10004", Name = "長谷川 秋代", DeptCode = "112000", HireDate = new DateTime(2019, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "P10005", Name = "石井 冬子", DeptCode = "112000", HireDate = new DateTime(2020, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "P10006", Name = "池田 陽子", DeptCode = "112000", HireDate = new DateTime(2021, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+
+            // 直営小売店課（正社員2名 + パート4名）
+            new { Code = "E10005", Name = "田中 次郎", DeptCode = "121000", HireDate = new DateTime(2015, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "E10006", Name = "井上 由美", DeptCode = "121000", HireDate = new DateTime(2017, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "P10007", Name = "前田 真理", DeptCode = "121000", HireDate = new DateTime(2019, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "P10008", Name = "岡本 恵子", DeptCode = "121000", HireDate = new DateTime(2020, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "P10009", Name = "藤田 裕子", DeptCode = "121000", HireDate = new DateTime(2021, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "P10010", Name = "西村 奈々", DeptCode = "121000", HireDate = new DateTime(2022, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+
+            // 百貨店・スーパー向け販売課（正社員2名 + パート2名）
+            new { Code = "E10007", Name = "伊藤 三郎", DeptCode = "122000", HireDate = new DateTime(2016, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "E10008", Name = "斉藤 明美", DeptCode = "122000", HireDate = new DateTime(2018, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "P10011", Name = "村上 幸子", DeptCode = "122000", HireDate = new DateTime(2020, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "P10012", Name = "清水 加奈", DeptCode = "122000", HireDate = new DateTime(2021, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+
+            // ホテル・旅館向け課（正社員2名 + パート1名）
+            new { Code = "E10009", Name = "渡辺 四郎", DeptCode = "131000", HireDate = new DateTime(2018, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "E10010", Name = "遠藤 智子", DeptCode = "131000", HireDate = new DateTime(2019, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "P10013", Name = "野口 美樹", DeptCode = "131000", HireDate = new DateTime(2021, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+
+            // 飲食店向け課（正社員2名）
+            new { Code = "E10011", Name = "山本 五郎", DeptCode = "132000", HireDate = new DateTime(2019, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "E10012", Name = "坂本 直美", DeptCode = "132000", HireDate = new DateTime(2020, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+
+            // 食肉加工品事業（正社員7名 + パート8名 = 15名）
+            // 事業部長
+            new { Code = "E20000", Name = "大野 貴志", DeptCode = "200000", HireDate = new DateTime(2005, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+
+            // 贈答用製品製造課（正社員2名 + パート3名）
             new { Code = "E20001", Name = "中村 太郎", DeptCode = "211000", HireDate = new DateTime(2013, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
-            new { Code = "E20002", Name = "小林 次郎", DeptCode = "212000", HireDate = new DateTime(2014, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
-            new { Code = "E20003", Name = "加藤 三郎", DeptCode = "221000", HireDate = new DateTime(2017, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "E20002", Name = "橋本 真由美", DeptCode = "211000", HireDate = new DateTime(2016, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "P20001", Name = "小野 洋子", DeptCode = "211000", HireDate = new DateTime(2019, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "P20002", Name = "今井 さくら", DeptCode = "211000", HireDate = new DateTime(2020, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "P20003", Name = "青木 桃子", DeptCode = "211000", HireDate = new DateTime(2021, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
 
-            // コンサルティング事業（正社員）
+            // 道の駅・土産物製品販売課（正社員2名 + パート3名）
+            new { Code = "E20003", Name = "小林 次郎", DeptCode = "212000", HireDate = new DateTime(2014, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "E20004", Name = "武田 香織", DeptCode = "212000", HireDate = new DateTime(2017, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "P20004", Name = "宮本 愛子", DeptCode = "212000", HireDate = new DateTime(2019, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "P20005", Name = "高田 ゆかり", DeptCode = "212000", HireDate = new DateTime(2020, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "P20006", Name = "松本 ひろみ", DeptCode = "212000", HireDate = new DateTime(2021, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+
+            // 客先要望対応課（正社員2名 + パート2名）
+            new { Code = "E20005", Name = "加藤 三郎", DeptCode = "221000", HireDate = new DateTime(2017, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "E20006", Name = "上田 純子", DeptCode = "221000", HireDate = new DateTime(2018, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "P20007", Name = "岩崎 恵美", DeptCode = "221000", HireDate = new DateTime(2020, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+            new { Code = "P20008", Name = "原田 千春", DeptCode = "221000", HireDate = new DateTime(2021, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
+
+            // コンサルティング事業（正社員2名）
             new { Code = "E30001", Name = "吉田 太郎", DeptCode = "311000", HireDate = new DateTime(2020, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" },
             new { Code = "E30002", Name = "山口 次郎", DeptCode = "312000", HireDate = new DateTime(2021, 4, 1), CreatedAt = now, CreatedBy = "SYSTEM", UpdatedAt = now, UpdatedBy = "SYSTEM" }
         };
+        // 合計: 正社員24名（E00001-E00002, E10000-E10012, E20000-E20006, E30001-E30002）
+        //       パート21名（P10001-P10013, P20001-P20008）
+        //       総計45名
 
         var sql = @"
             INSERT INTO 社員マスタ (
