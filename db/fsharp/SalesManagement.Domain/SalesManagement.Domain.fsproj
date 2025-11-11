@@ -12,6 +12,13 @@
     <Compile Include="Models/Product.fs" />
     <Compile Include="Models/PriceByCustomer.fs" />
     <Compile Include="Models/AlternateProduct.fs" />
+    <Compile Include="Models/CompanyGroup.fs" />
+    <Compile Include="Models/Company.fs" />
+    <Compile Include="Models/Customer.fs" />
+    <Compile Include="Models/Supplier.fs" />
+    <Compile Include="Models/CategoryType.fs" />
+    <Compile Include="Models/CompanyCategory.fs" />
+    <Compile Include="Models/CompanyCategoryGroup.fs" />
     <Compile Include="ComplexityTest.fs" />
     <Compile Include="Library.fs" />
   </ItemGroup>
