@@ -27,6 +27,16 @@ type Migration_20250106_007_CreateAlternateProductTable() =
             .OnColumn("優先順位")
         |> ignore
 
+        this.Create.ForeignKey("fk_代替商品_商品マスタ_商品コード")
+            .FromTable("代替商品").ForeignColumn("商品コード")
+            .ToTable("商品マスタ").PrimaryColumn("商品コード")
+        |> ignore
+
+        this.Create.ForeignKey("fk_代替商品_商品マスタ_代替商品コード")
+            .FromTable("代替商品").ForeignColumn("代替商品コード")
+            .ToTable("商品マスタ").PrimaryColumn("商品コード")
+        |> ignore
+
         this.Execute.Sql("COMMENT ON TABLE 代替商品 IS '在庫切れ時などに提案する代替商品を管理'")
         this.Execute.Sql("COMMENT ON COLUMN 代替商品.優先順位 IS '複数の代替商品がある場合の優先順位'")
 

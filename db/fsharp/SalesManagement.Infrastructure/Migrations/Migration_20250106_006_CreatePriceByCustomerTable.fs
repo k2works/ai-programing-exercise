@@ -27,6 +27,11 @@ type Migration_20250106_006_CreatePriceByCustomerTable() =
             .OnColumn("取引先コード")
         |> ignore
 
+        this.Create.ForeignKey("fk_顧客別販売単価_商品マスタ")
+            .FromTable("顧客別販売単価").ForeignColumn("商品コード")
+            .ToTable("商品マスタ").PrimaryColumn("商品コード")
+        |> ignore
+
         this.Execute.Sql("COMMENT ON TABLE 顧客別販売単価 IS '顧客ごとの特別販売単価を管理'")
         this.Execute.Sql("COMMENT ON COLUMN 顧客別販売単価.販売単価 IS 'この顧客への販売単価'")
 

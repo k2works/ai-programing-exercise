@@ -40,6 +40,11 @@ type Migration_20250106_005_CreateProductTable() =
             .OnColumn("商品名カナ")
         |> ignore
 
+        this.Create.ForeignKey("fk_商品マスタ_商品分類マスタ")
+            .FromTable("商品マスタ").ForeignColumn("商品分類コード")
+            .ToTable("商品分類マスタ").PrimaryColumn("商品分類コード")
+        |> ignore
+
         this.Execute.Sql("COMMENT ON TABLE 商品マスタ IS '商品の基本情報を管理するマスタ'")
         this.Execute.Sql("COMMENT ON COLUMN 商品マスタ.商品コード IS '商品の一意識別子'")
         this.Execute.Sql("COMMENT ON COLUMN 商品マスタ.販売単価 IS '標準販売単価'")
