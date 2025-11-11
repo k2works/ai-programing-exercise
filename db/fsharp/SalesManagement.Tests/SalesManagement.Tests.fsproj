@@ -17,6 +17,10 @@
     <Compile Include="IntegrationTests/SupplierTests.fs" />
     <Compile Include="IntegrationTests/CategoryTests.fs" />
     <Compile Include="IntegrationTests/BoundaryValueTests.fs" />
+    <Compile Include="IntegrationTests/OrderTests.fs" />
+    <Compile Include="IntegrationTests/OrderDetailTests.fs" />
+    <Compile Include="IntegrationTests/SalesTests.fs" />
+    <Compile Include="IntegrationTests/SalesDetailTests.fs" />
     <Compile Include="Tests.fs" />
   </ItemGroup>
 
