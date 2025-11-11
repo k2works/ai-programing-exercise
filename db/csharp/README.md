@@ -9,8 +9,10 @@ Dapper + FluentMigrator + Testcontainers を使用したテスト駆動データ
 ### 技術スタック
 
 - **.NET 9.0** - アプリケーションフレームワーク
+- **ASP.NET Core** - Web API フレームワーク
 - **Dapper** - 軽量マイクロ ORM
 - **FluentMigrator** - データベースマイグレーションツール
+- **Swashbuckle (Swagger)** - API ドキュメント生成
 - **Testcontainers** - Docker ベースの統合テスト環境
 - **xUnit** - テスティングフレームワーク
 - **FluentAssertions** - アサーションライブラリ
@@ -24,23 +26,54 @@ SalesManagement.sln
 ├── SalesManagement.Domain/          # ドメイン層
 │   └── Models/                      # エンティティクラス
 │       ├── Department.cs            # 部門マスタ
-│       └── Employee.cs              # 社員マスタ
+│       ├── Employee.cs              # 社員マスタ
+│       ├── Product.cs               # 商品マスタ
+│       └── ...                      # その他のエンティティ
 ├── SalesManagement.Infrastructure/  # インフラストラクチャ層
 │   ├── Migrations/                  # データベースマイグレーション
 │   │   ├── Migration_20250106_001_InitialSetup.cs
 │   │   ├── Migration_20250106_002_CreateDepartmentTable.cs
-│   │   └── Migration_20250106_003_CreateEmployeeTable.cs
+│   │   ├── Migration_20250106_003_CreateEmployeeTable.cs
+│   │   └── ...                      # その他のマイグレーション
 │   ├── Repositories/                # リポジトリクラス
 │   │   ├── DepartmentRepository.cs  # 部門リポジトリ
-│   │   └── EmployeeRepository.cs    # 社員リポジトリ
+│   │   ├── EmployeeRepository.cs    # 社員リポジトリ
+│   │   ├── ProductRepository.cs     # 商品リポジトリ
+│   │   └── ...                      # その他のリポジトリ
 │   ├── MigrationRunner.cs           # マイグレーション実行
+│   ├── DataSeeder.cs                # テストデータ投入
 │   └── Program.cs                   # エントリーポイント
+├── SalesManagement.Api/             # API 層（Chapter 9）
+│   ├── Controllers/                 # API コントローラ
+│   │   └── ProductController.cs     # 商品 API
+│   ├── Services/                    # ビジネスロジック
+│   │   └── ProductService.cs        # 商品サービス
+│   ├── Dtos/                        # データ転送オブジェクト
+│   │   ├── CreateProductRequest.cs  # 商品作成リクエスト
+│   │   ├── UpdateProductRequest.cs  # 商品更新リクエスト
+│   │   ├── ProductResponse.cs       # 商品レスポンス
+│   │   └── PageResponse.cs          # ページングレスポンス
+│   ├── Exceptions/                  # カスタム例外
+│   │   ├── ResourceNotFoundException.cs
+│   │   └── BusinessException.cs
+│   ├── Middleware/                  # ミドルウェア
+│   │   └── GlobalExceptionHandler.cs # グローバル例外ハンドラ
+│   └── Program.cs                   # API エントリーポイント
+├── SalesManagement.ConsoleApp/      # コンソールアプリ
+│   ├── Program.cs                   # マイグレーション＆Seed実行
+│   └── appsettings.json             # 設定ファイル
 └── SalesManagement.Tests/           # テスト層
     ├── DatabaseTestBase.cs          # テストベースクラス
+    ├── Dtos/                        # DTO テスト
+    │   └── ProductDtoTests.cs       # 商品 DTO バリデーションテスト
+    ├── Controllers/                 # コントローラテスト
+    │   └── ProductControllerTests.cs # 商品 API 統合テスト
     └── IntegrationTests/            # 統合テスト
         ├── DatabaseConnectionTests.cs
         ├── DepartmentTests.cs       # 部門マスタテスト
-        └── EmployeeTests.cs         # 社員マスタテスト
+        ├── EmployeeTests.cs         # 社員マスタテスト
+        ├── ProductTests.cs          # 商品マスタテスト
+        └── ...                      # その他の統合テスト
 ```
 
 ## 環境構築
@@ -374,10 +407,82 @@ dotnet test --filter "FullyQualifiedName~DepartmentTests"
 
 このプロジェクトは学習目的のサンプルコードです。
 
+## REST API の使用方法（Chapter 9）
+
+### API サーバーの起動
+
+```bash
+cd SalesManagement.Api
+dotnet run
+```
+
+起動後、以下の URL にアクセス：
+- **Swagger UI**: `http://localhost:5218/swagger`
+- **API エンドポイント**: `http://localhost:5218/api/products`
+
+### API エンドポイント一覧
+
+| メソッド | エンドポイント | 説明 |
+|---------|--------------|------|
+| GET | `/api/products` | 全商品取得 |
+| GET | `/api/products/page?page=0&size=20` | ページング対応取得 |
+| GET | `/api/products/{productCode}` | 商品詳細取得 |
+| POST | `/api/products` | 商品作成 |
+| PUT | `/api/products/{productCode}` | 商品更新 |
+| DELETE | `/api/products/{productCode}` | 商品削除 |
+
+### API 使用例
+
+#### 商品作成
+
+```bash
+curl -X POST http://localhost:5218/api/products \
+  -H "Content-Type: application/json" \
+  -d '{
+    "productCode": "PROD0001",
+    "fullName": "黒毛和牛サーロインステーキ 200g",
+    "name": "サーロイン",
+    "kanaName": "クロゲワギュウサーロイン",
+    "unitPrice": 5000,
+    "primeCost": 3500,
+    "supplierCode": "S0000001"
+  }'
+```
+
+#### 商品一覧取得
+
+```bash
+curl http://localhost:5218/api/products
+```
+
+#### 商品更新
+
+```bash
+curl -X PUT http://localhost:5218/api/products/PROD0001 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fullName": "黒毛和牛サーロインステーキ 250g",
+    "unitPrice": 5500
+  }'
+```
+
+### アーキテクチャの特徴
+
+- **レイヤードアーキテクチャ**: Controller/Service/Repository の 3 層分離
+- **Data Annotations**: 属性ベースの入力検証
+- **グローバル例外ハンドリング**: ミドルウェアによる一元的なエラー処理
+- **Swagger UI**: 対話的な API ドキュメント
+- **TDD アプローチ**: ProductDtoTests、ProductControllerTests による品質保証
+
 ## 進捗状況
 
 - [x] 第 0 章：環境構築
 - [x] 第 1 章：最初の要求「部門と従業員」
-- [ ] 第 2 章：商品の管理
-- [ ] 第 3 章：顧客と取引先
-- [ ] 第 4 章：受注と売上
+- [x] 第 2 章：商品の管理
+- [x] 第 3 章：顧客と取引先
+- [x] 第 4 章：受注と売上
+- [x] 第 5 章：発注と仕入
+- [x] 第 6 章：在庫管理
+- [x] 第 7 章：売掛金管理と入金消込
+- [x] 第 8 章：テストデータの投入
+- [x] 第 9 章：REST API サービスの追加
