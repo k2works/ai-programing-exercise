@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SalesManagement.Infrastruct
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SalesManagement.Tests", "SalesManagement.Tests\SalesManagement.Tests.csproj", "{C3897CB7-1F3C-480A-AAAD-916B52EA09D4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SalesManagement.ConsoleApp", "SalesManagement.ConsoleApp\SalesManagement.ConsoleApp.csproj", "{8A0DCCE2-3BA0-482C-AFB4-49C5916FC31D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,18 @@ Global
 		{C3897CB7-1F3C-480A-AAAD-916B52EA09D4}.Release|x64.Build.0 = Release|Any CPU
 		{C3897CB7-1F3C-480A-AAAD-916B52EA09D4}.Release|x86.ActiveCfg = Release|Any CPU
 		{C3897CB7-1F3C-480A-AAAD-916B52EA09D4}.Release|x86.Build.0 = Release|Any CPU
+		{8A0DCCE2-3BA0-482C-AFB4-49C5916FC31D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A0DCCE2-3BA0-482C-AFB4-49C5916FC31D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A0DCCE2-3BA0-482C-AFB4-49C5916FC31D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8A0DCCE2-3BA0-482C-AFB4-49C5916FC31D}.Debug|x64.Build.0 = Debug|Any CPU
+		{8A0DCCE2-3BA0-482C-AFB4-49C5916FC31D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8A0DCCE2-3BA0-482C-AFB4-49C5916FC31D}.Debug|x86.Build.0 = Debug|Any CPU
+		{8A0DCCE2-3BA0-482C-AFB4-49C5916FC31D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A0DCCE2-3BA0-482C-AFB4-49C5916FC31D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A0DCCE2-3BA0-482C-AFB4-49C5916FC31D}.Release|x64.ActiveCfg = Release|Any CPU
+		{8A0DCCE2-3BA0-482C-AFB4-49C5916FC31D}.Release|x64.Build.0 = Release|Any CPU
+		{8A0DCCE2-3BA0-482C-AFB4-49C5916FC31D}.Release|x86.ActiveCfg = Release|Any CPU
+		{8A0DCCE2-3BA0-482C-AFB4-49C5916FC31D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
