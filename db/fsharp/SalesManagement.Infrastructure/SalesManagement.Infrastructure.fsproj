@@ -14,6 +14,13 @@
     <Compile Include="Repositories/ProductRepository.fs" />
     <Compile Include="Repositories/PriceByCustomerRepository.fs" />
     <Compile Include="Repositories/AlternateProductRepository.fs" />
+    <Compile Include="Repositories/CompanyGroupRepository.fs" />
+    <Compile Include="Repositories/CompanyRepository.fs" />
+    <Compile Include="Repositories/CustomerRepository.fs" />
+    <Compile Include="Repositories/SupplierRepository.fs" />
+    <Compile Include="Repositories/CategoryTypeRepository.fs" />
+    <Compile Include="Repositories/CompanyCategoryRepository.fs" />
+    <Compile Include="Repositories/CompanyCategoryGroupRepository.fs" />
     <Compile Include="Migrations/Migration_20250106_001_InitialSetup.fs" />
     <Compile Include="Migrations/Migration_20250106_002_CreateDepartmentTable.fs" />
     <Compile Include="Migrations/Migration_20250106_003_CreateEmployeeTable.fs" />
@@ -21,6 +28,13 @@
     <Compile Include="Migrations/Migration_20250106_005_CreateProductTable.fs" />
     <Compile Include="Migrations/Migration_20250106_006_CreatePriceByCustomerTable.fs" />
     <Compile Include="Migrations/Migration_20250106_007_CreateAlternateProductTable.fs" />
+    <Compile Include="Migrations/Migration_20250106_008_CreateCompanyGroupTable.fs" />
+    <Compile Include="Migrations/Migration_20250106_009_CreateCompanyTable.fs" />
+    <Compile Include="Migrations/Migration_20250106_010_CreateCustomerTable.fs" />
+    <Compile Include="Migrations/Migration_20250106_011_CreateSupplierTable.fs" />
+    <Compile Include="Migrations/Migration_20250106_012_CreateCategoryTypeTable.fs" />
+    <Compile Include="Migrations/Migration_20250106_013_CreateCompanyCategoryTable.fs" />
+    <Compile Include="Migrations/Migration_20250106_014_CreateCompanyCategoryGroupTable.fs" />
     <Compile Include="MigrationRunner.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
