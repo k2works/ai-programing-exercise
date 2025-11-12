@@ -54,9 +54,9 @@ namespace SalesManagement.Infrastructure.Migrations
                 .OnTable("受注データ")
                 .OnColumn("受注日");
 
-            Execute.Sql("COMMENT ON TABLE 受注データ IS '顧客からの注文情報を管理するヘッダ'");
-            Execute.Sql("COMMENT ON COLUMN 受注データ.受注番号 IS '受注を一意に識別する番号'");
-            Execute.Sql("COMMENT ON COLUMN 受注データ.希望納期 IS '顧客が希望する納期'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON TABLE 受注データ IS '顧客からの注文情報を管理するヘッダ'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 受注データ.受注番号 IS '受注を一意に識別する番号'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 受注データ.希望納期 IS '顧客が希望する納期'");
         }
 
         public override void Down()

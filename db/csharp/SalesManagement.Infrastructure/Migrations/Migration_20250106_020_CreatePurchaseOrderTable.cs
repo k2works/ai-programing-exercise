@@ -53,8 +53,8 @@ namespace SalesManagement.Infrastructure.Migrations
                 .OnTable("発注データ")
                 .OnColumn("受注番号");
 
-            Execute.Sql("COMMENT ON TABLE 発注データ IS '仕入先への発注情報を管理するヘッダ'");
-            Execute.Sql("COMMENT ON COLUMN 発注データ.受注番号 IS '元となる受注データへの参照'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON TABLE 発注データ IS '仕入先への発注情報を管理するヘッダ'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 発注データ.受注番号 IS '元となる受注データへの参照'");
         }
 
         public override void Down()

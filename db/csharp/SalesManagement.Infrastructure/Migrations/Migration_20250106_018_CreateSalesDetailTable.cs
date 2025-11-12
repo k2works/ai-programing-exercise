@@ -38,9 +38,9 @@ namespace SalesManagement.Infrastructure.Migrations
                 .OnTable("売上データ明細")
                 .OnColumn("商品コード");
 
-            Execute.Sql("COMMENT ON TABLE 売上データ明細 IS '売上の商品別明細情報'");
-            Execute.Sql("COMMENT ON COLUMN 売上データ明細.商品名 IS '売上時の商品名（履歴保持）'");
-            Execute.Sql("COMMENT ON COLUMN 売上データ明細.販売単価 IS '売上時の販売単価（履歴保持）'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON TABLE 売上データ明細 IS '売上の商品別明細情報'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 売上データ明細.商品名 IS '売上時の商品名（履歴保持）'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 売上データ明細.販売単価 IS '売上時の販売単価（履歴保持）'");
         }
 
         public override void Down()

@@ -33,15 +33,15 @@ namespace SalesManagement.Infrastructure.Migrations
                 .OnColumn("社員名カナ");
 
             // テーブルコメント（PostgreSQL）
-            Execute.Sql("COMMENT ON TABLE 社員マスタ IS '社員の基本情報を管理するマスタ'");
-            Execute.Sql("COMMENT ON COLUMN 社員マスタ.社員コード IS '社員の一意識別子'");
-            Execute.Sql("COMMENT ON COLUMN 社員マスタ.社員名 IS '社員の氏名'");
-            Execute.Sql("COMMENT ON COLUMN 社員マスタ.社員名カナ IS '社員の氏名（カナ）'");
-            Execute.Sql("COMMENT ON COLUMN 社員マスタ.性別 IS '性別（M:男性, F:女性, O:その他）'");
-            Execute.Sql("COMMENT ON COLUMN 社員マスタ.生年月日 IS '生年月日'");
-            Execute.Sql("COMMENT ON COLUMN 社員マスタ.入社年月日 IS '入社年月日'");
-            Execute.Sql("COMMENT ON COLUMN 社員マスタ.部門コード IS '所属部門コード'");
-            Execute.Sql("COMMENT ON COLUMN 社員マスタ.役職コード IS '役職コード'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON TABLE 社員マスタ IS '社員の基本情報を管理するマスタ'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 社員マスタ.社員コード IS '社員の一意識別子'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 社員マスタ.社員名 IS '社員の氏名'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 社員マスタ.社員名カナ IS '社員の氏名（カナ）'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 社員マスタ.性別 IS '性別（M:男性, F:女性, O:その他）'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 社員マスタ.生年月日 IS '生年月日'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 社員マスタ.入社年月日 IS '入社年月日'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 社員マスタ.部門コード IS '所属部門コード'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 社員マスタ.役職コード IS '役職コード'");
 
             // CHECK制約（性別）
             Execute.Sql("ALTER TABLE 社員マスタ ADD CONSTRAINT chk_社員マスタ_性別 CHECK (性別 IN ('M', 'F', 'O'))");

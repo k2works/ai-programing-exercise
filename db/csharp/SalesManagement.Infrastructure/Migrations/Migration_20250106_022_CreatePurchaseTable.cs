@@ -52,8 +52,8 @@ namespace SalesManagement.Infrastructure.Migrations
                 .OnColumn("仕入先コード").Ascending()
                 .OnColumn("仕入先枝番").Ascending();
 
-            Execute.Sql("COMMENT ON TABLE 仕入データ IS '仕入情報を管理するヘッダ'");
-            Execute.Sql("COMMENT ON COLUMN 仕入データ.発注番号 IS '元となる発注データへの参照'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON TABLE 仕入データ IS '仕入情報を管理するヘッダ'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 仕入データ.発注番号 IS '元となる発注データへの参照'");
         }
 
         public override void Down()

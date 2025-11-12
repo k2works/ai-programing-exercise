@@ -40,7 +40,7 @@ namespace SalesManagement.Infrastructure.Migrations
                 .OnTable("取引先分類所属マスタ")
                 .OnColumn("取引先コード");
 
-            Execute.Sql("COMMENT ON TABLE 取引先分類所属マスタ IS '取引先と分類の多対多関係を管理'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON TABLE 取引先分類所属マスタ IS '取引先と分類の多対多関係を管理'");
         }
 
         public override void Down()

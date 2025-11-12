@@ -46,10 +46,10 @@ namespace SalesManagement.Infrastructure.Migrations
                 .OnDelete(System.Data.Rule.None);
 
             // テーブルコメント（PostgreSQL）
-            Execute.Sql("COMMENT ON TABLE 商品マスタ IS '商品の基本情報を管理するマスタ'");
-            Execute.Sql("COMMENT ON COLUMN 商品マスタ.商品コード IS '商品の一意識別子'");
-            Execute.Sql("COMMENT ON COLUMN 商品マスタ.販売単価 IS '標準販売単価'");
-            Execute.Sql("COMMENT ON COLUMN 商品マスタ.在庫管理対象区分 IS '在庫管理が必要か（0:不要, 1:必要）'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON TABLE 商品マスタ IS '商品の基本情報を管理するマスタ'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 商品マスタ.商品コード IS '商品の一意識別子'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 商品マスタ.販売単価 IS '標準販売単価'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 商品マスタ.在庫管理対象区分 IS '在庫管理が必要か（0:不要, 1:必要）'");
         }
 
         public override void Down()

@@ -52,10 +52,10 @@ namespace SalesManagement.Infrastructure.Migrations
                 .OnTable("仕入データ明細")
                 .OnColumn("ロット番号");
 
-            Execute.Sql("COMMENT ON TABLE 仕入データ明細 IS '仕入の商品別明細情報'");
-            Execute.Sql("COMMENT ON COLUMN 仕入データ明細.商品名 IS '仕入時の商品名（履歴保持）'");
-            Execute.Sql("COMMENT ON COLUMN 仕入データ明細.仕入単価 IS '仕入時の単価（履歴保持）'");
-            Execute.Sql("COMMENT ON COLUMN 仕入データ明細.ロット番号 IS '在庫データと紐づくロット番号'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON TABLE 仕入データ明細 IS '仕入の商品別明細情報'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 仕入データ明細.商品名 IS '仕入時の商品名（履歴保持）'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 仕入データ明細.仕入単価 IS '仕入時の単価（履歴保持）'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 仕入データ明細.ロット番号 IS '在庫データと紐づくロット番号'");
         }
 
         public override void Down()

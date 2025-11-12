@@ -11,7 +11,12 @@ namespace SalesManagement.Infrastructure.Migrations
         public override void Up()
         {
             // PostgreSQL用のタイムゾーン設定
-            Execute.Sql("SET timezone = 'Asia/Tokyo'");
+            IfDatabase("Postgres")
+                .Execute.Sql("SET timezone = 'Asia/Tokyo'");
+
+            // MySQL用のタイムゾーン設定
+            IfDatabase("MySQL")
+                .Execute.Sql("SET time_zone = '+09:00'");
         }
 
         public override void Down()

@@ -30,11 +30,11 @@ namespace SalesManagement.Infrastructure.Migrations
                 .OnColumn("商品分類パス");
 
             // テーブルコメント（PostgreSQL）
-            Execute.Sql("COMMENT ON TABLE 商品分類マスタ IS '商品の階層的な分類を管理するマスタ'");
-            Execute.Sql("COMMENT ON COLUMN 商品分類マスタ.商品分類コード IS '商品分類の一意識別子'");
-            Execute.Sql("COMMENT ON COLUMN 商品分類マスタ.商品分類階層 IS '分類の階層レベル（1:最上位, 2:第2階層...）'");
-            Execute.Sql("COMMENT ON COLUMN 商品分類マスタ.商品分類パス IS '階層パス（例: CAT001/CAT00101/CAT0010101）'");
-            Execute.Sql("COMMENT ON COLUMN 商品分類マスタ.最下層区分 IS '最下層かどうか（0:中間階層, 1:最下層）'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON TABLE 商品分類マスタ IS '商品の階層的な分類を管理するマスタ'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 商品分類マスタ.商品分類コード IS '商品分類の一意識別子'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 商品分類マスタ.商品分類階層 IS '分類の階層レベル（1:最上位, 2:第2階層...）'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 商品分類マスタ.商品分類パス IS '階層パス（例: CAT001/CAT00101/CAT0010101）'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 商品分類マスタ.最下層区分 IS '最下層かどうか（0:中間階層, 1:最下層）'");
         }
 
         public override void Down()

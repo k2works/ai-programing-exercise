@@ -24,7 +24,7 @@ public class Migration20250106030CreateCreditBalanceTable : Migration
             .FromTable("与信残高データ").ForeignColumn("取引先コード")
             .ToTable("取引先マスタ").PrimaryColumn("取引先コード");
 
-        Execute.Sql(@"
+        IfDatabase("Postgres").Execute.Sql(@"
             COMMENT ON TABLE 与信残高データ IS '与信残高データ';
             COMMENT ON COLUMN 与信残高データ.取引先コード IS '取引先コード';
             COMMENT ON COLUMN 与信残高データ.受注残高 IS '受注残高（受注したが未出荷の金額）';

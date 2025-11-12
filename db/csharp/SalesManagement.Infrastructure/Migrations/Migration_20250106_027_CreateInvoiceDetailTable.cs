@@ -33,7 +33,7 @@ public class Migration20250106027CreateInvoiceDetailTable : Migration
             .OnDelete(System.Data.Rule.Cascade);
 
         // 複合外部キー（売上明細への参照）
-        Execute.Sql(@"
+        IfDatabase("Postgres").Execute.Sql(@"
             ALTER TABLE 請求データ明細
             ADD CONSTRAINT fk_invoice_detail_sales_detail
             FOREIGN KEY (売上番号, 売上行番号)

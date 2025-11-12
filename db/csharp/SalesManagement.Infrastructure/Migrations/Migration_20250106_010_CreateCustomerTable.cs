@@ -62,8 +62,8 @@ namespace SalesManagement.Infrastructure.Migrations
                 .OnTable("顧客マスタ")
                 .OnColumn("顧客コード");
 
-            Execute.Sql("COMMENT ON TABLE 顧客マスタ IS '取引先の顧客としての詳細情報'");
-            Execute.Sql("COMMENT ON COLUMN 顧客マスタ.顧客枝番 IS '同一取引先の複数顧客を区別する枝番'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON TABLE 顧客マスタ IS '取引先の顧客としての詳細情報'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 顧客マスタ.顧客枝番 IS '同一取引先の複数顧客を区別する枝番'");
         }
 
         public override void Down()

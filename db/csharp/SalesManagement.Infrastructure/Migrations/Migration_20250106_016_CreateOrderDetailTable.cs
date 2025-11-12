@@ -43,10 +43,10 @@ namespace SalesManagement.Infrastructure.Migrations
                 .OnTable("受注データ明細")
                 .OnColumn("商品コード");
 
-            Execute.Sql("COMMENT ON TABLE 受注データ明細 IS '受注の商品別明細情報'");
-            Execute.Sql("COMMENT ON COLUMN 受注データ明細.商品名 IS '受注時の商品名（履歴保持）'");
-            Execute.Sql("COMMENT ON COLUMN 受注データ明細.販売単価 IS '受注時の販売単価（履歴保持）'");
-            Execute.Sql("COMMENT ON COLUMN 受注データ明細.引当数量 IS '在庫から引き当てた数量'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON TABLE 受注データ明細 IS '受注の商品別明細情報'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 受注データ明細.商品名 IS '受注時の商品名（履歴保持）'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 受注データ明細.販売単価 IS '受注時の販売単価（履歴保持）'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 受注データ明細.引当数量 IS '在庫から引き当てた数量'");
         }
 
         public override void Down()

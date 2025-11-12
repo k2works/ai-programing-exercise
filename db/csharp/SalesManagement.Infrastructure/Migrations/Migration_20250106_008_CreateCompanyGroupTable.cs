@@ -18,7 +18,7 @@ namespace SalesManagement.Infrastructure.Migrations
                 .WithColumn("更新日時").AsDateTime().NotNullable().WithDefault(SystemMethods.CurrentDateTime)
                 .WithColumn("更新者名").AsString(100).Nullable();
 
-            Execute.Sql("COMMENT ON TABLE 取引先グループマスタ IS '取引先をグループ化するマスタ'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON TABLE 取引先グループマスタ IS '取引先をグループ化するマスタ'");
         }
 
         public override void Down()

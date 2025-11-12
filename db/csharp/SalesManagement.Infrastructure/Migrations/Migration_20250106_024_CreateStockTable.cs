@@ -45,11 +45,11 @@ namespace SalesManagement.Infrastructure.Migrations
                 .OnTable("在庫データ")
                 .OnColumn("ロット番号");
 
-            Execute.Sql("COMMENT ON TABLE 在庫データ IS '倉庫別・商品別・ロット別の在庫数量を管理'");
-            Execute.Sql("COMMENT ON COLUMN 在庫データ.在庫区分 IS '在庫の種類（1=通常在庫、2=預託在庫など）'");
-            Execute.Sql("COMMENT ON COLUMN 在庫データ.良品区分 IS '品質区分（G=良品、B=不良品、H=保留品）'");
-            Execute.Sql("COMMENT ON COLUMN 在庫データ.実在庫数 IS '物理的に存在する在庫数'");
-            Execute.Sql("COMMENT ON COLUMN 在庫データ.有効在庫数 IS '販売可能な在庫数（実在庫 - 引当数量）'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON TABLE 在庫データ IS '倉庫別・商品別・ロット別の在庫数量を管理'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 在庫データ.在庫区分 IS '在庫の種類（1=通常在庫、2=預託在庫など）'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 在庫データ.良品区分 IS '品質区分（G=良品、B=不良品、H=保留品）'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 在庫データ.実在庫数 IS '物理的に存在する在庫数'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 在庫データ.有効在庫数 IS '販売可能な在庫数（実在庫 - 引当数量）'");
         }
 
         public override void Down()

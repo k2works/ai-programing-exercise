@@ -36,16 +36,16 @@ namespace SalesManagement.Infrastructure.Migrations
                 .OnTable("部門マスタ")
                 .OnColumn("部門パス");
 
-            // テーブルコメント（PostgreSQL）
-            Execute.Sql("COMMENT ON TABLE 部門マスタ IS '組織の部門情報を管理するマスタ'");
-            Execute.Sql("COMMENT ON COLUMN 部門マスタ.部門コード IS '部門の一意識別子'");
-            Execute.Sql("COMMENT ON COLUMN 部門マスタ.開始日 IS '部門の有効開始日（履歴管理）'");
-            Execute.Sql("COMMENT ON COLUMN 部門マスタ.終了日 IS '部門の有効終了日'");
-            Execute.Sql("COMMENT ON COLUMN 部門マスタ.部門名 IS '部門の名称'");
-            Execute.Sql("COMMENT ON COLUMN 部門マスタ.組織階層 IS '組織内での階層レベル（1:最上位, 2:第2階層...）'");
-            Execute.Sql("COMMENT ON COLUMN 部門マスタ.部門パス IS '階層パス（例: 10000/11000/11101）'");
-            Execute.Sql("COMMENT ON COLUMN 部門マスタ.最下層区分 IS '最下層かどうか（0:中間階層, 1:最下層）'");
-            Execute.Sql("COMMENT ON COLUMN 部門マスタ.伝票入力可否 IS '伝票入力が可能か（0:不可, 1:可）'");
+            // テーブルコメント（PostgreSQL のみ）
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON TABLE 部門マスタ IS '組織の部門情報を管理するマスタ'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 部門マスタ.部門コード IS '部門の一意識別子'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 部門マスタ.開始日 IS '部門の有効開始日（履歴管理）'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 部門マスタ.終了日 IS '部門の有効終了日'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 部門マスタ.部門名 IS '部門の名称'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 部門マスタ.組織階層 IS '組織内での階層レベル（1:最上位, 2:第2階層...）'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 部門マスタ.部門パス IS '階層パス（例: 10000/11000/11101）'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 部門マスタ.最下層区分 IS '最下層かどうか（0:中間階層, 1:最下層）'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 部門マスタ.伝票入力可否 IS '伝票入力が可能か（0:不可, 1:可）'");
         }
 
         public override void Down()

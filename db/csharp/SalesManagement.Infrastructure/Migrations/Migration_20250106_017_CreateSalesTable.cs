@@ -55,9 +55,9 @@ namespace SalesManagement.Infrastructure.Migrations
                 .OnTable("売上データ")
                 .OnColumn("取引先コード");
 
-            Execute.Sql("COMMENT ON TABLE 売上データ IS '売上情報を管理するヘッダ'");
-            Execute.Sql("COMMENT ON COLUMN 売上データ.売上番号 IS '売上を一意に識別する番号'");
-            Execute.Sql("COMMENT ON COLUMN 売上データ.受注番号 IS '元となった受注番号（追跡可能性）'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON TABLE 売上データ IS '売上情報を管理するヘッダ'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 売上データ.売上番号 IS '売上を一意に識別する番号'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 売上データ.受注番号 IS '元となった受注番号（追跡可能性）'");
         }
 
         public override void Down()

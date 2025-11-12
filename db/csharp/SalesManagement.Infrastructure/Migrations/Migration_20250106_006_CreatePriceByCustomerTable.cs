@@ -33,8 +33,8 @@ namespace SalesManagement.Infrastructure.Migrations
                 .OnDelete(System.Data.Rule.Cascade);
 
             // テーブルコメント（PostgreSQL）
-            Execute.Sql("COMMENT ON TABLE 顧客別販売単価 IS '顧客ごとの特別販売単価を管理'");
-            Execute.Sql("COMMENT ON COLUMN 顧客別販売単価.販売単価 IS 'この顧客への販売単価'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON TABLE 顧客別販売単価 IS '顧客ごとの特別販売単価を管理'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 顧客別販売単価.販売単価 IS 'この顧客への販売単価'");
         }
 
         public override void Down()

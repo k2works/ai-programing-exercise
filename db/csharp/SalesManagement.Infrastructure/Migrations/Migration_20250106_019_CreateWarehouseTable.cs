@@ -23,8 +23,8 @@ namespace SalesManagement.Infrastructure.Migrations
                 .FromTable("倉庫マスタ").ForeignColumn("責任者コード")
                 .ToTable("社員マスタ").PrimaryColumn("社員コード");
 
-            Execute.Sql("COMMENT ON TABLE 倉庫マスタ IS '在庫管理の場所を定義するマスタ'");
-            Execute.Sql("COMMENT ON COLUMN 倉庫マスタ.倉庫区分 IS '倉庫の種類（1=自社倉庫、2=委託倉庫など）'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON TABLE 倉庫マスタ IS '在庫管理の場所を定義するマスタ'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 倉庫マスタ.倉庫区分 IS '倉庫の種類（1=自社倉庫、2=委託倉庫など）'");
         }
 
         public override void Down()

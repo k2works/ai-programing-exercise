@@ -46,8 +46,8 @@ namespace SalesManagement.Infrastructure.Migrations
                 .OnTable("仕入先マスタ")
                 .OnColumn("仕入先コード");
 
-            Execute.Sql("COMMENT ON TABLE 仕入先マスタ IS '取引先の仕入先としての詳細情報'");
-            Execute.Sql("COMMENT ON COLUMN 仕入先マスタ.仕入先枝番 IS '同一取引先の複数仕入先を区別する枝番'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON TABLE 仕入先マスタ IS '取引先の仕入先としての詳細情報'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 仕入先マスタ.仕入先枝番 IS '同一取引先の複数仕入先を区別する枝番'");
         }
 
         public override void Down()

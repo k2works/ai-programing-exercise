@@ -32,8 +32,8 @@ namespace SalesManagement.Infrastructure.Migrations
                 .OnTable("取引先分類マスタ")
                 .OnColumn("分類種別");
 
-            Execute.Sql("COMMENT ON TABLE 取引先分類マスタ IS '分類種別ごとの具体的な分類値を管理'");
-            Execute.Sql("COMMENT ON COLUMN 取引先分類マスタ.分類 IS '分類種別内の具体的な分類コード'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON TABLE 取引先分類マスタ IS '分類種別ごとの具体的な分類値を管理'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 取引先分類マスタ.分類 IS '分類種別内の具体的な分類コード'");
         }
 
         public override void Down()

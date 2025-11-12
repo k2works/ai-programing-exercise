@@ -38,8 +38,8 @@ namespace SalesManagement.Infrastructure.Migrations
                 .OnTable("取引先マスタ")
                 .OnColumn("取引先グループコード");
 
-            Execute.Sql("COMMENT ON TABLE 取引先マスタ IS '顧客・仕入先の共通基盤情報（Partyモデル）'");
-            Execute.Sql("COMMENT ON COLUMN 取引先マスタ.与信限度額 IS '与信管理の限度額'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON TABLE 取引先マスタ IS '顧客・仕入先の共通基盤情報（Partyモデル）'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 取引先マスタ.与信限度額 IS '与信管理の限度額'");
         }
 
         public override void Down()

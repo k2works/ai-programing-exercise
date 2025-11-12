@@ -38,8 +38,8 @@ namespace SalesManagement.Infrastructure.Migrations
                 .OnDelete(System.Data.Rule.None);
 
             // テーブルコメント（PostgreSQL）
-            Execute.Sql("COMMENT ON TABLE 代替商品 IS '在庫切れ時などに提案する代替商品を管理'");
-            Execute.Sql("COMMENT ON COLUMN 代替商品.優先順位 IS '複数の代替商品がある場合の優先順位'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON TABLE 代替商品 IS '在庫切れ時などに提案する代替商品を管理'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 代替商品.優先順位 IS '複数の代替商品がある場合の優先順位'");
         }
 
         public override void Down()

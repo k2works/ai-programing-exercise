@@ -40,10 +40,10 @@ namespace SalesManagement.Infrastructure.Migrations
                 .OnTable("発注データ明細")
                 .OnColumn("商品コード");
 
-            Execute.Sql("COMMENT ON TABLE 発注データ明細 IS '発注の商品別明細情報'");
-            Execute.Sql("COMMENT ON COLUMN 発注データ明細.商品名 IS '発注時の商品名（履歴保持）'");
-            Execute.Sql("COMMENT ON COLUMN 発注データ明細.発注単価 IS '発注時の単価（履歴保持）'");
-            Execute.Sql("COMMENT ON COLUMN 発注データ明細.入荷済数量 IS '仕入データから入荷済みの数量'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON TABLE 発注データ明細 IS '発注の商品別明細情報'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 発注データ明細.商品名 IS '発注時の商品名（履歴保持）'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 発注データ明細.発注単価 IS '発注時の単価（履歴保持）'");
+            IfDatabase("Postgres").Execute.Sql("COMMENT ON COLUMN 発注データ明細.入荷済数量 IS '仕入データから入荷済みの数量'");
         }
 
         public override void Down()

@@ -23,7 +23,7 @@ public class Migration20250106031CreateAutoNumberTable : Migration
             .OnTable("自動採番マスタ")
             .Columns("伝票種別コード", "年月");
 
-        Execute.Sql(@"
+        IfDatabase("Postgres").Execute.Sql(@"
             COMMENT ON TABLE 自動採番マスタ IS '自動採番マスタ';
             COMMENT ON COLUMN 自動採番マスタ.伝票種別コード IS '伝票種別コード (OR:受注 SA:売上 PO:発注 PU:仕入 IN:請求 CR:入金 PA:支払)';
             COMMENT ON COLUMN 自動採番マスタ.年月 IS '年月 (YYYYMM形式)';
