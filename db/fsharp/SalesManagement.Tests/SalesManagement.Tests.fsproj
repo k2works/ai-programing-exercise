@@ -30,6 +30,8 @@
     <Compile Include="IntegrationTests/BankAccountTests.fs" />
     <Compile Include="IntegrationTests/InvoiceTests.fs" />
     <Compile Include="IntegrationTests/InvoiceDetailTests.fs" />
+    <Compile Include="IntegrationTests/CreditBalanceTests.fs" />
+    <Compile Include="IntegrationTests/AutoNumberTests.fs" />
     <Compile Include="Tests.fs" />
   </ItemGroup>
 

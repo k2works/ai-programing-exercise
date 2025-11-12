@@ -34,6 +34,8 @@
     <Compile Include="Repositories/BankAccountRepository.fs" />
     <Compile Include="Repositories/InvoiceRepository.fs" />
     <Compile Include="Repositories/InvoiceDetailRepository.fs" />
+    <Compile Include="Repositories/CreditBalanceRepository.fs" />
+    <Compile Include="Repositories/AutoNumberRepository.fs" />
     <Compile Include="Migrations/Migration_20250106_001_InitialSetup.fs" />
     <Compile Include="Migrations/Migration_20250106_002_CreateDepartmentTable.fs" />
     <Compile Include="Migrations/Migration_20250106_003_CreateEmployeeTable.fs" />
@@ -61,6 +63,8 @@
     <Compile Include="Migrations/Migration_20250106_025_CreateBankAccountTable.fs" />
     <Compile Include="Migrations/Migration_20250106_026_CreateInvoiceTable.fs" />
     <Compile Include="Migrations/Migration_20250106_027_CreateInvoiceDetailTable.fs" />
+    <Compile Include="Migrations/Migration_20250106_028_CreateCreditBalanceTable.fs" />
+    <Compile Include="Migrations/Migration_20250106_029_CreateAutoNumberTable.fs" />
     <Compile Include="MigrationRunner.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

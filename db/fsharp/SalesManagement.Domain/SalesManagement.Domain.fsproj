@@ -32,6 +32,8 @@
     <Compile Include="Models/BankAccount.fs" />
     <Compile Include="Models/Invoice.fs" />
     <Compile Include="Models/InvoiceDetail.fs" />
+    <Compile Include="Models/CreditBalance.fs" />
+    <Compile Include="Models/AutoNumber.fs" />
     <Compile Include="ComplexityTest.fs" />
     <Compile Include="Library.fs" />
   </ItemGroup>
