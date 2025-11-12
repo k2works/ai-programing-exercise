@@ -32,6 +32,7 @@
     <Compile Include="IntegrationTests/InvoiceDetailTests.fs" />
     <Compile Include="IntegrationTests/CreditBalanceTests.fs" />
     <Compile Include="IntegrationTests/AutoNumberTests.fs" />
+    <Compile Include="ApiTests/ProductControllerTests.fs" />
     <Compile Include="Tests.fs" />
   </ItemGroup>
 
@@ -41,7 +42,9 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="FluentAssertions" Version="7.0.0" />
+    <PackageReference Include="FSharp.SystemTextJson" Version="1.4.36" />
     <PackageReference Include="FsUnit.xUnit" Version="6.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="Testcontainers.MySql" Version="4.1.0" />
     <PackageReference Include="Testcontainers.PostgreSql" Version="4.1.0" />
@@ -50,8 +53,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SalesManagement.Api\SalesManagement.Api.fsproj" />
     <ProjectReference Include="..\SalesManagement.Domain\SalesManagement.Domain.fsproj" />
     <ProjectReference Include="..\SalesManagement.Infrastructure\SalesManagement.Infrastructure.fsproj" />
   </ItemGroup>
+
 
 </Project>
