@@ -24,4 +24,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="10.0.0" />
   </ItemGroup>
 
+  <!-- ビルド後に OpenAPI 仕様を生成 -->
+  <Target Name="GenerateOpenApiSpec" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
+    <Exec Command="dotnet swagger tofile --output openapi.yml --yaml $(OutputPath)$(AssemblyName).dll v1" WorkingDirectory="$(ProjectDir)" />
+  </Target>
+
 </Project>

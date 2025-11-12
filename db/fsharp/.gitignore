@@ -39,3 +39,6 @@ logs/
 .tools/
 tools/
 .dotnet/
+
+# Test data
+test-product*.json

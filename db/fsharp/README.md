@@ -151,6 +151,37 @@ API が起動したら、以下の URL でアクセスできます：
 
 Swagger UI では、すべての API エンドポイントの詳細なドキュメント、リクエスト/レスポンスのサンプル、および実際に API をテストする機能が利用できます。
 
+### OpenAPI 仕様の生成
+
+OpenAPI 仕様（openapi.yml）は以下の方法で生成できます：
+
+#### 自動生成（Release ビルド時）
+
+```bash
+dotnet build SalesManagement.Api -c Release
+```
+
+Release ビルド時に `SalesManagement.Api/openapi.yml` が自動生成されます。
+
+#### 手動生成（開発時）
+
+**Windows (PowerShell):**
+```powershell
+.\generate-openapi.ps1
+```
+
+**Linux/macOS (Bash):**
+```bash
+./generate-openapi.sh
+```
+
+**または直接コマンド実行:**
+```bash
+dotnet swagger tofile --output SalesManagement.Api/openapi.yml --yaml SalesManagement.Api/bin/Debug/net9.0/SalesManagement.Api.dll v1
+```
+
+生成された `openapi.yml` は、Swagger Editor や他の OpenAPI ツールで利用できます。
+
 ### テストの実行
 
 ```bash
