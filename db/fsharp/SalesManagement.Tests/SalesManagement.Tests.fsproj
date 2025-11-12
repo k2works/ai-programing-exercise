@@ -27,6 +27,9 @@
     <Compile Include="IntegrationTests/StockTests.fs" />
     <Compile Include="IntegrationTests/PurchaseTests.fs" />
     <Compile Include="IntegrationTests/PurchaseDetailTests.fs" />
+    <Compile Include="IntegrationTests/BankAccountTests.fs" />
+    <Compile Include="IntegrationTests/InvoiceTests.fs" />
+    <Compile Include="IntegrationTests/InvoiceDetailTests.fs" />
     <Compile Include="Tests.fs" />
   </ItemGroup>
 

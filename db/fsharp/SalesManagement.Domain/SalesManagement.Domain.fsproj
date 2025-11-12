@@ -29,6 +29,9 @@
     <Compile Include="Models/Stock.fs" />
     <Compile Include="Models/Purchase.fs" />
     <Compile Include="Models/PurchaseDetail.fs" />
+    <Compile Include="Models/BankAccount.fs" />
+    <Compile Include="Models/Invoice.fs" />
+    <Compile Include="Models/InvoiceDetail.fs" />
     <Compile Include="ComplexityTest.fs" />
     <Compile Include="Library.fs" />
   </ItemGroup>

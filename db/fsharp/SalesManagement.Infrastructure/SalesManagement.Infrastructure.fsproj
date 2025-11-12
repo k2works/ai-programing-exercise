@@ -31,6 +31,9 @@
     <Compile Include="Repositories/StockRepository.fs" />
     <Compile Include="Repositories/PurchaseRepository.fs" />
     <Compile Include="Repositories/PurchaseDetailRepository.fs" />
+    <Compile Include="Repositories/BankAccountRepository.fs" />
+    <Compile Include="Repositories/InvoiceRepository.fs" />
+    <Compile Include="Repositories/InvoiceDetailRepository.fs" />
     <Compile Include="Migrations/Migration_20250106_001_InitialSetup.fs" />
     <Compile Include="Migrations/Migration_20250106_002_CreateDepartmentTable.fs" />
     <Compile Include="Migrations/Migration_20250106_003_CreateEmployeeTable.fs" />
@@ -55,6 +58,9 @@
     <Compile Include="Migrations/Migration_20250106_022_CreateStockTable.fs" />
     <Compile Include="Migrations/Migration_20250106_023_CreatePurchaseTable.fs" />
     <Compile Include="Migrations/Migration_20250106_024_CreatePurchaseDetailTable.fs" />
+    <Compile Include="Migrations/Migration_20250106_025_CreateBankAccountTable.fs" />
+    <Compile Include="Migrations/Migration_20250106_026_CreateInvoiceTable.fs" />
+    <Compile Include="Migrations/Migration_20250106_027_CreateInvoiceDetailTable.fs" />
     <Compile Include="MigrationRunner.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
