@@ -32,7 +32,7 @@ namespace SalesManagement.Infrastructure
             {
                 services.AddFluentMigratorCore()
                     .ConfigureRunner(rb => rb
-                        .AddMySql5()
+                        .AddMySql8()
                         .WithGlobalConnectionString(connectionString)
                         .ScanIn(typeof(MigrationRunner).Assembly).For.Migrations())
                     .AddLogging(lb => lb.AddFluentMigratorConsole());

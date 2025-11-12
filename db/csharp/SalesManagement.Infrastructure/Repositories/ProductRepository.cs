@@ -1,4 +1,6 @@
+using System.Data;
 using Dapper;
+using MySql.Data.MySqlClient;
 using Npgsql;
 using SalesManagement.Domain.Models;
 
@@ -10,10 +12,22 @@ namespace SalesManagement.Infrastructure.Repositories
     public class ProductRepository
     {
         private readonly string _connectionString;
+        private readonly string _databaseType;
 
-        public ProductRepository(string connectionString)
+        public ProductRepository(string connectionString, string databaseType = "PostgreSQL")
         {
             _connectionString = connectionString;
+            _databaseType = databaseType;
+        }
+
+        private IDbConnection CreateConnection()
+        {
+            return _databaseType switch
+            {
+                "MySQL" => new MySqlConnection(_connectionString),
+                "PostgreSQL" => new NpgsqlConnection(_connectionString),
+                _ => throw new InvalidOperationException($"未対応のデータベース: {_databaseType}")
+            };
         }
 
         /// <summary>
@@ -36,7 +50,7 @@ namespace SalesManagement.Infrastructure.Repositories
                     @CreatedAt, @CreatedBy, @UpdatedAt, @UpdatedBy
                 )";
 
-            await using var connection = new NpgsqlConnection(_connectionString);
+            using var connection = CreateConnection();
             await connection.ExecuteAsync(sql, product);
         }
 
@@ -66,7 +80,7 @@ namespace SalesManagement.Infrastructure.Repositories
                     更新者名 = @UpdatedBy
                 WHERE 商品コード = @ProductCode";
 
-            await using var connection = new NpgsqlConnection(_connectionString);
+            using var connection = CreateConnection();
             await connection.ExecuteAsync(sql, product);
         }
 
@@ -79,7 +93,7 @@ namespace SalesManagement.Infrastructure.Repositories
                 DELETE FROM 商品マスタ
                 WHERE 商品コード = @ProductCode";
 
-            await using var connection = new NpgsqlConnection(_connectionString);
+            using var connection = CreateConnection();
             await connection.ExecuteAsync(sql, new { ProductCode = productCode });
         }
 
@@ -113,7 +127,7 @@ namespace SalesManagement.Infrastructure.Repositories
                 FROM 商品マスタ
                 WHERE 商品コード = @ProductCode";
 
-            await using var connection = new NpgsqlConnection(_connectionString);
+            using var connection = CreateConnection();
             return await connection.QuerySingleOrDefaultAsync<Product>(sql, new { ProductCode = productCode });
         }
 
@@ -147,7 +161,7 @@ namespace SalesManagement.Infrastructure.Repositories
                 FROM 商品マスタ
                 ORDER BY 商品コード";
 
-            await using var connection = new NpgsqlConnection(_connectionString);
+            using var connection = CreateConnection();
             return await connection.QueryAsync<Product>(sql);
         }
 
@@ -182,7 +196,7 @@ namespace SalesManagement.Infrastructure.Repositories
                 WHERE 商品分類コード = @ProductCategoryCode
                 ORDER BY 商品コード";
 
-            await using var connection = new NpgsqlConnection(_connectionString);
+            using var connection = CreateConnection();
             return await connection.QueryAsync<Product>(sql, new { ProductCategoryCode = productCategoryCode });
         }
     }

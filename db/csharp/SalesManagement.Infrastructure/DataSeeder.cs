@@ -1,4 +1,6 @@
+using System.Data;
 using Dapper;
+using MySql.Data.MySqlClient;
 using Npgsql;
 using SalesManagement.Domain.Models;
 
@@ -10,16 +12,30 @@ namespace SalesManagement.Infrastructure;
 public class DataSeeder
 {
     private readonly string _connectionString;
+    private readonly string _databaseType;
 
-    public DataSeeder(string connectionString)
+    public DataSeeder(string connectionString, string databaseType = "PostgreSQL")
     {
         _connectionString = connectionString;
+        _databaseType = databaseType;
     }
 
     /// <summary>
     /// 全てのSeedデータを投入
     /// </summary>
     public async Task SeedAllAsync()
+    {
+        if (_databaseType == "MySQL")
+        {
+            await SeedWithMySqlAsync();
+        }
+        else
+        {
+            await SeedWithPostgreSqlAsync();
+        }
+    }
+
+    private async Task SeedWithPostgreSqlAsync()
     {
         await using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync();
@@ -56,7 +72,44 @@ public class DataSeeder
         }
     }
 
-    private async Task ClearExistingDataAsync(NpgsqlConnection connection, NpgsqlTransaction transaction)
+    private async Task SeedWithMySqlAsync()
+    {
+        await using var connection = new MySqlConnection(_connectionString);
+        await connection.OpenAsync();
+
+        await using var transaction = await connection.BeginTransactionAsync();
+
+        try
+        {
+            Console.WriteLine("=== Seedデータ投入開始 ===");
+
+            // 既存データのクリア（開発環境のみ）
+            await ClearExistingDataAsync(connection, transaction);
+
+            // マスタデータの投入（外部キー制約を考慮した順序）
+            await SeedDepartmentsAsync(connection, transaction);
+            await SeedEmployeesAsync(connection, transaction);
+            await SeedCompanyGroupsAsync(connection, transaction);
+            await SeedCompaniesAsync(connection, transaction);
+            await SeedCustomersAsync(connection, transaction);
+            await SeedSuppliersAsync(connection, transaction);
+            await SeedProductCategoriesAsync(connection, transaction);
+            await SeedProductsAsync(connection, transaction);
+            await SeedWarehousesAsync(connection, transaction);
+            await SeedBankAccountsAsync(connection, transaction);
+
+            await transaction.CommitAsync();
+            Console.WriteLine("=== Seedデータ投入完了 ===");
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            Console.WriteLine($"エラー: {ex.Message}");
+            throw;
+        }
+    }
+
+    private async Task ClearExistingDataAsync(IDbConnection connection, IDbTransaction transaction)
     {
         Console.WriteLine("既存データのクリア...");
 
@@ -102,7 +155,7 @@ public class DataSeeder
         Console.WriteLine("既存データのクリア完了");
     }
 
-    private async Task SeedDepartmentsAsync(NpgsqlConnection connection, NpgsqlTransaction transaction)
+    private async Task SeedDepartmentsAsync(IDbConnection connection, IDbTransaction transaction)
     {
         Console.WriteLine("部門マスタの投入...");
 
@@ -155,7 +208,7 @@ public class DataSeeder
         Console.WriteLine($"部門マスタ: {departments.Count}件投入完了");
     }
 
-    private async Task SeedEmployeesAsync(NpgsqlConnection connection, NpgsqlTransaction transaction)
+    private async Task SeedEmployeesAsync(IDbConnection connection, IDbTransaction transaction)
     {
         Console.WriteLine("社員マスタの投入...");
 
@@ -252,7 +305,7 @@ public class DataSeeder
         Console.WriteLine($"社員マスタ: {employees.Count}件投入完了");
     }
 
-    private async Task SeedCompanyGroupsAsync(NpgsqlConnection connection, NpgsqlTransaction transaction)
+    private async Task SeedCompanyGroupsAsync(IDbConnection connection, IDbTransaction transaction)
     {
         Console.WriteLine("取引先グループの投入...");
 
@@ -280,7 +333,7 @@ public class DataSeeder
         Console.WriteLine($"取引先グループ: {groups.Count}件投入完了");
     }
 
-    private async Task SeedCompaniesAsync(NpgsqlConnection connection, NpgsqlTransaction transaction)
+    private async Task SeedCompaniesAsync(IDbConnection connection, IDbTransaction transaction)
     {
         Console.WriteLine("取引先マスタの投入...");
 
@@ -321,7 +374,7 @@ public class DataSeeder
         Console.WriteLine($"取引先マスタ: {companies.Count}件投入完了");
     }
 
-    private async Task SeedCustomersAsync(NpgsqlConnection connection, NpgsqlTransaction transaction)
+    private async Task SeedCustomersAsync(IDbConnection connection, IDbTransaction transaction)
     {
         Console.WriteLine("顧客マスタの投入...");
 
@@ -360,7 +413,7 @@ public class DataSeeder
         Console.WriteLine($"顧客マスタ: {customers.Count}件投入完了");
     }
 
-    private async Task SeedSuppliersAsync(NpgsqlConnection connection, NpgsqlTransaction transaction)
+    private async Task SeedSuppliersAsync(IDbConnection connection, IDbTransaction transaction)
     {
         Console.WriteLine("仕入先マスタの投入...");
 
@@ -387,7 +440,7 @@ public class DataSeeder
         Console.WriteLine($"仕入先マスタ: {suppliers.Count}件投入完了");
     }
 
-    private async Task SeedProductCategoriesAsync(NpgsqlConnection connection, NpgsqlTransaction transaction)
+    private async Task SeedProductCategoriesAsync(IDbConnection connection, IDbTransaction transaction)
     {
         Console.WriteLine("商品分類マスタの投入...");
 
@@ -413,7 +466,7 @@ public class DataSeeder
         Console.WriteLine($"商品分類マスタ: {categories.Count}件投入完了");
     }
 
-    private async Task SeedProductsAsync(NpgsqlConnection connection, NpgsqlTransaction transaction)
+    private async Task SeedProductsAsync(IDbConnection connection, IDbTransaction transaction)
     {
         Console.WriteLine("商品マスタの投入...");
 
@@ -466,7 +519,7 @@ public class DataSeeder
         Console.WriteLine($"商品マスタ: {products.Count}件投入完了");
     }
 
-    private async Task SeedWarehousesAsync(NpgsqlConnection connection, NpgsqlTransaction transaction)
+    private async Task SeedWarehousesAsync(IDbConnection connection, IDbTransaction transaction)
     {
         Console.WriteLine("倉庫マスタの投入...");
 
@@ -490,7 +543,7 @@ public class DataSeeder
         Console.WriteLine($"倉庫マスタ: {warehouses.Count}件投入完了");
     }
 
-    private async Task SeedBankAccountsAsync(NpgsqlConnection connection, NpgsqlTransaction transaction)
+    private async Task SeedBankAccountsAsync(IDbConnection connection, IDbTransaction transaction)
     {
         Console.WriteLine("入金口座マスタの投入...");
 
