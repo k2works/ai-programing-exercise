@@ -65,47 +65,24 @@ type CreateProductRequest =
       SupplierBranch: int option }
 
 /// 商品更新リクエストDTO（すべてのフィールドはオプション）
+/// Note: option 型のフィールドにデータアノテーション属性を使用すると、
+/// バリデーション時に InvalidCastException が発生するため、属性を削除しています。
+/// バリデーションはサービス層で行います。
 type UpdateProductRequest =
-    { [<StringLength(100, ErrorMessage = "商品正式名は100文字以内で入力してください")>]
-      ProductFormalName: string option
-
-      [<StringLength(40, ErrorMessage = "商品略称は40文字以内で入力してください")>]
+    { ProductFormalName: string option
       ProductAbbreviation: string option
-
-      [<StringLength(100, ErrorMessage = "商品名カナは100文字以内で入力してください")>]
       ProductNameKana: string option
-
-      [<StringLength(8, ErrorMessage = "商品区分は8文字以内で入力してください")>]
       ProductType: string option
-
       ModelNumber: string option
-
-      [<Range(0, Int32.MaxValue, ErrorMessage = "販売単価は0以上で入力してください")>]
       SellingPrice: int option
-
-      [<Range(0, Int32.MaxValue, ErrorMessage = "仕入単価は0以上で入力してください")>]
       PurchasePrice: int option
-
-      [<Range(0, Int32.MaxValue, ErrorMessage = "売上原価は0以上で入力してください")>]
       CostOfSales: int option
-
-      [<Range(0, 2, ErrorMessage = "税区分は0-2の範囲で入力してください")>]
       TaxType: int option
-
-      [<StringLength(8, ErrorMessage = "商品分類コードは8文字以内で入力してください")>]
       ProductCategoryCode: string option
-
-      [<Range(0, 1, ErrorMessage = "雑区分は0-1の範囲で入力してください")>]
       MiscellaneousType: int option
-
-      [<Range(0, 1, ErrorMessage = "在庫管理フラグは0-1の範囲で入力してください")>]
       InventoryManagementFlag: int option
-
-      [<Range(0, 1, ErrorMessage = "在庫引当フラグは0-1の範囲で入力してください")>]
       InventoryAllocationFlag: int option
-
       SupplierCode: string option
-
       SupplierBranch: int option }
 
 /// 商品レスポンスDTO
