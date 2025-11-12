@@ -1,16 +1,26 @@
 open Microsoft.AspNetCore.Builder
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.Extensions.Hosting
+open System.Text.Json
 
 [<assembly: System.Runtime.CompilerServices.InternalsVisibleTo("SalesManagement.Api.Tests")>]
 do ()
+
+// テスト用の Program 型定義（public にする）
+[<Class>]
+type public Program() =
+    class
+    end
 
 [<EntryPoint>]
 let main args =
     let builder = WebApplication.CreateBuilder(args)
 
-    // サービスの登録
-    builder.Services.AddControllers() |> ignore
+    // JSON シリアライザのオプション設定（F# レコード型のサポート）
+    builder.Services.AddControllers()
+        .AddJsonOptions(fun options ->
+            options.JsonSerializerOptions.Converters.Add(System.Text.Json.Serialization.JsonFSharpConverter())
+        ) |> ignore
     builder.Services.AddEndpointsApiExplorer() |> ignore
     builder.Services.AddSwaggerGen() |> ignore
 

@@ -26,7 +26,30 @@ let insertAsync (connectionString: string) (product: Product) : Task<unit> =
             )"""
 
         use connection = new NpgsqlConnection(connectionString)
-        let! _ = connection.ExecuteAsync(sql, product)
+        // F# の option 型を null 許容型に変換
+        let parameters = {|
+            ProductCode = product.ProductCode
+            ProductFormalName = product.ProductFormalName
+            ProductAbbreviation = product.ProductAbbreviation
+            ProductNameKana = product.ProductNameKana
+            ProductType = product.ProductType
+            ModelNumber = product.ModelNumber |> Option.toObj
+            SellingPrice = product.SellingPrice
+            PurchasePrice = product.PurchasePrice
+            CostOfSales = product.CostOfSales
+            TaxType = product.TaxType
+            ProductCategoryCode = product.ProductCategoryCode
+            MiscellaneousType = product.MiscellaneousType
+            InventoryManagementFlag = product.InventoryManagementFlag
+            InventoryAllocationFlag = product.InventoryAllocationFlag
+            SupplierCode = product.SupplierCode |> Option.toObj
+            SupplierBranch = product.SupplierBranch |> Option.toNullable
+            CreatedAt = product.CreatedAt
+            CreatedBy = product.CreatedBy
+            UpdatedAt = product.UpdatedAt
+            UpdatedBy = product.UpdatedBy
+        |}
+        let! _ = connection.ExecuteAsync(sql, parameters)
         return ()
     }
 
@@ -57,7 +80,28 @@ let updateAsync (connectionString: string) (product: Product) : Task<unit> =
             WHERE 商品コード = @ProductCode"""
 
         use connection = new NpgsqlConnection(connectionString)
-        let! _ = connection.ExecuteAsync(sql, product)
+        // F# の option 型を null 許容型に変換
+        let parameters = {|
+            ProductCode = product.ProductCode
+            ProductFormalName = product.ProductFormalName
+            ProductAbbreviation = product.ProductAbbreviation
+            ProductNameKana = product.ProductNameKana
+            ProductType = product.ProductType
+            ModelNumber = product.ModelNumber |> Option.toObj
+            SellingPrice = product.SellingPrice
+            PurchasePrice = product.PurchasePrice
+            CostOfSales = product.CostOfSales
+            TaxType = product.TaxType
+            ProductCategoryCode = product.ProductCategoryCode
+            MiscellaneousType = product.MiscellaneousType
+            InventoryManagementFlag = product.InventoryManagementFlag
+            InventoryAllocationFlag = product.InventoryAllocationFlag
+            SupplierCode = product.SupplierCode |> Option.toObj
+            SupplierBranch = product.SupplierBranch |> Option.toNullable
+            UpdatedAt = product.UpdatedAt
+            UpdatedBy = product.UpdatedBy
+        |}
+        let! _ = connection.ExecuteAsync(sql, parameters)
         return ()
     }
 
