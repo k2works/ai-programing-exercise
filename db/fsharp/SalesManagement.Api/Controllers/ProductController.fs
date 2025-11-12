@@ -4,6 +4,7 @@ open System.Threading.Tasks
 open Microsoft.AspNetCore.Mvc
 open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.Logging
+open Swashbuckle.AspNetCore.Annotations
 open SalesManagement.Api.Dtos
 open SalesManagement.Api.Services.ProductService
 
@@ -35,6 +36,37 @@ type ProductController(configuration: IConfiguration, logger: ILogger<ProductCon
     /// 商品を作成
     /// </summary>
     [<HttpPost>]
+    [<SwaggerOperation(
+        Summary = "Create a new product",
+        Description = """Submit a new product with all required information.
+
+**Example Request:**
+```json
+{
+  "productCode": "P001",
+  "productFormalName": "テスト商品1",
+  "productAbbreviation": "テスト1",
+  "productNameKana": "テストショウヒン1",
+  "productType": "TYPE001",
+  "modelNumber": "MODEL001",
+  "sellingPrice": 1000,
+  "purchasePrice": 800,
+  "costOfSales": 850,
+  "taxType": 0,
+  "productCategoryCode": "CAT001",
+  "miscellaneousType": 0,
+  "inventoryManagementFlag": 1,
+  "inventoryAllocationFlag": 1,
+  "supplierCode": "SUP001",
+  "supplierBranch": 1
+}
+```
+
+**Optional Fields (can be null):**
+- modelNumber
+- supplierCode
+- supplierBranch"""
+    )>]
     [<ProducesResponseType(typeof<ProductResponse>, 201)>]
     [<ProducesResponseType(400)>]
     member this.CreateProduct([<FromBody>] request: CreateProductRequest) : Task<IActionResult> =
@@ -95,6 +127,65 @@ type ProductController(configuration: IConfiguration, logger: ILogger<ProductCon
     /// 商品を更新
     /// </summary>
     [<HttpPut("{productCode}")>]
+    [<SwaggerOperation(
+        Summary = "Update an existing product",
+        Description = """Update specific fields of an existing product. All fields are optional - only send the fields you want to update.
+
+**Example Request (Update product name only):**
+```json
+{
+  "productFormalName": "更新後の商品名"
+}
+```
+
+**Example Request (Update multiple fields):**
+```json
+{
+  "productFormalName": "更新後の商品名",
+  "productAbbreviation": "更新後の略称",
+  "sellingPrice": 1500,
+  "purchasePrice": 1000
+}
+```
+
+**Example Request (Update all fields):**
+```json
+{
+  "productFormalName": "更新後の商品正式名",
+  "productAbbreviation": "更新後略称",
+  "productNameKana": "コウシンゴショウヒン",
+  "productType": "TYPE002",
+  "modelNumber": "MODEL002",
+  "sellingPrice": 2000,
+  "purchasePrice": 1500,
+  "costOfSales": 1600,
+  "taxType": 1,
+  "productCategoryCode": "CAT002",
+  "miscellaneousType": 0,
+  "inventoryManagementFlag": 1,
+  "inventoryAllocationFlag": 1,
+  "supplierCode": "SUP002",
+  "supplierBranch": 2
+}
+```
+
+**All Fields (all optional):**
+- productFormalName
+- productAbbreviation
+- productNameKana
+- productType
+- modelNumber
+- sellingPrice
+- purchasePrice
+- costOfSales
+- taxType
+- productCategoryCode
+- miscellaneousType
+- inventoryManagementFlag
+- inventoryAllocationFlag
+- supplierCode
+- supplierBranch"""
+    )>]
     [<ProducesResponseType(typeof<ProductResponse>, 200)>]
     [<ProducesResponseType(404)>]
     [<ProducesResponseType(400)>]
