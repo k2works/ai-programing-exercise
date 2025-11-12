@@ -27,6 +27,9 @@
   <!-- ビルド後に OpenAPI 仕様を生成 -->
   <Target Name="GenerateOpenApiSpec" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
     <Exec Command="dotnet swagger tofile --output openapi.yml --yaml $(OutputPath)$(AssemblyName).dll v1" WorkingDirectory="$(ProjectDir)" />
+    <!-- OpenAPI バージョンを 3.0.1 に修正（より広いツール互換性のため） -->
+    <Exec Command="powershell -Command &quot;(Get-Content openapi.yml) -replace 'openapi: 3\.0\.\d+', 'openapi: 3.0.1' | Set-Content openapi.yml&quot;" WorkingDirectory="$(ProjectDir)" Condition="'$(OS)' == 'Windows_NT'" />
+    <Exec Command="sed -i 's/openapi: 3\.0\.[0-9]\+/openapi: 3.0.1/' openapi.yml" WorkingDirectory="$(ProjectDir)" Condition="'$(OS)' != 'Windows_NT'" />
   </Target>
 
 </Project>
