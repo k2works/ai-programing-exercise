@@ -1,14 +1,16 @@
 # 販売管理システム（F# 版）
 
-テスト駆動開発（TDD）で育てる販売管理システムのデータベース設計プロジェクト（F# 版）
+テスト駆動開発（TDD）で育てる販売管理システムのデータベース設計 + REST API プロジェクト（F# 版）
 
 ## 技術スタック
 
 - **言語**: F# 9.0 (.NET 9.0)
+- **Web フレームワーク**: ASP.NET Core 9.0
+- **API ドキュメント**: Swagger/OpenAPI (Swashbuckle.AspNetCore)
 - **ORM**: Dapper 2.1.35（マイクロ ORM）
 - **マイグレーション**: FluentMigrator 6.2.0
 - **データベース**: PostgreSQL 16 / MySQL 8.0
-- **テスト**: xUnit 2.9.3 + FsUnit 6.0.1 + Testcontainers 4.1.0
+- **テスト**: xUnit 2.9.3 + FsUnit 6.0.1 + Testcontainers 4.1.0 + ASP.NET Core Integration Tests
 - **コード品質**: FSharpLint
 - **ビルド自動化**: Cake 5.1.0
 
@@ -24,6 +26,8 @@ db/fsharp/
 │
 ├── SalesManagement.Domain/            # ドメインモデル層
 │   ├── SalesManagement.Domain.fsproj
+│   ├── Models/                        # ドメインモデル
+│   │   └── Product.fs
 │   └── Library.fs
 │
 ├── SalesManagement.Infrastructure/    # データアクセス層
@@ -31,15 +35,31 @@ db/fsharp/
 │   ├── appsettings.json              # 開発用設定
 │   ├── Program.fs                     # マイグレーション実行
 │   ├── MigrationRunner.fs             # マイグレーションロジック
+│   ├── Repositories/                  # リポジトリ
+│   │   └── ProductRepository.fs
 │   └── Migrations/                    # マイグレーションファイル
-│       └── Migration_20250106_001_InitialSetup.fs
+│       └── Migration_20250106_*.fs
+│
+├── SalesManagement.Api/               # API 層（REST API）
+│   ├── SalesManagement.Api.fsproj
+│   ├── appsettings.json              # API 設定
+│   ├── Program.fs                     # API エントリポイント
+│   ├── Controllers/                   # API コントローラー
+│   │   └── ProductController.fs
+│   ├── Services/                      # ビジネスロジック
+│   │   └── ProductService.fs
+│   └── Dtos/                          # データ転送オブジェクト
+│       └── ProductDto.fs
 │
 ├── SalesManagement.Tests/             # テスト層
 │   ├── SalesManagement.Tests.fsproj
 │   ├── appsettings.Test.json         # テスト用設定
 │   ├── DatabaseTestBase.fs            # テスト基底クラス
-│   ├── IntegrationTests/
-│   │   └── DatabaseConnectionTests.fs
+│   ├── IntegrationTests/              # データベーステスト
+│   │   ├── DatabaseConnectionTests.fs
+│   │   └── ProductTests.fs
+│   ├── ApiTests/                      # API 統合テスト
+│   │   └── ProductControllerTests.fs
 │   └── Tests.fs
 │
 └── docker/                            # Docker 設定
@@ -108,11 +128,40 @@ cd ..
 dotnet build
 ```
 
+### REST API の起動
+
+```bash
+cd SalesManagement.Api
+dotnet run
+```
+
+API が起動したら、以下の URL でアクセスできます：
+
+- **Swagger UI**: https://localhost:5001/swagger
+- **API Base URL**: https://localhost:5001/api
+
+#### 利用可能な API エンドポイント
+
+**Product API:**
+- `POST /api/products` - 商品を作成
+- `GET /api/products` - すべての商品を取得
+- `GET /api/products/{productCode}` - 商品を取得
+- `PUT /api/products/{productCode}` - 商品を更新
+- `DELETE /api/products/{productCode}` - 商品を削除
+
+Swagger UI では、すべての API エンドポイントの詳細なドキュメント、リクエスト/レスポンスのサンプル、および実際に API をテストする機能が利用できます。
+
 ### テストの実行
 
 ```bash
 # すべてのテスト
 dotnet test
+
+# API テストのみ
+dotnet test --filter "FullyQualifiedName~ProductControllerTests"
+
+# データベーステストのみ
+dotnet test --filter "FullyQualifiedName~IntegrationTests"
 
 # カバレッジ付きテスト
 dotnet test --collect:"XPlat Code Coverage"
@@ -209,7 +258,7 @@ docker-compose exec mysql mysql -u user -p sales_management_fsharp
 
 ## テスト
 
-このプロジェクトは Testcontainers を使用して、Docker コンテナ上でデータベーステストを実行します。
+このプロジェクトは Testcontainers を使用して、Docker コンテナ上でデータベーステストと API 統合テストを実行します。
 
 ### テストの特徴
 
@@ -217,12 +266,33 @@ docker-compose exec mysql mysql -u user -p sales_management_fsharp
 - **環境の一貫性**: 開発者のローカル環境、CI/CD 環境で同じデータベースバージョンを使用
 - **クリーンな状態**: テスト実行後にコンテナを破棄し、次回は新しいコンテナで実行
 - **並列実行**: 複数のテストが異なるコンテナで並列実行可能
+- **API 統合テスト**: WebApplicationFactory を使用した、実際の HTTP リクエスト/レスポンステスト
+
+### テストの種類
+
+#### 1. データベーステスト (`IntegrationTests/`)
+- リポジトリ層の CRUD 操作テスト
+- データベース制約のテスト
+- トランザクション処理のテスト
+
+#### 2. API 統合テスト (`ApiTests/`)
+- REST API エンドポイントのテスト
+- リクエスト/レスポンスの検証
+- HTTP ステータスコードの検証
+- JSON シリアライゼーション/デシリアライゼーションのテスト
+- エラーハンドリングのテスト
 
 ### テストの実行
 
 ```bash
 # すべてのテスト
 dotnet test
+
+# API テストのみ
+dotnet test --filter "FullyQualifiedName~ProductControllerTests"
+
+# データベーステストのみ
+dotnet test --filter "FullyQualifiedName~IntegrationTests"
 
 # 詳細表示
 dotnet test -v n
@@ -232,29 +302,95 @@ dotnet cake --target=Coverage-Report
 # レポート: coverage/index.html
 ```
 
+### API テストの例
+
+```fsharp
+[<Fact>]
+member _.``POST api/products - 商品を作成できる`` () = task {
+    // Arrange
+    use factory = new ApiTestFactory(db.ConnectionString)
+    use client = factory.CreateClient()
+    let product = TestHelpers.createTestProduct "PROD001" "テスト商品1"
+    let content = TestHelpers.createJsonContent product
+
+    // Act
+    let! response = client.PostAsync("/api/products", content)
+    let! body = response.Content.ReadAsStringAsync()
+
+    // Assert
+    response.StatusCode |> should equal HttpStatusCode.Created
+    let result = TestHelpers.fromJson<ProductResponse>(body)
+    result.ProductCode |> should equal "PROD001"
+}
+```
+
 ## アーキテクチャ
 
 ### レイヤー構成
 
+```mermaid
+graph TB
+    subgraph Tests["テスト層<br/>SalesManagement.Tests<br/>(xUnit + FsUnit + Testcontainers)"]
+        IntTests[IntegrationTests<br/>Database Tests]
+        ApiTests[ApiTests<br/>REST API Tests]
+    end
+
+    subgraph Api["API 層<br/>SalesManagement.Api<br/>(ASP.NET Core + Swagger)"]
+        Controllers[Controllers]
+        Services[Services<br/>Business Logic]
+        DTOs[DTOs<br/>Data Transfer Objects]
+    end
+
+    subgraph Infra["データアクセス層<br/>SalesManagement.Infrastructure<br/>(Dapper + FluentMigrator)"]
+        Repos[Repositories]
+        Migrations[Migrations]
+    end
+
+    subgraph Domain["ドメインモデル層<br/>SalesManagement.Domain<br/>(F# Record Types)"]
+        Models[Models]
+    end
+
+    subgraph DB["データベース"]
+        PostgreSQL[(PostgreSQL)]
+        MySQL[(MySQL)]
+    end
+
+    Tests --> Api
+    Api --> Infra
+    Infra --> Domain
+    Domain --> DB
+
+    style Tests fill:#e1f5ff
+    style Api fill:#fff3e0
+    style Infra fill:#f3e5f5
+    style Domain fill:#e8f5e9
+    style DB fill:#fce4ec
 ```
-┌─────────────────────────────────────┐
-│       SalesManagement.Tests         │  テスト層
-│  (xUnit + FsUnit + Testcontainers)  │
-└─────────────────────────────────────┘
-                  ↓
-┌─────────────────────────────────────┐
-│   SalesManagement.Infrastructure    │  データアクセス層
-│    (Dapper + FluentMigrator)        │
-└─────────────────────────────────────┘
-                  ↓
-┌─────────────────────────────────────┐
-│      SalesManagement.Domain         │  ドメインモデル層
-│         (F# Record Types)           │
-└─────────────────────────────────────┘
-                  ↓
-┌─────────────────────────────────────┐
-│    PostgreSQL / MySQL Database      │  データベース
-└─────────────────────────────────────┘
+
+### データフロー
+
+```mermaid
+sequenceDiagram
+    participant Client as HTTP Client
+    participant Controller as Controller
+    participant Service as Service<br/>(Business Logic)
+    participant Repository as Repository
+    participant DB as Database
+
+    Client->>Controller: HTTP Request (JSON)
+    Controller->>Controller: Deserialize to DTO
+    Controller->>Service: Call with DTO
+    Service->>Service: Business Logic
+    Service->>Repository: Call with Domain Model
+    Repository->>DB: SQL Query
+    DB-->>Repository: Result Set
+    Repository-->>Service: Domain Entity
+    Service-->>Controller: Result<Response, Error>
+    Controller->>Controller: Convert to DTO
+    Controller-->>Client: HTTP Response (JSON)
+
+    Note over Controller,Service: DTOとDomain Modelの変換
+    Note over Repository,DB: Dapperによるマッピング
 ```
 
 ### F# の特徴を活かした設計
@@ -318,13 +454,24 @@ docker-compose ps
 
 ## 参考資料
 
+### 言語・フレームワーク
 - [F# 公式ドキュメント](https://learn.microsoft.com/ja-jp/dotnet/fsharp/)
+- [ASP.NET Core](https://learn.microsoft.com/ja-jp/aspnet/core/)
+- [Swagger/OpenAPI](https://swagger.io/docs/)
+
+### データアクセス
 - [Dapper](https://github.com/DapperLib/Dapper)
 - [FluentMigrator](https://fluentmigrator.github.io/)
+
+### テスト
 - [Testcontainers](https://dotnet.testcontainers.org/)
 - [xUnit](https://xunit.net/)
 - [FsUnit](https://fsprojects.github.io/FsUnit/)
+- [ASP.NET Core Integration Tests](https://learn.microsoft.com/ja-jp/aspnet/core/test/integration-tests)
+
+### ビルド・品質
 - [Cake](https://cakebuild.net/)
+- [FSharpLint](https://fsprojects.github.io/FSharpLint/)
 
 ## ライセンス
 
