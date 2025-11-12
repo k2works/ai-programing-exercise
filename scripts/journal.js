@@ -4,6 +4,9 @@ import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 
+// Increase buffer to safely handle large diffs/logs
+const MAX_BUFFER = 256 * 1024 * 1024; // 256 MB
+
 // Function to register the journal:generate task
 export default function(gulp) {
   // Helper function to generate journal for a specific date
@@ -16,7 +19,7 @@ export default function(gulp) {
     const journalFile = path.join(journalDir, `${formattedDate}.md`);
 
     // Get commits for this date
-    const commits = execSync(`git log --since="${dateStr} 00:00:00" --until="${dateStr} 23:59:59" --format="%h %s%n%b"`, { maxBuffer: 1024 * 1024 * 10 }).toString();
+    const commits = execSync(`git log --since="${dateStr} 00:00:00" --until="${dateStr} 23:59:59" --format="%h %s%n%b"`, { maxBuffer: MAX_BUFFER }).toString();
 
     // Skip if no commits
     if (!commits.trim()) {
@@ -25,23 +28,30 @@ export default function(gulp) {
     }
 
     // Get detailed changes for each commit on this date
-    const commitHashesOutput = execSync(`git log --since="${dateStr} 00:00:00" --until="${dateStr} 23:59:59" --format="%h"`, { maxBuffer: 1024 * 1024 * 10 }).toString();
+    const commitHashesOutput = execSync(`git log --since="${dateStr} 00:00:00" --until="${dateStr} 23:59:59" --format="%h"`, { maxBuffer: MAX_BUFFER }).toString();
     const commitHashes = commitHashesOutput.split('\n').map(line => line.trim()).filter(Boolean);
 
     const detailedCommits = [];
 
     commitHashes.forEach(hash => {
       // Get commit details
-      const commitMessage = execSync(`git show -s --format="%s%n%b" ${hash}`, { maxBuffer: 1024 * 1024 * 10 }).toString().trim();
+      const commitMessage = execSync(`git show -s --format="%s%n%b" ${hash}`, { maxBuffer: MAX_BUFFER }).toString().trim();
 
       // Get files changed
-      const filesChangedOutput = execSync(`git show --name-status ${hash}`, { maxBuffer: 1024 * 1024 * 10 }).toString();
+      const filesChangedOutput = execSync(`git show --name-status ${hash}`, { maxBuffer: MAX_BUFFER }).toString();
       const filesChanged = filesChangedOutput.split('\n')
           .map(line => line.trim())
           .filter(line => /^[AMDRT]\s/.test(line));
 
-      // Get code changes (diff)
-      const diff = execSync(`git show ${hash} --color=never`, { maxBuffer: 1024 * 1024 * 10 }).toString();
+      // Get code changes (diff) with robust handling for large diffs
+      let diff = '';
+      try {
+        diff = execSync(`git show ${hash} --color=never`, { maxBuffer: MAX_BUFFER }).toString();
+      } catch (e) {
+        // Fallback to a summary if diff is too large or any error occurs
+        const summary = execSync(`git show --stat --oneline ${hash} --color=never`, { maxBuffer: MAX_BUFFER }).toString();
+        diff = `[Diff too large or failed to load. Showing summary instead.]\n\n${summary}`;
+      }
 
       detailedCommits.push({
         hash,
@@ -144,7 +154,7 @@ export default function(gulp) {
     }
 
     // Get all commit dates
-    const datesOutput = execSync('git log --format=%ad --date=short').toString();
+    const datesOutput = execSync('git log --format=%ad --date=short', { maxBuffer: MAX_BUFFER }).toString();
     const dates = [...new Set(datesOutput.split('\n').map(line => line.trim()).filter(Boolean))];
 
     dates.forEach(dateStr => {
