@@ -37,4 +37,10 @@
     <ProjectReference Include="..\SalesManagement.Api\SalesManagement.Api.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="appsettings.Test.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

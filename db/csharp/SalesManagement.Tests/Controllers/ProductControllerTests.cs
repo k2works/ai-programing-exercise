@@ -1,18 +1,23 @@
 using System.Net;
 using System.Net.Http.Json;
-using Microsoft.AspNetCore.Mvc.Testing;
 using SalesManagement.Api.Dtos;
 using Xunit;
 using FluentAssertions;
 
 namespace SalesManagement.Tests.Controllers;
 
-public class ProductControllerTests : IClassFixture<WebApplicationFactory<Program>>
+/// <summary>
+/// ProductControllerの統合テスト
+/// Testcontainersを使用して実際のデータベースに対してテストを実行する
+/// </summary>
+public class ProductControllerTests : IClassFixture<CustomWebApplicationFactory>
 {
     private readonly HttpClient _client;
+    private readonly CustomWebApplicationFactory _factory;
 
-    public ProductControllerTests(WebApplicationFactory<Program> factory)
+    public ProductControllerTests(CustomWebApplicationFactory factory)
     {
+        _factory = factory;
         _client = factory.CreateClient();
     }
 

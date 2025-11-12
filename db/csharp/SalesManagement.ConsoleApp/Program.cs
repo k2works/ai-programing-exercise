@@ -7,13 +7,14 @@ var configuration = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json", optional: false)
     .Build();
 
-var connectionString = configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException("接続文字列が設定されていません");
+var databaseType = configuration["DatabaseType"] ?? "PostgreSQL";
+var connectionString = configuration.GetConnectionString(databaseType)
+    ?? throw new InvalidOperationException($"接続文字列が設定されていません: {databaseType}");
 
-Console.WriteLine("=== マイグレーション実行 ===");
+Console.WriteLine($"=== マイグレーション実行 ({databaseType}) ===");
 try
 {
-    MigrationRunner.MigrateDatabase(connectionString);
+    MigrationRunner.MigrateDatabase(connectionString, databaseType);
     Console.WriteLine("マイグレーション完了\n");
 }
 catch (Exception ex)
@@ -24,7 +25,7 @@ catch (Exception ex)
 }
 
 // DataSeederの実行
-var seeder = new DataSeeder(connectionString);
+var seeder = new DataSeeder(connectionString, databaseType);
 
 try
 {

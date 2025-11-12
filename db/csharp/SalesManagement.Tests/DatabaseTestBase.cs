@@ -1,6 +1,8 @@
-using DotNet.Testcontainers.Builders;
+using DotNet.Testcontainers.Containers;
 using FluentMigrator.Runner;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Testcontainers.MySql;
 using Testcontainers.PostgreSql;
 using Xunit;
 
@@ -8,33 +10,59 @@ namespace SalesManagement.Tests
 {
     /// <summary>
     /// データベーステスト用の基底クラス
-    /// Testcontainersを使用してPostgreSQLコンテナを起動し、テストを実行する
+    /// Testcontainersを使用してPostgreSQLまたはMySQLコンテナを起動し、テストを実行する
     ///
     /// このクラスを継承することで、以下の機能が利用できます：
-    /// - PostgreSQLコンテナの自動起動・停止
+    /// - PostgreSQL/MySQLコンテナの自動起動・停止
     /// - FluentMigratorマイグレーションの自動実行
     /// - データベース接続文字列の提供
     /// </summary>
     public abstract class DatabaseTestBase : IAsyncLifetime
     {
-        private PostgreSqlContainer? _postgres;
+        private IContainer? _container;
         protected string ConnectionString { get; private set; } = string.Empty;
+        protected string DatabaseType { get; private set; } = "PostgreSQL";
 
         /// <summary>
-        /// テスト開始前にPostgreSQLコンテナを起動し、マイグレーションを実行
+        /// テスト開始前にデータベースコンテナを起動し、マイグレーションを実行
         /// </summary>
         public async Task InitializeAsync()
         {
-            // PostgreSQLコンテナの設定と起動
-            _postgres = new PostgreSqlBuilder()
-                .WithImage("postgres:16-alpine")
-                .WithDatabase("sales_management_test")
-                .WithUsername("test")
-                .WithPassword("test")
+            // 設定ファイルから DatabaseType を読み取る
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.Test.json", optional: false)
                 .Build();
 
-            await _postgres.StartAsync();
-            ConnectionString = _postgres.GetConnectionString();
+            DatabaseType = configuration["DatabaseType"] ?? "PostgreSQL";
+
+            // DatabaseType に応じてコンテナを起動
+            if (DatabaseType == "MySQL")
+            {
+                var mysqlContainer = new MySqlBuilder()
+                    .WithImage("mysql:8.0")
+                    .WithDatabase("sales_management_test")
+                    .WithUsername("test")
+                    .WithPassword("test")
+                    .Build();
+
+                await mysqlContainer.StartAsync();
+                _container = mysqlContainer;
+                ConnectionString = mysqlContainer.GetConnectionString();
+            }
+            else
+            {
+                var postgresContainer = new PostgreSqlBuilder()
+                    .WithImage("postgres:16-alpine")
+                    .WithDatabase("sales_management_test")
+                    .WithUsername("test")
+                    .WithPassword("test")
+                    .Build();
+
+                await postgresContainer.StartAsync();
+                _container = postgresContainer;
+                ConnectionString = postgresContainer.GetConnectionString();
+            }
 
             // FluentMigratorでマイグレーションを実行
             var serviceProvider = CreateServices();
@@ -45,27 +73,38 @@ namespace SalesManagement.Tests
         }
 
         /// <summary>
-        /// テスト終了後にPostgreSQLコンテナを停止・破棄
+        /// テスト終了後にデータベースコンテナを停止・破棄
         /// </summary>
         public async Task DisposeAsync()
         {
-            if (_postgres != null)
+            if (_container != null)
             {
-                await _postgres.DisposeAsync();
+                await _container.DisposeAsync();
             }
         }
 
         private IServiceProvider CreateServices()
         {
-            return new ServiceCollection()
+            var services = new ServiceCollection()
                 .AddFluentMigratorCore()
-                .ConfigureRunner(rb => rb
-                    .AddPostgres()
-                    .WithGlobalConnectionString(ConnectionString)
-                    .ScanIn(typeof(SalesManagement.Infrastructure.MigrationRunner).Assembly)
-                    .For.Migrations())
-                .AddLogging(lb => lb.AddFluentMigratorConsole())
-                .BuildServiceProvider(false);
+                .ConfigureRunner(rb =>
+                {
+                    if (DatabaseType == "MySQL")
+                    {
+                        rb.AddMySql8();
+                    }
+                    else
+                    {
+                        rb.AddPostgres();
+                    }
+
+                    rb.WithGlobalConnectionString(ConnectionString)
+                        .ScanIn(typeof(SalesManagement.Infrastructure.MigrationRunner).Assembly)
+                        .For.Migrations();
+                })
+                .AddLogging(lb => lb.AddFluentMigratorConsole());
+
+            return services.BuildServiceProvider(false);
         }
 
         private static void UpdateDatabase(IServiceProvider serviceProvider)
