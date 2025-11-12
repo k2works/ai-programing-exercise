@@ -21,6 +21,12 @@
     <Compile Include="IntegrationTests/OrderDetailTests.fs" />
     <Compile Include="IntegrationTests/SalesTests.fs" />
     <Compile Include="IntegrationTests/SalesDetailTests.fs" />
+    <Compile Include="IntegrationTests/WarehouseTests.fs" />
+    <Compile Include="IntegrationTests/PurchaseOrderTests.fs" />
+    <Compile Include="IntegrationTests/PurchaseOrderDetailTests.fs" />
+    <Compile Include="IntegrationTests/StockTests.fs" />
+    <Compile Include="IntegrationTests/PurchaseTests.fs" />
+    <Compile Include="IntegrationTests/PurchaseDetailTests.fs" />
     <Compile Include="Tests.fs" />
   </ItemGroup>
 

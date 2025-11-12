@@ -25,6 +25,12 @@
     <Compile Include="Repositories/OrderDetailRepository.fs" />
     <Compile Include="Repositories/SalesRepository.fs" />
     <Compile Include="Repositories/SalesDetailRepository.fs" />
+    <Compile Include="Repositories/WarehouseRepository.fs" />
+    <Compile Include="Repositories/PurchaseOrderRepository.fs" />
+    <Compile Include="Repositories/PurchaseOrderDetailRepository.fs" />
+    <Compile Include="Repositories/StockRepository.fs" />
+    <Compile Include="Repositories/PurchaseRepository.fs" />
+    <Compile Include="Repositories/PurchaseDetailRepository.fs" />
     <Compile Include="Migrations/Migration_20250106_001_InitialSetup.fs" />
     <Compile Include="Migrations/Migration_20250106_002_CreateDepartmentTable.fs" />
     <Compile Include="Migrations/Migration_20250106_003_CreateEmployeeTable.fs" />
@@ -43,6 +49,12 @@
     <Compile Include="Migrations/Migration_20250106_016_CreateOrderDetailTable.fs" />
     <Compile Include="Migrations/Migration_20250106_017_CreateSalesTable.fs" />
     <Compile Include="Migrations/Migration_20250106_018_CreateSalesDetailTable.fs" />
+    <Compile Include="Migrations/Migration_20250106_019_CreateWarehouseTable.fs" />
+    <Compile Include="Migrations/Migration_20250106_020_CreatePurchaseOrderTable.fs" />
+    <Compile Include="Migrations/Migration_20250106_021_CreatePurchaseOrderDetailTable.fs" />
+    <Compile Include="Migrations/Migration_20250106_022_CreateStockTable.fs" />
+    <Compile Include="Migrations/Migration_20250106_023_CreatePurchaseTable.fs" />
+    <Compile Include="Migrations/Migration_20250106_024_CreatePurchaseDetailTable.fs" />
     <Compile Include="MigrationRunner.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

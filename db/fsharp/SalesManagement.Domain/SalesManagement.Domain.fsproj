@@ -23,6 +23,12 @@
     <Compile Include="Models/OrderDetail.fs" />
     <Compile Include="Models/Sales.fs" />
     <Compile Include="Models/SalesDetail.fs" />
+    <Compile Include="Models/Warehouse.fs" />
+    <Compile Include="Models/PurchaseOrder.fs" />
+    <Compile Include="Models/PurchaseOrderDetail.fs" />
+    <Compile Include="Models/Stock.fs" />
+    <Compile Include="Models/Purchase.fs" />
+    <Compile Include="Models/PurchaseDetail.fs" />
     <Compile Include="ComplexityTest.fs" />
     <Compile Include="Library.fs" />
   </ItemGroup>
