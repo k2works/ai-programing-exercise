@@ -1,9 +1,11 @@
+using System.Data;
 using Dapper;
+using MySql.Data.MySqlClient;
+using Npgsql;
 using SalesManagement.Api.Dtos;
 using SalesManagement.Api.Exceptions;
 using SalesManagement.Domain.Models;
 using SalesManagement.Infrastructure.Repositories;
-using Npgsql;
 
 namespace SalesManagement.Api.Services;
 
@@ -11,12 +13,24 @@ public class ProductService
 {
     private readonly ProductRepository _productRepository;
     private readonly string _connectionString;
+    private readonly string _databaseType;
 
     public ProductService(ProductRepository productRepository, IConfiguration configuration)
     {
         _productRepository = productRepository;
-        _connectionString = configuration.GetConnectionString("DefaultConnection")
-            ?? throw new InvalidOperationException("接続文字列が設定されていません");
+        _databaseType = configuration["DatabaseType"] ?? "PostgreSQL";
+        _connectionString = configuration.GetConnectionString(_databaseType)
+            ?? throw new InvalidOperationException($"接続文字列が設定されていません: {_databaseType}");
+    }
+
+    private IDbConnection CreateConnection()
+    {
+        return _databaseType switch
+        {
+            "MySQL" => new MySqlConnection(_connectionString),
+            "PostgreSQL" => new NpgsqlConnection(_connectionString),
+            _ => throw new InvalidOperationException($"未対応のデータベース: {_databaseType}")
+        };
     }
 
     /// <summary>
@@ -78,8 +92,8 @@ public class ProductService
     /// </summary>
     public async Task<PageResponse<ProductResponse>> GetProductsAsync(int page, int size)
     {
-        await using var connection = new NpgsqlConnection(_connectionString);
-        await connection.OpenAsync();
+        using var connection = CreateConnection();
+        connection.Open();
 
         int offset = page * size;
 

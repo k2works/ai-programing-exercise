@@ -4,6 +4,9 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- XML ドキュメントコメントを生成 -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,5 +18,16 @@
     <ProjectReference Include="..\SalesManagement.Domain\SalesManagement.Domain.csproj" />
     <ProjectReference Include="..\SalesManagement.Infrastructure\SalesManagement.Infrastructure.csproj" />
   </ItemGroup>
+
+  <!-- ビルド後に OpenAPI ドキュメントを生成 -->
+  <Target Name="GenerateOpenApiSpec" AfterTargets="Build" Condition="'$(Configuration)' == 'Debug'">
+    <Message Text="OpenAPI ドキュメントを生成中..." Importance="high" />
+    <Exec Command="chmod +x $(ProjectDir)generate-openapi.sh"
+          WorkingDirectory="$(ProjectDir)"
+          ContinueOnError="true" />
+    <Exec Command="$(ProjectDir)generate-openapi.sh"
+          WorkingDirectory="$(ProjectDir)"
+          ContinueOnError="true" />
+  </Target>
 
 </Project>

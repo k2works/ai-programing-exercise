@@ -1,3 +1,4 @@
+using Microsoft.OpenApi.Models;
 using SalesManagement.Api.Middleware;
 using SalesManagement.Api.Services;
 using SalesManagement.Infrastructure.Repositories;
@@ -9,7 +10,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.SwaggerDoc("v1", new()
+    options.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "販売管理システムAPI",
         Version = "v1",
@@ -29,9 +30,10 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddScoped(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
-    var connectionString = configuration.GetConnectionString("DefaultConnection")
-        ?? throw new InvalidOperationException("接続文字列が設定されていません");
-    return new ProductRepository(connectionString);
+    var databaseType = configuration["DatabaseType"] ?? "PostgreSQL";
+    var connectionString = configuration.GetConnectionString(databaseType)
+        ?? throw new InvalidOperationException($"接続文字列が設定されていません: {databaseType}");
+    return new ProductRepository(connectionString, databaseType);
 });
 
 // Service層の登録
