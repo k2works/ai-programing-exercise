@@ -1,0 +1,3 @@
+# clippy.toml
+# サイクロマティック複雑度の上限を7に設定
+cognitive-complexity-threshold = 7

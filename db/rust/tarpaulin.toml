@@ -1,0 +1,6 @@
+[report]
+out = ["Html", "Xml"]
+output-dir = "coverage"
+
+[run]
+excluded = ["src/test_helpers.rs"]
