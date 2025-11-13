@@ -127,12 +127,10 @@ impl ProductRepository {
         pool: &PgPool,
         category_code: &str,
     ) -> Result<Vec<Product>, sqlx::Error> {
-        sqlx::query_as::<_, Product>(
-            r#"SELECT * FROM "商品マスタ" WHERE "商品分類コード" = $1"#,
-        )
-        .bind(category_code)
-        .fetch_all(pool)
-        .await
+        sqlx::query_as::<_, Product>(r#"SELECT * FROM "商品マスタ" WHERE "商品分類コード" = $1"#)
+            .bind(category_code)
+            .fetch_all(pool)
+            .await
     }
 }
 

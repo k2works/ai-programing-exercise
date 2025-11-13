@@ -47,13 +47,11 @@ impl ProductCategoryRepository {
         category_code: &str,
         new_name: &str,
     ) -> Result<(), sqlx::Error> {
-        sqlx::query(
-            r#"UPDATE "商品分類マスタ" SET "商品分類名" = $1 WHERE "商品分類コード" = $2"#,
-        )
-        .bind(new_name)
-        .bind(category_code)
-        .execute(pool)
-        .await?;
+        sqlx::query(r#"UPDATE "商品分類マスタ" SET "商品分類名" = $1 WHERE "商品分類コード" = $2"#)
+            .bind(new_name)
+            .bind(category_code)
+            .execute(pool)
+            .await?;
         Ok(())
     }
 

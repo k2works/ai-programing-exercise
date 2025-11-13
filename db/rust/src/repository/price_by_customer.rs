@@ -63,7 +63,11 @@ impl PriceByCustomerRepository {
     }
 
     /// 顧客別販売単価を削除
-    pub async fn delete(pool: &PgPool, prod_code: &str, comp_code: &str) -> Result<(), sqlx::Error> {
+    pub async fn delete(
+        pool: &PgPool,
+        prod_code: &str,
+        comp_code: &str,
+    ) -> Result<(), sqlx::Error> {
         sqlx::query(
             r#"DELETE FROM "顧客別販売単価" WHERE "商品コード" = $1 AND "取引先コード" = $2"#,
         )
