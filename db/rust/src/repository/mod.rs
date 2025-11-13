@@ -1,5 +1,13 @@
+pub mod alternate_product;
 pub mod department;
 pub mod employee;
+pub mod price_by_customer;
+pub mod product;
+pub mod product_category;
 
+pub use alternate_product::AlternateProductRepository;
 pub use department::DepartmentRepository;
 pub use employee::EmployeeRepository;
+pub use price_by_customer::PriceByCustomerRepository;
+pub use product::ProductRepository;
+pub use product_category::ProductCategoryRepository;
