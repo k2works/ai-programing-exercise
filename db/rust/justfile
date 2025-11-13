@@ -1,0 +1,85 @@
+# デフォルトのレシピを表示
+default:
+    @just --list
+
+# テストを実行
+test:
+    cargo test
+
+# Clippyで静的解析
+lint:
+    cargo clippy -- -D warnings
+
+# コードをフォーマット
+format:
+    cargo fmt
+
+# フォーマットをチェックのみ
+format-check:
+    cargo fmt -- --check
+
+# カバレッジを測定
+coverage:
+    cargo tarpaulin --out Html --output-dir coverage
+
+# フォーマットチェック、lint、テストを実行
+check-all: format-check lint test
+
+# フォーマットとlintを実行
+fix: format lint
+
+# マイグレーションを実行
+migrate-up:
+    sqlx migrate run
+
+# マイグレーションをロールバック
+migrate-down:
+    sqlx migrate revert
+
+# データベースを再作成してマイグレーション
+migrate-fresh:
+    sqlx database drop -y
+    sqlx database create
+    sqlx migrate run
+
+# テスト用データベースにマイグレーション
+migrate-test:
+    TEST_DATABASE_URL="postgresql://postgres:postgres@localhost:5432/sales_management_test" sqlx migrate run
+
+# ファイル変更を監視して自動実行
+watch:
+    cargo watch -x test -x clippy -x fmt
+
+# 開発環境のセットアップ
+setup:
+    cargo build
+    docker-compose up -d postgres
+    @echo "Waiting for database..."
+    @sleep 3
+    just migrate-up
+    just migrate-test
+
+# クリーンアップ
+clean:
+    cargo clean
+    rm -rf coverage
+
+# Dockerコンテナの起動
+docker-up:
+    docker-compose up -d
+
+# Dockerコンテナの停止
+docker-down:
+    docker-compose down
+
+# Dockerコンテナの停止とボリューム削除
+docker-clean:
+    docker-compose down -v
+
+# データベースの作成
+db-create:
+    sqlx database create
+
+# データベースの削除
+db-drop:
+    sqlx database drop
