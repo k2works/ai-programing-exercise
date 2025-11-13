@@ -54,14 +54,9 @@ impl EmployeeRepository {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::create_pool;
     use crate::entity::Employee;
+    use crate::test_support::with_test_pool;
     use chrono::NaiveDate;
-
-    /// テスト用のデータベース接続プールを作成
-    async fn setup() -> PgPool {
-        create_pool().await.expect("Failed to create pool")
-    }
 
     /// テスト用の社員データを作成
     fn create_test_employee() -> Employee {
@@ -94,26 +89,27 @@ mod tests {
 
     #[tokio::test]
     async fn test_employee_create() {
-        let pool = setup().await;
         let emp = create_test_employee();
+        with_test_pool(|pool| async move {
+            // テーブルをクリーンアップ
+            EmployeeRepository::delete_all(&pool)
+                .await
+                .expect("Failed to cleanup");
 
-        // テーブルをクリーンアップ
-        EmployeeRepository::delete_all(&pool)
-            .await
-            .expect("Failed to cleanup");
+            // 1. 社員を登録
+            EmployeeRepository::create(&pool, &emp)
+                .await
+                .expect("Failed to insert employee");
 
-        // 1. 社員を登録
-        EmployeeRepository::create(&pool, &emp)
-            .await
-            .expect("Failed to insert employee");
+            // 2. 登録されたデータを取得して検証
+            let result = EmployeeRepository::find_by_code(&pool, &emp.emp_code)
+                .await
+                .expect("Failed to fetch employee");
 
-        // 2. 登録されたデータを取得して検証
-        let result = EmployeeRepository::find_by_code(&pool, &emp.emp_code)
-            .await
-            .expect("Failed to fetch employee");
-
-        assert_eq!(result.emp_code, emp.emp_code);
-        assert_eq!(result.name, emp.name);
-        assert_eq!(result.dept_code, emp.dept_code);
+            assert_eq!(result.emp_code, emp.emp_code);
+            assert_eq!(result.name, emp.name);
+            assert_eq!(result.dept_code, emp.dept_code);
+        })
+        .await;
     }
 }

@@ -101,24 +101,10 @@ impl AlternateProductRepository {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::create_pool;
     use crate::entity::{Product, ProductCategory};
     use crate::repository::{ProductCategoryRepository, ProductRepository};
+    use crate::test_support::with_test_pool;
     use chrono::NaiveDate;
-
-    async fn setup() -> PgPool {
-        let pool = create_pool().await.expect("Failed to create pool");
-        AlternateProductRepository::delete_all(&pool)
-            .await
-            .expect("Failed to cleanup");
-        ProductRepository::delete_all(&pool)
-            .await
-            .expect("Failed to cleanup");
-        ProductCategoryRepository::delete_all(&pool)
-            .await
-            .expect("Failed to cleanup");
-        pool
-    }
 
     fn create_test_category() -> ProductCategory {
         ProductCategory {
@@ -191,181 +177,207 @@ mod tests {
 
     #[tokio::test]
     async fn test_create_and_find() {
-        let pool = setup().await;
         let category = create_test_category();
         let product1 = create_test_product("PROD001");
         let product2 = create_test_product("PROD002");
         let alt = create_test_alternate();
+        with_test_pool(|pool| async move {
+            // クリーンアップ
+            AlternateProductRepository::delete_all(&pool).await.ok();
+            ProductRepository::delete_all(&pool).await.ok();
+            ProductCategoryRepository::delete_all(&pool).await.ok();
 
-        // 商品分類と商品を先に登録
-        ProductCategoryRepository::create(&pool, &category)
-            .await
-            .expect("Failed to create category");
-        ProductRepository::create(&pool, &product1)
-            .await
-            .expect("Failed to create product1");
-        ProductRepository::create(&pool, &product2)
-            .await
-            .expect("Failed to create product2");
+            // 商品分類と商品を先に登録
+            ProductCategoryRepository::create(&pool, &category)
+                .await
+                .expect("Failed to create category");
+            ProductRepository::create(&pool, &product1)
+                .await
+                .expect("Failed to create product1");
+            ProductRepository::create(&pool, &product2)
+                .await
+                .expect("Failed to create product2");
 
-        // 代替商品を登録
-        AlternateProductRepository::create(&pool, &alt)
-            .await
-            .expect("Failed to create alternate");
+            // 代替商品を登録
+            AlternateProductRepository::create(&pool, &alt)
+                .await
+                .expect("Failed to create alternate");
 
-        // 取得
-        let result = AlternateProductRepository::find(&pool, &alt.prod_code, &alt.alt_prod_code)
-            .await
-            .expect("Failed to find alternate");
+            // 取得
+            let result =
+                AlternateProductRepository::find(&pool, &alt.prod_code, &alt.alt_prod_code)
+                    .await
+                    .expect("Failed to find alternate");
 
-        assert_eq!(result.prod_code, alt.prod_code);
-        assert_eq!(result.alt_prod_code, alt.alt_prod_code);
-        assert_eq!(result.priority, alt.priority);
+            assert_eq!(result.prod_code, alt.prod_code);
+            assert_eq!(result.alt_prod_code, alt.alt_prod_code);
+            assert_eq!(result.priority, alt.priority);
+        })
+        .await;
     }
 
     #[tokio::test]
     async fn test_update() {
-        let pool = setup().await;
         let category = create_test_category();
         let product1 = create_test_product("PROD001");
         let product2 = create_test_product("PROD002");
         let mut alt = create_test_alternate();
+        with_test_pool(|pool| async move {
+            // クリーンアップ
+            AlternateProductRepository::delete_all(&pool).await.ok();
+            ProductRepository::delete_all(&pool).await.ok();
+            ProductCategoryRepository::delete_all(&pool).await.ok();
 
-        // 商品分類と商品を先に登録
-        ProductCategoryRepository::create(&pool, &category)
-            .await
-            .expect("Failed to create category");
-        ProductRepository::create(&pool, &product1)
-            .await
-            .expect("Failed to create product1");
-        ProductRepository::create(&pool, &product2)
-            .await
-            .expect("Failed to create product2");
+            // 商品分類と商品を先に登録
+            ProductCategoryRepository::create(&pool, &category)
+                .await
+                .expect("Failed to create category");
+            ProductRepository::create(&pool, &product1)
+                .await
+                .expect("Failed to create product1");
+            ProductRepository::create(&pool, &product2)
+                .await
+                .expect("Failed to create product2");
 
-        // 代替商品を登録
-        AlternateProductRepository::create(&pool, &alt)
-            .await
-            .expect("Failed to create alternate");
+            // 代替商品を登録
+            AlternateProductRepository::create(&pool, &alt)
+                .await
+                .expect("Failed to create alternate");
 
-        // 更新
-        alt.priority = Some(2);
-        AlternateProductRepository::update(&pool, &alt)
-            .await
-            .expect("Failed to update alternate");
+            // 更新
+            alt.priority = Some(2);
+            AlternateProductRepository::update(&pool, &alt)
+                .await
+                .expect("Failed to update alternate");
 
-        // 取得して確認
-        let result = AlternateProductRepository::find(&pool, &alt.prod_code, &alt.alt_prod_code)
-            .await
-            .expect("Failed to find alternate");
+            // 取得して確認
+            let result =
+                AlternateProductRepository::find(&pool, &alt.prod_code, &alt.alt_prod_code)
+                    .await
+                    .expect("Failed to find alternate");
 
-        assert_eq!(result.priority, Some(2));
+            assert_eq!(result.priority, Some(2));
+        })
+        .await;
     }
 
     #[tokio::test]
     async fn test_delete() {
-        let pool = setup().await;
         let category = create_test_category();
         let product1 = create_test_product("PROD001");
         let product2 = create_test_product("PROD002");
         let alt = create_test_alternate();
+        with_test_pool(|pool| async move {
+            // クリーンアップ
+            AlternateProductRepository::delete_all(&pool).await.ok();
+            ProductRepository::delete_all(&pool).await.ok();
+            ProductCategoryRepository::delete_all(&pool).await.ok();
 
-        // 商品分類と商品を先に登録
-        ProductCategoryRepository::create(&pool, &category)
-            .await
-            .expect("Failed to create category");
-        ProductRepository::create(&pool, &product1)
-            .await
-            .expect("Failed to create product1");
-        ProductRepository::create(&pool, &product2)
-            .await
-            .expect("Failed to create product2");
+            // 商品分類と商品を先に登録
+            ProductCategoryRepository::create(&pool, &category)
+                .await
+                .expect("Failed to create category");
+            ProductRepository::create(&pool, &product1)
+                .await
+                .expect("Failed to create product1");
+            ProductRepository::create(&pool, &product2)
+                .await
+                .expect("Failed to create product2");
 
-        // 代替商品を登録
-        AlternateProductRepository::create(&pool, &alt)
-            .await
-            .expect("Failed to create alternate");
+            // 代替商品を登録
+            AlternateProductRepository::create(&pool, &alt)
+                .await
+                .expect("Failed to create alternate");
 
-        // 削除
-        AlternateProductRepository::delete(&pool, &alt.prod_code, &alt.alt_prod_code)
-            .await
-            .expect("Failed to delete alternate");
+            // 削除
+            AlternateProductRepository::delete(&pool, &alt.prod_code, &alt.alt_prod_code)
+                .await
+                .expect("Failed to delete alternate");
 
-        // 取得できないことを確認
-        let result =
-            AlternateProductRepository::find(&pool, &alt.prod_code, &alt.alt_prod_code).await;
-        assert!(result.is_err());
+            // 取得できないことを確認
+            let result =
+                AlternateProductRepository::find(&pool, &alt.prod_code, &alt.alt_prod_code).await;
+            assert!(result.is_err());
+        })
+        .await;
     }
 
     #[tokio::test]
     async fn test_find_by_product_with_priority() {
-        let pool = setup().await;
         let category = create_test_category();
         let product1 = create_test_product("PROD001");
         let product2 = create_test_product("PROD002");
         let product3 = create_test_product("PROD003");
+        with_test_pool(|pool| async move {
+            // クリーンアップ
+            AlternateProductRepository::delete_all(&pool).await.ok();
+            ProductRepository::delete_all(&pool).await.ok();
+            ProductCategoryRepository::delete_all(&pool).await.ok();
 
-        // 商品分類と商品を先に登録
-        ProductCategoryRepository::create(&pool, &category)
-            .await
-            .expect("Failed to create category");
-        ProductRepository::create(&pool, &product1)
-            .await
-            .expect("Failed to create product1");
-        ProductRepository::create(&pool, &product2)
-            .await
-            .expect("Failed to create product2");
-        ProductRepository::create(&pool, &product3)
-            .await
-            .expect("Failed to create product3");
+            // 商品分類と商品を先に登録
+            ProductCategoryRepository::create(&pool, &category)
+                .await
+                .expect("Failed to create category");
+            ProductRepository::create(&pool, &product1)
+                .await
+                .expect("Failed to create product1");
+            ProductRepository::create(&pool, &product2)
+                .await
+                .expect("Failed to create product2");
+            ProductRepository::create(&pool, &product3)
+                .await
+                .expect("Failed to create product3");
 
-        // 代替商品を登録（優先順位が異なる）
-        let alt1 = AlternateProduct {
-            prod_code: "PROD001".to_string(),
-            alt_prod_code: "PROD002".to_string(),
-            priority: Some(2),
-            create_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
-            creator: Some("admin".to_string()),
-            update_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
-            updater: Some("admin".to_string()),
-        };
+            // 代替商品を登録（優先順位が異なる）
+            let alt1 = AlternateProduct {
+                prod_code: "PROD001".to_string(),
+                alt_prod_code: "PROD002".to_string(),
+                priority: Some(2),
+                create_date: NaiveDate::from_ymd_opt(2021, 1, 1)
+                    .unwrap()
+                    .and_hms_opt(0, 0, 0)
+                    .unwrap(),
+                creator: Some("admin".to_string()),
+                update_date: NaiveDate::from_ymd_opt(2021, 1, 1)
+                    .unwrap()
+                    .and_hms_opt(0, 0, 0)
+                    .unwrap(),
+                updater: Some("admin".to_string()),
+            };
 
-        let alt2 = AlternateProduct {
-            prod_code: "PROD001".to_string(),
-            alt_prod_code: "PROD003".to_string(),
-            priority: Some(1),
-            create_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
-            creator: Some("admin".to_string()),
-            update_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
-            updater: Some("admin".to_string()),
-        };
+            let alt2 = AlternateProduct {
+                prod_code: "PROD001".to_string(),
+                alt_prod_code: "PROD003".to_string(),
+                priority: Some(1),
+                create_date: NaiveDate::from_ymd_opt(2021, 1, 1)
+                    .unwrap()
+                    .and_hms_opt(0, 0, 0)
+                    .unwrap(),
+                creator: Some("admin".to_string()),
+                update_date: NaiveDate::from_ymd_opt(2021, 1, 1)
+                    .unwrap()
+                    .and_hms_opt(0, 0, 0)
+                    .unwrap(),
+                updater: Some("admin".to_string()),
+            };
 
-        AlternateProductRepository::create(&pool, &alt1)
-            .await
-            .expect("Failed to create alt1");
-        AlternateProductRepository::create(&pool, &alt2)
-            .await
-            .expect("Failed to create alt2");
+            AlternateProductRepository::create(&pool, &alt1)
+                .await
+                .expect("Failed to create alt1");
+            AlternateProductRepository::create(&pool, &alt2)
+                .await
+                .expect("Failed to create alt2");
 
-        // 商品コードで検索（優先順位でソート）
-        let results = AlternateProductRepository::find_by_product(&pool, "PROD001")
-            .await
-            .expect("Failed to find by product");
+            // 商品コードで検索（優先順位でソート）
+            let results = AlternateProductRepository::find_by_product(&pool, "PROD001")
+                .await
+                .expect("Failed to find by product");
 
-        assert_eq!(results.len(), 2);
-        // 優先順位でソートされていることを確認
-        assert_eq!(results[0].alt_prod_code, "PROD003"); // priority 1
-        assert_eq!(results[1].alt_prod_code, "PROD002"); // priority 2
+            assert_eq!(results.len(), 2);
+            // 優先順位でソートされていることを確認
+            assert_eq!(results[0].alt_prod_code, "PROD003"); // priority 1
+            assert_eq!(results[1].alt_prod_code, "PROD002"); // priority 2
+        })
+        .await;
     }
 }

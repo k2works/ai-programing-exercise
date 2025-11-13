@@ -137,21 +137,10 @@ impl ProductRepository {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::create_pool;
     use crate::entity::ProductCategory;
     use crate::repository::ProductCategoryRepository;
+    use crate::test_support::with_test_pool;
     use chrono::NaiveDate;
-
-    async fn setup() -> PgPool {
-        let pool = create_pool().await.expect("Failed to create pool");
-        ProductRepository::delete_all(&pool)
-            .await
-            .expect("Failed to cleanup");
-        ProductCategoryRepository::delete_all(&pool)
-            .await
-            .expect("Failed to cleanup");
-        pool
-    }
 
     fn create_test_category() -> ProductCategory {
         ProductCategory {
@@ -206,112 +195,132 @@ mod tests {
 
     #[tokio::test]
     async fn test_create_and_find() {
-        let pool = setup().await;
         let category = create_test_category();
         let product = create_test_product();
+        with_test_pool(|pool| async move {
+            // クリーンアップ
+            ProductRepository::delete_all(&pool).await.ok();
+            ProductCategoryRepository::delete_all(&pool).await.ok();
 
-        // 商品分類を先に登録
-        ProductCategoryRepository::create(&pool, &category)
-            .await
-            .expect("Failed to create category");
+            // 商品分類を先に登録
+            ProductCategoryRepository::create(&pool, &category)
+                .await
+                .expect("Failed to create category");
 
-        // 商品を登録
-        ProductRepository::create(&pool, &product)
-            .await
-            .expect("Failed to create product");
+            // 商品を登録
+            ProductRepository::create(&pool, &product)
+                .await
+                .expect("Failed to create product");
 
-        // 取得
-        let result = ProductRepository::find_by_code(&pool, &product.prod_code)
-            .await
-            .expect("Failed to find product");
+            // 取得
+            let result = ProductRepository::find_by_code(&pool, &product.prod_code)
+                .await
+                .expect("Failed to find product");
 
-        assert_eq!(result.prod_code, product.prod_code);
-        assert_eq!(result.name, product.name);
-        assert_eq!(result.unitprice, product.unitprice);
+            assert_eq!(result.prod_code, product.prod_code);
+            assert_eq!(result.name, product.name);
+            assert_eq!(result.unitprice, product.unitprice);
+        })
+        .await;
     }
 
     #[tokio::test]
     async fn test_update() {
-        let pool = setup().await;
         let category = create_test_category();
         let mut product = create_test_product();
+        with_test_pool(|pool| async move {
+            // クリーンアップ
+            ProductRepository::delete_all(&pool).await.ok();
+            ProductCategoryRepository::delete_all(&pool).await.ok();
 
-        // 商品分類を先に登録
-        ProductCategoryRepository::create(&pool, &category)
-            .await
-            .expect("Failed to create category");
+            // 商品分類を先に登録
+            ProductCategoryRepository::create(&pool, &category)
+                .await
+                .expect("Failed to create category");
 
-        // 商品を登録
-        ProductRepository::create(&pool, &product)
-            .await
-            .expect("Failed to create product");
+            // 商品を登録
+            ProductRepository::create(&pool, &product)
+                .await
+                .expect("Failed to create product");
 
-        // 更新
-        product.unitprice = 1200;
-        ProductRepository::update(&pool, &product)
-            .await
-            .expect("Failed to update product");
+            // 更新
+            product.unitprice = 1200;
+            ProductRepository::update(&pool, &product)
+                .await
+                .expect("Failed to update product");
 
-        // 取得して確認
-        let result = ProductRepository::find_by_code(&pool, &product.prod_code)
-            .await
-            .expect("Failed to find product");
+            // 取得して確認
+            let result = ProductRepository::find_by_code(&pool, &product.prod_code)
+                .await
+                .expect("Failed to find product");
 
-        assert_eq!(result.unitprice, 1200);
+            assert_eq!(result.unitprice, 1200);
+        })
+        .await;
     }
 
     #[tokio::test]
     async fn test_delete() {
-        let pool = setup().await;
         let category = create_test_category();
         let product = create_test_product();
+        with_test_pool(|pool| async move {
+            // クリーンアップ
+            ProductRepository::delete_all(&pool).await.ok();
+            ProductCategoryRepository::delete_all(&pool).await.ok();
 
-        // 商品分類を先に登録
-        ProductCategoryRepository::create(&pool, &category)
-            .await
-            .expect("Failed to create category");
+            // 商品分類を先に登録
+            ProductCategoryRepository::create(&pool, &category)
+                .await
+                .expect("Failed to create category");
 
-        // 商品を登録
-        ProductRepository::create(&pool, &product)
-            .await
-            .expect("Failed to create product");
+            // 商品を登録
+            ProductRepository::create(&pool, &product)
+                .await
+                .expect("Failed to create product");
 
-        // 削除
-        ProductRepository::delete(&pool, &product.prod_code)
-            .await
-            .expect("Failed to delete product");
+            // 削除
+            ProductRepository::delete(&pool, &product.prod_code)
+                .await
+                .expect("Failed to delete product");
 
-        // 取得できないことを確認
-        let result = ProductRepository::find_by_code(&pool, &product.prod_code).await;
-        assert!(result.is_err());
+            // 取得できないことを確認
+            let result = ProductRepository::find_by_code(&pool, &product.prod_code).await;
+            assert!(result.is_err());
+        })
+        .await;
     }
 
     #[tokio::test]
     async fn test_find_by_category() {
-        let pool = setup().await;
         let category = create_test_category();
         let product1 = create_test_product();
         let mut product2 = create_test_product();
         product2.prod_code = "PROD002".to_string();
+        with_test_pool(|pool| async move {
+            // クリーンアップ
+            ProductRepository::delete_all(&pool).await.ok();
+            ProductCategoryRepository::delete_all(&pool).await.ok();
 
-        // 商品分類を先に登録
-        ProductCategoryRepository::create(&pool, &category)
-            .await
-            .expect("Failed to create category");
+            // 商品分類を先に登録
+            ProductCategoryRepository::create(&pool, &category)
+                .await
+                .expect("Failed to create category");
 
-        // 商品を登録
-        ProductRepository::create(&pool, &product1)
-            .await
-            .expect("Failed to create product1");
-        ProductRepository::create(&pool, &product2)
-            .await
-            .expect("Failed to create product2");
+            // 商品を登録
+            ProductRepository::create(&pool, &product1)
+                .await
+                .expect("Failed to create product1");
+            ProductRepository::create(&pool, &product2)
+                .await
+                .expect("Failed to create product2");
 
-        // カテゴリで検索
-        let results = ProductRepository::find_by_category(&pool, "CAT001")
-            .await
-            .expect("Failed to find by category");
+            // カテゴリで検索
+            let results = ProductRepository::find_by_category(&pool, "CAT001")
+                .await
+                .expect("Failed to find by category");
 
-        assert_eq!(results.len(), 2);
+            assert_eq!(results.len(), 2);
+        })
+        .await;
     }
 }

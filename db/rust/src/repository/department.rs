@@ -100,14 +100,9 @@ impl DepartmentRepository {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::create_pool;
     use crate::entity::Department;
+    use crate::test_support::with_test_pool;
     use chrono::NaiveDate;
-
-    /// テスト用のデータベース接続プールを作成
-    async fn setup() -> PgPool {
-        create_pool().await.expect("Failed to create pool")
-    }
 
     /// テスト用の部門データを作成
     fn create_test_department() -> Department {
@@ -143,83 +138,92 @@ mod tests {
 
     #[tokio::test]
     async fn test_department_create() {
-        let pool = setup().await;
         let dept = create_test_department();
-
-        // テーブルをクリーンアップ
-        DepartmentRepository::delete_all(&pool)
-            .await
-            .expect("Failed to cleanup");
-
-        // 1. 部門を登録
-        DepartmentRepository::create(&pool, &dept)
-            .await
-            .expect("Failed to insert department");
-
-        // 2. 登録されたデータを取得して検証
-        let result =
-            DepartmentRepository::find_by_code_and_date(&pool, &dept.dept_code, &dept.start_date)
+        with_test_pool(|pool| async move {
+            // テーブルをクリーンアップ
+            DepartmentRepository::delete_all(&pool)
                 .await
-                .expect("Failed to fetch department");
+                .expect("Failed to cleanup");
 
-        assert_eq!(result.dept_code, dept.dept_code);
-        assert_eq!(result.name, dept.name);
+            // 1. 部門を登録
+            DepartmentRepository::create(&pool, &dept)
+                .await
+                .expect("Failed to insert department");
+
+            // 2. 登録されたデータを取得して検証
+            let result = DepartmentRepository::find_by_code_and_date(
+                &pool,
+                &dept.dept_code,
+                &dept.start_date,
+            )
+            .await
+            .expect("Failed to fetch department");
+
+            assert_eq!(result.dept_code, dept.dept_code);
+            assert_eq!(result.name, dept.name);
+        })
+        .await;
     }
 
     #[tokio::test]
     async fn test_department_update() {
-        let pool = setup().await;
         let dept = create_test_department();
-
-        // テーブルをクリーンアップ
-        DepartmentRepository::delete_all(&pool)
-            .await
-            .expect("Failed to cleanup");
-
-        // データを登録
-        DepartmentRepository::create(&pool, &dept)
-            .await
-            .expect("Failed to insert department");
-
-        // 1. 部門名を更新
-        DepartmentRepository::update_name(&pool, &dept.dept_code, &dept.start_date, "更新部署")
-            .await
-            .expect("Failed to update department");
-
-        // 2. 更新されたか検証
-        let result =
-            DepartmentRepository::find_by_code_and_date(&pool, &dept.dept_code, &dept.start_date)
+        with_test_pool(|pool| async move {
+            // テーブルをクリーンアップ
+            DepartmentRepository::delete_all(&pool)
                 .await
-                .expect("Failed to fetch department");
+                .expect("Failed to cleanup");
 
-        assert_eq!(result.name, Some("更新部署".to_string()));
+            // データを登録
+            DepartmentRepository::create(&pool, &dept)
+                .await
+                .expect("Failed to insert department");
+
+            // 1. 部門名を更新
+            DepartmentRepository::update_name(&pool, &dept.dept_code, &dept.start_date, "更新部署")
+                .await
+                .expect("Failed to update department");
+
+            // 2. 更新されたか検証
+            let result = DepartmentRepository::find_by_code_and_date(
+                &pool,
+                &dept.dept_code,
+                &dept.start_date,
+            )
+            .await
+            .expect("Failed to fetch department");
+
+            assert_eq!(result.name, Some("更新部署".to_string()));
+        })
+        .await;
     }
 
     #[tokio::test]
     async fn test_department_delete() {
-        let pool = setup().await;
         let dept = create_test_department();
+        with_test_pool(|pool| async move {
+            // テーブルをクリーンアップ
+            DepartmentRepository::delete_all(&pool)
+                .await
+                .expect("Failed to cleanup");
 
-        // テーブルをクリーンアップ
-        DepartmentRepository::delete_all(&pool)
-            .await
-            .expect("Failed to cleanup");
+            // データを登録
+            DepartmentRepository::create(&pool, &dept)
+                .await
+                .expect("Failed to insert department");
 
-        // データを登録
-        DepartmentRepository::create(&pool, &dept)
-            .await
-            .expect("Failed to insert department");
+            // 1. 部門を削除
+            DepartmentRepository::delete(&pool, &dept.dept_code, &dept.start_date)
+                .await
+                .expect("Failed to delete department");
 
-        // 1. 部門を削除
-        DepartmentRepository::delete(&pool, &dept.dept_code, &dept.start_date)
-            .await
-            .expect("Failed to delete department");
+            // 2. テーブルが空になったか検証
+            let count = DepartmentRepository::count(&pool)
+                .await
+                .expect("Failed to count");
 
-        // 2. テーブルが空になったか検証
-        let count = DepartmentRepository::count(&pool)
-            .await
-            .expect("Failed to count");
-
-        assert_eq!(count, 0);
+            assert_eq!(count, 0);
+        })
+        .await;
     }
 }

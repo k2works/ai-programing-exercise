@@ -103,24 +103,10 @@ impl PriceByCustomerRepository {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::create_pool;
     use crate::entity::{Product, ProductCategory};
     use crate::repository::{ProductCategoryRepository, ProductRepository};
+    use crate::test_support::with_test_pool;
     use chrono::NaiveDate;
-
-    async fn setup() -> PgPool {
-        let pool = create_pool().await.expect("Failed to create pool");
-        PriceByCustomerRepository::delete_all(&pool)
-            .await
-            .expect("Failed to cleanup");
-        ProductRepository::delete_all(&pool)
-            .await
-            .expect("Failed to cleanup");
-        ProductCategoryRepository::delete_all(&pool)
-            .await
-            .expect("Failed to cleanup");
-        pool
-    }
 
     fn create_test_category() -> ProductCategory {
         ProductCategory {
@@ -193,129 +179,153 @@ mod tests {
 
     #[tokio::test]
     async fn test_create_and_find() {
-        let pool = setup().await;
         let category = create_test_category();
         let product = create_test_product();
         let price = create_test_price();
+        with_test_pool(|pool| async move {
+            // クリーンアップ
+            PriceByCustomerRepository::delete_all(&pool).await.ok();
+            ProductRepository::delete_all(&pool).await.ok();
+            ProductCategoryRepository::delete_all(&pool).await.ok();
 
-        // 商品分類と商品を先に登録
-        ProductCategoryRepository::create(&pool, &category)
-            .await
-            .expect("Failed to create category");
-        ProductRepository::create(&pool, &product)
-            .await
-            .expect("Failed to create product");
+            // 商品分類と商品を先に登録
+            ProductCategoryRepository::create(&pool, &category)
+                .await
+                .expect("Failed to create category");
+            ProductRepository::create(&pool, &product)
+                .await
+                .expect("Failed to create product");
 
-        // 顧客別販売単価を登録
-        PriceByCustomerRepository::create(&pool, &price)
-            .await
-            .expect("Failed to create price");
+            // 顧客別販売単価を登録
+            PriceByCustomerRepository::create(&pool, &price)
+                .await
+                .expect("Failed to create price");
 
-        // 取得
-        let result = PriceByCustomerRepository::find(&pool, &price.prod_code, &price.comp_code)
-            .await
-            .expect("Failed to find price");
+            // 取得
+            let result = PriceByCustomerRepository::find(&pool, &price.prod_code, &price.comp_code)
+                .await
+                .expect("Failed to find price");
 
-        assert_eq!(result.prod_code, price.prod_code);
-        assert_eq!(result.comp_code, price.comp_code);
-        assert_eq!(result.unitprice, price.unitprice);
+            assert_eq!(result.prod_code, price.prod_code);
+            assert_eq!(result.comp_code, price.comp_code);
+            assert_eq!(result.unitprice, price.unitprice);
+        })
+        .await;
     }
 
     #[tokio::test]
     async fn test_update() {
-        let pool = setup().await;
         let category = create_test_category();
         let product = create_test_product();
         let mut price = create_test_price();
+        with_test_pool(|pool| async move {
+            // クリーンアップ
+            PriceByCustomerRepository::delete_all(&pool).await.ok();
+            ProductRepository::delete_all(&pool).await.ok();
+            ProductCategoryRepository::delete_all(&pool).await.ok();
 
-        // 商品分類と商品を先に登録
-        ProductCategoryRepository::create(&pool, &category)
-            .await
-            .expect("Failed to create category");
-        ProductRepository::create(&pool, &product)
-            .await
-            .expect("Failed to create product");
+            // 商品分類と商品を先に登録
+            ProductCategoryRepository::create(&pool, &category)
+                .await
+                .expect("Failed to create category");
+            ProductRepository::create(&pool, &product)
+                .await
+                .expect("Failed to create product");
 
-        // 顧客別販売単価を登録
-        PriceByCustomerRepository::create(&pool, &price)
-            .await
-            .expect("Failed to create price");
+            // 顧客別販売単価を登録
+            PriceByCustomerRepository::create(&pool, &price)
+                .await
+                .expect("Failed to create price");
 
-        // 更新
-        price.unitprice = 900;
-        PriceByCustomerRepository::update(&pool, &price)
-            .await
-            .expect("Failed to update price");
+            // 更新
+            price.unitprice = 900;
+            PriceByCustomerRepository::update(&pool, &price)
+                .await
+                .expect("Failed to update price");
 
-        // 取得して確認
-        let result = PriceByCustomerRepository::find(&pool, &price.prod_code, &price.comp_code)
-            .await
-            .expect("Failed to find price");
+            // 取得して確認
+            let result = PriceByCustomerRepository::find(&pool, &price.prod_code, &price.comp_code)
+                .await
+                .expect("Failed to find price");
 
-        assert_eq!(result.unitprice, 900);
+            assert_eq!(result.unitprice, 900);
+        })
+        .await;
     }
 
     #[tokio::test]
     async fn test_delete() {
-        let pool = setup().await;
         let category = create_test_category();
         let product = create_test_product();
         let price = create_test_price();
+        with_test_pool(|pool| async move {
+            // クリーンアップ
+            PriceByCustomerRepository::delete_all(&pool).await.ok();
+            ProductRepository::delete_all(&pool).await.ok();
+            ProductCategoryRepository::delete_all(&pool).await.ok();
 
-        // 商品分類と商品を先に登録
-        ProductCategoryRepository::create(&pool, &category)
-            .await
-            .expect("Failed to create category");
-        ProductRepository::create(&pool, &product)
-            .await
-            .expect("Failed to create product");
+            // 商品分類と商品を先に登録
+            ProductCategoryRepository::create(&pool, &category)
+                .await
+                .expect("Failed to create category");
+            ProductRepository::create(&pool, &product)
+                .await
+                .expect("Failed to create product");
 
-        // 顧客別販売単価を登録
-        PriceByCustomerRepository::create(&pool, &price)
-            .await
-            .expect("Failed to create price");
+            // 顧客別販売単価を登録
+            PriceByCustomerRepository::create(&pool, &price)
+                .await
+                .expect("Failed to create price");
 
-        // 削除
-        PriceByCustomerRepository::delete(&pool, &price.prod_code, &price.comp_code)
-            .await
-            .expect("Failed to delete price");
+            // 削除
+            PriceByCustomerRepository::delete(&pool, &price.prod_code, &price.comp_code)
+                .await
+                .expect("Failed to delete price");
 
-        // 取得できないことを確認
-        let result =
-            PriceByCustomerRepository::find(&pool, &price.prod_code, &price.comp_code).await;
-        assert!(result.is_err());
+            // 取得できないことを確認
+            let result =
+                PriceByCustomerRepository::find(&pool, &price.prod_code, &price.comp_code).await;
+            assert!(result.is_err());
+        })
+        .await;
     }
 
     #[tokio::test]
     async fn test_find_by_product() {
-        let pool = setup().await;
         let category = create_test_category();
         let product = create_test_product();
         let price1 = create_test_price();
         let mut price2 = create_test_price();
         price2.comp_code = "COMP002".to_string();
+        with_test_pool(|pool| async move {
+            // クリーンアップ
+            PriceByCustomerRepository::delete_all(&pool).await.ok();
+            ProductRepository::delete_all(&pool).await.ok();
+            ProductCategoryRepository::delete_all(&pool).await.ok();
 
-        // 商品分類と商品を先に登録
-        ProductCategoryRepository::create(&pool, &category)
-            .await
-            .expect("Failed to create category");
-        ProductRepository::create(&pool, &product)
-            .await
-            .expect("Failed to create product");
+            // 商品分類と商品を先に登録
+            ProductCategoryRepository::create(&pool, &category)
+                .await
+                .expect("Failed to create category");
+            ProductRepository::create(&pool, &product)
+                .await
+                .expect("Failed to create product");
 
-        // 顧客別販売単価を登録
-        PriceByCustomerRepository::create(&pool, &price1)
-            .await
-            .expect("Failed to create price1");
-        PriceByCustomerRepository::create(&pool, &price2)
-            .await
-            .expect("Failed to create price2");
+            // 顧客別販売単価を登録
+            PriceByCustomerRepository::create(&pool, &price1)
+                .await
+                .expect("Failed to create price1");
+            PriceByCustomerRepository::create(&pool, &price2)
+                .await
+                .expect("Failed to create price2");
 
-        // 商品コードで検索
-        let results = PriceByCustomerRepository::find_by_product(&pool, "PROD001")
-            .await
-            .expect("Failed to find by product");
+            // 商品コードで検索
+            let results = PriceByCustomerRepository::find_by_product(&pool, "PROD001")
+                .await
+                .expect("Failed to find by product");
 
-        assert_eq!(results.len(), 2);
+            assert_eq!(results.len(), 2);
+        })
+        .await;
     }
 }
