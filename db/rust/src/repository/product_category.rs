@@ -66,17 +66,14 @@ impl ProductCategoryRepository {
 
     /// 全件削除（テスト用）
     pub async fn delete_all(pool: &PgPool) -> Result<(), sqlx::Error> {
-        sqlx::query(r#"DELETE FROM "商品分類マスタ""#)
-            .execute(pool)
-            .await?;
+        sqlx::query(r#"DELETE FROM "商品分類マスタ""#).execute(pool).await?;
         Ok(())
     }
 
     /// 件数を取得
     pub async fn count(pool: &PgPool) -> Result<i64, sqlx::Error> {
-        let (count,): (i64,) = sqlx::query_as(r#"SELECT COUNT(*) FROM "商品分類マスタ""#)
-            .fetch_one(pool)
-            .await?;
+        let (count,): (i64,) =
+            sqlx::query_as(r#"SELECT COUNT(*) FROM "商品分類マスタ""#).fetch_one(pool).await?;
         Ok(count)
     }
 }
@@ -94,15 +91,9 @@ mod tests {
             layer: 1,
             path: Some("/CAT001".to_string()),
             lowest_type: Some(1),
-            create_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            create_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             creator: Some("admin".to_string()),
-            update_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            update_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             updater: Some("admin".to_string()),
         }
     }
@@ -112,13 +103,8 @@ mod tests {
         let category = create_test_category();
         with_test_pool(|pool| async move {
             // 外部キー制約のため、先に商品マスタを削除
-            sqlx::query(r#"DELETE FROM "商品マスタ""#)
-                .execute(&pool)
-                .await
-                .ok();
-            ProductCategoryRepository::delete_all(&pool)
-                .await
-                .expect("Failed to cleanup");
+            sqlx::query(r#"DELETE FROM "商品マスタ""#).execute(&pool).await.ok();
+            ProductCategoryRepository::delete_all(&pool).await.expect("Failed to cleanup");
 
             // 登録
             ProductCategoryRepository::create(&pool, &category)
@@ -142,13 +128,8 @@ mod tests {
         let category = create_test_category();
         with_test_pool(|pool| async move {
             // 外部キー制約のため、先に商品マスタを削除
-            sqlx::query(r#"DELETE FROM "商品マスタ""#)
-                .execute(&pool)
-                .await
-                .ok();
-            ProductCategoryRepository::delete_all(&pool)
-                .await
-                .expect("Failed to cleanup");
+            sqlx::query(r#"DELETE FROM "商品マスタ""#).execute(&pool).await.ok();
+            ProductCategoryRepository::delete_all(&pool).await.expect("Failed to cleanup");
 
             // 登録
             ProductCategoryRepository::create(&pool, &category)
@@ -176,13 +157,8 @@ mod tests {
         let category = create_test_category();
         with_test_pool(|pool| async move {
             // 外部キー制約のため、先に商品マスタを削除
-            sqlx::query(r#"DELETE FROM "商品マスタ""#)
-                .execute(&pool)
-                .await
-                .ok();
-            ProductCategoryRepository::delete_all(&pool)
-                .await
-                .expect("Failed to cleanup");
+            sqlx::query(r#"DELETE FROM "商品マスタ""#).execute(&pool).await.ok();
+            ProductCategoryRepository::delete_all(&pool).await.expect("Failed to cleanup");
 
             // 登録
             ProductCategoryRepository::create(&pool, &category)
@@ -207,18 +183,11 @@ mod tests {
         let category = create_test_category();
         with_test_pool(|pool| async move {
             // 外部キー制約のため、先に商品マスタを削除
-            sqlx::query(r#"DELETE FROM "商品マスタ""#)
-                .execute(&pool)
-                .await
-                .ok();
-            ProductCategoryRepository::delete_all(&pool)
-                .await
-                .expect("Failed to cleanup");
+            sqlx::query(r#"DELETE FROM "商品マスタ""#).execute(&pool).await.ok();
+            ProductCategoryRepository::delete_all(&pool).await.expect("Failed to cleanup");
 
             // 初期カウント
-            let count = ProductCategoryRepository::count(&pool)
-                .await
-                .expect("Failed to count");
+            let count = ProductCategoryRepository::count(&pool).await.expect("Failed to count");
             assert_eq!(count, 0);
 
             // 登録
@@ -227,9 +196,7 @@ mod tests {
                 .expect("Failed to create category");
 
             // カウント確認
-            let count = ProductCategoryRepository::count(&pool)
-                .await
-                .expect("Failed to count");
+            let count = ProductCategoryRepository::count(&pool).await.expect("Failed to count");
             assert_eq!(count, 1);
         })
         .await;

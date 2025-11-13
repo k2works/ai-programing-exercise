@@ -108,17 +108,14 @@ impl ProductRepository {
 
     /// 全件削除（テスト用）
     pub async fn delete_all(pool: &PgPool) -> Result<(), sqlx::Error> {
-        sqlx::query(r#"DELETE FROM "商品マスタ""#)
-            .execute(pool)
-            .await?;
+        sqlx::query(r#"DELETE FROM "商品マスタ""#).execute(pool).await?;
         Ok(())
     }
 
     /// 件数を取得
     pub async fn count(pool: &PgPool) -> Result<i64, sqlx::Error> {
-        let (count,): (i64,) = sqlx::query_as(r#"SELECT COUNT(*) FROM "商品マスタ""#)
-            .fetch_one(pool)
-            .await?;
+        let (count,): (i64,) =
+            sqlx::query_as(r#"SELECT COUNT(*) FROM "商品マスタ""#).fetch_one(pool).await?;
         Ok(count)
     }
 
@@ -149,15 +146,9 @@ mod tests {
             layer: 1,
             path: Some("/CAT001".to_string()),
             lowest_type: Some(1),
-            create_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            create_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             creator: Some("admin".to_string()),
-            update_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            update_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             updater: Some("admin".to_string()),
         }
     }
@@ -180,15 +171,9 @@ mod tests {
             stock_reserve_type: Some(0),
             sup_code: "SUP001".to_string(),
             sup_sub_no: Some(1),
-            create_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            create_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             creator: Some("admin".to_string()),
-            update_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            update_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             updater: Some("admin".to_string()),
         }
     }
@@ -208,9 +193,7 @@ mod tests {
                 .expect("Failed to create category");
 
             // 商品を登録
-            ProductRepository::create(&pool, &product)
-                .await
-                .expect("Failed to create product");
+            ProductRepository::create(&pool, &product).await.expect("Failed to create product");
 
             // 取得
             let result = ProductRepository::find_by_code(&pool, &product.prod_code)
@@ -239,15 +222,11 @@ mod tests {
                 .expect("Failed to create category");
 
             // 商品を登録
-            ProductRepository::create(&pool, &product)
-                .await
-                .expect("Failed to create product");
+            ProductRepository::create(&pool, &product).await.expect("Failed to create product");
 
             // 更新
             product.unitprice = 1200;
-            ProductRepository::update(&pool, &product)
-                .await
-                .expect("Failed to update product");
+            ProductRepository::update(&pool, &product).await.expect("Failed to update product");
 
             // 取得して確認
             let result = ProductRepository::find_by_code(&pool, &product.prod_code)
@@ -274,9 +253,7 @@ mod tests {
                 .expect("Failed to create category");
 
             // 商品を登録
-            ProductRepository::create(&pool, &product)
-                .await
-                .expect("Failed to create product");
+            ProductRepository::create(&pool, &product).await.expect("Failed to create product");
 
             // 削除
             ProductRepository::delete(&pool, &product.prod_code)
@@ -307,12 +284,8 @@ mod tests {
                 .expect("Failed to create category");
 
             // 商品を登録
-            ProductRepository::create(&pool, &product1)
-                .await
-                .expect("Failed to create product1");
-            ProductRepository::create(&pool, &product2)
-                .await
-                .expect("Failed to create product2");
+            ProductRepository::create(&pool, &product1).await.expect("Failed to create product1");
+            ProductRepository::create(&pool, &product2).await.expect("Failed to create product2");
 
             // カテゴリで検索
             let results = ProductRepository::find_by_category(&pool, "CAT001")

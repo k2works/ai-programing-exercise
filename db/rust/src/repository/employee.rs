@@ -44,9 +44,7 @@ impl EmployeeRepository {
 
     /// 全件削除（テスト用）
     pub async fn delete_all(pool: &PgPool) -> Result<(), sqlx::Error> {
-        sqlx::query(r#"DELETE FROM "社員マスタ""#)
-            .execute(pool)
-            .await?;
+        sqlx::query(r#"DELETE FROM "社員マスタ""#).execute(pool).await?;
         Ok(())
     }
 }
@@ -68,21 +66,12 @@ mod tests {
             tel: Some("090-1234-5678".to_string()),
             fax: Some("03-1234-5678".to_string()),
             dept_code: "11101".to_string(),
-            start_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            start_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             occu_code: "".to_string(),
             approval_code: "".to_string(),
-            create_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            create_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             creator: Some("admin".to_string()),
-            update_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            update_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             updater: Some("admin".to_string()),
         }
     }
@@ -92,14 +81,10 @@ mod tests {
         let emp = create_test_employee();
         with_test_pool(|pool| async move {
             // テーブルをクリーンアップ
-            EmployeeRepository::delete_all(&pool)
-                .await
-                .expect("Failed to cleanup");
+            EmployeeRepository::delete_all(&pool).await.expect("Failed to cleanup");
 
             // 1. 社員を登録
-            EmployeeRepository::create(&pool, &emp)
-                .await
-                .expect("Failed to insert employee");
+            EmployeeRepository::create(&pool, &emp).await.expect("Failed to insert employee");
 
             // 2. 登録されたデータを取得して検証
             let result = EmployeeRepository::find_by_code(&pool, &emp.emp_code)

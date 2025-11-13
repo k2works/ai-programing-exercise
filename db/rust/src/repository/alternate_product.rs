@@ -78,9 +78,7 @@ impl AlternateProductRepository {
 
     /// 全件削除（テスト用）
     pub async fn delete_all(pool: &PgPool) -> Result<(), sqlx::Error> {
-        sqlx::query(r#"DELETE FROM "代替商品""#)
-            .execute(pool)
-            .await?;
+        sqlx::query(r#"DELETE FROM "代替商品""#).execute(pool).await?;
         Ok(())
     }
 
@@ -113,15 +111,9 @@ mod tests {
             layer: 1,
             path: Some("/CAT001".to_string()),
             lowest_type: Some(1),
-            create_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            create_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             creator: Some("admin".to_string()),
-            update_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            update_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             updater: Some("admin".to_string()),
         }
     }
@@ -144,15 +136,9 @@ mod tests {
             stock_reserve_type: Some(0),
             sup_code: "SUP001".to_string(),
             sup_sub_no: Some(1),
-            create_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            create_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             creator: Some("admin".to_string()),
-            update_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            update_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             updater: Some("admin".to_string()),
         }
     }
@@ -162,15 +148,9 @@ mod tests {
             prod_code: "PROD001".to_string(),
             alt_prod_code: "PROD002".to_string(),
             priority: Some(1),
-            create_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            create_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             creator: Some("admin".to_string()),
-            update_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            update_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             updater: Some("admin".to_string()),
         }
     }
@@ -191,12 +171,8 @@ mod tests {
             ProductCategoryRepository::create(&pool, &category)
                 .await
                 .expect("Failed to create category");
-            ProductRepository::create(&pool, &product1)
-                .await
-                .expect("Failed to create product1");
-            ProductRepository::create(&pool, &product2)
-                .await
-                .expect("Failed to create product2");
+            ProductRepository::create(&pool, &product1).await.expect("Failed to create product1");
+            ProductRepository::create(&pool, &product2).await.expect("Failed to create product2");
 
             // 代替商品を登録
             AlternateProductRepository::create(&pool, &alt)
@@ -232,12 +208,8 @@ mod tests {
             ProductCategoryRepository::create(&pool, &category)
                 .await
                 .expect("Failed to create category");
-            ProductRepository::create(&pool, &product1)
-                .await
-                .expect("Failed to create product1");
-            ProductRepository::create(&pool, &product2)
-                .await
-                .expect("Failed to create product2");
+            ProductRepository::create(&pool, &product1).await.expect("Failed to create product1");
+            ProductRepository::create(&pool, &product2).await.expect("Failed to create product2");
 
             // 代替商品を登録
             AlternateProductRepository::create(&pool, &alt)
@@ -277,12 +249,8 @@ mod tests {
             ProductCategoryRepository::create(&pool, &category)
                 .await
                 .expect("Failed to create category");
-            ProductRepository::create(&pool, &product1)
-                .await
-                .expect("Failed to create product1");
-            ProductRepository::create(&pool, &product2)
-                .await
-                .expect("Failed to create product2");
+            ProductRepository::create(&pool, &product1).await.expect("Failed to create product1");
+            ProductRepository::create(&pool, &product2).await.expect("Failed to create product2");
 
             // 代替商品を登録
             AlternateProductRepository::create(&pool, &alt)
@@ -318,15 +286,9 @@ mod tests {
             ProductCategoryRepository::create(&pool, &category)
                 .await
                 .expect("Failed to create category");
-            ProductRepository::create(&pool, &product1)
-                .await
-                .expect("Failed to create product1");
-            ProductRepository::create(&pool, &product2)
-                .await
-                .expect("Failed to create product2");
-            ProductRepository::create(&pool, &product3)
-                .await
-                .expect("Failed to create product3");
+            ProductRepository::create(&pool, &product1).await.expect("Failed to create product1");
+            ProductRepository::create(&pool, &product2).await.expect("Failed to create product2");
+            ProductRepository::create(&pool, &product3).await.expect("Failed to create product3");
 
             // 代替商品を登録（優先順位が異なる）
             let alt1 = AlternateProduct {
@@ -361,12 +323,8 @@ mod tests {
                 updater: Some("admin".to_string()),
             };
 
-            AlternateProductRepository::create(&pool, &alt1)
-                .await
-                .expect("Failed to create alt1");
-            AlternateProductRepository::create(&pool, &alt2)
-                .await
-                .expect("Failed to create alt2");
+            AlternateProductRepository::create(&pool, &alt1).await.expect("Failed to create alt1");
+            AlternateProductRepository::create(&pool, &alt2).await.expect("Failed to create alt2");
 
             // 商品コードで検索（優先順位でソート）
             let results = AlternateProductRepository::find_by_product(&pool, "PROD001")

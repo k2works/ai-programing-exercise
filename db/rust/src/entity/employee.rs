@@ -49,21 +49,12 @@ mod tests {
             tel: Some("090-1234-5678".to_string()),
             fax: Some("03-1234-5678".to_string()),
             dept_code: "D001".to_string(),
-            start_date: NaiveDate::from_ymd_opt(2021, 4, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            start_date: NaiveDate::from_ymd_opt(2021, 4, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             occu_code: "01".to_string(),
             approval_code: "02".to_string(),
-            create_date: NaiveDate::from_ymd_opt(2021, 4, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            create_date: NaiveDate::from_ymd_opt(2021, 4, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             creator: Some("admin".to_string()),
-            update_date: NaiveDate::from_ymd_opt(2021, 4, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            update_date: NaiveDate::from_ymd_opt(2021, 4, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             updater: Some("admin".to_string()),
         }
     }
@@ -124,21 +115,12 @@ mod tests {
             tel: None,
             fax: None,
             dept_code: "D001".to_string(),
-            start_date: NaiveDate::from_ymd_opt(2021, 4, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            start_date: NaiveDate::from_ymd_opt(2021, 4, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             occu_code: "01".to_string(),
             approval_code: "02".to_string(),
-            create_date: NaiveDate::from_ymd_opt(2021, 4, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            create_date: NaiveDate::from_ymd_opt(2021, 4, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             creator: None,
-            update_date: NaiveDate::from_ymd_opt(2021, 4, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            update_date: NaiveDate::from_ymd_opt(2021, 4, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             updater: None,
         };
 

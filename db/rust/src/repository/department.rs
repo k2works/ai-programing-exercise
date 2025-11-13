@@ -82,17 +82,14 @@ impl DepartmentRepository {
 
     /// 全件削除（テスト用）
     pub async fn delete_all(pool: &PgPool) -> Result<(), sqlx::Error> {
-        sqlx::query(r#"DELETE FROM "部門マスタ""#)
-            .execute(pool)
-            .await?;
+        sqlx::query(r#"DELETE FROM "部門マスタ""#).execute(pool).await?;
         Ok(())
     }
 
     /// 件数を取得
     pub async fn count(pool: &PgPool) -> Result<i64, sqlx::Error> {
-        let (count,): (i64,) = sqlx::query_as(r#"SELECT COUNT(*) FROM "部門マスタ""#)
-            .fetch_one(pool)
-            .await?;
+        let (count,): (i64,) =
+            sqlx::query_as(r#"SELECT COUNT(*) FROM "部門マスタ""#).fetch_one(pool).await?;
         Ok(count)
     }
 }
@@ -108,30 +105,18 @@ mod tests {
     fn create_test_department() -> Department {
         Department {
             dept_code: "11101".to_string(),
-            start_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            start_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             end_date: Some(
-                NaiveDate::from_ymd_opt(2100, 12, 31)
-                    .unwrap()
-                    .and_hms_opt(0, 0, 0)
-                    .unwrap(),
+                NaiveDate::from_ymd_opt(2100, 12, 31).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             ),
             name: Some("新規部署".to_string()),
             layer: 1,
             path: "D0001".to_string(),
             lowest_type: 1,
             slip_yn: 0,
-            create_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            create_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             creator: Some("admin".to_string()),
-            update_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            update_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             updater: Some("admin".to_string()),
         }
     }
@@ -141,14 +126,10 @@ mod tests {
         let dept = create_test_department();
         with_test_pool(|pool| async move {
             // テーブルをクリーンアップ
-            DepartmentRepository::delete_all(&pool)
-                .await
-                .expect("Failed to cleanup");
+            DepartmentRepository::delete_all(&pool).await.expect("Failed to cleanup");
 
             // 1. 部門を登録
-            DepartmentRepository::create(&pool, &dept)
-                .await
-                .expect("Failed to insert department");
+            DepartmentRepository::create(&pool, &dept).await.expect("Failed to insert department");
 
             // 2. 登録されたデータを取得して検証
             let result = DepartmentRepository::find_by_code_and_date(
@@ -170,14 +151,10 @@ mod tests {
         let dept = create_test_department();
         with_test_pool(|pool| async move {
             // テーブルをクリーンアップ
-            DepartmentRepository::delete_all(&pool)
-                .await
-                .expect("Failed to cleanup");
+            DepartmentRepository::delete_all(&pool).await.expect("Failed to cleanup");
 
             // データを登録
-            DepartmentRepository::create(&pool, &dept)
-                .await
-                .expect("Failed to insert department");
+            DepartmentRepository::create(&pool, &dept).await.expect("Failed to insert department");
 
             // 1. 部門名を更新
             DepartmentRepository::update_name(&pool, &dept.dept_code, &dept.start_date, "更新部署")
@@ -203,14 +180,10 @@ mod tests {
         let dept = create_test_department();
         with_test_pool(|pool| async move {
             // テーブルをクリーンアップ
-            DepartmentRepository::delete_all(&pool)
-                .await
-                .expect("Failed to cleanup");
+            DepartmentRepository::delete_all(&pool).await.expect("Failed to cleanup");
 
             // データを登録
-            DepartmentRepository::create(&pool, &dept)
-                .await
-                .expect("Failed to insert department");
+            DepartmentRepository::create(&pool, &dept).await.expect("Failed to insert department");
 
             // 1. 部門を削除
             DepartmentRepository::delete(&pool, &dept.dept_code, &dept.start_date)
@@ -218,9 +191,7 @@ mod tests {
                 .expect("Failed to delete department");
 
             // 2. テーブルが空になったか検証
-            let count = DepartmentRepository::count(&pool)
-                .await
-                .expect("Failed to count");
+            let count = DepartmentRepository::count(&pool).await.expect("Failed to count");
 
             assert_eq!(count, 0);
         })

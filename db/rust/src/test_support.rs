@@ -21,15 +21,12 @@ where
 
     // ホスト側ポートを取得して接続URLを構成
     let port = container.get_host_port_ipv4(5432);
-    let database_url = format!(
-        "postgres://postgres:postgres@127.0.0.1:{port}/postgres",
-        port = port
-    );
+    let database_url =
+        format!("postgres://postgres:postgres@127.0.0.1:{port}/postgres", port = port);
 
     // 接続プール作成
-    let pool = PgPool::connect(&database_url)
-        .await
-        .expect("failed to connect to test postgres container");
+    let pool =
+        PgPool::connect(&database_url).await.expect("failed to connect to test postgres container");
 
     // マイグレーションを適用（db/rust/migrations 配下）
     sqlx::migrate!("./migrations")

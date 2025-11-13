@@ -80,9 +80,7 @@ impl PriceByCustomerRepository {
 
     /// 全件削除（テスト用）
     pub async fn delete_all(pool: &PgPool) -> Result<(), sqlx::Error> {
-        sqlx::query(r#"DELETE FROM "顧客別販売単価""#)
-            .execute(pool)
-            .await?;
+        sqlx::query(r#"DELETE FROM "顧客別販売単価""#).execute(pool).await?;
         Ok(())
     }
 
@@ -115,15 +113,9 @@ mod tests {
             layer: 1,
             path: Some("/CAT001".to_string()),
             lowest_type: Some(1),
-            create_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            create_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             creator: Some("admin".to_string()),
-            update_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            update_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             updater: Some("admin".to_string()),
         }
     }
@@ -146,15 +138,9 @@ mod tests {
             stock_reserve_type: Some(0),
             sup_code: "SUP001".to_string(),
             sup_sub_no: Some(1),
-            create_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            create_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             creator: Some("admin".to_string()),
-            update_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            update_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             updater: Some("admin".to_string()),
         }
     }
@@ -164,15 +150,9 @@ mod tests {
             prod_code: "PROD001".to_string(),
             comp_code: "COMP001".to_string(),
             unitprice: 950,
-            create_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            create_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             creator: Some("admin".to_string()),
-            update_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            update_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             updater: Some("admin".to_string()),
         }
     }
@@ -192,14 +172,10 @@ mod tests {
             ProductCategoryRepository::create(&pool, &category)
                 .await
                 .expect("Failed to create category");
-            ProductRepository::create(&pool, &product)
-                .await
-                .expect("Failed to create product");
+            ProductRepository::create(&pool, &product).await.expect("Failed to create product");
 
             // 顧客別販売単価を登録
-            PriceByCustomerRepository::create(&pool, &price)
-                .await
-                .expect("Failed to create price");
+            PriceByCustomerRepository::create(&pool, &price).await.expect("Failed to create price");
 
             // 取得
             let result = PriceByCustomerRepository::find(&pool, &price.prod_code, &price.comp_code)
@@ -228,20 +204,14 @@ mod tests {
             ProductCategoryRepository::create(&pool, &category)
                 .await
                 .expect("Failed to create category");
-            ProductRepository::create(&pool, &product)
-                .await
-                .expect("Failed to create product");
+            ProductRepository::create(&pool, &product).await.expect("Failed to create product");
 
             // 顧客別販売単価を登録
-            PriceByCustomerRepository::create(&pool, &price)
-                .await
-                .expect("Failed to create price");
+            PriceByCustomerRepository::create(&pool, &price).await.expect("Failed to create price");
 
             // 更新
             price.unitprice = 900;
-            PriceByCustomerRepository::update(&pool, &price)
-                .await
-                .expect("Failed to update price");
+            PriceByCustomerRepository::update(&pool, &price).await.expect("Failed to update price");
 
             // 取得して確認
             let result = PriceByCustomerRepository::find(&pool, &price.prod_code, &price.comp_code)
@@ -268,14 +238,10 @@ mod tests {
             ProductCategoryRepository::create(&pool, &category)
                 .await
                 .expect("Failed to create category");
-            ProductRepository::create(&pool, &product)
-                .await
-                .expect("Failed to create product");
+            ProductRepository::create(&pool, &product).await.expect("Failed to create product");
 
             // 顧客別販売単価を登録
-            PriceByCustomerRepository::create(&pool, &price)
-                .await
-                .expect("Failed to create price");
+            PriceByCustomerRepository::create(&pool, &price).await.expect("Failed to create price");
 
             // 削除
             PriceByCustomerRepository::delete(&pool, &price.prod_code, &price.comp_code)
@@ -307,9 +273,7 @@ mod tests {
             ProductCategoryRepository::create(&pool, &category)
                 .await
                 .expect("Failed to create category");
-            ProductRepository::create(&pool, &product)
-                .await
-                .expect("Failed to create product");
+            ProductRepository::create(&pool, &product).await.expect("Failed to create product");
 
             // 顧客別販売単価を登録
             PriceByCustomerRepository::create(&pool, &price1)
