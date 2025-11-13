@@ -1,0 +1,41 @@
+# Rust
+/target/
+**/*.rs.bk
+*.pdb
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
+
+# Coverage
+coverage/
+tarpaulin-report.html
+cobertura.xml
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# Logs
+*.log
+
+# Docker
+docker/postgres/init/*.sql
+docker/mysql/init/*.sql
+!docker/postgres/init/.gitkeep
+!docker/mysql/init/.gitkeep
+
+# SchemaSpy出力
+docs/schemaspy/
+
+# OS
+.DS_Store
+Thumbs.db
