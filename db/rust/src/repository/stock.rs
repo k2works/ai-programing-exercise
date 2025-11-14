@@ -55,10 +55,7 @@ impl StockRepository {
     }
 
     /// 倉庫コードで在庫を取得
-    pub async fn find_by_wh_code(
-        pool: &PgPool,
-        wh_code: &str,
-    ) -> Result<Vec<Stock>, sqlx::Error> {
+    pub async fn find_by_wh_code(pool: &PgPool, wh_code: &str) -> Result<Vec<Stock>, sqlx::Error> {
         sqlx::query_as::<_, Stock>(
             r#"SELECT * FROM "在庫データ" WHERE "倉庫コード" = $1 ORDER BY "商品コード", "ロット番号""#,
         )
@@ -132,9 +129,7 @@ impl StockRepository {
 
     /// 全ての在庫を削除（テスト用）
     pub async fn delete_all(pool: &PgPool) -> Result<(), sqlx::Error> {
-        sqlx::query(r#"DELETE FROM "在庫データ""#)
-            .execute(pool)
-            .await?;
+        sqlx::query(r#"DELETE FROM "在庫データ""#).execute(pool).await?;
         Ok(())
     }
 }
@@ -217,15 +212,9 @@ mod tests {
             actual: 100,
             valid: 100,
             last_delivery_date: None,
-            create_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            create_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             creator: Some("admin".to_string()),
-            update_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            update_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             updater: Some("admin".to_string()),
         }
     }
@@ -238,9 +227,7 @@ mod tests {
             let stock = create_test_stock();
 
             // 在庫を登録
-            StockRepository::create(&pool, &stock)
-                .await
-                .expect("Failed to create stock");
+            StockRepository::create(&pool, &stock).await.expect("Failed to create stock");
 
             // 登録した在庫を取得
             let found = StockRepository::find_by_key(
@@ -270,16 +257,12 @@ mod tests {
             let mut stock = create_test_stock();
 
             // 在庫を登録
-            StockRepository::create(&pool, &stock)
-                .await
-                .expect("Failed to create stock");
+            StockRepository::create(&pool, &stock).await.expect("Failed to create stock");
 
             // 在庫数を更新
             stock.actual = 150;
             stock.valid = 150;
-            StockRepository::update(&pool, &stock)
-                .await
-                .expect("Failed to update stock");
+            StockRepository::update(&pool, &stock).await.expect("Failed to update stock");
 
             // 更新された在庫を取得
             let updated = StockRepository::find_by_key(
@@ -307,9 +290,7 @@ mod tests {
             let stock = create_test_stock();
 
             // 在庫を登録
-            StockRepository::create(&pool, &stock)
-                .await
-                .expect("Failed to create stock");
+            StockRepository::create(&pool, &stock).await.expect("Failed to create stock");
 
             // 在庫を削除
             StockRepository::delete(
@@ -349,12 +330,8 @@ mod tests {
             stock2.actual = 50;
 
             // 2つの在庫を登録
-            StockRepository::create(&pool, &stock1)
-                .await
-                .expect("Failed to create stock1");
-            StockRepository::create(&pool, &stock2)
-                .await
-                .expect("Failed to create stock2");
+            StockRepository::create(&pool, &stock1).await.expect("Failed to create stock1");
+            StockRepository::create(&pool, &stock2).await.expect("Failed to create stock2");
 
             // 倉庫コードで在庫を検索
             let stocks = StockRepository::find_by_wh_code(&pool, &stock1.wh_code)
@@ -376,12 +353,8 @@ mod tests {
             stock2.lot_no = "LOT20210102".to_string();
 
             // 2つの在庫を登録
-            StockRepository::create(&pool, &stock1)
-                .await
-                .expect("Failed to create stock1");
-            StockRepository::create(&pool, &stock2)
-                .await
-                .expect("Failed to create stock2");
+            StockRepository::create(&pool, &stock1).await.expect("Failed to create stock1");
+            StockRepository::create(&pool, &stock2).await.expect("Failed to create stock2");
 
             // 商品コードで在庫を検索
             let stocks = StockRepository::find_by_prod_code(&pool, &stock1.prod_code)
