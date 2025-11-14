@@ -19,9 +19,6 @@ impl ProductService {
 
     /// 商品を作成
     pub async fn create_product(&self, request: CreateProductRequest) -> Result<ProductResponse> {
-        // ビジネスルールの検証
-        request.validate_business_rules().map_err(|e| anyhow::anyhow!(e))?;
-
         let now = Utc::now().naive_utc();
 
         // DTO から Entity への変換
@@ -47,6 +44,9 @@ impl ProductService {
             update_date: now,
             updater: None,
         };
+
+        // ビジネスルールの検証
+        entity.validate().map_err(|e| anyhow::anyhow!(e))?;
 
         // Repository で Entity を保存
         ProductRepository::create(&self.pool, &entity).await?;
@@ -90,14 +90,6 @@ impl ProductService {
     ) -> Result<ProductResponse> {
         // 既存の Entity を取得
         let mut entity = ProductRepository::find_by_code(&self.pool, prod_code).await?;
-
-        // ビジネスルールの検証（更新前）
-        let new_unitprice = request.unitprice.unwrap_or(entity.unitprice);
-        let new_prime_cost = request.prime_cost.unwrap_or(entity.prime_cost);
-
-        if new_unitprice < new_prime_cost {
-            anyhow::bail!("販売単価が売上原価より低い設定はできません");
-        }
 
         // UpdateProductRequest のフィールドで Entity を更新
         if let Some(ref category_code) = request.prod_category_code {
@@ -145,6 +137,9 @@ impl ProductService {
 
         let now = Utc::now().naive_utc();
         entity.update_date = now;
+
+        // ビジネスルールの検証
+        entity.validate().map_err(|e| anyhow::anyhow!(e))?;
 
         // Repository で Entity を更新
         ProductRepository::update(&self.pool, &entity).await?;

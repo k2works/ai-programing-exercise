@@ -47,6 +47,16 @@ pub struct Product {
     pub updater: Option<String>,
 }
 
+impl Product {
+    /// ビジネスルールの検証
+    pub fn validate(&self) -> Result<(), String> {
+        if self.unitprice < self.prime_cost {
+            return Err("販売単価が売上原価より低い設定はできません".to_string());
+        }
+        Ok(())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
