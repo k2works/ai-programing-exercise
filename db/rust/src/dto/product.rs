@@ -1,5 +1,6 @@
 //! 商品DTOの定義
 
+use crate::entity::Product;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use validator::Validate;
@@ -212,4 +213,30 @@ pub struct ProductResponse {
 
     /// 更新日時
     pub updated_at: chrono::NaiveDateTime,
+}
+
+impl ProductResponse {
+    /// Entity から DTO への変換
+    pub fn from_entity(entity: Product) -> Self {
+        Self {
+            prod_code: entity.prod_code,
+            prod_category_code: entity.category_code,
+            fullname: entity.fullname,
+            name: entity.name,
+            kana: entity.kana,
+            prod_class: entity.prod_type,
+            model_number: entity.serial_no,
+            unitprice: entity.unitprice,
+            purchase_price: entity.po_price,
+            prime_cost: entity.prime_cost,
+            tax_class: entity.tax_type,
+            misc_class: entity.wide_use_type,
+            stock_managed: entity.stock_manage_type,
+            stock_reserve: entity.stock_reserve_type,
+            sup_code: entity.sup_code,
+            sup_seq_num: entity.sup_sub_no,
+            created_at: entity.create_date,
+            updated_at: entity.update_date,
+        }
+    }
 }

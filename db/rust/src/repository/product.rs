@@ -142,88 +142,50 @@ impl ProductRepository {
         created_at: chrono::NaiveDateTime,
         updated_at: chrono::NaiveDateTime,
     ) -> Result<ProductResponse, sqlx::Error> {
-        sqlx::query_as!(
-            ProductResponse,
-            r#"
-            INSERT INTO "商品マスタ" (
-                "商品コード", "商品分類コード", "商品正式名", "商品略称", "商品名カナ",
-                "商品区分", "製品型番", "販売単価", "仕入単価", "売上原価", "税区分",
-                "在庫管理対象区分", "在庫引当区分", "仕入先コード", "仕入先枝番",
-                "作成日時", "更新日時"
-            )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
-            RETURNING
-                "商品コード" as prod_code,
-                "商品分類コード" as prod_category_code,
-                "商品正式名" as fullname,
-                "商品略称" as name,
-                "商品名カナ" as kana,
-                "商品区分" as prod_class,
-                "製品型番" as model_number,
-                "販売単価" as unitprice,
-                "仕入単価" as purchase_price,
-                "売上原価" as prime_cost,
-                "税区分" as tax_class,
-                "雑区分" as misc_class,
-                "在庫管理対象区分" as stock_managed,
-                "在庫引当区分" as stock_reserve,
-                "仕入先コード" as sup_code,
-                "仕入先枝番" as sup_seq_num,
-                "作成日時" as created_at,
-                "更新日時" as updated_at
-            "#,
-            request.prod_code,
-            request.prod_category_code,
-            request.fullname,
-            request.name,
-            request.kana,
-            request.prod_class,
-            request.model_number,
-            request.unitprice,
-            request.purchase_price,
-            request.prime_cost,
-            request.tax_class.unwrap_or(1),
-            request.stock_managed,
-            request.stock_reserve,
-            request.sup_code,
-            request.sup_seq_num,
-            created_at,
-            updated_at
-        )
-        .fetch_one(pool)
-        .await
+        // Entity を作成
+        let entity = Product {
+            prod_code: request.prod_code.clone(),
+            fullname: request.fullname.clone(),
+            name: request.name.clone(),
+            kana: request.kana.clone(),
+            prod_type: request.prod_class.clone(),
+            serial_no: request.model_number.clone(),
+            unitprice: request.unitprice,
+            po_price: request.purchase_price,
+            prime_cost: request.prime_cost,
+            tax_type: request.tax_class.unwrap_or(1),
+            category_code: request.prod_category_code.clone(),
+            wide_use_type: None, // misc_class は DB で自動設定
+            stock_manage_type: request.stock_managed,
+            stock_reserve_type: request.stock_reserve,
+            sup_code: request.sup_code.clone(),
+            sup_sub_no: request.sup_seq_num,
+            create_date: created_at,
+            creator: None,
+            update_date: updated_at,
+            updater: None,
+        };
+
+        // Repository の create メソッドで Entity を保存
+        Self::create(pool, &entity).await?;
+
+        // 保存された Entity を取得
+        let saved_entity = Self::find_by_code(pool, &entity.prod_code).await?;
+
+        // Entity を DTO に変換
+        Ok(ProductResponse::from_entity(saved_entity))
     }
 
     /// すべての商品を取得（DTO用）
     pub async fn find_all_as_dto(pool: &PgPool) -> Result<Vec<ProductResponse>, sqlx::Error> {
-        sqlx::query_as!(
-            ProductResponse,
-            r#"
-            SELECT
-                "商品コード" as prod_code,
-                "商品分類コード" as prod_category_code,
-                "商品正式名" as fullname,
-                "商品略称" as name,
-                "商品名カナ" as kana,
-                "商品区分" as prod_class,
-                "製品型番" as model_number,
-                "販売単価" as unitprice,
-                "仕入単価" as purchase_price,
-                "売上原価" as prime_cost,
-                "税区分" as tax_class,
-                "雑区分" as misc_class,
-                "在庫管理対象区分" as stock_managed,
-                "在庫引当区分" as stock_reserve,
-                "仕入先コード" as sup_code,
-                "仕入先枝番" as sup_seq_num,
-                "作成日時" as created_at,
-                "更新日時" as updated_at
-            FROM "商品マスタ"
-            ORDER BY "商品コード"
-            "#
-        )
-        .fetch_all(pool)
-        .await
+        // Entity を全件取得
+        let entities =
+            sqlx::query_as::<_, Product>(r#"SELECT * FROM "商品マスタ" ORDER BY "商品コード""#)
+                .fetch_all(pool)
+                .await?;
+
+        // Entity を DTO に変換
+        Ok(entities.into_iter().map(ProductResponse::from_entity).collect())
     }
 
     /// IDで商品を取得（DTO用）
@@ -231,35 +193,12 @@ impl ProductRepository {
         pool: &PgPool,
         prod_code: &str,
     ) -> Result<Option<ProductResponse>, sqlx::Error> {
-        sqlx::query_as!(
-            ProductResponse,
-            r#"
-            SELECT
-                "商品コード" as prod_code,
-                "商品分類コード" as prod_category_code,
-                "商品正式名" as fullname,
-                "商品略称" as name,
-                "商品名カナ" as kana,
-                "商品区分" as prod_class,
-                "製品型番" as model_number,
-                "販売単価" as unitprice,
-                "仕入単価" as purchase_price,
-                "売上原価" as prime_cost,
-                "税区分" as tax_class,
-                "雑区分" as misc_class,
-                "在庫管理対象区分" as stock_managed,
-                "在庫引当区分" as stock_reserve,
-                "仕入先コード" as sup_code,
-                "仕入先枝番" as sup_seq_num,
-                "作成日時" as created_at,
-                "更新日時" as updated_at
-            FROM "商品マスタ"
-            WHERE "商品コード" = $1
-            "#,
-            prod_code
-        )
-        .fetch_optional(pool)
-        .await
+        // Repository の find_by_code メソッドで Entity を取得
+        match Self::find_by_code(pool, prod_code).await {
+            Ok(entity) => Ok(Some(ProductResponse::from_entity(entity))),
+            Err(sqlx::Error::RowNotFound) => Ok(None),
+            Err(e) => Err(e),
+        }
     }
 
     /// 商品を更新（DTO用）
@@ -269,73 +208,68 @@ impl ProductRepository {
         request: &UpdateProductRequest,
         updated_at: chrono::NaiveDateTime,
     ) -> Result<ProductResponse, sqlx::Error> {
-        sqlx::query_as!(
-            ProductResponse,
-            r#"
-            UPDATE "商品マスタ" SET
-                "商品分類コード" = COALESCE($2, "商品分類コード"),
-                "商品正式名" = COALESCE($3, "商品正式名"),
-                "商品略称" = COALESCE($4, "商品略称"),
-                "商品名カナ" = COALESCE($5, "商品名カナ"),
-                "商品区分" = COALESCE($6, "商品区分"),
-                "製品型番" = COALESCE($7, "製品型番"),
-                "販売単価" = COALESCE($8, "販売単価"),
-                "仕入単価" = COALESCE($9, "仕入単価"),
-                "売上原価" = COALESCE($10, "売上原価"),
-                "税区分" = COALESCE($11, "税区分"),
-                "在庫管理対象区分" = COALESCE($12, "在庫管理対象区分"),
-                "在庫引当区分" = COALESCE($13, "在庫引当区分"),
-                "仕入先コード" = COALESCE($14, "仕入先コード"),
-                "仕入先枝番" = COALESCE($15, "仕入先枝番"),
-                "更新日時" = $16
-            WHERE "商品コード" = $1
-            RETURNING
-                "商品コード" as prod_code,
-                "商品分類コード" as prod_category_code,
-                "商品正式名" as fullname,
-                "商品略称" as name,
-                "商品名カナ" as kana,
-                "商品区分" as prod_class,
-                "製品型番" as model_number,
-                "販売単価" as unitprice,
-                "仕入単価" as purchase_price,
-                "売上原価" as prime_cost,
-                "税区分" as tax_class,
-                "雑区分" as misc_class,
-                "在庫管理対象区分" as stock_managed,
-                "在庫引当区分" as stock_reserve,
-                "仕入先コード" as sup_code,
-                "仕入先枝番" as sup_seq_num,
-                "作成日時" as created_at,
-                "更新日時" as updated_at
-            "#,
-            prod_code,
-            request.prod_category_code,
-            request.fullname,
-            request.name,
-            request.kana,
-            request.prod_class,
-            request.model_number,
-            request.unitprice,
-            request.purchase_price,
-            request.prime_cost,
-            request.tax_class,
-            request.stock_managed,
-            request.stock_reserve,
-            request.sup_code,
-            request.sup_seq_num,
-            updated_at
-        )
-        .fetch_one(pool)
-        .await
+        // 既存の Entity を取得
+        let mut entity = Self::find_by_code(pool, prod_code).await?;
+
+        // UpdateProductRequest のフィールドで Entity を更新
+        if let Some(ref category_code) = request.prod_category_code {
+            entity.category_code = Some(category_code.clone());
+        }
+        if let Some(ref fullname) = request.fullname {
+            entity.fullname = fullname.clone();
+        }
+        if let Some(ref name) = request.name {
+            entity.name = name.clone();
+        }
+        if let Some(ref kana) = request.kana {
+            entity.kana = kana.clone();
+        }
+        if let Some(ref prod_class) = request.prod_class {
+            entity.prod_type = Some(prod_class.clone());
+        }
+        if let Some(ref model_number) = request.model_number {
+            entity.serial_no = Some(model_number.clone());
+        }
+        if let Some(unitprice) = request.unitprice {
+            entity.unitprice = unitprice;
+        }
+        if let Some(purchase_price) = request.purchase_price {
+            entity.po_price = Some(purchase_price);
+        }
+        if let Some(prime_cost) = request.prime_cost {
+            entity.prime_cost = prime_cost;
+        }
+        if let Some(tax_class) = request.tax_class {
+            entity.tax_type = tax_class;
+        }
+        if let Some(stock_managed) = request.stock_managed {
+            entity.stock_manage_type = Some(stock_managed);
+        }
+        if let Some(stock_reserve) = request.stock_reserve {
+            entity.stock_reserve_type = Some(stock_reserve);
+        }
+        if let Some(ref sup_code) = request.sup_code {
+            entity.sup_code = sup_code.clone();
+        }
+        if let Some(sup_seq_num) = request.sup_seq_num {
+            entity.sup_sub_no = Some(sup_seq_num);
+        }
+        entity.update_date = updated_at;
+
+        // Repository の update メソッドで Entity を更新
+        Self::update(pool, &entity).await?;
+
+        // 更新された Entity を取得
+        let updated_entity = Self::find_by_code(pool, prod_code).await?;
+
+        // Entity を DTO に変換
+        Ok(ProductResponse::from_entity(updated_entity))
     }
 
-    /// 商品を削除（商品コード指定）
+    /// 商品を削除（商品コード指定、DTO 用）
     pub async fn delete_by_code(pool: &PgPool, prod_code: &str) -> Result<(), sqlx::Error> {
-        sqlx::query!(r#"DELETE FROM "商品マスタ" WHERE "商品コード" = $1"#, prod_code)
-            .execute(pool)
-            .await?;
-        Ok(())
+        // Repository の delete メソッドを使用
+        Self::delete(pool, prod_code).await
     }
 }
 
