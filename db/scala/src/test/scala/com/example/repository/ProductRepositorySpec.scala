@@ -1,54 +1,68 @@
 package com.example.repository
 
 import com.example.db.DatabaseSpec
-import com.example.domain.Product
+import com.example.domain.{Product, ProductCategory}
 import scalikejdbc._
 
 import java.time.LocalDateTime
 
 class ProductRepositorySpec extends DatabaseSpec {
 
-  "ProductRepository" should "商品を登録できる" in withContainers { container =>
-    setupWithMigrations(container)
-
-    val repo = ProductRepository()
-
-    val product = Product(
-      prodCode = "PROD001",
-      fullName = "ノートパソコン Core i7",
-      name = "ノートPC",
-      kana = Some("ノートピーシー"),
-      prodType = Some("1"),
-      serialNo = Some("NB-2024-001"),
-      unitPrice = 150000,
-      poPrice = 120000,
-      primeCost = 100000,
-      taxType = 1,
-      categoryCode = Some("CAT001"),
-      wideUseType = Some(0),
-      stockManageType = 1,
-      stockReserveType = Some(1),
-      supCode = Some("SUP001"),
-      supSubNo = Some(1),
+  private def setupTestCategory(categoryCode: String)(implicit session: DBSession): Unit = {
+    val categoryRepo = ProductCategoryRepository()
+    val category = ProductCategory(
+      categoryCode = categoryCode,
+      name = s"テスト分類${categoryCode}",
+      layer = 1,
+      path = s"/${categoryCode}/",
+      lowestType = 1,
       createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
       updater = "admin"
     )
+    categoryRepo.create(category)
+  }
 
-    val result = DB localTx { implicit session =>
-      repo.create(product)
+  "ProductRepository" should "商品を登録できる" in withContainers { container =>
+    setupWithMigrations(container)
+
+    val repo = ProductRepository()
+
+    DB localTx { implicit session =>
+      setupTestCategory("CAT001")
+
+      val product = Product(
+        prodCode = "PROD001",
+        fullName = "ノートパソコン Core i7",
+        name = "ノートPC",
+        kana = Some("ノートピーシー"),
+        prodType = Some("1"),
+        serialNo = Some("NB-2024-001"),
+        unitPrice = 150000,
+        poPrice = 120000,
+        primeCost = 100000,
+        taxType = 1,
+        categoryCode = Some("CAT001"),
+        wideUseType = Some(0),
+        stockManageType = 1,
+        stockReserveType = Some(1),
+        supCode = Some("SUP001"),
+        supSubNo = Some(1),
+        createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+        creator = "admin",
+        updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+        updater = "admin"
+      )
+
+      val result = repo.create(product)
+      result shouldBe 1
+
+      val retrieved = repo.findById("PROD001")
+      retrieved.isDefined shouldBe true
+      retrieved.get.fullName shouldBe "ノートパソコン Core i7"
+      retrieved.get.unitPrice shouldBe 150000
     }
-
-    result shouldBe 1
-
-    val retrieved = DB readOnly { implicit session =>
-      repo.findById("PROD001")
-    }
-
-    retrieved.isDefined shouldBe true
-    retrieved.get.fullName shouldBe "ノートパソコン Core i7"
-    retrieved.get.unitPrice shouldBe 150000
   }
 
   it should "全商品を取得できる" in withContainers { container =>
@@ -176,48 +190,47 @@ class ProductRepositorySpec extends DatabaseSpec {
 
     val repo = ProductRepository()
 
-    val product1 = Product(
-      prodCode = "PROD005",
-      fullName = "ノートパソコン",
-      name = "ノートPC",
-      categoryCode = Some("CAT002"),
-      unitPrice = 150000,
-      poPrice = 120000,
-      primeCost = 100000,
-      taxType = 1,
-      stockManageType = 1,
-      createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-      creator = "admin",
-      updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-      updater = "admin"
-    )
-
-    val product2 = Product(
-      prodCode = "PROD006",
-      fullName = "デスクトップパソコン",
-      name = "デスクトップ",
-      categoryCode = Some("CAT002"),
-      unitPrice = 200000,
-      poPrice = 160000,
-      primeCost = 140000,
-      taxType = 1,
-      stockManageType = 1,
-      createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-      creator = "admin",
-      updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-      updater = "admin"
-    )
-
     DB localTx { implicit session =>
+      setupTestCategory("CAT002")
+
+      val product1 = Product(
+        prodCode = "PROD005",
+        fullName = "ノートパソコン",
+        name = "ノートPC",
+        categoryCode = Some("CAT002"),
+        unitPrice = 150000,
+        poPrice = 120000,
+        primeCost = 100000,
+        taxType = 1,
+        stockManageType = 1,
+        createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+        creator = "admin",
+        updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+        updater = "admin"
+      )
+
+      val product2 = Product(
+        prodCode = "PROD006",
+        fullName = "デスクトップパソコン",
+        name = "デスクトップ",
+        categoryCode = Some("CAT002"),
+        unitPrice = 200000,
+        poPrice = 160000,
+        primeCost = 140000,
+        taxType = 1,
+        stockManageType = 1,
+        createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+        creator = "admin",
+        updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+        updater = "admin"
+      )
+
       repo.create(product1)
       repo.create(product2)
-    }
 
-    val results = DB readOnly { implicit session =>
-      repo.findByCategory("CAT002")
+      val results = repo.findByCategory("CAT002")
+      results should have size 2
+      results.map(_.prodCode) should contain allOf ("PROD005", "PROD006")
     }
-
-    results should have size 2
-    results.map(_.prodCode) should contain allOf ("PROD005", "PROD006")
   }
 }
