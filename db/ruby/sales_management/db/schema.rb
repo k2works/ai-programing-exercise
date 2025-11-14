@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_11_14_080409) do
+ActiveRecord::Schema[7.1].define(version: 2025_11_14_081959) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -31,6 +31,29 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_14_080409) do
     t.datetime "updated_at", null: false
     t.index ["code"], name: "index_employees_on_code", unique: true
     t.index ["department_id"], name: "index_employees_on_department_id"
+  end
+
+  create_table "order_items", force: :cascade do |t|
+    t.bigint "order_id", null: false
+    t.bigint "product_id", null: false
+    t.integer "quantity"
+    t.decimal "unit_price"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["order_id"], name: "index_order_items_on_order_id"
+    t.index ["product_id"], name: "index_order_items_on_product_id"
+  end
+
+  create_table "orders", force: :cascade do |t|
+    t.string "order_number"
+    t.string "order_type"
+    t.date "order_date"
+    t.string "status"
+    t.bigint "party_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["order_number"], name: "index_orders_on_order_number", unique: true
+    t.index ["party_id"], name: "index_orders_on_party_id"
   end
 
   create_table "organizations", force: :cascade do |t|
@@ -95,6 +118,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_14_080409) do
   end
 
   add_foreign_key "employees", "departments"
+  add_foreign_key "order_items", "orders"
+  add_foreign_key "order_items", "products"
+  add_foreign_key "orders", "parties"
   add_foreign_key "organizations", "parties"
   add_foreign_key "party_roles", "parties"
   add_foreign_key "people", "parties"
