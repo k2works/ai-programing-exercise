@@ -6,6 +6,8 @@ pub mod price_by_customer;
 pub mod product;
 pub mod product_category;
 pub mod sales;
+pub mod stock;
+pub mod warehouse;
 
 pub use alternate_product::AlternateProductRepository;
 pub use department::DepartmentRepository;
@@ -15,3 +17,5 @@ pub use price_by_customer::PriceByCustomerRepository;
 pub use product::ProductRepository;
 pub use product_category::ProductCategoryRepository;
 pub use sales::{SalesDetailRepository, SalesRepository};
+pub use stock::StockRepository;
+pub use warehouse::WarehouseRepository;

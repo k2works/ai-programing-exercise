@@ -9,7 +9,9 @@ pub mod price_by_customer;
 pub mod product;
 pub mod product_category;
 pub mod sales;
+pub mod stock;
 pub mod supplier;
+pub mod warehouse;
 
 pub use alternate_product::AlternateProduct;
 pub use company::Company;
@@ -22,4 +24,6 @@ pub use price_by_customer::PriceByCustomer;
 pub use product::Product;
 pub use product_category::ProductCategory;
 pub use sales::{Sales, SalesDetail};
+pub use stock::Stock;
 pub use supplier::Supplier;
+pub use warehouse::Warehouse;
