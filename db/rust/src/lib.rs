@@ -3,8 +3,12 @@ use dotenv::dotenv;
 use sqlx::PgPool;
 use std::env;
 
+pub mod dto;
 pub mod entity;
+pub mod error;
+pub mod handler;
 pub mod repository;
+pub mod service;
 
 // テストサポート（テスト時または test-support フィーチャー有効時に公開）
 #[cfg(any(test, feature = "test-support"))]
