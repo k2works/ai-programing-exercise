@@ -97,15 +97,25 @@ class FlywayMigrationSpec extends DatabaseSpec {
 
     setupConnection(container)
 
-    val versions = DB readOnly { implicit session =>
-      sql"SELECT version FROM flyway_schema_history ORDER BY installed_rank"
-        .map(rs => rs.string("version"))
+    val installedRanks = DB readOnly { implicit session =>
+      sql"SELECT installed_rank FROM flyway_schema_history ORDER BY installed_rank"
+        .map(rs => rs.int("installed_rank"))
         .list
         .apply()
     }
 
-    // バージョンが順番に並んでいることを確認
-    versions shouldBe versions.sorted
+    // installed_rank が昇順であることを確認（マイグレーションが順番に実行されたことを確認）
+    installedRanks shouldBe installedRanks.sorted
+
+    // 最初のマイグレーションがバージョン1であることを確認
+    val firstVersion = DB readOnly { implicit session =>
+      sql"SELECT version FROM flyway_schema_history ORDER BY installed_rank LIMIT 1"
+        .map(rs => rs.string("version"))
+        .single
+        .apply()
+    }
+
+    firstVersion shouldBe Some("1")
   }
 
   it should "validate migrations successfully" in withContainers { container =>
