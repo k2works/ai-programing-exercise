@@ -1,4 +1,3 @@
-use crate::dto::product::{CreateProductRequest, ProductResponse, UpdateProductRequest};
 use crate::entity::Product;
 use sqlx::PgPool;
 
@@ -131,145 +130,11 @@ impl ProductRepository {
             .await
     }
 
-    // ========================================
-    // DTO用のメソッド（API層で使用）
-    // ========================================
-
-    /// 商品を作成（DTO用）
-    pub async fn create_as_dto(
-        pool: &PgPool,
-        request: &CreateProductRequest,
-        created_at: chrono::NaiveDateTime,
-        updated_at: chrono::NaiveDateTime,
-    ) -> Result<ProductResponse, sqlx::Error> {
-        // Entity を作成
-        let entity = Product {
-            prod_code: request.prod_code.clone(),
-            fullname: request.fullname.clone(),
-            name: request.name.clone(),
-            kana: request.kana.clone(),
-            prod_type: request.prod_class.clone(),
-            serial_no: request.model_number.clone(),
-            unitprice: request.unitprice,
-            po_price: request.purchase_price,
-            prime_cost: request.prime_cost,
-            tax_type: request.tax_class.unwrap_or(1),
-            category_code: request.prod_category_code.clone(),
-            wide_use_type: None, // misc_class は DB で自動設定
-            stock_manage_type: request.stock_managed,
-            stock_reserve_type: request.stock_reserve,
-            sup_code: request.sup_code.clone(),
-            sup_sub_no: request.sup_seq_num,
-            create_date: created_at,
-            creator: None,
-            update_date: updated_at,
-            updater: None,
-        };
-
-        // Repository の create メソッドで Entity を保存
-        Self::create(pool, &entity).await?;
-
-        // 保存された Entity を取得
-        let saved_entity = Self::find_by_code(pool, &entity.prod_code).await?;
-
-        // Entity を DTO に変換
-        Ok(ProductResponse::from_entity(saved_entity))
-    }
-
-    /// すべての商品を取得（DTO用）
-    pub async fn find_all_as_dto(pool: &PgPool) -> Result<Vec<ProductResponse>, sqlx::Error> {
-        // Entity を全件取得
-        let entities =
-            sqlx::query_as::<_, Product>(r#"SELECT * FROM "商品マスタ" ORDER BY "商品コード""#)
-                .fetch_all(pool)
-                .await?;
-
-        // Entity を DTO に変換
-        Ok(entities.into_iter().map(ProductResponse::from_entity).collect())
-    }
-
-    /// IDで商品を取得（DTO用）
-    pub async fn find_by_code_as_dto(
-        pool: &PgPool,
-        prod_code: &str,
-    ) -> Result<Option<ProductResponse>, sqlx::Error> {
-        // Repository の find_by_code メソッドで Entity を取得
-        match Self::find_by_code(pool, prod_code).await {
-            Ok(entity) => Ok(Some(ProductResponse::from_entity(entity))),
-            Err(sqlx::Error::RowNotFound) => Ok(None),
-            Err(e) => Err(e),
-        }
-    }
-
-    /// 商品を更新（DTO用）
-    pub async fn update_as_dto(
-        pool: &PgPool,
-        prod_code: &str,
-        request: &UpdateProductRequest,
-        updated_at: chrono::NaiveDateTime,
-    ) -> Result<ProductResponse, sqlx::Error> {
-        // 既存の Entity を取得
-        let mut entity = Self::find_by_code(pool, prod_code).await?;
-
-        // UpdateProductRequest のフィールドで Entity を更新
-        if let Some(ref category_code) = request.prod_category_code {
-            entity.category_code = Some(category_code.clone());
-        }
-        if let Some(ref fullname) = request.fullname {
-            entity.fullname = fullname.clone();
-        }
-        if let Some(ref name) = request.name {
-            entity.name = name.clone();
-        }
-        if let Some(ref kana) = request.kana {
-            entity.kana = kana.clone();
-        }
-        if let Some(ref prod_class) = request.prod_class {
-            entity.prod_type = Some(prod_class.clone());
-        }
-        if let Some(ref model_number) = request.model_number {
-            entity.serial_no = Some(model_number.clone());
-        }
-        if let Some(unitprice) = request.unitprice {
-            entity.unitprice = unitprice;
-        }
-        if let Some(purchase_price) = request.purchase_price {
-            entity.po_price = Some(purchase_price);
-        }
-        if let Some(prime_cost) = request.prime_cost {
-            entity.prime_cost = prime_cost;
-        }
-        if let Some(tax_class) = request.tax_class {
-            entity.tax_type = tax_class;
-        }
-        if let Some(stock_managed) = request.stock_managed {
-            entity.stock_manage_type = Some(stock_managed);
-        }
-        if let Some(stock_reserve) = request.stock_reserve {
-            entity.stock_reserve_type = Some(stock_reserve);
-        }
-        if let Some(ref sup_code) = request.sup_code {
-            entity.sup_code = sup_code.clone();
-        }
-        if let Some(sup_seq_num) = request.sup_seq_num {
-            entity.sup_sub_no = Some(sup_seq_num);
-        }
-        entity.update_date = updated_at;
-
-        // Repository の update メソッドで Entity を更新
-        Self::update(pool, &entity).await?;
-
-        // 更新された Entity を取得
-        let updated_entity = Self::find_by_code(pool, prod_code).await?;
-
-        // Entity を DTO に変換
-        Ok(ProductResponse::from_entity(updated_entity))
-    }
-
-    /// 商品を削除（商品コード指定、DTO 用）
-    pub async fn delete_by_code(pool: &PgPool, prod_code: &str) -> Result<(), sqlx::Error> {
-        // Repository の delete メソッドを使用
-        Self::delete(pool, prod_code).await
+    /// 全件取得
+    pub async fn find_all(pool: &PgPool) -> Result<Vec<Product>, sqlx::Error> {
+        sqlx::query_as::<_, Product>(r#"SELECT * FROM "商品マスタ" ORDER BY "商品コード""#)
+            .fetch_all(pool)
+            .await
     }
 }
 
