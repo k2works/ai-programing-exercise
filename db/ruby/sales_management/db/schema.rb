@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_11_14_075022) do
+ActiveRecord::Schema[7.1].define(version: 2025_11_14_080409) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -31,6 +31,42 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_14_075022) do
     t.datetime "updated_at", null: false
     t.index ["code"], name: "index_employees_on_code", unique: true
     t.index ["department_id"], name: "index_employees_on_department_id"
+  end
+
+  create_table "organizations", force: :cascade do |t|
+    t.bigint "party_id", null: false
+    t.string "name"
+    t.string "tax_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["party_id"], name: "index_organizations_on_party_id"
+  end
+
+  create_table "parties", force: :cascade do |t|
+    t.string "party_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "party_roles", force: :cascade do |t|
+    t.bigint "party_id", null: false
+    t.string "role_type"
+    t.datetime "started_at"
+    t.datetime "ended_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["party_id"], name: "index_party_roles_on_party_id"
+  end
+
+  create_table "people", force: :cascade do |t|
+    t.bigint "party_id", null: false
+    t.string "first_name"
+    t.string "last_name"
+    t.string "email"
+    t.string "phone"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["party_id"], name: "index_people_on_party_id"
   end
 
   create_table "product_categories", force: :cascade do |t|
@@ -59,5 +95,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_14_075022) do
   end
 
   add_foreign_key "employees", "departments"
+  add_foreign_key "organizations", "parties"
+  add_foreign_key "party_roles", "parties"
+  add_foreign_key "people", "parties"
   add_foreign_key "products", "product_categories"
 end
