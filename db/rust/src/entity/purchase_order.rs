@@ -76,33 +76,21 @@ mod tests {
         let po = PurchaseOrder {
             po_no: "PO0000001".to_string(),
             po_date: Some(
-                NaiveDate::from_ymd_opt(2021, 1, 5)
-                    .unwrap()
-                    .and_hms_opt(0, 0, 0)
-                    .unwrap(),
+                NaiveDate::from_ymd_opt(2021, 1, 5).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             ),
             sup_code: "COMP001".to_string(),
             sup_sub_no: Some(1),
             emp_code: "EMP999".to_string(),
             due_date: Some(
-                NaiveDate::from_ymd_opt(2021, 1, 15)
-                    .unwrap()
-                    .and_hms_opt(0, 0, 0)
-                    .unwrap(),
+                NaiveDate::from_ymd_opt(2021, 1, 15).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             ),
             wh_code: "WH1".to_string(),
             po_amount: Some(50000),
             cmp_tax: 5000,
             slip_comment: Some("テスト発注".to_string()),
-            create_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            create_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             creator: Some("admin".to_string()),
-            update_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            update_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             updater: Some("admin".to_string()),
         };
 
@@ -123,15 +111,9 @@ mod tests {
             expected_qty: Some(100),
             received_qty: Some(0),
             complete_flg: 0,
-            create_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            create_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             creator: Some("admin".to_string()),
-            update_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            update_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             updater: Some("admin".to_string()),
         };
 
@@ -146,33 +128,21 @@ mod tests {
         let po = PurchaseOrder {
             po_no: "PO0000001".to_string(),
             po_date: Some(
-                NaiveDate::from_ymd_opt(2021, 1, 5)
-                    .unwrap()
-                    .and_hms_opt(0, 0, 0)
-                    .unwrap(),
+                NaiveDate::from_ymd_opt(2021, 1, 5).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             ),
             sup_code: "COMP001".to_string(),
             sup_sub_no: Some(1),
             emp_code: "EMP999".to_string(),
             due_date: Some(
-                NaiveDate::from_ymd_opt(2021, 1, 15)
-                    .unwrap()
-                    .and_hms_opt(0, 0, 0)
-                    .unwrap(),
+                NaiveDate::from_ymd_opt(2021, 1, 15).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             ),
             wh_code: "WH1".to_string(),
             po_amount: Some(50000),
             cmp_tax: 5000,
             slip_comment: Some("テスト発注".to_string()),
-            create_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            create_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             creator: Some("admin".to_string()),
-            update_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            update_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             updater: Some("admin".to_string()),
         };
 

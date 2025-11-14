@@ -19,19 +19,19 @@ impl PurchaseRepository {
             "#,
         )
         .bind(&pu.pu_no)
-        .bind(&pu.pu_date)
+        .bind(pu.pu_date)
         .bind(&pu.sup_code)
-        .bind(&pu.sup_sub_no)
+        .bind(pu.sup_sub_no)
         .bind(&pu.emp_code)
-        .bind(&pu.start_date)
+        .bind(pu.start_date)
         .bind(&pu.po_no)
         .bind(&pu.dept_code)
-        .bind(&pu.pu_amount)
-        .bind(&pu.cmp_tax)
+        .bind(pu.pu_amount)
+        .bind(pu.cmp_tax)
         .bind(&pu.slip_comment)
-        .bind(&pu.create_date)
+        .bind(pu.create_date)
         .bind(&pu.creator)
-        .bind(&pu.update_date)
+        .bind(pu.update_date)
         .bind(&pu.updater)
         .execute(pool)
         .await?;
@@ -79,17 +79,17 @@ impl PurchaseRepository {
             "#,
         )
         .bind(&pu.pu_no)
-        .bind(&pu.pu_date)
+        .bind(pu.pu_date)
         .bind(&pu.sup_code)
-        .bind(&pu.sup_sub_no)
+        .bind(pu.sup_sub_no)
         .bind(&pu.emp_code)
-        .bind(&pu.start_date)
+        .bind(pu.start_date)
         .bind(&pu.po_no)
         .bind(&pu.dept_code)
-        .bind(&pu.pu_amount)
-        .bind(&pu.cmp_tax)
+        .bind(pu.pu_amount)
+        .bind(pu.cmp_tax)
         .bind(&pu.slip_comment)
-        .bind(&pu.update_date)
+        .bind(pu.update_date)
         .bind(&pu.updater)
         .execute(pool)
         .await?;
@@ -114,9 +114,7 @@ impl PurchaseRepository {
 
     /// 全ての仕入データを削除（テスト用）
     pub async fn delete_all(pool: &PgPool) -> Result<(), sqlx::Error> {
-        sqlx::query(r#"DELETE FROM "仕入データ""#)
-            .execute(pool)
-            .await?;
+        sqlx::query(r#"DELETE FROM "仕入データ""#).execute(pool).await?;
         Ok(())
     }
 }
@@ -139,18 +137,18 @@ impl PurchaseDetailRepository {
             "#,
         )
         .bind(&detail.pu_no)
-        .bind(&detail.pu_row_no)
+        .bind(detail.pu_row_no)
         .bind(&detail.prod_code)
         .bind(&detail.prod_name)
-        .bind(&detail.quantity)
-        .bind(&detail.unit_price)
+        .bind(detail.quantity)
+        .bind(detail.unit_price)
         .bind(&detail.wh_code)
         .bind(&detail.lot_no)
         .bind(&detail.po_no)
-        .bind(&detail.po_row_no)
-        .bind(&detail.create_date)
+        .bind(detail.po_row_no)
+        .bind(detail.create_date)
         .bind(&detail.creator)
-        .bind(&detail.update_date)
+        .bind(detail.update_date)
         .bind(&detail.updater)
         .execute(pool)
         .await?;
@@ -200,16 +198,16 @@ impl PurchaseDetailRepository {
             "#,
         )
         .bind(&detail.pu_no)
-        .bind(&detail.pu_row_no)
+        .bind(detail.pu_row_no)
         .bind(&detail.prod_code)
         .bind(&detail.prod_name)
-        .bind(&detail.quantity)
-        .bind(&detail.unit_price)
+        .bind(detail.quantity)
+        .bind(detail.unit_price)
         .bind(&detail.wh_code)
         .bind(&detail.lot_no)
         .bind(&detail.po_no)
-        .bind(&detail.po_row_no)
-        .bind(&detail.update_date)
+        .bind(detail.po_row_no)
+        .bind(detail.update_date)
         .bind(&detail.updater)
         .execute(pool)
         .await?;
@@ -235,9 +233,7 @@ impl PurchaseDetailRepository {
 
     /// 全ての仕入データ明細を削除（テスト用）
     pub async fn delete_all(pool: &PgPool) -> Result<(), sqlx::Error> {
-        sqlx::query(r#"DELETE FROM "仕入データ明細""#)
-            .execute(pool)
-            .await?;
+        sqlx::query(r#"DELETE FROM "仕入データ明細""#).execute(pool).await?;
         Ok(())
     }
 }
@@ -328,8 +324,11 @@ mod tests {
         sqlx::query(
             r#"INSERT INTO "倉庫マスタ" (
                  "倉庫コード", "倉庫名", "作成日時", "更新日時"
-               ) VALUES ('WH1', '本社倉庫', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"#
-        ).execute(pool).await.expect("Failed to insert warehouse");
+               ) VALUES ('WH1', '本社倉庫', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"#,
+        )
+        .execute(pool)
+        .await
+        .expect("Failed to insert warehouse");
 
         // 7. 商品マスタ
         sqlx::query(
@@ -348,10 +347,7 @@ mod tests {
             let pu = Purchase {
                 pu_no: "PU0000001".to_string(),
                 pu_date: Some(
-                    NaiveDate::from_ymd_opt(2021, 1, 10)
-                        .unwrap()
-                        .and_hms_opt(0, 0, 0)
-                        .unwrap(),
+                    NaiveDate::from_ymd_opt(2021, 1, 10).unwrap().and_hms_opt(0, 0, 0).unwrap(),
                 ),
                 sup_code: "COMP001".to_string(),
                 sup_sub_no: Some(1),
@@ -379,9 +375,7 @@ mod tests {
 
             PurchaseRepository::create(&pool, &pu).await.unwrap();
 
-            let found = PurchaseRepository::find_by_pu_no(&pool, "PU0000001")
-                .await
-                .unwrap();
+            let found = PurchaseRepository::find_by_pu_no(&pool, "PU0000001").await.unwrap();
 
             assert_eq!(found.pu_no, pu.pu_no);
             assert_eq!(found.sup_code, pu.sup_code);
@@ -398,10 +392,7 @@ mod tests {
             let mut pu = Purchase {
                 pu_no: "PU0000001".to_string(),
                 pu_date: Some(
-                    NaiveDate::from_ymd_opt(2021, 1, 10)
-                        .unwrap()
-                        .and_hms_opt(0, 0, 0)
-                        .unwrap(),
+                    NaiveDate::from_ymd_opt(2021, 1, 10).unwrap().and_hms_opt(0, 0, 0).unwrap(),
                 ),
                 sup_code: "COMP001".to_string(),
                 sup_sub_no: Some(1),
@@ -435,9 +426,7 @@ mod tests {
 
             PurchaseRepository::update(&pool, &pu).await.unwrap();
 
-            let found = PurchaseRepository::find_by_pu_no(&pool, "PU0000001")
-                .await
-                .unwrap();
+            let found = PurchaseRepository::find_by_pu_no(&pool, "PU0000001").await.unwrap();
 
             assert_eq!(found.pu_amount, Some(60000));
             assert_eq!(found.cmp_tax, 6000);
@@ -454,10 +443,7 @@ mod tests {
             let pu = Purchase {
                 pu_no: "PU0000001".to_string(),
                 pu_date: Some(
-                    NaiveDate::from_ymd_opt(2021, 1, 10)
-                        .unwrap()
-                        .and_hms_opt(0, 0, 0)
-                        .unwrap(),
+                    NaiveDate::from_ymd_opt(2021, 1, 10).unwrap().and_hms_opt(0, 0, 0).unwrap(),
                 ),
                 sup_code: "COMP001".to_string(),
                 sup_sub_no: Some(1),
@@ -484,9 +470,7 @@ mod tests {
             };
 
             PurchaseRepository::create(&pool, &pu).await.unwrap();
-            PurchaseRepository::delete(&pool, "PU0000001")
-                .await
-                .unwrap();
+            PurchaseRepository::delete(&pool, "PU0000001").await.unwrap();
 
             let result = PurchaseRepository::find_by_pu_no(&pool, "PU0000001").await;
             assert!(result.is_err());
@@ -503,10 +487,7 @@ mod tests {
             let pu = Purchase {
                 pu_no: "PU0000001".to_string(),
                 pu_date: Some(
-                    NaiveDate::from_ymd_opt(2021, 1, 10)
-                        .unwrap()
-                        .and_hms_opt(0, 0, 0)
-                        .unwrap(),
+                    NaiveDate::from_ymd_opt(2021, 1, 10).unwrap().and_hms_opt(0, 0, 0).unwrap(),
                 ),
                 sup_code: "COMP001".to_string(),
                 sup_sub_no: Some(1),
@@ -556,13 +537,10 @@ mod tests {
                 updater: Some("admin".to_string()),
             };
 
-            PurchaseDetailRepository::create(&pool, &detail)
-                .await
-                .unwrap();
+            PurchaseDetailRepository::create(&pool, &detail).await.unwrap();
 
-            let details = PurchaseDetailRepository::find_by_pu_no(&pool, "PU0000001")
-                .await
-                .unwrap();
+            let details =
+                PurchaseDetailRepository::find_by_pu_no(&pool, "PU0000001").await.unwrap();
 
             assert_eq!(details.len(), 1);
             assert_eq!(details[0].pu_no, detail.pu_no);
@@ -581,10 +559,7 @@ mod tests {
             let pu = Purchase {
                 pu_no: "PU0000001".to_string(),
                 pu_date: Some(
-                    NaiveDate::from_ymd_opt(2021, 1, 10)
-                        .unwrap()
-                        .and_hms_opt(0, 0, 0)
-                        .unwrap(),
+                    NaiveDate::from_ymd_opt(2021, 1, 10).unwrap().and_hms_opt(0, 0, 0).unwrap(),
                 ),
                 sup_code: "COMP001".to_string(),
                 sup_sub_no: Some(1),
@@ -634,20 +609,15 @@ mod tests {
                 updater: Some("admin".to_string()),
             };
 
-            PurchaseDetailRepository::create(&pool, &detail)
-                .await
-                .unwrap();
+            PurchaseDetailRepository::create(&pool, &detail).await.unwrap();
 
             detail.quantity = 200;
             detail.updater = Some("updater".to_string());
 
-            PurchaseDetailRepository::update(&pool, &detail)
-                .await
-                .unwrap();
+            PurchaseDetailRepository::update(&pool, &detail).await.unwrap();
 
-            let details = PurchaseDetailRepository::find_by_pu_no(&pool, "PU0000001")
-                .await
-                .unwrap();
+            let details =
+                PurchaseDetailRepository::find_by_pu_no(&pool, "PU0000001").await.unwrap();
 
             assert_eq!(details[0].quantity, 200);
             assert_eq!(details[0].updater, Some("updater".to_string()));
@@ -664,10 +634,7 @@ mod tests {
             let pu = Purchase {
                 pu_no: "PU0000001".to_string(),
                 pu_date: Some(
-                    NaiveDate::from_ymd_opt(2021, 1, 10)
-                        .unwrap()
-                        .and_hms_opt(0, 0, 0)
-                        .unwrap(),
+                    NaiveDate::from_ymd_opt(2021, 1, 10).unwrap().and_hms_opt(0, 0, 0).unwrap(),
                 ),
                 sup_code: "COMP001".to_string(),
                 sup_sub_no: Some(1),
@@ -717,17 +684,12 @@ mod tests {
                 updater: Some("admin".to_string()),
             };
 
-            PurchaseDetailRepository::create(&pool, &detail)
-                .await
-                .unwrap();
+            PurchaseDetailRepository::create(&pool, &detail).await.unwrap();
 
-            PurchaseDetailRepository::delete(&pool, "PU0000001", 1)
-                .await
-                .unwrap();
+            PurchaseDetailRepository::delete(&pool, "PU0000001", 1).await.unwrap();
 
-            let details = PurchaseDetailRepository::find_by_pu_no(&pool, "PU0000001")
-                .await
-                .unwrap();
+            let details =
+                PurchaseDetailRepository::find_by_pu_no(&pool, "PU0000001").await.unwrap();
 
             assert_eq!(details.len(), 0);
         })
