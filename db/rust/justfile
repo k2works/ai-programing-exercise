@@ -98,3 +98,11 @@ reset:
 # シードデータのテストを実行
 test-seed:
     cargo test --features test-support --test seed_data_test -- --test-threads=1
+
+# APIサーバーを起動
+api:
+    cargo run --bin api
+
+# APIサーバーを自動リロード付きで起動（cargo-watch必要）
+api-watch:
+    cargo watch -x 'run --bin api'

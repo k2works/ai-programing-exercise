@@ -7,6 +7,10 @@ edition = "2021"
 name = "seed"
 path = "src/bin/seed.rs"
 
+[[bin]]
+name = "api"
+path = "src/bin/api.rs"
+
 [dependencies]
 # データベース接続とクエリ実行
 sqlx = { version = "0.7", features = ["runtime-tokio-native-tls", "postgres", "uuid", "chrono", "migrate"] }
@@ -24,6 +28,19 @@ dotenv = "0.15"
 # シリアライズ
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+# Webフレームワーク
+axum = "0.7"
+axum-extra = { version = "0.9", features = ["typed-header"] }
+tower = "0.4"
+tower-http = { version = "0.5", features = ["cors", "trace"] }
+# バリデーション
+validator = { version = "0.16", features = ["derive"] }
+# ロギング
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+# OpenAPIドキュメント
+utoipa = { version = "5.2", features = ["axum_extras", "chrono"] }
+utoipa-swagger-ui = { version = "8.0", features = ["axum"] }
 # テストコンテナ（test-supportフィーチャー有効時のみ）
 testcontainers = { version = "0.15", optional = true }
 testcontainers-modules = { version = "0.3", features = ["postgres"], optional = true }
@@ -32,6 +49,12 @@ testcontainers-modules = { version = "0.3", features = ["postgres"], optional = 
 # テストコンテナ（開発時は常に有効）
 testcontainers = "0.15"
 testcontainers-modules = { version = "0.3", features = ["postgres"] }
+# HTTP クライアント（テスト用）
+reqwest = { version = "0.11", features = ["json"] }
+# HTTPテスト用
+http-body-util = "0.1"
+hyper = { version = "1.0", features = ["full"] }
+tower = { version = "0.4", features = ["util"] }
 
 [features]
 # 統合テスト用のテストサポート機能
