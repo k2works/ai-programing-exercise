@@ -61,15 +61,9 @@ mod tests {
             comp_group_code: "GRP001".to_string(),
             max_credit: Some(10000000),
             temp_credit_up: Some(0),
-            create_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            create_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             creator: Some("admin".to_string()),
-            update_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            update_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             updater: Some("admin".to_string()),
         }
     }

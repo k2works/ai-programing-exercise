@@ -19,18 +19,18 @@ impl OrderRepository {
             "#,
         )
         .bind(&order.order_no)
-        .bind(&order.order_date)
-        .bind(&order.delivery_date)
+        .bind(order.order_date)
+        .bind(order.delivery_date)
         .bind(&order.cust_code)
-        .bind(&order.cust_sub_no)
-        .bind(&order.title_type)
+        .bind(order.cust_sub_no)
+        .bind(order.title_type)
         .bind(&order.zip_code)
         .bind(&order.address1)
         .bind(&order.address2)
         .bind(&order.emp_code)
         .bind(&order.dept_code)
-        .bind(&order.detail_count)
-        .bind(&order.order_amount)
+        .bind(order.detail_count)
+        .bind(order.order_amount)
         .bind(order.cmp_tax)
         .bind(&order.slip_comment)
         .bind(order.create_date)
@@ -43,10 +43,7 @@ impl OrderRepository {
     }
 
     /// 受注番号で受注データを取得
-    pub async fn find_by_order_no(
-        pool: &PgPool,
-        order_no: &str,
-    ) -> Result<Order, sqlx::Error> {
+    pub async fn find_by_order_no(pool: &PgPool, order_no: &str) -> Result<Order, sqlx::Error> {
         sqlx::query_as::<_, Order>(r#"SELECT * FROM "受注データ" WHERE "受注番号" = $1"#)
             .bind(order_no)
             .fetch_one(pool)
@@ -78,18 +75,18 @@ impl OrderRepository {
             "#,
         )
         .bind(&order.order_no)
-        .bind(&order.order_date)
-        .bind(&order.delivery_date)
+        .bind(order.order_date)
+        .bind(order.delivery_date)
         .bind(&order.cust_code)
-        .bind(&order.cust_sub_no)
-        .bind(&order.title_type)
+        .bind(order.cust_sub_no)
+        .bind(order.title_type)
         .bind(&order.zip_code)
         .bind(&order.address1)
         .bind(&order.address2)
         .bind(&order.emp_code)
         .bind(&order.dept_code)
-        .bind(&order.detail_count)
-        .bind(&order.order_amount)
+        .bind(order.detail_count)
+        .bind(order.order_amount)
         .bind(order.cmp_tax)
         .bind(&order.slip_comment)
         .bind(order.update_date)
@@ -110,9 +107,7 @@ impl OrderRepository {
 
     /// 全ての受注データを削除（テスト用）
     pub async fn delete_all(pool: &PgPool) -> Result<(), sqlx::Error> {
-        sqlx::query(r#"DELETE FROM "受注データ""#)
-            .execute(pool)
-            .await?;
+        sqlx::query(r#"DELETE FROM "受注データ""#).execute(pool).await?;
         Ok(())
     }
 }
@@ -141,8 +136,8 @@ impl OrderDetailRepository {
         .bind(&detail.size)
         .bind(detail.quantity)
         .bind(&detail.unit)
-        .bind(&detail.unit_price)
-        .bind(&detail.prod_cost)
+        .bind(detail.unit_price)
+        .bind(detail.prod_cost)
         .bind(detail.create_date)
         .bind(&detail.creator)
         .bind(detail.update_date)
@@ -193,8 +188,8 @@ impl OrderDetailRepository {
         .bind(&detail.size)
         .bind(detail.quantity)
         .bind(&detail.unit)
-        .bind(&detail.unit_price)
-        .bind(&detail.prod_cost)
+        .bind(detail.unit_price)
+        .bind(detail.prod_cost)
         .bind(detail.update_date)
         .bind(&detail.updater)
         .execute(pool)
@@ -203,26 +198,18 @@ impl OrderDetailRepository {
     }
 
     /// 受注明細を削除
-    pub async fn delete(
-        pool: &PgPool,
-        order_no: &str,
-        detail_no: i32,
-    ) -> Result<(), sqlx::Error> {
-        sqlx::query(
-            r#"DELETE FROM "受注データ明細" WHERE "受注番号" = $1 AND "明細番号" = $2"#,
-        )
-        .bind(order_no)
-        .bind(detail_no)
-        .execute(pool)
-        .await?;
+    pub async fn delete(pool: &PgPool, order_no: &str, detail_no: i32) -> Result<(), sqlx::Error> {
+        sqlx::query(r#"DELETE FROM "受注データ明細" WHERE "受注番号" = $1 AND "明細番号" = $2"#)
+            .bind(order_no)
+            .bind(detail_no)
+            .execute(pool)
+            .await?;
         Ok(())
     }
 
     /// 全ての受注明細を削除（テスト用）
     pub async fn delete_all(pool: &PgPool) -> Result<(), sqlx::Error> {
-        sqlx::query(r#"DELETE FROM "受注データ明細""#)
-            .execute(pool)
-            .await?;
+        sqlx::query(r#"DELETE FROM "受注データ明細""#).execute(pool).await?;
         Ok(())
     }
 }
@@ -239,11 +226,26 @@ mod tests {
         OrderRepository::delete_all(pool).await.ok();
 
         // Delete prerequisite data (in reverse dependency order)
-        sqlx::query(r#"DELETE FROM "顧客マスタ" WHERE "顧客コード" = 'COMP001'"#).execute(pool).await.ok();
-        sqlx::query(r#"DELETE FROM "社員マスタ" WHERE "社員コード" = 'EMP001'"#).execute(pool).await.ok();
-        sqlx::query(r#"DELETE FROM "部門マスタ" WHERE "部門コード" = 'D001'"#).execute(pool).await.ok();
-        sqlx::query(r#"DELETE FROM "取引先マスタ" WHERE "取引先コード" = 'COMP001'"#).execute(pool).await.ok();
-        sqlx::query(r#"DELETE FROM "取引先グループマスタ" WHERE "取引先グループコード" = 'GRP1'"#).execute(pool).await.ok();
+        sqlx::query(r#"DELETE FROM "顧客マスタ" WHERE "顧客コード" = 'COMP001'"#)
+            .execute(pool)
+            .await
+            .ok();
+        sqlx::query(r#"DELETE FROM "社員マスタ" WHERE "社員コード" = 'EMP001'"#)
+            .execute(pool)
+            .await
+            .ok();
+        sqlx::query(r#"DELETE FROM "部門マスタ" WHERE "部門コード" = 'D001'"#)
+            .execute(pool)
+            .await
+            .ok();
+        sqlx::query(r#"DELETE FROM "取引先マスタ" WHERE "取引先コード" = 'COMP001'"#)
+            .execute(pool)
+            .await
+            .ok();
+        sqlx::query(r#"DELETE FROM "取引先グループマスタ" WHERE "取引先グループコード" = 'GRP1'"#)
+            .execute(pool)
+            .await
+            .ok();
 
         // Create prerequisite data for foreign key constraints
         // 1. 取引先グループマスタ
@@ -256,8 +258,11 @@ mod tests {
         sqlx::query(
             r#"INSERT INTO "取引先マスタ" (
                  "取引先コード", "取引先名", "取引先グループコード", "作成日時", "更新日時"
-               ) VALUES ('COMP001', 'テスト会社', 'GRP1', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"#
-        ).execute(pool).await.expect("Failed to insert company");
+               ) VALUES ('COMP001', 'テスト会社', 'GRP1', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"#,
+        )
+        .execute(pool)
+        .await
+        .expect("Failed to insert company");
 
         // 3. 部門マスタ
         sqlx::query(
@@ -289,8 +294,11 @@ mod tests {
             r#"INSERT INTO "商品分類マスタ" (
                  "商品分類コード", "商品分類階層", "商品分類パス", "最下層区分",
                  "作成日時", "更新日時"
-               ) VALUES ('CAT001', 1, '/CAT001', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"#
-        ).execute(pool).await.expect("Failed to insert product category");
+               ) VALUES ('CAT001', 1, '/CAT001', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"#,
+        )
+        .execute(pool)
+        .await
+        .expect("Failed to insert product category");
 
         // 7. 商品マスタ
         sqlx::query(
@@ -306,16 +314,10 @@ mod tests {
         Order {
             order_no: "ORD0000001".to_string(),
             order_date: Some(
-                NaiveDate::from_ymd_opt(2021, 1, 10)
-                    .unwrap()
-                    .and_hms_opt(0, 0, 0)
-                    .unwrap(),
+                NaiveDate::from_ymd_opt(2021, 1, 10).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             ),
             delivery_date: Some(
-                NaiveDate::from_ymd_opt(2021, 1, 20)
-                    .unwrap()
-                    .and_hms_opt(0, 0, 0)
-                    .unwrap(),
+                NaiveDate::from_ymd_opt(2021, 1, 20).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             ),
             cust_code: "COMP001".to_string(),
             cust_sub_no: Some(1),
@@ -329,15 +331,9 @@ mod tests {
             order_amount: Some(20000),
             cmp_tax: 2000,
             slip_comment: Some("テスト受注".to_string()),
-            create_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            create_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             creator: Some("admin".to_string()),
-            update_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            update_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             updater: Some("admin".to_string()),
         }
     }
@@ -355,15 +351,9 @@ mod tests {
             unit: Some("個".to_string()),
             unit_price: Some(1000),
             prod_cost: Some(600),
-            create_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            create_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             creator: Some("admin".to_string()),
-            update_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            update_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             updater: Some("admin".to_string()),
         }
     }
@@ -375,9 +365,7 @@ mod tests {
             setup(&pool).await;
 
             // Create
-            OrderRepository::create(&pool, &order)
-                .await
-                .expect("Failed to create order");
+            OrderRepository::create(&pool, &order).await.expect("Failed to create order");
 
             // Find
             let found = OrderRepository::find_by_order_no(&pool, &order.order_no)
@@ -398,16 +386,12 @@ mod tests {
             setup(&pool).await;
 
             // Create
-            OrderRepository::create(&pool, &order)
-                .await
-                .expect("Failed to create order");
+            OrderRepository::create(&pool, &order).await.expect("Failed to create order");
 
             // Update
             order.order_amount = Some(30000);
             order.cmp_tax = 3000;
-            OrderRepository::update(&pool, &order)
-                .await
-                .expect("Failed to update order");
+            OrderRepository::update(&pool, &order).await.expect("Failed to update order");
 
             // Verify
             let found = OrderRepository::find_by_order_no(&pool, &order.order_no)
@@ -427,14 +411,10 @@ mod tests {
             setup(&pool).await;
 
             // Create
-            OrderRepository::create(&pool, &order)
-                .await
-                .expect("Failed to create order");
+            OrderRepository::create(&pool, &order).await.expect("Failed to create order");
 
             // Delete
-            OrderRepository::delete(&pool, &order.order_no)
-                .await
-                .expect("Failed to delete order");
+            OrderRepository::delete(&pool, &order.order_no).await.expect("Failed to delete order");
 
             // Verify
             let result = OrderRepository::find_by_order_no(&pool, &order.order_no).await;
@@ -451,9 +431,7 @@ mod tests {
             setup(&pool).await;
 
             // Create order first
-            OrderRepository::create(&pool, &order)
-                .await
-                .expect("Failed to create order");
+            OrderRepository::create(&pool, &order).await.expect("Failed to create order");
 
             // Create detail
             OrderDetailRepository::create(&pool, &detail)
@@ -481,9 +459,7 @@ mod tests {
             setup(&pool).await;
 
             // Create order and detail
-            OrderRepository::create(&pool, &order)
-                .await
-                .expect("Failed to create order");
+            OrderRepository::create(&pool, &order).await.expect("Failed to create order");
             OrderDetailRepository::create(&pool, &detail)
                 .await
                 .expect("Failed to create order detail");
@@ -514,9 +490,7 @@ mod tests {
             setup(&pool).await;
 
             // Create order and detail
-            OrderRepository::create(&pool, &order)
-                .await
-                .expect("Failed to create order");
+            OrderRepository::create(&pool, &order).await.expect("Failed to create order");
             OrderDetailRepository::create(&pool, &detail)
                 .await
                 .expect("Failed to create order detail");

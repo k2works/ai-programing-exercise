@@ -89,34 +89,22 @@ mod tests {
         Sales {
             sales_no: "SAL0000001".to_string(),
             sales_date: Some(
-                NaiveDate::from_ymd_opt(2021, 1, 15)
-                    .unwrap()
-                    .and_hms_opt(0, 0, 0)
-                    .unwrap(),
+                NaiveDate::from_ymd_opt(2021, 1, 15).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             ),
             cust_code: "COMP001".to_string(),
             cust_sub_no: Some(1),
             emp_code: "EMP001".to_string(),
             dept_code: "D001".to_string(),
-            start_date: NaiveDate::from_ymd_opt(2021, 1, 15)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            start_date: NaiveDate::from_ymd_opt(2021, 1, 15).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             wh_code: "WH001".to_string(),
             order_no: Some("ORD0000001".to_string()),
             detail_count: Some(2),
             sales_amount: Some(20000),
             cmp_tax: 2000,
             slip_comment: Some("テスト売上".to_string()),
-            create_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            create_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             creator: Some("admin".to_string()),
-            update_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            update_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             updater: Some("admin".to_string()),
         }
     }
@@ -136,15 +124,9 @@ mod tests {
             prod_cost: Some(600),
             order_no: Some("ORD0000001".to_string()),
             order_detail_no: Some(1),
-            create_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            create_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             creator: Some("admin".to_string()),
-            update_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            update_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             updater: Some("admin".to_string()),
         }
     }
@@ -178,8 +160,7 @@ mod tests {
     fn test_sales_detail_serialize_deserialize() {
         let detail = create_test_sales_detail();
         let json = serde_json::to_string(&detail).expect("Failed to serialize");
-        let deserialized: SalesDetail =
-            serde_json::from_str(&json).expect("Failed to deserialize");
+        let deserialized: SalesDetail = serde_json::from_str(&json).expect("Failed to deserialize");
         assert_eq!(detail, deserialized);
     }
 }

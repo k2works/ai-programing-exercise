@@ -46,15 +46,9 @@ mod tests {
             sup_pay_months: Some(1),
             sup_pay_dates: Some(31),
             pay_method_type: Some(1),
-            create_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            create_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             creator: Some("admin".to_string()),
-            update_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            update_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             updater: Some("admin".to_string()),
         }
     }

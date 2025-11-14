@@ -17,16 +17,16 @@ impl SalesRepository {
             "#,
         )
         .bind(&sales.sales_no)
-        .bind(&sales.sales_date)
+        .bind(sales.sales_date)
         .bind(&sales.cust_code)
-        .bind(&sales.cust_sub_no)
+        .bind(sales.cust_sub_no)
         .bind(&sales.emp_code)
         .bind(&sales.dept_code)
         .bind(sales.start_date)
         .bind(&sales.wh_code)
         .bind(&sales.order_no)
-        .bind(&sales.detail_count)
-        .bind(&sales.sales_amount)
+        .bind(sales.detail_count)
+        .bind(sales.sales_amount)
         .bind(sales.cmp_tax)
         .bind(&sales.slip_comment)
         .bind(sales.create_date)
@@ -39,10 +39,7 @@ impl SalesRepository {
     }
 
     /// 売上番号で売上データを取得
-    pub async fn find_by_sales_no(
-        pool: &PgPool,
-        sales_no: &str,
-    ) -> Result<Sales, sqlx::Error> {
+    pub async fn find_by_sales_no(pool: &PgPool, sales_no: &str) -> Result<Sales, sqlx::Error> {
         sqlx::query_as::<_, Sales>(r#"SELECT * FROM "売上データ" WHERE "売上番号" = $1"#)
             .bind(sales_no)
             .fetch_one(pool)
@@ -83,16 +80,16 @@ impl SalesRepository {
             "#,
         )
         .bind(&sales.sales_no)
-        .bind(&sales.sales_date)
+        .bind(sales.sales_date)
         .bind(&sales.cust_code)
-        .bind(&sales.cust_sub_no)
+        .bind(sales.cust_sub_no)
         .bind(&sales.emp_code)
         .bind(&sales.dept_code)
         .bind(sales.start_date)
         .bind(&sales.wh_code)
         .bind(&sales.order_no)
-        .bind(&sales.detail_count)
-        .bind(&sales.sales_amount)
+        .bind(sales.detail_count)
+        .bind(sales.sales_amount)
         .bind(sales.cmp_tax)
         .bind(&sales.slip_comment)
         .bind(sales.update_date)
@@ -113,9 +110,7 @@ impl SalesRepository {
 
     /// 全ての売上データを削除（テスト用）
     pub async fn delete_all(pool: &PgPool) -> Result<(), sqlx::Error> {
-        sqlx::query(r#"DELETE FROM "売上データ""#)
-            .execute(pool)
-            .await?;
+        sqlx::query(r#"DELETE FROM "売上データ""#).execute(pool).await?;
         Ok(())
     }
 }
@@ -145,10 +140,10 @@ impl SalesDetailRepository {
         .bind(&detail.size)
         .bind(detail.quantity)
         .bind(&detail.unit)
-        .bind(&detail.unit_price)
-        .bind(&detail.prod_cost)
+        .bind(detail.unit_price)
+        .bind(detail.prod_cost)
         .bind(&detail.order_no)
-        .bind(&detail.order_detail_no)
+        .bind(detail.order_detail_no)
         .bind(detail.create_date)
         .bind(&detail.creator)
         .bind(detail.update_date)
@@ -214,10 +209,10 @@ impl SalesDetailRepository {
         .bind(&detail.size)
         .bind(detail.quantity)
         .bind(&detail.unit)
-        .bind(&detail.unit_price)
-        .bind(&detail.prod_cost)
+        .bind(detail.unit_price)
+        .bind(detail.prod_cost)
         .bind(&detail.order_no)
-        .bind(&detail.order_detail_no)
+        .bind(detail.order_detail_no)
         .bind(detail.update_date)
         .bind(&detail.updater)
         .execute(pool)
@@ -226,26 +221,18 @@ impl SalesDetailRepository {
     }
 
     /// 売上明細を削除
-    pub async fn delete(
-        pool: &PgPool,
-        sales_no: &str,
-        detail_no: i32,
-    ) -> Result<(), sqlx::Error> {
-        sqlx::query(
-            r#"DELETE FROM "売上データ明細" WHERE "売上番号" = $1 AND "明細番号" = $2"#,
-        )
-        .bind(sales_no)
-        .bind(detail_no)
-        .execute(pool)
-        .await?;
+    pub async fn delete(pool: &PgPool, sales_no: &str, detail_no: i32) -> Result<(), sqlx::Error> {
+        sqlx::query(r#"DELETE FROM "売上データ明細" WHERE "売上番号" = $1 AND "明細番号" = $2"#)
+            .bind(sales_no)
+            .bind(detail_no)
+            .execute(pool)
+            .await?;
         Ok(())
     }
 
     /// 全ての売上明細を削除（テスト用）
     pub async fn delete_all(pool: &PgPool) -> Result<(), sqlx::Error> {
-        sqlx::query(r#"DELETE FROM "売上データ明細""#)
-            .execute(pool)
-            .await?;
+        sqlx::query(r#"DELETE FROM "売上データ明細""#).execute(pool).await?;
         Ok(())
     }
 }
@@ -262,11 +249,26 @@ mod tests {
         SalesRepository::delete_all(pool).await.ok();
 
         // Delete prerequisite data (in reverse dependency order)
-        sqlx::query(r#"DELETE FROM "顧客マスタ" WHERE "顧客コード" = 'COMP001'"#).execute(pool).await.ok();
-        sqlx::query(r#"DELETE FROM "社員マスタ" WHERE "社員コード" = 'EMP001'"#).execute(pool).await.ok();
-        sqlx::query(r#"DELETE FROM "部門マスタ" WHERE "部門コード" = 'D001'"#).execute(pool).await.ok();
-        sqlx::query(r#"DELETE FROM "取引先マスタ" WHERE "取引先コード" = 'COMP001'"#).execute(pool).await.ok();
-        sqlx::query(r#"DELETE FROM "取引先グループマスタ" WHERE "取引先グループコード" = 'GRP1'"#).execute(pool).await.ok();
+        sqlx::query(r#"DELETE FROM "顧客マスタ" WHERE "顧客コード" = 'COMP001'"#)
+            .execute(pool)
+            .await
+            .ok();
+        sqlx::query(r#"DELETE FROM "社員マスタ" WHERE "社員コード" = 'EMP001'"#)
+            .execute(pool)
+            .await
+            .ok();
+        sqlx::query(r#"DELETE FROM "部門マスタ" WHERE "部門コード" = 'D001'"#)
+            .execute(pool)
+            .await
+            .ok();
+        sqlx::query(r#"DELETE FROM "取引先マスタ" WHERE "取引先コード" = 'COMP001'"#)
+            .execute(pool)
+            .await
+            .ok();
+        sqlx::query(r#"DELETE FROM "取引先グループマスタ" WHERE "取引先グループコード" = 'GRP1'"#)
+            .execute(pool)
+            .await
+            .ok();
 
         // Create prerequisite data for foreign key constraints
         // 1. 取引先グループマスタ
@@ -279,8 +281,11 @@ mod tests {
         sqlx::query(
             r#"INSERT INTO "取引先マスタ" (
                  "取引先コード", "取引先名", "取引先グループコード", "作成日時", "更新日時"
-               ) VALUES ('COMP001', 'テスト会社', 'GRP1', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"#
-        ).execute(pool).await.expect("Failed to insert company");
+               ) VALUES ('COMP001', 'テスト会社', 'GRP1', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"#,
+        )
+        .execute(pool)
+        .await
+        .expect("Failed to insert company");
 
         // 3. 部門マスタ
         sqlx::query(
@@ -312,8 +317,11 @@ mod tests {
             r#"INSERT INTO "商品分類マスタ" (
                  "商品分類コード", "商品分類階層", "商品分類パス", "最下層区分",
                  "作成日時", "更新日時"
-               ) VALUES ('CAT001', 1, '/CAT001', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"#
-        ).execute(pool).await.expect("Failed to insert product category");
+               ) VALUES ('CAT001', 1, '/CAT001', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"#,
+        )
+        .execute(pool)
+        .await
+        .expect("Failed to insert product category");
 
         // 7. 商品マスタ
         sqlx::query(
@@ -329,34 +337,22 @@ mod tests {
         Sales {
             sales_no: "SAL0000001".to_string(),
             sales_date: Some(
-                NaiveDate::from_ymd_opt(2021, 1, 15)
-                    .unwrap()
-                    .and_hms_opt(0, 0, 0)
-                    .unwrap(),
+                NaiveDate::from_ymd_opt(2021, 1, 15).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             ),
             cust_code: "COMP001".to_string(),
             cust_sub_no: Some(1),
             emp_code: "EMP001".to_string(),
             dept_code: "D001".to_string(),
-            start_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            start_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             wh_code: "WH1".to_string(),
             order_no: Some("ORD0000001".to_string()),
             detail_count: Some(2),
             sales_amount: Some(20000),
             cmp_tax: 2000,
             slip_comment: Some("テスト売上".to_string()),
-            create_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            create_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             creator: Some("admin".to_string()),
-            update_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            update_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             updater: Some("admin".to_string()),
         }
     }
@@ -376,15 +372,9 @@ mod tests {
             prod_cost: Some(600),
             order_no: Some("ORD0000001".to_string()),
             order_detail_no: Some(1),
-            create_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            create_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             creator: Some("admin".to_string()),
-            update_date: NaiveDate::from_ymd_opt(2021, 1, 1)
-                .unwrap()
-                .and_hms_opt(0, 0, 0)
-                .unwrap(),
+            update_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap(),
             updater: Some("admin".to_string()),
         }
     }
@@ -396,9 +386,7 @@ mod tests {
             setup(&pool).await;
 
             // Create
-            SalesRepository::create(&pool, &sales)
-                .await
-                .expect("Failed to create sales");
+            SalesRepository::create(&pool, &sales).await.expect("Failed to create sales");
 
             // Find
             let found = SalesRepository::find_by_sales_no(&pool, &sales.sales_no)
@@ -419,9 +407,7 @@ mod tests {
             setup(&pool).await;
 
             // Create
-            SalesRepository::create(&pool, &sales)
-                .await
-                .expect("Failed to create sales");
+            SalesRepository::create(&pool, &sales).await.expect("Failed to create sales");
 
             // Find by order_no
             let found = SalesRepository::find_by_order_no(&pool, "ORD0000001")
@@ -442,16 +428,12 @@ mod tests {
             setup(&pool).await;
 
             // Create
-            SalesRepository::create(&pool, &sales)
-                .await
-                .expect("Failed to create sales");
+            SalesRepository::create(&pool, &sales).await.expect("Failed to create sales");
 
             // Update
             sales.sales_amount = Some(30000);
             sales.cmp_tax = 3000;
-            SalesRepository::update(&pool, &sales)
-                .await
-                .expect("Failed to update sales");
+            SalesRepository::update(&pool, &sales).await.expect("Failed to update sales");
 
             // Verify
             let found = SalesRepository::find_by_sales_no(&pool, &sales.sales_no)
@@ -471,14 +453,10 @@ mod tests {
             setup(&pool).await;
 
             // Create
-            SalesRepository::create(&pool, &sales)
-                .await
-                .expect("Failed to create sales");
+            SalesRepository::create(&pool, &sales).await.expect("Failed to create sales");
 
             // Delete
-            SalesRepository::delete(&pool, &sales.sales_no)
-                .await
-                .expect("Failed to delete sales");
+            SalesRepository::delete(&pool, &sales.sales_no).await.expect("Failed to delete sales");
 
             // Verify
             let result = SalesRepository::find_by_sales_no(&pool, &sales.sales_no).await;
@@ -495,9 +473,7 @@ mod tests {
             setup(&pool).await;
 
             // Create sales first
-            SalesRepository::create(&pool, &sales)
-                .await
-                .expect("Failed to create sales");
+            SalesRepository::create(&pool, &sales).await.expect("Failed to create sales");
 
             // Create detail
             SalesDetailRepository::create(&pool, &detail)
@@ -525,9 +501,7 @@ mod tests {
             setup(&pool).await;
 
             // Create sales and detail
-            SalesRepository::create(&pool, &sales)
-                .await
-                .expect("Failed to create sales");
+            SalesRepository::create(&pool, &sales).await.expect("Failed to create sales");
             SalesDetailRepository::create(&pool, &detail)
                 .await
                 .expect("Failed to create sales detail");
@@ -552,9 +526,7 @@ mod tests {
             setup(&pool).await;
 
             // Create sales and detail
-            SalesRepository::create(&pool, &sales)
-                .await
-                .expect("Failed to create sales");
+            SalesRepository::create(&pool, &sales).await.expect("Failed to create sales");
             SalesDetailRepository::create(&pool, &detail)
                 .await
                 .expect("Failed to create sales detail");
@@ -585,9 +557,7 @@ mod tests {
             setup(&pool).await;
 
             // Create sales and detail
-            SalesRepository::create(&pool, &sales)
-                .await
-                .expect("Failed to create sales");
+            SalesRepository::create(&pool, &sales).await.expect("Failed to create sales");
             SalesDetailRepository::create(&pool, &detail)
                 .await
                 .expect("Failed to create sales detail");
