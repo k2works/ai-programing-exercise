@@ -17,6 +17,9 @@ object FlywayMigration {
     val dbConfig     = config.getConfig("db.default")
     val flywayConfig = config.getConfig("flyway.default")
 
+    import scala.jdk.CollectionConverters._
+    val locations = flywayConfig.getStringList("locations").asScala.toSeq
+
     val flyway = Flyway
       .configure()
       .dataSource(
@@ -24,7 +27,7 @@ object FlywayMigration {
         dbConfig.getString("user"),
         dbConfig.getString("password"),
       )
-      .locations(flywayConfig.getString("locations"))
+      .locations(locations: _*)
       .cleanDisabled(flywayConfig.getBoolean("cleanDisabled"))
       .load()
 
@@ -39,6 +42,9 @@ object FlywayMigration {
     val dbConfig     = config.getConfig("db.test")
     val flywayConfig = config.getConfig("flyway.test")
 
+    import scala.jdk.CollectionConverters._
+    val locations = flywayConfig.getStringList("locations").asScala.toSeq
+
     val flyway = Flyway
       .configure()
       .dataSource(
@@ -46,7 +52,7 @@ object FlywayMigration {
         dbConfig.getString("user"),
         dbConfig.getString("password"),
       )
-      .locations(flywayConfig.getString("locations"))
+      .locations(locations: _*)
       .cleanDisabled(flywayConfig.getBoolean("cleanDisabled"))
       .load()
 
