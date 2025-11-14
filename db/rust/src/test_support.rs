@@ -1,10 +1,42 @@
 //! テストサポート: TestcontainersでPostgreSQLを起動し、接続プールを提供する
-#![cfg(test)]
+#![cfg(any(test, feature = "test-support"))]
 
 use sqlx::PgPool;
 use testcontainers::clients::Cli;
 use testcontainers::Container;
 use testcontainers_modules::postgres::Postgres;
+
+/// テスト用データベース構造体
+/// Testcontainersを使用してPostgreSQLコンテナを管理
+pub struct TestDatabase {
+    pub pool: PgPool,
+    _container: &'static Container<'static, Postgres>,
+}
+
+impl TestDatabase {
+    /// 新しいテストデータベースを作成
+    /// PostgreSQLコンテナを起動し、接続プールを作成します
+    pub async fn new() -> Self {
+        // テスト用にDockerクライアントとコンテナを'staticライフタイムでリーク
+        // これはテストでのみ使用され、テストプロセス終了時にクリーンアップされます
+        let docker = Box::leak(Box::new(Cli::default()));
+        let container = Box::leak(Box::new(docker.run(Postgres::default())));
+
+        let port = container.get_host_port_ipv4(5432);
+        let database_url = format!("postgres://postgres:postgres@127.0.0.1:{}/postgres", port);
+
+        let pool = PgPool::connect(&database_url)
+            .await
+            .expect("Failed to connect to test postgres container");
+
+        Self { pool, _container: container }
+    }
+
+    /// マイグレーションを実行
+    pub async fn migrate(&self) -> Result<(), sqlx::migrate::MigrateError> {
+        sqlx::migrate!("./migrations").run(&self.pool).await
+    }
+}
 
 /// テスト用にPostgreSQLコンテナを起動し、コールバックに`PgPool`を渡して実行する。
 /// コールバックの実行が終わるとコンテナは自動的に破棄される。

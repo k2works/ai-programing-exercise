@@ -83,3 +83,18 @@ db-create:
 # データベースの削除
 db-drop:
     sqlx database drop
+
+# シードデータを投入
+seed:
+    cargo run --bin seed
+
+# データベースをリセットしてシードデータを投入
+reset:
+    sqlx database drop -y
+    sqlx database create
+    sqlx migrate run
+    just seed
+
+# シードデータのテストを実行
+test-seed:
+    cargo test --features test-support --test seed_data_test -- --test-threads=1

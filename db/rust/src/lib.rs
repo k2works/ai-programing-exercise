@@ -6,8 +6,8 @@ use std::env;
 pub mod entity;
 pub mod repository;
 
-// テストサポート（テスト時のみ有効）
-#[cfg(test)]
+// テストサポート（テスト時または test-support フィーチャー有効時に公開）
+#[cfg(any(test, feature = "test-support"))]
 pub mod test_support;
 
 /// データベース接続プールを作成
