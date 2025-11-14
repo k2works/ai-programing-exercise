@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <!-- コンソール出力の設定 -->
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <!-- ScalikeJDBC のログレベルを WARN に設定 -->
+  <logger name="scalikejdbc" level="WARN" />
+
+  <!-- Testcontainers のログレベルを INFO に設定 -->
+  <logger name="org.testcontainers" level="INFO" />
+  <logger name="com.github.dockerjava" level="WARN" />
+
+  <!-- Docker Java のログレベルを WARN に設定 -->
+  <logger name="com.github.dockerjava.zerodep" level="WARN" />
+
+  <!-- ルートロガーの設定 -->
+  <root level="INFO">
+    <appender-ref ref="STDOUT" />
+  </root>
+</configuration>
