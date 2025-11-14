@@ -1,13 +1,21 @@
 pub mod alternate_product;
+pub mod company;
+pub mod company_group;
+pub mod customer;
 pub mod department;
 pub mod employee;
 pub mod price_by_customer;
 pub mod product;
 pub mod product_category;
+pub mod supplier;
 
 pub use alternate_product::AlternateProduct;
+pub use company::Company;
+pub use company_group::CompanyGroup;
+pub use customer::Customer;
 pub use department::Department;
 pub use employee::Employee;
 pub use price_by_customer::PriceByCustomer;
 pub use product::Product;
 pub use product_category::ProductCategory;
+pub use supplier::Supplier;
