@@ -13,6 +13,7 @@ import (
 	_ "github.com/k2works/sales-management-db/docs" // Swagger ドキュメント
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-contrib/cors"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -46,6 +47,15 @@ func main() {
 
 	// Gin ルーターの設定
 	router := gin.Default()
+
+	// CORS 設定
+	router.Use(cors.New(cors.Config{
+		AllowAllOrigins:  true,
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: false,
+	}))
 
 	// ヘルスチェックエンドポイント
 	router.GET("/health", func(c *gin.Context) {
