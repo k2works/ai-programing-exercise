@@ -53,6 +53,10 @@ migrate:
 migrate-info:
     sbt migrateInfo
 
+# シードデータ投入
+seed:
+    sbt "runMain com.example.Main"
+
 # ファイル監視モードでテスト
 watch:
     sbt "~ test"
