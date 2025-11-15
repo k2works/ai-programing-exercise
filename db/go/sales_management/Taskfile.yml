@@ -1,0 +1,163 @@
+version: '3'
+
+vars:
+  BINARY_NAME: sales-management-server
+  BUILD_DIR: bin
+  DATABASE_URL: postgres://postgres:password@localhost:5432/sales_management?sslmode=disable
+  TEST_DATABASE_URL: postgres://postgres:password@localhost:5433/sales_management_test?sslmode=disable
+
+tasks:
+  default:
+    desc: ヘルプを表示
+    cmds:
+      - task --list
+
+  test:
+    desc: テストを実行
+    cmds:
+      - echo "テストを実行中..."
+      - go test -v ./...
+
+  test-coverage:
+    desc: テストカバレッジを実行
+    cmds:
+      - echo "テストカバレッジを実行中..."
+      - go test -coverprofile=coverage.out ./...
+      - go tool cover -html=coverage.out -o coverage.html
+      - echo "カバレッジレポートが coverage.html に作成されました"
+
+  lint:
+    desc: 静的解析を実行
+    cmds:
+      - echo "静的解析を実行中..."
+      - cmd: command -v golangci-lint >/dev/null 2>&1
+        ignore_error: true
+      - export PATH=$PATH:$(go env GOPATH)/bin && golangci-lint run
+
+  fmt:
+    desc: コードフォーマットを実行
+    cmds:
+      - echo "コードフォーマットを実行中..."
+      - go fmt ./...
+      - export PATH=$PATH:$(go env GOPATH)/bin && goimports -w .
+
+  vet:
+    desc: go vetを実行
+    cmds:
+      - echo "go vetを実行中..."
+      - go vet ./...
+
+  build:
+    desc: アプリケーションをビルド
+    cmds:
+      - echo "アプリケーションをビルド中..."
+      - mkdir -p {{.BUILD_DIR}}
+      - go build -o {{.BUILD_DIR}}/{{.BINARY_NAME}} ./cmd/server
+
+  run:
+    desc: アプリケーションを実行
+    cmds:
+      - echo "アプリケーションを実行中..."
+      - go run ./cmd/server
+
+  clean:
+    desc: クリーンアップ
+    cmds:
+      - echo "クリーンアップ中..."
+      - go clean
+      - rm -rf {{.BUILD_DIR}}
+      - rm -f coverage.out coverage.html
+
+  check:
+    desc: 品質チェック（フォーマット、vet、lint、テスト）
+    deps: [fmt, vet, lint, test]
+
+  fix:
+    desc: 自動修正（フォーマット + lint fix）
+    cmds:
+      - task: fmt
+      - cmd: export PATH=$PATH:$(go env GOPATH)/bin && golangci-lint run --fix
+        ignore_error: true
+
+  deps:
+    desc: 依存関係のダウンロード
+    cmds:
+      - echo "依存関係をダウンロード中..."
+      - go mod download
+      - go mod tidy
+
+  # データベース関連タスク
+  db-up:
+    desc: データベースを起動
+    cmds:
+      - echo "データベースを起動中..."
+      - docker compose up -d postgres postgres-test
+
+  db-down:
+    desc: データベースを停止
+    cmds:
+      - echo "データベースを停止中..."
+      - docker compose down
+
+  db-clean:
+    desc: データベースとボリュームを削除
+    cmds:
+      - echo "データベースとボリュームを削除中..."
+      - docker compose down -v
+
+  migrate-up:
+    desc: マイグレーションを実行（up）
+    cmds:
+      - echo "マイグレーションを実行中..."
+      - export PATH=$PATH:$(go env GOPATH)/bin && migrate -path migrations -database "{{.DATABASE_URL}}" up
+
+  migrate-down:
+    desc: マイグレーションをロールバック（down）
+    cmds:
+      - echo "マイグレーションをロールバック中..."
+      - export PATH=$PATH:$(go env GOPATH)/bin && migrate -path migrations -database "{{.DATABASE_URL}}" down
+
+  migrate-force:
+    desc: マイグレーションを強制的に特定バージョンに設定
+    cmds:
+      - echo "マイグレーションバージョンを設定中..."
+      - export PATH=$PATH:$(go env GOPATH)/bin && migrate -path migrations -database "{{.DATABASE_URL}}" force {{.CLI_ARGS}}
+
+  migrate-create:
+    desc: 新しいマイグレーションファイルを作成
+    cmds:
+      - echo "マイグレーションファイルを作成中..."
+      - export PATH=$PATH:$(go env GOPATH)/bin && migrate create -ext sql -dir migrations -seq {{.CLI_ARGS}}
+
+  # セットアップタスク
+  setup:
+    desc: プロジェクトのセットアップ
+    cmds:
+      - echo "プロジェクトをセットアップ中..."
+      - task: deps
+      - task: db-up
+      - echo "データベースの起動を待機中..."
+      - sleep 5
+      - task: migrate-up
+      - echo "✅ セットアップ完了！"
+
+  # ファイル監視タスク
+  watch:
+    desc: ファイル監視による自動チェック
+    cmds:
+      - echo "ファイル監視による自動チェックを開始..."
+      - task: watch-test
+
+  watch-test:
+    desc: テストのwatch実行
+    cmds:
+      - echo "テストのwatch実行を開始..."
+      - |
+        if command -v fswatch >/dev/null 2>&1; then
+          fswatch -o . --exclude='.*\.(html|out|sum)$' --exclude='.git' | xargs -n1 -I{} task test
+        else
+          echo "fswatch がインストールされていません。"
+          echo "Ubuntu/Debian: sudo apt-get install fswatch"
+          echo "macOS: brew install fswatch"
+          exit 1
+        fi
