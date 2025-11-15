@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS 顧客別販売単価;
