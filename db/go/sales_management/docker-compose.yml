@@ -1,0 +1,68 @@
+services:
+  # PostgreSQL データベース
+  postgres:
+    image: postgres:16-alpine
+    container_name: sales-db-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: sales_management
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # PostgreSQL テストデータベース
+  postgres-test:
+    image: postgres:16-alpine
+    container_name: sales-db-postgres-test
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: sales_management_test
+    ports:
+      - "5433:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MySQL データベース(オプション)
+  mysql:
+    image: mysql:8.0
+    container_name: sales-db-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: sales_management
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Adminer（データベース管理ツール）
+  adminer:
+    image: adminer:latest
+    container_name: sales-db-adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - mysql
+
+volumes:
+  postgres_data:
+  mysql_data:
