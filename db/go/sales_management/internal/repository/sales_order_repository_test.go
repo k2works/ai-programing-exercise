@@ -121,17 +121,17 @@ func setupOrderTestData(t *testing.T, testDB *testutil.TestDB) {
 	// 顧客の作成
 	custRepo := NewCustomerRepository(testDB.DB)
 	customer := &model.Customer{
-		CustomerCode:     "COMP001",
-		CustomerBranch:   1,
-		BillingCode:      "COMP001",
-		BillingBranch:    1,
-		CollectionCode:   "COMP001",
-		CollectionBranch: 1,
+		CustomerCode:      "COMP001",
+		CustomerBranch:    1,
+		BillingCode:       "COMP001",
+		BillingBranch:     1,
+		CollectionCode:    "COMP001",
+		CollectionBranch:  1,
 		SalesEmployeeCode: "EMP001",
-		CreatedAt:        time.Now(),
-		CreatedBy:        "admin",
-		UpdatedAt:        time.Now(),
-		UpdatedBy:        "admin",
+		CreatedAt:         time.Now(),
+		CreatedBy:         "admin",
+		UpdatedAt:         time.Now(),
+		UpdatedBy:         "admin",
 	}
 	err = custRepo.Create(customer)
 	require.NoError(t, err)
