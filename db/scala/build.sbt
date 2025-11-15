@@ -5,6 +5,10 @@ ThisBuild / organizationName := "sales-management"
 
 lazy val scalikeJDBCVersion = "4.2.1"
 lazy val flywayVersion = "10.4.1"
+lazy val akkaVersion = "2.8.5"
+lazy val akkaHttpVersion = "10.5.3"
+lazy val circeVersion = "0.14.6"
+lazy val testcontainersVersion = "1.19.3"
 
 lazy val root = (project in file("."))
   .settings(
@@ -40,7 +44,21 @@ lazy val root = (project in file("."))
 
       // Logging
       "ch.qos.logback" % "logback-classic" % "1.4.14",
-      "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5"
+      "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5",
+
+      // Akka HTTP
+      "com.typesafe.akka" %% "akka-actor-typed" % akkaVersion,
+      "com.typesafe.akka" %% "akka-stream" % akkaVersion,
+      "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
+
+      // Circe（JSON ライブラリ）
+      "io.circe" %% "circe-core" % circeVersion,
+      "io.circe" %% "circe-generic" % circeVersion,
+      "io.circe" %% "circe-parser" % circeVersion,
+
+      // Akka HTTP テスト
+      "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion % Test,
+      "com.typesafe.akka" %% "akka-actor-testkit-typed" % akkaVersion % Test
     ),
     // scoverageの設定
     coverageEnabled := true,
