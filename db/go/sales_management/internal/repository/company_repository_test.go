@@ -30,20 +30,20 @@ func TestCompanyRepository_Create(t *testing.T) {
 		// When: 取引先を登録すると
 		repo := NewCompanyRepository(testDB.DB)
 		company := &model.Company{
-			CompanyCode:      "COMP001",
-			CompanyName:      "株式会社ABC",
-			CompanyNameKana:  "カブシキガイシャエービーシー",
-			SupplierCategory: 0,
-			PostalCode:       "100-0001",
-			Prefecture:       "東京都",
-			Address1:         "千代田区丸の内1-1-1",
+			CompanyCode:         "COMP001",
+			CompanyName:         "株式会社ABC",
+			CompanyNameKana:     "カブシキガイシャエービーシー",
+			SupplierCategory:    0,
+			PostalCode:          "100-0001",
+			Prefecture:          "東京都",
+			Address1:            "千代田区丸の内1-1-1",
 			TransactionProhibit: 0,
-			CompanyGroupCode: "GRP1",
-			CreditLimit:      10000000,
-			CreatedAt:        time.Now(),
-			CreatedBy:        "admin",
-			UpdatedAt:        time.Now(),
-			UpdatedBy:        "admin",
+			CompanyGroupCode:    "GRP1",
+			CreditLimit:         10000000,
+			CreatedAt:           time.Now(),
+			CreatedBy:           "admin",
+			UpdatedAt:           time.Now(),
+			UpdatedBy:           "admin",
 		}
 		err = repo.Create(company)
 

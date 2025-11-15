@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS 受注明細;
