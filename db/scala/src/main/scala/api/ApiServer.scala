@@ -76,7 +76,9 @@ object ApiServer extends JsonSupport {
     println()
     println("📖 API Documentation:")
     println("  Swagger UI: http://0.0.0.0:8080/api-docs")
+    println("  Swagger UI (v1): http://0.0.0.0:8080/api/v1/docs")
     println("  OpenAPI Spec: http://0.0.0.0:8080/swagger.json")
+    println("  OpenAPI Spec (v1): http://0.0.0.0:8080/api/v1/openapi.json")
     println()
     println("Press RETURN to stop...")
 

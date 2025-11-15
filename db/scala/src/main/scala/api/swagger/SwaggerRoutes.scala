@@ -275,13 +275,24 @@ object SwaggerRoutes {
   )
 
   /**
+   * OpenAPI 仕様を提供するルート（再利用可能）
+   */
+  val openApiRoute: Route = get {
+    complete(HttpEntity(ContentTypes.`application/json`, openApiSpec.spaces2))
+  }
+
+  /**
    * Swagger UI ルート
    */
   val routes: Route = concat(
-    // OpenAPI 仕様を JSON で提供
+    // OpenAPI 仕様を JSON で提供（ルート直下）
     path("swagger.json") {
-      get {
-        complete(HttpEntity(ContentTypes.`application/json`, openApiSpec.spaces2))
+      openApiRoute
+    },
+    // OpenAPI 仕様を JSON で提供（API バージョン下）
+    pathPrefix("api" / "v1") {
+      path("openapi.json") {
+        openApiRoute
       }
     },
     // Swagger UI（WebJars から配信）
@@ -291,6 +302,12 @@ object SwaggerRoutes {
     // Swagger UI のインデックスページへリダイレクト
     path("api-docs") {
       redirect("/swagger-ui/index.html?url=/swagger.json", akka.http.scaladsl.model.StatusCodes.PermanentRedirect)
+    },
+    // API バージョン固有の Swagger UI
+    pathPrefix("api" / "v1") {
+      path("docs") {
+        redirect("/swagger-ui/index.html?url=/api/v1/openapi.json", akka.http.scaladsl.model.StatusCodes.PermanentRedirect)
+      }
     }
   )
 }
