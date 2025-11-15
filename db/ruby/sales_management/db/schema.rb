@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_11_14_081959) do
+ActiveRecord::Schema[7.1].define(version: 2025_11_15_015408) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -111,10 +111,91 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_14_081959) do
     t.index ["product_category_id"], name: "index_products_on_product_category_id"
   end
 
+  create_table "purchase_items", force: :cascade do |t|
+    t.bigint "purchase_id", null: false
+    t.bigint "product_id", null: false
+    t.string "lot_number"
+    t.bigint "warehouse_id", null: false
+    t.integer "quantity"
+    t.decimal "unit_price"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_id"], name: "index_purchase_items_on_product_id"
+    t.index ["purchase_id"], name: "index_purchase_items_on_purchase_id"
+    t.index ["warehouse_id"], name: "index_purchase_items_on_warehouse_id"
+  end
+
+  create_table "purchase_order_items", force: :cascade do |t|
+    t.bigint "purchase_order_id", null: false
+    t.bigint "product_id", null: false
+    t.integer "quantity"
+    t.integer "received_quantity"
+    t.decimal "unit_price"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_id"], name: "index_purchase_order_items_on_product_id"
+    t.index ["purchase_order_id"], name: "index_purchase_order_items_on_purchase_order_id"
+  end
+
+  create_table "purchase_orders", force: :cascade do |t|
+    t.string "order_number"
+    t.date "order_date"
+    t.bigint "party_id", null: false
+    t.bigint "warehouse_id", null: false
+    t.bigint "sales_order_id"
+    t.string "status"
+    t.decimal "total_amount"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["order_number"], name: "index_purchase_orders_on_order_number", unique: true
+    t.index ["party_id"], name: "index_purchase_orders_on_party_id"
+    t.index ["sales_order_id"], name: "index_purchase_orders_on_sales_order_id"
+    t.index ["warehouse_id"], name: "index_purchase_orders_on_warehouse_id"
+  end
+
+  create_table "purchases", force: :cascade do |t|
+    t.string "purchase_number"
+    t.date "purchase_date"
+    t.bigint "purchase_order_id", null: false
+    t.bigint "party_id", null: false
+    t.decimal "total_amount"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["party_id"], name: "index_purchases_on_party_id"
+    t.index ["purchase_number"], name: "index_purchases_on_purchase_number", unique: true
+    t.index ["purchase_order_id"], name: "index_purchases_on_purchase_order_id"
+  end
+
   create_table "samples", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "stocks", primary_key: ["warehouse_id", "product_id", "lot_number", "stock_type", "quality_type"], force: :cascade do |t|
+    t.bigint "warehouse_id", null: false
+    t.bigint "product_id", null: false
+    t.string "lot_number", null: false
+    t.string "stock_type", null: false
+    t.string "quality_type", null: false
+    t.integer "actual_quantity", default: 0, null: false
+    t.integer "valid_quantity", default: 0, null: false
+    t.datetime "last_shipped_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_id"], name: "index_stocks_on_product_id"
+    t.index ["warehouse_id"], name: "index_stocks_on_warehouse_id"
+  end
+
+  create_table "warehouses", force: :cascade do |t|
+    t.string "code"
+    t.string "name"
+    t.integer "warehouse_type"
+    t.string "address"
+    t.string "phone"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_warehouses_on_code", unique: true
   end
 
   add_foreign_key "employees", "departments"
@@ -125,4 +206,16 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_14_081959) do
   add_foreign_key "party_roles", "parties"
   add_foreign_key "people", "parties"
   add_foreign_key "products", "product_categories"
+  add_foreign_key "purchase_items", "products"
+  add_foreign_key "purchase_items", "purchases"
+  add_foreign_key "purchase_items", "warehouses"
+  add_foreign_key "purchase_order_items", "products"
+  add_foreign_key "purchase_order_items", "purchase_orders"
+  add_foreign_key "purchase_orders", "orders", column: "sales_order_id"
+  add_foreign_key "purchase_orders", "parties"
+  add_foreign_key "purchase_orders", "warehouses"
+  add_foreign_key "purchases", "parties"
+  add_foreign_key "purchases", "purchase_orders"
+  add_foreign_key "stocks", "products"
+  add_foreign_key "stocks", "warehouses"
 end
