@@ -24,6 +24,7 @@
 ```
 .
 ├── cmd/
+│   ├── seed/             # シードデータ投入プログラム
 │   └── server/           # アプリケーションエントリーポイント
 ├── internal/
 │   ├── model/            # ドメインモデル
@@ -35,7 +36,8 @@
 ├── migrations/           # データベースマイグレーション
 ├── .env                  # 環境変数（gitignore 対象）
 ├── docker-compose.yml    # Docker 環境定義
-├── Justfile              # タスク定義
+├── Makefile              # タスク定義（Make）
+├── Justfile              # タスク定義（Just）
 └── .golangci.yml         # 静的解析設定
 ```
 
@@ -218,7 +220,26 @@ docker exec sales-management-postgres psql -U postgres -d sales_management -c "\
 
 ### タスクランナーの使用
 
-プロジェクトでは `just` を使用してタスクを管理しています。
+プロジェクトでは `make` と `just` の両方を使用してタスクを管理しています。
+
+#### Make の使用
+
+```bash
+# 利用可能なタスク一覧
+make help
+
+# よく使うタスク
+make build          # アプリケーションをビルド
+make test           # テストを実行
+make seed           # シードデータを投入
+make db-up          # データベースを起動
+make db-down        # データベースを停止
+make db-reset       # データベースをリセットしてシードデータを投入
+make migrate-up     # マイグレーションを実行
+make migrate-down   # マイグレーションをロールバック
+```
+
+#### Just の使用
 
 ```bash
 # 利用可能なタスク一覧
@@ -301,6 +322,43 @@ migrate create -ext sql -dir migrations -seq <migration_name>
 - `000001_init_schema.up.sql`: 初期スキーマ
 - `000002_create_department_table.up.sql`: 部門マスタ
 - `000003_create_employee_table.up.sql`: 社員マスタ
+
+### シードデータ
+
+B社（食肉製造・販売会社）の業務に適したサンプルデータを投入できます。
+
+```bash
+# シードデータの投入
+make seed
+
+# データベースをリセットしてシードデータを投入
+make db-reset
+```
+
+**投入されるデータ:**
+- 部門マスタ: 21部門（4階層組織構造）
+- 社員マスタ: 41名
+- 取引先グループマスタ: 7グループ
+- 取引先マスタ: 14社（得意先10社、仕入先4社）
+- 顧客マスタ: 10社
+- 仕入先マスタ: 4社
+- 商品分類マスタ: 5分類（牛肉、豚肉、鶏肉、加工品、その他）
+- 商品マスタ: 20商品
+- 倉庫マスタ: 2倉庫
+
+**特徴:**
+- トランザクション管理による一貫性保証
+- 外部キー制約を考慮した投入順序
+- TRUNCATE CASCADE による既存データクリア
+- 実際のビジネスシーンを想定したリアルなデータ
+
+**カスタマイズ:**
+
+環境変数で接続先を変更できます:
+
+```bash
+DATABASE_URL="host=localhost port=5432 user=postgres password=mypass dbname=mydb sslmode=disable" make seed
+```
 
 ### テスト用データベース
 
