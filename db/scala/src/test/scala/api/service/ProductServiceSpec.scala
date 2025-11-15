@@ -6,8 +6,8 @@ import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.Mockito._
 import org.mockito.ArgumentMatchers._
 import scalikejdbc._
-import com.example.domain.Product
-import com.example.repository.ProductRepository
+import infrastructure.domain.Product
+import infrastructure.repository.ProductRepository
 import api.schema._
 import java.time.LocalDateTime
 

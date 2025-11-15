@@ -127,17 +127,17 @@ ci := Def.sequential(
 // マイグレーションタスク
 lazy val migrate = taskKey[Unit]("Run database migrations")
 migrate := {
-  (Compile / runMain).toTask(" com.example.db.MigrationRunner migrate").value
+  (Compile / runMain).toTask(" infrastructure.db.MigrationRunner migrate").value
 }
 
 // マイグレーション情報タスク
 lazy val migrateInfo = taskKey[Unit]("Show migration information")
 migrateInfo := {
-  (Compile / runMain).toTask(" com.example.db.MigrationRunner info").value
+  (Compile / runMain).toTask(" infrastructure.db.MigrationRunner info").value
 }
 
 // マイグレーション検証タスク
 lazy val migrateValidate = taskKey[Unit]("Validate migrations")
 migrateValidate := {
-  (Compile / runMain).toTask(" com.example.db.MigrationRunner validate").value
+  (Compile / runMain).toTask(" infrastructure.db.MigrationRunner validate").value
 }

@@ -8,7 +8,7 @@ import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.model.StatusCodes
 import scalikejdbc._
 import scalikejdbc.config._
-import com.example.repository.ProductRepository
+import infrastructure.repository.ProductRepository
 import api.service.ProductService
 import api.presentation.ProductHandler
 import api.support.JsonSupport
@@ -29,7 +29,7 @@ object ApiServer extends JsonSupport {
     DBs.setupAll()
 
     // Repository 層の初期化
-    val productRepo = new com.example.repository.ProductRepositoryImpl
+    val productRepo = new infrastructure.repository.ProductRepositoryImpl
 
     // Service 層の初期化
     val productService = new ProductService(productRepo)

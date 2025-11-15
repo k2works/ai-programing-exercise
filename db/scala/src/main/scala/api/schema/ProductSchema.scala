@@ -2,7 +2,7 @@ package api.schema
 
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto._
-import com.example.domain.Product
+import infrastructure.domain.Product
 
 // 商品作成リクエスト
 case class CreateProductRequest(
