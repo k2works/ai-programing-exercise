@@ -3,9 +3,9 @@ package database
 import (
 	"testing"
 
+	"github.com/k2works/sales-management-db/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/k2works/sales-management-db/test"
 )
 
 func TestConnectWithTestcontainers(t *testing.T) {

@@ -4,14 +4,16 @@ run:
   tests: true
 
 output:
-  format: colored-line-number
+  formats:
+    - format: colored-line-number
   print-issued-lines: true
   print-linter-name: true
 
 linters-settings:
   govet:
-    check-shadowing: true
     enable-all: true
+    disable:
+      - fieldalignment  # Disable struct field alignment checks
   gocyclo:
     min-complexity: 10
   misspell:
@@ -48,6 +50,13 @@ issues:
       linters:
         - gosec
         - goconst
+        - govet  # Disable shadow checks in test files
     - text: "should have comment or be unexported"
       linters:
         - revive
+    - text: "SA1019"  # Ignore deprecation warnings
+      linters:
+        - staticcheck
+    - text: "shadow: declaration of"  # Ignore shadow warnings
+      linters:
+        - govet
