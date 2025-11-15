@@ -220,4 +220,6 @@ paths:
       summary: 商品更新
       tags:
       - products
+schemes:
+- http
 swagger: "2.0"

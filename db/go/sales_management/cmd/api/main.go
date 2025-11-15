@@ -22,6 +22,7 @@ import (
 // @description sqlx + Gin による販売管理システムの REST API
 // @host localhost:9000
 // @BasePath /
+// @schemes http
 func main() {
 	// データベース接続
 	config := database.NewConfig()

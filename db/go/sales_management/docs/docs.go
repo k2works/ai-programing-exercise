@@ -331,7 +331,7 @@ var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:9000",
 	BasePath:         "/",
-	Schemes:          []string{},
+	Schemes:          []string{"http"},
 	Title:            "販売管理システム API",
 	Description:      "sqlx + Gin による販売管理システムの REST API",
 	InfoInstanceName: "swagger",
