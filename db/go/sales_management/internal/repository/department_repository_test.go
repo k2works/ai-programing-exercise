@@ -6,33 +6,12 @@ import (
 
 	"github.com/k2works/sales-management-db/internal/model"
 	"github.com/k2works/sales-management-db/pkg/testutil"
-	"github.com/k2works/sales-management-db/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestDepartmentRepository_Create(t *testing.T) {
 	testDB := testutil.SetupTestDB(t)
-
-	// マイグレーション実行
-	migrations := []string{
-		`CREATE TABLE 部門マスタ (
-			部門コード VARCHAR(6) NOT NULL,
-			開始日 TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			終了日 TIMESTAMP DEFAULT '2100-12-31 00:00:00',
-			部門名 VARCHAR(40),
-			組織階層 INT DEFAULT 0,
-			部門パス VARCHAR(100) NOT NULL,
-			最下層区分 INT DEFAULT 0,
-			伝票入力可否 INT DEFAULT 0,
-			作成日時 TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			作成者名 VARCHAR(50) NOT NULL,
-			更新日時 TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			更新者名 VARCHAR(50) NOT NULL,
-			PRIMARY KEY (部門コード, 開始日)
-		)`,
-	}
-	test.RunMigrations(t, testDB.DB, migrations)
 
 	t.Run("部門を登録できる", func(t *testing.T) {
 		// Given: 部門の情報が与えられた時
@@ -68,26 +47,6 @@ func TestDepartmentRepository_Create(t *testing.T) {
 
 func TestDepartmentRepository_FindAll(t *testing.T) {
 	testDB := testutil.SetupTestDB(t)
-
-	// マイグレーション実行
-	migrations := []string{
-		`CREATE TABLE IF NOT EXISTS 部門マスタ (
-			部門コード VARCHAR(6) NOT NULL,
-			開始日 TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			終了日 TIMESTAMP DEFAULT '2100-12-31 00:00:00',
-			部門名 VARCHAR(40),
-			組織階層 INT DEFAULT 0,
-			部門パス VARCHAR(100) NOT NULL,
-			最下層区分 INT DEFAULT 0,
-			伝票入力可否 INT DEFAULT 0,
-			作成日時 TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			作成者名 VARCHAR(50) NOT NULL,
-			更新日時 TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			更新者名 VARCHAR(50) NOT NULL,
-			PRIMARY KEY (部門コード, 開始日)
-		)`,
-	}
-	test.RunMigrations(t, testDB.DB, migrations)
 
 	t.Run("すべての部門を取得できる", func(t *testing.T) {
 		// Given: 複数の部門が登録されている時
@@ -139,26 +98,6 @@ func TestDepartmentRepository_FindAll(t *testing.T) {
 func TestDepartmentRepository_Update(t *testing.T) {
 	testDB := testutil.SetupTestDB(t)
 
-	// マイグレーション実行
-	migrations := []string{
-		`CREATE TABLE IF NOT EXISTS 部門マスタ (
-			部門コード VARCHAR(6) NOT NULL,
-			開始日 TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			終了日 TIMESTAMP DEFAULT '2100-12-31 00:00:00',
-			部門名 VARCHAR(40),
-			組織階層 INT DEFAULT 0,
-			部門パス VARCHAR(100) NOT NULL,
-			最下層区分 INT DEFAULT 0,
-			伝票入力可否 INT DEFAULT 0,
-			作成日時 TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			作成者名 VARCHAR(50) NOT NULL,
-			更新日時 TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			更新者名 VARCHAR(50) NOT NULL,
-			PRIMARY KEY (部門コード, 開始日)
-		)`,
-	}
-	test.RunMigrations(t, testDB.DB, migrations)
-
 	t.Run("部門を更新できる", func(t *testing.T) {
 		// Given: 部門が登録されている時
 		repo := NewDepartmentRepository(testDB.DB)
@@ -194,26 +133,6 @@ func TestDepartmentRepository_Update(t *testing.T) {
 
 func TestDepartmentRepository_Delete(t *testing.T) {
 	testDB := testutil.SetupTestDB(t)
-
-	// マイグレーション実行
-	migrations := []string{
-		`CREATE TABLE IF NOT EXISTS 部門マスタ (
-			部門コード VARCHAR(6) NOT NULL,
-			開始日 TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			終了日 TIMESTAMP DEFAULT '2100-12-31 00:00:00',
-			部門名 VARCHAR(40),
-			組織階層 INT DEFAULT 0,
-			部門パス VARCHAR(100) NOT NULL,
-			最下層区分 INT DEFAULT 0,
-			伝票入力可否 INT DEFAULT 0,
-			作成日時 TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			作成者名 VARCHAR(50) NOT NULL,
-			更新日時 TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			更新者名 VARCHAR(50) NOT NULL,
-			PRIMARY KEY (部門コード, 開始日)
-		)`,
-	}
-	test.RunMigrations(t, testDB.DB, migrations)
 
 	t.Run("部門を削除できる", func(t *testing.T) {
 		// Given: 部門が登録されている時

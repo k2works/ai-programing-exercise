@@ -38,6 +38,7 @@ func cleanupTables(t *testing.T, db *sqlx.DB) {
 
 	// 依存関係の順に削除
 	tables := []string{
+		"商品マスタ",
 		"社員マスタ",
 		"部門マスタ",
 	}
