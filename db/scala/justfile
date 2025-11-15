@@ -1,0 +1,74 @@
+# justfile - コマンドランナー
+# https://github.com/casey/just
+
+# デフォルトのレシピをリスト表示
+default:
+    @just --list
+
+# 初期セットアップ
+setup:
+    sbt update
+    docker compose up -d
+    sbt migrate
+
+# テスト実行
+test:
+    sbt test
+
+# 品質チェック
+check:
+    sbt check
+
+# コードフォーマット
+format:
+    sbt format
+
+# 静的解析
+lint:
+    sbt lint
+
+# カバレッジレポート生成
+coverage:
+    sbt coverage
+    @echo "Open target/scala-3.3.3/scoverage-report/index.html"
+
+# クリーンアップ
+clean:
+    sbt clean
+    rm -rf target project/target
+
+# Dockerコンテナ起動
+docker-up:
+    docker compose up -d
+
+# Dockerコンテナ停止
+docker-down:
+    docker compose down
+
+# マイグレーション実行
+migrate:
+    sbt migrate
+
+# マイグレーション情報表示
+migrate-info:
+    sbt migrateInfo
+
+# シードデータ投入
+seed:
+    sbt "runMain com.example.Main"
+
+# API サーバー起動
+api:
+    sbt "runMain api.ApiServer"
+
+# API サーバー起動（バックグラウンド）
+api-bg:
+    sbt "runMain api.ApiServer" &
+
+# ファイル監視モードでテスト
+watch:
+    sbt "~ test"
+
+# CI用完全チェック
+ci:
+    sbt ci
