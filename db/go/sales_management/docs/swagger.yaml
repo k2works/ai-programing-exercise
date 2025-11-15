@@ -98,7 +98,7 @@ definitions:
         example: 5000
         type: integer
     type: object
-host: localhost:8080
+host: localhost:9000
 info:
   contact: {}
   description: sqlx + Gin による販売管理システムの REST API

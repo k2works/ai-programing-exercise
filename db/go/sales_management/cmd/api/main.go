@@ -18,7 +18,7 @@ import (
 // @title 販売管理システム API
 // @version 1.0
 // @description sqlx + Gin による販売管理システムの REST API
-// @host localhost:8080
+// @host localhost:9000
 // @BasePath /
 func main() {
 	// データベース接続
@@ -74,7 +74,7 @@ func main() {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// サーバー起動
-	fmt.Println("🚀 Server started at http://0.0.0.0:8080/")
+	fmt.Println("🚀 Server started at http://0.0.0.0:9000/")
 	fmt.Println("📍 Endpoints:")
 	fmt.Println("  POST   /api/v1/products")
 	fmt.Println("  GET    /api/v1/products")
@@ -83,10 +83,10 @@ func main() {
 	fmt.Println("  DELETE /api/v1/products/:prodCode")
 	fmt.Println("  GET    /health")
 	fmt.Println()
-	fmt.Println("📖 Swagger UI: http://0.0.0.0:8080/swagger/index.html")
+	fmt.Println("📖 Swagger UI: http://0.0.0.0:9000/swagger/index.html")
 	fmt.Println()
 
-	if err := router.Run(":8080"); err != nil {
+	if err := router.Run(":9000"); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }
