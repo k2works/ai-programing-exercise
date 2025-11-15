@@ -8,12 +8,12 @@ import java.time.LocalDateTime
 
 class PurchaseOrderRepositorySpec extends DatabaseSpec {
 
-  private def setupTestData()(implicit session: DBSession): Unit = {
+  private def setupTestData(suffix: String)(implicit session: DBSession): Unit = {
     // 取引先グループの作成
     val groupRepo = CompanyGroupRepository()
     val group = CompanyGroup(
-      compGroupCode = "G001",
-      groupName = "テストグループ",
+      compGroupCode = s"G$suffix",
+      groupName = s"テストグループ$suffix",
       createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
@@ -24,12 +24,12 @@ class PurchaseOrderRepositorySpec extends DatabaseSpec {
     // 部門の作成
     val deptRepo = DepartmentRepository()
     val dept = Department(
-      deptCode = "110000",
+      deptCode = s"11${suffix}00",
       startDate = LocalDateTime.of(2024, 1, 1, 0, 0),
       endDate = LocalDateTime.of(2999, 12, 31, 23, 59, 59),
-      name = "購買部",
+      name = s"購買部$suffix",
       layer = 1,
-      path = "/110000/",
+      path = s"/11${suffix}00/",
       lowestType = 1,
       slitYn = 1,
       createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
@@ -42,13 +42,13 @@ class PurchaseOrderRepositorySpec extends DatabaseSpec {
     // 社員の作成
     val empRepo = EmployeeRepository()
     val emp = Employee(
-      empCode = "E001",
+      empCode = s"E$suffix",
       name = "山田太郎",
       kana = "ヤマダタロウ",
       loginPassword = "password",
       tel = "03-1111-1111",
       fax = "03-1111-1112",
-      deptCode = "110000",
+      deptCode = s"11${suffix}00",
       startDate = LocalDateTime.of(2024, 1, 1, 0, 0),
       occuCode = "01",
       approvalCode = "01",
@@ -62,14 +62,14 @@ class PurchaseOrderRepositorySpec extends DatabaseSpec {
     // 取引先の作成
     val compRepo = CompanyRepository()
     val company = Company(
-      compCode = "SUP001",
-      name = "ABC商事株式会社",
+      compCode = s"SUP$suffix",
+      name = s"ABC商事株式会社$suffix",
       kana = Some("エービーシーショウジ"),
       supType = 0,
       zipCode = Some("100-0001"),
       state = Some("東京都"),
       address1 = Some("千代田区"),
-      compGroupCode = "G001",
+      compGroupCode = s"G$suffix",
       maxCredit = 50000000,
       createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
       creator = "admin",
@@ -81,10 +81,10 @@ class PurchaseOrderRepositorySpec extends DatabaseSpec {
     // 仕入先の作成
     val supRepo = SupplierRepository()
     val supplier = Supplier(
-      supCode = "SUP001",
+      supCode = s"SUP$suffix",
       supSubNo = 0,
       supType = 0,
-      name = Some("ABC商事株式会社"),
+      name = Some(s"ABC商事株式会社$suffix"),
       createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
@@ -95,9 +95,9 @@ class PurchaseOrderRepositorySpec extends DatabaseSpec {
     // 商品の作成
     val prodRepo = ProductRepository()
     val product = Product(
-      prodCode = "PROD001",
-      fullName = "テスト商品正式名",
-      name = "テスト商品",
+      prodCode = s"PROD$suffix",
+      fullName = s"テスト商品正式名$suffix",
+      name = s"テスト商品$suffix",
       createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
@@ -113,12 +113,12 @@ class PurchaseOrderRepositorySpec extends DatabaseSpec {
     val detailRepo = PurchaseOrderDetailRepository()
 
     DB localTx { implicit session =>
-      setupTestData()
+      setupTestData("001")
 
       val po = PurchaseOrder(
         poNo = "PO20240115001",
         poDate = LocalDateTime.of(2024, 1, 15, 10, 0),
-        deptCode = "110000",
+        deptCode = "110100",
         startDate = LocalDateTime.of(2024, 1, 1, 0, 0),
         supCode = "SUP001",
         supSubNo = 0,
@@ -163,16 +163,16 @@ class PurchaseOrderRepositorySpec extends DatabaseSpec {
     val poRepo = PurchaseOrderRepository()
 
     DB localTx { implicit session =>
-      setupTestData()
+      setupTestData("002")
 
       val po = PurchaseOrder(
         poNo = "PO20240115002",
         poDate = LocalDateTime.of(2024, 1, 15, 10, 0),
-        deptCode = "110000",
+        deptCode = "110200",
         startDate = LocalDateTime.of(2024, 1, 1, 0, 0),
-        supCode = "SUP001",
+        supCode = "SUP002",
         supSubNo = 0,
-        empCode = "E001",
+        empCode = "E002",
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
@@ -196,16 +196,16 @@ class PurchaseOrderRepositorySpec extends DatabaseSpec {
     val poRepo = PurchaseOrderRepository()
 
     DB localTx { implicit session =>
-      setupTestData()
+      setupTestData("003")
 
       val po1 = PurchaseOrder(
         poNo = "PO20240115003",
         poDate = LocalDateTime.of(2024, 1, 15, 10, 0),
-        deptCode = "110000",
+        deptCode = "110300",
         startDate = LocalDateTime.of(2024, 1, 1, 0, 0),
-        supCode = "SUP001",
+        supCode = "SUP003",
         supSubNo = 0,
-        empCode = "E001",
+        empCode = "E003",
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
@@ -215,11 +215,11 @@ class PurchaseOrderRepositorySpec extends DatabaseSpec {
       val po2 = PurchaseOrder(
         poNo = "PO20240115004",
         poDate = LocalDateTime.of(2024, 1, 16, 10, 0),
-        deptCode = "110000",
+        deptCode = "110300",
         startDate = LocalDateTime.of(2024, 1, 1, 0, 0),
-        supCode = "SUP001",
+        supCode = "SUP003",
         supSubNo = 0,
-        empCode = "E001",
+        empCode = "E003",
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
@@ -229,7 +229,7 @@ class PurchaseOrderRepositorySpec extends DatabaseSpec {
       poRepo.create(po1)
       poRepo.create(po2)
 
-      val pos = poRepo.findBySupplier("SUP001", 0)
+      val pos = poRepo.findBySupplier("SUP003", 0)
       pos should have size 2
       pos.map(_.poNo) should contain allOf ("PO20240115003", "PO20240115004")
     }
@@ -241,16 +241,16 @@ class PurchaseOrderRepositorySpec extends DatabaseSpec {
     val poRepo = PurchaseOrderRepository()
 
     DB localTx { implicit session =>
-      setupTestData()
+      setupTestData("005")
 
       val po = PurchaseOrder(
         poNo = "PO20240115005",
         poDate = LocalDateTime.of(2024, 1, 15, 10, 0),
-        deptCode = "110000",
+        deptCode = "110500",
         startDate = LocalDateTime.of(2024, 1, 1, 0, 0),
-        supCode = "SUP001",
+        supCode = "SUP005",
         supSubNo = 0,
-        empCode = "E001",
+        empCode = "E005",
         completeFlg = 0,
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
@@ -282,16 +282,16 @@ class PurchaseOrderRepositorySpec extends DatabaseSpec {
     val poRepo = PurchaseOrderRepository()
 
     DB localTx { implicit session =>
-      setupTestData()
+      setupTestData("006")
 
       val po = PurchaseOrder(
         poNo = "PO20240115006",
         poDate = LocalDateTime.of(2024, 1, 15, 10, 0),
-        deptCode = "110000",
+        deptCode = "110600",
         startDate = LocalDateTime.of(2024, 1, 1, 0, 0),
-        supCode = "SUP001",
+        supCode = "SUP006",
         supSubNo = 0,
-        empCode = "E001",
+        empCode = "E006",
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
