@@ -1,0 +1,53 @@
+run:
+  timeout: 5m
+  issues-exit-code: 1
+  tests: true
+
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+
+linters-settings:
+  govet:
+    check-shadowing: true
+    enable-all: true
+  gocyclo:
+    min-complexity: 10
+  misspell:
+    locale: US
+  lll:
+    line-length: 120
+  gofmt:
+    simplify: true
+  goconst:
+    min-len: 3
+    min-occurrences: 2
+
+linters:
+  enable:
+    - gosimple
+    - govet
+    - ineffassign
+    - misspell
+    - gofmt
+    - goimports
+    - gocyclo
+    - goconst
+    - gosec
+    - unconvert
+    - unused
+    - staticcheck
+    - typecheck
+  disable:
+    - errcheck
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - gosec
+        - goconst
+    - text: "should have comment or be unexported"
+      linters:
+        - revive
