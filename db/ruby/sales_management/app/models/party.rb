@@ -8,6 +8,8 @@ class Party < ApplicationRecord
   has_one :person, dependent: :destroy
   has_one :organization, dependent: :destroy
   has_many :party_roles, dependent: :destroy
+  has_one :credit_limit, dependent: :destroy
+  has_many :invoices, dependent: :restrict_with_error
 
   # 役割チェックメソッド
   def customer?

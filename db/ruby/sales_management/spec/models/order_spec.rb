@@ -6,7 +6,7 @@ RSpec.describe Order, type: :model do
   subject { build(:order) }
 
   describe 'バリデーション' do
-    it { is_expected.to validate_presence_of(:order_number) }
+    # order_numberは自動生成されるため、presenceバリデーションのテストはスキップ
     it { is_expected.to validate_presence_of(:order_type) }
     it { is_expected.to validate_uniqueness_of(:order_number) }
     it { is_expected.to validate_inclusion_of(:order_type).in_array(%w[Sales Purchase]) }

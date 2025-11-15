@@ -10,9 +10,50 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_11_15_015408) do
+ActiveRecord::Schema[7.1].define(version: 2025_11_15_015416) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "bill_items", force: :cascade do |t|
+    t.bigint "bill_id", null: false
+    t.bigint "purchase_id", null: false
+    t.decimal "amount"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["bill_id"], name: "index_bill_items_on_bill_id"
+    t.index ["purchase_id"], name: "index_bill_items_on_purchase_id"
+  end
+
+  create_table "bill_payments", force: :cascade do |t|
+    t.date "payment_date"
+    t.decimal "amount"
+    t.string "payment_method"
+    t.bigint "bill_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["bill_id"], name: "index_bill_payments_on_bill_id"
+  end
+
+  create_table "bills", force: :cascade do |t|
+    t.string "bill_number"
+    t.date "bill_date"
+    t.date "closing_date"
+    t.date "due_date"
+    t.bigint "party_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["bill_number"], name: "index_bills_on_bill_number", unique: true
+    t.index ["party_id"], name: "index_bills_on_party_id"
+  end
+
+  create_table "credit_limits", force: :cascade do |t|
+    t.bigint "party_id", null: false
+    t.decimal "limit_amount"
+    t.decimal "used_amount"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["party_id"], name: "index_credit_limits_on_party_id"
+  end
 
   create_table "departments", force: :cascade do |t|
     t.string "code"
@@ -31,6 +72,38 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_15_015408) do
     t.datetime "updated_at", null: false
     t.index ["code"], name: "index_employees_on_code", unique: true
     t.index ["department_id"], name: "index_employees_on_department_id"
+  end
+
+  create_table "invoice_items", force: :cascade do |t|
+    t.bigint "invoice_id", null: false
+    t.bigint "order_id", null: false
+    t.decimal "amount"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["invoice_id"], name: "index_invoice_items_on_invoice_id"
+    t.index ["order_id"], name: "index_invoice_items_on_order_id"
+  end
+
+  create_table "invoices", force: :cascade do |t|
+    t.string "invoice_number"
+    t.date "invoice_date"
+    t.date "closing_date"
+    t.date "due_date"
+    t.bigint "party_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["invoice_number"], name: "index_invoices_on_invoice_number", unique: true
+    t.index ["party_id"], name: "index_invoices_on_party_id"
+  end
+
+  create_table "number_sequences", force: :cascade do |t|
+    t.string "sequence_type"
+    t.string "prefix"
+    t.integer "current_number"
+    t.date "last_generated_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["sequence_type"], name: "index_number_sequences_on_sequence_type", unique: true
   end
 
   create_table "order_items", force: :cascade do |t|
@@ -79,6 +152,16 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_15_015408) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["party_id"], name: "index_party_roles_on_party_id"
+  end
+
+  create_table "payments", force: :cascade do |t|
+    t.date "payment_date"
+    t.decimal "amount"
+    t.string "payment_method"
+    t.bigint "invoice_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["invoice_id"], name: "index_payments_on_invoice_id"
   end
 
   create_table "people", force: :cascade do |t|
@@ -198,12 +281,21 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_15_015408) do
     t.index ["code"], name: "index_warehouses_on_code", unique: true
   end
 
+  add_foreign_key "bill_items", "bills"
+  add_foreign_key "bill_items", "purchases"
+  add_foreign_key "bill_payments", "bills"
+  add_foreign_key "bills", "parties"
+  add_foreign_key "credit_limits", "parties"
   add_foreign_key "employees", "departments"
+  add_foreign_key "invoice_items", "invoices"
+  add_foreign_key "invoice_items", "orders"
+  add_foreign_key "invoices", "parties"
   add_foreign_key "order_items", "orders"
   add_foreign_key "order_items", "products"
   add_foreign_key "orders", "parties"
   add_foreign_key "organizations", "parties"
   add_foreign_key "party_roles", "parties"
+  add_foreign_key "payments", "invoices"
   add_foreign_key "people", "parties"
   add_foreign_key "products", "product_categories"
   add_foreign_key "purchase_items", "products"

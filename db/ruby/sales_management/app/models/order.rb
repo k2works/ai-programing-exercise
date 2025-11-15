@@ -15,6 +15,8 @@ class Order < ApplicationRecord
 
   # デフォルト値
   before_validation :set_defaults, on: :create
+  before_validation :generate_order_number, on: :create
+  before_create :check_credit_limit
 
   # スコープ
   scope :sales, -> { where(order_type: 'Sales') }
@@ -46,10 +48,38 @@ class Order < ApplicationRecord
     order_items.sum(&:subtotal)
   end
 
+  def calculate_total
+    order_items.sum { |item| item.quantity * item.unit_price }
+  end
+
   private
 
   def set_defaults
     self.status ||= 'draft'
     self.order_date ||= Date.current
+  end
+
+  def generate_order_number
+    return if order_number.present?
+
+    sequence_type = order_type == 'Sales' ? 'sales_order' : 'purchase_order'
+    sequence = NumberSequence.find_or_create_by!(
+      sequence_type: sequence_type,
+      prefix: order_type == 'Sales' ? 'SO' : 'PO'
+    )
+    self.order_number = sequence.next_number
+  end
+
+  def check_credit_limit
+    return unless order_type == 'Sales'
+
+    credit_limit = party.credit_limit
+    return unless credit_limit
+
+    total = calculate_total
+    return if credit_limit.available_with_outstanding?(total)
+
+    errors.add(:base, '与信限度額を超えています')
+    throw :abort
   end
 end
