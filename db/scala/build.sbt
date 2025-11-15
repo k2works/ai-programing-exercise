@@ -9,6 +9,7 @@ lazy val akkaVersion = "2.8.5"
 lazy val akkaHttpVersion = "10.5.3"
 lazy val circeVersion = "0.14.6"
 lazy val testcontainersVersion = "1.19.3"
+lazy val tapirVersion = "1.12.3"
 
 lazy val root = (project in file("."))
   .settings(
@@ -56,6 +57,9 @@ lazy val root = (project in file("."))
       "io.circe" %% "circe-core" % circeVersion,
       "io.circe" %% "circe-generic" % circeVersion,
       "io.circe" %% "circe-parser" % circeVersion,
+
+      // Swagger UI（WebJars 経由）
+      "org.webjars" % "swagger-ui" % "5.10.3",
 
       // Akka HTTP テスト
       "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion % Test,

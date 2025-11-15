@@ -13,6 +13,7 @@ import api.service.ProductService
 import api.presentation.ProductHandler
 import api.support.JsonSupport
 import api.schema.ErrorResponse
+import api.swagger.SwaggerRoutes
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.io.StdIn
@@ -57,6 +58,7 @@ object ApiServer extends JsonSupport {
       pathPrefix("api" / "v1") {
         productHandler.routes
       },
+      SwaggerRoutes.routes,
       healthRoute
     )
 
@@ -71,6 +73,10 @@ object ApiServer extends JsonSupport {
     println("  PUT    /api/v1/products/:prodCode")
     println("  DELETE /api/v1/products/:prodCode")
     println("  GET    /health")
+    println()
+    println("📖 API Documentation:")
+    println("  Swagger UI: http://0.0.0.0:8080/api-docs")
+    println("  OpenAPI Spec: http://0.0.0.0:8080/swagger.json")
     println()
     println("Press RETURN to stop...")
 
