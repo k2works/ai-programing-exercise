@@ -1,0 +1,33 @@
+#!/bin/sh
+# pre-commit hook for Sales Management DB
+# コミット前に品質チェックを自動実行
+
+echo "pre-commit hook: 品質チェックを実行中..."
+
+# go-taskのパスを設定
+export PATH=$PATH:$(go env GOPATH)/bin
+
+# コードフォーマットチェック
+if ! task fmt >/dev/null 2>&1; then
+    echo "❌ フォーマットエラーが検出されました"
+    exit 1
+fi
+
+# 静的解析
+if command -v golangci-lint >/dev/null 2>&1; then
+    if ! task lint >/dev/null 2>&1; then
+        echo "❌ 静的解析エラーが検出されました"
+        exit 1
+    fi
+else
+    echo "⚠️  golangci-lintがインストールされていません"
+fi
+
+# テスト実行
+if ! task test >/dev/null 2>&1; then
+    echo "❌ テストが失敗しました"
+    exit 1
+fi
+
+echo "✅ 品質チェック完了 - コミット可能です"
+exit 0
