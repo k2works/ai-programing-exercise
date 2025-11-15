@@ -115,6 +115,19 @@ migrate-create name:
     @echo "マイグレーションファイル {{name}} を作成中..."
     export PATH=$PATH:$(go env GOPATH)/bin && migrate create -ext sql -dir migrations -seq {{name}}
 
+# シードデータを投入
+seed:
+    @echo "🌱 シードデータを投入しています..."
+    go run cmd/seed/*.go
+
+# データベースをリセットしてシードデータを投入
+db-reset: db-down db-up
+    @echo "🔄 データベースをリセットしています..."
+    @sleep 5
+    @echo "📊 シードデータを投入します..."
+    @just seed
+    @echo "✅ データベースのリセットが完了しました"
+
 # プロジェクトのセットアップ
 setup: deps db-up
     @echo "データベースの起動を待機中..."
