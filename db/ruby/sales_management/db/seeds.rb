@@ -3,22 +3,49 @@
 # db/seeds.rb
 puts '🌱 Seeding database...'
 
-# クリーンアップ
+# クリーンアップ（依存関係の順に削除）
 puts '  Cleaning up existing data...'
-[
-  BillPayment, BillItem, Bill,
-  Payment, InvoiceItem, Invoice,
-  PurchaseItem, Purchase,
-  OrderItem, Order,
-  PurchaseOrderItem, PurchaseOrder,
-  Stock, Warehouse,
-  PartyRole, Organization, Person, Party,
-  Product, ProductCategory,
-  Employee, Department,
-  CreditLimit, NumberSequence
-].each do |model|
-  model.delete_all
-end
+# 支払・入金関連（最も外側の依存）
+BillPayment.delete_all
+Payment.delete_all
+
+# 明細データ
+BillItem.delete_all
+InvoiceItem.delete_all
+PurchaseItem.delete_all
+OrderItem.delete_all
+PurchaseOrderItem.delete_all
+
+# ヘッダーデータ
+Bill.delete_all
+Invoice.delete_all
+Purchase.delete_all
+Order.delete_all
+PurchaseOrder.delete_all
+
+# 在庫・倉庫
+Stock.delete_all
+Warehouse.delete_all
+
+# 与信限度額（Partyへの外部キー制約があるため先に削除）
+CreditLimit.delete_all
+
+# 取引先関連
+PartyRole.delete_all
+Organization.delete_all
+Person.delete_all
+Party.delete_all
+
+# 商品関連
+Product.delete_all
+ProductCategory.delete_all
+
+# 社員・部門
+Employee.delete_all
+Department.delete_all
+
+# 採番シーケンス
+NumberSequence.delete_all
 
 # 部門
 puts '  Creating departments...'
