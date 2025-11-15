@@ -1,6 +1,6 @@
 package infrastructure.repository
 
-import infrastructure.domain.Order
+import infrastructure.entity.Order
 import scalikejdbc._
 
 /**
@@ -20,7 +20,7 @@ trait OrderRepository {
  */
 class OrderRepositoryImpl extends OrderRepository {
 
-  override def create(order: Order)(implicit session: DBSession): Int = {
+  override def create(order: Order)(implicit session: DBSession): Int =
     sql"""
       INSERT INTO 受注 (
         受注番号, 受注日, 部門コード, 開始日, 顧客コード, 顧客枝番,
@@ -34,9 +34,8 @@ class OrderRepositoryImpl extends OrderRepository {
         ${order.createDate}, ${order.creator}, ${order.updateDate}, ${order.updater}
       )
     """.update.apply()
-  }
 
-  override def findById(orderNo: String)(implicit session: DBSession): Option[Order] = {
+  override def findById(orderNo: String)(implicit session: DBSession): Option[Order] =
     sql"""
       SELECT
         受注番号, 受注日, 部門コード, 開始日, 顧客コード, 顧客枝番,
@@ -45,9 +44,8 @@ class OrderRepositoryImpl extends OrderRepository {
       FROM 受注
       WHERE 受注番号 = $orderNo
     """.map(Order.apply).single.apply()
-  }
 
-  override def findAll()(implicit session: DBSession): List[Order] = {
+  override def findAll()(implicit session: DBSession): List[Order] =
     sql"""
       SELECT
         受注番号, 受注日, 部門コード, 開始日, 顧客コード, 顧客枝番,
@@ -56,9 +54,10 @@ class OrderRepositoryImpl extends OrderRepository {
       FROM 受注
       ORDER BY 受注日 DESC, 受注番号
     """.map(Order.apply).list.apply()
-  }
 
-  override def findByCustomer(custCode: String, custSubNo: Int)(implicit session: DBSession): List[Order] = {
+  override def findByCustomer(custCode: String, custSubNo: Int)(implicit
+    session: DBSession
+  ): List[Order] =
     sql"""
       SELECT
         受注番号, 受注日, 部門コード, 開始日, 顧客コード, 顧客枝番,
@@ -68,9 +67,8 @@ class OrderRepositoryImpl extends OrderRepository {
       WHERE 顧客コード = $custCode AND 顧客枝番 = $custSubNo
       ORDER BY 受注日 DESC
     """.map(Order.apply).list.apply()
-  }
 
-  override def update(order: Order)(implicit session: DBSession): Int = {
+  override def update(order: Order)(implicit session: DBSession): Int =
     sql"""
       UPDATE 受注
       SET 受注日 = ${order.orderDate},
@@ -82,14 +80,13 @@ class OrderRepositoryImpl extends OrderRepository {
           更新者名 = ${order.updater}
       WHERE 受注番号 = ${order.orderNo}
     """.update.apply()
-  }
 
-  override def delete(orderNo: String)(implicit session: DBSession): Int = {
+  override def delete(orderNo: String)(implicit session: DBSession): Int =
     sql"""
       DELETE FROM 受注
       WHERE 受注番号 = $orderNo
     """.update.apply()
-  }
+
 }
 
 object OrderRepository {

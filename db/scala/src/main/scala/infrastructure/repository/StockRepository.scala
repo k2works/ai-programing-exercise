@@ -1,6 +1,6 @@
 package infrastructure.repository
 
-import infrastructure.domain.Stock
+import infrastructure.entity.Stock
 import scalikejdbc._
 
 /**
@@ -8,11 +8,27 @@ import scalikejdbc._
  */
 trait StockRepository {
   def create(stock: Stock)(implicit session: DBSession): Int
-  def findById(whCode: String, prodCode: String, rotNo: String, stockType: String, qualityType: String)(implicit session: DBSession): Option[Stock]
+
+  def findById(
+    whCode: String,
+    prodCode: String,
+    rotNo: String,
+    stockType: String,
+    qualityType: String,
+  )(implicit session: DBSession): Option[Stock]
+
   def findByWarehouse(whCode: String)(implicit session: DBSession): List[Stock]
   def findByProduct(prodCode: String)(implicit session: DBSession): List[Stock]
   def update(stock: Stock)(implicit session: DBSession): Int
-  def delete(whCode: String, prodCode: String, rotNo: String, stockType: String, qualityType: String)(implicit session: DBSession): Int
+
+  def delete(
+    whCode: String,
+    prodCode: String,
+    rotNo: String,
+    stockType: String,
+    qualityType: String,
+  )(implicit session: DBSession): Int
+
 }
 
 /**
@@ -20,7 +36,7 @@ trait StockRepository {
  */
 class StockRepositoryImpl extends StockRepository {
 
-  override def create(stock: Stock)(implicit session: DBSession): Int = {
+  override def create(stock: Stock)(implicit session: DBSession): Int =
     sql"""
       INSERT INTO 在庫 (
         倉庫コード, 商品コード, ロット番号, 在庫区分, 品質区分,
@@ -33,15 +49,14 @@ class StockRepositoryImpl extends StockRepository {
         ${stock.createDate}, ${stock.creator}, ${stock.updateDate}, ${stock.updater}
       )
     """.update.apply()
-  }
 
   override def findById(
     whCode: String,
     prodCode: String,
     rotNo: String,
     stockType: String,
-    qualityType: String
-  )(implicit session: DBSession): Option[Stock] = {
+    qualityType: String,
+  )(implicit session: DBSession): Option[Stock] =
     sql"""
       SELECT
         倉庫コード, 商品コード, ロット番号, 在庫区分, 品質区分,
@@ -54,9 +69,8 @@ class StockRepositoryImpl extends StockRepository {
         AND 在庫区分 = $stockType
         AND 品質区分 = $qualityType
     """.map(Stock.apply).single.apply()
-  }
 
-  override def findByWarehouse(whCode: String)(implicit session: DBSession): List[Stock] = {
+  override def findByWarehouse(whCode: String)(implicit session: DBSession): List[Stock] =
     sql"""
       SELECT
         倉庫コード, 商品コード, ロット番号, 在庫区分, 品質区分,
@@ -66,9 +80,8 @@ class StockRepositoryImpl extends StockRepository {
       WHERE 倉庫コード = $whCode
       ORDER BY 商品コード, ロット番号
     """.map(Stock.apply).list.apply()
-  }
 
-  override def findByProduct(prodCode: String)(implicit session: DBSession): List[Stock] = {
+  override def findByProduct(prodCode: String)(implicit session: DBSession): List[Stock] =
     sql"""
       SELECT
         倉庫コード, 商品コード, ロット番号, 在庫区分, 品質区分,
@@ -78,9 +91,8 @@ class StockRepositoryImpl extends StockRepository {
       WHERE 商品コード = $prodCode
       ORDER BY 倉庫コード, ロット番号
     """.map(Stock.apply).list.apply()
-  }
 
-  override def update(stock: Stock)(implicit session: DBSession): Int = {
+  override def update(stock: Stock)(implicit session: DBSession): Int =
     sql"""
       UPDATE 在庫
       SET 実在庫数 = ${stock.actual},
@@ -94,15 +106,14 @@ class StockRepositoryImpl extends StockRepository {
         AND 在庫区分 = ${stock.stockType}
         AND 品質区分 = ${stock.qualityType}
     """.update.apply()
-  }
 
   override def delete(
     whCode: String,
     prodCode: String,
     rotNo: String,
     stockType: String,
-    qualityType: String
-  )(implicit session: DBSession): Int = {
+    qualityType: String,
+  )(implicit session: DBSession): Int =
     sql"""
       DELETE FROM 在庫
       WHERE 倉庫コード = $whCode
@@ -111,7 +122,7 @@ class StockRepositoryImpl extends StockRepository {
         AND 在庫区分 = $stockType
         AND 品質区分 = $qualityType
     """.update.apply()
-  }
+
 }
 
 object StockRepository {

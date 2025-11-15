@@ -1,4 +1,4 @@
-package infrastructure.domain
+package infrastructure.entity
 
 import scalikejdbc._
 
@@ -34,14 +34,25 @@ case class Warehouse(
   createDate: LocalDateTime = LocalDateTime.now(),
   creator: String = "",
   updateDate: LocalDateTime = LocalDateTime.now(),
-  updater: String = ""
+  updater: String = "",
 )
 
 object Warehouse extends SQLSyntaxSupport[Warehouse] {
   override val tableName = "倉庫マスタ"
-  override val columns = Seq(
-    "倉庫コード", "倉庫名", "郵便番号", "都道府県", "住所１", "住所２",
-    "電話番号", "FAX番号", "作成日時", "作成者名", "更新日時", "更新者名"
+
+  override val columns   = Seq(
+    "倉庫コード",
+    "倉庫名",
+    "郵便番号",
+    "都道府県",
+    "住所１",
+    "住所２",
+    "電話番号",
+    "FAX番号",
+    "作成日時",
+    "作成者名",
+    "更新日時",
+    "更新者名",
   )
 
   def apply(rs: WrappedResultSet): Warehouse = Warehouse(
@@ -56,6 +67,7 @@ object Warehouse extends SQLSyntaxSupport[Warehouse] {
     createDate = rs.localDateTime("作成日時"),
     creator = rs.string("作成者名"),
     updateDate = rs.localDateTime("更新日時"),
-    updater = rs.string("更新者名")
+    updater = rs.string("更新者名"),
   )
+
 }

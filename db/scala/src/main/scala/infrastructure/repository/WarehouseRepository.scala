@@ -1,6 +1,6 @@
 package infrastructure.repository
 
-import infrastructure.domain.Warehouse
+import infrastructure.entity.Warehouse
 import scalikejdbc._
 
 /**
@@ -19,7 +19,7 @@ trait WarehouseRepository {
  */
 class WarehouseRepositoryImpl extends WarehouseRepository {
 
-  override def create(warehouse: Warehouse)(implicit session: DBSession): Int = {
+  override def create(warehouse: Warehouse)(implicit session: DBSession): Int =
     sql"""
       INSERT INTO 倉庫マスタ (
         倉庫コード, 倉庫名, 郵便番号, 都道府県, 住所１, 住所２,
@@ -30,9 +30,8 @@ class WarehouseRepositoryImpl extends WarehouseRepository {
         ${warehouse.createDate}, ${warehouse.creator}, ${warehouse.updateDate}, ${warehouse.updater}
       )
     """.update.apply()
-  }
 
-  override def findById(whCode: String)(implicit session: DBSession): Option[Warehouse] = {
+  override def findById(whCode: String)(implicit session: DBSession): Option[Warehouse] =
     sql"""
       SELECT
         倉庫コード, 倉庫名, 郵便番号, 都道府県, 住所１, 住所２,
@@ -40,9 +39,8 @@ class WarehouseRepositoryImpl extends WarehouseRepository {
       FROM 倉庫マスタ
       WHERE 倉庫コード = $whCode
     """.map(Warehouse.apply).single.apply()
-  }
 
-  override def findAll()(implicit session: DBSession): List[Warehouse] = {
+  override def findAll()(implicit session: DBSession): List[Warehouse] =
     sql"""
       SELECT
         倉庫コード, 倉庫名, 郵便番号, 都道府県, 住所１, 住所２,
@@ -50,9 +48,8 @@ class WarehouseRepositoryImpl extends WarehouseRepository {
       FROM 倉庫マスタ
       ORDER BY 倉庫コード
     """.map(Warehouse.apply).list.apply()
-  }
 
-  override def update(warehouse: Warehouse)(implicit session: DBSession): Int = {
+  override def update(warehouse: Warehouse)(implicit session: DBSession): Int =
     sql"""
       UPDATE 倉庫マスタ
       SET 倉庫名 = ${warehouse.name},
@@ -66,13 +63,12 @@ class WarehouseRepositoryImpl extends WarehouseRepository {
           更新者名 = ${warehouse.updater}
       WHERE 倉庫コード = ${warehouse.whCode}
     """.update.apply()
-  }
 
-  override def delete(whCode: String)(implicit session: DBSession): Int = {
+  override def delete(whCode: String)(implicit session: DBSession): Int =
     sql"""
       DELETE FROM 倉庫マスタ WHERE 倉庫コード = $whCode
     """.update.apply()
-  }
+
 }
 
 object WarehouseRepository {

@@ -1,6 +1,6 @@
 package infrastructure.repository
 
-import infrastructure.domain.Supplier
+import infrastructure.entity.Supplier
 import scalikejdbc._
 
 /**
@@ -20,7 +20,7 @@ trait SupplierRepository {
  */
 class SupplierRepositoryImpl extends SupplierRepository {
 
-  override def create(supplier: Supplier)(implicit session: DBSession): Int = {
+  override def create(supplier: Supplier)(implicit session: DBSession): Int =
     sql"""
       INSERT INTO 仕入先マスタ (
         仕入先コード, 仕入先枝番, 仕入先区分,
@@ -38,9 +38,10 @@ class SupplierRepositoryImpl extends SupplierRepository {
         ${supplier.createDate}, ${supplier.creator}, ${supplier.updateDate}, ${supplier.updater}
       )
     """.update.apply()
-  }
 
-  override def findById(supCode: String, supSubNo: Int)(implicit session: DBSession): Option[Supplier] = {
+  override def findById(supCode: String, supSubNo: Int)(implicit
+    session: DBSession
+  ): Option[Supplier] =
     sql"""
       SELECT 仕入先コード, 仕入先枝番, 仕入先区分,
              仕入先名, 仕入先名カナ, 担当社員コード,
@@ -51,9 +52,8 @@ class SupplierRepositoryImpl extends SupplierRepository {
       FROM 仕入先マスタ
       WHERE 仕入先コード = $supCode AND 仕入先枝番 = $supSubNo
     """.map(Supplier.apply).single.apply()
-  }
 
-  override def findByCompany(supCode: String)(implicit session: DBSession): List[Supplier] = {
+  override def findByCompany(supCode: String)(implicit session: DBSession): List[Supplier] =
     sql"""
       SELECT 仕入先コード, 仕入先枝番, 仕入先区分,
              仕入先名, 仕入先名カナ, 担当社員コード,
@@ -65,9 +65,8 @@ class SupplierRepositoryImpl extends SupplierRepository {
       WHERE 仕入先コード = $supCode
       ORDER BY 仕入先枝番
     """.map(Supplier.apply).list.apply()
-  }
 
-  override def findAll()(implicit session: DBSession): List[Supplier] = {
+  override def findAll()(implicit session: DBSession): List[Supplier] =
     sql"""
       SELECT 仕入先コード, 仕入先枝番, 仕入先区分,
              仕入先名, 仕入先名カナ, 担当社員コード,
@@ -78,9 +77,8 @@ class SupplierRepositoryImpl extends SupplierRepository {
       FROM 仕入先マスタ
       ORDER BY 仕入先コード, 仕入先枝番
     """.map(Supplier.apply).list.apply()
-  }
 
-  override def update(supplier: Supplier)(implicit session: DBSession): Int = {
+  override def update(supplier: Supplier)(implicit session: DBSession): Int =
     sql"""
       UPDATE 仕入先マスタ
       SET 仕入先区分 = ${supplier.supType},
@@ -102,14 +100,13 @@ class SupplierRepositoryImpl extends SupplierRepository {
           更新者名 = ${supplier.updater}
       WHERE 仕入先コード = ${supplier.supCode} AND 仕入先枝番 = ${supplier.supSubNo}
     """.update.apply()
-  }
 
-  override def delete(supCode: String, supSubNo: Int)(implicit session: DBSession): Int = {
+  override def delete(supCode: String, supSubNo: Int)(implicit session: DBSession): Int =
     sql"""
       DELETE FROM 仕入先マスタ
       WHERE 仕入先コード = $supCode AND 仕入先枝番 = $supSubNo
     """.update.apply()
-  }
+
 }
 
 object SupplierRepository {

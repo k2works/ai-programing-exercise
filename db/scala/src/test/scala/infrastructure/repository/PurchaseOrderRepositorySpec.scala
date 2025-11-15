@@ -1,7 +1,16 @@
 package infrastructure.repository
 
 import infrastructure.db.DatabaseSpec
-import infrastructure.domain.{Company, CompanyGroup, Department, Employee, Product, PurchaseOrder, PurchaseOrderDetail, Supplier}
+import infrastructure.entity.{
+  Company,
+  CompanyGroup,
+  Department,
+  Employee,
+  Product,
+  PurchaseOrder,
+  PurchaseOrderDetail,
+  Supplier,
+}
 import scalikejdbc._
 
 import java.time.LocalDateTime
@@ -11,19 +20,19 @@ class PurchaseOrderRepositorySpec extends DatabaseSpec {
   private def setupTestData(suffix: String)(implicit session: DBSession): Unit = {
     // 取引先グループの作成
     val groupRepo = CompanyGroupRepository()
-    val group = CompanyGroup(
+    val group     = CompanyGroup(
       compGroupCode = s"G$suffix",
       groupName = s"テストグループ$suffix",
       createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
     groupRepo.create(group)
 
     // 部門の作成
     val deptRepo = DepartmentRepository()
-    val dept = Department(
+    val dept     = Department(
       deptCode = s"1100$suffix",
       startDate = LocalDateTime.of(2024, 1, 1, 0, 0),
       endDate = LocalDateTime.of(2999, 12, 31, 23, 59, 59),
@@ -35,13 +44,13 @@ class PurchaseOrderRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
     deptRepo.create(dept)
 
     // 社員の作成
     val empRepo = EmployeeRepository()
-    val emp = Employee(
+    val emp     = Employee(
       empCode = s"E$suffix",
       name = "山田太郎",
       kana = "ヤマダタロウ",
@@ -55,13 +64,13 @@ class PurchaseOrderRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
     empRepo.create(emp)
 
     // 取引先の作成
     val compRepo = CompanyRepository()
-    val company = Company(
+    val company  = Company(
       compCode = s"SUP$suffix",
       name = s"ABC商事株式会社$suffix",
       kana = Some("エービーシーショウジ"),
@@ -74,12 +83,12 @@ class PurchaseOrderRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
     compRepo.create(company)
 
     // 仕入先の作成
-    val supRepo = SupplierRepository()
+    val supRepo  = SupplierRepository()
     val supplier = Supplier(
       supCode = s"SUP$suffix",
       supSubNo = 0,
@@ -88,20 +97,20 @@ class PurchaseOrderRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
     supRepo.create(supplier)
 
     // 商品の作成
     val prodRepo = ProductRepository()
-    val product = Product(
+    val product  = Product(
       prodCode = s"PROD$suffix",
       fullName = s"テスト商品正式名$suffix",
       name = s"テスト商品$suffix",
       createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
     prodRepo.create(product)
   }
@@ -109,7 +118,7 @@ class PurchaseOrderRepositorySpec extends DatabaseSpec {
   "PurchaseOrderRepository" should "発注を登録できる" in withContainers { container =>
     setupWithMigrations(container)
 
-    val poRepo = PurchaseOrderRepository()
+    val poRepo     = PurchaseOrderRepository()
     val detailRepo = PurchaseOrderDetailRepository()
 
     DB localTx { implicit session =>
@@ -127,7 +136,7 @@ class PurchaseOrderRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       val result = poRepo.create(po)
@@ -142,7 +151,7 @@ class PurchaseOrderRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       detailRepo.create(detail) shouldBe 1
@@ -176,7 +185,7 @@ class PurchaseOrderRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       poRepo.create(po)
@@ -209,7 +218,7 @@ class PurchaseOrderRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       val po2 = PurchaseOrder(
@@ -223,7 +232,7 @@ class PurchaseOrderRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       poRepo.create(po1)
@@ -255,7 +264,7 @@ class PurchaseOrderRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       poRepo.create(po)
@@ -263,7 +272,7 @@ class PurchaseOrderRepositorySpec extends DatabaseSpec {
       val updated = po.copy(
         completeFlg = 1,
         updateDate = LocalDateTime.now(),
-        updater = "admin2"
+        updater = "admin2",
       )
 
       val updateResult = poRepo.update(updated)
@@ -295,7 +304,7 @@ class PurchaseOrderRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       poRepo.create(po)

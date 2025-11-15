@@ -1,7 +1,7 @@
 package infrastructure.repository
 
 import infrastructure.db.DatabaseSpec
-import infrastructure.domain.{Department, Employee}
+import infrastructure.entity.{Department, Employee}
 import scalikejdbc._
 
 import java.time.LocalDateTime
@@ -11,20 +11,22 @@ class EmployeeRepositorySpec extends DatabaseSpec {
   /**
    * テスト用の部門データを作成
    */
-  private def setupTestDepartment(deptCode: String = "11101")(implicit session: DBSession): Department = {
+  private def setupTestDepartment(
+    deptCode: String = "11101"
+  )(implicit session: DBSession): Department = {
     val testDept = Department(
       deptCode = deptCode,
       startDate = LocalDateTime.of(2021, 1, 1, 0, 0, 0),
       endDate = LocalDateTime.of(2100, 12, 31, 0, 0, 0),
       name = "テスト部署",
       layer = 1,
-      path = s"D${deptCode}",
+      path = s"D$deptCode",
       lowestType = 1,
       slitYn = 0,
       createDate = LocalDateTime.of(2021, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2021, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
 
     val deptRepo = DepartmentRepository()
@@ -38,9 +40,7 @@ class EmployeeRepositorySpec extends DatabaseSpec {
     val repo = EmployeeRepository()
 
     // テスト用部門を作成
-    DB localTx { implicit session =>
-      setupTestDepartment()
-    }
+    DB localTx { implicit session => setupTestDepartment() }
 
     val testEmp = Employee(
       empCode = "E0001",
@@ -56,20 +56,16 @@ class EmployeeRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2021, 4, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2021, 4, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
 
     // データを登録
-    val insertResult = DB localTx { implicit session =>
-      repo.create(testEmp)
-    }
+    val insertResult = DB localTx { implicit session => repo.create(testEmp) }
 
     insertResult shouldBe 1
 
     // 取得して検証
-    val result = DB readOnly { implicit session =>
-      repo.findById(testEmp.empCode)
-    }
+    val result = DB readOnly { implicit session => repo.findById(testEmp.empCode) }
 
     result shouldBe defined
     result.get.empCode shouldBe testEmp.empCode
@@ -83,9 +79,7 @@ class EmployeeRepositorySpec extends DatabaseSpec {
     val repo = EmployeeRepository()
 
     // テスト用部門を作成
-    DB localTx { implicit session =>
-      setupTestDepartment("11102")
-    }
+    DB localTx { implicit session => setupTestDepartment("11102") }
 
     val testEmp = Employee(
       empCode = "E0002",
@@ -101,16 +95,12 @@ class EmployeeRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2021, 4, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2021, 4, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
 
-    DB localTx { implicit session =>
-      repo.create(testEmp)
-    }
+    DB localTx { implicit session => repo.create(testEmp) }
 
-    val results = DB readOnly { implicit session =>
-      repo.findAll()
-    }
+    val results = DB readOnly { implicit session => repo.findAll() }
 
     results should not be empty
     results.map(_.empCode) should contain("E0002")
@@ -122,9 +112,7 @@ class EmployeeRepositorySpec extends DatabaseSpec {
     val repo = EmployeeRepository()
 
     // テスト用部門を作成
-    DB localTx { implicit session =>
-      setupTestDepartment("11103")
-    }
+    DB localTx { implicit session => setupTestDepartment("11103") }
 
     val testEmp1 = Employee(
       empCode = "E0003",
@@ -140,7 +128,7 @@ class EmployeeRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2021, 4, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2021, 4, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
 
     val testEmp2 = Employee(
@@ -157,7 +145,7 @@ class EmployeeRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2021, 4, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2021, 4, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
 
     DB localTx { implicit session =>
@@ -165,12 +153,10 @@ class EmployeeRepositorySpec extends DatabaseSpec {
       repo.create(testEmp2)
     }
 
-    val results = DB readOnly { implicit session =>
-      repo.findByDepartment("11103")
-    }
+    val results = DB readOnly { implicit session => repo.findByDepartment("11103") }
 
     results should have size 2
-    results.map(_.empCode) should contain allOf("E0003", "E0004")
+    results.map(_.empCode) should contain allOf ("E0003", "E0004")
   }
 
   it should "社員を更新できる" in withContainers { container =>
@@ -179,9 +165,7 @@ class EmployeeRepositorySpec extends DatabaseSpec {
     val repo = EmployeeRepository()
 
     // テスト用部門を作成
-    DB localTx { implicit session =>
-      setupTestDepartment("11104")
-    }
+    DB localTx { implicit session => setupTestDepartment("11104") }
 
     val testEmp = Employee(
       empCode = "E0005",
@@ -197,30 +181,24 @@ class EmployeeRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2021, 4, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2021, 4, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
 
-    DB localTx { implicit session =>
-      repo.create(testEmp)
-    }
+    DB localTx { implicit session => repo.create(testEmp) }
 
     // 名前と電話番号を更新
     val updatedEmp = testEmp.copy(
       name = "山田一郎",
       tel = "03-9999-9999",
-      updateDate = LocalDateTime.now()
+      updateDate = LocalDateTime.now(),
     )
 
-    val updateResult = DB localTx { implicit session =>
-      repo.update(updatedEmp)
-    }
+    val updateResult = DB localTx { implicit session => repo.update(updatedEmp) }
 
     updateResult shouldBe 1
 
     // 更新されたことを確認
-    val result = DB readOnly { implicit session =>
-      repo.findById(testEmp.empCode)
-    }
+    val result = DB readOnly { implicit session => repo.findById(testEmp.empCode) }
 
     result shouldBe defined
     result.get.name shouldBe "山田一郎"
@@ -233,9 +211,7 @@ class EmployeeRepositorySpec extends DatabaseSpec {
     val repo = EmployeeRepository()
 
     // テスト用部門を作成
-    DB localTx { implicit session =>
-      setupTestDepartment("11105")
-    }
+    DB localTx { implicit session => setupTestDepartment("11105") }
 
     val testEmp = Employee(
       empCode = "E0006",
@@ -251,24 +227,18 @@ class EmployeeRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2021, 4, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2021, 4, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
 
-    DB localTx { implicit session =>
-      repo.create(testEmp)
-    }
+    DB localTx { implicit session => repo.create(testEmp) }
 
     // 削除
-    val deleteResult = DB localTx { implicit session =>
-      repo.delete(testEmp.empCode)
-    }
+    val deleteResult = DB localTx { implicit session => repo.delete(testEmp.empCode) }
 
     deleteResult shouldBe 1
 
     // 削除されたことを確認
-    val result = DB readOnly { implicit session =>
-      repo.findById(testEmp.empCode)
-    }
+    val result = DB readOnly { implicit session => repo.findById(testEmp.empCode) }
 
     result shouldBe None
   }
@@ -292,14 +262,12 @@ class EmployeeRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2021, 4, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2021, 4, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
 
     // 外部キー制約違反でエラーになることを確認
     an[java.sql.SQLException] should be thrownBy {
-      DB localTx { implicit session =>
-        repo.create(testEmp)
-      }
+      DB localTx { implicit session => repo.create(testEmp) }
     }
   }
 }

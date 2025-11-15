@@ -1,6 +1,6 @@
 package infrastructure.repository
 
-import infrastructure.domain.Customer
+import infrastructure.entity.Customer
 import scalikejdbc._
 
 /**
@@ -20,7 +20,7 @@ trait CustomerRepository {
  */
 class CustomerRepositoryImpl extends CustomerRepository {
 
-  override def create(customer: Customer)(implicit session: DBSession): Int = {
+  override def create(customer: Customer)(implicit session: DBSession): Int =
     sql"""
       INSERT INTO 顧客マスタ (
         顧客コード, 顧客枝番, 顧客区分,
@@ -40,9 +40,10 @@ class CustomerRepositoryImpl extends CustomerRepository {
         ${customer.createDate}, ${customer.creator}, ${customer.updateDate}, ${customer.updater}
       )
     """.update.apply()
-  }
 
-  override def findById(custCode: String, custSubNo: Int)(implicit session: DBSession): Option[Customer] = {
+  override def findById(custCode: String, custSubNo: Int)(implicit
+    session: DBSession
+  ): Option[Customer] =
     sql"""
       SELECT 顧客コード, 顧客枝番, 顧客区分,
              請求先コード, 請求先枝番, 回収先コード, 回収先枝番,
@@ -54,9 +55,8 @@ class CustomerRepositoryImpl extends CustomerRepository {
       FROM 顧客マスタ
       WHERE 顧客コード = $custCode AND 顧客枝番 = $custSubNo
     """.map(Customer.apply).single.apply()
-  }
 
-  override def findByCompany(custCode: String)(implicit session: DBSession): List[Customer] = {
+  override def findByCompany(custCode: String)(implicit session: DBSession): List[Customer] =
     sql"""
       SELECT 顧客コード, 顧客枝番, 顧客区分,
              請求先コード, 請求先枝番, 回収先コード, 回収先枝番,
@@ -69,9 +69,8 @@ class CustomerRepositoryImpl extends CustomerRepository {
       WHERE 顧客コード = $custCode
       ORDER BY 顧客枝番
     """.map(Customer.apply).list.apply()
-  }
 
-  override def findAll()(implicit session: DBSession): List[Customer] = {
+  override def findAll()(implicit session: DBSession): List[Customer] =
     sql"""
       SELECT 顧客コード, 顧客枝番, 顧客区分,
              請求先コード, 請求先枝番, 回収先コード, 回収先枝番,
@@ -83,9 +82,8 @@ class CustomerRepositoryImpl extends CustomerRepository {
       FROM 顧客マスタ
       ORDER BY 顧客コード, 顧客枝番
     """.map(Customer.apply).list.apply()
-  }
 
-  override def update(customer: Customer)(implicit session: DBSession): Int = {
+  override def update(customer: Customer)(implicit session: DBSession): Int =
     sql"""
       UPDATE 顧客マスタ
       SET 顧客区分 = ${customer.custType},
@@ -112,14 +110,13 @@ class CustomerRepositoryImpl extends CustomerRepository {
           更新者名 = ${customer.updater}
       WHERE 顧客コード = ${customer.custCode} AND 顧客枝番 = ${customer.custSubNo}
     """.update.apply()
-  }
 
-  override def delete(custCode: String, custSubNo: Int)(implicit session: DBSession): Int = {
+  override def delete(custCode: String, custSubNo: Int)(implicit session: DBSession): Int =
     sql"""
       DELETE FROM 顧客マスタ
       WHERE 顧客コード = $custCode AND 顧客枝番 = $custSubNo
     """.update.apply()
-  }
+
 }
 
 object CustomerRepository {

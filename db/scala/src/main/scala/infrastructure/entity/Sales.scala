@@ -1,4 +1,4 @@
-package infrastructure.domain
+package infrastructure.entity
 
 import scalikejdbc._
 import java.time.LocalDateTime
@@ -39,16 +39,28 @@ case class Sales(
   createDate: LocalDateTime = LocalDateTime.now(),
   creator: Option[String] = None,
   updateDate: LocalDateTime = LocalDateTime.now(),
-  updater: Option[String] = None
+  updater: Option[String] = None,
 )
 
 object Sales extends SQLSyntaxSupport[Sales] {
   override val tableName = "売上"
-  override val columns = Seq(
-    "売上番号", "売上日", "売上区分", "受注番号",
-    "部門コード", "開始日", "取引先コード", "売上金額", "消費税",
-    "訂正番号", "元伝票番号",
-    "作成日時", "作成者名", "更新日時", "更新者名"
+
+  override val columns   = Seq(
+    "売上番号",
+    "売上日",
+    "売上区分",
+    "受注番号",
+    "部門コード",
+    "開始日",
+    "取引先コード",
+    "売上金額",
+    "消費税",
+    "訂正番号",
+    "元伝票番号",
+    "作成日時",
+    "作成者名",
+    "更新日時",
+    "更新者名",
   )
 
   def apply(rs: WrappedResultSet): Sales = Sales(
@@ -66,8 +78,9 @@ object Sales extends SQLSyntaxSupport[Sales] {
     createDate = rs.timestamp("作成日時").toLocalDateTime,
     creator = rs.stringOpt("作成者名"),
     updateDate = rs.timestamp("更新日時").toLocalDateTime,
-    updater = rs.stringOpt("更新者名")
+    updater = rs.stringOpt("更新者名"),
   )
+
 }
 
 /**
@@ -108,16 +121,29 @@ case class SalesDetail(
   createDate: LocalDateTime = LocalDateTime.now(),
   creator: Option[String] = None,
   updateDate: LocalDateTime = LocalDateTime.now(),
-  updater: Option[String] = None
+  updater: Option[String] = None,
 )
 
 object SalesDetail extends SQLSyntaxSupport[SalesDetail] {
   override val tableName = "売上明細"
-  override val columns = Seq(
-    "売上番号", "明細番号", "商品コード", "商品名", "販売単価",
-    "出荷済数量", "数量", "値引額", "請求日", "請求番号",
-    "請求遅延区分", "自動仕訳日",
-    "作成日時", "作成者名", "更新日時", "更新者名"
+
+  override val columns   = Seq(
+    "売上番号",
+    "明細番号",
+    "商品コード",
+    "商品名",
+    "販売単価",
+    "出荷済数量",
+    "数量",
+    "値引額",
+    "請求日",
+    "請求番号",
+    "請求遅延区分",
+    "自動仕訳日",
+    "作成日時",
+    "作成者名",
+    "更新日時",
+    "更新者名",
   )
 
   def apply(rs: WrappedResultSet): SalesDetail = SalesDetail(
@@ -136,6 +162,7 @@ object SalesDetail extends SQLSyntaxSupport[SalesDetail] {
     createDate = rs.timestamp("作成日時").toLocalDateTime,
     creator = rs.stringOpt("作成者名"),
     updateDate = rs.timestamp("更新日時").toLocalDateTime,
-    updater = rs.stringOpt("更新者名")
+    updater = rs.stringOpt("更新者名"),
   )
+
 }

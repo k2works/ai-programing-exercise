@@ -1,7 +1,7 @@
 package infrastructure.repository
 
 import infrastructure.db.DatabaseSpec
-import infrastructure.domain.Warehouse
+import infrastructure.entity.Warehouse
 import scalikejdbc._
 
 import java.time.LocalDateTime
@@ -26,7 +26,7 @@ class WarehouseRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       val result = repo.create(warehouse)
@@ -54,7 +54,7 @@ class WarehouseRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       repo.create(warehouse)
@@ -81,7 +81,7 @@ class WarehouseRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       val warehouse2 = Warehouse(
@@ -90,7 +90,7 @@ class WarehouseRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       repo.create(warehouse1)
@@ -116,7 +116,7 @@ class WarehouseRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       repo.create(warehouse)
@@ -125,7 +125,7 @@ class WarehouseRepositorySpec extends DatabaseSpec {
         name = "札幌中央倉庫",
         tel = Some("011-222-2222"),
         updateDate = LocalDateTime.now(),
-        updater = "admin2"
+        updater = "admin2",
       )
 
       val updateResult = repo.update(updated)
@@ -151,7 +151,7 @@ class WarehouseRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       repo.create(warehouse)

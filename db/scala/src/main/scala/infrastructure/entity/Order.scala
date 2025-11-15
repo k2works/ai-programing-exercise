@@ -1,4 +1,4 @@
-package infrastructure.domain
+package infrastructure.entity
 
 import scalikejdbc._
 
@@ -44,15 +44,30 @@ case class Order(
   createDate: LocalDateTime = LocalDateTime.now(),
   creator: String = "",
   updateDate: LocalDateTime = LocalDateTime.now(),
-  updater: String = ""
+  updater: String = "",
 )
 
 object Order extends SQLSyntaxSupport[Order] {
   override val tableName = "受注"
-  override val columns = Seq(
-    "受注番号", "受注日", "部門コード", "開始日", "顧客コード", "顧客枝番",
-    "社員コード", "納期", "顧客注文番号", "倉庫コード", "受注金額", "消費税",
-    "伝票コメント", "作成日時", "作成者名", "更新日時", "更新者名"
+
+  override val columns   = Seq(
+    "受注番号",
+    "受注日",
+    "部門コード",
+    "開始日",
+    "顧客コード",
+    "顧客枝番",
+    "社員コード",
+    "納期",
+    "顧客注文番号",
+    "倉庫コード",
+    "受注金額",
+    "消費税",
+    "伝票コメント",
+    "作成日時",
+    "作成者名",
+    "更新日時",
+    "更新者名",
   )
 
   def apply(rs: WrappedResultSet): Order = Order(
@@ -72,6 +87,7 @@ object Order extends SQLSyntaxSupport[Order] {
     createDate = rs.localDateTime("作成日時"),
     creator = rs.string("作成者名"),
     updateDate = rs.localDateTime("更新日時"),
-    updater = rs.string("更新者名")
+    updater = rs.string("更新者名"),
   )
+
 }

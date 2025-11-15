@@ -1,7 +1,7 @@
 package infrastructure.repository
 
 import infrastructure.db.DatabaseSpec
-import infrastructure.domain.ProductCategory
+import infrastructure.entity.ProductCategory
 import scalikejdbc._
 
 import java.time.LocalDateTime
@@ -22,18 +22,14 @@ class ProductCategoryRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
 
-    val result = DB localTx { implicit session =>
-      repo.create(category)
-    }
+    val result = DB localTx { implicit session => repo.create(category) }
 
     result shouldBe 1
 
-    val retrieved = DB readOnly { implicit session =>
-      repo.findById("CAT101")
-    }
+    val retrieved = DB readOnly { implicit session => repo.findById("CAT101") }
 
     retrieved.isDefined shouldBe true
     retrieved.get.name shouldBe "PC機器"
@@ -54,16 +50,12 @@ class ProductCategoryRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
 
-    DB localTx { implicit session =>
-      repo.create(category)
-    }
+    DB localTx { implicit session => repo.create(category) }
 
-    val categories = DB readOnly { implicit session =>
-      repo.findAll()
-    }
+    val categories = DB readOnly { implicit session => repo.findAll() }
 
     categories should not be empty
     categories.map(_.categoryCode) should contain("CAT102")
@@ -83,28 +75,22 @@ class ProductCategoryRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
 
-    DB localTx { implicit session =>
-      repo.create(category)
-    }
+    DB localTx { implicit session => repo.create(category) }
 
     val updated = category.copy(
       name = "ネットワーク機器類",
       updateDate = LocalDateTime.now(),
-      updater = "admin2"
+      updater = "admin2",
     )
 
-    val updateResult = DB localTx { implicit session =>
-      repo.update(updated)
-    }
+    val updateResult = DB localTx { implicit session => repo.update(updated) }
 
     updateResult shouldBe 1
 
-    val retrieved = DB readOnly { implicit session =>
-      repo.findById("CAT103")
-    }
+    val retrieved = DB readOnly { implicit session => repo.findById("CAT103") }
 
     retrieved.isDefined shouldBe true
     retrieved.get.name shouldBe "ネットワーク機器類"
@@ -125,22 +111,16 @@ class ProductCategoryRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
 
-    DB localTx { implicit session =>
-      repo.create(category)
-    }
+    DB localTx { implicit session => repo.create(category) }
 
-    val deleteResult = DB localTx { implicit session =>
-      repo.delete("CAT104")
-    }
+    val deleteResult = DB localTx { implicit session => repo.delete("CAT104") }
 
     deleteResult shouldBe 1
 
-    val retrieved = DB readOnly { implicit session =>
-      repo.findById("CAT104")
-    }
+    val retrieved = DB readOnly { implicit session => repo.findById("CAT104") }
 
     retrieved shouldBe None
   }
@@ -159,7 +139,7 @@ class ProductCategoryRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
 
     val category2 = ProductCategory(
@@ -171,7 +151,7 @@ class ProductCategoryRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
 
     DB localTx { implicit session =>
@@ -179,9 +159,7 @@ class ProductCategoryRepositorySpec extends DatabaseSpec {
       repo.create(category2)
     }
 
-    val results = DB readOnly { implicit session =>
-      repo.findByPathPrefix("/TEST/")
-    }
+    val results = DB readOnly { implicit session => repo.findByPathPrefix("/TEST/") }
 
     results should have size 2
     results.map(_.categoryCode) should contain allOf ("CAT105", "CAT106")

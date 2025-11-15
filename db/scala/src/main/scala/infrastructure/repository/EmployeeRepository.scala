@@ -1,6 +1,6 @@
 package infrastructure.repository
 
-import infrastructure.domain.Employee
+import infrastructure.entity.Employee
 import scalikejdbc._
 
 /**
@@ -20,7 +20,7 @@ trait EmployeeRepository {
  */
 class EmployeeRepositoryImpl extends EmployeeRepository {
 
-  override def create(emp: Employee)(implicit session: DBSession): Int = {
+  override def create(emp: Employee)(implicit session: DBSession): Int =
     sql"""
       INSERT INTO 社員マスタ (
         社員コード, 社員名, 社員名カナ, パスワード,
@@ -35,9 +35,8 @@ class EmployeeRepositoryImpl extends EmployeeRepository {
         ${emp.updateDate}, ${emp.updater}
       )
     """.update.apply()
-  }
 
-  override def findById(empCode: String)(implicit session: DBSession): Option[Employee] = {
+  override def findById(empCode: String)(implicit session: DBSession): Option[Employee] =
     sql"""
       SELECT 社員コード, 社員名, 社員名カナ, パスワード,
              電話番号, FAX番号, 部門コード, 開始日,
@@ -46,9 +45,8 @@ class EmployeeRepositoryImpl extends EmployeeRepository {
       FROM 社員マスタ
       WHERE 社員コード = $empCode
     """.map(Employee.apply).single.apply()
-  }
 
-  override def findAll()(implicit session: DBSession): List[Employee] = {
+  override def findAll()(implicit session: DBSession): List[Employee] =
     sql"""
       SELECT 社員コード, 社員名, 社員名カナ, パスワード,
              電話番号, FAX番号, 部門コード, 開始日,
@@ -57,9 +55,8 @@ class EmployeeRepositoryImpl extends EmployeeRepository {
       FROM 社員マスタ
       ORDER BY 社員コード
     """.map(Employee.apply).list.apply()
-  }
 
-  override def findByDepartment(deptCode: String)(implicit session: DBSession): List[Employee] = {
+  override def findByDepartment(deptCode: String)(implicit session: DBSession): List[Employee] =
     sql"""
       SELECT 社員コード, 社員名, 社員名カナ, パスワード,
              電話番号, FAX番号, 部門コード, 開始日,
@@ -69,9 +66,8 @@ class EmployeeRepositoryImpl extends EmployeeRepository {
       WHERE 部門コード = $deptCode
       ORDER BY 社員コード
     """.map(Employee.apply).list.apply()
-  }
 
-  override def update(emp: Employee)(implicit session: DBSession): Int = {
+  override def update(emp: Employee)(implicit session: DBSession): Int =
     sql"""
       UPDATE 社員マスタ
       SET 社員名 = ${emp.name},
@@ -87,14 +83,13 @@ class EmployeeRepositoryImpl extends EmployeeRepository {
           更新者名 = ${emp.updater}
       WHERE 社員コード = ${emp.empCode}
     """.update.apply()
-  }
 
-  override def delete(empCode: String)(implicit session: DBSession): Int = {
+  override def delete(empCode: String)(implicit session: DBSession): Int =
     sql"""
       DELETE FROM 社員マスタ
       WHERE 社員コード = $empCode
     """.update.apply()
-  }
+
 }
 
 object EmployeeRepository {

@@ -1,6 +1,6 @@
 package infrastructure.repository
 
-import infrastructure.domain.ProductCategory
+import infrastructure.entity.ProductCategory
 import scalikejdbc._
 
 /**
@@ -20,7 +20,7 @@ trait ProductCategoryRepository {
  */
 class ProductCategoryRepositoryImpl extends ProductCategoryRepository {
 
-  override def create(category: ProductCategory)(implicit session: DBSession): Int = {
+  override def create(category: ProductCategory)(implicit session: DBSession): Int =
     sql"""
       INSERT INTO 商品分類マスタ (
         商品分類コード, 商品分類名, 商品分類階層, 商品分類パス, 最下層区分,
@@ -31,27 +31,28 @@ class ProductCategoryRepositoryImpl extends ProductCategoryRepository {
         ${category.createDate}, ${category.creator}, ${category.updateDate}, ${category.updater}
       )
     """.update.apply()
-  }
 
-  override def findById(categoryCode: String)(implicit session: DBSession): Option[ProductCategory] = {
+  override def findById(categoryCode: String)(implicit
+    session: DBSession
+  ): Option[ProductCategory] =
     sql"""
       SELECT 商品分類コード, 商品分類名, 商品分類階層, 商品分類パス, 最下層区分,
              作成日時, 作成者名, 更新日時, 更新者名
       FROM 商品分類マスタ
       WHERE 商品分類コード = $categoryCode
     """.map(ProductCategory.apply).single.apply()
-  }
 
-  override def findAll()(implicit session: DBSession): List[ProductCategory] = {
+  override def findAll()(implicit session: DBSession): List[ProductCategory] =
     sql"""
       SELECT 商品分類コード, 商品分類名, 商品分類階層, 商品分類パス, 最下層区分,
              作成日時, 作成者名, 更新日時, 更新者名
       FROM 商品分類マスタ
       ORDER BY 商品分類パス
     """.map(ProductCategory.apply).list.apply()
-  }
 
-  override def findByPathPrefix(pathPrefix: String)(implicit session: DBSession): List[ProductCategory] = {
+  override def findByPathPrefix(pathPrefix: String)(implicit
+    session: DBSession
+  ): List[ProductCategory] =
     sql"""
       SELECT 商品分類コード, 商品分類名, 商品分類階層, 商品分類パス, 最下層区分,
              作成日時, 作成者名, 更新日時, 更新者名
@@ -59,9 +60,8 @@ class ProductCategoryRepositoryImpl extends ProductCategoryRepository {
       WHERE 商品分類パス LIKE ${pathPrefix + "%"}
       ORDER BY 商品分類パス
     """.map(ProductCategory.apply).list.apply()
-  }
 
-  override def update(category: ProductCategory)(implicit session: DBSession): Int = {
+  override def update(category: ProductCategory)(implicit session: DBSession): Int =
     sql"""
       UPDATE 商品分類マスタ
       SET 商品分類名 = ${category.name},
@@ -72,14 +72,13 @@ class ProductCategoryRepositoryImpl extends ProductCategoryRepository {
           更新者名 = ${category.updater}
       WHERE 商品分類コード = ${category.categoryCode}
     """.update.apply()
-  }
 
-  override def delete(categoryCode: String)(implicit session: DBSession): Int = {
+  override def delete(categoryCode: String)(implicit session: DBSession): Int =
     sql"""
       DELETE FROM 商品分類マスタ
       WHERE 商品分類コード = $categoryCode
     """.update.apply()
-  }
+
 }
 
 object ProductCategoryRepository {

@@ -1,4 +1,4 @@
-package infrastructure.domain
+package infrastructure.entity
 
 import scalikejdbc._
 
@@ -34,15 +34,25 @@ case class Stock(
   createDate: LocalDateTime = LocalDateTime.now(),
   creator: String = "",
   updateDate: LocalDateTime = LocalDateTime.now(),
-  updater: String = ""
+  updater: String = "",
 )
 
 object Stock extends SQLSyntaxSupport[Stock] {
   override val tableName = "在庫"
-  override val columns = Seq(
-    "倉庫コード", "商品コード", "ロット番号", "在庫区分", "品質区分",
-    "実在庫数", "有効在庫数", "最終出荷日",
-    "作成日時", "作成者名", "更新日時", "更新者名"
+
+  override val columns   = Seq(
+    "倉庫コード",
+    "商品コード",
+    "ロット番号",
+    "在庫区分",
+    "品質区分",
+    "実在庫数",
+    "有効在庫数",
+    "最終出荷日",
+    "作成日時",
+    "作成者名",
+    "更新日時",
+    "更新者名",
   )
 
   def apply(rs: WrappedResultSet): Stock = Stock(
@@ -57,6 +67,7 @@ object Stock extends SQLSyntaxSupport[Stock] {
     createDate = rs.localDateTime("作成日時"),
     creator = rs.string("作成者名"),
     updateDate = rs.localDateTime("更新日時"),
-    updater = rs.string("更新者名")
+    updater = rs.string("更新者名"),
   )
+
 }

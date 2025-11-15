@@ -1,7 +1,7 @@
 package infrastructure.repository
 
 import infrastructure.db.DatabaseSpec
-import infrastructure.domain._
+import infrastructure.entity._
 import scalikejdbc._
 
 import java.time.LocalDateTime
@@ -11,19 +11,19 @@ class CreditBalanceRepositorySpec extends DatabaseSpec {
   private def setupTestData(suffix: String)(implicit session: DBSession): Unit = {
     // 取引先グループの作成
     val groupRepo = CompanyGroupRepository()
-    val group = CompanyGroup(
+    val group     = CompanyGroup(
       compGroupCode = s"G$suffix",
       groupName = s"テストグループ$suffix",
       createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
     groupRepo.create(group)
 
     // 取引先の作成
     val compRepo = CompanyRepository()
-    val company = Company(
+    val company  = Company(
       compCode = s"COMP$suffix",
       name = s"株式会社テスト$suffix",
       kana = Some("カブシキガイシャテスト"),
@@ -36,7 +36,7 @@ class CreditBalanceRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
     compRepo.create(company)
   }
@@ -57,7 +57,7 @@ class CreditBalanceRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = Some("admin"),
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-        updater = Some("admin")
+        updater = Some("admin"),
       )
 
       val result = balanceRepo.create(balance)
@@ -87,7 +87,7 @@ class CreditBalanceRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = Some("admin"),
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-        updater = Some("admin")
+        updater = Some("admin"),
       )
 
       balanceRepo.create(balance)
@@ -96,7 +96,7 @@ class CreditBalanceRepositorySpec extends DatabaseSpec {
         orderBalance = 1500000,
         recBalance = 800000,
         updateDate = LocalDateTime.now(),
-        updater = Some("admin2")
+        updater = Some("admin2"),
       )
 
       val updateResult = balanceRepo.update(updated)
@@ -125,7 +125,7 @@ class CreditBalanceRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = Some("admin"),
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-        updater = Some("admin")
+        updater = Some("admin"),
       )
 
       balanceRepo.create(balance)
@@ -155,7 +155,7 @@ class CreditBalanceRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = Some("admin"),
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-        updater = Some("admin")
+        updater = Some("admin"),
       )
 
       val balance2 = CreditBalance(
@@ -166,7 +166,7 @@ class CreditBalanceRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = Some("admin"),
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-        updater = Some("admin")
+        updater = Some("admin"),
       )
 
       balanceRepo.create(balance1)

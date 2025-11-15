@@ -10,25 +10,22 @@ object Main extends App {
   DatabaseConfig.setupCustom(
     url = "jdbc:postgresql://localhost:5432/sales_management",
     user = "postgres",
-    password = "postgres"
+    password = "postgres",
   )
 
   // マイグレーションを実行
   FlywayMigration.migrateCustom(
     url = "jdbc:postgresql://localhost:5432/sales_management",
     user = "postgres",
-    password = "postgres"
+    password = "postgres",
   )
 
-  try {
-    DB localTx { implicit session =>
-      SeedData.seedAll()
-    }
-  } catch {
+  try
+    DB localTx { implicit session => SeedData.seedAll() }
+  catch {
     case e: Exception =>
       println(s"❌ エラーが発生しました: ${e.getMessage}")
       e.printStackTrace()
-  } finally {
+  } finally
     ConnectionPool.closeAll()
-  }
 }

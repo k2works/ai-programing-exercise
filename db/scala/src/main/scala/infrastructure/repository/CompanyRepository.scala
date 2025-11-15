@@ -1,6 +1,6 @@
 package infrastructure.repository
 
-import infrastructure.domain.Company
+import infrastructure.entity.Company
 import scalikejdbc._
 
 /**
@@ -20,7 +20,7 @@ trait CompanyRepository {
  */
 class CompanyRepositoryImpl extends CompanyRepository {
 
-  override def create(company: Company)(implicit session: DBSession): Int = {
+  override def create(company: Company)(implicit session: DBSession): Int =
     sql"""
       INSERT INTO 取引先マスタ (
         取引先コード, 取引先名, 取引先名カナ, 仕入先区分,
@@ -36,9 +36,8 @@ class CompanyRepositoryImpl extends CompanyRepository {
         ${company.createDate}, ${company.creator}, ${company.updateDate}, ${company.updater}
       )
     """.update.apply()
-  }
 
-  override def findById(compCode: String)(implicit session: DBSession): Option[Company] = {
+  override def findById(compCode: String)(implicit session: DBSession): Option[Company] =
     sql"""
       SELECT 取引先コード, 取引先名, 取引先名カナ, 仕入先区分,
              郵便番号, 都道府県, 住所１, 住所２,
@@ -48,9 +47,8 @@ class CompanyRepositoryImpl extends CompanyRepository {
       FROM 取引先マスタ
       WHERE 取引先コード = $compCode
     """.map(Company.apply).single.apply()
-  }
 
-  override def findAll()(implicit session: DBSession): List[Company] = {
+  override def findAll()(implicit session: DBSession): List[Company] =
     sql"""
       SELECT 取引先コード, 取引先名, 取引先名カナ, 仕入先区分,
              郵便番号, 都道府県, 住所１, 住所２,
@@ -60,9 +58,8 @@ class CompanyRepositoryImpl extends CompanyRepository {
       FROM 取引先マスタ
       ORDER BY 取引先コード
     """.map(Company.apply).list.apply()
-  }
 
-  override def findByGroup(compGroupCode: String)(implicit session: DBSession): List[Company] = {
+  override def findByGroup(compGroupCode: String)(implicit session: DBSession): List[Company] =
     sql"""
       SELECT 取引先コード, 取引先名, 取引先名カナ, 仕入先区分,
              郵便番号, 都道府県, 住所１, 住所２,
@@ -73,9 +70,8 @@ class CompanyRepositoryImpl extends CompanyRepository {
       WHERE 取引先グループコード = $compGroupCode
       ORDER BY 取引先コード
     """.map(Company.apply).list.apply()
-  }
 
-  override def update(company: Company)(implicit session: DBSession): Int = {
+  override def update(company: Company)(implicit session: DBSession): Int =
     sql"""
       UPDATE 取引先マスタ
       SET 取引先名 = ${company.name},
@@ -94,14 +90,13 @@ class CompanyRepositoryImpl extends CompanyRepository {
           更新者名 = ${company.updater}
       WHERE 取引先コード = ${company.compCode}
     """.update.apply()
-  }
 
-  override def delete(compCode: String)(implicit session: DBSession): Int = {
+  override def delete(compCode: String)(implicit session: DBSession): Int =
     sql"""
       DELETE FROM 取引先マスタ
       WHERE 取引先コード = $compCode
     """.update.apply()
-  }
+
 }
 
 object CompanyRepository {

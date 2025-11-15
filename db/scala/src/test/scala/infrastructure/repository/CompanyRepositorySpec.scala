@@ -1,7 +1,7 @@
 package infrastructure.repository
 
 import infrastructure.db.DatabaseSpec
-import infrastructure.domain.{Company, CompanyGroup}
+import infrastructure.entity.{Company, CompanyGroup}
 import scalikejdbc._
 
 import java.time.LocalDateTime
@@ -10,13 +10,13 @@ class CompanyRepositorySpec extends DatabaseSpec {
 
   private def setupTestGroup(groupCode: String)(implicit session: DBSession): Unit = {
     val groupRepo = CompanyGroupRepository()
-    val group = CompanyGroup(
+    val group     = CompanyGroup(
       compGroupCode = groupCode,
-      groupName = s"テストグループ${groupCode}",
+      groupName = s"テストグループ$groupCode",
       createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
     groupRepo.create(group)
   }
@@ -46,7 +46,7 @@ class CompanyRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       val result = repo.create(company)
@@ -74,7 +74,7 @@ class CompanyRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       repo.create(company)
@@ -100,7 +100,7 @@ class CompanyRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       val company2 = Company(
@@ -110,7 +110,7 @@ class CompanyRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       repo.create(company1)
@@ -138,7 +138,7 @@ class CompanyRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       repo.create(company)
@@ -147,7 +147,7 @@ class CompanyRepositorySpec extends DatabaseSpec {
         name = "株式会社更新後",
         maxCredit = 8000000,
         updateDate = LocalDateTime.now(),
-        updater = "admin2"
+        updater = "admin2",
       )
 
       val updateResult = repo.update(updated)
@@ -176,7 +176,7 @@ class CompanyRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       repo.create(company)

@@ -1,4 +1,4 @@
-package infrastructure.domain
+package infrastructure.entity
 
 import scalikejdbc._
 import java.time.LocalDateTime
@@ -25,14 +25,21 @@ case class CreditBalance(
   createDate: LocalDateTime = LocalDateTime.now(),
   creator: Option[String] = None,
   updateDate: LocalDateTime = LocalDateTime.now(),
-  updater: Option[String] = None
+  updater: Option[String] = None,
 )
 
 object CreditBalance extends SQLSyntaxSupport[CreditBalance] {
   override val tableName = "与信残高"
-  override val columns = Seq(
-    "取引先コード", "受注残高", "売掛残高", "買掛残高",
-    "作成日時", "作成者名", "更新日時", "更新者名"
+
+  override val columns   = Seq(
+    "取引先コード",
+    "受注残高",
+    "売掛残高",
+    "買掛残高",
+    "作成日時",
+    "作成者名",
+    "更新日時",
+    "更新者名",
   )
 
   def apply(rs: WrappedResultSet): CreditBalance = CreditBalance(
@@ -43,6 +50,7 @@ object CreditBalance extends SQLSyntaxSupport[CreditBalance] {
     createDate = rs.timestamp("作成日時").toLocalDateTime,
     creator = rs.stringOpt("作成者名"),
     updateDate = rs.timestamp("更新日時").toLocalDateTime,
-    updater = rs.stringOpt("更新者名")
+    updater = rs.stringOpt("更新者名"),
   )
+
 }

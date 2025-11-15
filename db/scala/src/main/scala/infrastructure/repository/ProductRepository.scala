@@ -1,6 +1,6 @@
 package infrastructure.repository
 
-import infrastructure.domain.Product
+import infrastructure.entity.Product
 import scalikejdbc._
 
 /**
@@ -20,7 +20,7 @@ trait ProductRepository {
  */
 class ProductRepositoryImpl extends ProductRepository {
 
-  override def create(product: Product)(implicit session: DBSession): Int = {
+  override def create(product: Product)(implicit session: DBSession): Int =
     sql"""
       INSERT INTO 商品マスタ (
         商品コード, 商品正式名, 商品略称, 商品名カナ, 商品区分, 製品型番,
@@ -37,9 +37,8 @@ class ProductRepositoryImpl extends ProductRepository {
         ${product.createDate}, ${product.creator}, ${product.updateDate}, ${product.updater}
       )
     """.update.apply()
-  }
 
-  override def findById(prodCode: String)(implicit session: DBSession): Option[Product] = {
+  override def findById(prodCode: String)(implicit session: DBSession): Option[Product] =
     sql"""
       SELECT 商品コード, 商品正式名, 商品略称, 商品名カナ, 商品区分, 製品型番,
              販売単価, 仕入単価, 売上原価, 税区分,
@@ -49,9 +48,8 @@ class ProductRepositoryImpl extends ProductRepository {
       FROM 商品マスタ
       WHERE 商品コード = $prodCode
     """.map(Product.apply).single.apply()
-  }
 
-  override def findAll()(implicit session: DBSession): List[Product] = {
+  override def findAll()(implicit session: DBSession): List[Product] =
     sql"""
       SELECT 商品コード, 商品正式名, 商品略称, 商品名カナ, 商品区分, 製品型番,
              販売単価, 仕入単価, 売上原価, 税区分,
@@ -61,9 +59,8 @@ class ProductRepositoryImpl extends ProductRepository {
       FROM 商品マスタ
       ORDER BY 商品コード
     """.map(Product.apply).list.apply()
-  }
 
-  override def findByCategory(categoryCode: String)(implicit session: DBSession): List[Product] = {
+  override def findByCategory(categoryCode: String)(implicit session: DBSession): List[Product] =
     sql"""
       SELECT 商品コード, 商品正式名, 商品略称, 商品名カナ, 商品区分, 製品型番,
              販売単価, 仕入単価, 売上原価, 税区分,
@@ -74,9 +71,8 @@ class ProductRepositoryImpl extends ProductRepository {
       WHERE 商品分類コード = $categoryCode
       ORDER BY 商品コード
     """.map(Product.apply).list.apply()
-  }
 
-  override def update(product: Product)(implicit session: DBSession): Int = {
+  override def update(product: Product)(implicit session: DBSession): Int =
     sql"""
       UPDATE 商品マスタ
       SET 商品正式名 = ${product.fullName},
@@ -98,14 +94,13 @@ class ProductRepositoryImpl extends ProductRepository {
           更新者名 = ${product.updater}
       WHERE 商品コード = ${product.prodCode}
     """.update.apply()
-  }
 
-  override def delete(prodCode: String)(implicit session: DBSession): Int = {
+  override def delete(prodCode: String)(implicit session: DBSession): Int =
     sql"""
       DELETE FROM 商品マスタ
       WHERE 商品コード = $prodCode
     """.update.apply()
-  }
+
 }
 
 object ProductRepository {

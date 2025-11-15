@@ -1,6 +1,6 @@
 package infrastructure.repository
 
-import infrastructure.domain.OrderDetail
+import infrastructure.entity.OrderDetail
 import scalikejdbc._
 
 /**
@@ -19,7 +19,7 @@ trait OrderDetailRepository {
  */
 class OrderDetailRepositoryImpl extends OrderDetailRepository {
 
-  override def create(detail: OrderDetail)(implicit session: DBSession): Int = {
+  override def create(detail: OrderDetail)(implicit session: DBSession): Int =
     sql"""
       INSERT INTO 受注明細 (
         受注番号, 明細番号, 商品コード, 商品名, 販売単価, 数量,
@@ -33,9 +33,8 @@ class OrderDetailRepositoryImpl extends OrderDetailRepository {
         ${detail.createDate}, ${detail.creator}, ${detail.updateDate}, ${detail.updater}
       )
     """.update.apply()
-  }
 
-  override def findByOrderNo(orderNo: String)(implicit session: DBSession): List[OrderDetail] = {
+  override def findByOrderNo(orderNo: String)(implicit session: DBSession): List[OrderDetail] =
     sql"""
       SELECT
         受注番号, 明細番号, 商品コード, 商品名, 販売単価, 数量,
@@ -45,9 +44,10 @@ class OrderDetailRepositoryImpl extends OrderDetailRepository {
       WHERE 受注番号 = $orderNo
       ORDER BY 明細番号
     """.map(OrderDetail.apply).list.apply()
-  }
 
-  override def findById(orderNo: String, soRowNo: Int)(implicit session: DBSession): Option[OrderDetail] = {
+  override def findById(orderNo: String, soRowNo: Int)(implicit
+    session: DBSession
+  ): Option[OrderDetail] =
     sql"""
       SELECT
         受注番号, 明細番号, 商品コード, 商品名, 販売単価, 数量,
@@ -56,9 +56,8 @@ class OrderDetailRepositoryImpl extends OrderDetailRepository {
       FROM 受注明細
       WHERE 受注番号 = $orderNo AND 明細番号 = $soRowNo
     """.map(OrderDetail.apply).single.apply()
-  }
 
-  override def update(detail: OrderDetail)(implicit session: DBSession): Int = {
+  override def update(detail: OrderDetail)(implicit session: DBSession): Int =
     sql"""
       UPDATE 受注明細
       SET 数量 = ${detail.quantity},
@@ -72,14 +71,13 @@ class OrderDetailRepositoryImpl extends OrderDetailRepository {
           更新者名 = ${detail.updater}
       WHERE 受注番号 = ${detail.orderNo} AND 明細番号 = ${detail.soRowNo}
     """.update.apply()
-  }
 
-  override def delete(orderNo: String, soRowNo: Int)(implicit session: DBSession): Int = {
+  override def delete(orderNo: String, soRowNo: Int)(implicit session: DBSession): Int =
     sql"""
       DELETE FROM 受注明細
       WHERE 受注番号 = $orderNo AND 明細番号 = $soRowNo
     """.update.apply()
-  }
+
 }
 
 object OrderDetailRepository {

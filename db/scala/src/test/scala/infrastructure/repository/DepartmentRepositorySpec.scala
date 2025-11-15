@@ -1,7 +1,7 @@
 package infrastructure.repository
 
 import infrastructure.db.DatabaseSpec
-import infrastructure.domain.Department
+import infrastructure.entity.Department
 import scalikejdbc._
 
 import java.time.LocalDateTime
@@ -25,20 +25,16 @@ class DepartmentRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2021, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2021, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
 
     // データを登録
-    val insertResult = DB localTx { implicit session =>
-      repo.create(testDept)
-    }
+    val insertResult = DB localTx { implicit session => repo.create(testDept) }
 
     insertResult shouldBe 1
 
     // 取得して検証
-    val result = DB readOnly { implicit session =>
-      repo.findById(testDept.deptCode)
-    }
+    val result = DB readOnly { implicit session => repo.findById(testDept.deptCode) }
 
     result shouldBe defined
     result.get.deptCode shouldBe testDept.deptCode
@@ -62,16 +58,12 @@ class DepartmentRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2021, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2021, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
 
-    DB localTx { implicit session =>
-      repo.create(testDept)
-    }
+    DB localTx { implicit session => repo.create(testDept) }
 
-    val results = DB readOnly { implicit session =>
-      repo.findAll()
-    }
+    val results = DB readOnly { implicit session => repo.findAll() }
 
     results should not be empty
   }
@@ -93,29 +85,23 @@ class DepartmentRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2021, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2021, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
 
-    DB localTx { implicit session =>
-      repo.create(testDept)
-    }
+    DB localTx { implicit session => repo.create(testDept) }
 
     // 名前を更新
     val updatedDept = testDept.copy(
       name = "更新部署",
-      updateDate = LocalDateTime.now()
+      updateDate = LocalDateTime.now(),
     )
 
-    val updateResult = DB localTx { implicit session =>
-      repo.update(updatedDept)
-    }
+    val updateResult = DB localTx { implicit session => repo.update(updatedDept) }
 
     updateResult shouldBe 1
 
     // 更新されたことを確認
-    val result = DB readOnly { implicit session =>
-      repo.findById(testDept.deptCode)
-    }
+    val result = DB readOnly { implicit session => repo.findById(testDept.deptCode) }
 
     result shouldBe defined
     result.get.name shouldBe "更新部署"
@@ -138,24 +124,18 @@ class DepartmentRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2021, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2021, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
 
-    DB localTx { implicit session =>
-      repo.create(testDept)
-    }
+    DB localTx { implicit session => repo.create(testDept) }
 
     // 削除
-    val deleteResult = DB localTx { implicit session =>
-      repo.delete(testDept.deptCode)
-    }
+    val deleteResult = DB localTx { implicit session => repo.delete(testDept.deptCode) }
 
     deleteResult shouldBe 1
 
     // 削除されたことを確認
-    val result = DB readOnly { implicit session =>
-      repo.findById(testDept.deptCode)
-    }
+    val result = DB readOnly { implicit session => repo.findById(testDept.deptCode) }
 
     result shouldBe None
   }

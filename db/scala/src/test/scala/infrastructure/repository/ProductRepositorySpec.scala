@@ -1,7 +1,7 @@
 package infrastructure.repository
 
 import infrastructure.db.DatabaseSpec
-import infrastructure.domain.{Product, ProductCategory}
+import infrastructure.entity.{Product, ProductCategory}
 import scalikejdbc._
 
 import java.time.LocalDateTime
@@ -10,16 +10,16 @@ class ProductRepositorySpec extends DatabaseSpec {
 
   private def setupTestCategory(categoryCode: String)(implicit session: DBSession): Unit = {
     val categoryRepo = ProductCategoryRepository()
-    val category = ProductCategory(
+    val category     = ProductCategory(
       categoryCode = categoryCode,
-      name = s"テスト分類${categoryCode}",
+      name = s"テスト分類$categoryCode",
       layer = 1,
-      path = s"/${categoryCode}/",
+      path = s"/$categoryCode/",
       lowestType = 1,
       createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
     categoryRepo.create(category)
   }
@@ -52,7 +52,7 @@ class ProductRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       val result = repo.create(product)
@@ -84,16 +84,12 @@ class ProductRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
 
-    DB localTx { implicit session =>
-      repo.create(product)
-    }
+    DB localTx { implicit session => repo.create(product) }
 
-    val products = DB readOnly { implicit session =>
-      repo.findAll()
-    }
+    val products = DB readOnly { implicit session => repo.findAll() }
 
     products should not be empty
     products.map(_.prodCode) should contain("PROD002")
@@ -118,28 +114,22 @@ class ProductRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
 
-    DB localTx { implicit session =>
-      repo.create(product)
-    }
+    DB localTx { implicit session => repo.create(product) }
 
     val updated = product.copy(
       unitPrice = 75000,
       updateDate = LocalDateTime.now(),
-      updater = "admin2"
+      updater = "admin2",
     )
 
-    val updateResult = DB localTx { implicit session =>
-      repo.update(updated)
-    }
+    val updateResult = DB localTx { implicit session => repo.update(updated) }
 
     updateResult shouldBe 1
 
-    val retrieved = DB readOnly { implicit session =>
-      repo.findById("PROD003")
-    }
+    val retrieved = DB readOnly { implicit session => repo.findById("PROD003") }
 
     retrieved.isDefined shouldBe true
     retrieved.get.unitPrice shouldBe 75000
@@ -165,22 +155,16 @@ class ProductRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
 
-    DB localTx { implicit session =>
-      repo.create(product)
-    }
+    DB localTx { implicit session => repo.create(product) }
 
-    val deleteResult = DB localTx { implicit session =>
-      repo.delete("PROD004")
-    }
+    val deleteResult = DB localTx { implicit session => repo.delete("PROD004") }
 
     deleteResult shouldBe 1
 
-    val retrieved = DB readOnly { implicit session =>
-      repo.findById("PROD004")
-    }
+    val retrieved = DB readOnly { implicit session => repo.findById("PROD004") }
 
     retrieved shouldBe None
   }
@@ -206,7 +190,7 @@ class ProductRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       val product2 = Product(
@@ -222,7 +206,7 @@ class ProductRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       repo.create(product1)

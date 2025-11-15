@@ -2,7 +2,7 @@ package api.schema
 
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto._
-import infrastructure.domain.Product
+import infrastructure.entity.Product
 
 // 商品作成リクエスト
 case class CreateProductRequest(
@@ -13,7 +13,7 @@ case class CreateProductRequest(
   unitPrice: Int,
   poPrice: Int,
   supCode: String,
-  categoryCode: Option[String]
+  categoryCode: Option[String],
 )
 
 object CreateProductRequest {
@@ -29,7 +29,7 @@ case class UpdateProductRequest(
   unitPrice: Option[Int] = None,
   poPrice: Option[Int] = None,
   supCode: Option[String] = None,
-  categoryCode: Option[String] = None
+  categoryCode: Option[String] = None,
 )
 
 object UpdateProductRequest {
@@ -46,7 +46,7 @@ case class ProductResponse(
   unitPrice: Int,
   poPrice: Int,
   supCode: String,
-  categoryCode: Option[String]
+  categoryCode: Option[String],
 )
 
 object ProductResponse {
@@ -54,7 +54,7 @@ object ProductResponse {
   implicit val encoder: Encoder[ProductResponse] = deriveEncoder
 
   // Domain モデルから変換
-  def fromDomain(product: Product): ProductResponse = {
+  def fromDomain(product: Product): ProductResponse =
     ProductResponse(
       prodCode = product.prodCode,
       fullName = product.fullName,
@@ -63,9 +63,9 @@ object ProductResponse {
       unitPrice = product.unitPrice,
       poPrice = product.poPrice,
       supCode = product.supCode.getOrElse(""),
-      categoryCode = product.categoryCode
+      categoryCode = product.categoryCode,
     )
-  }
+
 }
 
 // エラーレスポンス

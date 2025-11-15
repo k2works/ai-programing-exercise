@@ -1,7 +1,7 @@
 package infrastructure.repository
 
 import infrastructure.db.DatabaseSpec
-import infrastructure.domain.{PriceByCustomer, Product}
+import infrastructure.entity.{PriceByCustomer, Product}
 import scalikejdbc._
 
 import java.time.LocalDateTime
@@ -10,10 +10,10 @@ class PriceByCustomerRepositorySpec extends DatabaseSpec {
 
   private def setupTestProduct(prodCode: String)(implicit session: DBSession): Unit = {
     val productRepo = ProductRepository()
-    val product = Product(
+    val product     = Product(
       prodCode = prodCode,
-      fullName = s"テスト商品${prodCode}",
-      name = s"商品${prodCode}",
+      fullName = s"テスト商品$prodCode",
+      name = s"商品$prodCode",
       unitPrice = 100000,
       poPrice = 80000,
       primeCost = 70000,
@@ -22,7 +22,7 @@ class PriceByCustomerRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
     productRepo.create(product)
   }
@@ -42,7 +42,7 @@ class PriceByCustomerRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       val result = repo.create(price)
@@ -69,7 +69,7 @@ class PriceByCustomerRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       val price2 = PriceByCustomer(
@@ -79,7 +79,7 @@ class PriceByCustomerRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       repo.create(price1)
@@ -107,7 +107,7 @@ class PriceByCustomerRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       val price2 = PriceByCustomer(
@@ -117,7 +117,7 @@ class PriceByCustomerRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       repo.create(price1)
@@ -144,7 +144,7 @@ class PriceByCustomerRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       repo.create(price)
@@ -152,7 +152,7 @@ class PriceByCustomerRepositorySpec extends DatabaseSpec {
       val updated = price.copy(
         unitPrice = 85000,
         updateDate = LocalDateTime.now(),
-        updater = "admin2"
+        updater = "admin2",
       )
 
       val updateResult = repo.update(updated)
@@ -180,7 +180,7 @@ class PriceByCustomerRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       repo.create(price)

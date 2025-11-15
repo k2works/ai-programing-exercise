@@ -1,4 +1,4 @@
-package infrastructure.domain
+package infrastructure.entity
 
 import scalikejdbc._
 import java.time.LocalDateTime
@@ -15,16 +15,17 @@ import java.time.LocalDateTime
 case class AutoNumber(
   slipType: String,
   yearMonth: LocalDateTime,
-  lastSlipNo: Int
+  lastSlipNo: Int,
 )
 
 object AutoNumber extends SQLSyntaxSupport[AutoNumber] {
   override val tableName = "自動採番"
-  override val columns = Seq("伝票種別", "年月", "最終伝票番号")
+  override val columns   = Seq("伝票種別", "年月", "最終伝票番号")
 
   def apply(rs: WrappedResultSet): AutoNumber = AutoNumber(
     slipType = rs.string("伝票種別"),
     yearMonth = rs.timestamp("年月").toLocalDateTime,
-    lastSlipNo = rs.int("最終伝票番号")
+    lastSlipNo = rs.int("最終伝票番号"),
   )
+
 }

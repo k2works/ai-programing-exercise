@@ -1,7 +1,7 @@
 package infrastructure.repository
 
 import infrastructure.db.DatabaseSpec
-import infrastructure.domain.AutoNumber
+import infrastructure.entity.AutoNumber
 import scalikejdbc._
 
 import java.time.LocalDateTime
@@ -17,7 +17,7 @@ class AutoNumberRepositorySpec extends DatabaseSpec {
       val autoNumber = AutoNumber(
         slipType = "OR",
         yearMonth = LocalDateTime.of(2024, 1, 1, 0, 0),
-        lastSlipNo = 0
+        lastSlipNo = 0,
       )
 
       val result = autoNumberRepo.create(autoNumber)
@@ -99,7 +99,7 @@ class AutoNumberRepositorySpec extends DatabaseSpec {
       val autoNumber = AutoNumber(
         slipType = "IV",
         yearMonth = LocalDateTime.of(2024, 3, 1, 0, 0),
-        lastSlipNo = 5
+        lastSlipNo = 5,
       )
 
       autoNumberRepo.create(autoNumber)

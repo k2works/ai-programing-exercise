@@ -1,4 +1,4 @@
-package infrastructure.domain
+package infrastructure.entity
 
 import scalikejdbc._
 
@@ -32,14 +32,25 @@ case class Department(
   createDate: LocalDateTime,
   creator: String,
   updateDate: LocalDateTime,
-  updater: String
+  updater: String,
 )
 
 object Department extends SQLSyntaxSupport[Department] {
   override val tableName = "部門マスタ"
-  override val columns = Seq(
-    "部門コード", "開始日", "終了日", "部門名", "組織階層", "部門パス",
-    "最下層区分", "伝票入力可否", "作成日時", "作成者名", "更新日時", "更新者名"
+
+  override val columns   = Seq(
+    "部門コード",
+    "開始日",
+    "終了日",
+    "部門名",
+    "組織階層",
+    "部門パス",
+    "最下層区分",
+    "伝票入力可否",
+    "作成日時",
+    "作成者名",
+    "更新日時",
+    "更新者名",
   )
 
   /**
@@ -57,6 +68,7 @@ object Department extends SQLSyntaxSupport[Department] {
     createDate = rs.timestamp("作成日時").toLocalDateTime,
     creator = rs.string("作成者名"),
     updateDate = rs.timestamp("更新日時").toLocalDateTime,
-    updater = rs.string("更新者名")
+    updater = rs.string("更新者名"),
   )
+
 }

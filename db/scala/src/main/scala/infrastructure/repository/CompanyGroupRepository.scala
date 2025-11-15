@@ -1,6 +1,6 @@
 package infrastructure.repository
 
-import infrastructure.domain.CompanyGroup
+import infrastructure.entity.CompanyGroup
 import scalikejdbc._
 
 /**
@@ -19,7 +19,7 @@ trait CompanyGroupRepository {
  */
 class CompanyGroupRepositoryImpl extends CompanyGroupRepository {
 
-  override def create(group: CompanyGroup)(implicit session: DBSession): Int = {
+  override def create(group: CompanyGroup)(implicit session: DBSession): Int =
     sql"""
       INSERT INTO 取引先グループマスタ (
         取引先グループコード, 取引先グループ名,
@@ -29,27 +29,24 @@ class CompanyGroupRepositoryImpl extends CompanyGroupRepository {
         ${group.createDate}, ${group.creator}, ${group.updateDate}, ${group.updater}
       )
     """.update.apply()
-  }
 
-  override def findById(compGroupCode: String)(implicit session: DBSession): Option[CompanyGroup] = {
+  override def findById(compGroupCode: String)(implicit session: DBSession): Option[CompanyGroup] =
     sql"""
       SELECT 取引先グループコード, 取引先グループ名,
              作成日時, 作成者名, 更新日時, 更新者名
       FROM 取引先グループマスタ
       WHERE 取引先グループコード = $compGroupCode
     """.map(CompanyGroup.apply).single.apply()
-  }
 
-  override def findAll()(implicit session: DBSession): List[CompanyGroup] = {
+  override def findAll()(implicit session: DBSession): List[CompanyGroup] =
     sql"""
       SELECT 取引先グループコード, 取引先グループ名,
              作成日時, 作成者名, 更新日時, 更新者名
       FROM 取引先グループマスタ
       ORDER BY 取引先グループコード
     """.map(CompanyGroup.apply).list.apply()
-  }
 
-  override def update(group: CompanyGroup)(implicit session: DBSession): Int = {
+  override def update(group: CompanyGroup)(implicit session: DBSession): Int =
     sql"""
       UPDATE 取引先グループマスタ
       SET 取引先グループ名 = ${group.groupName},
@@ -57,14 +54,13 @@ class CompanyGroupRepositoryImpl extends CompanyGroupRepository {
           更新者名 = ${group.updater}
       WHERE 取引先グループコード = ${group.compGroupCode}
     """.update.apply()
-  }
 
-  override def delete(compGroupCode: String)(implicit session: DBSession): Int = {
+  override def delete(compGroupCode: String)(implicit session: DBSession): Int =
     sql"""
       DELETE FROM 取引先グループマスタ
       WHERE 取引先グループコード = $compGroupCode
     """.update.apply()
-  }
+
 }
 
 object CompanyGroupRepository {

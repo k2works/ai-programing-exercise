@@ -6,7 +6,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.Mockito._
 import org.mockito.ArgumentMatchers._
 import scalikejdbc._
-import infrastructure.domain.Product
+import infrastructure.entity.Product
 import infrastructure.repository.ProductRepository
 import api.schema._
 import java.time.LocalDateTime
@@ -17,7 +17,7 @@ class ProductServiceSpec extends AnyFlatSpec with Matchers with MockitoSugar {
 
   it should "商品を作成できる" in {
     val mockRepo = mock[ProductRepository]
-    val service = new ProductService(mockRepo)
+    val service  = new ProductService(mockRepo)
 
     val request = CreateProductRequest(
       prodCode = "TEST00001",
@@ -27,10 +27,10 @@ class ProductServiceSpec extends AnyFlatSpec with Matchers with MockitoSugar {
       unitPrice = 1000,
       poPrice = 700,
       supCode = "COMP0011",
-      categoryCode = None
+      categoryCode = None,
     )
 
-    val now = LocalDateTime.now()
+    val now            = LocalDateTime.now()
     val createdProduct = Product(
       prodCode = request.prodCode,
       fullName = request.fullName,
@@ -43,7 +43,7 @@ class ProductServiceSpec extends AnyFlatSpec with Matchers with MockitoSugar {
       createDate = now,
       creator = "api",
       updateDate = now,
-      updater = "api"
+      updater = "api",
     )
 
     // モックの設定
@@ -52,7 +52,7 @@ class ProductServiceSpec extends AnyFlatSpec with Matchers with MockitoSugar {
 
     // 実行
     implicit val session: DBSession = AutoSession
-    val result = service.createProduct(request)
+    val result                      = service.createProduct(request)
 
     // 検証
     result.isRight shouldBe true
@@ -61,21 +61,21 @@ class ProductServiceSpec extends AnyFlatSpec with Matchers with MockitoSugar {
 
   it should "販売単価が原価より低い場合はエラーを返す" in {
     val mockRepo = mock[ProductRepository]
-    val service = new ProductService(mockRepo)
+    val service  = new ProductService(mockRepo)
 
     val request = CreateProductRequest(
       prodCode = "TEST00001",
       fullName = "テスト商品フルネーム",
       name = "テスト商品",
       kana = Some("テストショウヒン"),
-      unitPrice = 500,  // 原価より低い
+      unitPrice = 500, // 原価より低い
       poPrice = 700,
       supCode = "COMP0011",
-      categoryCode = None
+      categoryCode = None,
     )
 
     implicit val session: DBSession = AutoSession
-    val result = service.createProduct(request)
+    val result                      = service.createProduct(request)
 
     result.isLeft shouldBe true
     result.left.toOption.get should include("販売単価が仕入価格より低い")
@@ -83,9 +83,9 @@ class ProductServiceSpec extends AnyFlatSpec with Matchers with MockitoSugar {
 
   it should "すべての商品を取得できる" in {
     val mockRepo = mock[ProductRepository]
-    val service = new ProductService(mockRepo)
+    val service  = new ProductService(mockRepo)
 
-    val now = LocalDateTime.now()
+    val now      = LocalDateTime.now()
     val products = List(
       Product(
         prodCode = "TEST00001",
@@ -99,7 +99,7 @@ class ProductServiceSpec extends AnyFlatSpec with Matchers with MockitoSugar {
         createDate = now,
         creator = "test",
         updateDate = now,
-        updater = "test"
+        updater = "test",
       ),
       Product(
         prodCode = "TEST00002",
@@ -113,14 +113,14 @@ class ProductServiceSpec extends AnyFlatSpec with Matchers with MockitoSugar {
         createDate = now,
         creator = "test",
         updateDate = now,
-        updater = "test"
-      )
+        updater = "test",
+      ),
     )
 
     when(mockRepo.findAll()(any[DBSession])).thenReturn(products)
 
     implicit val session: DBSession = AutoSession
-    val result = service.getAllProducts()
+    val result                      = service.getAllProducts()
 
     result.length shouldBe 2
   }

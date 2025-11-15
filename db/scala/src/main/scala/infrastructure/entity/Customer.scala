@@ -1,4 +1,4 @@
-package infrastructure.domain
+package infrastructure.entity
 
 import scalikejdbc._
 
@@ -62,19 +62,39 @@ case class Customer(
   createDate: LocalDateTime = LocalDateTime.now(),
   creator: String = "",
   updateDate: LocalDateTime = LocalDateTime.now(),
-  updater: String = ""
+  updater: String = "",
 )
 
 object Customer extends SQLSyntaxSupport[Customer] {
   override val tableName = "顧客マスタ"
-  override val columns = Seq(
-    "顧客コード", "顧客枝番", "顧客区分",
-    "請求先コード", "請求先枝番", "回収先コード", "回収先枝番",
-    "顧客名", "顧客名カナ", "担当社員コード",
-    "顧客担当者名", "顧客担当部署名", "顧客郵便番号",
-    "顧客都道府県", "顧客住所１", "顧客電話番号", "顧客メールアドレス",
-    "顧客締日１", "顧客支払月数１", "顧客支払日１", "顧客支払方法１", "顧客締日２",
-    "作成日時", "作成者名", "更新日時", "更新者名"
+
+  override val columns   = Seq(
+    "顧客コード",
+    "顧客枝番",
+    "顧客区分",
+    "請求先コード",
+    "請求先枝番",
+    "回収先コード",
+    "回収先枝番",
+    "顧客名",
+    "顧客名カナ",
+    "担当社員コード",
+    "顧客担当者名",
+    "顧客担当部署名",
+    "顧客郵便番号",
+    "顧客都道府県",
+    "顧客住所１",
+    "顧客電話番号",
+    "顧客メールアドレス",
+    "顧客締日１",
+    "顧客支払月数１",
+    "顧客支払日１",
+    "顧客支払方法１",
+    "顧客締日２",
+    "作成日時",
+    "作成者名",
+    "更新日時",
+    "更新者名",
   )
 
   def apply(rs: WrappedResultSet): Customer = Customer(
@@ -103,6 +123,7 @@ object Customer extends SQLSyntaxSupport[Customer] {
     createDate = rs.localDateTime("作成日時"),
     creator = rs.string("作成者名"),
     updateDate = rs.localDateTime("更新日時"),
-    updater = rs.string("更新者名")
+    updater = rs.string("更新者名"),
   )
+
 }

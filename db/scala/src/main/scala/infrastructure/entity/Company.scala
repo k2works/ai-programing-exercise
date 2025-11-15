@@ -1,4 +1,4 @@
-package infrastructure.domain
+package infrastructure.entity
 
 import scalikejdbc._
 
@@ -45,17 +45,30 @@ case class Company(
   createDate: LocalDateTime = LocalDateTime.now(),
   creator: String = "",
   updateDate: LocalDateTime = LocalDateTime.now(),
-  updater: String = ""
+  updater: String = "",
 )
 
 object Company extends SQLSyntaxSupport[Company] {
   override val tableName = "取引先マスタ"
-  override val columns = Seq(
-    "取引先コード", "取引先名", "取引先名カナ", "仕入先区分",
-    "郵便番号", "都道府県", "住所１", "住所２",
-    "取引禁止フラグ", "雑区分", "取引先グループコード",
-    "与信限度額", "与信一時増加枠",
-    "作成日時", "作成者名", "更新日時", "更新者名"
+
+  override val columns   = Seq(
+    "取引先コード",
+    "取引先名",
+    "取引先名カナ",
+    "仕入先区分",
+    "郵便番号",
+    "都道府県",
+    "住所１",
+    "住所２",
+    "取引禁止フラグ",
+    "雑区分",
+    "取引先グループコード",
+    "与信限度額",
+    "与信一時増加枠",
+    "作成日時",
+    "作成者名",
+    "更新日時",
+    "更新者名",
   )
 
   def apply(rs: WrappedResultSet): Company = Company(
@@ -75,6 +88,7 @@ object Company extends SQLSyntaxSupport[Company] {
     createDate = rs.localDateTime("作成日時"),
     creator = rs.string("作成者名"),
     updateDate = rs.localDateTime("更新日時"),
-    updater = rs.string("更新者名")
+    updater = rs.string("更新者名"),
   )
+
 }

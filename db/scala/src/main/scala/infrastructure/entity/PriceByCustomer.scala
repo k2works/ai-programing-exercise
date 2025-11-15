@@ -1,4 +1,4 @@
-package infrastructure.domain
+package infrastructure.entity
 
 import scalikejdbc._
 
@@ -24,14 +24,20 @@ case class PriceByCustomer(
   createDate: LocalDateTime = LocalDateTime.now(),
   creator: String = "",
   updateDate: LocalDateTime = LocalDateTime.now(),
-  updater: String = ""
+  updater: String = "",
 )
 
 object PriceByCustomer extends SQLSyntaxSupport[PriceByCustomer] {
   override val tableName = "顧客別販売単価"
-  override val columns = Seq(
-    "商品コード", "取引先コード", "販売単価",
-    "作成日時", "作成者名", "更新日時", "更新者名"
+
+  override val columns   = Seq(
+    "商品コード",
+    "取引先コード",
+    "販売単価",
+    "作成日時",
+    "作成者名",
+    "更新日時",
+    "更新者名",
   )
 
   def apply(rs: WrappedResultSet): PriceByCustomer = PriceByCustomer(
@@ -41,6 +47,7 @@ object PriceByCustomer extends SQLSyntaxSupport[PriceByCustomer] {
     createDate = rs.localDateTime("作成日時"),
     creator = rs.string("作成者名"),
     updateDate = rs.localDateTime("更新日時"),
-    updater = rs.string("更新者名")
+    updater = rs.string("更新者名"),
   )
+
 }

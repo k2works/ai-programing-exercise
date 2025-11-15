@@ -1,4 +1,4 @@
-package infrastructure.domain
+package infrastructure.entity
 
 import scalikejdbc._
 
@@ -28,14 +28,22 @@ case class Purchase(
   createDate: LocalDateTime = LocalDateTime.now(),
   creator: String = "",
   updateDate: LocalDateTime = LocalDateTime.now(),
-  updater: String = ""
+  updater: String = "",
 )
 
 object Purchase extends SQLSyntaxSupport[Purchase] {
   override val tableName = "仕入"
-  override val columns = Seq(
-    "仕入番号", "仕入日", "発注番号", "倉庫コード", "完了フラグ",
-    "作成日時", "作成者名", "更新日時", "更新者名"
+
+  override val columns   = Seq(
+    "仕入番号",
+    "仕入日",
+    "発注番号",
+    "倉庫コード",
+    "完了フラグ",
+    "作成日時",
+    "作成者名",
+    "更新日時",
+    "更新者名",
   )
 
   def apply(rs: WrappedResultSet): Purchase = Purchase(
@@ -47,8 +55,9 @@ object Purchase extends SQLSyntaxSupport[Purchase] {
     createDate = rs.localDateTime("作成日時"),
     creator = rs.string("作成者名"),
     updateDate = rs.localDateTime("更新日時"),
-    updater = rs.string("更新者名")
+    updater = rs.string("更新者名"),
   )
+
 }
 
 /**
@@ -77,14 +86,23 @@ case class PurchaseDetail(
   createDate: LocalDateTime = LocalDateTime.now(),
   creator: String = "",
   updateDate: LocalDateTime = LocalDateTime.now(),
-  updater: String = ""
+  updater: String = "",
 )
 
 object PurchaseDetail extends SQLSyntaxSupport[PurchaseDetail] {
   override val tableName = "仕入明細"
-  override val columns = Seq(
-    "仕入番号", "仕入明細番号", "商品コード", "ロット番号", "数量", "単価",
-    "作成日時", "作成者名", "更新日時", "更新者名"
+
+  override val columns   = Seq(
+    "仕入番号",
+    "仕入明細番号",
+    "商品コード",
+    "ロット番号",
+    "数量",
+    "単価",
+    "作成日時",
+    "作成者名",
+    "更新日時",
+    "更新者名",
   )
 
   def apply(rs: WrappedResultSet): PurchaseDetail = PurchaseDetail(
@@ -97,6 +115,7 @@ object PurchaseDetail extends SQLSyntaxSupport[PurchaseDetail] {
     createDate = rs.localDateTime("作成日時"),
     creator = rs.string("作成者名"),
     updateDate = rs.localDateTime("更新日時"),
-    updater = rs.string("更新者名")
+    updater = rs.string("更新者名"),
   )
+
 }

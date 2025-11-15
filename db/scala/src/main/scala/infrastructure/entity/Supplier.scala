@@ -1,4 +1,4 @@
-package infrastructure.domain
+package infrastructure.entity
 
 import scalikejdbc._
 
@@ -52,18 +52,34 @@ case class Supplier(
   createDate: LocalDateTime = LocalDateTime.now(),
   creator: String = "",
   updateDate: LocalDateTime = LocalDateTime.now(),
-  updater: String = ""
+  updater: String = "",
 )
 
 object Supplier extends SQLSyntaxSupport[Supplier] {
   override val tableName = "仕入先マスタ"
-  override val columns = Seq(
-    "仕入先コード", "仕入先枝番", "仕入先区分",
-    "仕入先名", "仕入先名カナ", "担当社員コード",
-    "仕入先担当者名", "仕入先担当部署名", "仕入先郵便番号",
-    "仕入先都道府県", "仕入先住所１", "仕入先電話番号", "仕入先メールアドレス",
-    "仕入先締日", "仕入先支払月数", "仕入先支払日", "仕入先支払方法",
-    "作成日時", "作成者名", "更新日時", "更新者名"
+
+  override val columns   = Seq(
+    "仕入先コード",
+    "仕入先枝番",
+    "仕入先区分",
+    "仕入先名",
+    "仕入先名カナ",
+    "担当社員コード",
+    "仕入先担当者名",
+    "仕入先担当部署名",
+    "仕入先郵便番号",
+    "仕入先都道府県",
+    "仕入先住所１",
+    "仕入先電話番号",
+    "仕入先メールアドレス",
+    "仕入先締日",
+    "仕入先支払月数",
+    "仕入先支払日",
+    "仕入先支払方法",
+    "作成日時",
+    "作成者名",
+    "更新日時",
+    "更新者名",
   )
 
   def apply(rs: WrappedResultSet): Supplier = Supplier(
@@ -87,6 +103,7 @@ object Supplier extends SQLSyntaxSupport[Supplier] {
     createDate = rs.localDateTime("作成日時"),
     creator = rs.string("作成者名"),
     updateDate = rs.localDateTime("更新日時"),
-    updater = rs.string("更新者名")
+    updater = rs.string("更新者名"),
   )
+
 }

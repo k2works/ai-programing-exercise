@@ -1,7 +1,7 @@
 package infrastructure.repository
 
 import infrastructure.db.DatabaseSpec
-import infrastructure.domain.{AlternateProduct, Product}
+import infrastructure.entity.{AlternateProduct, Product}
 import scalikejdbc._
 
 import java.time.LocalDateTime
@@ -10,10 +10,10 @@ class AlternateProductRepositorySpec extends DatabaseSpec {
 
   private def setupTestProduct(prodCode: String)(implicit session: DBSession): Unit = {
     val productRepo = ProductRepository()
-    val product = Product(
+    val product     = Product(
       prodCode = prodCode,
-      fullName = s"テスト商品${prodCode}",
-      name = s"商品${prodCode}",
+      fullName = s"テスト商品$prodCode",
+      name = s"商品$prodCode",
       unitPrice = 100000,
       poPrice = 80000,
       primeCost = 70000,
@@ -22,7 +22,7 @@ class AlternateProductRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
     productRepo.create(product)
   }
@@ -43,7 +43,7 @@ class AlternateProductRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       val result = repo.create(alternate)
@@ -72,7 +72,7 @@ class AlternateProductRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       val alternate2 = AlternateProduct(
@@ -82,7 +82,7 @@ class AlternateProductRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       repo.create(alternate1)
@@ -111,7 +111,7 @@ class AlternateProductRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       repo.create(alternate)
@@ -119,7 +119,7 @@ class AlternateProductRepositorySpec extends DatabaseSpec {
       val updated = alternate.copy(
         priority = 2,
         updateDate = LocalDateTime.now(),
-        updater = "admin2"
+        updater = "admin2",
       )
 
       val updateResult = repo.update(updated)
@@ -148,7 +148,7 @@ class AlternateProductRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       repo.create(alternate)

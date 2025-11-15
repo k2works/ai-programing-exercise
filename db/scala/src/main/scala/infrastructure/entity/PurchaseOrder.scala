@@ -1,4 +1,4 @@
-package infrastructure.domain
+package infrastructure.entity
 
 import scalikejdbc._
 
@@ -34,14 +34,25 @@ case class PurchaseOrder(
   createDate: LocalDateTime = LocalDateTime.now(),
   creator: String = "",
   updateDate: LocalDateTime = LocalDateTime.now(),
-  updater: String = ""
+  updater: String = "",
 )
 
 object PurchaseOrder extends SQLSyntaxSupport[PurchaseOrder] {
   override val tableName = "発注"
-  override val columns = Seq(
-    "発注番号", "発注日", "部門コード", "開始日", "仕入先コード", "仕入先枝番",
-    "社員コード", "完了フラグ", "作成日時", "作成者名", "更新日時", "更新者名"
+
+  override val columns   = Seq(
+    "発注番号",
+    "発注日",
+    "部門コード",
+    "開始日",
+    "仕入先コード",
+    "仕入先枝番",
+    "社員コード",
+    "完了フラグ",
+    "作成日時",
+    "作成者名",
+    "更新日時",
+    "更新者名",
   )
 
   def apply(rs: WrappedResultSet): PurchaseOrder = PurchaseOrder(
@@ -56,8 +67,9 @@ object PurchaseOrder extends SQLSyntaxSupport[PurchaseOrder] {
     createDate = rs.localDateTime("作成日時"),
     creator = rs.string("作成者名"),
     updateDate = rs.localDateTime("更新日時"),
-    updater = rs.string("更新者名")
+    updater = rs.string("更新者名"),
   )
+
 }
 
 /**
@@ -84,14 +96,22 @@ case class PurchaseOrderDetail(
   createDate: LocalDateTime = LocalDateTime.now(),
   creator: String = "",
   updateDate: LocalDateTime = LocalDateTime.now(),
-  updater: String = ""
+  updater: String = "",
 )
 
 object PurchaseOrderDetail extends SQLSyntaxSupport[PurchaseOrderDetail] {
   override val tableName = "発注明細"
-  override val columns = Seq(
-    "発注番号", "発注明細番号", "商品コード", "数量", "単価",
-    "作成日時", "作成者名", "更新日時", "更新者名"
+
+  override val columns   = Seq(
+    "発注番号",
+    "発注明細番号",
+    "商品コード",
+    "数量",
+    "単価",
+    "作成日時",
+    "作成者名",
+    "更新日時",
+    "更新者名",
   )
 
   def apply(rs: WrappedResultSet): PurchaseOrderDetail = PurchaseOrderDetail(
@@ -103,6 +123,7 @@ object PurchaseOrderDetail extends SQLSyntaxSupport[PurchaseOrderDetail] {
     createDate = rs.localDateTime("作成日時"),
     creator = rs.string("作成者名"),
     updateDate = rs.localDateTime("更新日時"),
-    updater = rs.string("更新者名")
+    updater = rs.string("更新者名"),
   )
+
 }

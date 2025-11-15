@@ -1,19 +1,21 @@
 package api.service
 
 import scalikejdbc._
-import infrastructure.domain.Product
+import infrastructure.entity.Product
 import infrastructure.repository.ProductRepository
 import api.schema._
 import java.time.LocalDateTime
 
 class ProductService(repo: ProductRepository) {
 
-  def createProduct(request: CreateProductRequest)(implicit session: DBSession): Either[String, ProductResponse] = {
+  def createProduct(request: CreateProductRequest)(implicit
+    session: DBSession
+  ): Either[String, ProductResponse] =
     // ビジネスルールの適用：単価が原価より安い場合はエラー
     if (request.unitPrice < request.poPrice) {
       Left("販売単価が仕入価格より低い設定はできません")
     } else {
-      val now = LocalDateTime.now()
+      val now     = LocalDateTime.now()
       val product = Product(
         prodCode = request.prodCode,
         fullName = request.fullName,
@@ -26,26 +28,25 @@ class ProductService(repo: ProductRepository) {
         createDate = now,
         creator = "api",
         updateDate = now,
-        updater = "api"
+        updater = "api",
       )
 
       repo.create(product)
       repo.findById(request.prodCode) match {
         case Some(p) => Right(ProductResponse.fromDomain(p))
-        case None => Left("商品の作成に失敗しました")
+        case None    => Left("商品の作成に失敗しました")
       }
     }
-  }
 
-  def getAllProducts()(implicit session: DBSession): List[ProductResponse] = {
+  def getAllProducts()(implicit session: DBSession): List[ProductResponse] =
     repo.findAll().map(ProductResponse.fromDomain)
-  }
 
-  def getProductByCode(prodCode: String)(implicit session: DBSession): Option[ProductResponse] = {
+  def getProductByCode(prodCode: String)(implicit session: DBSession): Option[ProductResponse] =
     repo.findById(prodCode).map(ProductResponse.fromDomain)
-  }
 
-  def updateProduct(prodCode: String, request: UpdateProductRequest)(implicit session: DBSession): Either[String, ProductResponse] = {
+  def updateProduct(prodCode: String, request: UpdateProductRequest)(implicit
+    session: DBSession
+  ): Either[String, ProductResponse] =
     repo.findById(prodCode) match {
       case Some(existing) =>
         val updated = existing.copy(
@@ -57,7 +58,7 @@ class ProductService(repo: ProductRepository) {
           supCode = request.supCode.map(Some(_)).getOrElse(existing.supCode),
           categoryCode = request.categoryCode.orElse(existing.categoryCode),
           updateDate = LocalDateTime.now(),
-          updater = "api"
+          updater = "api",
         )
 
         // ビジネスルールの適用
@@ -71,15 +72,14 @@ class ProductService(repo: ProductRepository) {
       case None =>
         Left("商品が見つかりません")
     }
-  }
 
-  def deleteProduct(prodCode: String)(implicit session: DBSession): Either[String, Unit] = {
+  def deleteProduct(prodCode: String)(implicit session: DBSession): Either[String, Unit] =
     repo.findById(prodCode) match {
       case Some(_) =>
         repo.delete(prodCode)
         Right(())
-      case None =>
+      case None    =>
         Left("商品が見つかりません")
     }
-  }
+
 }

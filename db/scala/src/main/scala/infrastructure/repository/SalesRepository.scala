@@ -1,6 +1,6 @@
 package infrastructure.repository
 
-import infrastructure.domain.{Sales, SalesDetail}
+import infrastructure.entity.{Sales, SalesDetail}
 import scalikejdbc._
 
 /**
@@ -20,7 +20,7 @@ trait SalesRepository {
  */
 class SalesRepositoryImpl extends SalesRepository {
 
-  override def create(sales: Sales)(implicit session: DBSession): Int = {
+  override def create(sales: Sales)(implicit session: DBSession): Int =
     sql"""
       INSERT INTO 売上 (
         売上番号, 売上日, 売上区分, 受注番号,
@@ -34,9 +34,8 @@ class SalesRepositoryImpl extends SalesRepository {
         ${sales.createDate}, ${sales.creator}, ${sales.updateDate}, ${sales.updater}
       )
     """.update.apply()
-  }
 
-  override def findByNo(salesNo: String)(implicit session: DBSession): Option[Sales] = {
+  override def findByNo(salesNo: String)(implicit session: DBSession): Option[Sales] =
     sql"""
       SELECT
         売上番号, 売上日, 売上区分, 受注番号,
@@ -46,9 +45,8 @@ class SalesRepositoryImpl extends SalesRepository {
       FROM 売上
       WHERE 売上番号 = $salesNo
     """.map(Sales.apply).single.apply()
-  }
 
-  override def findAll()(implicit session: DBSession): List[Sales] = {
+  override def findAll()(implicit session: DBSession): List[Sales] =
     sql"""
       SELECT
         売上番号, 売上日, 売上区分, 受注番号,
@@ -58,9 +56,8 @@ class SalesRepositoryImpl extends SalesRepository {
       FROM 売上
       ORDER BY 売上日 DESC
     """.map(Sales.apply).list.apply()
-  }
 
-  override def findByOrderNo(orderNo: String)(implicit session: DBSession): List[Sales] = {
+  override def findByOrderNo(orderNo: String)(implicit session: DBSession): List[Sales] =
     sql"""
       SELECT
         売上番号, 売上日, 売上区分, 受注番号,
@@ -71,9 +68,8 @@ class SalesRepositoryImpl extends SalesRepository {
       WHERE 受注番号 = $orderNo
       ORDER BY 売上日
     """.map(Sales.apply).list.apply()
-  }
 
-  override def update(sales: Sales)(implicit session: DBSession): Int = {
+  override def update(sales: Sales)(implicit session: DBSession): Int =
     sql"""
       UPDATE 売上 SET
         売上日 = ${sales.salesDate},
@@ -84,14 +80,13 @@ class SalesRepositoryImpl extends SalesRepository {
         更新者名 = ${sales.updater}
       WHERE 売上番号 = ${sales.salesNo}
     """.update.apply()
-  }
 
-  override def delete(salesNo: String)(implicit session: DBSession): Int = {
+  override def delete(salesNo: String)(implicit session: DBSession): Int =
     sql"""
       DELETE FROM 売上
       WHERE 売上番号 = $salesNo
     """.update.apply()
-  }
+
 }
 
 object SalesRepository {
@@ -113,7 +108,7 @@ trait SalesDetailRepository {
  */
 class SalesDetailRepositoryImpl extends SalesDetailRepository {
 
-  override def create(detail: SalesDetail)(implicit session: DBSession): Int = {
+  override def create(detail: SalesDetail)(implicit session: DBSession): Int =
     sql"""
       INSERT INTO 売上明細 (
         売上番号, 明細番号, 商品コード, 商品名, 販売単価,
@@ -127,9 +122,8 @@ class SalesDetailRepositoryImpl extends SalesDetailRepository {
         ${detail.createDate}, ${detail.creator}, ${detail.updateDate}, ${detail.updater}
       )
     """.update.apply()
-  }
 
-  override def findBySalesNo(salesNo: String)(implicit session: DBSession): List[SalesDetail] = {
+  override def findBySalesNo(salesNo: String)(implicit session: DBSession): List[SalesDetail] =
     sql"""
       SELECT
         売上番号, 明細番号, 商品コード, 商品名, 販売単価,
@@ -140,9 +134,8 @@ class SalesDetailRepositoryImpl extends SalesDetailRepository {
       WHERE 売上番号 = $salesNo
       ORDER BY 明細番号
     """.map(SalesDetail.apply).list.apply()
-  }
 
-  override def update(detail: SalesDetail)(implicit session: DBSession): Int = {
+  override def update(detail: SalesDetail)(implicit session: DBSession): Int =
     sql"""
       UPDATE 売上明細 SET
         出荷済数量 = ${detail.deliveredQty},
@@ -154,14 +147,13 @@ class SalesDetailRepositoryImpl extends SalesDetailRepository {
         更新者名 = ${detail.updater}
       WHERE 売上番号 = ${detail.salesNo} AND 明細番号 = ${detail.rowNo}
     """.update.apply()
-  }
 
-  override def delete(salesNo: String, rowNo: Int)(implicit session: DBSession): Int = {
+  override def delete(salesNo: String, rowNo: Int)(implicit session: DBSession): Int =
     sql"""
       DELETE FROM 売上明細
       WHERE 売上番号 = $salesNo AND 明細番号 = $rowNo
     """.update.apply()
-  }
+
 }
 
 object SalesDetailRepository {

@@ -40,15 +40,21 @@ object ApiServer extends JsonSupport {
     // ヘルスチェックエンドポイント
     val healthRoute: Route = path("health") {
       get {
-        try {
+        try
           DB readOnly { implicit session =>
             // データベース接続確認
             sql"SELECT 1".map(_.int(1)).single.apply()
-            complete(StatusCodes.OK, Map("status" -> "ok", "message" -> "Database connection is healthy"))
+            complete(
+              StatusCodes.OK,
+              Map("status" -> "ok", "message" -> "Database connection is healthy"),
+            )
           }
-        } catch {
+        catch {
           case e: Exception =>
-            complete(StatusCodes.ServiceUnavailable, ErrorResponse("Database connection failed", Some(e.getMessage)))
+            complete(
+              StatusCodes.ServiceUnavailable,
+              ErrorResponse("Database connection failed", Some(e.getMessage)),
+            )
         }
       }
     }
@@ -59,7 +65,7 @@ object ApiServer extends JsonSupport {
         productHandler.routes
       },
       SwaggerRoutes.routes,
-      healthRoute
+      healthRoute,
     )
 
     // サーバーの起動
@@ -92,4 +98,5 @@ object ApiServer extends JsonSupport {
         system.terminate()
       }
   }
+
 }

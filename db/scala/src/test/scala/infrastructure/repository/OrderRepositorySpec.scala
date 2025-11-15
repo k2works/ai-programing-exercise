@@ -1,7 +1,7 @@
 package infrastructure.repository
 
 import infrastructure.db.DatabaseSpec
-import infrastructure.domain.{Company, CompanyGroup, Customer, Department, Employee, Order}
+import infrastructure.entity.{Company, CompanyGroup, Customer, Department, Employee, Order}
 import scalikejdbc._
 
 import java.time.LocalDateTime
@@ -12,36 +12,36 @@ class OrderRepositorySpec extends DatabaseSpec {
     groupCode: String,
     compCode: String,
     deptCode: String,
-    empCode: String
+    empCode: String,
   )(implicit session: DBSession): Unit = {
     // 取引先グループ作成
     val groupRepo = CompanyGroupRepository()
-    val group = CompanyGroup(
+    val group     = CompanyGroup(
       compGroupCode = groupCode,
-      groupName = s"テストグループ${groupCode}",
+      groupName = s"テストグループ$groupCode",
       createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
     groupRepo.create(group)
 
     // 取引先作成
     val companyRepo = CompanyRepository()
-    val company = Company(
+    val company     = Company(
       compCode = compCode,
-      name = s"テスト商事${compCode}",
+      name = s"テスト商事$compCode",
       compGroupCode = groupCode,
       createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
     companyRepo.create(company)
 
     // 顧客作成
     val customerRepo = CustomerRepository()
-    val customer = Customer(
+    val customer     = Customer(
       custCode = compCode,
       custSubNo = 1,
       arCode = compCode,
@@ -52,31 +52,31 @@ class OrderRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
     customerRepo.create(customer)
 
     // 部門作成
     val deptRepo = DepartmentRepository()
-    val dept = Department(
+    val dept     = Department(
       deptCode = deptCode,
       startDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
       endDate = LocalDateTime.of(2099, 12, 31, 23, 59, 59),
       name = "営業部",
       layer = 1,
-      path = s"/${deptCode}/",
+      path = s"/$deptCode/",
       lowestType = 1,
       slitYn = 1,
       createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
     deptRepo.create(dept)
 
     // 社員作成
     val empRepo = EmployeeRepository()
-    val emp = Employee(
+    val emp     = Employee(
       empCode = empCode,
       name = "山田太郎",
       kana = "ヤマダタロウ",
@@ -90,7 +90,7 @@ class OrderRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
     empRepo.create(emp)
   }
@@ -120,7 +120,7 @@ class OrderRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 8, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 8, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       val result = repo.create(order)
@@ -154,7 +154,7 @@ class OrderRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 8, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 8, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       repo.create(order)
@@ -190,7 +190,7 @@ class OrderRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 8, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 8, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       val order2 = Order(
@@ -206,7 +206,7 @@ class OrderRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 9, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 9, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       repo.create(order1)
@@ -241,7 +241,7 @@ class OrderRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 8, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 8, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       repo.create(order)
@@ -274,7 +274,7 @@ class OrderRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 8, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 8, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       repo.create(order)
@@ -284,7 +284,7 @@ class OrderRepositorySpec extends DatabaseSpec {
         cmpTax = 3000,
         slipComment = Some("更新後"),
         updateDate = LocalDateTime.now(),
-        updater = "admin2"
+        updater = "admin2",
       )
 
       val updateResult = repo.update(updated)
@@ -320,7 +320,7 @@ class OrderRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 8, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 8, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       repo.create(order)

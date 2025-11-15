@@ -1,7 +1,7 @@
 package infrastructure.repository
 
 import infrastructure.db.DatabaseSpec
-import infrastructure.domain.CompanyGroup
+import infrastructure.entity.CompanyGroup
 import scalikejdbc._
 
 import java.time.LocalDateTime
@@ -19,18 +19,14 @@ class CompanyGroupRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
 
-    val result = DB localTx { implicit session =>
-      repo.create(group)
-    }
+    val result = DB localTx { implicit session => repo.create(group) }
 
     result shouldBe 1
 
-    val retrieved = DB readOnly { implicit session =>
-      repo.findById("G001")
-    }
+    val retrieved = DB readOnly { implicit session => repo.findById("G001") }
 
     retrieved.isDefined shouldBe true
     retrieved.get.groupName shouldBe "重要顧客グループ"
@@ -47,16 +43,12 @@ class CompanyGroupRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
 
-    DB localTx { implicit session =>
-      repo.create(group)
-    }
+    DB localTx { implicit session => repo.create(group) }
 
-    val groups = DB readOnly { implicit session =>
-      repo.findAll()
-    }
+    val groups = DB readOnly { implicit session => repo.findAll() }
 
     groups should not be empty
     groups.map(_.compGroupCode) should contain("G002")
@@ -73,28 +65,22 @@ class CompanyGroupRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
 
-    DB localTx { implicit session =>
-      repo.create(group)
-    }
+    DB localTx { implicit session => repo.create(group) }
 
     val updated = group.copy(
       groupName = "更新後グループ",
       updateDate = LocalDateTime.now(),
-      updater = "admin2"
+      updater = "admin2",
     )
 
-    val updateResult = DB localTx { implicit session =>
-      repo.update(updated)
-    }
+    val updateResult = DB localTx { implicit session => repo.update(updated) }
 
     updateResult shouldBe 1
 
-    val retrieved = DB readOnly { implicit session =>
-      repo.findById("G003")
-    }
+    val retrieved = DB readOnly { implicit session => repo.findById("G003") }
 
     retrieved.isDefined shouldBe true
     retrieved.get.groupName shouldBe "更新後グループ"
@@ -112,22 +98,16 @@ class CompanyGroupRepositorySpec extends DatabaseSpec {
       createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
 
-    DB localTx { implicit session =>
-      repo.create(group)
-    }
+    DB localTx { implicit session => repo.create(group) }
 
-    val deleteResult = DB localTx { implicit session =>
-      repo.delete("G004")
-    }
+    val deleteResult = DB localTx { implicit session => repo.delete("G004") }
 
     deleteResult shouldBe 1
 
-    val retrieved = DB readOnly { implicit session =>
-      repo.findById("G004")
-    }
+    val retrieved = DB readOnly { implicit session => repo.findById("G004") }
 
     retrieved shouldBe None
   }

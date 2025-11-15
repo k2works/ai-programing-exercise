@@ -32,7 +32,7 @@ class ProductHandler(service: ProductService) extends JsonSupport {
               service.createProduct(request) match {
                 case Right(product) =>
                   complete(StatusCodes.Created, product)
-                case Left(error) =>
+                case Left(error)    =>
                   complete(StatusCodes.BadRequest, ErrorResponse(error))
               }
             }
@@ -43,8 +43,9 @@ class ProductHandler(service: ProductService) extends JsonSupport {
       pathEnd {
         get {
           DB readOnly { implicit session =>
-            val products: List[ProductResponse] = service.getAllProducts()
-            implicit val encoder: Encoder[List[ProductResponse]] = Encoder.encodeList[ProductResponse]
+            val products: List[ProductResponse]                  = service.getAllProducts()
+            implicit val encoder: Encoder[List[ProductResponse]] =
+              Encoder.encodeList[ProductResponse]
             complete(StatusCodes.OK, products)
           }
         }
@@ -56,7 +57,7 @@ class ProductHandler(service: ProductService) extends JsonSupport {
             service.getProductByCode(prodCode) match {
               case Some(product) =>
                 complete(StatusCodes.OK, product)
-              case None =>
+              case None          =>
                 complete(StatusCodes.NotFound, ErrorResponse("商品が見つかりません"))
             }
           }
@@ -70,7 +71,7 @@ class ProductHandler(service: ProductService) extends JsonSupport {
               service.updateProduct(prodCode, request) match {
                 case Right(product) =>
                   complete(StatusCodes.OK, product)
-                case Left(error) =>
+                case Left(error)    =>
                   if (error.contains("見つかりません")) {
                     complete(StatusCodes.NotFound, ErrorResponse(error))
                   } else {
@@ -86,14 +87,15 @@ class ProductHandler(service: ProductService) extends JsonSupport {
         delete {
           DB localTx { implicit session =>
             service.deleteProduct(prodCode) match {
-              case Right(_) =>
+              case Right(_)    =>
                 complete(StatusCodes.NoContent)
               case Left(error) =>
                 complete(StatusCodes.NotFound, ErrorResponse(error))
             }
           }
         }
-      }
+      },
     )
   }
+
 }

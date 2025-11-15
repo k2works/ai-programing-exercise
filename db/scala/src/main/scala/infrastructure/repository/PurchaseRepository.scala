@@ -1,6 +1,6 @@
 package infrastructure.repository
 
-import infrastructure.domain.{Purchase, PurchaseDetail}
+import infrastructure.entity.{Purchase, PurchaseDetail}
 import scalikejdbc._
 
 /**
@@ -20,7 +20,7 @@ trait PurchaseRepository {
  */
 class PurchaseRepositoryImpl extends PurchaseRepository {
 
-  override def create(purchase: Purchase)(implicit session: DBSession): Int = {
+  override def create(purchase: Purchase)(implicit session: DBSession): Int =
     sql"""
       INSERT INTO 仕入 (
         仕入番号, 仕入日, 発注番号, 倉庫コード, 完了フラグ,
@@ -31,9 +31,8 @@ class PurchaseRepositoryImpl extends PurchaseRepository {
         ${purchase.createDate}, ${purchase.creator}, ${purchase.updateDate}, ${purchase.updater}
       )
     """.update.apply()
-  }
 
-  override def findByNo(purchaseNo: String)(implicit session: DBSession): Option[Purchase] = {
+  override def findByNo(purchaseNo: String)(implicit session: DBSession): Option[Purchase] =
     sql"""
       SELECT
         仕入番号, 仕入日, 発注番号, 倉庫コード, 完了フラグ,
@@ -41,9 +40,8 @@ class PurchaseRepositoryImpl extends PurchaseRepository {
       FROM 仕入
       WHERE 仕入番号 = $purchaseNo
     """.map(Purchase.apply).single.apply()
-  }
 
-  override def findAll()(implicit session: DBSession): List[Purchase] = {
+  override def findAll()(implicit session: DBSession): List[Purchase] =
     sql"""
       SELECT
         仕入番号, 仕入日, 発注番号, 倉庫コード, 完了フラグ,
@@ -51,9 +49,8 @@ class PurchaseRepositoryImpl extends PurchaseRepository {
       FROM 仕入
       ORDER BY 仕入日 DESC
     """.map(Purchase.apply).list.apply()
-  }
 
-  override def findByPONo(poNo: String)(implicit session: DBSession): List[Purchase] = {
+  override def findByPONo(poNo: String)(implicit session: DBSession): List[Purchase] =
     sql"""
       SELECT
         仕入番号, 仕入日, 発注番号, 倉庫コード, 完了フラグ,
@@ -62,9 +59,8 @@ class PurchaseRepositoryImpl extends PurchaseRepository {
       WHERE 発注番号 = $poNo
       ORDER BY 仕入日 DESC
     """.map(Purchase.apply).list.apply()
-  }
 
-  override def update(purchase: Purchase)(implicit session: DBSession): Int = {
+  override def update(purchase: Purchase)(implicit session: DBSession): Int =
     sql"""
       UPDATE 仕入
       SET 仕入日 = ${purchase.purchaseDate},
@@ -73,13 +69,12 @@ class PurchaseRepositoryImpl extends PurchaseRepository {
           更新者名 = ${purchase.updater}
       WHERE 仕入番号 = ${purchase.purchaseNo}
     """.update.apply()
-  }
 
-  override def delete(purchaseNo: String)(implicit session: DBSession): Int = {
+  override def delete(purchaseNo: String)(implicit session: DBSession): Int =
     sql"""
       DELETE FROM 仕入 WHERE 仕入番号 = $purchaseNo
     """.update.apply()
-  }
+
 }
 
 object PurchaseRepository {
@@ -101,7 +96,7 @@ trait PurchaseDetailRepository {
  */
 class PurchaseDetailRepositoryImpl extends PurchaseDetailRepository {
 
-  override def create(detail: PurchaseDetail)(implicit session: DBSession): Int = {
+  override def create(detail: PurchaseDetail)(implicit session: DBSession): Int =
     sql"""
       INSERT INTO 仕入明細 (
         仕入番号, 仕入明細番号, 商品コード, ロット番号, 数量, 単価,
@@ -112,9 +107,10 @@ class PurchaseDetailRepositoryImpl extends PurchaseDetailRepository {
         ${detail.createDate}, ${detail.creator}, ${detail.updateDate}, ${detail.updater}
       )
     """.update.apply()
-  }
 
-  override def findByPurchaseNo(purchaseNo: String)(implicit session: DBSession): List[PurchaseDetail] = {
+  override def findByPurchaseNo(purchaseNo: String)(implicit
+    session: DBSession
+  ): List[PurchaseDetail] =
     sql"""
       SELECT
         仕入番号, 仕入明細番号, 商品コード, ロット番号, 数量, 単価,
@@ -123,9 +119,8 @@ class PurchaseDetailRepositoryImpl extends PurchaseDetailRepository {
       WHERE 仕入番号 = $purchaseNo
       ORDER BY 仕入明細番号
     """.map(PurchaseDetail.apply).list.apply()
-  }
 
-  override def update(detail: PurchaseDetail)(implicit session: DBSession): Int = {
+  override def update(detail: PurchaseDetail)(implicit session: DBSession): Int =
     sql"""
       UPDATE 仕入明細
       SET 数量 = ${detail.qty},
@@ -134,14 +129,13 @@ class PurchaseDetailRepositoryImpl extends PurchaseDetailRepository {
           更新者名 = ${detail.updater}
       WHERE 仕入番号 = ${detail.purchaseNo} AND 仕入明細番号 = ${detail.purchaseDetailNo}
     """.update.apply()
-  }
 
-  override def delete(purchaseNo: String, detailNo: Int)(implicit session: DBSession): Int = {
+  override def delete(purchaseNo: String, detailNo: Int)(implicit session: DBSession): Int =
     sql"""
       DELETE FROM 仕入明細
       WHERE 仕入番号 = $purchaseNo AND 仕入明細番号 = $detailNo
     """.update.apply()
-  }
+
 }
 
 object PurchaseDetailRepository {

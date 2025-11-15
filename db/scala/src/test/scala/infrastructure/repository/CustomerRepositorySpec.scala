@@ -1,34 +1,36 @@
 package infrastructure.repository
 
 import infrastructure.db.DatabaseSpec
-import infrastructure.domain.{Company, CompanyGroup, Customer}
+import infrastructure.entity.{Company, CompanyGroup, Customer}
 import scalikejdbc._
 
 import java.time.LocalDateTime
 
 class CustomerRepositorySpec extends DatabaseSpec {
 
-  private def setupTestData(groupCode: String, compCode: String)(implicit session: DBSession): Unit = {
+  private def setupTestData(groupCode: String, compCode: String)(implicit
+    session: DBSession
+  ): Unit = {
     val groupRepo = CompanyGroupRepository()
-    val group = CompanyGroup(
+    val group     = CompanyGroup(
       compGroupCode = groupCode,
-      groupName = s"テストグループ${groupCode}",
+      groupName = s"テストグループ$groupCode",
       createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
     groupRepo.create(group)
 
     val companyRepo = CompanyRepository()
-    val company = Company(
+    val company     = Company(
       compCode = compCode,
-      name = s"テスト商事${compCode}",
+      name = s"テスト商事$compCode",
       compGroupCode = groupCode,
       createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
     companyRepo.create(company)
   }
@@ -67,7 +69,7 @@ class CustomerRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       val result = repo.create(customer)
@@ -99,7 +101,7 @@ class CustomerRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       repo.create(customer)
@@ -133,7 +135,7 @@ class CustomerRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       val customer2 = Customer(
@@ -147,7 +149,7 @@ class CustomerRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       val customer3 = Customer(
@@ -161,7 +163,7 @@ class CustomerRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       repo.create(customer1)
@@ -194,7 +196,7 @@ class CustomerRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       repo.create(customer)
@@ -225,7 +227,7 @@ class CustomerRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       repo.create(customer)
@@ -234,7 +236,7 @@ class CustomerRepositorySpec extends DatabaseSpec {
         name = Some("更新後株式会社"),
         closeDate1 = Some(25),
         updateDate = LocalDateTime.now(),
-        updater = "admin2"
+        updater = "admin2",
       )
 
       val updateResult = repo.update(updated)
@@ -267,7 +269,7 @@ class CustomerRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       repo.create(customer)
@@ -284,7 +286,7 @@ class CustomerRepositorySpec extends DatabaseSpec {
     setupWithMigrations(container)
 
     val customerRepo = CustomerRepository()
-    val companyRepo = CompanyRepository()
+    val companyRepo  = CompanyRepository()
 
     DB localTx { implicit session =>
       setupTestData("G207", "CUST0007")
@@ -300,7 +302,7 @@ class CustomerRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       customerRepo.create(customer)

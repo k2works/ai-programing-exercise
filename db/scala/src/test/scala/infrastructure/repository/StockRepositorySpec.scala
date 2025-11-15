@@ -1,7 +1,7 @@
 package infrastructure.repository
 
 import infrastructure.db.DatabaseSpec
-import infrastructure.domain.{Product, Stock, Warehouse}
+import infrastructure.entity.{Product, Stock, Warehouse}
 import scalikejdbc._
 
 import java.time.LocalDateTime
@@ -11,27 +11,27 @@ class StockRepositorySpec extends DatabaseSpec {
   private def setupTestData(whCode: String, prodCode: String)(implicit session: DBSession): Unit = {
     // 倉庫作成
     val warehouseRepo = WarehouseRepository()
-    val warehouse = Warehouse(
+    val warehouse     = Warehouse(
       whCode = whCode,
-      name = s"テスト倉庫${whCode}",
+      name = s"テスト倉庫$whCode",
       createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
     warehouseRepo.create(warehouse)
 
     // 商品作成
     val productRepo = ProductRepository()
-    val product = Product(
+    val product     = Product(
       prodCode = prodCode,
-      fullName = s"テスト商品正式名${prodCode}",
-      name = s"テスト商品${prodCode}",
-      kana = Some(s"テストショウヒン${prodCode}"),
+      fullName = s"テスト商品正式名$prodCode",
+      name = s"テスト商品$prodCode",
+      kana = Some(s"テストショウヒン$prodCode"),
       createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
       creator = "admin",
       updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-      updater = "admin"
+      updater = "admin",
     )
     productRepo.create(product)
   }
@@ -56,7 +56,7 @@ class StockRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       val result = stockRepo.create(stock)
@@ -88,7 +88,7 @@ class StockRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       stockRepo.create(stock)
@@ -120,7 +120,7 @@ class StockRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       val stock2 = Stock(
@@ -132,7 +132,7 @@ class StockRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       stockRepo.create(stock1)
@@ -154,13 +154,13 @@ class StockRepositorySpec extends DatabaseSpec {
 
       // WH5 の倉庫だけを追加作成（商品 ST004 は既に作成済み）
       val warehouseRepo = WarehouseRepository()
-      val warehouse5 = Warehouse(
+      val warehouse5    = Warehouse(
         whCode = "WH5",
         name = "テスト倉庫WH5",
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
       warehouseRepo.create(warehouse5)
 
@@ -173,7 +173,7 @@ class StockRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       val stock2 = Stock(
@@ -185,7 +185,7 @@ class StockRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       stockRepo.create(stock1)
@@ -214,7 +214,7 @@ class StockRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       stockRepo.create(stock)
@@ -224,7 +224,7 @@ class StockRepositorySpec extends DatabaseSpec {
         valid = 120,
         lastDeliveryDate = Some(LocalDateTime.of(2025, 1, 16, 0, 0, 0)),
         updateDate = LocalDateTime.now(),
-        updater = "admin2"
+        updater = "admin2",
       )
 
       val updateResult = stockRepo.update(updated)
@@ -255,7 +255,7 @@ class StockRepositorySpec extends DatabaseSpec {
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
         updateDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
-        updater = "admin"
+        updater = "admin",
       )
 
       stockRepo.create(stock)
