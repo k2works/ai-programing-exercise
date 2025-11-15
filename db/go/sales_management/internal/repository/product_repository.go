@@ -14,6 +14,20 @@ type ProductRepository struct {
 	db *sqlx.DB
 }
 
+// 共通の SELECT カラムリスト（NULL 許容カラムに COALESCE を適用）
+const productSelectColumns = `"商品コード", "商品正式名", "商品略称",
+	COALESCE("商品名カナ", '') AS "商品名カナ",
+	COALESCE("商品区分", '') AS "商品区分",
+	COALESCE("製品型番", '') AS "製品型番",
+	"販売単価", "仕入単価", "売上原価", "税区分",
+	COALESCE("商品分類コード", '') AS "商品分類コード",
+	COALESCE("雑区分", 0) AS "雑区分",
+	"在庫管理対象区分",
+	COALESCE("在庫引当区分", 0) AS "在庫引当区分",
+	COALESCE("仕入先コード", '') AS "仕入先コード",
+	COALESCE("仕入先枝番", 0) AS "仕入先枝番",
+	"作成日時", "作成者名", "更新日時", "更新者名"`
+
 // NewProductRepository は新しいProductRepositoryを作成します
 func NewProductRepository(db *sqlx.DB) *ProductRepository {
 	return &ProductRepository{db: db}
@@ -53,22 +67,7 @@ func (r *ProductRepository) Create(product *model.Product) error {
 
 // FindByID は商品コードで商品を取得します
 func (r *ProductRepository) FindByID(prodCode string) (*model.Product, error) {
-	query := `
-		SELECT 商品コード, 商品正式名, 商品略称,
-		       COALESCE(商品名カナ, '') AS 商品名カナ,
-		       COALESCE(商品区分, '') AS 商品区分,
-		       COALESCE(製品型番, '') AS 製品型番,
-		       販売単価, 仕入単価, 売上原価, 税区分,
-		       COALESCE(商品分類コード, '') AS 商品分類コード,
-		       COALESCE(雑区分, 0) AS 雑区分,
-		       在庫管理対象区分,
-		       COALESCE(在庫引当区分, 0) AS 在庫引当区分,
-		       COALESCE(仕入先コード, '') AS 仕入先コード,
-		       COALESCE(仕入先枝番, 0) AS 仕入先枝番,
-		       作成日時, 作成者名, 更新日時, 更新者名
-		FROM 商品マスタ
-		WHERE 商品コード = $1
-	`
+	query := `SELECT ` + productSelectColumns + ` FROM "商品マスタ" WHERE "商品コード" = $1`
 
 	var product model.Product
 	err := r.db.Get(&product, query, prodCode)
@@ -84,22 +83,7 @@ func (r *ProductRepository) FindByID(prodCode string) (*model.Product, error) {
 
 // FindAll はすべての商品を取得します
 func (r *ProductRepository) FindAll() ([]*model.Product, error) {
-	query := `
-		SELECT 商品コード, 商品正式名, 商品略称,
-		       COALESCE(商品名カナ, '') AS 商品名カナ,
-		       COALESCE(商品区分, '') AS 商品区分,
-		       COALESCE(製品型番, '') AS 製品型番,
-		       販売単価, 仕入単価, 売上原価, 税区分,
-		       COALESCE(商品分類コード, '') AS 商品分類コード,
-		       COALESCE(雑区分, 0) AS 雑区分,
-		       在庫管理対象区分,
-		       COALESCE(在庫引当区分, 0) AS 在庫引当区分,
-		       COALESCE(仕入先コード, '') AS 仕入先コード,
-		       COALESCE(仕入先枝番, 0) AS 仕入先枝番,
-		       作成日時, 作成者名, 更新日時, 更新者名
-		FROM 商品マスタ
-		ORDER BY 商品コード
-	`
+	query := `SELECT ` + productSelectColumns + ` FROM "商品マスタ" ORDER BY "商品コード"`
 
 	var products []*model.Product
 	err := r.db.Select(&products, query)
@@ -221,22 +205,7 @@ func (r *ProductRepository) CreateWithContext(ctx context.Context, exec Execer, 
 
 // FindByIDWithContext は商品コードで商品を取得します（Context 対応）
 func (r *ProductRepository) FindByIDWithContext(ctx context.Context, exec Execer, prodCode string) (*model.Product, error) {
-	query := `
-		SELECT "商品コード", "商品正式名", "商品略称",
-		       COALESCE("商品名カナ", '') AS "商品名カナ",
-		       COALESCE("商品区分", '') AS "商品区分",
-		       COALESCE("製品型番", '') AS "製品型番",
-		       "販売単価", "仕入単価", "売上原価", "税区分",
-		       COALESCE("商品分類コード", '') AS "商品分類コード",
-		       COALESCE("雑区分", 0) AS "雑区分",
-		       "在庫管理対象区分",
-		       COALESCE("在庫引当区分", 0) AS "在庫引当区分",
-		       COALESCE("仕入先コード", '') AS "仕入先コード",
-		       COALESCE("仕入先枝番", 0) AS "仕入先枝番",
-		       "作成日時", "作成者名", "更新日時", "更新者名"
-		FROM "商品マスタ"
-		WHERE "商品コード" = $1
-	`
+	query := `SELECT ` + productSelectColumns + ` FROM "商品マスタ" WHERE "商品コード" = $1`
 
 	var product model.Product
 	err := exec.GetContext(ctx, &product, query, prodCode)
@@ -252,22 +221,7 @@ func (r *ProductRepository) FindByIDWithContext(ctx context.Context, exec Execer
 
 // FindAllWithContext はすべての商品を取得します（Context 対応）
 func (r *ProductRepository) FindAllWithContext(ctx context.Context, exec Execer) ([]*model.Product, error) {
-	query := `
-		SELECT "商品コード", "商品正式名", "商品略称",
-		       COALESCE("商品名カナ", '') AS "商品名カナ",
-		       COALESCE("商品区分", '') AS "商品区分",
-		       COALESCE("製品型番", '') AS "製品型番",
-		       "販売単価", "仕入単価", "売上原価", "税区分",
-		       COALESCE("商品分類コード", '') AS "商品分類コード",
-		       COALESCE("雑区分", 0) AS "雑区分",
-		       "在庫管理対象区分",
-		       COALESCE("在庫引当区分", 0) AS "在庫引当区分",
-		       COALESCE("仕入先コード", '') AS "仕入先コード",
-		       COALESCE("仕入先枝番", 0) AS "仕入先枝番",
-		       "作成日時", "作成者名", "更新日時", "更新者名"
-		FROM "商品マスタ"
-		ORDER BY "商品コード"
-	`
+	query := `SELECT ` + productSelectColumns + ` FROM "商品マスタ" ORDER BY "商品コード"`
 
 	var products []*model.Product
 	err := exec.SelectContext(ctx, &products, query)
