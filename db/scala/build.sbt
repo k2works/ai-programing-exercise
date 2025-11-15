@@ -19,6 +19,7 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       // Testing
       "org.scalatest" %% "scalatest" % "3.2.18" % Test,
+      "org.scalatestplus" %% "mockito-5-10" % "3.2.18.0" % Test,
 
       // Database - ScalikeJDBC
       "org.scalikejdbc" %% "scalikejdbc" % scalikeJDBCVersion,
