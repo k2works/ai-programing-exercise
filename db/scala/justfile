@@ -57,6 +57,14 @@ migrate-info:
 seed:
     sbt "runMain com.example.Main"
 
+# API サーバー起動
+api:
+    sbt "runMain api.ApiServer"
+
+# API サーバー起動（バックグラウンド）
+api-bg:
+    sbt "runMain api.ApiServer" &
+
 # ファイル監視モードでテスト
 watch:
     sbt "~ test"
