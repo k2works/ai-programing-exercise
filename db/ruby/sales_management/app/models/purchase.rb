@@ -9,6 +9,7 @@ class Purchase < ApplicationRecord
   validates :purchase_number, presence: true, uniqueness: true
   validates :purchase_date, presence: true
 
+  before_validation :generate_purchase_number, on: :create
   after_create :update_stock
 
   def calculate_total
@@ -16,6 +17,16 @@ class Purchase < ApplicationRecord
   end
 
   private
+
+  def generate_purchase_number
+    return if purchase_number.present?
+
+    sequence = NumberSequence.find_or_create_by!(
+      sequence_type: 'purchase',
+      prefix: 'PUR'
+    )
+    self.purchase_number = sequence.next_number
+  end
 
   def update_stock
     purchase_items.each do |item|

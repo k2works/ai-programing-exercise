@@ -14,6 +14,7 @@ class PurchaseOrder < ApplicationRecord
   validates :order_date, presence: true
   validates :status, inclusion: { in: STATUSES }
 
+  before_validation :generate_order_number, on: :create
   before_validation :set_defaults, on: :create
 
   # スコープ
@@ -53,6 +54,16 @@ class PurchaseOrder < ApplicationRecord
   end
 
   private
+
+  def generate_order_number
+    return if order_number.present?
+
+    sequence = NumberSequence.find_or_create_by!(
+      sequence_type: 'purchase_order',
+      prefix: 'PO'
+    )
+    self.order_number = sequence.next_number
+  end
 
   def set_defaults
     self.status ||= 'draft'

@@ -11,6 +11,8 @@ class Invoice < ApplicationRecord
   validates :closing_date, presence: true
   validates :due_date, presence: true
 
+  before_validation :generate_invoice_number, on: :create
+
   def total_amount
     invoice_items.sum(:amount)
   end
@@ -25,5 +27,17 @@ class Invoice < ApplicationRecord
 
   def fully_paid?
     balance <= 0
+  end
+
+  private
+
+  def generate_invoice_number
+    return if invoice_number.present?
+
+    sequence = NumberSequence.find_or_create_by!(
+      sequence_type: 'invoice',
+      prefix: 'INV'
+    )
+    self.invoice_number = sequence.next_number
   end
 end
