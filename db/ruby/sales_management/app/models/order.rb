@@ -8,6 +8,8 @@ class Order < ApplicationRecord
   has_many :order_items, dependent: :destroy
   has_many :products, through: :order_items
 
+  accepts_nested_attributes_for :order_items, allow_destroy: true
+
   validates :order_number, presence: true, uniqueness: true
   validates :order_type, presence: true, inclusion: { in: TYPES }
   validates :order_date, presence: true
