@@ -11,8 +11,11 @@
 - **Scala**: 3.3.3
 - **sbt**: 1.9.7
 - **ScalikeJDBC**: 4.2.1（データベースアクセス）
+- **Akka HTTP**: 10.5.3（HTTP サーバー）
+- **Circe**: 0.14.6（JSON ライブラリ）
 - **Flyway**: 10.4.1（データベースマイグレーション）
 - **PostgreSQL**: 15-alpine（データベース）
+- **Swagger UI**: 5.10.3（API ドキュメント）
 - **Testcontainers**: 0.41.0（テスト環境）
 - **ScalaTest**: 3.2.18（テストフレームワーク）
 
@@ -112,6 +115,32 @@ just migrate
 just migrate-info
 ```
 
+### API サーバー
+
+```bash
+# API サーバー起動
+sbt "runMain api.ApiServer"
+
+# または
+just api
+
+# バックグラウンドで起動
+just api-bg
+```
+
+**利用可能なエンドポイント**:
+
+- **Swagger UI**: http://localhost:8080/api-docs
+- **OpenAPI Spec**: http://localhost:8080/swagger.json
+- **Health Check**: http://localhost:8080/health
+
+**Products API**:
+- `POST /api/v1/products` - 商品作成
+- `GET /api/v1/products` - 商品一覧取得
+- `GET /api/v1/products/:prodCode` - 商品詳細取得
+- `PUT /api/v1/products/:prodCode` - 商品更新
+- `DELETE /api/v1/products/:prodCode` - 商品削除
+
 ### CI/CD
 
 ```bash
@@ -133,19 +162,46 @@ db/scala/
 ├── src/
 │   ├── main/
 │   │   ├── scala/
-│   │   │   └── com/example/db/
-│   │   │       ├── DatabaseConfig.scala      # DB接続設定
-│   │   │       └── FlywayMigration.scala     # マイグレーション管理
+│   │   │   ├── api/
+│   │   │   │   ├── ApiServer.scala           # API サーバーエントリーポイント
+│   │   │   │   ├── presentation/
+│   │   │   │   │   └── ProductHandler.scala  # REST API ルート
+│   │   │   │   ├── schema/
+│   │   │   │   │   └── ProductSchema.scala   # API リクエスト/レスポンス
+│   │   │   │   ├── service/
+│   │   │   │   │   └── ProductService.scala  # ビジネスロジック
+│   │   │   │   ├── support/
+│   │   │   │   │   └── JsonSupport.scala     # JSON マーシャリング
+│   │   │   │   └── swagger/
+│   │   │   │       └── SwaggerRoutes.scala   # OpenAPI 仕様
+│   │   │   └── com/example/
+│   │   │       ├── db/
+│   │   │       │   ├── DatabaseConfig.scala      # DB接続設定
+│   │   │       │   └── FlywayMigration.scala     # マイグレーション管理
+│   │   │       ├── domain/
+│   │   │       │   └── Product.scala             # ドメインモデル
+│   │   │       └── repository/
+│   │   │           └── ProductRepository.scala   # データアクセス層
 │   │   └── resources/
 │   │       ├── application.conf              # アプリケーション設定
+│   │       ├── swagger-ui/
+│   │       │   ├── index.html               # カスタム Swagger UI
+│   │       │   └── swagger-initializer.js   # Swagger UI 設定
 │   │       └── db/migration/
-│   │           └── V1__Create_schema_version_table.sql
+│   │           ├── V1__Create_schema_version_table.sql
+│   │           ├── V4__Create_product_table.sql
+│   │           └── ...
 │   └── test/
 │       └── scala/
-│           └── com/example/db/
-│               ├── DatabaseSpec.scala         # テスト基底クラス
-│               ├── DatabaseConfigSpec.scala   # DB接続テスト
-│               └── FlywayMigrationSpec.scala  # マイグレーションテスト
+│           ├── api/service/
+│           │   └── ProductServiceSpec.scala  # サービステスト
+│           └── com/example/
+│               ├── db/
+│               │   ├── DatabaseSpec.scala         # テスト基底クラス
+│               │   ├── DatabaseConfigSpec.scala   # DB接続テスト
+│               │   └── FlywayMigrationSpec.scala  # マイグレーションテスト
+│               └── repository/
+│                   └── ProductRepositorySpec.scala # リポジトリテスト
 ├── docker-compose.yml           # Docker設定
 ├── docker/
 │   └── postgres/
@@ -206,14 +262,70 @@ git commit -m "feat: 新機能追加"
 | **開発・手動テスト** | Docker Compose | 手動で起動/停止 |
 | **マイグレーション確認** | Docker Compose | 永続化されたデータで確認 |
 
+## アーキテクチャ
+
+### 3 層アーキテクチャ
+
+本プロジェクトは、以下の 3 層アーキテクチャを採用しています：
+
+```
+┌─────────────────────────────────────┐
+│   Presentation Layer (HTTP)         │
+│   - ProductHandler                  │
+│   - REST API ルート                 │
+│   - JSON マーシャリング              │
+└─────────────────────────────────────┘
+              ↓
+┌─────────────────────────────────────┐
+│   Service Layer (Business Logic)    │
+│   - ProductService                  │
+│   - ビジネスルール検証               │
+│   - トランザクション管理             │
+└─────────────────────────────────────┘
+              ↓
+┌─────────────────────────────────────┐
+│   Infrastructure Layer (Data)       │
+│   - ProductRepository               │
+│   - データアクセス                   │
+│   - SQL クエリ                      │
+└─────────────────────────────────────┘
+```
+
+**各層の責務**:
+
+1. **Presentation Layer** (`api/presentation/`):
+   - HTTP リクエスト/レスポンスの処理
+   - ルーティング
+   - JSON シリアライゼーション
+
+2. **Service Layer** (`api/service/`):
+   - ビジネスロジックの実装
+   - バリデーション
+   - トランザクション境界の管理
+
+3. **Infrastructure Layer** (`repository/`):
+   - データベースアクセス
+   - SQL クエリの実行
+   - ドメインモデルとの変換
+
+### API ドキュメント
+
+- **Swagger UI** で全エンドポイントを確認可能
+- **OpenAPI 3.0** 仕様に準拠
+- API サーバー起動後、http://localhost:8080/api-docs にアクセス
+
 ## ライセンス
 
 MIT License
 
 ## 参考資料
 
-- [ScalikeJDBC公式ドキュメント](http://scalikejdbc.org/)
-- [Flyway公式サイト](https://flywaydb.org/)
-- [Testcontainers公式サイト](https://www.testcontainers.org/)
-- [Scala公式サイト](https://www.scala-lang.org/)
+- [ScalikeJDBC 公式ドキュメント](http://scalikejdbc.org/)
+- [Akka HTTP 公式ドキュメント](https://doc.akka.io/docs/akka-http/current/)
+- [Circe 公式サイト](https://circe.github.io/circe/)
+- [Flyway 公式サイト](https://flywaydb.org/)
+- [Swagger UI](https://swagger.io/tools/swagger-ui/)
+- [OpenAPI 3.0 仕様](https://swagger.io/specification/)
+- [Testcontainers 公式サイト](https://www.testcontainers.org/)
+- [Scala 公式サイト](https://www.scala-lang.org/)
 - [just コマンドランナー](https://github.com/casey/just)
