@@ -21,8 +21,8 @@ object SeedData {
     sql"TRUNCATE TABLE 発注明細 CASCADE".execute.apply()
     sql"TRUNCATE TABLE 発注 CASCADE".execute.apply()
     sql"TRUNCATE TABLE 在庫 CASCADE".execute.apply()
-    sql"TRUNCATE TABLE 代替商品マスタ CASCADE".execute.apply()
-    sql"TRUNCATE TABLE 取引先別単価マスタ CASCADE".execute.apply()
+    sql"TRUNCATE TABLE 代替商品 CASCADE".execute.apply()
+    sql"TRUNCATE TABLE 顧客別販売単価 CASCADE".execute.apply()
     sql"TRUNCATE TABLE 商品マスタ CASCADE".execute.apply()
     sql"TRUNCATE TABLE 商品分類マスタ CASCADE".execute.apply()
     sql"TRUNCATE TABLE 仕入先マスタ CASCADE".execute.apply()
@@ -158,13 +158,13 @@ object SeedData {
     val repo = CompanyGroupRepository()
 
     val groups = List(
-      CompanyGroup("GRP001", "百貨店グループ", now, "seed", now, "seed"),
-      CompanyGroup("GRP002", "スーパーグループ", now, "seed", now, "seed"),
-      CompanyGroup("GRP003", "ホテル・旅館グループ", now, "seed", now, "seed"),
-      CompanyGroup("GRP004", "飲食店グループ", now, "seed", now, "seed"),
-      CompanyGroup("GRP005", "観光施設グループ", now, "seed", now, "seed"),
-      CompanyGroup("GRP006", "食肉卸グループ", now, "seed", now, "seed"),
-      CompanyGroup("GRP007", "畜産業者グループ", now, "seed", now, "seed")
+      CompanyGroup("G001", "百貨店グループ", now, "seed", now, "seed"),
+      CompanyGroup("G002", "スーパーグループ", now, "seed", now, "seed"),
+      CompanyGroup("G003", "ホテル・旅館グループ", now, "seed", now, "seed"),
+      CompanyGroup("G004", "飲食店グループ", now, "seed", now, "seed"),
+      CompanyGroup("G005", "観光施設グループ", now, "seed", now, "seed"),
+      CompanyGroup("G006", "食肉卸グループ", now, "seed", now, "seed"),
+      CompanyGroup("G007", "畜産業者グループ", now, "seed", now, "seed")
     )
 
     groups.map(repo.create).sum
@@ -177,22 +177,22 @@ object SeedData {
 
     val companies = List(
       // 得意先
-      Company("COMP0001", "地域百貨店", Some("チイキヒャッカテン"), 0, None, None, None, None, 0, 0, "GRP001", 50000000, 0, now, "seed", now, "seed"),
-      Company("COMP0002", "X県有名百貨店", Some("ケンユウメイヒャッカテン"), 0, None, None, None, None, 0, 0, "GRP001", 80000000, 0, now, "seed", now, "seed"),
-      Company("COMP0003", "地域スーパーチェーン", Some("チイキスーパー"), 0, None, None, None, None, 0, 0, "GRP002", 30000000, 0, now, "seed", now, "seed"),
-      Company("COMP0004", "広域スーパーチェーン", Some("コウイキスーパー"), 0, None, None, None, None, 0, 0, "GRP002", 100000000, 0, now, "seed", now, "seed"),
-      Company("COMP0005", "シティホテル", Some("シティホテル"), 0, None, None, None, None, 0, 0, "GRP003", 20000000, 0, now, "seed", now, "seed"),
-      Company("COMP0006", "温泉旅館", Some("オンセンリョカン"), 0, None, None, None, None, 0, 0, "GRP003", 15000000, 0, now, "seed", now, "seed"),
-      Company("COMP0007", "焼肉レストラン", Some("ヤキニクレストラン"), 0, None, None, None, None, 0, 0, "GRP004", 10000000, 0, now, "seed", now, "seed"),
-      Company("COMP0008", "イタリアンレストラン", Some("イタリアンレストラン"), 0, None, None, None, None, 0, 0, "GRP004", 8000000, 0, now, "seed", now, "seed"),
-      Company("COMP0009", "道の駅", Some("ミチノエキ"), 0, None, None, None, None, 0, 0, "GRP005", 5000000, 0, now, "seed", now, "seed"),
-      Company("COMP0010", "観光センター", Some("カンコウセンター"), 0, None, None, None, None, 0, 0, "GRP005", 6000000, 0, now, "seed", now, "seed"),
+      Company("COMP0001", "地域百貨店", Some("チイキヒャッカテン"), 0, None, None, None, None, 0, 0, "G001", 50000000, 0, now, "seed", now, "seed"),
+      Company("COMP0002", "X県有名百貨店", Some("ケンユウメイヒャッカテン"), 0, None, None, None, None, 0, 0, "G001", 80000000, 0, now, "seed", now, "seed"),
+      Company("COMP0003", "地域スーパーチェーン", Some("チイキスーパー"), 0, None, None, None, None, 0, 0, "G002", 30000000, 0, now, "seed", now, "seed"),
+      Company("COMP0004", "広域スーパーチェーン", Some("コウイキスーパー"), 0, None, None, None, None, 0, 0, "G002", 100000000, 0, now, "seed", now, "seed"),
+      Company("COMP0005", "シティホテル", Some("シティホテル"), 0, None, None, None, None, 0, 0, "G003", 20000000, 0, now, "seed", now, "seed"),
+      Company("COMP0006", "温泉旅館", Some("オンセンリョカン"), 0, None, None, None, None, 0, 0, "G003", 15000000, 0, now, "seed", now, "seed"),
+      Company("COMP0007", "焼肉レストラン", Some("ヤキニクレストラン"), 0, None, None, None, None, 0, 0, "G004", 10000000, 0, now, "seed", now, "seed"),
+      Company("COMP0008", "イタリアンレストラン", Some("イタリアンレストラン"), 0, None, None, None, None, 0, 0, "G004", 8000000, 0, now, "seed", now, "seed"),
+      Company("COMP0009", "道の駅", Some("ミチノエキ"), 0, None, None, None, None, 0, 0, "G005", 5000000, 0, now, "seed", now, "seed"),
+      Company("COMP0010", "観光センター", Some("カンコウセンター"), 0, None, None, None, None, 0, 0, "G005", 6000000, 0, now, "seed", now, "seed"),
 
       // 仕入先
-      Company("COMP0011", "地域食肉卸A社", Some("チイキショクニクオロシA"), 1, None, None, None, None, 0, 0, "GRP006", 0, 0, now, "seed", now, "seed"),
-      Company("COMP0012", "地域食肉卸B社", Some("チイキショクニクオロシB"), 1, None, None, None, None, 0, 0, "GRP006", 0, 0, now, "seed", now, "seed"),
-      Company("COMP0013", "地域畜産農家", Some("チイキチクサンノウカ"), 1, None, None, None, None, 0, 0, "GRP007", 0, 0, now, "seed", now, "seed"),
-      Company("COMP0014", "県内畜産組合", Some("ケンナイチクサンクミアイ"), 1, None, None, None, None, 0, 0, "GRP007", 0, 0, now, "seed", now, "seed")
+      Company("COMP0011", "地域食肉卸A社", Some("チイキショクニクオロシA"), 1, None, None, None, None, 0, 0, "G006", 0, 0, now, "seed", now, "seed"),
+      Company("COMP0012", "地域食肉卸B社", Some("チイキショクニクオロシB"), 1, None, None, None, None, 0, 0, "G006", 0, 0, now, "seed", now, "seed"),
+      Company("COMP0013", "地域畜産農家", Some("チイキチクサンノウカ"), 1, None, None, None, None, 0, 0, "G007", 0, 0, now, "seed", now, "seed"),
+      Company("COMP0014", "県内畜産組合", Some("ケンナイチクサンクミアイ"), 1, None, None, None, None, 0, 0, "G007", 0, 0, now, "seed", now, "seed")
     )
 
     companies.map(repo.create).sum
@@ -258,8 +258,8 @@ object SeedData {
     val repo = WarehouseRepository()
 
     val warehouses = List(
-      Warehouse("WH001", "本社倉庫", Some("100-0001"), Some("東京都"), Some("千代田区千代田1-1-1"), None, Some("03-1234-5678"), None, now, "seed", now, "seed"),
-      Warehouse("WH002", "工場倉庫", Some("200-0001"), Some("神奈川県"), Some("横浜市中区山下町1-1-1"), None, Some("045-1234-5678"), None, now, "seed", now, "seed")
+      Warehouse("W01", "本社倉庫", Some("100-0001"), Some("東京都"), Some("千代田区千代田1-1-1"), None, Some("03-1234-5678"), None, now, "seed", now, "seed"),
+      Warehouse("W02", "工場倉庫", Some("200-0001"), Some("神奈川県"), Some("横浜市中区山下町1-1-1"), None, Some("045-1234-5678"), None, now, "seed", now, "seed")
     )
 
     warehouses.map(repo.create).sum
