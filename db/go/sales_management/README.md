@@ -9,6 +9,9 @@
 - **データベース**: PostgreSQL 16
 - **SQL ライブラリ**: sqlx
 - **PostgreSQL ドライバ**: lib/pq
+- **Web フレームワーク**: Gin
+- **API ドキュメント**: Swagger (swaggo)
+- **バリデーション**: validator/v10
 - **テスティング**: testify, testcontainers-go
 
 ### 開発ツール
@@ -24,14 +27,21 @@
 ```
 .
 ├── cmd/
+│   ├── api/              # Web API サーバー
 │   ├── seed/             # シードデータ投入プログラム
 │   └── server/           # アプリケーションエントリーポイント
 ├── internal/
+│   ├── api/              # API レイヤー
+│   │   ├── handler/      # HTTP ハンドラ（Presentation 層）
+│   │   ├── schema/       # リクエスト/レスポンススキーマ
+│   │   └── service/      # ビジネスロジック（Service 層）
+│   ├── domain/           # API 用ドメインモデル
 │   ├── model/            # ドメインモデル
-│   └── repository/       # データアクセス層（リポジトリパターン）
+│   └── repository/       # データアクセス層（Infrastructure 層）
 ├── pkg/
 │   ├── database/         # データベース接続管理
 │   └── testutil/         # テストユーティリティ
+├── docs/                 # Swagger ドキュメント
 ├── test/                 # テストヘルパー
 ├── migrations/           # データベースマイグレーション
 ├── .env                  # 環境変数（gitignore 対象）
@@ -234,6 +244,7 @@ just lint           # 静的解析
 just fmt            # コードフォーマット
 just build          # ビルド
 just run            # アプリケーション実行
+just api-server     # API サーバー起動
 just seed           # シードデータを投入
 just db-up          # データベース起動
 just db-down        # データベース停止
@@ -397,6 +408,7 @@ t.Run("部門を登録できる", func(t *testing.T) {
 
 ### レイヤー構成
 
+#### データアクセス層
 1. **Model (ドメイン層)**
    - ビジネスロジックとドメインモデル
    - 他の層に依存しない
@@ -408,6 +420,24 @@ t.Run("部門を登録できる", func(t *testing.T) {
 3. **Database (インフラ層)**
    - データベース接続管理
    - 接続プール設定
+
+#### Web API 層（レイヤードアーキテクチャ）
+1. **Presentation 層 (Handler)**
+   - HTTP エンドポイント定義
+   - リクエスト/レスポンス処理
+   - JSON エンコード/デコード
+   - バリデーション
+
+2. **Service 層**
+   - ビジネスロジックの実装
+   - データ変換・加工
+   - トランザクション管理
+   - 複数 Repository の調整
+
+3. **Infrastructure 層 (Repository)**
+   - データベースアクセス
+   - CRUD 操作
+   - クエリ実行
 
 ### 設計パターン
 
@@ -463,13 +493,60 @@ type Employee struct {
   - Update
   - Delete
 
+### ✅ Chapter 9: Web API の実装
+
+#### レイヤードアーキテクチャの採用
+- [x] Presentation 層: HTTP ハンドラ
+- [x] Service 層: ビジネスロジック
+- [x] Infrastructure 層: データアクセス
+
+#### 実装内容
+- [x] API スキーマ定義 (`internal/api/schema/product.go`)
+- [x] Product Service (`internal/api/service/product_service.go`)
+- [x] Product Handler (`internal/api/handler/product_handler.go`)
+- [x] API Product Repository (`internal/repository/api_product_repository_impl.go`)
+- [x] メインアプリケーション (`cmd/api/main.go`)
+- [x] Swagger ドキュメント生成 (`docs/`)
+
+#### API エンドポイント
+- `POST /api/v1/products`: 商品作成
+- `GET /api/v1/products`: 商品一覧取得
+- `GET /api/v1/products/:prodCode`: 商品詳細取得
+- `PUT /api/v1/products/:prodCode`: 商品更新
+- `DELETE /api/v1/products/:prodCode`: 商品削除
+- `GET /health`: ヘルスチェック
+- `GET /swagger/*`: Swagger UI
+
+#### 機能
+- ビジネスルールのバリデーション（販売単価 >= 仕入単価）
+- トランザクション管理
+- エラーハンドリング
+- Swagger による API ドキュメント自動生成
+
+#### API サーバーの起動
+
+```bash
+# データベースとシードデータの準備
+just db-up
+just seed
+
+# API サーバー起動
+just api-server
+
+# ブラウザでアクセス
+# - Swagger UI: http://localhost:8080/swagger/index.html
+# - ヘルスチェック: http://localhost:8080/health
+```
+
 ### テスト結果
 
 ```bash
 $ just test
 テストを実行中...
+ok  	github.com/k2works/sales-management-db/internal/api/schema	0.693s
+ok  	github.com/k2works/sales-management-db/internal/api/service	0.650s
 ok  	github.com/k2works/sales-management-db/internal/repository	33.142s
-✅ 9/9 tests passed
+✅ 15/15 tests passed
 ```
 
 ## トラブルシューティング
