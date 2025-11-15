@@ -14,7 +14,23 @@ func TestProductRepository_Create(t *testing.T) {
 	testDB := testutil.SetupTestDB(t)
 
 	t.Run("商品を登録できる", func(t *testing.T) {
-		// Given: 新しい商品を作成
+		// Given: 商品分類が存在する
+		categoryRepo := NewProductCategoryRepository(testDB.DB)
+		category := &model.ProductCategory{
+			CategoryCode:  "PC001",
+			CategoryName:  "ノートPC",
+			CategoryLevel: 1,
+			CategoryPath:  "/PC/PC001/",
+			IsLowestLevel: 1,
+			CreatedAt:     time.Now(),
+			CreatedBy:     "admin",
+			UpdatedAt:     time.Now(),
+			UpdatedBy:     "admin",
+		}
+		err := categoryRepo.Create(category)
+		require.NoError(t, err)
+
+		// When: 新しい商品を作成
 		repo := NewProductRepository(testDB.DB)
 		product := &model.Product{
 			ProductCode:         "PROD001",
@@ -35,8 +51,8 @@ func TestProductRepository_Create(t *testing.T) {
 			UpdatedBy:           "admin",
 		}
 
-		// When: 商品を登録すると
-		err := repo.Create(product)
+		// Then: 商品を登録すると
+		err = repo.Create(product)
 
 		// Then: エラーなく登録できる
 		require.NoError(t, err)
@@ -54,7 +70,22 @@ func TestProductRepository_FindAll(t *testing.T) {
 	testDB := testutil.SetupTestDB(t)
 
 	t.Run("すべての商品を取得できる", func(t *testing.T) {
-		// Given: 複数の商品が登録されている
+		// Given: 商品分類が存在し、複数の商品が登録されている
+		categoryRepo := NewProductCategoryRepository(testDB.DB)
+		category := &model.ProductCategory{
+			CategoryCode:  "PC001",
+			CategoryName:  "ノートPC",
+			CategoryLevel: 1,
+			CategoryPath:  "/PC/PC001/",
+			IsLowestLevel: 1,
+			CreatedAt:     time.Now(),
+			CreatedBy:     "admin",
+			UpdatedAt:     time.Now(),
+			UpdatedBy:     "admin",
+		}
+		err := categoryRepo.Create(category)
+		require.NoError(t, err)
+
 		repo := NewProductRepository(testDB.DB)
 		products := []*model.Product{
 			{
@@ -62,6 +93,7 @@ func TestProductRepository_FindAll(t *testing.T) {
 				ProductFullName:     "ノートパソコン ThinkPad X1 Carbon",
 				ProductAbbreviation: "ThinkPad",
 				ProductNameKana:     "ノートパソコン シンクパッド",
+				ProductCategoryCode: "PC001",
 				SellingPrice:        200000,
 				PurchasePrice:       150000,
 				CostOfSales:         150000,
@@ -77,6 +109,7 @@ func TestProductRepository_FindAll(t *testing.T) {
 				ProductFullName:     "デスクトップパソコン OptiPlex 7090",
 				ProductAbbreviation: "OptiPlex",
 				ProductNameKana:     "デスクトップパソコン オプティプレックス",
+				ProductCategoryCode: "PC001",
 				SellingPrice:        150000,
 				PurchasePrice:       100000,
 				CostOfSales:         100000,
@@ -107,6 +140,22 @@ func TestProductRepository_Update(t *testing.T) {
 	testDB := testutil.SetupTestDB(t)
 
 	t.Run("商品を更新できる", func(t *testing.T) {
+		// Given: 商品分類が存在する
+		categoryRepo := NewProductCategoryRepository(testDB.DB)
+		category := &model.ProductCategory{
+			CategoryCode:  "PC001",
+			CategoryName:  "ノートPC",
+			CategoryLevel: 1,
+			CategoryPath:  "/PC/PC001/",
+			IsLowestLevel: 1,
+			CreatedAt:     time.Now(),
+			CreatedBy:     "admin",
+			UpdatedAt:     time.Now(),
+			UpdatedBy:     "admin",
+		}
+		err := categoryRepo.Create(category)
+		require.NoError(t, err)
+
 		// Given: 商品が登録されている
 		repo := NewProductRepository(testDB.DB)
 		product := &model.Product{
@@ -114,6 +163,7 @@ func TestProductRepository_Update(t *testing.T) {
 			ProductFullName:     "ノートパソコン ThinkPad X1 Carbon",
 			ProductAbbreviation: "ThinkPad",
 			ProductNameKana:     "ノートパソコン シンクパッド",
+			ProductCategoryCode: "PC001",
 			SellingPrice:        200000,
 			PurchasePrice:       150000,
 			CostOfSales:         150000,
@@ -124,7 +174,7 @@ func TestProductRepository_Update(t *testing.T) {
 			UpdatedAt:           time.Now(),
 			UpdatedBy:           "admin",
 		}
-		err := repo.Create(product)
+		err = repo.Create(product)
 		require.NoError(t, err)
 
 		// When: 商品情報を更新すると
@@ -147,6 +197,22 @@ func TestProductRepository_Delete(t *testing.T) {
 	testDB := testutil.SetupTestDB(t)
 
 	t.Run("商品を削除できる", func(t *testing.T) {
+		// Given: 商品分類が存在する
+		categoryRepo := NewProductCategoryRepository(testDB.DB)
+		category := &model.ProductCategory{
+			CategoryCode:  "PC001",
+			CategoryName:  "ノートPC",
+			CategoryLevel: 1,
+			CategoryPath:  "/PC/PC001/",
+			IsLowestLevel: 1,
+			CreatedAt:     time.Now(),
+			CreatedBy:     "admin",
+			UpdatedAt:     time.Now(),
+			UpdatedBy:     "admin",
+		}
+		err := categoryRepo.Create(category)
+		require.NoError(t, err)
+
 		// Given: 商品が登録されている
 		repo := NewProductRepository(testDB.DB)
 		product := &model.Product{
@@ -154,6 +220,7 @@ func TestProductRepository_Delete(t *testing.T) {
 			ProductFullName:     "ノートパソコン ThinkPad X1 Carbon",
 			ProductAbbreviation: "ThinkPad",
 			ProductNameKana:     "ノートパソコン シンクパッド",
+			ProductCategoryCode: "PC001",
 			SellingPrice:        200000,
 			PurchasePrice:       150000,
 			CostOfSales:         150000,
@@ -164,7 +231,7 @@ func TestProductRepository_Delete(t *testing.T) {
 			UpdatedAt:           time.Now(),
 			UpdatedBy:           "admin",
 		}
-		err := repo.Create(product)
+		err = repo.Create(product)
 		require.NoError(t, err)
 
 		// When: 商品を削除すると

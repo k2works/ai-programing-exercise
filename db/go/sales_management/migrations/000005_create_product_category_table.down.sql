@@ -1,0 +1,2 @@
+ALTER TABLE 商品マスタ DROP CONSTRAINT IF EXISTS fk_product_category;
+DROP TABLE IF EXISTS 商品分類マスタ;
