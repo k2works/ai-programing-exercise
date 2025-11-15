@@ -1,0 +1,566 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<database name="sales_management" schema="public" type="PostgreSQL - 16.10">
+   <tables>
+      <table name="schema_migrations" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="version" nullable="false" remarks="" size="19" type="int8" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="dirty" nullable="false" remarks="" size="1" type="bool" typeCode="-7"/>
+         <primaryKey column="version" sequenceNumberInPK="1"/>
+         <index name="schema_migrations_pkey" unique="true">
+            <column ascending="true" name="version"/>
+         </index>
+      </table>
+      <table name="与信残高" remarks="取引先ごとの与信状況を管理するテーブル" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="取引先コード" nullable="false" remarks="与信管理対象の取引先コード" size="8" type="varchar" typeCode="12">
+            <parent column="取引先コード" foreignKey="fk_credit_balance_company" implied="false" onDeleteCascade="false" schema="public" table="取引先マスタ"/>
+         </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="受注残高" nullable="false" remarks="未出荷の受注金額の合計" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="売掛残高" nullable="false" remarks="未入金の売上金額の合計(売掛金)" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="3" name="買掛残高" nullable="false" remarks="未払いの仕入金額の合計(買掛金)" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="4" name="作成日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="作成者名" nullable="true" remarks="" size="12" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="6" name="更新日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="更新者名" nullable="true" remarks="" size="12" type="varchar" typeCode="12"/>
+         <primaryKey column="取引先コード" sequenceNumberInPK="1"/>
+         <index name="与信残高_pkey" unique="true">
+            <column ascending="true" name="取引先コード"/>
+         </index>
+         <index name="idx_credit_balance_company" unique="false">
+            <column ascending="true" name="取引先コード"/>
+         </index>
+      </table>
+      <table name="仕入先マスタ" remarks="仕入先としての詳細情報を管理するテーブル" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="仕入先コード" nullable="false" remarks="取引先マスタへの外部キー" size="8" type="varchar" typeCode="12">
+            <parent column="取引先コード" foreignKey="fk_supplier_company" implied="false" onDeleteCascade="true" schema="public" table="取引先マスタ"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="仕入先枝番" nullable="false" remarks="同一取引先内での枝番" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="仕入先区分" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="仕入先名" nullable="true" remarks="" size="40" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="仕入先名カナ" nullable="true" remarks="" size="40" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="担当社員コード" nullable="true" remarks="" size="10" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="仕入先担当者名" nullable="true" remarks="" size="40" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="仕入先担当部署名" nullable="true" remarks="" size="40" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="仕入先郵便番号" nullable="true" remarks="" size="8" type="bpchar" typeCode="1"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="仕入先都道府県" nullable="true" remarks="" size="4" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="仕入先住所１" nullable="true" remarks="" size="40" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="仕入先電話番号" nullable="true" remarks="" size="13" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="仕入先メールアドレス" nullable="true" remarks="" size="40" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="仕入先締日" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="仕入先支払月数" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="仕入先支払日" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="仕入先支払方法" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="17" name="作成日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="18" name="作成者名" nullable="true" remarks="" size="12" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="19" name="更新日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="20" name="更新者名" nullable="true" remarks="" size="12" type="varchar" typeCode="12"/>
+         <primaryKey column="仕入先コード" sequenceNumberInPK="1"/>
+         <primaryKey column="仕入先枝番" sequenceNumberInPK="2"/>
+         <index name="仕入先マスタ_pkey" unique="true">
+            <column ascending="true" name="仕入先コード"/>
+            <column ascending="true" name="仕入先枝番"/>
+         </index>
+         <index name="idx_supplier_company" unique="false">
+            <column ascending="true" name="仕入先コード"/>
+         </index>
+      </table>
+      <table name="代替商品" remarks="商品の代替商品を管理するテーブル(多対多関係)" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="商品コード" nullable="false" remarks="元商品コード(外部キー)" size="16" type="varchar" typeCode="12">
+            <parent column="商品コード" foreignKey="fk_alternate_product" implied="false" onDeleteCascade="true" schema="public" table="商品マスタ"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="代替商品コード" nullable="false" remarks="代替商品コード(外部キー)" size="16" type="varchar" typeCode="12">
+            <parent column="商品コード" foreignKey="fk_alternate_product_alt" implied="false" onDeleteCascade="true" schema="public" table="商品マスタ"/>
+         </column>
+         <column autoUpdated="false" defaultValue="1" digits="0" id="2" name="優先順位" nullable="true" remarks="代替優先順位(1が最優先)" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="3" name="作成日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="作成者名" nullable="false" remarks="" size="12" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="5" name="更新日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="更新者名" nullable="false" remarks="" size="12" type="varchar" typeCode="12"/>
+         <primaryKey column="商品コード" sequenceNumberInPK="1"/>
+         <primaryKey column="代替商品コード" sequenceNumberInPK="2"/>
+         <index name="代替商品_pkey" unique="true">
+            <column ascending="true" name="商品コード"/>
+            <column ascending="true" name="代替商品コード"/>
+         </index>
+         <index name="idx_alternate_product_alt" unique="false">
+            <column ascending="true" name="代替商品コード"/>
+         </index>
+      </table>
+      <table name="倉庫マスタ" remarks="商品を保管する倉庫の情報を管理するマスタテーブル" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="倉庫コード" nullable="false" remarks="倉庫を一意に識別するコード" size="3" type="varchar" typeCode="12">
+            <child column="倉庫コード" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="public" table="受注"/>
+            <child column="倉庫コード" foreignKey="fk_stock_warehouse" implied="false" onDeleteCascade="false" schema="public" table="在庫"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="倉庫名" nullable="false" remarks="倉庫の名称" size="40" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="郵便番号" nullable="true" remarks="倉庫の郵便番号" size="8" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="都道府県" nullable="true" remarks="倉庫の所在地（都道府県）" size="4" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="住所１" nullable="true" remarks="倉庫の住所（市区町村以降）" size="40" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="住所２" nullable="true" remarks="倉庫の住所（建物名等）" size="40" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="電話番号" nullable="true" remarks="" size="15" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="fax番号" nullable="true" remarks="" size="15" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="8" name="作成日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="作成者名" nullable="true" remarks="" size="12" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="10" name="更新日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="更新者名" nullable="true" remarks="" size="12" type="varchar" typeCode="12"/>
+         <primaryKey column="倉庫コード" sequenceNumberInPK="1"/>
+         <index name="倉庫マスタ_pkey" unique="true">
+            <column ascending="true" name="倉庫コード"/>
+         </index>
+         <index name="idx_warehouse_name" unique="false">
+            <column ascending="true" name="倉庫名"/>
+         </index>
+      </table>
+      <table name="取引先グループマスタ" remarks="取引先をグループ化するためのマスタテーブル" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="取引先グループコード" nullable="false" remarks="グループを一意に識別するコード" size="4" type="varchar" typeCode="12">
+            <child column="取引先グループコード" foreignKey="fk_company_group" implied="false" onDeleteCascade="false" schema="public" table="取引先マスタ"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="取引先グループ名" nullable="true" remarks="グループ名" size="40" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="2" name="作成日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="作成者名" nullable="true" remarks="" size="12" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="4" name="更新日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="更新者名" nullable="true" remarks="" size="12" type="varchar" typeCode="12"/>
+         <primaryKey column="取引先グループコード" sequenceNumberInPK="1"/>
+         <index name="取引先グループマスタ_pkey" unique="true">
+            <column ascending="true" name="取引先グループコード"/>
+         </index>
+      </table>
+      <table name="取引先マスタ" remarks="すべての取引先の基本情報を管理するマスタテーブル" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="取引先コード" nullable="false" remarks="取引先を一意に識別するコード" size="8" type="varchar" typeCode="12">
+            <child column="取引先コード" foreignKey="fk_credit_balance_company" implied="false" onDeleteCascade="false" schema="public" table="与信残高"/>
+            <child column="仕入先コード" foreignKey="fk_supplier_company" implied="false" onDeleteCascade="true" schema="public" table="仕入先マスタ"/>
+            <child column="取引先コード" foreignKey="fk_sales_company" implied="false" onDeleteCascade="false" schema="public" table="売上"/>
+            <child column="顧客コード" foreignKey="fk_customer_company" implied="false" onDeleteCascade="true" schema="public" table="顧客マスタ"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="取引先名" nullable="false" remarks="" size="40" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="取引先名カナ" nullable="true" remarks="" size="40" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="3" name="仕入先区分" nullable="true" remarks="仕入先としての種別(0:通常、1:メーカー、2:商社)" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="郵便番号" nullable="true" remarks="" size="8" type="bpchar" typeCode="1"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="都道府県" nullable="true" remarks="" size="4" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="住所１" nullable="true" remarks="" size="40" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="住所２" nullable="true" remarks="" size="40" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="8" name="取引禁止フラグ" nullable="true" remarks="取引を禁止するかどうか(0:許可、1:禁止)" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="9" name="雑区分" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="取引先グループコード" nullable="false" remarks="" size="4" type="varchar" typeCode="12">
+            <parent column="取引先グループコード" foreignKey="fk_company_group" implied="false" onDeleteCascade="false" schema="public" table="取引先グループマスタ"/>
+         </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="11" name="与信限度額" nullable="true" remarks="与信の上限金額" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="12" name="与信一時増加枠" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="13" name="作成日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="作成者名" nullable="true" remarks="" size="12" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="15" name="更新日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="更新者名" nullable="true" remarks="" size="12" type="varchar" typeCode="12"/>
+         <primaryKey column="取引先コード" sequenceNumberInPK="1"/>
+         <index name="取引先マスタ_pkey" unique="true">
+            <column ascending="true" name="取引先コード"/>
+         </index>
+         <index name="idx_company_group" unique="false">
+            <column ascending="true" name="取引先グループコード"/>
+         </index>
+         <index name="idx_company_name" unique="false">
+            <column ascending="true" name="取引先名"/>
+         </index>
+      </table>
+      <table name="受注" remarks="顧客からの受注データを管理するテーブル" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="受注番号" nullable="false" remarks="受注を一意に識別する番号" size="20" type="varchar" typeCode="12">
+            <child column="受注番号" foreignKey="fk_order_detail_order" implied="false" onDeleteCascade="true" schema="public" table="受注明細"/>
+            <child column="受注番号" foreignKey="fk_sales_order" implied="false" onDeleteCascade="false" schema="public" table="売上"/>
+         </column>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="1" name="受注日" nullable="false" remarks="受注を受け付けた日時" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="部門コード" nullable="false" remarks="" size="6" type="varchar" typeCode="12">
+            <parent column="部門コード" foreignKey="fk_order_department" implied="false" onDeleteCascade="false" schema="public" table="部門マスタ"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="3" name="開始日" nullable="false" remarks="" size="29" type="timestamp" typeCode="93">
+            <parent column="開始日" foreignKey="fk_order_department" implied="false" onDeleteCascade="false" schema="public" table="部門マスタ"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="顧客コード" nullable="false" remarks="" size="8" type="varchar" typeCode="12">
+            <parent column="顧客コード" foreignKey="fk_order_customer" implied="false" onDeleteCascade="false" schema="public" table="顧客マスタ"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="顧客枝番" nullable="false" remarks="" size="10" type="int4" typeCode="4">
+            <parent column="顧客枝番" foreignKey="fk_order_customer" implied="false" onDeleteCascade="false" schema="public" table="顧客マスタ"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="社員コード" nullable="false" remarks="" size="10" type="varchar" typeCode="12">
+            <parent column="社員コード" foreignKey="fk_order_employee" implied="false" onDeleteCascade="false" schema="public" table="社員マスタ"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="7" name="納期" nullable="true" remarks="顧客が希望する納期" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="顧客注文番号" nullable="true" remarks="顧客側の注文番号" size="20" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="倉庫コード" nullable="true" remarks="" size="3" type="varchar" typeCode="12">
+            <parent column="倉庫コード" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="public" table="倉庫マスタ"/>
+         </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="10" name="受注金額" nullable="true" remarks="受注の合計金額（税抜）" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="11" name="消費税" nullable="true" remarks="消費税の合計額" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="伝票コメント" nullable="true" remarks="" size="1000" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="13" name="作成日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="作成者名" nullable="true" remarks="" size="12" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="15" name="更新日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="更新者名" nullable="true" remarks="" size="12" type="varchar" typeCode="12"/>
+         <primaryKey column="受注番号" sequenceNumberInPK="1"/>
+         <index name="受注_pkey" unique="true">
+            <column ascending="true" name="受注番号"/>
+         </index>
+         <index name="idx_order_customer" unique="false">
+            <column ascending="true" name="顧客コード"/>
+            <column ascending="true" name="顧客枝番"/>
+         </index>
+         <index name="idx_order_date" unique="false">
+            <column ascending="true" name="受注日"/>
+         </index>
+         <index name="idx_order_employee" unique="false">
+            <column ascending="true" name="社員コード"/>
+         </index>
+      </table>
+      <table name="受注明細" remarks="受注の商品明細を管理するテーブル" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="受注番号" nullable="false" remarks="" size="20" type="varchar" typeCode="12">
+            <parent column="受注番号" foreignKey="fk_order_detail_order" implied="false" onDeleteCascade="true" schema="public" table="受注"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="明細番号" nullable="false" remarks="同一受注内での明細の連番" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="商品コード" nullable="false" remarks="" size="16" type="varchar" typeCode="12">
+            <parent column="商品コード" foreignKey="fk_order_detail_product" implied="false" onDeleteCascade="false" schema="public" table="商品マスタ"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="商品名" nullable="false" remarks="" size="10" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="4" name="販売単価" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="1" digits="0" id="5" name="数量" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="6" name="消費税率" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="7" name="引当数量" nullable="true" remarks="在庫から引き当てた数量" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="8" name="出荷指示数量" nullable="true" remarks="出荷を指示した数量" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="9" name="出荷済数量" nullable="true" remarks="実際に出荷が完了した数量" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="10" name="完了フラグ" nullable="true" remarks="明細が完了したかどうか（0:未完了、1:完了）" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="11" name="値引額" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="12" name="納品日" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="13" name="作成日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="作成者名" nullable="true" remarks="" size="12" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="15" name="更新日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="更新者名" nullable="true" remarks="" size="12" type="varchar" typeCode="12"/>
+         <primaryKey column="受注番号" sequenceNumberInPK="1"/>
+         <primaryKey column="明細番号" sequenceNumberInPK="2"/>
+         <index name="受注明細_pkey" unique="true">
+            <column ascending="true" name="受注番号"/>
+            <column ascending="true" name="明細番号"/>
+         </index>
+         <index name="idx_order_detail_product" unique="false">
+            <column ascending="true" name="商品コード"/>
+         </index>
+      </table>
+      <table name="商品マスタ" remarks="商品の基本情報を管理するマスタテーブル" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="商品コード" nullable="false" remarks="商品を一意に識別するコード" size="16" type="varchar" typeCode="12">
+            <child column="代替商品コード" foreignKey="fk_alternate_product_alt" implied="false" onDeleteCascade="true" schema="public" table="代替商品"/>
+            <child column="商品コード" foreignKey="fk_alternate_product" implied="false" onDeleteCascade="true" schema="public" table="代替商品"/>
+            <child column="商品コード" foreignKey="fk_order_detail_product" implied="false" onDeleteCascade="false" schema="public" table="受注明細"/>
+            <child column="商品コード" foreignKey="fk_stock_product" implied="false" onDeleteCascade="false" schema="public" table="在庫"/>
+            <child column="商品コード" foreignKey="fk_sales_detail_product" implied="false" onDeleteCascade="false" schema="public" table="売上明細"/>
+            <child column="商品コード" foreignKey="fk_price_product" implied="false" onDeleteCascade="true" schema="public" table="顧客別販売単価"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="商品正式名" nullable="false" remarks="商品の正式名称" size="40" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="商品略称" nullable="false" remarks="商品の略称" size="10" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="商品名カナ" nullable="true" remarks="" size="80" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="商品区分" nullable="true" remarks="" size="8" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="製品型番" nullable="true" remarks="" size="30" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="6" name="販売単価" nullable="false" remarks="標準販売単価" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="7" name="仕入単価" nullable="false" remarks="標準仕入単価" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="8" name="売上原価" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="1" digits="0" id="9" name="税区分" nullable="false" remarks="税区分（1:課税、2:非課税、3:免税）" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="商品分類コード" nullable="true" remarks="" size="8" type="varchar" typeCode="12">
+            <parent column="商品分類コード" foreignKey="fk_product_category" implied="false" onDeleteCascade="false" schema="public" table="商品分類マスタ"/>
+         </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="11" name="雑区分" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="1" digits="0" id="12" name="在庫管理対象区分" nullable="false" remarks="在庫管理の対象とするか（0:対象外、1:対象）" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="13" name="在庫引当区分" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="仕入先コード" nullable="true" remarks="" size="8" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="仕入先枝番" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="16" name="作成日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="17" name="作成者名" nullable="false" remarks="" size="12" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="18" name="更新日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="19" name="更新者名" nullable="false" remarks="" size="12" type="varchar" typeCode="12"/>
+         <primaryKey column="商品コード" sequenceNumberInPK="1"/>
+         <index name="商品マスタ_pkey" unique="true">
+            <column ascending="true" name="商品コード"/>
+         </index>
+         <index name="idx_product_category" unique="false">
+            <column ascending="true" name="商品分類コード"/>
+         </index>
+         <index name="idx_product_name" unique="false">
+            <column ascending="true" name="商品略称"/>
+         </index>
+         <index name="idx_product_supplier" unique="false">
+            <column ascending="true" name="仕入先コード"/>
+            <column ascending="true" name="仕入先枝番"/>
+         </index>
+      </table>
+      <table name="商品分類マスタ" remarks="商品の階層的な分類を管理するマスタテーブル" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="商品分類コード" nullable="false" remarks="商品分類を一意に識別するコード" size="8" type="varchar" typeCode="12">
+            <child column="商品分類コード" foreignKey="fk_product_category" implied="false" onDeleteCascade="false" schema="public" table="商品マスタ"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="商品分類名" nullable="false" remarks="商品分類名" size="30" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="商品分類階層" nullable="false" remarks="分類の階層レベル（1が最上位）" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="商品分類パス" nullable="false" remarks="階層構造を表すパス（例: /PC/PC01/）" size="100" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="4" name="最下層区分" nullable="false" remarks="最下層かどうか（1:最下層、0:中間層）" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="5" name="作成日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="作成者名" nullable="false" remarks="" size="12" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="7" name="更新日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="更新者名" nullable="false" remarks="" size="12" type="varchar" typeCode="12"/>
+         <primaryKey column="商品分類コード" sequenceNumberInPK="1"/>
+         <index name="商品分類マスタ_pkey" unique="true">
+            <column ascending="true" name="商品分類コード"/>
+         </index>
+         <index name="idx_product_category_layer" unique="false">
+            <column ascending="true" name="商品分類階層"/>
+         </index>
+         <index name="idx_product_category_path" unique="false">
+            <column ascending="true" name="商品分類パス"/>
+         </index>
+      </table>
+      <table name="在庫" remarks="倉庫ご と、商品ごと、ロットごとの在庫数を管理するテーブル" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="倉庫コード" nullable="false" remarks="在庫を保管している倉庫のコード" size="3" type="varchar" typeCode="12">
+            <parent column="倉庫コード" foreignKey="fk_stock_warehouse" implied="false" onDeleteCascade="false" schema="public" table="倉庫マスタ"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="商品コード" nullable="false" remarks="在庫商品のコード" size="16" type="varchar" typeCode="12">
+            <parent column="商品コード" foreignKey="fk_stock_product" implied="false" onDeleteCascade="false" schema="public" table="商品マスタ"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="ロット番号" nullable="false" remarks="在庫のロット番号（トレーサビリティ管理）" size="20" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="在庫区分" nullable="false" remarks="在庫の区分（1:通常在庫、2:預かり在庫、3:委託在庫）" size="1" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="品質区分" nullable="false" remarks="在庫の品質区分（A:良品、B:不良品、C:検査中）" size="1" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="5" name="実在庫数" nullable="false" remarks="物理的に存在する在庫数" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="6" name="有効在庫数" nullable="false" remarks="販売可能な在庫数（実在庫数 - 引当数）" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="7" name="最終出荷日" nullable="true" remarks="最後に出荷された日時" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="8" name="作成日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="作成者名" nullable="true" remarks="" size="12" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="10" name="更新日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="更新者名" nullable="true" remarks="" size="12" type="varchar" typeCode="12"/>
+         <primaryKey column="倉庫コード" sequenceNumberInPK="1"/>
+         <primaryKey column="商品コード" sequenceNumberInPK="2"/>
+         <primaryKey column="ロット番号" sequenceNumberInPK="3"/>
+         <primaryKey column="在庫区分" sequenceNumberInPK="4"/>
+         <primaryKey column="品質区分" sequenceNumberInPK="5"/>
+         <index name="在庫_pkey" unique="true">
+            <column ascending="true" name="倉庫コード"/>
+            <column ascending="true" name="商品コード"/>
+            <column ascending="true" name="ロット番号"/>
+            <column ascending="true" name="在庫区分"/>
+            <column ascending="true" name="品質区分"/>
+         </index>
+         <index name="idx_stock_lot" unique="false">
+            <column ascending="true" name="ロット番号"/>
+         </index>
+         <index name="idx_stock_product" unique="false">
+            <column ascending="true" name="商品コード"/>
+         </index>
+         <index name="idx_stock_warehouse" unique="false">
+            <column ascending="true" name="倉庫コード"/>
+         </index>
+      </table>
+      <table name="売上" remarks="商品の売上情報を管理するヘッダーテーブル" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="売上番号" nullable="false" remarks="売上を一意に識別する番号" size="20" type="varchar" typeCode="12">
+            <child column="売上番号" foreignKey="fk_sales_detail_sales" implied="false" onDeleteCascade="true" schema="public" table="売上明細"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="1" name="売上日" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="1" digits="0" id="2" name="売上区分" nullable="false" remarks="売上の種類（1:通常売上、2:返品、3:値引）" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="受注番号" nullable="true" remarks="" size="20" type="varchar" typeCode="12">
+            <parent column="受注番号" foreignKey="fk_sales_order" implied="false" onDeleteCascade="false" schema="public" table="受注"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="部門コード" nullable="false" remarks="" size="6" type="varchar" typeCode="12">
+            <parent column="部門コード" foreignKey="fk_sales_department" implied="false" onDeleteCascade="false" schema="public" table="部門マスタ"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="5" name="開始日" nullable="false" remarks="" size="29" type="timestamp" typeCode="93">
+            <parent column="開始日" foreignKey="fk_sales_department" implied="false" onDeleteCascade="false" schema="public" table="部門マスタ"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="取引先コード" nullable="false" remarks="" size="8" type="varchar" typeCode="12">
+            <parent column="取引先コード" foreignKey="fk_sales_company" implied="false" onDeleteCascade="false" schema="public" table="取引先マスタ"/>
+         </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="7" name="売上金額" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="8" name="消費税" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="訂正番号" nullable="true" remarks="訂正伝票の売上番号（赤黒伝票の黒伝票番号）" size="20" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="元伝票番号" nullable="true" remarks="訂正元の売上番号（赤黒伝票の元伝票番号）" size="20" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="11" name="作成日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="作成者名" nullable="true" remarks="" size="12" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="13" name="更新日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="更新者名" nullable="true" remarks="" size="12" type="varchar" typeCode="12"/>
+         <primaryKey column="売上番号" sequenceNumberInPK="1"/>
+         <index name="売上_pkey" unique="true">
+            <column ascending="true" name="売上番号"/>
+         </index>
+         <index name="idx_sales_company" unique="false">
+            <column ascending="true" name="取引先コード"/>
+         </index>
+         <index name="idx_sales_date" unique="false">
+            <column ascending="true" name="売上日"/>
+         </index>
+         <index name="idx_sales_department" unique="false">
+            <column ascending="true" name="部門コード"/>
+            <column ascending="true" name="開始日"/>
+         </index>
+         <index name="idx_sales_order" unique="false">
+            <column ascending="true" name="受注番号"/>
+         </index>
+      </table>
+      <table name="売上明細" remarks="売上の明細情報を管理するテーブル" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="売上番号" nullable="false" remarks="" size="20" type="varchar" typeCode="12">
+            <parent column="売上番号" foreignKey="fk_sales_detail_sales" implied="false" onDeleteCascade="true" schema="public" table="売上"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="明細番号" nullable="false" remarks="売上内での明細の連番" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="商品コード" nullable="false" remarks="" size="16" type="varchar" typeCode="12">
+            <parent column="商品コード" foreignKey="fk_sales_detail_product" implied="false" onDeleteCascade="false" schema="public" table="商品マスタ"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="商品名" nullable="true" remarks="" size="20" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="4" name="販売単価" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="5" name="出荷済数量" nullable="false" remarks="実際に出荷した数量" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="6" name="数量" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="7" name="値引額" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="8" name="請求日" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="請求番号" nullable="true" remarks="" size="10" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="請求遅延区分" nullable="true" remarks="請求の遅延状況区分" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="11" name="自動仕訳日" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="12" name="作成日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="作成者名" nullable="true" remarks="" size="12" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="14" name="更新日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="更新者名" nullable="true" remarks="" size="12" type="varchar" typeCode="12"/>
+         <primaryKey column="売上番号" sequenceNumberInPK="1"/>
+         <primaryKey column="明細番号" sequenceNumberInPK="2"/>
+         <index name="売上明細_pkey" unique="true">
+            <column ascending="true" name="売上番号"/>
+            <column ascending="true" name="明細番号"/>
+         </index>
+         <index name="idx_sales_detail_invoice" unique="false">
+            <column ascending="true" name="請求番号"/>
+         </index>
+         <index name="idx_sales_detail_product" unique="false">
+            <column ascending="true" name="商品コード"/>
+         </index>
+      </table>
+      <table name="社員マスタ" remarks="社員情報を管理する社員マスタ" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="社員コード" nullable="false" remarks="社員を一意に識別するコード" size="10" type="varchar" typeCode="12">
+            <child column="社員コード" foreignKey="fk_order_employee" implied="false" onDeleteCascade="false" schema="public" table="受注"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="社員名" nullable="true" remarks="社員名" size="20" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="社員名カナ" nullable="true" remarks="" size="40" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="パスワード" nullable="true" remarks="" size="8" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="電話番号" nullable="true" remarks="" size="13" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="fax番号" nullable="true" remarks="" size="13" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="部門コード" nullable="false" remarks="所属部門のコード" size="6" type="varchar" typeCode="12">
+            <parent column="部門コード" foreignKey="fk_employee_department" implied="false" onDeleteCascade="false" schema="public" table="部門マスタ"/>
+         </column>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="7" name="開始日" nullable="false" remarks="社員の勤務開始日または記録開始日" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="職種コード" nullable="true" remarks="" size="2" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="承認権限コード" nullable="true" remarks="" size="2" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="10" name="作成日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="作成者名" nullable="true" remarks="" size="12" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="12" name="更新日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="更新者名" nullable="true" remarks="" size="12" type="varchar" typeCode="12"/>
+         <primaryKey column="社員コード" sequenceNumberInPK="1"/>
+         <index name="社員マスタ_pkey" unique="true">
+            <column ascending="true" name="社員コード"/>
+         </index>
+         <index name="idx_employee_dept" unique="false">
+            <column ascending="true" name="部門コード"/>
+         </index>
+      </table>
+      <table name="自動採番" remarks="伝票番号を自動採番するためのマスタテーブル" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="伝票種別" nullable="false" remarks="伝票の種類を識別するコード(OR:受注、SL:売上、IV:請求など)" size="2" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="1" name="年月" nullable="false" remarks="採番の対象となる年月" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="最終伝票番号" nullable="false" remarks="最後に採番された番号" size="10" type="int4" typeCode="4"/>
+         <primaryKey column="伝票種別" sequenceNumberInPK="1"/>
+         <primaryKey column="年月" sequenceNumberInPK="2"/>
+         <index name="自動採番_pkey" unique="true">
+            <column ascending="true" name="伝票種別"/>
+            <column ascending="true" name="年月"/>
+         </index>
+         <index name="idx_auto_number_year_month" unique="false">
+            <column ascending="true" name="年月"/>
+         </index>
+      </table>
+      <table name="部門マスタ" remarks="部門マスタ" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="部門コード" nullable="false" remarks="部門コード" size="6" type="varchar" typeCode="12">
+            <child column="部門コード" foreignKey="fk_order_department" implied="false" onDeleteCascade="false" schema="public" table="受注"/>
+            <child column="部門コード" foreignKey="fk_sales_department" implied="false" onDeleteCascade="false" schema="public" table="売上"/>
+            <child column="部門コード" foreignKey="fk_employee_department" implied="false" onDeleteCascade="false" schema="public" table="社員マスタ"/>
+         </column>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="1" name="開始日" nullable="false" remarks="開始日" size="29" type="timestamp" typeCode="93">
+            <child column="開始日" foreignKey="fk_order_department" implied="false" onDeleteCascade="false" schema="public" table="受注"/>
+            <child column="開始日" foreignKey="fk_sales_department" implied="false" onDeleteCascade="false" schema="public" table="売上"/>
+         </column>
+         <column autoUpdated="false" defaultValue="'2100-12-31 00:00:00'::timestamp without time zone" digits="6" id="2" name="終了日" nullable="true" remarks="終了日" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="部門名" nullable="true" remarks="部門名" size="40" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="4" name="組織階層" nullable="true" remarks="組織階層" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="部門パス" nullable="false" remarks="部門パス" size="100" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="6" name="最下層区分" nullable="true" remarks="最下層区分" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="7" name="伝票入力可否" nullable="true" remarks="伝票入力可否" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="8" name="作成日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="作成者名" nullable="false" remarks="" size="50" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="10" name="更新日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="更新者名" nullable="false" remarks="" size="50" type="varchar" typeCode="12"/>
+         <primaryKey column="部門コード" sequenceNumberInPK="1"/>
+         <primaryKey column="開始日" sequenceNumberInPK="2"/>
+         <index name="部門マスタ_pkey" unique="true">
+            <column ascending="true" name="部門コード"/>
+            <column ascending="true" name="開始日"/>
+         </index>
+         <index name="idx_department_name" unique="false">
+            <column ascending="true" name="部門名"/>
+         </index>
+         <index name="idx_department_path" unique="false">
+            <column ascending="true" name="部門パス"/>
+         </index>
+         <index name="部門マスタ_部門コード_key" unique="true">
+            <column ascending="true" name="部門コード"/>
+         </index>
+      </table>
+      <table name="顧客マスタ" remarks="顧客としての詳細情報を管理するテーブル" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="顧客コード" nullable="false" remarks="取引先マスタへの外部キー" size="8" type="varchar" typeCode="12">
+            <child column="顧客コード" foreignKey="fk_order_customer" implied="false" onDeleteCascade="false" schema="public" table="受注"/>
+            <parent column="取引先コード" foreignKey="fk_customer_company" implied="false" onDeleteCascade="true" schema="public" table="取引先マスタ"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="顧客枝番" nullable="false" remarks="同一取引先内での枝番" size="10" type="int4" typeCode="4">
+            <child column="顧客枝番" foreignKey="fk_order_customer" implied="false" onDeleteCascade="false" schema="public" table="受注"/>
+         </column>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="顧客区分" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="請求先コード" nullable="false" remarks="" size="8" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="請求先枝番" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="回収先コード" nullable="false" remarks="" size="8" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="回収先枝番" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="顧客名" nullable="true" remarks="" size="40" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="顧客名カナ" nullable="true" remarks="" size="40" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="担当社員コード" nullable="true" remarks="" size="10" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="顧客担当者名" nullable="true" remarks="" size="40" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="顧客担当部署名" nullable="true" remarks="" size="40" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="顧客郵便番号" nullable="true" remarks="" size="8" type="bpchar" typeCode="1"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="顧客都道府県" nullable="true" remarks="" size="4" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="顧客住所１" nullable="true" remarks="" size="40" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="顧客電話番号" nullable="true" remarks="" size="13" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="顧客メールアドレス" nullable="true" remarks="" size="40" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="17" name="顧客締日１" nullable="true" remarks="締日(月の何日か)" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="18" name="顧客支払月数１" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="19" name="顧客支払日１" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="20" name="顧客支払方法１" nullable="true" remarks="支払方法(1:現金、2:振込、3:手形など)" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="21" name="顧客締日２" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="22" name="作成日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="23" name="作成者名" nullable="true" remarks="" size="12" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="24" name="更新日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="25" name="更新者名" nullable="true" remarks="" size="12" type="varchar" typeCode="12"/>
+         <primaryKey column="顧客コード" sequenceNumberInPK="1"/>
+         <primaryKey column="顧客枝番" sequenceNumberInPK="2"/>
+         <index name="顧客マスタ_pkey" unique="true">
+            <column ascending="true" name="顧客コード"/>
+            <column ascending="true" name="顧客枝番"/>
+         </index>
+         <index name="idx_customer_company" unique="false">
+            <column ascending="true" name="顧客コード"/>
+         </index>
+      </table>
+      <table name="顧客別販売単価" remarks="顧客別の販売単価を管理するテーブル" schema="public" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="商品コード" nullable="false" remarks="商品コード(外部キー)" size="16" type="varchar" typeCode="12">
+            <parent column="商品コード" foreignKey="fk_price_product" implied="false" onDeleteCascade="true" schema="public" table="商品マスタ"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="取引先コード" nullable="false" remarks="取引先コード" size="8" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="販売単価" nullable="false" remarks="顧客別販売単価" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="3" name="作成日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="作成者名" nullable="false" remarks="" size="12" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="CURRENT_TIMESTAMP" digits="6" id="5" name="更新日時" nullable="false" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="更新者名" nullable="false" remarks="" size="12" type="varchar" typeCode="12"/>
+         <primaryKey column="商品コード" sequenceNumberInPK="1"/>
+         <primaryKey column="取引先コード" sequenceNumberInPK="2"/>
+         <index name="顧客別販売単価_pkey" unique="true">
+            <column ascending="true" name="商品コード"/>
+            <column ascending="true" name="取引先コード"/>
+         </index>
+         <index name="idx_price_by_customer_comp" unique="false">
+            <column ascending="true" name="取引先コード"/>
+         </index>
+      </table>
+   </tables>
+</database>
