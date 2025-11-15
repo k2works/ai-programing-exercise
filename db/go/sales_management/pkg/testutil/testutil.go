@@ -1,0 +1,46 @@
+package testutil
+
+import (
+	"testing"
+
+	"github.com/jmoiron/sqlx"
+	"github.com/k2works/sales-management-db/test"
+)
+
+// TestDB はテスト用のデータベース接続を管理します
+type TestDB struct {
+	DB        *sqlx.DB
+	container *test.PostgreSQLContainer
+}
+
+// SetupTestDB はテスト用のデータベースをセットアップします
+func SetupTestDB(t *testing.T) *TestDB {
+	t.Helper()
+
+	// testcontainersでPostgreSQLコンテナを起動
+	container := test.SetupPostgreSQLContainer(t)
+	db := container.DB
+
+	// テーブルをクリーンアップ
+	t.Cleanup(func() {
+		cleanupTables(t, db)
+	})
+
+	return &TestDB{
+		DB:        db,
+		container: container,
+	}
+}
+
+// cleanupTables はテスト後にすべてのテーブルをクリーンアップします
+func cleanupTables(t *testing.T, db *sqlx.DB) {
+	t.Helper()
+
+	// 依存関係の順に削除
+	tables := []string{
+		"社員マスタ",
+		"部門マスタ",
+	}
+
+	test.TruncateTables(t, db, tables...)
+}

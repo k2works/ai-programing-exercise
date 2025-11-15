@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS 社員マスタ;
