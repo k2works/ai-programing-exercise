@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS 代替商品;
