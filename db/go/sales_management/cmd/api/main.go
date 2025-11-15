@@ -12,8 +12,8 @@ import (
 
 	_ "github.com/k2works/sales-management-db/docs" // Swagger ドキュメント
 
-	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )

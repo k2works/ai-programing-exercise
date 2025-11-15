@@ -38,11 +38,11 @@ func (s *ProductServiceV2) CreateProduct(ctx context.Context, exec repository.Ex
 		SellingPrice:        request.UnitPrice,
 		PurchasePrice:       request.PoPrice,
 		CostOfSales:         request.PoPrice, // 仕入単価と同じ
-		TaxCategory:         1,                // デフォルト値（課税）
+		TaxCategory:         1,               // デフォルト値（課税）
 		ProductCategoryCode: request.CategoryCode,
-		MiscCategory:        0,  // デフォルト値
-		InventoryManaged:    1,  // デフォルト値（在庫管理対象）
-		StockAllocation:     1,  // デフォルト値（在庫引当）
+		MiscCategory:        0, // デフォルト値
+		InventoryManaged:    1, // デフォルト値（在庫管理対象）
+		StockAllocation:     1, // デフォルト値（在庫引当）
 		SupplierCode:        request.SupCode,
 		SupplierBranch:      1, // デフォルト値
 		CreatedAt:           now,
@@ -99,6 +99,42 @@ func (s *ProductServiceV2) GetProductByCode(ctx context.Context, exec repository
 	return &response, nil
 }
 
+// applyProductUpdates 商品の更新内容を反映
+func applyProductUpdates(product *model.Product, request schema.UpdateProductRequest) {
+	if request.FullName != nil {
+		product.ProductFullName = *request.FullName
+	}
+	if request.Name != nil {
+		product.ProductAbbreviation = *request.Name
+	}
+	if request.Kana != nil {
+		product.ProductNameKana = *request.Kana
+	}
+	if request.UnitPrice != nil {
+		product.SellingPrice = *request.UnitPrice
+	}
+	if request.PoPrice != nil {
+		product.PurchasePrice = *request.PoPrice
+		product.CostOfSales = *request.PoPrice // 仕入単価と同じ
+	}
+	if request.SupCode != nil {
+		product.SupplierCode = *request.SupCode
+	}
+	if request.CategoryCode != nil {
+		product.ProductCategoryCode = *request.CategoryCode
+	}
+	product.UpdatedAt = time.Now()
+	product.UpdatedBy = "api"
+}
+
+// validateProductPrices 商品価格のビジネスルールを検証
+func validateProductPrices(product *model.Product) error {
+	if product.SellingPrice < product.PurchasePrice {
+		return errors.New("販売単価が仕入価格より低い設定はできません")
+	}
+	return nil
+}
+
 // UpdateProduct 商品を更新
 func (s *ProductServiceV2) UpdateProduct(ctx context.Context, exec repository.Execer, prodCode string, request schema.UpdateProductRequest) (*schema.ProductResponse, error) {
 	existing, err := s.repo.FindByIDWithContext(ctx, exec, prodCode)
@@ -110,36 +146,10 @@ func (s *ProductServiceV2) UpdateProduct(ctx context.Context, exec repository.Ex
 		return nil, errors.New("商品が見つかりません")
 	}
 
-	// 更新内容を反映
-	if request.FullName != nil {
-		existing.ProductFullName = *request.FullName
-	}
-	if request.Name != nil {
-		existing.ProductAbbreviation = *request.Name
-	}
-	if request.Kana != nil {
-		existing.ProductNameKana = *request.Kana
-	}
-	if request.UnitPrice != nil {
-		existing.SellingPrice = *request.UnitPrice
-	}
-	if request.PoPrice != nil {
-		existing.PurchasePrice = *request.PoPrice
-		existing.CostOfSales = *request.PoPrice // 仕入単価と同じ
-	}
-	if request.SupCode != nil {
-		existing.SupplierCode = *request.SupCode
-	}
-	if request.CategoryCode != nil {
-		existing.ProductCategoryCode = *request.CategoryCode
-	}
+	applyProductUpdates(existing, request)
 
-	existing.UpdatedAt = time.Now()
-	existing.UpdatedBy = "api"
-
-	// ビジネスルールの適用
-	if existing.SellingPrice < existing.PurchasePrice {
-		return nil, errors.New("販売単価が仕入価格より低い設定はできません")
+	if err := validateProductPrices(existing); err != nil {
+		return nil, err
 	}
 
 	err = s.repo.UpdateWithContext(ctx, exec, existing)

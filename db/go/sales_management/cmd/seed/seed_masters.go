@@ -55,9 +55,9 @@ func seedCompanies(ctx context.Context, tx *sqlx.Tx) (int, error) {
 	`
 
 	companies := []struct {
-		コード   string
-		名称    string
-		カナ    *string
+		コード  string
+		名称   string
+		カナ   *string
 		グループ string
 	}{
 		// 得意先

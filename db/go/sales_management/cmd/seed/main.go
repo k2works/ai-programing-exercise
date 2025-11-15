@@ -36,82 +36,49 @@ func main() {
 
 	fmt.Println("\n📊 シードデータを投入しています...")
 
-	// トランザクション開始
-	tx, err := db.Beginx()
-	if err != nil {
-		log.Fatalf("Failed to begin transaction: %v", err)
-	}
-	defer tx.Rollback()
-
-	// 部門マスタ
-	deptCount, err := seedDepartments(ctx, tx)
-	if err != nil {
-		log.Fatalf("Failed to seed departments: %v", err)
-	}
-	fmt.Printf("✓ 部門マスタ: %d件\n", deptCount)
-
-	// 社員マスタ
-	empCount, err := seedEmployees(ctx, tx)
-	if err != nil {
-		log.Fatalf("Failed to seed employees: %v", err)
-	}
-	fmt.Printf("✓ 社員マスタ: %d件\n", empCount)
-
-	// 取引先グループマスタ
-	grpCount, err := seedCompanyGroups(ctx, tx)
-	if err != nil {
-		log.Fatalf("Failed to seed company groups: %v", err)
-	}
-	fmt.Printf("✓ 取引先グループマスタ: %d件\n", grpCount)
-
-	// 取引先マスタ
-	compCount, err := seedCompanies(ctx, tx)
-	if err != nil {
-		log.Fatalf("Failed to seed companies: %v", err)
-	}
-	fmt.Printf("✓ 取引先マスタ: %d件\n", compCount)
-
-	// 顧客マスタ
-	custCount, err := seedCustomers(ctx, tx)
-	if err != nil {
-		log.Fatalf("Failed to seed customers: %v", err)
-	}
-	fmt.Printf("✓ 顧客マスタ: %d件\n", custCount)
-
-	// 仕入先マスタ
-	suppCount, err := seedSuppliers(ctx, tx)
-	if err != nil {
-		log.Fatalf("Failed to seed suppliers: %v", err)
-	}
-	fmt.Printf("✓ 仕入先マスタ: %d件\n", suppCount)
-
-	// 商品分類マスタ
-	catCount, err := seedProductCategories(ctx, tx)
-	if err != nil {
-		log.Fatalf("Failed to seed product categories: %v", err)
-	}
-	fmt.Printf("✓ 商品分類マスタ: %d件\n", catCount)
-
-	// 商品マスタ
-	prodCount, err := seedProducts(ctx, tx)
-	if err != nil {
-		log.Fatalf("Failed to seed products: %v", err)
-	}
-	fmt.Printf("✓ 商品マスタ: %d件\n", prodCount)
-
-	// 倉庫マスタ
-	whCount, err := seedWarehouses(ctx, tx)
-	if err != nil {
-		log.Fatalf("Failed to seed warehouses: %v", err)
-	}
-	fmt.Printf("✓ 倉庫マスタ: %d件\n", whCount)
-
-	// コミット
-	if err := tx.Commit(); err != nil {
-		log.Fatalf("Failed to commit transaction: %v", err)
+	if err := runSeeding(ctx, db); err != nil {
+		log.Fatalf("Failed to seed data: %v", err)
 	}
 
 	fmt.Println("\n🎉 シードデータの投入が完了しました！")
+}
+
+// runSeeding 全マスタデータのシード処理を実行
+func runSeeding(ctx context.Context, db *sqlx.DB) error {
+	tx, err := db.Beginx()
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	seedFuncs := []struct {
+		name string
+		fn   func(context.Context, *sqlx.Tx) (int, error)
+	}{
+		{"部門マスタ", seedDepartments},
+		{"社員マスタ", seedEmployees},
+		{"取引先グループマスタ", seedCompanyGroups},
+		{"取引先マスタ", seedCompanies},
+		{"顧客マスタ", seedCustomers},
+		{"仕入先マスタ", seedSuppliers},
+		{"商品分類マスタ", seedProductCategories},
+		{"商品マスタ", seedProducts},
+		{"倉庫マスタ", seedWarehouses},
+	}
+
+	for _, sf := range seedFuncs {
+		count, err := sf.fn(ctx, tx)
+		if err != nil {
+			return fmt.Errorf("failed to seed %s: %w", sf.name, err)
+		}
+		fmt.Printf("✓ %s: %d件\n", sf.name, count)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return nil
 }
 
 // truncateTables 既存データをクリアする
@@ -158,11 +125,11 @@ func seedDepartments(ctx context.Context, tx *sqlx.Tx) (int, error) {
 	`
 
 	departments := []struct {
-		コード     string
-		名称      string
-		パス      string
-		階層レベル  int
-		最下層区分  int
+		コード   string
+		名称    string
+		パス    string
+		階層レベル int
+		最下層区分 int
 	}{
 		// 本社 (Level 1)
 		{"000000", "本社", "/000000/", 1, 0},

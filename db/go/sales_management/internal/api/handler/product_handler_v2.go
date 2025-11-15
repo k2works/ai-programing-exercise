@@ -10,6 +10,11 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+const (
+	// ErrProductNotFound 商品が見つからない場合のエラーメッセージ
+	ErrProductNotFound = "商品が見つかりません"
+)
+
 // ProductHandlerV2 商品ハンドラ（既存リポジトリ使用）
 type ProductHandlerV2 struct {
 	service *service.ProductServiceV2
@@ -102,7 +107,7 @@ func (h *ProductHandlerV2) GetProduct(c *gin.Context) {
 	}
 
 	if product == nil {
-		c.JSON(http.StatusNotFound, schema.ErrorResponse{Error: "商品が見つかりません"})
+		c.JSON(http.StatusNotFound, schema.ErrorResponse{Error: ErrProductNotFound})
 		return
 	}
 
@@ -140,7 +145,7 @@ func (h *ProductHandlerV2) UpdateProduct(c *gin.Context) {
 
 	product, err := h.service.UpdateProduct(ctx, tx, prodCode, request)
 	if err != nil {
-		if err.Error() == "商品が見つかりません" {
+		if err.Error() == ErrProductNotFound {
 			c.JSON(http.StatusNotFound, schema.ErrorResponse{Error: err.Error()})
 		} else {
 			c.JSON(http.StatusBadRequest, schema.ErrorResponse{Error: err.Error()})
@@ -177,7 +182,7 @@ func (h *ProductHandlerV2) DeleteProduct(c *gin.Context) {
 
 	err = h.service.DeleteProduct(ctx, tx, prodCode)
 	if err != nil {
-		if err.Error() == "商品が見つかりません" {
+		if err.Error() == ErrProductNotFound {
 			c.JSON(http.StatusNotFound, schema.ErrorResponse{Error: err.Error()})
 		} else {
 			c.JSON(http.StatusInternalServerError, schema.ErrorResponse{Error: err.Error()})

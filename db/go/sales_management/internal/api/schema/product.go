@@ -4,14 +4,14 @@ import "github.com/k2works/sales-management-db/internal/model"
 
 // CreateProductRequest 商品作成リクエスト
 type CreateProductRequest struct {
-	ProdCode     string  `json:"prodCode" binding:"required" example:"PROD00001"`
-	FullName     string  `json:"fullName" binding:"required" example:"黒毛和牛サーロインステーキ 200g"`
-	Name         string  `json:"name" binding:"required" example:"サーロイン"`
-	Kana         string  `json:"kana" binding:"required" example:"クロゲワギュウサーロイン"`
-	UnitPrice    int     `json:"unitPrice" binding:"required,min=0" example:"5000"`
-	PoPrice      int     `json:"poPrice" binding:"required,min=0" example:"3500"`
-	SupCode      string  `json:"supCode" binding:"required" example:"COMP0011"`
-	CategoryCode string  `json:"categoryCode" binding:"required" example:"CAT001"`
+	ProdCode     string `json:"prodCode" binding:"required" example:"PROD00001"`
+	FullName     string `json:"fullName" binding:"required" example:"黒毛和牛サーロインステーキ 200g"`
+	Name         string `json:"name" binding:"required" example:"サーロイン"`
+	Kana         string `json:"kana" binding:"required" example:"クロゲワギュウサーロイン"`
+	UnitPrice    int    `json:"unitPrice" binding:"required,min=0" example:"5000"`
+	PoPrice      int    `json:"poPrice" binding:"required,min=0" example:"3500"`
+	SupCode      string `json:"supCode" binding:"required" example:"COMP0011"`
+	CategoryCode string `json:"categoryCode" binding:"required" example:"CAT001"`
 }
 
 // UpdateProductRequest 商品更新リクエスト（すべてオプション）
