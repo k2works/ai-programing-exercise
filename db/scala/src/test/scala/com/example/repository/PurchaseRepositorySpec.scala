@@ -120,7 +120,7 @@ class PurchaseRepositorySpec extends DatabaseSpec {
     // 発注の作成
     val poRepo = PurchaseOrderRepository()
     val po = PurchaseOrder(
-      poNo = s"PO2024011500$suffix",
+      poNo = s"PO20240115$suffix",
       poDate = LocalDateTime.of(2024, 1, 15, 10, 0),
       deptCode = s"1100$suffix",
       startDate = LocalDateTime.of(2024, 1, 1, 0, 0),
@@ -147,7 +147,7 @@ class PurchaseRepositorySpec extends DatabaseSpec {
       val purchase = Purchase(
         purchaseNo = "PUR2024011501",
         purchaseDate = LocalDateTime.of(2024, 1, 15, 14, 0),
-        poNo = "PO202401150001",
+        poNo = "PO2024011501",
         whCode = "WH1",
         completeFlg = 0,
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
@@ -176,7 +176,7 @@ class PurchaseRepositorySpec extends DatabaseSpec {
 
       val retrieved = purRepo.findByNo("PUR2024011501")
       retrieved.isDefined shouldBe true
-      retrieved.get.poNo shouldBe "PO202401150001"
+      retrieved.get.poNo shouldBe "PO2024011501"
 
       val details = detailRepo.findByPurchaseNo("PUR2024011501")
       details should not be empty
@@ -195,7 +195,7 @@ class PurchaseRepositorySpec extends DatabaseSpec {
       val purchase = Purchase(
         purchaseNo = "PUR2024011502",
         purchaseDate = LocalDateTime.of(2024, 1, 15, 14, 0),
-        poNo = "PO202401150002",
+        poNo = "PO2024011502",
         whCode = "WH2",
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
@@ -205,7 +205,7 @@ class PurchaseRepositorySpec extends DatabaseSpec {
 
       purRepo.create(purchase)
 
-      val purchases = purRepo.findByPONo("PO202401150002")
+      val purchases = purRepo.findByPONo("PO2024011502")
       purchases should not be empty
       purchases.head.purchaseNo shouldBe "PUR2024011502"
     }
@@ -222,7 +222,7 @@ class PurchaseRepositorySpec extends DatabaseSpec {
       val purchase = Purchase(
         purchaseNo = "PUR2024011503",
         purchaseDate = LocalDateTime.of(2024, 1, 15, 14, 0),
-        poNo = "PO202401150003",
+        poNo = "PO2024011503",
         whCode = "WH3",
         completeFlg = 0,
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
@@ -260,7 +260,7 @@ class PurchaseRepositorySpec extends DatabaseSpec {
       val purchase = Purchase(
         purchaseNo = "PUR2024011504",
         purchaseDate = LocalDateTime.of(2024, 1, 15, 14, 0),
-        poNo = "PO202401150004",
+        poNo = "PO2024011504",
         whCode = "WH4",
         createDate = LocalDateTime.of(2025, 1, 15, 10, 0, 0),
         creator = "admin",
