@@ -10,6 +10,8 @@ import (
 	"github.com/k2works/sales-management-db/internal/repository"
 	"github.com/k2works/sales-management-db/pkg/database"
 
+	_ "github.com/k2works/sales-management-db/docs" // Swagger ドキュメント
+
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
