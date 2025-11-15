@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS 取引先マスタ;
