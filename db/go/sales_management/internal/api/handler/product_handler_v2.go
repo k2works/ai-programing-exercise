@@ -5,20 +5,20 @@ import (
 
 	"github.com/k2works/sales-management-db/internal/api/schema"
 	"github.com/k2works/sales-management-db/internal/api/service"
-	"github.com/k2works/sales-management-db/pkg/database"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
 )
 
-// ProductHandler 商品ハンドラ
-type ProductHandler struct {
-	service *service.ProductService
-	db      *database.DB
+// ProductHandlerV2 商品ハンドラ（既存リポジトリ使用）
+type ProductHandlerV2 struct {
+	service *service.ProductServiceV2
+	db      *sqlx.DB
 }
 
-// NewProductHandler 商品ハンドラを作成
-func NewProductHandler(service *service.ProductService, db *database.DB) *ProductHandler {
-	return &ProductHandler{
+// NewProductHandlerV2 商品ハンドラを作成
+func NewProductHandlerV2(service *service.ProductServiceV2, db *sqlx.DB) *ProductHandlerV2 {
+	return &ProductHandlerV2{
 		service: service,
 		db:      db,
 	}
@@ -34,7 +34,7 @@ func NewProductHandler(service *service.ProductService, db *database.DB) *Produc
 // @Success 201 {object} schema.ProductResponse
 // @Failure 400 {object} schema.ErrorResponse
 // @Router /api/v1/products [post]
-func (h *ProductHandler) CreateProduct(c *gin.Context) {
+func (h *ProductHandlerV2) CreateProduct(c *gin.Context) {
 	var request schema.CreateProductRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, schema.ErrorResponse{Error: err.Error()})
@@ -49,8 +49,7 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 	}
 	defer tx.Rollback()
 
-	txWrapped := &database.Tx{Tx: tx}
-	product, err := h.service.CreateProduct(ctx, txWrapped, request)
+	product, err := h.service.CreateProduct(ctx, tx, request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, schema.ErrorResponse{Error: err.Error()})
 		return
@@ -71,10 +70,10 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 // @Produce json
 // @Success 200 {array} schema.ProductResponse
 // @Router /api/v1/products [get]
-func (h *ProductHandler) GetAllProducts(c *gin.Context) {
+func (h *ProductHandlerV2) GetAllProducts(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	products, err := h.service.GetAllProducts(ctx, h.db.DB)
+	products, err := h.service.GetAllProducts(ctx, h.db)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, schema.ErrorResponse{Error: err.Error()})
 		return
@@ -92,11 +91,11 @@ func (h *ProductHandler) GetAllProducts(c *gin.Context) {
 // @Success 200 {object} schema.ProductResponse
 // @Failure 404 {object} schema.ErrorResponse
 // @Router /api/v1/products/{prodCode} [get]
-func (h *ProductHandler) GetProduct(c *gin.Context) {
+func (h *ProductHandlerV2) GetProduct(c *gin.Context) {
 	prodCode := c.Param("prodCode")
 	ctx := c.Request.Context()
 
-	product, err := h.service.GetProductByCode(ctx, h.db.DB, prodCode)
+	product, err := h.service.GetProductByCode(ctx, h.db, prodCode)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, schema.ErrorResponse{Error: err.Error()})
 		return
@@ -122,7 +121,7 @@ func (h *ProductHandler) GetProduct(c *gin.Context) {
 // @Failure 400 {object} schema.ErrorResponse
 // @Failure 404 {object} schema.ErrorResponse
 // @Router /api/v1/products/{prodCode} [put]
-func (h *ProductHandler) UpdateProduct(c *gin.Context) {
+func (h *ProductHandlerV2) UpdateProduct(c *gin.Context) {
 	prodCode := c.Param("prodCode")
 
 	var request schema.UpdateProductRequest
@@ -139,8 +138,7 @@ func (h *ProductHandler) UpdateProduct(c *gin.Context) {
 	}
 	defer tx.Rollback()
 
-	txWrapped := &database.Tx{Tx: tx}
-	product, err := h.service.UpdateProduct(ctx, txWrapped, prodCode, request)
+	product, err := h.service.UpdateProduct(ctx, tx, prodCode, request)
 	if err != nil {
 		if err.Error() == "商品が見つかりません" {
 			c.JSON(http.StatusNotFound, schema.ErrorResponse{Error: err.Error()})
@@ -166,7 +164,7 @@ func (h *ProductHandler) UpdateProduct(c *gin.Context) {
 // @Success 204
 // @Failure 404 {object} schema.ErrorResponse
 // @Router /api/v1/products/{prodCode} [delete]
-func (h *ProductHandler) DeleteProduct(c *gin.Context) {
+func (h *ProductHandlerV2) DeleteProduct(c *gin.Context) {
 	prodCode := c.Param("prodCode")
 	ctx := c.Request.Context()
 
@@ -177,8 +175,7 @@ func (h *ProductHandler) DeleteProduct(c *gin.Context) {
 	}
 	defer tx.Rollback()
 
-	txWrapped := &database.Tx{Tx: tx}
-	err = h.service.DeleteProduct(ctx, txWrapped, prodCode)
+	err = h.service.DeleteProduct(ctx, tx, prodCode)
 	if err != nil {
 		if err.Error() == "商品が見つかりません" {
 			c.JSON(http.StatusNotFound, schema.ErrorResponse{Error: err.Error()})

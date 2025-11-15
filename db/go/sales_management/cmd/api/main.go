@@ -22,20 +22,24 @@ import (
 // @BasePath /
 func main() {
 	// データベース接続
-	db, err := database.New("host=localhost port=5432 user=postgres password=password dbname=sales_management sslmode=disable")
+	config := database.NewConfig()
+	if config.DatabaseURL == "" {
+		config.DatabaseURL = "host=localhost port=5432 user=postgres password=password dbname=sales_management sslmode=disable"
+	}
+	db, err := database.Connect(config)
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
-	defer db.Close()
+	defer database.Close(db)
 
 	// Infrastructure 層の初期化
-	productRepo := repository.NewAPIProductRepository()
+	productRepo := repository.NewProductRepository(db)
 
 	// Service 層の初期化
-	productService := service.NewProductService(productRepo)
+	productService := service.NewProductServiceV2(productRepo)
 
 	// Presentation 層の初期化
-	productHandler := handler.NewProductHandler(productService, db)
+	productHandler := handler.NewProductHandlerV2(productService, db)
 
 	// Gin ルーターの設定
 	router := gin.Default()

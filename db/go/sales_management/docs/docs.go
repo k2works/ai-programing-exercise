@@ -194,7 +194,9 @@ const docTemplate = `{
         "schema.CreateProductRequest": {
             "type": "object",
             "required": [
+                "categoryCode",
                 "fullName",
+                "kana",
                 "name",
                 "poPrice",
                 "prodCode",
@@ -334,8 +336,6 @@ var SwaggerInfo = &swag.Spec{
 	Description:      "sqlx + Gin による販売管理システムの REST API",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
-	LeftDelim:        "{{",
-	RightDelim:       "}}",
 }
 
 func init() {

@@ -188,7 +188,9 @@
         "schema.CreateProductRequest": {
             "type": "object",
             "required": [
+                "categoryCode",
                 "fullName",
+                "kana",
                 "name",
                 "poPrice",
                 "prodCode",
