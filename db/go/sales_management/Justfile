@@ -1,0 +1,197 @@
+# Sales Management Database - Justfile
+
+# 変数定義
+binary_name := "sales-management-server"
+build_dir := "bin"
+database_url := "postgres://postgres:password@localhost:5432/sales_management?sslmode=disable"
+test_database_url := "postgres://postgres:password@localhost:5433/sales_management_test?sslmode=disable"
+
+# デフォルトレシピ（just コマンドで実行）
+default:
+    @just --list
+
+# テストを実行
+test:
+    @echo "テストを実行中..."
+    go test -v ./...
+
+# テストカバレッジを実行
+test-coverage:
+    @echo "テストカバレッジを実行中..."
+    go test -coverprofile=coverage.out ./...
+    go tool cover -html=coverage.out -o coverage.html
+    @echo "カバレッジレポートが coverage.html に作成されました"
+
+# 静的解析を実行
+lint:
+    @echo "静的解析を実行中..."
+    export PATH=$PATH:$(go env GOPATH)/bin && golangci-lint run
+
+# コードフォーマットを実行
+fmt:
+    @echo "コードフォーマットを実行中..."
+    go fmt ./...
+    export PATH=$PATH:$(go env GOPATH)/bin && goimports -w .
+
+# go vet を実行
+vet:
+    @echo "go vet を実行中..."
+    go vet ./...
+
+# アプリケーションをビルド
+build:
+    @echo "アプリケーションをビルド中..."
+    mkdir -p {{build_dir}}
+    go build -o {{build_dir}}/{{binary_name}} ./cmd/server
+
+# アプリケーションを実行
+run:
+    @echo "アプリケーションを実行中..."
+    go run ./cmd/server
+
+# クリーンアップ
+clean:
+    @echo "クリーンアップ中..."
+    go clean
+    rm -rf {{build_dir}}
+    rm -f coverage.out coverage.html
+
+# 品質チェック（フォーマット、vet、lint、テスト）
+check: fmt vet lint test
+
+# 自動修正（フォーマット + lint fix）
+fix:
+    @just fmt
+    -export PATH=$PATH:$(go env GOPATH)/bin && golangci-lint run --fix
+
+# 依存関係のダウンロード
+deps:
+    @echo "依存関係をダウンロード中..."
+    go mod download
+    go mod tidy
+
+# データベースを起動
+db-up:
+    @echo "データベースを起動中..."
+    docker compose up -d postgres postgres-test
+
+# データベースを停止
+db-down:
+    @echo "データベースを停止中..."
+    docker compose down
+
+# データベースとボリュームを削除
+db-clean:
+    @echo "データベースとボリュームを削除中..."
+    docker compose down -v
+
+# データベースを再起動
+db-restart:
+    @just db-down
+    @just db-up
+
+# マイグレーションを実行（up）
+migrate-up:
+    @echo "マイグレーションを実行中..."
+    export PATH=$PATH:$(go env GOPATH)/bin && migrate -path migrations -database "{{database_url}}" up
+
+# マイグレーションをロールバック（down）
+migrate-down:
+    @echo "マイグレーションをロールバック中..."
+    export PATH=$PATH:$(go env GOPATH)/bin && migrate -path migrations -database "{{database_url}}" down
+
+# マイグレーション状態を確認
+migrate-status:
+    @echo "マイグレーション状態を確認中..."
+    export PATH=$PATH:$(go env GOPATH)/bin && migrate -path migrations -database "{{database_url}}" version
+
+# マイグレーションを強制的に特定バージョンに設定
+migrate-force version:
+    @echo "マイグレーションバージョンを {{version}} に設定中..."
+    export PATH=$PATH:$(go env GOPATH)/bin && migrate -path migrations -database "{{database_url}}" force {{version}}
+
+# 新しいマイグレーションファイルを作成
+migrate-create name:
+    @echo "マイグレーションファイル {{name}} を作成中..."
+    export PATH=$PATH:$(go env GOPATH)/bin && migrate create -ext sql -dir migrations -seq {{name}}
+
+# プロジェクトのセットアップ
+setup: deps db-up
+    @echo "データベースの起動を待機中..."
+    sleep 5
+    @just migrate-up
+    @echo "✅ セットアップ完了！"
+
+# テストのwatch実行
+watch-test:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "テストのwatch実行を開始..."
+    if command -v fswatch >/dev/null 2>&1; then
+        fswatch -o . --exclude='.*\.(html|out|sum)$' --exclude='.git' | xargs -n1 -I{} just test
+    else
+        echo "fswatch がインストールされていません。"
+        echo "Ubuntu/Debian: sudo apt-get install fswatch"
+        echo "macOS: brew install fswatch"
+        exit 1
+    fi
+
+# すべてのサービスを起動（Adminer含む）
+services-up:
+    @echo "すべてのサービスを起動中..."
+    docker compose up -d
+
+# すべてのサービスを停止
+services-down:
+    @echo "すべてのサービスを停止中..."
+    docker compose down
+
+# Docker ログを表示
+logs service="postgres":
+    docker compose logs -f {{service}}
+
+# Docker コンテナの状態を確認
+ps:
+    docker compose ps
+
+# データベースに接続（psql）
+db-shell:
+    docker exec -it sales-management-postgres psql -U postgres -d sales_management
+
+# データベーステーブル一覧を表示
+db-tables:
+    docker exec sales-management-postgres psql -U postgres -d sales_management -c "\dt"
+
+# データベース接続テスト
+db-test:
+    @echo "=== PostgreSQL 接続テスト ==="
+    @echo ""
+    @echo "1. コンテナ状態確認:"
+    @docker compose ps postgres
+    @echo ""
+    @echo "2. ポート確認:"
+    @nc -zv localhost 5432 2>&1
+    @echo ""
+    @echo "3. データベース一覧:"
+    @docker exec sales-management-postgres psql -U postgres -l | grep sales_management
+    @echo ""
+    @echo "4. 接続テスト:"
+    @docker exec sales-management-postgres psql -U postgres -d sales_management -c "SELECT 'Connection OK' as status;"
+
+# CI/CD用の品質チェック
+ci: deps check
+
+# リリースビルド
+release:
+    @echo "リリースビルドを実行中..."
+    mkdir -p {{build_dir}}
+    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o {{build_dir}}/{{binary_name}}-linux-amd64 ./cmd/server
+    CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags="-w -s" -o {{build_dir}}/{{binary_name}}-darwin-amd64 ./cmd/server
+    CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags="-w -s" -o {{build_dir}}/{{binary_name}}-darwin-arm64 ./cmd/server
+    @echo "✅ リリースビルド完了"
+
+# 開発環境の完全リセット
+reset: db-clean clean
+    @echo "開発環境をリセット中..."
+    @just setup
+    @echo "✅ リセット完了"

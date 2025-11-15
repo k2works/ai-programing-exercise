@@ -4,18 +4,25 @@
 
 echo "pre-commit hook: 品質チェックを実行中..."
 
-# go-taskのパスを設定
+# PATHを設定
 export PATH=$PATH:$(go env GOPATH)/bin
 
+# just が利用可能か確認
+if ! command -v just >/dev/null 2>&1; then
+    echo "❌ just がインストールされていません"
+    echo "インストール方法: brew install just または cargo install just"
+    exit 1
+fi
+
 # コードフォーマットチェック
-if ! task fmt >/dev/null 2>&1; then
+if ! just fmt >/dev/null 2>&1; then
     echo "❌ フォーマットエラーが検出されました"
     exit 1
 fi
 
 # 静的解析
 if command -v golangci-lint >/dev/null 2>&1; then
-    if ! task lint >/dev/null 2>&1; then
+    if ! just lint >/dev/null 2>&1; then
         echo "❌ 静的解析エラーが検出されました"
         exit 1
     fi
@@ -24,7 +31,7 @@ else
 fi
 
 # テスト実行
-if ! task test >/dev/null 2>&1; then
+if ! just test >/dev/null 2>&1; then
     echo "❌ テストが失敗しました"
     exit 1
 fi
