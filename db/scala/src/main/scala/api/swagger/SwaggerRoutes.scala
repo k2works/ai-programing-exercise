@@ -295,18 +295,25 @@ object SwaggerRoutes {
         openApiRoute
       }
     },
-    // Swagger UI（WebJars から配信）
+    // Swagger UI（カスタム設定ファイルを優先）
     pathPrefix("swagger-ui") {
-      getFromResourceDirectory("META-INF/resources/webjars/swagger-ui/5.10.3")
+      concat(
+        // カスタム swagger-initializer.js を配信
+        path("swagger-initializer.js") {
+          getFromResource("swagger-ui/swagger-initializer.js")
+        },
+        // その他のファイルは WebJars から配信
+        getFromResourceDirectory("META-INF/resources/webjars/swagger-ui/5.10.3")
+      )
     },
     // Swagger UI のインデックスページへリダイレクト
     path("api-docs") {
-      redirect("/swagger-ui/index.html?url=/swagger.json", akka.http.scaladsl.model.StatusCodes.PermanentRedirect)
+      redirect("/swagger-ui/index.html", akka.http.scaladsl.model.StatusCodes.PermanentRedirect)
     },
     // API バージョン固有の Swagger UI
     pathPrefix("api" / "v1") {
       path("docs") {
-        redirect("/swagger-ui/index.html?url=/api/v1/openapi.json", akka.http.scaladsl.model.StatusCodes.PermanentRedirect)
+        redirect("/swagger-ui/index.html", akka.http.scaladsl.model.StatusCodes.PermanentRedirect)
       }
     }
   )
