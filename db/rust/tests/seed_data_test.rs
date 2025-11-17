@@ -6,279 +6,279 @@
 // 実行方法: cargo test --features test-support --test seed_data_test
 #![cfg(feature = "test-support")]
 
-use sales_management_db::test_support::TestDatabase;
+use sales_management_db::test_support::with_test_pool;
 
 #[tokio::test]
 async fn test_seed_data_departments() {
-    let db = TestDatabase::new().await;
-    db.migrate().await.expect("Failed to run migrations");
+    with_test_pool(|pool| async move {
+        // シードデータを投入
+        insert_seed_data(&pool).await;
 
-    // シードデータを投入
-    insert_seed_data(&db.pool).await;
-
-    // 部門数の確認
-    let count: i64 = sqlx::query_scalar(r#"SELECT COUNT(*) FROM "部門マスタ""#)
-        .fetch_one(&db.pool)
-        .await
-        .expect("Failed to count departments");
-
-    assert_eq!(count, 21, "部門マスタは21件であるべき");
-
-    // 階層レベルの確認
-    let level1_count: i64 =
-        sqlx::query_scalar(r#"SELECT COUNT(*) FROM "部門マスタ" WHERE "組織階層" = 1"#)
-            .fetch_one(&db.pool)
+        // 部門数の確認
+        let count: i64 = sqlx::query_scalar(r#"SELECT COUNT(*) FROM "部門マスタ""#)
+            .fetch_one(&pool)
             .await
-            .expect("Failed to count level 1 departments");
+            .expect("Failed to count departments");
 
-    assert_eq!(level1_count, 1, "レベル1（本社）は1件であるべき");
+        assert_eq!(count, 21, "部門マスタは21件であるべき");
 
-    // パスが正しく設定されているか確認
-    let root_path: String =
-        sqlx::query_scalar(r#"SELECT "部門パス" FROM "部門マスタ" WHERE "部門コード" = '000000'"#)
-            .fetch_one(&db.pool)
-            .await
-            .expect("Failed to get root path");
+        // 階層レベルの確認
+        let level1_count: i64 =
+            sqlx::query_scalar(r#"SELECT COUNT(*) FROM "部門マスタ" WHERE "組織階層" = 1"#)
+                .fetch_one(&pool)
+                .await
+                .expect("Failed to count level 1 departments");
 
-    assert_eq!(root_path, "/000000", "本社のパスは /000000 であるべき");
+        assert_eq!(level1_count, 1, "レベル1（本社）は1件であるべき");
+
+        // パスが正しく設定されているか確認
+        let root_path: String =
+            sqlx::query_scalar(r#"SELECT "部門パス" FROM "部門マスタ" WHERE "部門コード" = '000000'"#)
+                .fetch_one(&pool)
+                .await
+                .expect("Failed to get root path");
+
+        assert_eq!(root_path, "/000000", "本社のパスは /000000 であるべき");
+    })
+    .await;
 }
 
 #[tokio::test]
 async fn test_seed_data_employees() {
-    let db = TestDatabase::new().await;
-    db.migrate().await.expect("Failed to run migrations");
+    with_test_pool(|pool| async move {
+        insert_seed_data(&pool).await;
 
-    insert_seed_data(&db.pool).await;
-
-    // 社員数の確認
-    let count: i64 = sqlx::query_scalar(r#"SELECT COUNT(*) FROM "社員マスタ""#)
-        .fetch_one(&db.pool)
-        .await
-        .expect("Failed to count employees");
-
-    assert_eq!(count, 45, "社員マスタは45件であるべき");
-
-    // 経営層の確認（職種コード="01"）
-    let management_count: i64 =
-        sqlx::query_scalar(r#"SELECT COUNT(*) FROM "社員マスタ" WHERE "職種コード" = '01'"#)
-            .fetch_one(&db.pool)
+        // 社員数の確認
+        let count: i64 = sqlx::query_scalar(r#"SELECT COUNT(*) FROM "社員マスタ""#)
+            .fetch_one(&pool)
             .await
-            .expect("Failed to count management");
+            .expect("Failed to count employees");
 
-    assert_eq!(management_count, 2, "経営層は2名であるべき");
+        assert_eq!(count, 45, "社員マスタは45件であるべき");
+
+        // 経営層の確認（職種コード="01"）
+        let management_count: i64 =
+            sqlx::query_scalar(r#"SELECT COUNT(*) FROM "社員マスタ" WHERE "職種コード" = '01'"#)
+                .fetch_one(&pool)
+                .await
+                .expect("Failed to count management");
+
+        assert_eq!(management_count, 2, "経営層は2名であるべき");
+    })
+    .await;
 }
 
 #[tokio::test]
 async fn test_seed_data_companies() {
-    let db = TestDatabase::new().await;
-    db.migrate().await.expect("Failed to run migrations");
+    with_test_pool(|pool| async move {
+        insert_seed_data(&pool).await;
 
-    insert_seed_data(&db.pool).await;
+        // 取引先グループ数の確認
+        let group_count: i64 = sqlx::query_scalar(r#"SELECT COUNT(*) FROM "取引先グループマスタ""#)
+            .fetch_one(&pool)
+            .await
+            .expect("Failed to count company groups");
 
-    // 取引先グループ数の確認
-    let group_count: i64 = sqlx::query_scalar(r#"SELECT COUNT(*) FROM "取引先グループマスタ""#)
-        .fetch_one(&db.pool)
-        .await
-        .expect("Failed to count company groups");
+        assert_eq!(group_count, 7, "取引先グループは7件であるべき");
 
-    assert_eq!(group_count, 7, "取引先グループは7件であるべき");
+        // 取引先数の確認
+        let company_count: i64 = sqlx::query_scalar(r#"SELECT COUNT(*) FROM "取引先マスタ""#)
+            .fetch_one(&pool)
+            .await
+            .expect("Failed to count companies");
 
-    // 取引先数の確認
-    let company_count: i64 = sqlx::query_scalar(r#"SELECT COUNT(*) FROM "取引先マスタ""#)
-        .fetch_one(&db.pool)
-        .await
-        .expect("Failed to count companies");
+        assert_eq!(company_count, 14, "取引先は14件であるべき");
 
-    assert_eq!(company_count, 14, "取引先は14件であるべき");
+        // 顧客数の確認
+        let customer_count: i64 = sqlx::query_scalar(r#"SELECT COUNT(*) FROM "顧客マスタ""#)
+            .fetch_one(&pool)
+            .await
+            .expect("Failed to count customers");
 
-    // 顧客数の確認
-    let customer_count: i64 = sqlx::query_scalar(r#"SELECT COUNT(*) FROM "顧客マスタ""#)
-        .fetch_one(&db.pool)
-        .await
-        .expect("Failed to count customers");
+        assert_eq!(customer_count, 10, "顧客は10件であるべき");
 
-    assert_eq!(customer_count, 10, "顧客は10件であるべき");
+        // 仕入先数の確認
+        let supplier_count: i64 = sqlx::query_scalar(r#"SELECT COUNT(*) FROM "仕入先マスタ""#)
+            .fetch_one(&pool)
+            .await
+            .expect("Failed to count suppliers");
 
-    // 仕入先数の確認
-    let supplier_count: i64 = sqlx::query_scalar(r#"SELECT COUNT(*) FROM "仕入先マスタ""#)
-        .fetch_one(&db.pool)
-        .await
-        .expect("Failed to count suppliers");
-
-    assert_eq!(supplier_count, 4, "仕入先は4件であるべき");
+        assert_eq!(supplier_count, 4, "仕入先は4件であるべき");
+    })
+    .await;
 }
 
 #[tokio::test]
 async fn test_seed_data_products() {
-    let db = TestDatabase::new().await;
-    db.migrate().await.expect("Failed to run migrations");
+    with_test_pool(|pool| async move {
+        insert_seed_data(&pool).await;
 
-    insert_seed_data(&db.pool).await;
+        // 商品分類数の確認
+        let category_count: i64 = sqlx::query_scalar(r#"SELECT COUNT(*) FROM "商品分類マスタ""#)
+            .fetch_one(&pool)
+            .await
+            .expect("Failed to count product categories");
 
-    // 商品分類数の確認
-    let category_count: i64 = sqlx::query_scalar(r#"SELECT COUNT(*) FROM "商品分類マスタ""#)
-        .fetch_one(&db.pool)
+        assert_eq!(category_count, 4, "商品分類は4件であるべき");
+
+        // 商品数の確認
+        let product_count: i64 = sqlx::query_scalar(r#"SELECT COUNT(*) FROM "商品マスタ""#)
+            .fetch_one(&pool)
+            .await
+            .expect("Failed to count products");
+
+        assert_eq!(product_count, 20, "商品マスタは20件であるべき");
+
+        // 商品分類ごとの件数確認
+        let beef_count: i64 = sqlx::query_scalar(
+            r#"SELECT COUNT(*) FROM "商品マスタ" WHERE "商品分類コード" = 'CAT001'"#,
+        )
+        .fetch_one(&pool)
         .await
-        .expect("Failed to count product categories");
+        .expect("Failed to count beef products");
 
-    assert_eq!(category_count, 4, "商品分類は4件であるべき");
+        assert_eq!(beef_count, 5, "牛肉製品は5件であるべき");
 
-    // 商品数の確認
-    let product_count: i64 = sqlx::query_scalar(r#"SELECT COUNT(*) FROM "商品マスタ""#)
-        .fetch_one(&db.pool)
+        let pork_count: i64 = sqlx::query_scalar(
+            r#"SELECT COUNT(*) FROM "商品マスタ" WHERE "商品分類コード" = 'CAT002'"#,
+        )
+        .fetch_one(&pool)
         .await
-        .expect("Failed to count products");
+        .expect("Failed to count pork products");
 
-    assert_eq!(product_count, 20, "商品マスタは20件であるべき");
+        assert_eq!(pork_count, 5, "豚肉製品は5件であるべき");
 
-    // 商品分類ごとの件数確認
-    let beef_count: i64 = sqlx::query_scalar(
-        r#"SELECT COUNT(*) FROM "商品マスタ" WHERE "商品分類コード" = 'CAT001'"#,
-    )
-    .fetch_one(&db.pool)
-    .await
-    .expect("Failed to count beef products");
+        let chicken_count: i64 = sqlx::query_scalar(
+            r#"SELECT COUNT(*) FROM "商品マスタ" WHERE "商品分類コード" = 'CAT003'"#,
+        )
+        .fetch_one(&pool)
+        .await
+        .expect("Failed to count chicken products");
 
-    assert_eq!(beef_count, 5, "牛肉製品は5件であるべき");
+        assert_eq!(chicken_count, 5, "鶏肉製品は5件であるべき");
 
-    let pork_count: i64 = sqlx::query_scalar(
-        r#"SELECT COUNT(*) FROM "商品マスタ" WHERE "商品分類コード" = 'CAT002'"#,
-    )
-    .fetch_one(&db.pool)
-    .await
-    .expect("Failed to count pork products");
+        let processed_count: i64 = sqlx::query_scalar(
+            r#"SELECT COUNT(*) FROM "商品マスタ" WHERE "商品分類コード" = 'CAT004'"#,
+        )
+        .fetch_one(&pool)
+        .await
+        .expect("Failed to count processed products");
 
-    assert_eq!(pork_count, 5, "豚肉製品は5件であるべき");
-
-    let chicken_count: i64 = sqlx::query_scalar(
-        r#"SELECT COUNT(*) FROM "商品マスタ" WHERE "商品分類コード" = 'CAT003'"#,
-    )
-    .fetch_one(&db.pool)
-    .await
-    .expect("Failed to count chicken products");
-
-    assert_eq!(chicken_count, 5, "鶏肉製品は5件であるべき");
-
-    let processed_count: i64 = sqlx::query_scalar(
-        r#"SELECT COUNT(*) FROM "商品マスタ" WHERE "商品分類コード" = 'CAT004'"#,
-    )
-    .fetch_one(&db.pool)
-    .await
-    .expect("Failed to count processed products");
-
-    assert_eq!(processed_count, 5, "加工品は5件であるべき");
+        assert_eq!(processed_count, 5, "加工品は5件であるべき");
+    })
+    .await;
 }
 
 #[tokio::test]
 async fn test_seed_data_warehouses() {
-    let db = TestDatabase::new().await;
-    db.migrate().await.expect("Failed to run migrations");
+    with_test_pool(|pool| async move {
+        insert_seed_data(&pool).await;
 
-    insert_seed_data(&db.pool).await;
+        // 倉庫数の確認
+        let warehouse_count: i64 = sqlx::query_scalar(r#"SELECT COUNT(*) FROM "倉庫マスタ""#)
+            .fetch_one(&pool)
+            .await
+            .expect("Failed to count warehouses");
 
-    // 倉庫数の確認
-    let warehouse_count: i64 = sqlx::query_scalar(r#"SELECT COUNT(*) FROM "倉庫マスタ""#)
-        .fetch_one(&db.pool)
-        .await
-        .expect("Failed to count warehouses");
-
-    assert_eq!(warehouse_count, 2, "倉庫は2件であるべき");
+        assert_eq!(warehouse_count, 2, "倉庫は2件であるべき");
+    })
+    .await;
 }
 
 #[tokio::test]
 async fn test_seed_data_foreign_keys() {
-    let db = TestDatabase::new().await;
-    db.migrate().await.expect("Failed to run migrations");
+    with_test_pool(|pool| async move {
+        insert_seed_data(&pool).await;
 
-    insert_seed_data(&db.pool).await;
+        // 社員マスタの部門参照が正しいことを確認
+        // 注：社員マスタは部門コードのみを参照し、開始日は独自に持つため、
+        // 部門コードが部門マスタに存在することを確認
+        let invalid_dept_refs = sqlx::query(
+            r#"SELECT e."社員コード", e."部門コード"
+               FROM "社員マスタ" e
+               WHERE NOT EXISTS (
+                   SELECT 1 FROM "部門マスタ" d
+                   WHERE e."部門コード" = d."部門コード"
+               )"#,
+        )
+        .fetch_all(&pool)
+        .await
+        .expect("Failed to check employee department references");
 
-    // 社員マスタの部門参照が正しいことを確認
-    // 注：社員マスタは部門コードのみを参照し、開始日は独自に持つため、
-    // 部門コードが部門マスタに存在することを確認
-    let invalid_dept_refs = sqlx::query(
-        r#"SELECT e."社員コード", e."部門コード"
-           FROM "社員マスタ" e
-           WHERE NOT EXISTS (
-               SELECT 1 FROM "部門マスタ" d
-               WHERE e."部門コード" = d."部門コード"
-           )"#,
-    )
-    .fetch_all(&db.pool)
-    .await
-    .expect("Failed to check employee department references");
+        assert_eq!(invalid_dept_refs.len(), 0, "すべての社員が存在する部門コードを参照しているべき");
 
-    assert_eq!(invalid_dept_refs.len(), 0, "すべての社員が存在する部門コードを参照しているべき");
+        // 商品マスタの仕入先参照が正しいことを確認
+        let invalid_supplier_refs = sqlx::query(
+            r#"SELECT p."商品コード", p."仕入先コード"
+               FROM "商品マスタ" p
+               LEFT JOIN "仕入先マスタ" s
+                 ON p."仕入先コード" = s."仕入先コード"
+                AND p."仕入先枝番" = s."仕入先枝番"
+               WHERE s."仕入先コード" IS NULL"#,
+        )
+        .fetch_all(&pool)
+        .await
+        .expect("Failed to check product supplier references");
 
-    // 商品マスタの仕入先参照が正しいことを確認
-    let invalid_supplier_refs = sqlx::query(
-        r#"SELECT p."商品コード", p."仕入先コード"
-           FROM "商品マスタ" p
-           LEFT JOIN "仕入先マスタ" s
-             ON p."仕入先コード" = s."仕入先コード"
-            AND p."仕入先枝番" = s."仕入先枝番"
-           WHERE s."仕入先コード" IS NULL"#,
-    )
-    .fetch_all(&db.pool)
-    .await
-    .expect("Failed to check product supplier references");
+        assert_eq!(invalid_supplier_refs.len(), 0, "すべての商品が有効な仕入先を参照しているべき");
 
-    assert_eq!(invalid_supplier_refs.len(), 0, "すべての商品が有効な仕入先を参照しているべき");
+        // 取引先マスタのグループ参照が正しいことを確認
+        let invalid_group_refs = sqlx::query(
+            r#"SELECT c."取引先コード", c."取引先グループコード"
+               FROM "取引先マスタ" c
+               LEFT JOIN "取引先グループマスタ" g
+                 ON c."取引先グループコード" = g."取引先グループコード"
+               WHERE g."取引先グループコード" IS NULL"#,
+        )
+        .fetch_all(&pool)
+        .await
+        .expect("Failed to check company group references");
 
-    // 取引先マスタのグループ参照が正しいことを確認
-    let invalid_group_refs = sqlx::query(
-        r#"SELECT c."取引先コード", c."取引先グループコード"
-           FROM "取引先マスタ" c
-           LEFT JOIN "取引先グループマスタ" g
-             ON c."取引先グループコード" = g."取引先グループコード"
-           WHERE g."取引先グループコード" IS NULL"#,
-    )
-    .fetch_all(&db.pool)
-    .await
-    .expect("Failed to check company group references");
-
-    assert_eq!(invalid_group_refs.len(), 0, "すべての取引先が有効なグループを参照しているべき");
+        assert_eq!(invalid_group_refs.len(), 0, "すべての取引先が有効なグループを参照しているべき");
+    })
+    .await;
 }
 
 #[tokio::test]
 async fn test_seed_data_business_rules() {
-    let db = TestDatabase::new().await;
-    db.migrate().await.expect("Failed to run migrations");
+    with_test_pool(|pool| async move {
+        insert_seed_data(&pool).await;
 
-    insert_seed_data(&db.pool).await;
+        // 販売単価が売上原価以上であることを確認
+        let invalid_pricing: i64 = sqlx::query_scalar(
+            r#"SELECT COUNT(*) FROM "商品マスタ"
+               WHERE "販売単価" < "売上原価""#,
+        )
+        .fetch_one(&pool)
+        .await
+        .expect("Failed to check pricing");
 
-    // 販売単価が売上原価以上であることを確認
-    let invalid_pricing: i64 = sqlx::query_scalar(
-        r#"SELECT COUNT(*) FROM "商品マスタ"
-           WHERE "販売単価" < "売上原価""#,
-    )
-    .fetch_one(&db.pool)
-    .await
-    .expect("Failed to check pricing");
+        assert_eq!(invalid_pricing, 0, "販売単価は売上原価以上であるべき");
 
-    assert_eq!(invalid_pricing, 0, "販売単価は売上原価以上であるべき");
+        // すべての商品に仕入先が設定されていることを確認
+        let products_without_supplier: i64 = sqlx::query_scalar(
+            r#"SELECT COUNT(*) FROM "商品マスタ"
+               WHERE "仕入先コード" IS NULL"#,
+        )
+        .fetch_one(&pool)
+        .await
+        .expect("Failed to check products without supplier");
 
-    // すべての商品に仕入先が設定されていることを確認
-    let products_without_supplier: i64 = sqlx::query_scalar(
-        r#"SELECT COUNT(*) FROM "商品マスタ"
-           WHERE "仕入先コード" IS NULL"#,
-    )
-    .fetch_one(&db.pool)
-    .await
-    .expect("Failed to check products without supplier");
+        assert_eq!(products_without_supplier, 0, "すべての商品に仕入先が設定されているべき");
 
-    assert_eq!(products_without_supplier, 0, "すべての商品に仕入先が設定されているべき");
+        // 顧客の締日と支払日が有効範囲であることを確認
+        let invalid_payment_terms: i64 = sqlx::query_scalar(
+            r#"SELECT COUNT(*) FROM "顧客マスタ"
+               WHERE "顧客締日１" < 1 OR "顧客締日１" > 31
+                  OR "顧客支払日１" < 1 OR "顧客支払日１" > 31"#,
+        )
+        .fetch_one(&pool)
+        .await
+        .expect("Failed to check payment terms");
 
-    // 顧客の締日と支払日が有効範囲であることを確認
-    let invalid_payment_terms: i64 = sqlx::query_scalar(
-        r#"SELECT COUNT(*) FROM "顧客マスタ"
-           WHERE "顧客締日１" < 1 OR "顧客締日１" > 31
-              OR "顧客支払日１" < 1 OR "顧客支払日１" > 31"#,
-    )
-    .fetch_one(&db.pool)
-    .await
-    .expect("Failed to check payment terms");
-
-    assert_eq!(invalid_payment_terms, 0, "締日と支払日は1-31の範囲であるべき");
+        assert_eq!(invalid_payment_terms, 0, "締日と支払日は1-31の範囲であるべき");
+    })
+    .await;
 }
 
 // ヘルパー関数: シードデータを投入

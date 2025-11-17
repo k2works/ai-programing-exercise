@@ -6,10 +6,12 @@ edition = "2021"
 [[bin]]
 name = "seed"
 path = "src/bin/seed.rs"
+required-features = ["binaries"]
 
 [[bin]]
 name = "api"
 path = "src/bin/api.rs"
+required-features = ["binaries"]
 
 [dependencies]
 # データベース接続とクエリ実行
@@ -57,8 +59,12 @@ hyper = { version = "1.0", features = ["full"] }
 tower = { version = "0.4", features = ["util"] }
 
 [features]
+# デフォルトフィーチャー（IDE用にtest-supportを有効化）
+default = ["test-support"]
 # 統合テスト用のテストサポート機能
 test-support = ["dep:testcontainers", "dep:testcontainers-modules"]
+# バイナリビルド用のフィーチャー
+binaries = []
 
 [profile.dev]
 opt-level = 0
