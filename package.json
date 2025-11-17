@@ -8,11 +8,12 @@
     "journal": "gulp journal:generate",
     "docs:serve": "gulp mkdocs:serve",
     "docs:stop": "gulp mkdocs:stop",
-    "docs:build": "gulp mkdocs:build"
+    "docs:build": "gulp mkdocs:build",
+    "claude:yol": "claude --dangerously-skip-permissions"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/k2works/ai-programing-exercise.git"
+    "url": "git+https://github.com/k2works/{project_name}.git"
   },
   "keywords": [
     "ai",
@@ -27,6 +28,8 @@
   "homepage": "https://github.com/k2works/ai-programing-exercise#readme",
   "type": "module",
   "dependencies": {
-    "gulp": "^4.0.2"
+    "@k2works/claude-code-booster": "^0.6.0",
+    "gulp": "^5.0.0"
   }
 }
+
