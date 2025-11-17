@@ -1,25 +1,27 @@
 // src/api/routes/account.routes.ts
 import { FastifyInstance } from 'fastify'
-import { prisma } from '../lib/prisma'
+import { PrismaClient } from '@prisma/client'
+import { prisma as defaultPrisma } from '../lib/prisma'
 import { AccountMapper } from '../../infrastructure/persistence/mapper/AccountMapper'
 import { AccountPersistenceAdapter } from '../../infrastructure/persistence/AccountPersistenceAdapter'
 import { AccountService } from '../../application/service/AccountService'
 import { AccountController } from '../../infrastructure/web/controller/AccountController'
-import {
-  CreateAccountRequestSchema,
-  CreateAccountRequestDto
-} from '../../infrastructure/web/dto/CreateAccountRequestDto'
-import {
-  UpdateAccountRequestSchema,
-  UpdateAccountRequestDto
-} from '../../infrastructure/web/dto/UpdateAccountRequestDto'
+import { CreateAccountRequestDto } from '../../infrastructure/web/dto/CreateAccountRequestDto'
+import { UpdateAccountRequestDto } from '../../infrastructure/web/dto/UpdateAccountRequestDto'
 
 /**
  * 勘定科目 API ルート
  * 依存関係の配線と Fastify へのルート登録
+ *
+ * @param app - Fastify インスタンス
+ * @param options - オプション（テスト時に Prisma インスタンスをオーバーライド可能）
  */
-export async function accountRoutes(app: FastifyInstance): Promise<void> {
+export async function accountRoutes(
+  app: FastifyInstance,
+  options?: { prisma?: PrismaClient }
+): Promise<void> {
   // 依存関係の構築（Dependency Injection）
+  const prisma = options?.prisma || defaultPrisma
   const accountMapper = new AccountMapper()
   const accountRepository = new AccountPersistenceAdapter(prisma, accountMapper)
   const accountService = new AccountService(accountRepository)
@@ -35,7 +37,6 @@ export async function accountRoutes(app: FastifyInstance): Promise<void> {
         tags: ['accounts'],
         summary: '勘定科目を作成',
         description: '新しい勘定科目を作成します',
-        body: CreateAccountRequestSchema,
         response: {
           201: {
             description: '作成成功',
@@ -240,7 +241,6 @@ export async function accountRoutes(app: FastifyInstance): Promise<void> {
           },
           required: ['code']
         },
-        body: UpdateAccountRequestSchema,
         response: {
           200: {
             description: '更新成功',

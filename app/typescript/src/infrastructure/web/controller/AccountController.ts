@@ -3,7 +3,7 @@ import { FastifyRequest, FastifyReply } from 'fastify'
 import { AccountUseCase } from '../../../application/port/in/AccountUseCase'
 import { CreateAccountRequestDto } from '../dto/CreateAccountRequestDto'
 import { UpdateAccountRequestDto } from '../dto/UpdateAccountRequestDto'
-import { AccountResponseDto } from '../dto/AccountResponseDto'
+import { toAccountResponseDto } from '../dto/AccountResponseDto'
 
 /**
  * 勘定科目コントローラー（Input Adapter）
@@ -22,7 +22,7 @@ export class AccountController {
   ): Promise<void> {
     try {
       const account = await this.accountUseCase.createAccount(request.body)
-      const response = AccountResponseDto.fromDomain(account)
+      const response = toAccountResponseDto(account)
 
       reply.status(201).send({
         success: true,
@@ -39,7 +39,7 @@ export class AccountController {
    */
   async getAllAccounts(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     const accounts = await this.accountUseCase.getAllAccounts()
-    const response = accounts.map((a) => AccountResponseDto.fromDomain(a))
+    const response = accounts.map((a) => toAccountResponseDto(a))
 
     reply.send({
       success: true,
@@ -57,7 +57,7 @@ export class AccountController {
   ): Promise<void> {
     try {
       const account = await this.accountUseCase.getAccountByCode(request.params.code)
-      const response = AccountResponseDto.fromDomain(account)
+      const response = toAccountResponseDto(account)
 
       reply.send({
         success: true,
@@ -78,7 +78,7 @@ export class AccountController {
   ): Promise<void> {
     try {
       const accounts = await this.accountUseCase.getAccountsByBspl(request.params.distinction)
-      const response = accounts.map((a) => AccountResponseDto.fromDomain(a))
+      const response = accounts.map((a) => toAccountResponseDto(a))
 
       reply.send({
         success: true,
@@ -105,7 +105,7 @@ export class AccountController {
         accountCode: request.params.code,
         ...request.body
       })
-      const response = AccountResponseDto.fromDomain(account)
+      const response = toAccountResponseDto(account)
 
       reply.send({
         success: true,

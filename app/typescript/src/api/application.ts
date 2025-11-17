@@ -3,12 +3,15 @@ import Fastify, { FastifyInstance } from 'fastify'
 import cors from '@fastify/cors'
 import swagger from '@fastify/swagger'
 import swaggerUi from '@fastify/swagger-ui'
+import { PrismaClient } from '@prisma/client'
 import { accountRoutes } from './routes/account.routes'
 
 /**
  * Fastify アプリケーションを構築
+ *
+ * @param options - オプション（テスト時に Prisma インスタンスをオーバーライド可能）
  */
-export async function buildApp(): Promise<FastifyInstance> {
+export async function buildApp(options?: { prisma?: PrismaClient }): Promise<FastifyInstance> {
   const app = Fastify({
     logger: true
   })
@@ -71,7 +74,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   })
 
   // API ルートの登録
-  await app.register(accountRoutes)
+  await app.register(accountRoutes, options)
 
   return app
 }
