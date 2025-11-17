@@ -1,0 +1,6 @@
+{
+  "rust-analyzer.linkedProjects": [
+    "db/rust/Cargo.toml"
+  ],
+  "rust-analyzer.cargo.features": ["test-support"]
+}
