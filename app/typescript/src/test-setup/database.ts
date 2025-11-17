@@ -52,6 +52,8 @@ export class TestDatabase {
     if (!this.prisma) return
 
     // すべてのテーブルをクリア（外部キー制約を考慮した順序）
+    await this.prisma.$executeRaw`TRUNCATE TABLE "月次勘定科目残高" CASCADE`
+    await this.prisma.$executeRaw`TRUNCATE TABLE "日次勘定科目残高" CASCADE`
     await this.prisma.$executeRaw`TRUNCATE TABLE "自動仕訳ログ" CASCADE`
     await this.prisma.$executeRaw`TRUNCATE TABLE "自動仕訳パターン明細" CASCADE`
     await this.prisma.$executeRaw`TRUNCATE TABLE "自動仕訳パターン" CASCADE`
@@ -565,6 +567,129 @@ export class TestDatabase {
 
     await this.prisma.$executeRaw`
       COMMENT ON FUNCTION 複式簿記チェック() IS '複式簿記チェック関数（借方合計≠貸方合計の不整合仕訳を検出）';
+    `
+
+    // 日次勘定科目残高テーブルを作成
+    await this.prisma.$executeRaw`
+      CREATE TABLE IF NOT EXISTS "日次勘定科目残高" (
+        "起票日" DATE NOT NULL,
+        "勘定科目コード" VARCHAR(10) NOT NULL,
+        "補助科目コード" VARCHAR(10) NOT NULL DEFAULT '',
+        "部門コード" VARCHAR(5) NOT NULL DEFAULT '',
+        "プロジェクトコード" VARCHAR(10) NOT NULL DEFAULT '',
+        "決算仕訳フラグ" SMALLINT NOT NULL DEFAULT 0,
+        "借方金額" DECIMAL(14,2) NOT NULL DEFAULT 0,
+        "貸方金額" DECIMAL(14,2) NOT NULL DEFAULT 0,
+        "作成日時" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        "更新日時" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        PRIMARY KEY ("起票日", "勘定科目コード", "補助科目コード", "部門コード", "プロジェクトコード", "決算仕訳フラグ"),
+        FOREIGN KEY ("勘定科目コード") REFERENCES "勘定科目マスタ" ("勘定科目コード")
+      );
+    `
+
+    // インデックス作成 - 日次勘定科目残高
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_daily_balance_account" ON "日次勘定科目残高"("勘定科目コード");
+    `
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_daily_balance_date" ON "日次勘定科目残高"("起票日");
+    `
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_daily_balance_department" ON "日次勘定科目残高"("部門コード");
+    `
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_daily_balance_project" ON "日次勘定科目残高"("プロジェクトコード");
+    `
+
+    // コメント追加 - 日次勘定科目残高
+    await this.prisma.$executeRaw`
+      COMMENT ON TABLE "日次勘定科目残高" IS '日次勘定科目残高（日ごとの借方・貸方金額を記録）';
+    `
+
+    // 月次勘定科目残高テーブルを作成
+    await this.prisma.$executeRaw`
+      CREATE TABLE IF NOT EXISTS "月次勘定科目残高" (
+        "会計年月" VARCHAR(6) NOT NULL,
+        "勘定科目コード" VARCHAR(10) NOT NULL,
+        "補助科目コード" VARCHAR(10) NOT NULL DEFAULT '',
+        "部門コード" VARCHAR(5) NOT NULL DEFAULT '',
+        "プロジェクトコード" VARCHAR(10) NOT NULL DEFAULT '',
+        "決算仕訳フラグ" SMALLINT NOT NULL DEFAULT 0,
+        "月初残高" DECIMAL(14,2) NOT NULL DEFAULT 0,
+        "借方金額" DECIMAL(14,2) NOT NULL DEFAULT 0,
+        "貸方金額" DECIMAL(14,2) NOT NULL DEFAULT 0,
+        "月末残高" DECIMAL(14,2) NOT NULL DEFAULT 0,
+        "作成日時" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        "更新日時" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        PRIMARY KEY ("会計年月", "勘定科目コード", "補助科目コード", "部門コード", "プロジェクトコード", "決算仕訳フラグ"),
+        FOREIGN KEY ("勘定科目コード") REFERENCES "勘定科目マスタ" ("勘定科目コード")
+      );
+    `
+
+    // インデックス作成 - 月次勘定科目残高
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_monthly_balance_account" ON "月次勘定科目残高"("勘定科目コード");
+    `
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_monthly_balance_month" ON "月次勘定科目残高"("会計年月");
+    `
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_monthly_balance_department" ON "月次勘定科目残高"("部門コード");
+    `
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_monthly_balance_project" ON "月次勘定科目残高"("プロジェクトコード");
+    `
+
+    // コメント追加 - 月次勘定科目残高
+    await this.prisma.$executeRaw`
+      COMMENT ON TABLE "月次勘定科目残高" IS '月次勘定科目残高（月ごとの月初残高・借方金額・貸方金額・月末残高を記録）';
+    `
+
+    // 総勘定元帳ビュー（日次残高から生成）
+    await this.prisma.$executeRaw`
+      CREATE OR REPLACE VIEW "総勘定元帳" AS
+      SELECT
+        d."起票日" as entry_date,
+        a."勘定科目コード" as account_code,
+        a."勘定科目名" as account_name,
+        a."BSPL区分" as bspl_type,
+        d."補助科目コード" as sub_account_code,
+        d."部門コード" as department_code,
+        d."プロジェクトコード" as project_code,
+        d."借方金額" as debit_amount,
+        d."貸方金額" as credit_amount,
+        SUM(d."借方金額" - d."貸方金額") OVER (
+          PARTITION BY d."勘定科目コード", d."補助科目コード", d."部門コード", d."プロジェクトコード"
+          ORDER BY d."起票日"
+        ) as balance
+      FROM "日次勘定科目残高" d
+      INNER JOIN "勘定科目マスタ" a ON d."勘定科目コード" = a."勘定科目コード"
+      ORDER BY d."勘定科目コード", d."起票日"
+    `
+
+    await this.prisma.$executeRaw`
+      COMMENT ON VIEW "総勘定元帳" IS '総勘定元帳（日次残高から生成される勘定科目ごとの取引履歴）'
+    `
+
+    // 試算表ビュー（日次残高から生成）
+    await this.prisma.$executeRaw`
+      CREATE OR REPLACE VIEW "試算表" AS
+      SELECT
+        a."勘定科目コード" as account_code,
+        a."勘定科目名" as account_name,
+        a."BSPL区分" as bspl_type,
+        a."取引要素区分" as transaction_type,
+        COALESCE(SUM(d."借方金額"), 0) as debit_total,
+        COALESCE(SUM(d."貸方金額"), 0) as credit_total,
+        COALESCE(SUM(d."借方金額"), 0) - COALESCE(SUM(d."貸方金額"), 0) as balance
+      FROM "勘定科目マスタ" a
+      LEFT JOIN "日次勘定科目残高" d ON a."勘定科目コード" = d."勘定科目コード"
+      GROUP BY a."勘定科目コード", a."勘定科目名", a."BSPL区分", a."取引要素区分"
+      ORDER BY a."勘定科目コード"
+    `
+
+    await this.prisma.$executeRaw`
+      COMMENT ON VIEW "試算表" IS '試算表（全勘定科目の残高一覧）'
     `
   }
 }
