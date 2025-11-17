@@ -74,11 +74,6 @@ export class TestDatabase {
     // データベースが起動するまで待機
     await this.waitForDatabase()
 
-    // 勘定科目種別のenum型を作成
-    await this.prisma.$executeRaw`
-      CREATE TYPE "account_type" AS ENUM ('資産', '負債', '純資産', '収益', '費用');
-    `
-
     // 課税取引マスタテーブルを作成（外部キー参照先を先に作成）
     await this.prisma.$executeRaw`
       CREATE TABLE IF NOT EXISTS "課税取引マスタ" (
@@ -97,11 +92,16 @@ export class TestDatabase {
     // 勘定科目マスタテーブルを作成
     await this.prisma.$executeRaw`
       CREATE TABLE IF NOT EXISTS "勘定科目マスタ" (
-        "勘定科目ID" SERIAL PRIMARY KEY,
-        "勘定科目コード" VARCHAR(20) UNIQUE NOT NULL,
-        "勘定科目名" VARCHAR(100) NOT NULL,
-        "勘定科目種別" "account_type" NOT NULL,
-        "残高" DECIMAL(15,2) DEFAULT 0 NOT NULL,
+        "勘定科目コード" VARCHAR(10) PRIMARY KEY,
+        "勘定科目名" VARCHAR(40) NOT NULL,
+        "勘定科目カナ" VARCHAR(40),
+        "勘定科目種別" VARCHAR(10) NOT NULL,
+        "合計科目" BOOLEAN DEFAULT false NOT NULL,
+        "BSPL区分" CHAR(1),
+        "取引要素区分" CHAR(1),
+        "費用区分" CHAR(1),
+        "表示順序" INTEGER,
+        "集計対象" BOOLEAN DEFAULT true NOT NULL,
         "課税取引コード" VARCHAR(2),
         "作成日時" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
         "更新日時" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -112,7 +112,7 @@ export class TestDatabase {
     // 勘定科目構成マスタテーブルを作成
     await this.prisma.$executeRaw`
       CREATE TABLE IF NOT EXISTS "勘定科目構成マスタ" (
-        "勘定科目コード" VARCHAR(20) PRIMARY KEY,
+        "勘定科目コード" VARCHAR(10) PRIMARY KEY,
         "勘定科目パス" VARCHAR(200) NOT NULL,
         "作成日時" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
         "更新日時" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -121,6 +121,18 @@ export class TestDatabase {
     `
 
     // インデックス作成
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_bspl_distinction" ON "勘定科目マスタ"("BSPL区分");
+    `
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_transaction_distinction" ON "勘定科目マスタ"("取引要素区分");
+    `
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_account_type" ON "勘定科目マスタ"("勘定科目種別");
+    `
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_display_order" ON "勘定科目マスタ"("表示順序");
+    `
     await this.prisma.$executeRaw`
       CREATE INDEX IF NOT EXISTS "idx_tax_code" ON "勘定科目マスタ"("課税取引コード");
     `
@@ -139,19 +151,34 @@ export class TestDatabase {
       COMMENT ON TABLE "勘定科目マスタ" IS '勘定科目マスタ（財務会計システムの基本となる勘定科目情報）';
     `
     await this.prisma.$executeRaw`
-      COMMENT ON COLUMN "勘定科目マスタ"."勘定科目ID" IS '勘定科目ID（主キー）';
+      COMMENT ON COLUMN "勘定科目マスタ"."勘定科目コード" IS '勘定科目コード（主キー）';
     `
     await this.prisma.$executeRaw`
-      COMMENT ON COLUMN "勘定科目マスタ"."勘定科目コード" IS '勘定科目コード（例：1000, 2000）';
+      COMMENT ON COLUMN "勘定科目マスタ"."勘定科目名" IS '勘定科目名';
     `
     await this.prisma.$executeRaw`
-      COMMENT ON COLUMN "勘定科目マスタ"."勘定科目名" IS '勘定科目名（例：現金、売掛金）';
+      COMMENT ON COLUMN "勘定科目マスタ"."勘定科目カナ" IS '勘定科目カナ';
     `
     await this.prisma.$executeRaw`
-      COMMENT ON COLUMN "勘定科目マスタ"."勘定科目種別" IS '勘定科目種別（資産、負債、純資産、収益、費用）';
+      COMMENT ON COLUMN "勘定科目マスタ"."勘定科目種別" IS '勘定科目種別';
     `
     await this.prisma.$executeRaw`
-      COMMENT ON COLUMN "勘定科目マスタ"."残高" IS '残高';
+      COMMENT ON COLUMN "勘定科目マスタ"."合計科目" IS '合計科目';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "勘定科目マスタ"."BSPL区分" IS 'BSPL区分';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "勘定科目マスタ"."取引要素区分" IS '取引要素区分';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "勘定科目マスタ"."費用区分" IS '費用区分';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "勘定科目マスタ"."表示順序" IS '表示順序';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "勘定科目マスタ"."集計対象" IS '集計対象';
     `
     await this.prisma.$executeRaw`
       COMMENT ON COLUMN "勘定科目マスタ"."課税取引コード" IS '課税取引コード';

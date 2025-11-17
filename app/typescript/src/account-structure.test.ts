@@ -27,39 +27,39 @@ describe('勘定科目構成マスタ', () => {
     await testDb.prisma.account.createMany({
       data: [
         {
-          id: 1,
-          code: '11',
-          name: '資産の部',
-          accountType: 'ASSET',
-          balance: 0
+          accountCode: '11',
+          accountName: '資産の部',
+          accountType: '資産',
+          sumAccount: true,
+          aggregationTarget: true
         },
         {
-          id: 2,
-          code: '11000',
-          name: '流動資産',
-          accountType: 'ASSET',
-          balance: 0
+          accountCode: '11000',
+          accountName: '流動資産',
+          accountType: '資産',
+          sumAccount: true,
+          aggregationTarget: true
         },
         {
-          id: 3,
-          code: '11190',
-          name: '現金及び預金',
-          accountType: 'ASSET',
-          balance: 0
+          accountCode: '11190',
+          accountName: '現金及び預金',
+          accountType: '資産',
+          sumAccount: true,
+          aggregationTarget: true
         },
         {
-          id: 4,
-          code: '11110',
-          name: '現金',
-          accountType: 'ASSET',
-          balance: 50000
+          accountCode: '11110',
+          accountName: '現金',
+          accountType: '資産',
+          sumAccount: false,
+          aggregationTarget: true
         },
         {
-          id: 5,
-          code: '11120',
-          name: '当座預金',
-          accountType: 'ASSET',
-          balance: 100000
+          accountCode: '11120',
+          accountName: '当座預金',
+          accountType: '資産',
+          sumAccount: false,
+          aggregationTarget: true
         }
       ]
     })
@@ -86,11 +86,11 @@ describe('勘定科目構成マスタ', () => {
     // 勘定科目と構成を作成
     await testDb.prisma.account.create({
       data: {
-        id: 1,
-        code: '11110',
-        name: '現金',
-        accountType: 'ASSET',
-        balance: 50000,
+        accountCode: '11110',
+        accountName: '現金',
+        accountType: '資産',
+        sumAccount: false,
+        aggregationTarget: true,
         structure: {
           create: {
             accountPath: '11^11000^11190^11110'
@@ -124,10 +124,34 @@ describe('勘定科目構成マスタ', () => {
     // テストデータの準備
     await testDb.prisma.account.createMany({
       data: [
-        { id: 1, code: '11190', name: '現金及び預金', accountType: 'ASSET', balance: 0 },
-        { id: 2, code: '11110', name: '現金', accountType: 'ASSET', balance: 50000 },
-        { id: 3, code: '11120', name: '当座預金', accountType: 'ASSET', balance: 100000 },
-        { id: 4, code: '11130', name: '普通預金', accountType: 'ASSET', balance: 200000 }
+        {
+          accountCode: '11190',
+          accountName: '現金及び預金',
+          accountType: '資産',
+          sumAccount: true,
+          aggregationTarget: true
+        },
+        {
+          accountCode: '11110',
+          accountName: '現金',
+          accountType: '資産',
+          sumAccount: false,
+          aggregationTarget: true
+        },
+        {
+          accountCode: '11120',
+          accountName: '当座預金',
+          accountType: '資産',
+          sumAccount: false,
+          aggregationTarget: true
+        },
+        {
+          accountCode: '11130',
+          accountName: '普通預金',
+          accountType: '資産',
+          sumAccount: false,
+          aggregationTarget: true
+        }
       ]
     })
 
@@ -156,52 +180,8 @@ describe('勘定科目構成マスタ', () => {
     })
 
     expect(childAccounts).toHaveLength(3)
-    expect(childAccounts.map((c) => c.account.name)).toContain('現金')
-    expect(childAccounts.map((c) => c.account.name)).toContain('当座預金')
-    expect(childAccounts.map((c) => c.account.name)).toContain('普通預金')
-  })
-
-  test('子科目の残高を集計できる', async () => {
-    if (!testDb.prisma) {
-      throw new Error('Prisma client not initialized')
-    }
-
-    // テストデータの準備
-    await testDb.prisma.account.createMany({
-      data: [
-        { id: 1, code: '11190', name: '現金及び預金', accountType: 'ASSET', balance: 0 },
-        { id: 2, code: '11110', name: '現金', accountType: 'ASSET', balance: 50000 },
-        { id: 3, code: '11120', name: '当座預金', accountType: 'ASSET', balance: 100000 },
-        { id: 4, code: '11130', name: '普通預金', accountType: 'ASSET', balance: 200000 }
-      ]
-    })
-
-    await testDb.prisma.accountStructure.createMany({
-      data: [
-        { accountCode: '11190', accountPath: '11^11000^11190' },
-        { accountCode: '11110', accountPath: '11^11000^11190^11110' },
-        { accountCode: '11120', accountPath: '11^11000^11190^11120' },
-        { accountCode: '11130', accountPath: '11^11000^11190^11130' }
-      ]
-    })
-
-    // 現金及び預金（11190）配下の科目の残高を集計
-    const childAccounts = await testDb.prisma.accountStructure.findMany({
-      where: {
-        accountPath: {
-          contains: '11190'
-        },
-        accountCode: {
-          not: '11190' // 親科目自身は除外
-        }
-      },
-      include: {
-        account: true
-      }
-    })
-
-    const totalBalance = childAccounts.reduce((sum, item) => sum + Number(item.account.balance), 0)
-
-    expect(totalBalance).toBe(350000) // 50000 + 100000 + 200000
+    expect(childAccounts.map((c) => c.account.accountName)).toContain('現金')
+    expect(childAccounts.map((c) => c.account.accountName)).toContain('当座預金')
+    expect(childAccounts.map((c) => c.account.accountName)).toContain('普通預金')
   })
 })

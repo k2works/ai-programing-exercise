@@ -7,28 +7,53 @@
     "columns": [
       {
         "tableName": "勘定科目マスタ",
-        "columnName": "勘定科目ID",
-        "comment": "勘定科目ID（主キー）"
-      },
-      {
-        "tableName": "勘定科目マスタ",
         "columnName": "勘定科目コード",
-        "comment": "勘定科目コード（例：1000, 2000）"
+        "comment": "勘定科目コード（主キー）"
       },
       {
         "tableName": "勘定科目マスタ",
         "columnName": "勘定科目名",
-        "comment": "勘定科目名（例：現金、売掛金）"
+        "comment": "勘定科目名"
+      },
+      {
+        "tableName": "勘定科目マスタ",
+        "columnName": "勘定科目カナ",
+        "comment": "勘定科目カナ"
       },
       {
         "tableName": "勘定科目マスタ",
         "columnName": "勘定科目種別",
-        "comment": "勘定科目種別（資産、負債、純資産、収益、費用）"
+        "comment": "勘定科目種別"
       },
       {
         "tableName": "勘定科目マスタ",
-        "columnName": "残高",
-        "comment": "残高"
+        "columnName": "合計科目",
+        "comment": "合計科目"
+      },
+      {
+        "tableName": "勘定科目マスタ",
+        "columnName": "BSPL区分",
+        "comment": "BSPL区分"
+      },
+      {
+        "tableName": "勘定科目マスタ",
+        "columnName": "取引要素区分",
+        "comment": "取引要素区分"
+      },
+      {
+        "tableName": "勘定科目マスタ",
+        "columnName": "費用区分",
+        "comment": "費用区分"
+      },
+      {
+        "tableName": "勘定科目マスタ",
+        "columnName": "表示順序",
+        "comment": "表示順序"
+      },
+      {
+        "tableName": "勘定科目マスタ",
+        "columnName": "集計対象",
+        "comment": "集計対象"
       },
       {
         "tableName": "勘定科目マスタ",

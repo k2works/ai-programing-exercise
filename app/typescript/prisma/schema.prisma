@@ -23,27 +23,41 @@ datasource db {
 
 /// 勘定科目マスタ（財務会計システムの基本となる勘定科目情報）
 model Account {
-  /// 勘定科目ID（主キー）
-  id          Int         @id @default(autoincrement()) @map("勘定科目ID")
-  /// 勘定科目コード（例：1000, 2000）
-  code        String      @unique @map("勘定科目コード") @db.VarChar(20)
-  /// 勘定科目名（例：現金、売掛金）
-  name        String      @map("勘定科目名") @db.VarChar(100)
-  /// 勘定科目種別（資産、負債、純資産、収益、費用）
-  accountType AccountType @map("勘定科目種別")
-  /// 残高
-  balance     Decimal     @default(0) @map("残高") @db.Decimal(15, 2)
+  /// 勘定科目コード（主キー）
+  accountCode            String             @id @map("勘定科目コード") @db.VarChar(10)
+  /// 勘定科目名
+  accountName            String             @map("勘定科目名") @db.VarChar(40)
+  /// 勘定科目カナ
+  accountKana            String?            @map("勘定科目カナ") @db.VarChar(40)
+  /// 勘定科目種別
+  accountType            String             @map("勘定科目種別") @db.VarChar(10)
+  /// 合計科目
+  sumAccount             Boolean            @default(false) @map("合計科目")
+  /// BSPL区分
+  bsplDistinction        String?            @map("BSPL区分") @db.Char(1)
+  /// 取引要素区分
+  transactionDistinction String?            @map("取引要素区分") @db.Char(1)
+  /// 費用区分
+  costDistinction        String?            @map("費用区分") @db.Char(1)
+  /// 表示順序
+  displayOrder           Int?               @map("表示順序")
+  /// 集計対象
+  aggregationTarget      Boolean            @default(true) @map("集計対象")
   /// 課税取引コード
-  taxCode     String?     @map("課税取引コード") @db.VarChar(2)
+  taxCode                String?            @map("課税取引コード") @db.VarChar(2)
   /// 作成日時
-  createdAt   DateTime    @default(now()) @map("作成日時")
+  createdAt              DateTime           @default(now()) @map("作成日時")
   /// 更新日時
-  updatedAt   DateTime    @updatedAt @map("更新日時")
+  updatedAt              DateTime           @updatedAt @map("更新日時")
 
   // リレーション
-  taxTransaction TaxTransaction?  @relation(fields: [taxCode], references: [taxCode])
+  taxTransaction TaxTransaction?   @relation(fields: [taxCode], references: [taxCode])
   structure      AccountStructure?
 
+  @@index([bsplDistinction], map: "idx_bspl_distinction")
+  @@index([transactionDistinction], map: "idx_transaction_distinction")
+  @@index([accountType], map: "idx_account_type")
+  @@index([displayOrder], map: "idx_display_order")
   @@index([taxCode], map: "idx_tax_code")
   @@map("勘定科目マスタ")
 }
@@ -80,7 +94,7 @@ model TaxTransaction {
 /// 勘定科目構成マスタ（チルダ連結方式による階層構造管理）
 model AccountStructure {
   /// 勘定科目コード（主キー、外部キー）
-  accountCode String   @id @map("勘定科目コード") @db.VarChar(20)
+  accountCode String   @id @map("勘定科目コード") @db.VarChar(10)
   /// 勘定科目パス（チルダ連結、例：11^11000^11190^11110）
   accountPath String   @map("勘定科目パス") @db.VarChar(200)
   /// 作成日時
@@ -89,19 +103,8 @@ model AccountStructure {
   updatedAt   DateTime @updatedAt @map("更新日時")
 
   // リレーション
-  account Account @relation(fields: [accountCode], references: [code], onDelete: Cascade)
+  account Account @relation(fields: [accountCode], references: [accountCode], onDelete: Cascade)
 
   @@index([accountPath], map: "idx_account_path")
   @@map("勘定科目構成マスタ")
-}
-
-/// 勘定科目種別（Assets: 資産, Liabilities: 負債, Equity: 純資産, Revenue: 収益, Expense: 費用）
-enum AccountType {
-  ASSET     @map("資産")
-  LIABILITY @map("負債")
-  EQUITY    @map("純資産")
-  REVENUE   @map("収益")
-  EXPENSE   @map("費用")
-
-  @@map("account_type")
 }
