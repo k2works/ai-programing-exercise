@@ -189,8 +189,9 @@ describe('Account API 統合テスト', () => {
 
       expect(response.statusCode).toBe(200)
       const body = JSON.parse(response.body)
-      console.log('Response body:', JSON.stringify(body, null, 2))
       expect(body.success).toBe(true)
+      expect(body.data).toBeDefined()
+      expect(body.data.account).toBeDefined()
       expect(body.data.account.accountCode).toBe('1110')
       expect(body.data.account.accountName).toBe('現金')
       expect(body.data.account.accountKana).toBe('ゲンキン')

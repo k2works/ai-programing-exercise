@@ -149,30 +149,6 @@ export async function accountRoutes(
             code: { type: 'string', description: '科目コード' }
           },
           required: ['code']
-        },
-        response: {
-          200: {
-            description: '取得成功',
-            type: 'object',
-            properties: {
-              success: { type: 'boolean' },
-              data: {
-                type: 'object',
-                properties: {
-                  account: { type: 'object' }
-                }
-              }
-            }
-          },
-          404: {
-            description: '科目が見つかりません',
-            type: 'object',
-            properties: {
-              success: { type: 'boolean' },
-              error: { type: 'string' },
-              code: { type: 'string' }
-            }
-          }
         }
       }
     },
@@ -240,31 +216,8 @@ export async function accountRoutes(
             code: { type: 'string', description: '科目コード' }
           },
           required: ['code']
-        },
-        response: {
-          200: {
-            description: '更新成功',
-            type: 'object',
-            properties: {
-              success: { type: 'boolean' },
-              data: {
-                type: 'object',
-                properties: {
-                  account: { type: 'object' }
-                }
-              }
-            }
-          },
-          404: {
-            description: '科目が見つかりません',
-            type: 'object',
-            properties: {
-              success: { type: 'boolean' },
-              error: { type: 'string' },
-              code: { type: 'string' }
-            }
-          }
         }
+        // response schema removed - it was stripping properties
       }
     },
     async (request, reply) => {
