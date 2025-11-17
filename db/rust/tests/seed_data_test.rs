@@ -346,21 +346,21 @@ async fn insert_departments(
     ];
 
     for (code, name, path, level, bottom, slip_entry) in departments {
-        sqlx::query!(
+        sqlx::query(
             r#"INSERT INTO "部門マスタ" (
                 "部門コード", "開始日", "部門名", "組織階層", "部門パス",
                 "最下層区分", "伝票入力可否", "作成日時", "更新日時"
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"#,
-            code,
-            start_date,
-            name,
-            level,
-            path,
-            bottom,
-            slip_entry,
-            now,
-            now
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"#
         )
+        .bind(code)
+        .bind(start_date)
+        .bind(name)
+        .bind(level)
+        .bind(path)
+        .bind(bottom)
+        .bind(slip_entry)
+        .bind(now)
+        .bind(now)
         .execute(pool)
         .await
         .unwrap();
@@ -379,15 +379,15 @@ async fn insert_company_groups(pool: &sqlx::PgPool, now: chrono::NaiveDateTime) 
     ];
 
     for (code, name) in groups {
-        sqlx::query!(
+        sqlx::query(
             r#"INSERT INTO "取引先グループマスタ" (
                 "取引先グループコード", "取引先グループ名", "作成日時", "更新日時"
-            ) VALUES ($1, $2, $3, $4)"#,
-            code,
-            name,
-            now,
-            now
+            ) VALUES ($1, $2, $3, $4)"#
         )
+        .bind(code)
+        .bind(name)
+        .bind(now)
+        .bind(now)
         .execute(pool)
         .await
         .unwrap();
@@ -413,16 +413,16 @@ async fn insert_companies(pool: &sqlx::PgPool, now: chrono::NaiveDateTime) {
     ];
 
     for (code, group_code, name) in companies {
-        sqlx::query!(
+        sqlx::query(
             r#"INSERT INTO "取引先マスタ" (
                 "取引先コード", "取引先グループコード", "取引先名", "作成日時", "更新日時"
-            ) VALUES ($1, $2, $3, $4, $5)"#,
-            code,
-            group_code,
-            name,
-            now,
-            now
+            ) VALUES ($1, $2, $3, $4, $5)"#
         )
+        .bind(code)
+        .bind(group_code)
+        .bind(name)
+        .bind(now)
+        .bind(now)
         .execute(pool)
         .await
         .unwrap();
@@ -438,22 +438,22 @@ async fn insert_suppliers(pool: &sqlx::PgPool, now: chrono::NaiveDateTime) {
     ];
 
     for (comp_code, name, kana) in suppliers {
-        sqlx::query!(
+        sqlx::query(
             r#"INSERT INTO "仕入先マスタ" (
                 "仕入先コード", "仕入先枝番", "仕入先名", "仕入先名カナ",
                 "仕入先締日", "仕入先支払月", "仕入先支払日",
                 "作成日時", "更新日時"
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"#,
-            comp_code,
-            1,
-            name,
-            kana,
-            31,
-            1,
-            31,
-            now,
-            now
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"#
         )
+        .bind(comp_code)
+        .bind(1)
+        .bind(name)
+        .bind(kana)
+        .bind(31)
+        .bind(1)
+        .bind(31)
+        .bind(now)
+        .bind(now)
         .execute(pool)
         .await
         .unwrap();
@@ -964,25 +964,25 @@ async fn insert_employees(
     ];
 
     for (code, name, kana, password, tel, fax, dept, job, auth) in employees {
-        sqlx::query!(
+        sqlx::query(
             r#"INSERT INTO "社員マスタ" (
                 "社員コード", "社員名", "社員名カナ", "パスワード",
                 "電話番号", "FAX番号", "部門コード", "開始日",
                 "職種コード", "承認権限コード", "作成日時", "更新日時"
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)"#,
-            code,
-            name,
-            kana,
-            password,
-            tel,
-            fax,
-            dept,
-            start_date,
-            job,
-            auth,
-            now,
-            now
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)"#
         )
+        .bind(code)
+        .bind(name)
+        .bind(kana)
+        .bind(password)
+        .bind(tel)
+        .bind(fax)
+        .bind(dept)
+        .bind(start_date)
+        .bind(job)
+        .bind(auth)
+        .bind(now)
+        .bind(now)
         .execute(pool)
         .await
         .unwrap();
@@ -995,7 +995,7 @@ async fn insert_customers(pool: &sqlx::PgPool, now: chrono::NaiveDateTime) {
         let name = format!("顧客{}", i);
         let kana = format!("コキャク{}", i);
 
-        sqlx::query!(
+        sqlx::query(
             r#"INSERT INTO "顧客マスタ" (
                 "顧客コード", "顧客枝番", "顧客区分",
                 "請求先コード", "請求先枝番",
@@ -1004,23 +1004,23 @@ async fn insert_customers(pool: &sqlx::PgPool, now: chrono::NaiveDateTime) {
                 "自社担当者コード",
                 "顧客締日１", "顧客支払月１", "顧客支払日１",
                 "作成日時", "更新日時"
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)"#,
-            comp_code,
-            1,
-            0,
-            &comp_code,
-            1,
-            &comp_code,
-            1,
-            name,
-            kana,
-            "EMP00001",
-            31,
-            1,
-            31,
-            now,
-            now
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)"#
         )
+        .bind(&comp_code)
+        .bind(1)
+        .bind(0)
+        .bind(&comp_code)
+        .bind(1)
+        .bind(&comp_code)
+        .bind(1)
+        .bind(&name)
+        .bind(&kana)
+        .bind("EMP00001")
+        .bind(31)
+        .bind(1)
+        .bind(31)
+        .bind(now)
+        .bind(now)
         .execute(pool)
         .await
         .unwrap();
@@ -1036,19 +1036,19 @@ async fn insert_product_categories(pool: &sqlx::PgPool, now: chrono::NaiveDateTi
     ];
 
     for (code, name, path, level, bottom) in categories {
-        sqlx::query!(
+        sqlx::query(
             r#"INSERT INTO "商品分類マスタ" (
                 "商品分類コード", "商品分類名", "商品分類階層",
                 "商品分類パス", "最下層区分", "作成日時", "更新日時"
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7)"#,
-            code,
-            name,
-            level,
-            path,
-            bottom,
-            now,
-            now
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7)"#
         )
+        .bind(code)
+        .bind(name)
+        .bind(level)
+        .bind(path)
+        .bind(bottom)
+        .bind(now)
+        .bind(now)
         .execute(pool)
         .await
         .unwrap();
@@ -1235,28 +1235,28 @@ async fn insert_products(pool: &sqlx::PgPool, now: chrono::NaiveDateTime) {
 
     for (code, cat_code, fullname, abbr, kana, price, purchase, cost, sup_code, sup_seq) in products
     {
-        sqlx::query!(
+        sqlx::query(
             r#"INSERT INTO "商品マスタ" (
                 "商品コード", "商品分類コード", "商品正式名", "商品略称", "商品名カナ",
                 "販売単価", "仕入単価", "売上原価", "税区分",
                 "在庫管理対象区分", "仕入先コード", "仕入先枝番",
                 "作成日時", "更新日時"
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)"#,
-            code,
-            cat_code,
-            fullname,
-            abbr,
-            kana,
-            price,
-            purchase,
-            cost,
-            1,
-            1,
-            sup_code,
-            sup_seq,
-            now,
-            now
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)"#
         )
+        .bind(code)
+        .bind(cat_code)
+        .bind(fullname)
+        .bind(abbr)
+        .bind(kana)
+        .bind(price)
+        .bind(purchase)
+        .bind(cost)
+        .bind(1)
+        .bind(1)
+        .bind(sup_code)
+        .bind(sup_seq)
+        .bind(now)
+        .bind(now)
         .execute(pool)
         .await
         .unwrap();
@@ -1290,24 +1290,24 @@ async fn insert_warehouses(pool: &sqlx::PgPool, now: chrono::NaiveDateTime) {
     ];
 
     for (code, name, abbr, zip, pref, addr1, addr2, tel, fax) in warehouses {
-        sqlx::query!(
+        sqlx::query(
             r#"INSERT INTO "倉庫マスタ" (
                 "倉庫コード", "倉庫名", "倉庫名略称",
                 "郵便番号", "都道府県", "住所１", "住所２",
                 "電話番号", "ＦＡＸ番号", "作成日時", "更新日時"
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)"#,
-            code,
-            name,
-            abbr,
-            zip,
-            pref,
-            addr1,
-            addr2,
-            tel,
-            fax,
-            now,
-            now
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)"#
         )
+        .bind(code)
+        .bind(name)
+        .bind(abbr)
+        .bind(zip)
+        .bind(pref)
+        .bind(addr1)
+        .bind(addr2)
+        .bind(tel)
+        .bind(fax)
+        .bind(now)
+        .bind(now)
         .execute(pool)
         .await
         .unwrap();
