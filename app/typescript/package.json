@@ -1,0 +1,52 @@
+{
+  "name": "accounting-system-db",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:database": "vitest run src/database.test.ts",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio",
+    "db:push": "prisma db push",
+    "db:seed": "prisma db seed",
+    "gulp": "gulp",
+    "watch": "gulp watch",
+    "guard": "gulp guard",
+    "check": "gulp checkAndFix",
+    "setup": "npm install && npm run check"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.0.0",
+    "zod": "^3.23.0",
+    "dotenv": "^16.4.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "@onozaty/prisma-db-comments-generator": "^1.0.0",
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "@vitest/coverage-v8": "^2.0.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.0",
+    "eslint-plugin-sonarjs": "^2.0.0",
+    "gulp": "^5.0.0",
+    "gulp-shell": "^0.8.0",
+    "prettier": "^3.3.0",
+    "prisma": "^6.0.0",
+    "testcontainers": "^10.0.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.0.0",
+    "zod-prisma-types": "^3.1.0"
+  }
+}
