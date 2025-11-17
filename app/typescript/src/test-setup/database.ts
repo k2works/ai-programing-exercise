@@ -52,10 +52,11 @@ export class TestDatabase {
     if (!this.prisma) return
 
     // すべてのテーブルをクリア（外部キー制約を考慮した順序）
+    await this.prisma.$executeRaw`TRUNCATE TABLE "仕訳明細" CASCADE`
+    await this.prisma.$executeRaw`TRUNCATE TABLE "仕訳エントリ" CASCADE`
     await this.prisma.$executeRaw`TRUNCATE TABLE "勘定科目構成マスタ" CASCADE`
     await this.prisma.$executeRaw`TRUNCATE TABLE "勘定科目マスタ" CASCADE`
     await this.prisma.$executeRaw`TRUNCATE TABLE "課税取引マスタ" CASCADE`
-    // 他のテーブルが追加されたら、ここに追加
   }
 
   private async waitForDatabase(): Promise<void> {
@@ -237,6 +238,99 @@ export class TestDatabase {
     `
     await this.prisma.$executeRaw`
       COMMENT ON COLUMN "勘定科目構成マスタ"."更新日時" IS '更新日時';
+    `
+
+    // 仕訳エントリテーブルを作成
+    await this.prisma.$executeRaw`
+      CREATE TABLE IF NOT EXISTS "仕訳エントリ" (
+        "伝票番号" VARCHAR(10) PRIMARY KEY,
+        "仕訳日" DATE NOT NULL,
+        "摘要" VARCHAR(100) NOT NULL,
+        "合計金額" DECIMAL(15,2) NOT NULL,
+        "参照番号" VARCHAR(20),
+        "作成者" VARCHAR(20) NOT NULL,
+        "作成日時" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        "更新者" VARCHAR(20),
+        "更新日時" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+      );
+    `
+
+    // 仕訳明細テーブルを作成
+    await this.prisma.$executeRaw`
+      CREATE TABLE IF NOT EXISTS "仕訳明細" (
+        "伝票番号" VARCHAR(10),
+        "行番号" INTEGER,
+        "勘定科目コード" VARCHAR(10) NOT NULL,
+        "借方金額" DECIMAL(15,2) DEFAULT 0 NOT NULL,
+        "貸方金額" DECIMAL(15,2) DEFAULT 0 NOT NULL,
+        "摘要" VARCHAR(100) NOT NULL,
+        "消費税額" DECIMAL(15,2) DEFAULT 0 NOT NULL,
+        "消費税率" DECIMAL(5,2),
+        PRIMARY KEY ("伝票番号", "行番号"),
+        FOREIGN KEY ("伝票番号") REFERENCES "仕訳エントリ" ("伝票番号") ON DELETE CASCADE,
+        FOREIGN KEY ("勘定科目コード") REFERENCES "勘定科目マスタ" ("勘定科目コード")
+      );
+    `
+
+    // コメント追加 - 仕訳エントリ
+    await this.prisma.$executeRaw`
+      COMMENT ON TABLE "仕訳エントリ" IS '仕訳エントリ（複式簿記の仕訳データ）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳エントリ"."伝票番号" IS '伝票番号（主キー）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳エントリ"."仕訳日" IS '仕訳日';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳エントリ"."摘要" IS '摘要';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳エントリ"."合計金額" IS '合計金額';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳エントリ"."参照番号" IS '参照番号';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳エントリ"."作成者" IS '作成者';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳エントリ"."作成日時" IS '作成日時';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳エントリ"."更新者" IS '更新者';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳エントリ"."更新日時" IS '更新日時';
+    `
+
+    // コメント追加 - 仕訳明細
+    await this.prisma.$executeRaw`
+      COMMENT ON TABLE "仕訳明細" IS '仕訳明細（仕訳エントリの明細行データ）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳明細"."伝票番号" IS '伝票番号（複合主キー1）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳明細"."行番号" IS '行番号（複合主キー2）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳明細"."勘定科目コード" IS '勘定科目コード';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳明細"."借方金額" IS '借方金額';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳明細"."貸方金額" IS '貸方金額';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳明細"."摘要" IS '摘要';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳明細"."消費税額" IS '消費税額';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳明細"."消費税率" IS '消費税率';
     `
   }
 }

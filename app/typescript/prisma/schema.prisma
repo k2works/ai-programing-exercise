@@ -51,8 +51,9 @@ model Account {
   updatedAt              DateTime           @updatedAt @map("更新日時")
 
   // リレーション
-  taxTransaction TaxTransaction?   @relation(fields: [taxCode], references: [taxCode])
-  structure      AccountStructure?
+  taxTransaction      TaxTransaction?      @relation(fields: [taxCode], references: [taxCode])
+  structure           AccountStructure?
+  journalEntryDetails JournalEntryDetail[]
 
   @@index([bsplDistinction], map: "idx_bspl_distinction")
   @@index([transactionDistinction], map: "idx_transaction_distinction")
@@ -107,4 +108,58 @@ model AccountStructure {
 
   @@index([accountPath], map: "idx_account_path")
   @@map("勘定科目構成マスタ")
+}
+
+/// 仕訳エントリ（複式簿記の仕訳データ）
+model JournalEntry {
+  /// 伝票番号（主キー）
+  entryNo     String   @id @map("伝票番号") @db.VarChar(10)
+  /// 仕訳日
+  entryDate   DateTime @map("仕訳日") @db.Date
+  /// 摘要
+  description String   @map("摘要") @db.VarChar(100)
+  /// 合計金額
+  totalAmount Decimal  @map("合計金額") @db.Decimal(15, 2)
+  /// 参照番号
+  reference   String?  @map("参照番号") @db.VarChar(20)
+  /// 作成者
+  createdBy   String   @map("作成者") @db.VarChar(20)
+  /// 作成日時
+  createdAt   DateTime @default(now()) @map("作成日時")
+  /// 更新者
+  updatedBy   String?  @map("更新者") @db.VarChar(20)
+  /// 更新日時
+  updatedAt   DateTime @updatedAt @map("更新日時")
+
+  // リレーション
+  details JournalEntryDetail[]
+
+  @@map("仕訳エントリ")
+}
+
+/// 仕訳明細（仕訳エントリの明細行データ）
+model JournalEntryDetail {
+  /// 伝票番号（複合主キー1）
+  entryNo      String  @map("伝票番号") @db.VarChar(10)
+  /// 行番号（複合主キー2）
+  lineNo       Int     @map("行番号")
+  /// 勘定科目コード
+  accountCode  String  @map("勘定科目コード") @db.VarChar(10)
+  /// 借方金額
+  debitAmount  Decimal @default(0) @map("借方金額") @db.Decimal(15, 2)
+  /// 貸方金額
+  creditAmount Decimal @default(0) @map("貸方金額") @db.Decimal(15, 2)
+  /// 摘要
+  description  String  @map("摘要") @db.VarChar(100)
+  /// 消費税額
+  taxAmount    Decimal @default(0) @map("消費税額") @db.Decimal(15, 2)
+  /// 消費税率
+  taxRate      Decimal? @map("消費税率") @db.Decimal(5, 2)
+
+  // リレーション
+  journalEntry JournalEntry @relation(fields: [entryNo], references: [entryNo], onDelete: Cascade)
+  account      Account      @relation(fields: [accountCode], references: [accountCode])
+
+  @@id([entryNo, lineNo])
+  @@map("仕訳明細")
 }
