@@ -153,107 +153,6 @@
       }
     ]
   },
-  "仕訳エントリ": {
-    "table": {
-      "tableName": "仕訳エントリ",
-      "comment": "仕訳エントリ（複式簿記の仕訳データ）"
-    },
-    "columns": [
-      {
-        "tableName": "仕訳エントリ",
-        "columnName": "伝票番号",
-        "comment": "伝票番号（主キー）"
-      },
-      {
-        "tableName": "仕訳エントリ",
-        "columnName": "仕訳日",
-        "comment": "仕訳日"
-      },
-      {
-        "tableName": "仕訳エントリ",
-        "columnName": "摘要",
-        "comment": "摘要"
-      },
-      {
-        "tableName": "仕訳エントリ",
-        "columnName": "合計金額",
-        "comment": "合計金額"
-      },
-      {
-        "tableName": "仕訳エントリ",
-        "columnName": "参照番号",
-        "comment": "参照番号"
-      },
-      {
-        "tableName": "仕訳エントリ",
-        "columnName": "作成者",
-        "comment": "作成者"
-      },
-      {
-        "tableName": "仕訳エントリ",
-        "columnName": "作成日時",
-        "comment": "作成日時"
-      },
-      {
-        "tableName": "仕訳エントリ",
-        "columnName": "更新者",
-        "comment": "更新者"
-      },
-      {
-        "tableName": "仕訳エントリ",
-        "columnName": "更新日時",
-        "comment": "更新日時"
-      }
-    ]
-  },
-  "仕訳明細": {
-    "table": {
-      "tableName": "仕訳明細",
-      "comment": "仕訳明細（仕訳エントリの明細行データ）"
-    },
-    "columns": [
-      {
-        "tableName": "仕訳明細",
-        "columnName": "伝票番号",
-        "comment": "伝票番号（複合主キー1）"
-      },
-      {
-        "tableName": "仕訳明細",
-        "columnName": "行番号",
-        "comment": "行番号（複合主キー2）"
-      },
-      {
-        "tableName": "仕訳明細",
-        "columnName": "勘定科目コード",
-        "comment": "勘定科目コード"
-      },
-      {
-        "tableName": "仕訳明細",
-        "columnName": "借方金額",
-        "comment": "借方金額"
-      },
-      {
-        "tableName": "仕訳明細",
-        "columnName": "貸方金額",
-        "comment": "貸方金額"
-      },
-      {
-        "tableName": "仕訳明細",
-        "columnName": "摘要",
-        "comment": "摘要"
-      },
-      {
-        "tableName": "仕訳明細",
-        "columnName": "消費税額",
-        "comment": "消費税額"
-      },
-      {
-        "tableName": "仕訳明細",
-        "columnName": "消費税率",
-        "comment": "消費税率"
-      }
-    ]
-  },
   "仕訳": {
     "table": {
       "tableName": "仕訳",
@@ -327,34 +226,34 @@
       }
     ]
   },
-  "仕訳明細_3層": {
+  "仕訳明細": {
     "table": {
-      "tableName": "仕訳明細_3層",
+      "tableName": "仕訳明細",
       "comment": "仕訳明細（行摘要：3層構造）"
     },
     "columns": [
       {
-        "tableName": "仕訳明細_3層",
+        "tableName": "仕訳明細",
         "columnName": "仕訳伝票番号",
         "comment": "仕訳伝票番号（複合主キー1）"
       },
       {
-        "tableName": "仕訳明細_3層",
+        "tableName": "仕訳明細",
         "columnName": "仕訳行番号",
         "comment": "仕訳行番号（複合主キー2）"
       },
       {
-        "tableName": "仕訳明細_3層",
+        "tableName": "仕訳明細",
         "columnName": "行摘要",
         "comment": "行摘要"
       },
       {
-        "tableName": "仕訳明細_3層",
+        "tableName": "仕訳明細",
         "columnName": "作成日時",
         "comment": "作成日時"
       },
       {
-        "tableName": "仕訳明細_3層",
+        "tableName": "仕訳明細",
         "columnName": "更新日時",
         "comment": "更新日時"
       }

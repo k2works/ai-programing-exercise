@@ -43,35 +43,6 @@ CREATE TABLE "勘定科目構成マスタ" (
 );
 
 -- CreateTable
-CREATE TABLE "仕訳エントリ" (
-    "伝票番号" VARCHAR(10) NOT NULL,
-    "仕訳日" DATE NOT NULL,
-    "摘要" VARCHAR(100) NOT NULL,
-    "合計金額" DECIMAL(15,2) NOT NULL,
-    "参照番号" VARCHAR(20),
-    "作成者" VARCHAR(20) NOT NULL,
-    "作成日時" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "更新者" VARCHAR(20),
-    "更新日時" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "仕訳エントリ_pkey" PRIMARY KEY ("伝票番号")
-);
-
--- CreateTable
-CREATE TABLE "仕訳明細" (
-    "伝票番号" VARCHAR(10) NOT NULL,
-    "行番号" INTEGER NOT NULL,
-    "勘定科目コード" VARCHAR(10) NOT NULL,
-    "借方金額" DECIMAL(15,2) NOT NULL DEFAULT 0,
-    "貸方金額" DECIMAL(15,2) NOT NULL DEFAULT 0,
-    "摘要" VARCHAR(100) NOT NULL,
-    "消費税額" DECIMAL(15,2) NOT NULL DEFAULT 0,
-    "消費税率" DECIMAL(5,2),
-
-    CONSTRAINT "仕訳明細_pkey" PRIMARY KEY ("伝票番号","行番号")
-);
-
--- CreateTable
 CREATE TABLE "仕訳" (
     "仕訳伝票番号" VARCHAR(10) NOT NULL,
     "起票日" DATE NOT NULL,
@@ -91,14 +62,14 @@ CREATE TABLE "仕訳" (
 );
 
 -- CreateTable
-CREATE TABLE "仕訳明細_3層" (
+CREATE TABLE "仕訳明細" (
     "仕訳伝票番号" VARCHAR(10) NOT NULL,
     "仕訳行番号" SMALLINT NOT NULL,
     "行摘要" VARCHAR(1000) NOT NULL,
     "作成日時" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "更新日時" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "仕訳明細_3層_pkey" PRIMARY KEY ("仕訳伝票番号","仕訳行番号")
+    CONSTRAINT "仕訳明細_pkey" PRIMARY KEY ("仕訳伝票番号","仕訳行番号")
 );
 
 -- CreateTable
@@ -261,16 +232,10 @@ ALTER TABLE "勘定科目マスタ" ADD CONSTRAINT "勘定科目マスタ_課税
 ALTER TABLE "勘定科目構成マスタ" ADD CONSTRAINT "勘定科目構成マスタ_勘定科目コード_fkey" FOREIGN KEY ("勘定科目コード") REFERENCES "勘定科目マスタ"("勘定科目コード") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "仕訳明細" ADD CONSTRAINT "仕訳明細_伝票番号_fkey" FOREIGN KEY ("伝票番号") REFERENCES "仕訳エントリ"("伝票番号") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "仕訳明細" ADD CONSTRAINT "仕訳明細_仕訳伝票番号_fkey" FOREIGN KEY ("仕訳伝票番号") REFERENCES "仕訳"("仕訳伝票番号") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "仕訳明細" ADD CONSTRAINT "仕訳明細_勘定科目コード_fkey" FOREIGN KEY ("勘定科目コード") REFERENCES "勘定科目マスタ"("勘定科目コード") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "仕訳明細_3層" ADD CONSTRAINT "仕訳明細_3層_仕訳伝票番号_fkey" FOREIGN KEY ("仕訳伝票番号") REFERENCES "仕訳"("仕訳伝票番号") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "仕訳貸借明細" ADD CONSTRAINT "仕訳貸借明細_仕訳伝票番号_仕訳行番号_fkey" FOREIGN KEY ("仕訳伝票番号", "仕訳行番号") REFERENCES "仕訳明細_3層"("仕訳伝票番号", "仕訳行番号") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "仕訳貸借明細" ADD CONSTRAINT "仕訳貸借明細_仕訳伝票番号_仕訳行番号_fkey" FOREIGN KEY ("仕訳伝票番号", "仕訳行番号") REFERENCES "仕訳明細"("仕訳伝票番号", "仕訳行番号") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "仕訳貸借明細" ADD CONSTRAINT "仕訳貸借明細_勘定科目コード_fkey" FOREIGN KEY ("勘定科目コード") REFERENCES "勘定科目マスタ"("勘定科目コード") ON DELETE RESTRICT ON UPDATE CASCADE;
