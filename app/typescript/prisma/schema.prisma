@@ -1,0 +1,22 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator zod {
+  provider                         = "zod-prisma-types"
+  output                           = "../src/generated/zod"
+  createRelationValuesTypes        = true
+  createPartialTypes               = true
+  createOptionalDefaultValuesTypes = true
+  useDecimalJs                     = true
+  prismaJsonNullability            = true
+}
+
+generator comments {
+  provider = "prisma-db-comments-generator"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
