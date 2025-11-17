@@ -51,9 +51,11 @@ model Account {
   updatedAt              DateTime           @updatedAt @map("更新日時")
 
   // リレーション
-  taxTransaction       TaxTransaction?       @relation(fields: [taxCode], references: [taxCode])
+  taxTransaction       TaxTransaction?         @relation(fields: [taxCode], references: [taxCode])
   structure            AccountStructure?
   journalDetailItems   JournalDetailItem[]
+  dailyBalances        DailyAccountBalance[]
+  monthlyBalances      MonthlyAccountBalance[]
 
   @@index([bsplDistinction], map: "idx_bspl_distinction")
   @@index([transactionDistinction], map: "idx_transaction_distinction")
@@ -330,4 +332,76 @@ model AutoJournalLog {
   @@index([executedAt], map: "idx_auto_log_executed")
   @@index([status], map: "idx_auto_log_status")
   @@map("自動仕訳ログ")
+}
+
+/// 日次勘定科目残高（日ごとの借方・貸方金額を記録）
+model DailyAccountBalance {
+  /// 起票日（複合主キー1）
+  journalDate       DateTime @map("起票日") @db.Date
+  /// 勘定科目コード（複合主キー2）
+  accountCode       String   @map("勘定科目コード") @db.VarChar(10)
+  /// 補助科目コード（複合主キー3）
+  subAccountCode    String   @default("") @map("補助科目コード") @db.VarChar(10)
+  /// 部門コード（複合主キー4）
+  departmentCode    String   @default("") @map("部門コード") @db.VarChar(5)
+  /// プロジェクトコード（複合主キー5）
+  projectCode       String   @default("") @map("プロジェクトコード") @db.VarChar(10)
+  /// 決算仕訳フラグ（複合主キー6）
+  settlementFlag    Int      @default(0) @map("決算仕訳フラグ") @db.SmallInt
+  /// 借方金額
+  debitAmount       Decimal  @default(0) @map("借方金額") @db.Decimal(14, 2)
+  /// 貸方金額
+  creditAmount      Decimal  @default(0) @map("貸方金額") @db.Decimal(14, 2)
+  /// 作成日時
+  createdAt         DateTime @default(now()) @map("作成日時")
+  /// 更新日時
+  updatedAt         DateTime @updatedAt @map("更新日時")
+
+  // リレーション
+  account Account @relation(fields: [accountCode], references: [accountCode])
+
+  @@id([journalDate, accountCode, subAccountCode, departmentCode, projectCode, settlementFlag])
+  @@index([accountCode], map: "idx_daily_balance_account")
+  @@index([journalDate], map: "idx_daily_balance_date")
+  @@index([departmentCode], map: "idx_daily_balance_department")
+  @@index([projectCode], map: "idx_daily_balance_project")
+  @@map("日次勘定科目残高")
+}
+
+/// 月次勘定科目残高（月ごとの月初残高・借方金額・貸方金額・月末残高を記録）
+model MonthlyAccountBalance {
+  /// 会計年月（複合主キー1）
+  fiscalYearMonth   String   @map("会計年月") @db.VarChar(6)
+  /// 勘定科目コード（複合主キー2）
+  accountCode       String   @map("勘定科目コード") @db.VarChar(10)
+  /// 補助科目コード（複合主キー3）
+  subAccountCode    String   @default("") @map("補助科目コード") @db.VarChar(10)
+  /// 部門コード（複合主キー4）
+  departmentCode    String   @default("") @map("部門コード") @db.VarChar(5)
+  /// プロジェクトコード（複合主キー5）
+  projectCode       String   @default("") @map("プロジェクトコード") @db.VarChar(10)
+  /// 決算仕訳フラグ（複合主キー6）
+  settlementFlag    Int      @default(0) @map("決算仕訳フラグ") @db.SmallInt
+  /// 月初残高
+  openingBalance    Decimal  @default(0) @map("月初残高") @db.Decimal(14, 2)
+  /// 借方金額
+  debitAmount       Decimal  @default(0) @map("借方金額") @db.Decimal(14, 2)
+  /// 貸方金額
+  creditAmount      Decimal  @default(0) @map("貸方金額") @db.Decimal(14, 2)
+  /// 月末残高
+  closingBalance    Decimal  @default(0) @map("月末残高") @db.Decimal(14, 2)
+  /// 作成日時
+  createdAt         DateTime @default(now()) @map("作成日時")
+  /// 更新日時
+  updatedAt         DateTime @updatedAt @map("更新日時")
+
+  // リレーション
+  account Account @relation(fields: [accountCode], references: [accountCode])
+
+  @@id([fiscalYearMonth, accountCode, subAccountCode, departmentCode, projectCode, settlementFlag])
+  @@index([accountCode], map: "idx_monthly_balance_account")
+  @@index([fiscalYearMonth], map: "idx_monthly_balance_month")
+  @@index([departmentCode], map: "idx_monthly_balance_department")
+  @@index([projectCode], map: "idx_monthly_balance_project")
+  @@map("月次勘定科目残高")
 }
