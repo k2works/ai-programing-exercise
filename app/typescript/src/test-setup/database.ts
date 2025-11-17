@@ -1,5 +1,6 @@
 import { GenericContainer, StartedTestContainer } from 'testcontainers'
 import { PrismaClient } from '@prisma/client'
+import { setTimeout } from 'timers/promises'
 
 export class TestDatabase {
   private container: StartedTestContainer | null = null
@@ -51,13 +52,27 @@ export class TestDatabase {
     if (!this.prisma) return
 
     // すべてのテーブルをクリア（外部キー制約を考慮した順序）
+    await this.prisma.$executeRaw`TRUNCATE TABLE "勘定科目構成マスタ" CASCADE`
     await this.prisma.$executeRaw`TRUNCATE TABLE "勘定科目マスタ" CASCADE`
     await this.prisma.$executeRaw`TRUNCATE TABLE "課税取引マスタ" CASCADE`
     // 他のテーブルが追加されたら、ここに追加
   }
 
+  private async waitForDatabase(): Promise<void> {
+    if (!this.prisma) return
+
+    // PostgreSQLの起動を待機（5秒）
+    await setTimeout(5000)
+
+    // データベースの接続確認
+    await this.prisma.$queryRaw`SELECT 1`
+  }
+
   private async runMigrations(): Promise<void> {
     if (!this.prisma) return
+
+    // データベースが起動するまで待機
+    await this.waitForDatabase()
 
     // 勘定科目種別のenum型を作成
     await this.prisma.$executeRaw`
@@ -94,6 +109,17 @@ export class TestDatabase {
       );
     `
 
+    // 勘定科目構成マスタテーブルを作成
+    await this.prisma.$executeRaw`
+      CREATE TABLE IF NOT EXISTS "勘定科目構成マスタ" (
+        "勘定科目コード" VARCHAR(20) PRIMARY KEY,
+        "勘定科目パス" VARCHAR(200) NOT NULL,
+        "作成日時" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        "更新日時" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        FOREIGN KEY ("勘定科目コード") REFERENCES "勘定科目マスタ"("勘定科目コード") ON DELETE CASCADE
+      );
+    `
+
     // インデックス作成
     await this.prisma.$executeRaw`
       CREATE INDEX IF NOT EXISTS "idx_tax_code" ON "勘定科目マスタ"("課税取引コード");
@@ -103,6 +129,9 @@ export class TestDatabase {
     `
     await this.prisma.$executeRaw`
       CREATE INDEX IF NOT EXISTS "idx_valid_period" ON "課税取引マスタ"("適用開始日", "適用終了日");
+    `
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_account_path" ON "勘定科目構成マスタ"("勘定科目パス");
     `
 
     // コメント追加 - 勘定科目マスタ
@@ -164,6 +193,23 @@ export class TestDatabase {
     `
     await this.prisma.$executeRaw`
       COMMENT ON COLUMN "課税取引マスタ"."更新日時" IS '更新日時';
+    `
+
+    // コメント追加 - 勘定科目構成マスタ
+    await this.prisma.$executeRaw`
+      COMMENT ON TABLE "勘定科目構成マスタ" IS '勘定科目構成マスタ（チルダ連結方式による階層構造管理）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "勘定科目構成マスタ"."勘定科目コード" IS '勘定科目コード（主キー、外部キー）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "勘定科目構成マスタ"."勘定科目パス" IS '勘定科目パス（チルダ連結、例：11^11000^11190^11110）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "勘定科目構成マスタ"."作成日時" IS '作成日時';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "勘定科目構成マスタ"."更新日時" IS '更新日時';
     `
   }
 }

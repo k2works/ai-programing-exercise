@@ -41,7 +41,8 @@ model Account {
   updatedAt   DateTime    @updatedAt @map("更新日時")
 
   // リレーション
-  taxTransaction TaxTransaction? @relation(fields: [taxCode], references: [taxCode])
+  taxTransaction TaxTransaction?  @relation(fields: [taxCode], references: [taxCode])
+  structure      AccountStructure?
 
   @@index([taxCode], map: "idx_tax_code")
   @@map("勘定科目マスタ")
@@ -74,6 +75,24 @@ model TaxTransaction {
   @@index([taxType], map: "idx_tax_type")
   @@index([validFrom, validTo], map: "idx_valid_period")
   @@map("課税取引マスタ")
+}
+
+/// 勘定科目構成マスタ（チルダ連結方式による階層構造管理）
+model AccountStructure {
+  /// 勘定科目コード（主キー、外部キー）
+  accountCode String   @id @map("勘定科目コード") @db.VarChar(20)
+  /// 勘定科目パス（チルダ連結、例：11^11000^11190^11110）
+  accountPath String   @map("勘定科目パス") @db.VarChar(200)
+  /// 作成日時
+  createdAt   DateTime @default(now()) @map("作成日時")
+  /// 更新日時
+  updatedAt   DateTime @updatedAt @map("更新日時")
+
+  // リレーション
+  account Account @relation(fields: [accountCode], references: [code], onDelete: Cascade)
+
+  @@index([accountPath], map: "idx_account_path")
+  @@map("勘定科目構成マスタ")
 }
 
 /// 勘定科目種別（Assets: 資産, Liabilities: 負債, Equity: 純資産, Revenue: 収益, Expense: 費用）
