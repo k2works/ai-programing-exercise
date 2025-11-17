@@ -17,6 +17,8 @@
     "prisma:studio": "prisma studio",
     "db:push": "prisma db push",
     "db:seed": "prisma db seed",
+    "dev:api": "tsx watch src/api/server.ts",
+    "start:api": "tsx src/api/server.ts",
     "gulp": "gulp",
     "watch": "gulp watch",
     "guard": "gulp guard",
@@ -24,9 +26,13 @@
     "setup": "npm install && npm run check"
   },
   "dependencies": {
+    "@fastify/cors": "^11.1.0",
+    "@fastify/swagger": "^9.6.1",
+    "@fastify/swagger-ui": "^5.2.3",
     "@prisma/client": "^6.0.0",
-    "zod": "^3.23.0",
-    "dotenv": "^16.4.0"
+    "dotenv": "^16.4.0",
+    "fastify": "^5.6.2",
+    "zod": "^3.23.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
@@ -45,6 +51,7 @@
     "prettier": "^3.3.0",
     "prisma": "^6.0.0",
     "testcontainers": "^10.0.0",
+    "tsx": "^4.20.6",
     "typescript": "^5.5.0",
     "vitest": "^2.0.0",
     "zod-prisma-types": "^3.1.0"
