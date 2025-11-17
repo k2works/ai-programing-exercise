@@ -52,6 +52,9 @@ export class TestDatabase {
     if (!this.prisma) return
 
     // すべてのテーブルをクリア（外部キー制約を考慮した順序）
+    await this.prisma.$executeRaw`TRUNCATE TABLE "仕訳貸借明細" CASCADE`
+    await this.prisma.$executeRaw`TRUNCATE TABLE "仕訳明細_3層" CASCADE`
+    await this.prisma.$executeRaw`TRUNCATE TABLE "仕訳" CASCADE`
     await this.prisma.$executeRaw`TRUNCATE TABLE "仕訳明細" CASCADE`
     await this.prisma.$executeRaw`TRUNCATE TABLE "仕訳エントリ" CASCADE`
     await this.prisma.$executeRaw`TRUNCATE TABLE "勘定科目構成マスタ" CASCADE`
@@ -331,6 +334,167 @@ export class TestDatabase {
     `
     await this.prisma.$executeRaw`
       COMMENT ON COLUMN "仕訳明細"."消費税率" IS '消費税率';
+    `
+
+    // 仕訳テーブル（3層構造）を作成
+    await this.prisma.$executeRaw`
+      CREATE TABLE IF NOT EXISTS "仕訳" (
+        "仕訳伝票番号" VARCHAR(10) PRIMARY KEY,
+        "起票日" DATE NOT NULL,
+        "入力日" DATE NOT NULL,
+        "決算仕訳フラグ" SMALLINT DEFAULT 0 NOT NULL,
+        "単振フラグ" SMALLINT DEFAULT 1 NOT NULL,
+        "仕訳伝票区分" SMALLINT NOT NULL,
+        "定期計上フラグ" SMALLINT DEFAULT 0 NOT NULL,
+        "社員コード" VARCHAR(10),
+        "部門コード" VARCHAR(5),
+        "赤伝フラグ" SMALLINT DEFAULT 0 NOT NULL,
+        "赤黒伝票番号" INTEGER,
+        "作成日時" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        "更新日時" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+      );
+    `
+
+    // 仕訳明細テーブル（3層構造）を作成
+    await this.prisma.$executeRaw`
+      CREATE TABLE IF NOT EXISTS "仕訳明細_3層" (
+        "仕訳伝票番号" VARCHAR(10),
+        "仕訳行番号" SMALLINT,
+        "行摘要" VARCHAR(1000) NOT NULL,
+        "作成日時" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        "更新日時" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        PRIMARY KEY ("仕訳伝票番号", "仕訳行番号"),
+        FOREIGN KEY ("仕訳伝票番号") REFERENCES "仕訳" ("仕訳伝票番号") ON DELETE CASCADE
+      );
+    `
+
+    // 仕訳貸借明細テーブル（3層構造）を作成
+    await this.prisma.$executeRaw`
+      CREATE TABLE IF NOT EXISTS "仕訳貸借明細" (
+        "仕訳伝票番号" VARCHAR(10),
+        "仕訳行番号" SMALLINT,
+        "仕訳行貸借区分" VARCHAR(1),
+        "通貨コード" VARCHAR(3) NOT NULL,
+        "為替レート" DECIMAL(8,2) NOT NULL,
+        "部門コード" VARCHAR(3),
+        "プロジェクトコード" VARCHAR(10),
+        "勘定科目コード" VARCHAR(10) NOT NULL,
+        "補助科目コード" VARCHAR(10),
+        "仕訳金額" DECIMAL(14,2) NOT NULL,
+        "基軸換算仕訳金額" DECIMAL(14,2) NOT NULL,
+        "消費税区分" VARCHAR(2),
+        "消費税率" SMALLINT,
+        "消費税計算区分" VARCHAR(2),
+        "期日" DATE,
+        "資金繰フラグ" SMALLINT DEFAULT 0 NOT NULL,
+        "セグメントコード" VARCHAR(10),
+        "相手勘定科目コード" VARCHAR(10),
+        "相手補助科目コード" VARCHAR(10),
+        "付箋コード" VARCHAR(1),
+        "付箋内容" VARCHAR(60),
+        "作成日時" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        "更新日時" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        PRIMARY KEY ("仕訳伝票番号", "仕訳行番号", "仕訳行貸借区分"),
+        FOREIGN KEY ("仕訳伝票番号", "仕訳行番号") REFERENCES "仕訳明細_3層" ("仕訳伝票番号", "仕訳行番号") ON DELETE CASCADE,
+        FOREIGN KEY ("勘定科目コード") REFERENCES "勘定科目マスタ" ("勘定科目コード")
+      );
+    `
+
+    // インデックス作成 - 仕訳
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_journal_date" ON "仕訳"("起票日");
+    `
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_journal_department" ON "仕訳"("部門コード");
+    `
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_red_slip" ON "仕訳"("赤伝フラグ");
+    `
+
+    // インデックス作成 - 仕訳貸借明細
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_detail_item_account" ON "仕訳貸借明細"("勘定科目コード");
+    `
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_detail_item_department" ON "仕訳貸借明細"("部門コード");
+    `
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_detail_item_project" ON "仕訳貸借明細"("プロジェクトコード");
+    `
+
+    // コメント追加 - 仕訳
+    await this.prisma.$executeRaw`
+      COMMENT ON TABLE "仕訳" IS '仕訳（ヘッダー：3層構造）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳"."仕訳伝票番号" IS '仕訳伝票番号（主キー）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳"."起票日" IS '起票日';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳"."入力日" IS '入力日';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳"."決算仕訳フラグ" IS '決算仕訳フラグ';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳"."単振フラグ" IS '単振フラグ';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳"."仕訳伝票区分" IS '仕訳伝票区分';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳"."定期計上フラグ" IS '定期計上フラグ';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳"."赤伝フラグ" IS '赤伝フラグ';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳"."赤黒伝票番号" IS '赤黒伝票番号';
+    `
+
+    // コメント追加 - 仕訳明細（3層）
+    await this.prisma.$executeRaw`
+      COMMENT ON TABLE "仕訳明細_3層" IS '仕訳明細（行摘要：3層構造）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳明細_3層"."仕訳伝票番号" IS '仕訳伝票番号（複合主キー1）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳明細_3層"."仕訳行番号" IS '仕訳行番号（複合主キー2）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳明細_3層"."行摘要" IS '行摘要';
+    `
+
+    // コメント追加 - 仕訳貸借明細
+    await this.prisma.$executeRaw`
+      COMMENT ON TABLE "仕訳貸借明細" IS '仕訳貸借明細（借方・貸方の詳細：3層構造）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳貸借明細"."仕訳伝票番号" IS '仕訳伝票番号（複合主キー1）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳貸借明細"."仕訳行番号" IS '仕訳行番号（複合主キー2）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳貸借明細"."仕訳行貸借区分" IS '仕訳行貸借区分（複合主キー3：D=借方、C=貸方）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳貸借明細"."通貨コード" IS '通貨コード（ISO 4217）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳貸借明細"."為替レート" IS '為替レート';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳貸借明細"."勘定科目コード" IS '勘定科目コード';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳貸借明細"."仕訳金額" IS '仕訳金額';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "仕訳貸借明細"."基軸換算仕訳金額" IS '基軸換算仕訳金額';
     `
   }
 }

@@ -51,9 +51,10 @@ model Account {
   updatedAt              DateTime           @updatedAt @map("更新日時")
 
   // リレーション
-  taxTransaction      TaxTransaction?      @relation(fields: [taxCode], references: [taxCode])
-  structure           AccountStructure?
-  journalEntryDetails JournalEntryDetail[]
+  taxTransaction       TaxTransaction?       @relation(fields: [taxCode], references: [taxCode])
+  structure            AccountStructure?
+  journalEntryDetails  JournalEntryDetail[]
+  journalDetailItems   JournalDetailItem[]
 
   @@index([bsplDistinction], map: "idx_bspl_distinction")
   @@index([transactionDistinction], map: "idx_transaction_distinction")
@@ -162,4 +163,123 @@ model JournalEntryDetail {
 
   @@id([entryNo, lineNo])
   @@map("仕訳明細")
+}
+
+/// 仕訳（ヘッダー：3層構造）
+model Journal {
+  /// 仕訳伝票番号（主キー）
+  voucherNo         String   @id @map("仕訳伝票番号") @db.VarChar(10)
+  /// 起票日
+  journalDate       DateTime @map("起票日") @db.Date
+  /// 入力日
+  inputDate         DateTime @map("入力日") @db.Date
+  /// 決算仕訳フラグ
+  settlementFlag    Int      @default(0) @map("決算仕訳フラグ") @db.SmallInt
+  /// 単振フラグ
+  singleFlag        Int      @default(1) @map("単振フラグ") @db.SmallInt
+  /// 仕訳伝票区分
+  voucherType       Int      @map("仕訳伝票区分") @db.SmallInt
+  /// 定期計上フラグ
+  recurringFlag     Int      @default(0) @map("定期計上フラグ") @db.SmallInt
+  /// 社員コード
+  employeeCode      String?  @map("社員コード") @db.VarChar(10)
+  /// 部門コード
+  departmentCode    String?  @map("部門コード") @db.VarChar(5)
+  /// 赤伝フラグ
+  redSlipFlag       Int      @default(0) @map("赤伝フラグ") @db.SmallInt
+  /// 赤黒伝票番号
+  redBlackVoucherNo Int?     @map("赤黒伝票番号")
+  /// 作成日時
+  createdAt         DateTime @default(now()) @map("作成日時")
+  /// 更新日時
+  updatedAt         DateTime @updatedAt @map("更新日時")
+
+  // リレーション
+  details JournalDetail[]
+
+  @@index([journalDate], map: "idx_journal_date")
+  @@index([departmentCode], map: "idx_journal_department")
+  @@index([redSlipFlag], map: "idx_red_slip")
+  @@map("仕訳")
+}
+
+/// 仕訳明細（行摘要：3層構造）
+model JournalDetail {
+  /// 仕訳伝票番号（複合主キー1）
+  voucherNo   String   @map("仕訳伝票番号") @db.VarChar(10)
+  /// 仕訳行番号（複合主キー2）
+  lineNo      Int      @map("仕訳行番号") @db.SmallInt
+  /// 行摘要
+  lineSummary String   @map("行摘要") @db.VarChar(1000)
+  /// 作成日時
+  createdAt   DateTime @default(now()) @map("作成日時")
+  /// 更新日時
+  updatedAt   DateTime @updatedAt @map("更新日時")
+
+  // リレーション
+  journal Journal             @relation(fields: [voucherNo], references: [voucherNo], onDelete: Cascade)
+  items   JournalDetailItem[]
+
+  @@id([voucherNo, lineNo])
+  @@map("仕訳明細_3層")
+}
+
+/// 仕訳貸借明細（借方・貸方の詳細：3層構造）
+model JournalDetailItem {
+  /// 仕訳伝票番号（複合主キー1）
+  voucherNo         String   @map("仕訳伝票番号") @db.VarChar(10)
+  /// 仕訳行番号（複合主キー2）
+  lineNo            Int      @map("仕訳行番号") @db.SmallInt
+  /// 仕訳行貸借区分（複合主キー3）
+  debitCredit       String   @map("仕訳行貸借区分") @db.VarChar(1)
+  /// 通貨コード
+  currencyCode      String   @map("通貨コード") @db.VarChar(3)
+  /// 為替レート
+  exchangeRate      Decimal  @map("為替レート") @db.Decimal(8, 2)
+  /// 部門コード
+  departmentCode    String?  @map("部門コード") @db.VarChar(3)
+  /// プロジェクトコード
+  projectCode       String?  @map("プロジェクトコード") @db.VarChar(10)
+  /// 勘定科目コード
+  accountCode       String   @map("勘定科目コード") @db.VarChar(10)
+  /// 補助科目コード
+  subAccountCode    String?  @map("補助科目コード") @db.VarChar(10)
+  /// 仕訳金額
+  amount            Decimal  @map("仕訳金額") @db.Decimal(14, 2)
+  /// 基軸換算仕訳金額
+  baseAmount        Decimal  @map("基軸換算仕訳金額") @db.Decimal(14, 2)
+  /// 消費税区分
+  taxType           String?  @map("消費税区分") @db.VarChar(2)
+  /// 消費税率
+  taxRate           Int?     @map("消費税率") @db.SmallInt
+  /// 消費税計算区分
+  taxCalcType       String?  @map("消費税計算区分") @db.VarChar(2)
+  /// 期日
+  dueDate           DateTime? @map("期日") @db.Date
+  /// 資金繰フラグ
+  cashFlowFlag      Int      @default(0) @map("資金繰フラグ") @db.SmallInt
+  /// セグメントコード
+  segmentCode       String?  @map("セグメントコード") @db.VarChar(10)
+  /// 相手勘定科目コード
+  offsetAccountCode String?  @map("相手勘定科目コード") @db.VarChar(10)
+  /// 相手補助科目コード
+  offsetSubAccount  String?  @map("相手補助科目コード") @db.VarChar(10)
+  /// 付箋コード
+  noteCode          String?  @map("付箋コード") @db.VarChar(1)
+  /// 付箋内容
+  noteContent       String?  @map("付箋内容") @db.VarChar(60)
+  /// 作成日時
+  createdAt         DateTime @default(now()) @map("作成日時")
+  /// 更新日時
+  updatedAt         DateTime @updatedAt @map("更新日時")
+
+  // リレーション
+  detail  JournalDetail @relation(fields: [voucherNo, lineNo], references: [voucherNo, lineNo], onDelete: Cascade)
+  account Account       @relation(fields: [accountCode], references: [accountCode])
+
+  @@id([voucherNo, lineNo, debitCredit])
+  @@index([accountCode], map: "idx_detail_item_account")
+  @@index([departmentCode], map: "idx_detail_item_department")
+  @@index([projectCode], map: "idx_detail_item_project")
+  @@map("仕訳貸借明細")
 }

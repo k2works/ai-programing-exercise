@@ -253,5 +253,234 @@
         "comment": "消費税率"
       }
     ]
+  },
+  "仕訳": {
+    "table": {
+      "tableName": "仕訳",
+      "comment": "仕訳（ヘッダー：3層構造）"
+    },
+    "columns": [
+      {
+        "tableName": "仕訳",
+        "columnName": "仕訳伝票番号",
+        "comment": "仕訳伝票番号（主キー）"
+      },
+      {
+        "tableName": "仕訳",
+        "columnName": "起票日",
+        "comment": "起票日"
+      },
+      {
+        "tableName": "仕訳",
+        "columnName": "入力日",
+        "comment": "入力日"
+      },
+      {
+        "tableName": "仕訳",
+        "columnName": "決算仕訳フラグ",
+        "comment": "決算仕訳フラグ"
+      },
+      {
+        "tableName": "仕訳",
+        "columnName": "単振フラグ",
+        "comment": "単振フラグ"
+      },
+      {
+        "tableName": "仕訳",
+        "columnName": "仕訳伝票区分",
+        "comment": "仕訳伝票区分"
+      },
+      {
+        "tableName": "仕訳",
+        "columnName": "定期計上フラグ",
+        "comment": "定期計上フラグ"
+      },
+      {
+        "tableName": "仕訳",
+        "columnName": "社員コード",
+        "comment": "社員コード"
+      },
+      {
+        "tableName": "仕訳",
+        "columnName": "部門コード",
+        "comment": "部門コード"
+      },
+      {
+        "tableName": "仕訳",
+        "columnName": "赤伝フラグ",
+        "comment": "赤伝フラグ"
+      },
+      {
+        "tableName": "仕訳",
+        "columnName": "赤黒伝票番号",
+        "comment": "赤黒伝票番号"
+      },
+      {
+        "tableName": "仕訳",
+        "columnName": "作成日時",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "仕訳",
+        "columnName": "更新日時",
+        "comment": "更新日時"
+      }
+    ]
+  },
+  "仕訳明細_3層": {
+    "table": {
+      "tableName": "仕訳明細_3層",
+      "comment": "仕訳明細（行摘要：3層構造）"
+    },
+    "columns": [
+      {
+        "tableName": "仕訳明細_3層",
+        "columnName": "仕訳伝票番号",
+        "comment": "仕訳伝票番号（複合主キー1）"
+      },
+      {
+        "tableName": "仕訳明細_3層",
+        "columnName": "仕訳行番号",
+        "comment": "仕訳行番号（複合主キー2）"
+      },
+      {
+        "tableName": "仕訳明細_3層",
+        "columnName": "行摘要",
+        "comment": "行摘要"
+      },
+      {
+        "tableName": "仕訳明細_3層",
+        "columnName": "作成日時",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "仕訳明細_3層",
+        "columnName": "更新日時",
+        "comment": "更新日時"
+      }
+    ]
+  },
+  "仕訳貸借明細": {
+    "table": {
+      "tableName": "仕訳貸借明細",
+      "comment": "仕訳貸借明細（借方・貸方の詳細：3層構造）"
+    },
+    "columns": [
+      {
+        "tableName": "仕訳貸借明細",
+        "columnName": "仕訳伝票番号",
+        "comment": "仕訳伝票番号（複合主キー1）"
+      },
+      {
+        "tableName": "仕訳貸借明細",
+        "columnName": "仕訳行番号",
+        "comment": "仕訳行番号（複合主キー2）"
+      },
+      {
+        "tableName": "仕訳貸借明細",
+        "columnName": "仕訳行貸借区分",
+        "comment": "仕訳行貸借区分（複合主キー3）"
+      },
+      {
+        "tableName": "仕訳貸借明細",
+        "columnName": "通貨コード",
+        "comment": "通貨コード"
+      },
+      {
+        "tableName": "仕訳貸借明細",
+        "columnName": "為替レート",
+        "comment": "為替レート"
+      },
+      {
+        "tableName": "仕訳貸借明細",
+        "columnName": "部門コード",
+        "comment": "部門コード"
+      },
+      {
+        "tableName": "仕訳貸借明細",
+        "columnName": "プロジェクトコード",
+        "comment": "プロジェクトコード"
+      },
+      {
+        "tableName": "仕訳貸借明細",
+        "columnName": "勘定科目コード",
+        "comment": "勘定科目コード"
+      },
+      {
+        "tableName": "仕訳貸借明細",
+        "columnName": "補助科目コード",
+        "comment": "補助科目コード"
+      },
+      {
+        "tableName": "仕訳貸借明細",
+        "columnName": "仕訳金額",
+        "comment": "仕訳金額"
+      },
+      {
+        "tableName": "仕訳貸借明細",
+        "columnName": "基軸換算仕訳金額",
+        "comment": "基軸換算仕訳金額"
+      },
+      {
+        "tableName": "仕訳貸借明細",
+        "columnName": "消費税区分",
+        "comment": "消費税区分"
+      },
+      {
+        "tableName": "仕訳貸借明細",
+        "columnName": "消費税率",
+        "comment": "消費税率"
+      },
+      {
+        "tableName": "仕訳貸借明細",
+        "columnName": "消費税計算区分",
+        "comment": "消費税計算区分"
+      },
+      {
+        "tableName": "仕訳貸借明細",
+        "columnName": "期日",
+        "comment": "期日"
+      },
+      {
+        "tableName": "仕訳貸借明細",
+        "columnName": "資金繰フラグ",
+        "comment": "資金繰フラグ"
+      },
+      {
+        "tableName": "仕訳貸借明細",
+        "columnName": "セグメントコード",
+        "comment": "セグメントコード"
+      },
+      {
+        "tableName": "仕訳貸借明細",
+        "columnName": "相手勘定科目コード",
+        "comment": "相手勘定科目コード"
+      },
+      {
+        "tableName": "仕訳貸借明細",
+        "columnName": "相手補助科目コード",
+        "comment": "相手補助科目コード"
+      },
+      {
+        "tableName": "仕訳貸借明細",
+        "columnName": "付箋コード",
+        "comment": "付箋コード"
+      },
+      {
+        "tableName": "仕訳貸借明細",
+        "columnName": "付箋内容",
+        "comment": "付箋内容"
+      },
+      {
+        "tableName": "仕訳貸借明細",
+        "columnName": "作成日時",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "仕訳貸借明細",
+        "columnName": "更新日時",
+        "comment": "更新日時"
+      }
+    ]
   }
 }
