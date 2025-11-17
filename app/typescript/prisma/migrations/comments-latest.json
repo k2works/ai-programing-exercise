@@ -482,5 +482,192 @@
         "comment": "更新日時"
       }
     ]
+  },
+  "自動仕訳管理": {
+    "table": {
+      "tableName": "自動仕訳管理",
+      "comment": "自動仕訳管理（日付管理方式で最終処理日時を管理）"
+    },
+    "columns": [
+      {
+        "tableName": "自動仕訳管理",
+        "columnName": "ID",
+        "comment": "ID（主キー）"
+      },
+      {
+        "tableName": "自動仕訳管理",
+        "columnName": "ソーステーブル名",
+        "comment": "ソーステーブル名"
+      },
+      {
+        "tableName": "自動仕訳管理",
+        "columnName": "最終処理日時",
+        "comment": "最終処理日時"
+      },
+      {
+        "tableName": "自動仕訳管理",
+        "columnName": "作成日時",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "自動仕訳管理",
+        "columnName": "更新日時",
+        "comment": "更新日時"
+      }
+    ]
+  },
+  "自動仕訳パターン": {
+    "table": {
+      "tableName": "自動仕訳パターン",
+      "comment": "自動仕訳パターン（仕訳生成ルールを管理）"
+    },
+    "columns": [
+      {
+        "tableName": "自動仕訳パターン",
+        "columnName": "ID",
+        "comment": "ID（主キー）"
+      },
+      {
+        "tableName": "自動仕訳パターン",
+        "columnName": "パターンコード",
+        "comment": "パターンコード"
+      },
+      {
+        "tableName": "自動仕訳パターン",
+        "columnName": "パターン名",
+        "comment": "パターン名"
+      },
+      {
+        "tableName": "自動仕訳パターン",
+        "columnName": "ソーステーブル名",
+        "comment": "ソーステーブル名"
+      },
+      {
+        "tableName": "自動仕訳パターン",
+        "columnName": "説明",
+        "comment": "説明"
+      },
+      {
+        "tableName": "自動仕訳パターン",
+        "columnName": "有効フラグ",
+        "comment": "有効フラグ"
+      },
+      {
+        "tableName": "自動仕訳パターン",
+        "columnName": "作成日時",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "自動仕訳パターン",
+        "columnName": "更新日時",
+        "comment": "更新日時"
+      }
+    ]
+  },
+  "自動仕訳パターン明細": {
+    "table": {
+      "tableName": "自動仕訳パターン明細",
+      "comment": "自動仕訳パターン明細（借方・貸方のマッピング定義）"
+    },
+    "columns": [
+      {
+        "tableName": "自動仕訳パターン明細",
+        "columnName": "ID",
+        "comment": "ID（主キー）"
+      },
+      {
+        "tableName": "自動仕訳パターン明細",
+        "columnName": "パターンID",
+        "comment": "パターンID（外部キー）"
+      },
+      {
+        "tableName": "自動仕訳パターン明細",
+        "columnName": "行番号",
+        "comment": "行番号"
+      },
+      {
+        "tableName": "自動仕訳パターン明細",
+        "columnName": "借方貸方区分",
+        "comment": "借方・貸方区分（D=借方、C=貸方）"
+      },
+      {
+        "tableName": "自動仕訳パターン明細",
+        "columnName": "勘定科目コード",
+        "comment": "勘定科目コード"
+      },
+      {
+        "tableName": "自動仕訳パターン明細",
+        "columnName": "金額式",
+        "comment": "金額式（ソースデータのフィールド名や計算式）"
+      },
+      {
+        "tableName": "自動仕訳パターン明細",
+        "columnName": "摘要テンプレート",
+        "comment": "摘要テンプレート"
+      },
+      {
+        "tableName": "自動仕訳パターン明細",
+        "columnName": "作成日時",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "自動仕訳パターン明細",
+        "columnName": "更新日時",
+        "comment": "更新日時"
+      }
+    ]
+  },
+  "自動仕訳ログ": {
+    "table": {
+      "tableName": "自動仕訳ログ",
+      "comment": "自動仕訳実行ログ（実行履歴とエラー管理）"
+    },
+    "columns": [
+      {
+        "tableName": "自動仕訳ログ",
+        "columnName": "ID",
+        "comment": "ID（主キー）"
+      },
+      {
+        "tableName": "自動仕訳ログ",
+        "columnName": "パターンID",
+        "comment": "パターンID（外部キー）"
+      },
+      {
+        "tableName": "自動仕訳ログ",
+        "columnName": "実行日時",
+        "comment": "実行日時"
+      },
+      {
+        "tableName": "自動仕訳ログ",
+        "columnName": "処理レコード数",
+        "comment": "処理レコード数"
+      },
+      {
+        "tableName": "自動仕訳ログ",
+        "columnName": "生成仕訳数",
+        "comment": "生成仕訳数"
+      },
+      {
+        "tableName": "自動仕訳ログ",
+        "columnName": "ステータス",
+        "comment": "ステータス（成功、エラー、警告）"
+      },
+      {
+        "tableName": "自動仕訳ログ",
+        "columnName": "メッセージ",
+        "comment": "メッセージ"
+      },
+      {
+        "tableName": "自動仕訳ログ",
+        "columnName": "エラー詳細",
+        "comment": "エラー詳細"
+      },
+      {
+        "tableName": "自動仕訳ログ",
+        "columnName": "作成日時",
+        "comment": "作成日時"
+      }
+    ]
   }
 }

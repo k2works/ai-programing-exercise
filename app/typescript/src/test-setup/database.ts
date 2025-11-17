@@ -52,6 +52,10 @@ export class TestDatabase {
     if (!this.prisma) return
 
     // すべてのテーブルをクリア（外部キー制約を考慮した順序）
+    await this.prisma.$executeRaw`TRUNCATE TABLE "自動仕訳ログ" CASCADE`
+    await this.prisma.$executeRaw`TRUNCATE TABLE "自動仕訳パターン明細" CASCADE`
+    await this.prisma.$executeRaw`TRUNCATE TABLE "自動仕訳パターン" CASCADE`
+    await this.prisma.$executeRaw`TRUNCATE TABLE "自動仕訳管理" CASCADE`
     await this.prisma.$executeRaw`TRUNCATE TABLE "仕訳貸借明細" CASCADE`
     await this.prisma.$executeRaw`TRUNCATE TABLE "仕訳明細_3層" CASCADE`
     await this.prisma.$executeRaw`TRUNCATE TABLE "仕訳" CASCADE`
@@ -495,6 +499,167 @@ export class TestDatabase {
     `
     await this.prisma.$executeRaw`
       COMMENT ON COLUMN "仕訳貸借明細"."基軸換算仕訳金額" IS '基軸換算仕訳金額';
+    `
+
+    // 自動仕訳管理テーブルを作成（日付管理方式）
+    await this.prisma.$executeRaw`
+      CREATE TABLE IF NOT EXISTS "自動仕訳管理" (
+        "ID" SERIAL PRIMARY KEY,
+        "ソーステーブル名" VARCHAR(100) UNIQUE NOT NULL,
+        "最終処理日時" TIMESTAMP NOT NULL,
+        "作成日時" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        "更新日時" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+      );
+    `
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_auto_journal_source" ON "自動仕訳管理"("ソーステーブル名");
+    `
+
+    // 自動仕訳パターンテーブルを作成
+    await this.prisma.$executeRaw`
+      CREATE TABLE IF NOT EXISTS "自動仕訳パターン" (
+        "ID" SERIAL PRIMARY KEY,
+        "パターンコード" VARCHAR(20) UNIQUE NOT NULL,
+        "パターン名" VARCHAR(100) NOT NULL,
+        "ソーステーブル名" VARCHAR(100) NOT NULL,
+        "説明" VARCHAR(500),
+        "有効フラグ" BOOLEAN DEFAULT TRUE NOT NULL,
+        "作成日時" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        "更新日時" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+      );
+    `
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_auto_pattern_source" ON "自動仕訳パターン"("ソーステーブル名");
+    `
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_auto_pattern_active" ON "自動仕訳パターン"("有効フラグ");
+    `
+
+    // 自動仕訳パターン明細テーブルを作成
+    await this.prisma.$executeRaw`
+      CREATE TABLE IF NOT EXISTS "自動仕訳パターン明細" (
+        "ID" SERIAL PRIMARY KEY,
+        "パターンID" INTEGER NOT NULL,
+        "行番号" INTEGER NOT NULL,
+        "借方貸方区分" VARCHAR(1) NOT NULL,
+        "勘定科目コード" VARCHAR(10) NOT NULL,
+        "金額式" VARCHAR(200) NOT NULL,
+        "摘要テンプレート" VARCHAR(200),
+        "作成日時" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        "更新日時" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        FOREIGN KEY ("パターンID") REFERENCES "自動仕訳パターン" ("ID") ON DELETE CASCADE
+      );
+    `
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_auto_pattern_item" ON "自動仕訳パターン明細"("パターンID");
+    `
+
+    // 自動仕訳ログテーブルを作成
+    await this.prisma.$executeRaw`
+      CREATE TABLE IF NOT EXISTS "自動仕訳ログ" (
+        "ID" SERIAL PRIMARY KEY,
+        "パターンID" INTEGER NOT NULL,
+        "実行日時" TIMESTAMP NOT NULL,
+        "処理レコード数" INTEGER NOT NULL,
+        "生成仕訳数" INTEGER NOT NULL,
+        "ステータス" VARCHAR(20) NOT NULL,
+        "メッセージ" VARCHAR(500),
+        "エラー詳細" TEXT,
+        "作成日時" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        FOREIGN KEY ("パターンID") REFERENCES "自動仕訳パターン" ("ID") ON DELETE CASCADE
+      );
+    `
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_auto_log_pattern" ON "自動仕訳ログ"("パターンID");
+    `
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_auto_log_executed" ON "自動仕訳ログ"("実行日時");
+    `
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_auto_log_status" ON "自動仕訳ログ"("ステータス");
+    `
+
+    // コメント追加 - 自動仕訳管理
+    await this.prisma.$executeRaw`
+      COMMENT ON TABLE "自動仕訳管理" IS '自動仕訳管理（日付管理方式で最終処理日時を管理）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "自動仕訳管理"."ソーステーブル名" IS 'ソーステーブル名（売上データ、給与データなど）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "自動仕訳管理"."最終処理日時" IS '最終処理日時';
+    `
+
+    // コメント追加 - 自動仕訳パターン
+    await this.prisma.$executeRaw`
+      COMMENT ON TABLE "自動仕訳パターン" IS '自動仕訳パターン（仕訳生成ルールを管理）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "自動仕訳パターン"."パターンコード" IS 'パターンコード';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "自動仕訳パターン"."パターン名" IS 'パターン名';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "自動仕訳パターン"."有効フラグ" IS '有効フラグ';
+    `
+
+    // コメント追加 - 自動仕訳パターン明細
+    await this.prisma.$executeRaw`
+      COMMENT ON TABLE "自動仕訳パターン明細" IS '自動仕訳パターン明細（借方・貸方のマッピング定義）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "自動仕訳パターン明細"."借方貸方区分" IS '借方貸方区分（D=借方、C=貸方）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "自動仕訳パターン明細"."金額式" IS '金額式（ソースデータのフィールド名や計算式）';
+    `
+
+    // コメント追加 - 自動仕訳ログ
+    await this.prisma.$executeRaw`
+      COMMENT ON TABLE "自動仕訳ログ" IS '自動仕訳実行ログ（実行履歴とエラー管理）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "自動仕訳ログ"."処理レコード数" IS '処理レコード数';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "自動仕訳ログ"."生成仕訳数" IS '生成仕訳数';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "自動仕訳ログ"."ステータス" IS 'ステータス（成功、エラー、警告）';
+    `
+
+    // 仕訳残高チェックビューを作成
+    await this.prisma.$executeRaw`
+      CREATE OR REPLACE VIEW "仕訳残高チェック" AS
+      SELECT
+        "伝票番号",
+        SUM("借方金額") AS "借方合計",
+        SUM("貸方金額") AS "貸方合計",
+        SUM("借方金額") - SUM("貸方金額") AS "差額"
+      FROM "仕訳明細"
+      GROUP BY "伝票番号";
+    `
+
+    await this.prisma.$executeRaw`
+      COMMENT ON VIEW "仕訳残高チェック" IS '仕訳残高チェック（仕訳ごとの借方・貸方の合計と差額を表示）';
+    `
+
+    // 複式簿記チェック関数を作成
+    await this.prisma.$executeRaw`
+      CREATE OR REPLACE FUNCTION 複式簿記チェック()
+      RETURNS TABLE("不整合伝票番号" VARCHAR(10), "差額" DECIMAL) AS $$
+      BEGIN
+        RETURN QUERY
+        SELECT "伝票番号", ("借方合計" - "貸方合計") as "差額"
+        FROM "仕訳残高チェック"
+        WHERE "借方合計" != "貸方合計";
+      END;
+      $$ LANGUAGE plpgsql;
+    `
+
+    await this.prisma.$executeRaw`
+      COMMENT ON FUNCTION 複式簿記チェック() IS '複式簿記チェック関数（借方合計≠貸方合計の不整合仕訳を検出）';
     `
   }
 }

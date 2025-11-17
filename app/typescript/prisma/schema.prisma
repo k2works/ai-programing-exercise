@@ -283,3 +283,106 @@ model JournalDetailItem {
   @@index([projectCode], map: "idx_detail_item_project")
   @@map("仕訳貸借明細")
 }
+
+/// 自動仕訳管理（日付管理方式で最終処理日時を管理）
+model AutoJournalManagement {
+  /// ID（主キー）
+  id              Int      @id @default(autoincrement()) @map("ID")
+  /// ソーステーブル名
+  sourceTable     String   @unique @map("ソーステーブル名") @db.VarChar(100)
+  /// 最終処理日時
+  lastProcessedAt DateTime @map("最終処理日時")
+  /// 作成日時
+  createdAt       DateTime @default(now()) @map("作成日時")
+  /// 更新日時
+  updatedAt       DateTime @updatedAt @map("更新日時")
+
+  @@index([sourceTable], map: "idx_auto_journal_source")
+  @@map("自動仕訳管理")
+}
+
+/// 自動仕訳パターン（仕訳生成ルールを管理）
+model AutoJournalPattern {
+  /// ID（主キー）
+  id          Int      @id @default(autoincrement()) @map("ID")
+  /// パターンコード
+  patternCode String   @unique @map("パターンコード") @db.VarChar(20)
+  /// パターン名
+  patternName String   @map("パターン名") @db.VarChar(100)
+  /// ソーステーブル名
+  sourceTable String   @map("ソーステーブル名") @db.VarChar(100)
+  /// 説明
+  description String?  @map("説明") @db.VarChar(500)
+  /// 有効フラグ
+  isActive    Boolean  @default(true) @map("有効フラグ")
+  /// 作成日時
+  createdAt   DateTime @default(now()) @map("作成日時")
+  /// 更新日時
+  updatedAt   DateTime @updatedAt @map("更新日時")
+
+  // リレーション
+  items AutoJournalPatternItem[]
+  logs  AutoJournalLog[]
+
+  @@index([sourceTable], map: "idx_auto_pattern_source")
+  @@index([isActive], map: "idx_auto_pattern_active")
+  @@map("自動仕訳パターン")
+}
+
+/// 自動仕訳パターン明細（借方・貸方のマッピング定義）
+model AutoJournalPatternItem {
+  /// ID（主キー）
+  id               Int    @id @default(autoincrement()) @map("ID")
+  /// パターンID（外部キー）
+  patternId        Int    @map("パターンID")
+  /// 行番号
+  lineNo           Int    @map("行番号")
+  /// 借方・貸方区分（D=借方、C=貸方）
+  debitCredit      String @map("借方貸方区分") @db.VarChar(1)
+  /// 勘定科目コード
+  accountCode      String @map("勘定科目コード") @db.VarChar(10)
+  /// 金額式（ソースデータのフィールド名や計算式）
+  amountExpression String @map("金額式") @db.VarChar(200)
+  /// 摘要テンプレート
+  descriptionTmpl  String? @map("摘要テンプレート") @db.VarChar(200)
+  /// 作成日時
+  createdAt        DateTime @default(now()) @map("作成日時")
+  /// 更新日時
+  updatedAt        DateTime @updatedAt @map("更新日時")
+
+  // リレーション
+  pattern AutoJournalPattern @relation(fields: [patternId], references: [id], onDelete: Cascade)
+
+  @@index([patternId], map: "idx_auto_pattern_item")
+  @@map("自動仕訳パターン明細")
+}
+
+/// 自動仕訳実行ログ（実行履歴とエラー管理）
+model AutoJournalLog {
+  /// ID（主キー）
+  id               Int      @id @default(autoincrement()) @map("ID")
+  /// パターンID（外部キー）
+  patternId        Int      @map("パターンID")
+  /// 実行日時
+  executedAt       DateTime @map("実行日時")
+  /// 処理レコード数
+  recordsProcessed Int      @map("処理レコード数")
+  /// 生成仕訳数
+  journalsCreated  Int      @map("生成仕訳数")
+  /// ステータス（成功、エラー、警告）
+  status           String   @map("ステータス") @db.VarChar(20)
+  /// メッセージ
+  message          String?  @map("メッセージ") @db.VarChar(500)
+  /// エラー詳細
+  errorDetail      String?  @map("エラー詳細") @db.Text
+  /// 作成日時
+  createdAt        DateTime @default(now()) @map("作成日時")
+
+  // リレーション
+  pattern AutoJournalPattern @relation(fields: [patternId], references: [id], onDelete: Cascade)
+
+  @@index([patternId], map: "idx_auto_log_pattern")
+  @@index([executedAt], map: "idx_auto_log_executed")
+  @@index([status], map: "idx_auto_log_status")
+  @@map("自動仕訳ログ")
+}
