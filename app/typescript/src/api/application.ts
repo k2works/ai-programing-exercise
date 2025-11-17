@@ -3,6 +3,7 @@ import Fastify, { FastifyInstance } from 'fastify'
 import cors from '@fastify/cors'
 import swagger from '@fastify/swagger'
 import swaggerUi from '@fastify/swagger-ui'
+import { accountRoutes } from './routes/account.routes'
 
 /**
  * Fastify アプリケーションを構築
@@ -68,6 +69,9 @@ export async function buildApp(): Promise<FastifyInstance> {
   app.get('/health', async () => {
     return { status: 'ok', timestamp: new Date().toISOString() }
   })
+
+  // API ルートの登録
+  await app.register(accountRoutes)
 
   return app
 }
