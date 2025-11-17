@@ -24,9 +24,6 @@ src/generated/
 # SchemaSpy
 schemaspy-output/
 
-# Prisma
-prisma/migrations/
-
 # IDE
 .idea/
 .vscode/

@@ -1,0 +1,103 @@
+{
+  "勘定科目マスタ": {
+    "table": {
+      "tableName": "勘定科目マスタ",
+      "comment": "勘定科目マスタ（財務会計システムの基本となる勘定科目情報）"
+    },
+    "columns": [
+      {
+        "tableName": "勘定科目マスタ",
+        "columnName": "勘定科目ID",
+        "comment": "勘定科目ID（主キー）"
+      },
+      {
+        "tableName": "勘定科目マスタ",
+        "columnName": "勘定科目コード",
+        "comment": "勘定科目コード（例：1000, 2000）"
+      },
+      {
+        "tableName": "勘定科目マスタ",
+        "columnName": "勘定科目名",
+        "comment": "勘定科目名（例：現金、売掛金）"
+      },
+      {
+        "tableName": "勘定科目マスタ",
+        "columnName": "勘定科目種別",
+        "comment": "勘定科目種別（資産、負債、純資産、収益、費用）"
+      },
+      {
+        "tableName": "勘定科目マスタ",
+        "columnName": "残高",
+        "comment": "残高"
+      },
+      {
+        "tableName": "勘定科目マスタ",
+        "columnName": "課税取引コード",
+        "comment": "課税取引コード"
+      },
+      {
+        "tableName": "勘定科目マスタ",
+        "columnName": "作成日時",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "勘定科目マスタ",
+        "columnName": "更新日時",
+        "comment": "更新日時"
+      }
+    ]
+  },
+  "課税取引マスタ": {
+    "table": {
+      "tableName": "課税取引マスタ",
+      "comment": "課税取引マスタ（消費税計算のための課税区分情報）"
+    },
+    "columns": [
+      {
+        "tableName": "課税取引マスタ",
+        "columnName": "課税取引コード",
+        "comment": "課税取引コード（主キー）"
+      },
+      {
+        "tableName": "課税取引マスタ",
+        "columnName": "課税取引名",
+        "comment": "課税取引名"
+      },
+      {
+        "tableName": "課税取引マスタ",
+        "columnName": "税率",
+        "comment": "税率（%）"
+      },
+      {
+        "tableName": "課税取引マスタ",
+        "columnName": "課税区分",
+        "comment": "課税区分（課税、非課税、免税、不課税）"
+      },
+      {
+        "tableName": "課税取引マスタ",
+        "columnName": "説明",
+        "comment": "説明"
+      },
+      {
+        "tableName": "課税取引マスタ",
+        "columnName": "適用開始日",
+        "comment": "適用開始日"
+      },
+      {
+        "tableName": "課税取引マスタ",
+        "columnName": "適用終了日",
+        "comment": "適用終了日"
+      },
+      {
+        "tableName": "課税取引マスタ",
+        "columnName": "作成日時",
+        "comment": "作成日時"
+      },
+      {
+        "tableName": "課税取引マスタ",
+        "columnName": "更新日時",
+        "comment": "更新日時"
+      }
+    ]
+  }
+}
