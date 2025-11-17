@@ -5,6 +5,7 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     timeout: 60000, // TestContainerの起動時間を考慮
+    hookTimeout: 60000, // beforeAll/afterAllフックのタイムアウト
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

@@ -32,12 +32,12 @@ describe('TestContainer データベース接続テスト', () => {
       throw new Error('Prisma client not initialized')
     }
 
-    // accountsテーブルの存在確認
+    // 勘定科目マスタテーブルの存在確認
     const tableExists = await testDb.prisma.$queryRaw`
       SELECT EXISTS (
         SELECT FROM information_schema.tables
         WHERE table_schema = 'public'
-        AND table_name = 'accounts'
+        AND table_name = '勘定科目マスタ'
       ) as exists
     `
 
@@ -51,13 +51,13 @@ describe('TestContainer データベース接続テスト', () => {
 
     // 最初のテストデータ挿入
     await testDb.prisma.$executeRaw`
-      INSERT INTO accounts (code, name, account_type, balance)
-      VALUES ('1000', '現金', 'ASSET', 50000)
+      INSERT INTO "勘定科目マスタ" ("勘定科目コード", "勘定科目名", "勘定科目種別", "残高")
+      VALUES ('1000', '現金', '資産', 50000)
     `
 
     // データが挿入されていることを確認
     const count1 = (await testDb.prisma.$queryRaw`
-      SELECT COUNT(*) as count FROM accounts
+      SELECT COUNT(*) as count FROM "勘定科目マスタ"
     `) as Array<{ count: bigint }>
 
     expect(Number(count1[0].count)).toBe(1)
@@ -67,7 +67,7 @@ describe('TestContainer データベース接続テスト', () => {
 
     // データがクリアされていることを確認
     const count2 = (await testDb.prisma.$queryRaw`
-      SELECT COUNT(*) as count FROM accounts
+      SELECT COUNT(*) as count FROM "勘定科目マスタ"
     `) as Array<{ count: bigint }>
 
     expect(Number(count2[0].count)).toBe(0)
