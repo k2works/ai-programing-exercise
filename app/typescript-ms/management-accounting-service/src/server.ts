@@ -3,6 +3,10 @@
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import { config } from './config'
+import { getEventSubscriber, closeEventSubscriber } from './infrastructure/messaging/EventSubscriber'
+import { PrismaJournalCacheRepository } from './infrastructure/persistence/PrismaJournalCacheRepository'
+import { JournalCreatedHandler } from './application/handlers/journal-created-handler'
+import { closePrismaClient } from './infrastructure/persistence/prisma-client'
 
 const fastify = Fastify({
   logger: {
@@ -39,6 +43,19 @@ async function start(): Promise<void> {
       }
     })
 
+    // EventSubscriber の初期化
+    const eventSubscriber = getEventSubscriber()
+    await eventSubscriber.connect()
+
+    // イベントハンドラーの登録
+    const journalCacheRepository = new PrismaJournalCacheRepository()
+    const journalCreatedHandler = new JournalCreatedHandler(journalCacheRepository)
+
+    eventSubscriber.on('journal.created', (event) => journalCreatedHandler.handle(event))
+
+    // イベント購読を開始
+    await eventSubscriber.subscribe()
+
     // サーバー起動
     await fastify.listen({
       port: config.port,
@@ -56,12 +73,16 @@ async function start(): Promise<void> {
 process.on('SIGINT', async () => {
   console.log('🛑 Shutting down gracefully...')
   await fastify.close()
+  await closeEventSubscriber()
+  await closePrismaClient()
   process.exit(0)
 })
 
 process.on('SIGTERM', async () => {
   console.log('🛑 Shutting down gracefully...')
   await fastify.close()
+  await closeEventSubscriber()
+  await closePrismaClient()
   process.exit(0)
 })
 
