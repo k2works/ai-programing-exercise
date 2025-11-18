@@ -69,30 +69,100 @@ export function toJournalResponseDto(journal: JournalWithDetails): JournalRespon
     departmentCode: journal.departmentCode ?? undefined,
     redSlipFlag: journal.redSlipFlag,
     redBlackVoucherNo: journal.redBlackVoucherNo ?? undefined,
-    details: journal.details.map((detail) => ({
-      lineNo: detail.lineNo,
-      lineSummary: detail.lineSummary,
-      items: detail.items.map((item) => ({
-        debitCredit: item.debitCredit,
-        currencyCode: item.currencyCode,
-        exchangeRate: Number(item.exchangeRate),
-        departmentCode: item.departmentCode ?? undefined,
-        projectCode: item.projectCode ?? undefined,
-        accountCode: item.accountCode,
-        subAccountCode: item.subAccountCode ?? undefined,
-        amount: Number(item.amount),
-        baseAmount: Number(item.baseAmount),
-        taxType: item.taxType ?? undefined,
-        taxRate: item.taxRate ?? undefined,
-        taxCalcType: item.taxCalcType ?? undefined,
-        dueDate: item.dueDate?.toISOString().split('T')[0],
-        cashFlowFlag: item.cashFlowFlag,
-        segmentCode: item.segmentCode ?? undefined,
-        offsetAccountCode: item.offsetAccountCode ?? undefined,
-        offsetSubAccount: item.offsetSubAccount ?? undefined,
-        noteCode: item.noteCode ?? undefined,
-        noteContent: item.noteContent ?? undefined
-      }))
-    }))
+    details: journal.details.map((detail) => convertDetail(detail))
+  }
+}
+
+/**
+ * 仕訳明細を DTO に変換
+ */
+function convertDetail(detail: JournalWithDetails['details'][0]): JournalDetailDto {
+  return {
+    lineNo: detail.lineNo,
+    lineSummary: detail.lineSummary,
+    items: detail.items.map((item) => convertDetailItem(item))
+  }
+}
+
+/**
+ * 仕訳貸借明細を DTO に変換
+ */
+function convertDetailItem(
+  item: JournalWithDetails['details'][0]['items'][0]
+): JournalDetailItemDto {
+  return {
+    ...convertRequiredItemFields(item),
+    ...convertOptionalItemFields(item)
+  }
+}
+
+/**
+ * 必須項目フィールドを変換
+ */
+function convertRequiredItemFields(item: JournalWithDetails['details'][0]['items'][0]) {
+  return {
+    debitCredit: item.debitCredit,
+    currencyCode: item.currencyCode,
+    exchangeRate: Number(item.exchangeRate),
+    accountCode: item.accountCode,
+    amount: Number(item.amount),
+    baseAmount: Number(item.baseAmount),
+    cashFlowFlag: item.cashFlowFlag
+  }
+}
+
+/**
+ * オプション項目フィールドを変換
+ */
+function convertOptionalItemFields(item: JournalWithDetails['details'][0]['items'][0]) {
+  return {
+    ...convertDepartmentProjectFields(item),
+    ...convertTaxFields(item),
+    ...convertOffsetFields(item),
+    ...convertNoteFields(item)
+  }
+}
+
+/**
+ * 部門・プロジェクトフィールドを変換
+ */
+function convertDepartmentProjectFields(item: JournalWithDetails['details'][0]['items'][0]) {
+  return {
+    departmentCode: item.departmentCode ?? undefined,
+    projectCode: item.projectCode ?? undefined,
+    subAccountCode: item.subAccountCode ?? undefined
+  }
+}
+
+/**
+ * 税金関連フィールドを変換
+ */
+function convertTaxFields(item: JournalWithDetails['details'][0]['items'][0]) {
+  return {
+    taxType: item.taxType ?? undefined,
+    taxRate: item.taxRate ?? undefined,
+    taxCalcType: item.taxCalcType ?? undefined
+  }
+}
+
+/**
+ * 相殺関連フィールドを変換
+ */
+function convertOffsetFields(item: JournalWithDetails['details'][0]['items'][0]) {
+  return {
+    dueDate: item.dueDate?.toISOString().split('T')[0],
+    segmentCode: item.segmentCode ?? undefined,
+    offsetAccountCode: item.offsetAccountCode ?? undefined,
+    offsetSubAccount: item.offsetSubAccount ?? undefined
+  }
+}
+
+/**
+ * 摘要関連フィールドを変換
+ */
+function convertNoteFields(item: JournalWithDetails['details'][0]['items'][0]) {
+  return {
+    noteCode: item.noteCode ?? undefined,
+    noteContent: item.noteContent ?? undefined
   }
 }

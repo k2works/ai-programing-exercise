@@ -1,11 +1,7 @@
 // src/infrastructure/web/controller/JournalController.ts
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { JournalUseCase } from '../../../application/port/in/JournalUseCase'
-import {
-  CreateJournalRequestDto,
-  UpdateJournalRequestDto
-} from '../dto/JournalRequestDto'
-import { JournalResponseDto } from '../dto/JournalResponseDto'
+import { CreateJournalRequestDto, UpdateJournalRequestDto } from '../dto/JournalRequestDto'
 import { toJournalResponseDto } from '../dto/JournalResponseDto'
 
 /**
@@ -174,39 +170,48 @@ export class JournalController {
    */
   private handleError(error: unknown, reply: FastifyReply): void {
     if (error instanceof Error) {
-      const message = error.message
-
-      if (message.includes('見つかりません')) {
-        reply.status(404).send({
-          success: false,
-          error: message,
-          code: 'JOURNAL_NOT_FOUND'
-        })
-      } else if (message.includes('既に使用されています')) {
-        reply.status(409).send({
-          success: false,
-          error: message,
-          code: 'JOURNAL_ALREADY_EXISTS'
-        })
-      } else if (message.includes('一致しません') || message.includes('存在しません')) {
-        reply.status(400).send({
-          success: false,
-          error: message,
-          code: 'INVALID_JOURNAL_DATA'
-        })
-      } else {
-        reply.status(400).send({
-          success: false,
-          error: message,
-          code: 'BAD_REQUEST'
-        })
-      }
+      this.handleKnownError(error, reply)
     } else {
-      reply.status(500).send({
-        success: false,
-        error: '予期しないエラーが発生しました',
-        code: 'INTERNAL_SERVER_ERROR'
-      })
+      this.handleUnknownError(reply)
     }
+  }
+
+  /**
+   * 既知のエラーを処理
+   */
+  private handleKnownError(error: Error, reply: FastifyReply): void {
+    const errorInfo = this.getErrorInfo(error.message)
+    reply.status(errorInfo.status).send({
+      success: false,
+      error: error.message,
+      code: errorInfo.code
+    })
+  }
+
+  /**
+   * エラーメッセージから適切なステータスコードとコードを取得
+   */
+  private getErrorInfo(message: string): { status: number; code: string } {
+    if (message.includes('見つかりません')) {
+      return { status: 404, code: 'JOURNAL_NOT_FOUND' }
+    }
+    if (message.includes('既に使用されています')) {
+      return { status: 409, code: 'JOURNAL_ALREADY_EXISTS' }
+    }
+    if (message.includes('一致しません') || message.includes('存在しません')) {
+      return { status: 400, code: 'INVALID_JOURNAL_DATA' }
+    }
+    return { status: 400, code: 'BAD_REQUEST' }
+  }
+
+  /**
+   * 未知のエラーを処理
+   */
+  private handleUnknownError(reply: FastifyReply): void {
+    reply.status(500).send({
+      success: false,
+      error: '予期しないエラーが発生しました',
+      code: 'INTERNAL_SERVER_ERROR'
+    })
   }
 }
