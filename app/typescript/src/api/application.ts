@@ -6,6 +6,7 @@ import swaggerUi from '@fastify/swagger-ui'
 import { PrismaClient } from '@prisma/client'
 import { accountRoutes } from './routes/account.routes'
 import { journalRoutes } from './routes/journal.routes'
+import { financialStatementRoutes } from './routes/financial-statement.routes'
 
 /**
  * Fastify アプリケーションを構築
@@ -77,6 +78,7 @@ export async function buildApp(options?: { prisma?: PrismaClient }): Promise<Fas
   // API ルートの登録
   await app.register(accountRoutes, options || {})
   await app.register(journalRoutes, options || {})
+  await app.register(financialStatementRoutes, options || {})
 
   return app
 }
