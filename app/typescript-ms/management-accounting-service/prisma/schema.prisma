@@ -41,6 +41,21 @@ model FinancialAnalysisCache {
   @@map("financial_analysis_cache")
 }
 
+// 財務会計サービスから受信した仕訳情報のキャッシュ
+model JournalCache {
+  id                String   @id @default(uuid()) @map("id")
+  journalId         String   @unique @map("journalId")  // 財務会計サービスの仕訳ID
+  fiscalYear        Int      @map("fiscalYear")
+  journalDate       DateTime @map("journalDate")
+  totalDebitAmount  Decimal  @map("totalDebitAmount") @db.Decimal(15, 2)
+  totalCreditAmount Decimal  @map("totalCreditAmount") @db.Decimal(15, 2)
+  receivedAt        DateTime @default(now()) @map("receivedAt")
+
+  @@index([fiscalYear])
+  @@index([receivedAt])
+  @@map("journal_cache")
+}
+
 // 財務トレンド分析結果
 model FinancialTrend {
   id                            String   @id @default(uuid()) @map("id")
