@@ -1,8 +1,8 @@
-// src/application/audit/service/AuditLogService.ts
-import { AuditLogUseCase } from '../port/in/AuditLogUseCase'
-import { AuditLogRepository } from '../../../infrastructure/persistence/audit/AuditLogRepository'
-import { AuditLog } from '../../../domain/audit/AuditLog'
-import { AuditAction } from '../../../domain/audit/AuditAction'
+// src/application/port/in/AuditLogService.ts
+import { AuditLogUseCase } from './AuditLogUseCase'
+import { AuditLogRepository } from '../../../infrastructure/persistence/AuditLogRepository'
+import { AuditLog } from '../../../domain/model/audit/AuditLog'
+import { AuditAction } from '../../../domain/model/audit/AuditAction'
 
 /**
  * 監査ログアプリケーションサービス

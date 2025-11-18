@@ -1,8 +1,8 @@
-// src/application/financial-analysis/FinancialAnalysisService.ts
+// src/application/port/in/FinancialAnalysisService.ts
 
-import type { JournalRepository } from '../port/out/JournalRepository'
-import { FinancialData } from '../../domain/financial-analysis/FinancialData'
-import { FinancialRatioAnalyzer } from '../../domain/financial-analysis/FinancialRatioAnalyzer'
+import type { JournalRepository } from '../out/JournalRepository'
+import { FinancialData } from '../../../domain/model/financial-analysis/FinancialData'
+import { FinancialRatioAnalyzer } from '../../../domain/model/financial-analysis/FinancialRatioAnalyzer'
 import type {
   FinancialAnalysisUseCase,
   FinancialAnalysisResult,

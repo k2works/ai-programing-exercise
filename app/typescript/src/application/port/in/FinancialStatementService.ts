@@ -1,4 +1,4 @@
-// src/application/service/FinancialStatementService.ts
+// src/application/port/in/FinancialStatementService.ts
 import { PrismaClient, MonthlyAccountBalance, Account } from '@prisma/client'
 import {
   FinancialStatementUseCase,
@@ -6,7 +6,7 @@ import {
   BalanceSheetItem,
   IncomeStatement,
   IncomeStatementItem
-} from '../port/in/FinancialStatementUseCase'
+} from './FinancialStatementUseCase'
 
 type MonthlyBalanceWithAccount = MonthlyAccountBalance & {
   account: Account

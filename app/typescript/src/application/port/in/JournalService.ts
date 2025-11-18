@@ -1,11 +1,11 @@
-// src/application/service/JournalService.ts
+// src/application/port/in/JournalService.ts
 import {
   JournalUseCase,
   CreateJournalCommand,
   UpdateJournalCommand,
   JournalWithDetails
-} from '../port/in/JournalUseCase'
-import { JournalRepository } from '../port/out/JournalRepository'
+} from './JournalUseCase'
+import { JournalRepository } from '../out/JournalRepository'
 import { Prisma } from '@prisma/client'
 
 /**

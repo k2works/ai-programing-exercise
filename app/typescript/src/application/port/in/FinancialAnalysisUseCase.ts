@@ -1,4 +1,4 @@
-// src/application/financial-analysis/FinancialAnalysisUseCase.ts
+// src/application/port/in/FinancialAnalysisUseCase.ts
 
 /**
  * 財務分析のユースケースを定義するインターフェース（Input Port）

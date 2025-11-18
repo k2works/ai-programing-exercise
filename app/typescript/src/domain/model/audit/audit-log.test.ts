@@ -1,6 +1,6 @@
-// src/domain/audit/audit-log.test.ts
+// src/domain/model/audit/audit-log.test.ts
 import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'vitest'
-import { TestDatabase } from '../../test-setup/database'
+import { TestDatabase } from '../../../test-setup/database'
 import { AuditLog } from './AuditLog'
 import { AuditAction } from './AuditAction'
 
@@ -162,7 +162,7 @@ describe('監査ログ テーブル設計', () => {
       if (!testDb.prisma) throw new Error('Prisma not initialized')
 
       const { AuditLogRepository } = await import(
-        '../../infrastructure/persistence/audit/AuditLogRepository'
+        '../../../infrastructure/persistence/AuditLogRepository'
       )
       const repository = new AuditLogRepository(testDb.prisma)
 
@@ -191,7 +191,7 @@ describe('監査ログ テーブル設計', () => {
       if (!testDb.prisma) throw new Error('Prisma not initialized')
 
       const { AuditLogRepository } = await import(
-        '../../infrastructure/persistence/audit/AuditLogRepository'
+        '../../../infrastructure/persistence/AuditLogRepository'
       )
       const repository = new AuditLogRepository(testDb.prisma)
 
@@ -242,7 +242,7 @@ describe('監査ログ テーブル設計', () => {
       if (!testDb.prisma) throw new Error('Prisma not initialized')
 
       const { AuditLogRepository } = await import(
-        '../../infrastructure/persistence/audit/AuditLogRepository'
+        '../../../infrastructure/persistence/AuditLogRepository'
       )
       const repository = new AuditLogRepository(testDb.prisma)
 

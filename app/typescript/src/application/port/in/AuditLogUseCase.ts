@@ -1,6 +1,6 @@
-// src/application/audit/port/in/AuditLogUseCase.ts
-import { AuditLog } from '../../../../domain/audit/AuditLog'
-import { AuditAction } from '../../../../domain/audit/AuditAction'
+// src/application/port/in/AuditLogUseCase.ts
+import { AuditLog } from '../../../domain/model/audit/AuditLog'
+import { AuditAction } from '../../../domain/model/audit/AuditAction'
 
 /**
  * 監査ログユースケースインターフェース（Input Port）

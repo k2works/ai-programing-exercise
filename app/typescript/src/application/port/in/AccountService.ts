@@ -1,12 +1,12 @@
-// src/application/service/AccountService.ts
+// src/application/port/in/AccountService.ts
 import {
   AccountUseCase,
   CreateAccountCommand,
   UpdateAccountCommand
-} from '../port/in/AccountUseCase'
-import { AccountRepository } from '../port/out/AccountRepository'
-import { Account } from '../../domain/model/account/Account'
-import { AccountCode } from '../../domain/model/account/AccountCode'
+} from './AccountUseCase'
+import { AccountRepository } from '../out/AccountRepository'
+import { Account } from '../../../domain/model/account/Account'
+import { AccountCode } from '../../../domain/model/account/AccountCode'
 
 /**
  * 勘定科目サービス（Application Service）

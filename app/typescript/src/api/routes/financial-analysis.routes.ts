@@ -3,7 +3,7 @@ import { FastifyInstance } from 'fastify'
 import { PrismaClient } from '@prisma/client'
 import { prisma as defaultPrisma } from '../lib/prisma'
 import { JournalPersistenceAdapter } from '../../infrastructure/persistence/JournalPersistenceAdapter'
-import { FinancialAnalysisService } from '../../application/financial-analysis/FinancialAnalysisService'
+import { FinancialAnalysisService } from '../../application/port/in/FinancialAnalysisService'
 import { FinancialAnalysisController } from '../../infrastructure/web/controller/FinancialAnalysisController'
 
 /**

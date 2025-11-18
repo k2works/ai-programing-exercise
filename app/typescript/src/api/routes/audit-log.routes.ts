@@ -2,9 +2,9 @@
 import { FastifyInstance } from 'fastify'
 import { PrismaClient } from '@prisma/client'
 import { prisma as defaultPrisma } from '../lib/prisma'
-import { AuditLogRepository } from '../../infrastructure/persistence/audit/AuditLogRepository'
-import { AuditLogService } from '../../application/audit/service/AuditLogService'
-import { AuditLogController } from '../../infrastructure/web/controller/audit/AuditLogController'
+import { AuditLogRepository } from '../../infrastructure/persistence/AuditLogRepository'
+import { AuditLogService } from '../../application/port/in/AuditLogService'
+import { AuditLogController } from '../../infrastructure/web/controller/AuditLogController'
 
 /**
  * 監査ログ API ルート

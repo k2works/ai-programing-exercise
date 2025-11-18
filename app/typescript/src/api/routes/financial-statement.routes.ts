@@ -2,7 +2,7 @@
 import { FastifyInstance } from 'fastify'
 import { PrismaClient } from '@prisma/client'
 import { prisma as defaultPrisma } from '../lib/prisma'
-import { FinancialStatementService } from '../../application/service/FinancialStatementService'
+import { FinancialStatementService } from '../../application/port/in/FinancialStatementService'
 import { FinancialStatementController } from '../../infrastructure/web/controller/FinancialStatementController'
 
 /**

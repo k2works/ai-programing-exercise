@@ -3,7 +3,7 @@ import { FastifyInstance } from 'fastify'
 import { PrismaClient } from '@prisma/client'
 import { prisma as defaultPrisma } from '../lib/prisma'
 import { JournalPersistenceAdapter } from '../../infrastructure/persistence/JournalPersistenceAdapter'
-import { JournalService } from '../../application/service/JournalService'
+import { JournalService } from '../../application/port/in/JournalService'
 import { JournalController } from '../../infrastructure/web/controller/JournalController'
 import {
   CreateJournalRequestDto,

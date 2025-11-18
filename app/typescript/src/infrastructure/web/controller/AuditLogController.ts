@@ -1,7 +1,7 @@
-// src/infrastructure/web/controller/audit/AuditLogController.ts
+// src/infrastructure/web/controller/AuditLogController.ts
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
-import { AuditLogUseCase } from '../../../../application/audit/port/in/AuditLogUseCase'
-import { AuditAction } from '../../../../domain/audit/AuditAction'
+import { AuditLogUseCase } from '../../../application/port/in/AuditLogUseCase'
+import { AuditAction } from '../../../domain/model/audit/AuditAction'
 
 /**
  * 監査ログコントローラー（Input Adapter）
