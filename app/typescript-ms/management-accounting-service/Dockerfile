@@ -1,5 +1,8 @@
 FROM node:20-alpine AS builder
 
+# OpenSSL をインストール (Prisma用)
+RUN apk add --no-cache openssl
+
 WORKDIR /app
 
 # 依存関係のインストール
@@ -14,6 +17,9 @@ RUN npm run build
 
 # 本番用イメージ
 FROM node:20-alpine
+
+# OpenSSL をインストール (Prisma用)
+RUN apk add --no-cache openssl
 
 WORKDIR /app
 
