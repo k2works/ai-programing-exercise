@@ -1,0 +1,182 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("FINANCIAL_ACCOUNTING_DATABASE_URL")
+}
+
+// 勘定科目マスタ
+model Account {
+  accountCode         String                  @id @map("accountCode") @db.VarChar(10)
+  accountName         String                  @map("accountName") @db.VarChar(40)
+  accountType         String                  @map("accountType") @db.VarChar(10)
+  sumAccount          Boolean                 @default(false) @map("sumAccount")
+  bsplDistinction     String?                 @map("bsplDistinction") @db.Char(1)
+  displayOrder        Int?                    @map("displayOrder")
+  aggregationTarget   Boolean                 @default(true) @map("aggregationTarget")
+  taxCode             String?                 @map("taxCode") @db.VarChar(2)
+  createdAt           DateTime                @default(now()) @map("createdAt")
+  updatedAt           DateTime                @updatedAt @map("updatedAt")
+
+  taxTransaction      TaxTransaction?         @relation(fields: [taxCode], references: [taxCode])
+  structure           AccountStructure?
+  journalDetailItems  JournalDetailItem[]
+  dailyBalances       DailyAccountBalance[]
+  monthlyBalances     MonthlyAccountBalance[]
+
+  @@index([bsplDistinction])
+  @@index([accountType])
+  @@index([displayOrder])
+  @@index([taxCode])
+  @@map("accounts")
+}
+
+// 課税取引マスタ
+model TaxTransaction {
+  taxCode     String    @id @map("taxCode") @db.VarChar(2)
+  taxName     String    @map("taxName") @db.VarChar(40)
+  taxRate     Float     @map("taxRate") @db.Real
+  taxType     String    @map("taxType") @db.VarChar(10)
+  description String?   @map("description") @db.VarChar(200)
+  validFrom   DateTime? @map("validFrom")
+  validTo     DateTime? @map("validTo")
+  createdAt   DateTime  @default(now()) @map("createdAt")
+  updatedAt   DateTime  @updatedAt @map("updatedAt")
+
+  accounts Account[]
+
+  @@index([taxType])
+  @@index([validFrom, validTo])
+  @@map("tax_transactions")
+}
+
+// 勘定科目構成マスタ
+model AccountStructure {
+  accountCode     String   @id @map("accountCode") @db.VarChar(10)
+  parentPath      String?  @map("parentPath") @db.VarChar(1000)
+  hierarchyLevel  Int      @map("hierarchyLevel")
+  createdAt       DateTime @default(now()) @map("createdAt")
+  updatedAt       DateTime @updatedAt @map("updatedAt")
+
+  account Account @relation(fields: [accountCode], references: [accountCode])
+
+  @@index([parentPath])
+  @@index([hierarchyLevel])
+  @@map("account_structures")
+}
+
+// 会計期間マスタ
+model AccountingPeriod {
+  fiscalYear      Int           @id @map("fiscalYear")
+  periodName      String        @map("periodName") @db.VarChar(20)
+  startDate       DateTime      @map("startDate")
+  endDate         DateTime      @map("endDate")
+  isClosed        Boolean       @default(false) @map("isClosed")
+  createdAt       DateTime      @default(now()) @map("createdAt")
+  updatedAt       DateTime      @updatedAt @map("updatedAt")
+
+  journals Journal[]
+
+  @@index([startDate, endDate])
+  @@map("accounting_periods")
+}
+
+// 仕訳ヘッダ
+model Journal {
+  id              Int                 @id @default(autoincrement()) @map("id")
+  journalDate     DateTime            @map("journalDate")
+  fiscalYear      Int                 @map("fiscalYear")
+  description     String              @map("description") @db.VarChar(200)
+  userId          String?             @map("userId") @db.VarChar(50)
+  userName        String?             @map("userName") @db.VarChar(50)
+  createdAt       DateTime            @default(now()) @map("createdAt")
+  updatedAt       DateTime            @updatedAt @map("updatedAt")
+
+  accountingPeriod AccountingPeriod     @relation(fields: [fiscalYear], references: [fiscalYear])
+  detailItems      JournalDetailItem[]
+
+  @@index([journalDate])
+  @@index([fiscalYear])
+  @@map("journals")
+}
+
+// 仕訳明細
+model JournalDetailItem {
+  id              Int      @id @default(autoincrement()) @map("id")
+  journalId       Int      @map("journalId")
+  accountCode     String   @map("accountCode") @db.VarChar(10)
+  debitAmount     Decimal  @default(0) @map("debitAmount") @db.Decimal(15, 2)
+  creditAmount    Decimal  @default(0) @map("creditAmount") @db.Decimal(15, 2)
+  description     String?  @map("description") @db.VarChar(200)
+  createdAt       DateTime @default(now()) @map("createdAt")
+  updatedAt       DateTime @updatedAt @map("updatedAt")
+
+  journal  Journal @relation(fields: [journalId], references: [id], onDelete: Cascade)
+  account  Account @relation(fields: [accountCode], references: [accountCode])
+
+  @@index([journalId])
+  @@index([accountCode])
+  @@map("journal_detail_items")
+}
+
+// 日次残高
+model DailyAccountBalance {
+  id              Int      @id @default(autoincrement()) @map("id")
+  accountCode     String   @map("accountCode") @db.VarChar(10)
+  balanceDate     DateTime @map("balanceDate")
+  openingBalance  Decimal  @default(0) @map("openingBalance") @db.Decimal(15, 2)
+  debitAmount     Decimal  @default(0) @map("debitAmount") @db.Decimal(15, 2)
+  creditAmount    Decimal  @default(0) @map("creditAmount") @db.Decimal(15, 2)
+  closingBalance  Decimal  @default(0) @map("closingBalance") @db.Decimal(15, 2)
+  createdAt       DateTime @default(now()) @map("createdAt")
+  updatedAt       DateTime @updatedAt @map("updatedAt")
+
+  account Account @relation(fields: [accountCode], references: [accountCode])
+
+  @@unique([accountCode, balanceDate])
+  @@index([balanceDate])
+  @@map("daily_account_balances")
+}
+
+// 月次残高
+model MonthlyAccountBalance {
+  id                Int      @id @default(autoincrement()) @map("id")
+  fiscalYearMonth   String   @map("fiscalYearMonth") @db.Char(6)
+  accountCode       String   @map("accountCode") @db.VarChar(10)
+  openingBalance    Decimal  @default(0) @map("openingBalance") @db.Decimal(15, 2)
+  debitAmount       Decimal  @default(0) @map("debitAmount") @db.Decimal(15, 2)
+  creditAmount      Decimal  @default(0) @map("creditAmount") @db.Decimal(15, 2)
+  closingBalance    Decimal  @default(0) @map("closingBalance") @db.Decimal(15, 2)
+  createdAt         DateTime @default(now()) @map("createdAt")
+  updatedAt         DateTime @updatedAt @map("updatedAt")
+
+  account Account @relation(fields: [accountCode], references: [accountCode])
+
+  @@unique([fiscalYearMonth, accountCode])
+  @@index([fiscalYearMonth])
+  @@map("monthly_account_balances")
+}
+
+// 監査ログ
+model AuditLog {
+  id          Int      @id @default(autoincrement()) @map("id")
+  entityType  String   @map("entityType") @db.VarChar(50)
+  entityId    String   @map("entityId") @db.VarChar(50)
+  action      String   @map("action") @db.VarChar(20)
+  userId      String?  @map("userId") @db.VarChar(50)
+  userName    String?  @map("userName") @db.VarChar(50)
+  timestamp   DateTime @default(now()) @map("timestamp")
+  oldValues   Json?    @map("oldValues")
+  newValues   Json?    @map("newValues")
+  changes     Json?    @map("changes")
+  reason      String?  @map("reason") @db.VarChar(200)
+  ipAddress   String?  @map("ipAddress") @db.VarChar(45)
+  userAgent   String?  @map("userAgent") @db.VarChar(500)
+
+  @@index([entityType, entityId])
+  @@index([timestamp])
+  @@index([userId])
+  @@map("audit_logs")
+}

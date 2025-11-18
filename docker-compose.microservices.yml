@@ -1,0 +1,156 @@
+version: '3.8'
+
+services:
+  # PostgreSQL - 財務会計データベース
+  financial-accounting-db:
+    image: postgres:16-alpine
+    container_name: financial-accounting-db
+    environment:
+      POSTGRES_USER: fa_user
+      POSTGRES_PASSWORD: fa_password
+      POSTGRES_DB: financial_accounting
+    ports:
+      - "5432:5432"
+    volumes:
+      - fa-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fa_user -d financial_accounting"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+  # PostgreSQL - 管理会計データベース
+  management-accounting-db:
+    image: postgres:16-alpine
+    container_name: management-accounting-db
+    environment:
+      POSTGRES_USER: ma_user
+      POSTGRES_PASSWORD: ma_password
+      POSTGRES_DB: management_accounting
+    ports:
+      - "5433:5432"
+    volumes:
+      - ma-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ma_user -d management_accounting"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+  # RabbitMQ - メッセージブローカー
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    ports:
+      - "5672:5672"   # AMQP ポート
+      - "15672:15672" # 管理 UI
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - backend
+
+  # 財務会計サービス
+  financial-accounting:
+    build:
+      context: ./app/typescript-ms/financial-accounting-service
+      dockerfile: Dockerfile
+    container_name: financial-accounting
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      HOST: 0.0.0.0
+      FINANCIAL_ACCOUNTING_DATABASE_URL: postgresql://fa_user:fa_password@financial-accounting-db:5432/financial_accounting
+      RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
+      CORS_ORIGIN: "*"
+    ports:
+      - "3001:3001"
+    depends_on:
+      financial-accounting-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+    networks:
+      - backend
+    restart: unless-stopped
+
+  # 管理会計サービス
+  management-accounting:
+    build:
+      context: ./app/typescript-ms/management-accounting-service
+      dockerfile: Dockerfile
+    container_name: management-accounting
+    environment:
+      NODE_ENV: production
+      PORT: 3002
+      HOST: 0.0.0.0
+      MANAGEMENT_ACCOUNTING_DATABASE_URL: postgresql://ma_user:ma_password@management-accounting-db:5432/management_accounting
+      FINANCIAL_ACCOUNTING_SERVICE_URL: http://financial-accounting:3001
+      RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
+      CORS_ORIGIN: "*"
+    ports:
+      - "3002:3002"
+    depends_on:
+      management-accounting-db:
+        condition: service_healthy
+      financial-accounting:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3002/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+    networks:
+      - backend
+    restart: unless-stopped
+
+  # Nginx API Gateway
+  api-gateway:
+    build:
+      context: ./app/typescript-ms/nginx
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8080:80"
+    depends_on:
+      financial-accounting:
+        condition: service_healthy
+      management-accounting:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    networks:
+      - backend
+    restart: unless-stopped
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  fa-db-data:
+  ma-db-data:
+  rabbitmq-data:

@@ -1,0 +1,31 @@
+{
+  "name": "financial-accounting-service",
+  "version": "1.0.0",
+  "description": "財務会計マイクロサービス",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate deploy",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@fastify/cors": "^9.0.0",
+    "@fastify/swagger": "^8.14.0",
+    "@fastify/swagger-ui": "^3.0.0",
+    "@prisma/client": "^5.10.0",
+    "amqplib": "^0.10.3",
+    "fastify": "^4.26.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.10.4",
+    "@types/node": "^20.11.0",
+    "prisma": "^5.10.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.2.0"
+  }
+}

@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("MANAGEMENT_ACCOUNTING_DATABASE_URL")
+}
+
+// 財務分析結果のキャッシュテーブル
+model FinancialAnalysisCache {
+  id                          String   @id @default(uuid()) @map("id")
+  fiscalYear                  Int      @unique @map("fiscalYear")
+
+  // 財務データ
+  sales                       Decimal  @map("sales") @db.Decimal(15, 2)
+  operatingProfit             Decimal  @map("operatingProfit") @db.Decimal(15, 2)
+  totalAssets                 Decimal  @map("totalAssets") @db.Decimal(15, 2)
+  tangibleFixedAssets         Decimal  @map("tangibleFixedAssets") @db.Decimal(15, 2)
+  currentAssets               Decimal  @map("currentAssets") @db.Decimal(15, 2)
+  currentLiabilities          Decimal  @map("currentLiabilities") @db.Decimal(15, 2)
+  quickAssets                 Decimal  @map("quickAssets") @db.Decimal(15, 2)
+  equity                      Decimal  @map("equity") @db.Decimal(15, 2)
+
+  // 収益性指標
+  operatingProfitMargin       Decimal  @map("operatingProfitMargin") @db.Decimal(5, 2)
+
+  // 効率性指標
+  totalAssetTurnover          Decimal  @map("totalAssetTurnover") @db.Decimal(5, 2)
+  tangibleFixedAssetTurnover  Decimal  @map("tangibleFixedAssetTurnover") @db.Decimal(5, 2)
+
+  // 安全性指標
+  currentRatio                Decimal  @map("currentRatio") @db.Decimal(5, 2)
+  quickRatio                  Decimal  @map("quickRatio") @db.Decimal(5, 2)
+  equityRatio                 Decimal  @map("equityRatio") @db.Decimal(5, 2)
+
+  calculatedAt                DateTime @default(now()) @map("calculatedAt")
+  updatedAt                   DateTime @updatedAt @map("updatedAt")
+
+  @@index([calculatedAt])
+  @@map("financial_analysis_cache")
+}
+
+// 財務トレンド分析結果
+model FinancialTrend {
+  id                            String   @id @default(uuid()) @map("id")
+  startFiscalYear               Int      @map("startFiscalYear")
+  endFiscalYear                 Int      @map("endFiscalYear")
+
+  // トレンド指標
+  salesGrowthRate               Decimal  @map("salesGrowthRate") @db.Decimal(5, 2)
+  operatingProfitGrowthRate     Decimal  @map("operatingProfitGrowthRate") @db.Decimal(5, 2)
+  operatingProfitMarginChange   Decimal  @map("operatingProfitMarginChange") @db.Decimal(5, 2)
+  totalAssetTurnoverChange      Decimal  @map("totalAssetTurnoverChange") @db.Decimal(5, 2)
+  equityRatioChange             Decimal  @map("equityRatioChange") @db.Decimal(5, 2)
+
+  calculatedAt                  DateTime @default(now()) @map("calculatedAt")
+  updatedAt                     DateTime @updatedAt @map("updatedAt")
+
+  @@unique([startFiscalYear, endFiscalYear])
+  @@map("financial_trends")
+}
