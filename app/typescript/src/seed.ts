@@ -8,6 +8,7 @@ async function main() {
   console.log('🌱 Seeding database...')
 
   // 既存データのクリーンアップ
+  await prisma.monthlyAccountBalance.deleteMany()
   await prisma.journalDetailItem.deleteMany()
   await prisma.journalDetail.deleteMany()
   await prisma.journal.deleteMany()
@@ -256,6 +257,82 @@ async function main() {
   }
 
   console.log(`✅ Created FY2022 journal with ${fy2022Entries.length} entries`)
+
+  // 令和3年度（2022年3月）月次勘定科目残高の投入
+  const fy2021MonthlyBalances = [
+    // 貸借対照表
+    { accountCode: '11', closingBalance: 2676193 },
+    { accountCode: '12', closingBalance: 186973 },
+    { accountCode: '21', closingBalance: -851394 },
+    { accountCode: '22', closingBalance: -22500 },
+    { accountCode: '31', closingBalance: -100000 },
+    { accountCode: '33', closingBalance: -1889272 },
+    // 損益計算書
+    { accountCode: '41', closingBalance: -5796105 },
+    { accountCode: '42', closingBalance: -368 },
+    { accountCode: '51', closingBalance: 2185856 },
+    { accountCode: '52', closingBalance: 2625222 },
+    { accountCode: '53', closingBalance: 2676 },
+    { accountCode: '55', closingBalance: 331059 },
+    { accountCode: '56', closingBalance: -651660 }
+  ]
+
+  for (const balance of fy2021MonthlyBalances) {
+    await prisma.monthlyAccountBalance.create({
+      data: {
+        fiscalYearMonth: '202203',
+        accountCode: balance.accountCode,
+        subAccountCode: '',
+        departmentCode: '',
+        projectCode: '',
+        settlementFlag: 1,
+        openingBalance: 0,
+        debitAmount: balance.closingBalance > 0 ? balance.closingBalance : 0,
+        creditAmount: balance.closingBalance < 0 ? -balance.closingBalance : 0,
+        closingBalance: balance.closingBalance
+      }
+    })
+  }
+
+  console.log(`✅ Created FY2021 monthly balances for ${fy2021MonthlyBalances.length} accounts`)
+
+  // 令和4年度（2023年3月）月次勘定科目残高の投入
+  const fy2022MonthlyBalances = [
+    // 貸借対照表
+    { accountCode: '11', closingBalance: 2777545 },
+    { accountCode: '12', closingBalance: 197354 },
+    { accountCode: '21', closingBalance: -640513 },
+    { accountCode: '22', closingBalance: -27153 },
+    { accountCode: '31', closingBalance: -100000 },
+    { accountCode: '33', closingBalance: -2207233 },
+    // 損益計算書
+    { accountCode: '41', closingBalance: -4547908 },
+    { accountCode: '42', closingBalance: -11608 },
+    { accountCode: '51', closingBalance: 1743821 },
+    { accountCode: '52', closingBalance: 2277050 },
+    { accountCode: '53', closingBalance: 1613 },
+    { accountCode: '55', closingBalance: 169072 },
+    { accountCode: '56', closingBalance: -367960 }
+  ]
+
+  for (const balance of fy2022MonthlyBalances) {
+    await prisma.monthlyAccountBalance.create({
+      data: {
+        fiscalYearMonth: '202303',
+        accountCode: balance.accountCode,
+        subAccountCode: '',
+        departmentCode: '',
+        projectCode: '',
+        settlementFlag: 1,
+        openingBalance: 0,
+        debitAmount: balance.closingBalance > 0 ? balance.closingBalance : 0,
+        creditAmount: balance.closingBalance < 0 ? -balance.closingBalance : 0,
+        closingBalance: balance.closingBalance
+      }
+    })
+  }
+
+  console.log(`✅ Created FY2022 monthly balances for ${fy2022MonthlyBalances.length} accounts`)
 
   console.log('🎉 Seeding completed!')
 }
