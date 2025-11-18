@@ -8,7 +8,7 @@ import { accountRoutes } from './routes/account.routes'
 import { journalRoutes } from './routes/journal.routes'
 import { financialStatementRoutes } from './routes/financial-statement.routes'
 import { financialAnalysisRoutes } from './routes/financial-analysis.routes'
-import { setupAuditApi } from '../audit/adapter/web/setup'
+import { auditLogRoutes } from './routes/audit-log.routes'
 
 /**
  * Fastify アプリケーションを構築
@@ -79,17 +79,12 @@ export async function buildApp(options?: { prisma?: PrismaClient }): Promise<Fas
     return { status: 'ok', timestamp: new Date().toISOString() }
   })
 
-  // Prisma Client の初期化
-  const prisma = options?.prisma || new PrismaClient()
-
   // API ルートの登録
   await app.register(accountRoutes, options || {})
   await app.register(journalRoutes, options || {})
   await app.register(financialStatementRoutes, options || {})
   await app.register(financialAnalysisRoutes, options || {})
-
-  // 監査 API のセットアップ
-  setupAuditApi(app, prisma)
+  await app.register(auditLogRoutes, options || {})
 
   return app
 }

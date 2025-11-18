@@ -1,7 +1,7 @@
-// src/audit/infrastructure/persistence/AuditLogRepository.ts
+// src/infrastructure/persistence/audit/AuditLogRepository.ts
 import { PrismaClient } from '@prisma/client'
-import { AuditLog } from '../../domain/AuditLog'
-import { AuditAction } from '../../domain/AuditAction'
+import { AuditLog } from '../../../domain/audit/AuditLog'
+import { AuditAction } from '../../../domain/audit/AuditAction'
 
 export class AuditLogRepository {
   constructor(private readonly prisma: PrismaClient) {}

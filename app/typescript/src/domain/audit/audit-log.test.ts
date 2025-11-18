@@ -1,8 +1,8 @@
-// src/audit/audit-log.test.ts
+// src/domain/audit/audit-log.test.ts
 import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'vitest'
-import { TestDatabase } from '../test-setup/database'
-import { AuditLog } from './domain/AuditLog'
-import { AuditAction } from './domain/AuditAction'
+import { TestDatabase } from '../../test-setup/database'
+import { AuditLog } from './AuditLog'
+import { AuditAction } from './AuditAction'
 
 describe('監査ログ テーブル設計', () => {
   let testDb: TestDatabase
@@ -161,7 +161,9 @@ describe('監査ログ テーブル設計', () => {
     test('監査ログをデータベースに保存できる', async () => {
       if (!testDb.prisma) throw new Error('Prisma not initialized')
 
-      const { AuditLogRepository } = await import('./infrastructure/persistence/AuditLogRepository')
+      const { AuditLogRepository } = await import(
+        '../../infrastructure/persistence/audit/AuditLogRepository'
+      )
       const repository = new AuditLogRepository(testDb.prisma)
 
       const auditLog = AuditLog.create({
@@ -188,7 +190,9 @@ describe('監査ログ テーブル設計', () => {
     test('エンティティの監査ログを取得できる', async () => {
       if (!testDb.prisma) throw new Error('Prisma not initialized')
 
-      const { AuditLogRepository } = await import('./infrastructure/persistence/AuditLogRepository')
+      const { AuditLogRepository } = await import(
+        '../../infrastructure/persistence/audit/AuditLogRepository'
+      )
       const repository = new AuditLogRepository(testDb.prisma)
 
       // 複数の監査ログを作成
@@ -237,7 +241,9 @@ describe('監査ログ テーブル設計', () => {
     test('ユーザーの監査ログを取得できる', async () => {
       if (!testDb.prisma) throw new Error('Prisma not initialized')
 
-      const { AuditLogRepository } = await import('./infrastructure/persistence/AuditLogRepository')
+      const { AuditLogRepository } = await import(
+        '../../infrastructure/persistence/audit/AuditLogRepository'
+      )
       const repository = new AuditLogRepository(testDb.prisma)
 
       await repository.save(

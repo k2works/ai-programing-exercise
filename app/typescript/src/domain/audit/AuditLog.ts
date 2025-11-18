@@ -1,4 +1,4 @@
-// src/audit/domain/AuditLog.ts
+// src/domain/audit/AuditLog.ts
 import { AuditAction } from './AuditAction'
 
 /**
