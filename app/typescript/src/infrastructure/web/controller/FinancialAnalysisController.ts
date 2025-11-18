@@ -1,7 +1,7 @@
 // src/infrastructure/web/controller/FinancialAnalysisController.ts
 
-import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
-import type { FinancialAnalysisUseCase } from '../../../application/financial-analysis/FinancialAnalysisUseCase'
+import type { FastifyInstance } from 'fastify'
+import type { FinancialAnalysisUseCase } from '../../../application/port/in/FinancialAnalysisUseCase'
 
 /**
  * 財務分析 API のコントローラー

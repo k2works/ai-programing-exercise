@@ -1,9 +1,5 @@
 // src/application/port/in/AccountService.ts
-import {
-  AccountUseCase,
-  CreateAccountCommand,
-  UpdateAccountCommand
-} from './AccountUseCase'
+import { AccountUseCase, CreateAccountCommand, UpdateAccountCommand } from './AccountUseCase'
 import { AccountRepository } from '../out/AccountRepository'
 import { Account } from '../../../domain/model/account/Account'
 import { AccountCode } from '../../../domain/model/account/AccountCode'
