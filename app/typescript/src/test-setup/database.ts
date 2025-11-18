@@ -52,6 +52,7 @@ export class TestDatabase {
     if (!this.prisma) return
 
     // すべてのテーブルをクリア（外部キー制約を考慮した順序）
+    await this.prisma.$executeRaw`TRUNCATE TABLE "監査ログ" CASCADE`
     await this.prisma.$executeRaw`TRUNCATE TABLE "月次勘定科目残高" CASCADE`
     await this.prisma.$executeRaw`TRUNCATE TABLE "日次勘定科目残高" CASCADE`
     await this.prisma.$executeRaw`TRUNCATE TABLE "自動仕訳ログ" CASCADE`
@@ -690,6 +691,85 @@ export class TestDatabase {
 
     await this.prisma.$executeRaw`
       COMMENT ON VIEW "試算表" IS '試算表（全勘定科目の残高一覧）'
+    `
+
+    // 監査ログテーブルを作成
+    await this.prisma.$executeRaw`
+      CREATE TABLE IF NOT EXISTS "監査ログ" (
+        "ID" SERIAL PRIMARY KEY,
+        "エンティティタイプ" VARCHAR(50) NOT NULL,
+        "エンティティID" VARCHAR(50) NOT NULL,
+        "アクション" VARCHAR(20) NOT NULL,
+        "ユーザーID" VARCHAR(50) NOT NULL,
+        "ユーザー名" VARCHAR(100) NOT NULL,
+        "タイムスタンプ" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        "変更前の値" JSONB,
+        "変更後の値" JSONB,
+        "変更内容" JSONB,
+        "理由" VARCHAR(500),
+        "IPアドレス" VARCHAR(45),
+        "ユーザーエージェント" VARCHAR(500),
+        "作成日時" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        "更新日時" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+      );
+    `
+
+    // インデックス作成 - 監査ログ
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_audit_entity" ON "監査ログ"("エンティティタイプ", "エンティティID");
+    `
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_audit_user" ON "監査ログ"("ユーザーID");
+    `
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_audit_timestamp" ON "監査ログ"("タイムスタンプ");
+    `
+    await this.prisma.$executeRaw`
+      CREATE INDEX IF NOT EXISTS "idx_audit_action" ON "監査ログ"("アクション");
+    `
+
+    // コメント追加 - 監査ログ
+    await this.prisma.$executeRaw`
+      COMMENT ON TABLE "監査ログ" IS '監査ログ（全ての変更履歴を追跡するための不変ログ）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "監査ログ"."ID" IS 'ID（主キー）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "監査ログ"."エンティティタイプ" IS 'エンティティタイプ（Journal, Account等）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "監査ログ"."エンティティID" IS 'エンティティID';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "監査ログ"."アクション" IS 'アクション（CREATE, UPDATE, DELETE, READ）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "監査ログ"."ユーザーID" IS 'ユーザーID';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "監査ログ"."ユーザー名" IS 'ユーザー名';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "監査ログ"."タイムスタンプ" IS 'タイムスタンプ';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "監査ログ"."変更前の値" IS '変更前の値（JSON）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "監査ログ"."変更後の値" IS '変更後の値（JSON）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "監査ログ"."変更内容" IS '変更内容（JSON）';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "監査ログ"."理由" IS '理由';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "監査ログ"."IPアドレス" IS 'IPアドレス';
+    `
+    await this.prisma.$executeRaw`
+      COMMENT ON COLUMN "監査ログ"."ユーザーエージェント" IS 'ユーザーエージェント';
     `
   }
 }

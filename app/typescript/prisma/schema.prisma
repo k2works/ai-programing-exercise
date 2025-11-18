@@ -405,3 +405,39 @@ model MonthlyAccountBalance {
   @@index([projectCode], map: "idx_monthly_balance_project")
   @@map("月次勘定科目残高")
 }
+
+/// 監査ログ（全ての変更履歴を追跡するための不変ログ）
+model AuditLog {
+  /// ID（主キー）
+  id          Int      @id @default(autoincrement()) @map("ID")
+  /// エンティティタイプ（Journal, Account等）
+  entityType  String   @map("エンティティタイプ") @db.VarChar(50)
+  /// エンティティID
+  entityId    String   @map("エンティティID") @db.VarChar(50)
+  /// アクション（CREATE, UPDATE, DELETE, READ）
+  action      String   @map("アクション") @db.VarChar(20)
+  /// ユーザーID
+  userId      String   @map("ユーザーID") @db.VarChar(50)
+  /// ユーザー名
+  userName    String   @map("ユーザー名") @db.VarChar(100)
+  /// タイムスタンプ
+  timestamp   DateTime @default(now()) @map("タイムスタンプ")
+  /// 変更前の値（JSON）
+  oldValues   Json?    @map("変更前の値")
+  /// 変更後の値（JSON）
+  newValues   Json?    @map("変更後の値")
+  /// 変更内容（JSON）
+  changes     Json?    @map("変更内容")
+  /// 理由
+  reason      String?  @map("理由") @db.VarChar(500)
+  /// IPアドレス
+  ipAddress   String?  @map("IPアドレス") @db.VarChar(45)
+  /// ユーザーエージェント
+  userAgent   String?  @map("ユーザーエージェント") @db.VarChar(500)
+
+  @@index([entityType, entityId], map: "idx_audit_entity")
+  @@index([userId], map: "idx_audit_user")
+  @@index([timestamp], map: "idx_audit_timestamp")
+  @@index([action], map: "idx_audit_action")
+  @@map("監査ログ")
+}

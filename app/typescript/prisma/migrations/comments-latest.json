@@ -694,5 +694,78 @@
         "comment": "更新日時"
       }
     ]
+  },
+  "監査ログ": {
+    "table": {
+      "tableName": "監査ログ",
+      "comment": "監査ログ（全ての変更履歴を追跡するための不変ログ）"
+    },
+    "columns": [
+      {
+        "tableName": "監査ログ",
+        "columnName": "ID",
+        "comment": "ID（主キー）"
+      },
+      {
+        "tableName": "監査ログ",
+        "columnName": "エンティティタイプ",
+        "comment": "エンティティタイプ（Journal, Account等）"
+      },
+      {
+        "tableName": "監査ログ",
+        "columnName": "エンティティID",
+        "comment": "エンティティID"
+      },
+      {
+        "tableName": "監査ログ",
+        "columnName": "アクション",
+        "comment": "アクション（CREATE, UPDATE, DELETE, READ）"
+      },
+      {
+        "tableName": "監査ログ",
+        "columnName": "ユーザーID",
+        "comment": "ユーザーID"
+      },
+      {
+        "tableName": "監査ログ",
+        "columnName": "ユーザー名",
+        "comment": "ユーザー名"
+      },
+      {
+        "tableName": "監査ログ",
+        "columnName": "タイムスタンプ",
+        "comment": "タイムスタンプ"
+      },
+      {
+        "tableName": "監査ログ",
+        "columnName": "変更前の値",
+        "comment": "変更前の値（JSON）"
+      },
+      {
+        "tableName": "監査ログ",
+        "columnName": "変更後の値",
+        "comment": "変更後の値（JSON）"
+      },
+      {
+        "tableName": "監査ログ",
+        "columnName": "変更内容",
+        "comment": "変更内容（JSON）"
+      },
+      {
+        "tableName": "監査ログ",
+        "columnName": "理由",
+        "comment": "理由"
+      },
+      {
+        "tableName": "監査ログ",
+        "columnName": "IPアドレス",
+        "comment": "IPアドレス"
+      },
+      {
+        "tableName": "監査ログ",
+        "columnName": "ユーザーエージェント",
+        "comment": "ユーザーエージェント"
+      }
+    ]
   }
 }
