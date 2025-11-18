@@ -8,6 +8,7 @@ async function main() {
   console.log('🌱 Seeding database...')
 
   // 既存データのクリーンアップ
+  await prisma.dailyAccountBalance.deleteMany()
   await prisma.monthlyAccountBalance.deleteMany()
   await prisma.journalDetailItem.deleteMany()
   await prisma.journalDetail.deleteMany()
@@ -333,6 +334,78 @@ async function main() {
   }
 
   console.log(`✅ Created FY2022 monthly balances for ${fy2022MonthlyBalances.length} accounts`)
+
+  // 令和3年度（2022年3月31日）日次勘定科目残高の投入
+  const fy2021DailyBalances = [
+    // 貸借対照表
+    { accountCode: '11', debitAmount: 2676193, creditAmount: 0 },
+    { accountCode: '12', debitAmount: 186973, creditAmount: 0 },
+    { accountCode: '21', debitAmount: 0, creditAmount: 851394 },
+    { accountCode: '22', debitAmount: 0, creditAmount: 22500 },
+    { accountCode: '31', debitAmount: 0, creditAmount: 100000 },
+    { accountCode: '33', debitAmount: 0, creditAmount: 1889272 },
+    // 損益計算書
+    { accountCode: '41', debitAmount: 0, creditAmount: 5796105 },
+    { accountCode: '42', debitAmount: 0, creditAmount: 368 },
+    { accountCode: '51', debitAmount: 2185856, creditAmount: 0 },
+    { accountCode: '52', debitAmount: 2625222, creditAmount: 0 },
+    { accountCode: '53', debitAmount: 2676, creditAmount: 0 },
+    { accountCode: '55', debitAmount: 331059, creditAmount: 0 },
+    { accountCode: '56', debitAmount: 0, creditAmount: 651660 }
+  ]
+
+  for (const balance of fy2021DailyBalances) {
+    await prisma.dailyAccountBalance.create({
+      data: {
+        journalDate: new Date('2022-03-31'),
+        accountCode: balance.accountCode,
+        subAccountCode: '',
+        departmentCode: '',
+        projectCode: '',
+        settlementFlag: 1,
+        debitAmount: balance.debitAmount,
+        creditAmount: balance.creditAmount
+      }
+    })
+  }
+
+  console.log(`✅ Created FY2021 daily balances for ${fy2021DailyBalances.length} accounts`)
+
+  // 令和4年度（2023年3月31日）日次勘定科目残高の投入
+  const fy2022DailyBalances = [
+    // 貸借対照表
+    { accountCode: '11', debitAmount: 2777545, creditAmount: 0 },
+    { accountCode: '12', debitAmount: 197354, creditAmount: 0 },
+    { accountCode: '21', debitAmount: 0, creditAmount: 640513 },
+    { accountCode: '22', debitAmount: 0, creditAmount: 27153 },
+    { accountCode: '31', debitAmount: 0, creditAmount: 100000 },
+    { accountCode: '33', debitAmount: 0, creditAmount: 2207233 },
+    // 損益計算書
+    { accountCode: '41', debitAmount: 0, creditAmount: 4547908 },
+    { accountCode: '42', debitAmount: 0, creditAmount: 11608 },
+    { accountCode: '51', debitAmount: 1743821, creditAmount: 0 },
+    { accountCode: '52', debitAmount: 2277050, creditAmount: 0 },
+    { accountCode: '53', debitAmount: 1613, creditAmount: 0 },
+    { accountCode: '55', debitAmount: 169072, creditAmount: 0 },
+    { accountCode: '56', debitAmount: 0, creditAmount: 367960 }
+  ]
+
+  for (const balance of fy2022DailyBalances) {
+    await prisma.dailyAccountBalance.create({
+      data: {
+        journalDate: new Date('2023-03-31'),
+        accountCode: balance.accountCode,
+        subAccountCode: '',
+        departmentCode: '',
+        projectCode: '',
+        settlementFlag: 1,
+        debitAmount: balance.debitAmount,
+        creditAmount: balance.creditAmount
+      }
+    })
+  }
+
+  console.log(`✅ Created FY2022 daily balances for ${fy2022DailyBalances.length} accounts`)
 
   console.log('🎉 Seeding completed!')
 }
