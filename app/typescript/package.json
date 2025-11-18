@@ -17,6 +17,7 @@
     "prisma:studio": "prisma studio",
     "db:push": "prisma db push",
     "db:seed": "prisma db seed",
+    "seed": "tsx src/seed.ts",
     "dev:api": "tsx watch src/api/server.ts",
     "start:api": "tsx src/api/server.ts",
     "gulp": "gulp",
