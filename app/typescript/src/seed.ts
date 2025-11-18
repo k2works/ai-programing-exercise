@@ -127,6 +127,136 @@ async function main() {
 
   console.log(`✅ Created ${structures.length} account structures`)
 
+  // 令和3年度期末仕訳の投入
+  const fy2021Journal = await prisma.journal.create({
+    data: {
+      voucherNo: 'FY2021-001',
+      journalDate: new Date('2022-03-31'),
+      inputDate: new Date('2022-03-31'),
+      settlementFlag: 1,
+      singleFlag: 0,
+      voucherType: 1,
+      recurringFlag: 0,
+      redSlipFlag: 0
+    }
+  })
+
+  // 令和3年度期末仕訳明細（貸借対照表 + 損益計算書）
+  const fy2021Entries = [
+    // 貸借対照表
+    { accountCode: '11', debitCredit: 'D', amount: 2676193, description: '流動資産' },
+    { accountCode: '12', debitCredit: 'D', amount: 186973, description: '固定資産' },
+    { accountCode: '21', debitCredit: 'C', amount: 851394, description: '流動負債' },
+    { accountCode: '22', debitCredit: 'C', amount: 22500, description: '固定負債' },
+    { accountCode: '31', debitCredit: 'C', amount: 100000, description: '資本金' },
+    { accountCode: '33', debitCredit: 'C', amount: 1889272, description: '利益剰余金' },
+
+    // 損益計算書
+    { accountCode: '51', debitCredit: 'D', amount: 2185856, description: '売上原価' },
+    { accountCode: '52', debitCredit: 'D', amount: 2625222, description: '販売費及び一般管理費' },
+    { accountCode: '53', debitCredit: 'D', amount: 2676, description: '営業外費用' },
+    { accountCode: '55', debitCredit: 'D', amount: 331059, description: '法人税等' },
+    { accountCode: '41', debitCredit: 'C', amount: 5796105, description: '売上高' },
+    { accountCode: '42', debitCredit: 'C', amount: 368, description: '営業外収益' },
+    { accountCode: '56', debitCredit: 'C', amount: 651660, description: '当期純利益' }
+  ]
+
+  for (let i = 0; i < fy2021Entries.length; i++) {
+    const entry = fy2021Entries[i]
+    const lineNo = i + 1
+
+    // JournalDetail を作成
+    await prisma.journalDetail.create({
+      data: {
+        voucherNo: fy2021Journal.voucherNo,
+        lineNo: lineNo,
+        lineSummary: entry.description
+      }
+    })
+
+    // JournalDetailItem を作成
+    await prisma.journalDetailItem.create({
+      data: {
+        voucherNo: fy2021Journal.voucherNo,
+        lineNo: lineNo,
+        debitCredit: entry.debitCredit,
+        currencyCode: 'JPY',
+        exchangeRate: 1.0,
+        accountCode: entry.accountCode,
+        amount: entry.amount,
+        baseAmount: entry.amount,
+        cashFlowFlag: 0
+      }
+    })
+  }
+
+  console.log(`✅ Created FY2021 journal with ${fy2021Entries.length} entries`)
+
+  // 令和4年度期末仕訳の投入
+  const fy2022Journal = await prisma.journal.create({
+    data: {
+      voucherNo: 'FY2022-001',
+      journalDate: new Date('2023-03-31'),
+      inputDate: new Date('2023-03-31'),
+      settlementFlag: 1,
+      singleFlag: 0,
+      voucherType: 1,
+      recurringFlag: 0,
+      redSlipFlag: 0
+    }
+  })
+
+  // 令和4年度期末仕訳明細（貸借対照表 + 損益計算書）
+  const fy2022Entries = [
+    // 貸借対照表
+    { accountCode: '11', debitCredit: 'D', amount: 2777545, description: '流動資産' },
+    { accountCode: '12', debitCredit: 'D', amount: 197354, description: '固定資産' },
+    { accountCode: '21', debitCredit: 'C', amount: 640513, description: '流動負債' },
+    { accountCode: '22', debitCredit: 'C', amount: 27153, description: '固定負債' },
+    { accountCode: '31', debitCredit: 'C', amount: 100000, description: '資本金' },
+    { accountCode: '33', debitCredit: 'C', amount: 2207233, description: '利益剰余金' },
+
+    // 損益計算書
+    { accountCode: '51', debitCredit: 'D', amount: 1743821, description: '売上原価' },
+    { accountCode: '52', debitCredit: 'D', amount: 2277050, description: '販売費及び一般管理費' },
+    { accountCode: '53', debitCredit: 'D', amount: 1613, description: '営業外費用' },
+    { accountCode: '55', debitCredit: 'D', amount: 169072, description: '法人税等' },
+    { accountCode: '41', debitCredit: 'C', amount: 4547908, description: '売上高' },
+    { accountCode: '42', debitCredit: 'C', amount: 11608, description: '営業外収益' },
+    { accountCode: '56', debitCredit: 'C', amount: 367960, description: '当期純利益' }
+  ]
+
+  for (let i = 0; i < fy2022Entries.length; i++) {
+    const entry = fy2022Entries[i]
+    const lineNo = i + 1
+
+    // JournalDetail を作成
+    await prisma.journalDetail.create({
+      data: {
+        voucherNo: fy2022Journal.voucherNo,
+        lineNo: lineNo,
+        lineSummary: entry.description
+      }
+    })
+
+    // JournalDetailItem を作成
+    await prisma.journalDetailItem.create({
+      data: {
+        voucherNo: fy2022Journal.voucherNo,
+        lineNo: lineNo,
+        debitCredit: entry.debitCredit,
+        currencyCode: 'JPY',
+        exchangeRate: 1.0,
+        accountCode: entry.accountCode,
+        amount: entry.amount,
+        baseAmount: entry.amount,
+        cashFlowFlag: 0
+      }
+    })
+  }
+
+  console.log(`✅ Created FY2022 journal with ${fy2022Entries.length} entries`)
+
   console.log('🎉 Seeding completed!')
 }
 
