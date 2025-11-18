@@ -64,7 +64,7 @@ services:
   # 財務会計サービス
   financial-accounting:
     build:
-      context: ./app/typescript-ms/financial-accounting-service
+      context: ./financial-accounting-service
       dockerfile: Dockerfile
     container_name: financial-accounting
     environment:
@@ -94,7 +94,7 @@ services:
   # 管理会計サービス
   management-accounting:
     build:
-      context: ./app/typescript-ms/management-accounting-service
+      context: ./management-accounting-service
       dockerfile: Dockerfile
     container_name: management-accounting
     environment:
@@ -127,7 +127,7 @@ services:
   # Nginx API Gateway
   api-gateway:
     build:
-      context: ./app/typescript-ms/nginx
+      context: ./nginx
       dockerfile: Dockerfile
     container_name: api-gateway
     ports:

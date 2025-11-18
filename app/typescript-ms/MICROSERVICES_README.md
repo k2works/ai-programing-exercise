@@ -98,6 +98,9 @@
 ### 1. サービスのビルドと起動
 
 ```bash
+# app/typescript-ms ディレクトリに移動
+cd app/typescript-ms
+
 # すべてのサービスをビルドして起動
 docker-compose -f docker-compose.microservices.yml up --build -d
 
@@ -187,6 +190,8 @@ postgresql://ma_user:ma_password@localhost:5433/management_accounting
 ## サービスの停止とクリーンアップ
 
 ```bash
+# app/typescript-ms ディレクトリで実行
+
 # サービスの停止
 docker-compose -f docker-compose.microservices.yml down
 
