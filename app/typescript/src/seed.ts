@@ -4,10 +4,7 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-async function main() {
-  console.log('🌱 Seeding database...')
-
-  // 既存データのクリーンアップ
+async function cleanupDatabase() {
   await prisma.dailyAccountBalance.deleteMany()
   await prisma.monthlyAccountBalance.deleteMany()
   await prisma.journalDetailItem.deleteMany()
@@ -15,9 +12,10 @@ async function main() {
   await prisma.journal.deleteMany()
   await prisma.accountStructure.deleteMany()
   await prisma.account.deleteMany()
-
   console.log('✅ Cleaned up existing data')
+}
 
+async function seedAccounts() {
   // 勘定科目マスタの投入
   const accounts = [
     // 資産の部
@@ -77,7 +75,9 @@ async function main() {
   }
 
   console.log(`✅ Created ${accounts.length} accounts`)
+}
 
+async function seedAccountStructures() {
   // 勘定科目構成（階層構造）の投入
   const structures = [
     { accountCode: '1', accountPath: '1' },
@@ -128,7 +128,9 @@ async function main() {
   }
 
   console.log(`✅ Created ${structures.length} account structures`)
+}
 
+async function seedFY2021Journal() {
   // 令和3年度期末仕訳の投入
   const fy2021Journal = await prisma.journal.create({
     data: {
@@ -193,7 +195,9 @@ async function main() {
   }
 
   console.log(`✅ Created FY2021 journal with ${fy2021Entries.length} entries`)
+}
 
+async function seedFY2022Journal() {
   // 令和4年度期末仕訳の投入
   const fy2022Journal = await prisma.journal.create({
     data: {
@@ -258,7 +262,9 @@ async function main() {
   }
 
   console.log(`✅ Created FY2022 journal with ${fy2022Entries.length} entries`)
+}
 
+async function seedFY2021MonthlyBalances() {
   // 令和3年度（2022年3月）月次勘定科目残高の投入
   const fy2021MonthlyBalances = [
     // 貸借対照表
@@ -279,24 +285,33 @@ async function main() {
   ]
 
   for (const balance of fy2021MonthlyBalances) {
-    await prisma.monthlyAccountBalance.create({
-      data: {
-        fiscalYearMonth: '202203',
-        accountCode: balance.accountCode,
-        subAccountCode: '',
-        departmentCode: '',
-        projectCode: '',
-        settlementFlag: 1,
-        openingBalance: 0,
-        debitAmount: balance.closingBalance > 0 ? balance.closingBalance : 0,
-        creditAmount: balance.closingBalance < 0 ? -balance.closingBalance : 0,
-        closingBalance: balance.closingBalance
-      }
-    })
+    await createMonthlyBalance('202203', balance)
   }
 
   console.log(`✅ Created FY2021 monthly balances for ${fy2021MonthlyBalances.length} accounts`)
+}
 
+async function createMonthlyBalance(
+  fiscalYearMonth: string,
+  balance: { accountCode: string; closingBalance: number }
+) {
+  await prisma.monthlyAccountBalance.create({
+    data: {
+      fiscalYearMonth,
+      accountCode: balance.accountCode,
+      subAccountCode: '',
+      departmentCode: '',
+      projectCode: '',
+      settlementFlag: 1,
+      openingBalance: 0,
+      debitAmount: balance.closingBalance > 0 ? balance.closingBalance : 0,
+      creditAmount: balance.closingBalance < 0 ? -balance.closingBalance : 0,
+      closingBalance: balance.closingBalance
+    }
+  })
+}
+
+async function seedFY2022MonthlyBalances() {
   // 令和4年度（2023年3月）月次勘定科目残高の投入
   const fy2022MonthlyBalances = [
     // 貸借対照表
@@ -317,24 +332,13 @@ async function main() {
   ]
 
   for (const balance of fy2022MonthlyBalances) {
-    await prisma.monthlyAccountBalance.create({
-      data: {
-        fiscalYearMonth: '202303',
-        accountCode: balance.accountCode,
-        subAccountCode: '',
-        departmentCode: '',
-        projectCode: '',
-        settlementFlag: 1,
-        openingBalance: 0,
-        debitAmount: balance.closingBalance > 0 ? balance.closingBalance : 0,
-        creditAmount: balance.closingBalance < 0 ? -balance.closingBalance : 0,
-        closingBalance: balance.closingBalance
-      }
-    })
+    await createMonthlyBalance('202303', balance)
   }
 
   console.log(`✅ Created FY2022 monthly balances for ${fy2022MonthlyBalances.length} accounts`)
+}
 
+async function seedFY2021DailyBalances() {
   // 令和3年度（2022年3月31日）日次勘定科目残高の投入
   const fy2021DailyBalances = [
     // 貸借対照表
@@ -370,7 +374,9 @@ async function main() {
   }
 
   console.log(`✅ Created FY2021 daily balances for ${fy2021DailyBalances.length} accounts`)
+}
 
+async function seedFY2022DailyBalances() {
   // 令和4年度（2023年3月31日）日次勘定科目残高の投入
   const fy2022DailyBalances = [
     // 貸借対照表
@@ -406,6 +412,20 @@ async function main() {
   }
 
   console.log(`✅ Created FY2022 daily balances for ${fy2022DailyBalances.length} accounts`)
+}
+
+async function main() {
+  console.log('🌱 Seeding database...')
+
+  await cleanupDatabase()
+  await seedAccounts()
+  await seedAccountStructures()
+  await seedFY2021Journal()
+  await seedFY2022Journal()
+  await seedFY2021MonthlyBalances()
+  await seedFY2022MonthlyBalances()
+  await seedFY2021DailyBalances()
+  await seedFY2022DailyBalances()
 
   console.log('🎉 Seeding completed!')
 }

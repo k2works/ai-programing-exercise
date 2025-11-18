@@ -237,29 +237,69 @@ export class AuditLogController {
 
       const logs = await this.auditLogUseCase.getAuditLogsByUser(
         userId,
-        startDate ? new Date(startDate) : undefined,
-        endDate ? new Date(endDate) : undefined
+        this.parseOptionalDate(startDate),
+        this.parseOptionalDate(endDate)
       )
 
-      const response = logs.map((log) => ({
-        id: log.id,
-        entityType: log.entityType,
-        entityId: log.entityId,
-        action: log.action,
-        timestamp: log.timestamp.toISOString(),
-        oldValues: log.oldValues,
-        newValues: log.newValues,
-        changes: log.changes,
-        reason: log.reason,
-        summary: log.getChangeSummary()
-      }))
+      const response = logs.map((log) => this.formatAuditLogResponse(log))
 
       reply.send(response)
     } catch (error) {
+      this.handleError(error, reply)
+    }
+  }
+
+  /**
+   * オプションの日付文字列をDateオブジェクトに変換
+   */
+  private parseOptionalDate(dateString?: string): Date | undefined {
+    return dateString ? new Date(dateString) : undefined
+  }
+
+  /**
+   * 監査ログのレスポンス形式に変換
+   */
+  private formatAuditLogResponse(log: {
+    id?: number
+    entityType: string
+    entityId: string
+    action: string
+    timestamp: Date
+    oldValues?: Record<string, unknown>
+    newValues?: Record<string, unknown>
+    changes?: Record<string, unknown>
+    reason?: string
+    getChangeSummary: () => string
+  }) {
+    return {
+      id: log.id,
+      entityType: log.entityType,
+      entityId: log.entityId,
+      action: log.action,
+      timestamp: log.timestamp.toISOString(),
+      oldValues: log.oldValues,
+      newValues: log.newValues,
+      changes: log.changes,
+      reason: log.reason,
+      summary: log.getChangeSummary()
+    }
+  }
+
+  /**
+   * エラーハンドラー
+   */
+  private handleError(error: unknown, reply: FastifyReply): void {
+    if (error instanceof Error) {
       reply.status(400).send({
         statusCode: 400,
         error: 'Bad Request',
-        message: error instanceof Error ? error.message : 'リクエストが不正です'
+        message: error.message
+      })
+    } else {
+      reply.status(400).send({
+        statusCode: 400,
+        error: 'Bad Request',
+        message: 'リクエストが不正です'
       })
     }
   }

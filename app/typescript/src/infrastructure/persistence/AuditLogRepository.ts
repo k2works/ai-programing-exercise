@@ -32,9 +32,9 @@ export class AuditLogRepository {
       userId: saved.userId,
       userName: saved.userName,
       timestamp: saved.timestamp,
-      oldValues: saved.oldValues as Record<string, any> | undefined,
-      newValues: saved.newValues as Record<string, any> | undefined,
-      changes: saved.changes as Record<string, any> | undefined,
+      oldValues: saved.oldValues as Record<string, unknown> | undefined,
+      newValues: saved.newValues as Record<string, unknown> | undefined,
+      changes: saved.changes as Record<string, unknown> | undefined,
       reason: saved.reason || undefined,
       ipAddress: saved.ipAddress || undefined,
       userAgent: saved.userAgent || undefined
@@ -83,21 +83,36 @@ export class AuditLogRepository {
     return logs.map((log) => this.mapToDomain(log))
   }
 
-  private mapToDomain(log: any): AuditLog {
+  private mapToDomain(log: unknown): AuditLog {
+    const logData = log as {
+      id: number
+      entityType: string
+      entityId: string
+      action: string
+      userId: string
+      userName: string
+      timestamp: Date
+      oldValues: unknown
+      newValues: unknown
+      changes: unknown
+      reason: string | null
+      ipAddress: string | null
+      userAgent: string | null
+    }
     return AuditLog.reconstruct({
-      id: log.id,
-      entityType: log.entityType,
-      entityId: log.entityId,
-      action: log.action as AuditAction,
-      userId: log.userId,
-      userName: log.userName,
-      timestamp: log.timestamp,
-      oldValues: log.oldValues as Record<string, any> | undefined,
-      newValues: log.newValues as Record<string, any> | undefined,
-      changes: log.changes as Record<string, any> | undefined,
-      reason: log.reason || undefined,
-      ipAddress: log.ipAddress || undefined,
-      userAgent: log.userAgent || undefined
+      id: logData.id,
+      entityType: logData.entityType,
+      entityId: logData.entityId,
+      action: logData.action as AuditAction,
+      userId: logData.userId,
+      userName: logData.userName,
+      timestamp: logData.timestamp,
+      oldValues: logData.oldValues as Record<string, unknown> | undefined,
+      newValues: logData.newValues as Record<string, unknown> | undefined,
+      changes: logData.changes as Record<string, unknown> | undefined,
+      reason: logData.reason || undefined,
+      ipAddress: logData.ipAddress || undefined,
+      userAgent: logData.userAgent || undefined
     })
   }
 }

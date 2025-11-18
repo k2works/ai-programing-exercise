@@ -14,9 +14,9 @@ export class AuditLog {
   private readonly _userId: string
   private readonly _userName: string
   private readonly _timestamp: Date
-  private readonly _oldValues?: Record<string, any>
-  private readonly _newValues?: Record<string, any>
-  private readonly _changes?: Record<string, any>
+  private readonly _oldValues?: Record<string, unknown>
+  private readonly _newValues?: Record<string, unknown>
+  private readonly _changes?: Record<string, unknown>
   private readonly _reason?: string
   private readonly _ipAddress?: string
   private readonly _userAgent?: string
@@ -29,9 +29,9 @@ export class AuditLog {
     userId: string
     userName: string
     timestamp: Date
-    oldValues?: Record<string, any>
-    newValues?: Record<string, any>
-    changes?: Record<string, any>
+    oldValues?: Record<string, unknown>
+    newValues?: Record<string, unknown>
+    changes?: Record<string, unknown>
     reason?: string
     ipAddress?: string
     userAgent?: string
@@ -63,36 +63,66 @@ export class AuditLog {
     action: AuditAction
     userId: string
     userName: string
-    oldValues?: Record<string, any>
-    newValues?: Record<string, any>
-    changes?: Record<string, any>
+    oldValues?: Record<string, unknown>
+    newValues?: Record<string, unknown>
+    changes?: Record<string, unknown>
     reason?: string
     ipAddress?: string
     userAgent?: string
   }): AuditLog {
-    // バリデーション
-    if (!props.entityType || props.entityType.trim() === '') {
-      throw new Error('エンティティタイプは必須です')
-    }
-    if (!props.entityId || props.entityId.trim() === '') {
-      throw new Error('エンティティIDは必須です')
-    }
-    if (!props.userId || props.userId.trim() === '') {
-      throw new Error('ユーザーIDは必須です')
-    }
-    if (!props.userName || props.userName.trim() === '') {
-      throw new Error('ユーザー名は必須です')
-    }
-
-    // 削除操作の場合、理由が推奨される
-    if (props.action === AuditAction.DELETE && !props.reason) {
-      console.warn('削除操作には理由を記録することを推奨します')
-    }
+    this.validateRequiredFields(props)
+    this.validateDeletionReason(props.action, props.reason)
 
     return new AuditLog({
       ...props,
       timestamp: new Date()
     })
+  }
+
+  /**
+   * 必須フィールドのバリデーション
+   */
+  private static validateRequiredFields(props: {
+    entityType: string
+    entityId: string
+    userId: string
+    userName: string
+  }): void {
+    this.validateEntityFields(props.entityType, props.entityId)
+    this.validateUserFields(props.userId, props.userName)
+  }
+
+  /**
+   * エンティティフィールドのバリデーション
+   */
+  private static validateEntityFields(entityType: string, entityId: string): void {
+    if (!entityType || entityType.trim() === '') {
+      throw new Error('エンティティタイプは必須です')
+    }
+    if (!entityId || entityId.trim() === '') {
+      throw new Error('エンティティIDは必須です')
+    }
+  }
+
+  /**
+   * ユーザーフィールドのバリデーション
+   */
+  private static validateUserFields(userId: string, userName: string): void {
+    if (!userId || userId.trim() === '') {
+      throw new Error('ユーザーIDは必須です')
+    }
+    if (!userName || userName.trim() === '') {
+      throw new Error('ユーザー名は必須です')
+    }
+  }
+
+  /**
+   * 削除操作の理由バリデーション
+   */
+  private static validateDeletionReason(action: AuditAction, reason?: string): void {
+    if (action === AuditAction.DELETE && !reason) {
+      console.warn('削除操作には理由を記録することを推奨します')
+    }
   }
 
   /**
@@ -106,9 +136,9 @@ export class AuditLog {
     userId: string
     userName: string
     timestamp: Date
-    oldValues?: Record<string, any>
-    newValues?: Record<string, any>
-    changes?: Record<string, any>
+    oldValues?: Record<string, unknown>
+    newValues?: Record<string, unknown>
+    changes?: Record<string, unknown>
     reason?: string
     ipAddress?: string
     userAgent?: string
@@ -145,15 +175,15 @@ export class AuditLog {
     return new Date(this._timestamp)
   }
 
-  get oldValues(): Record<string, any> | undefined {
+  get oldValues(): Record<string, unknown> | undefined {
     return this._oldValues ? { ...this._oldValues } : undefined
   }
 
-  get newValues(): Record<string, any> | undefined {
+  get newValues(): Record<string, unknown> | undefined {
     return this._newValues ? { ...this._newValues } : undefined
   }
 
-  get changes(): Record<string, any> | undefined {
+  get changes(): Record<string, unknown> | undefined {
     return this._changes ? { ...this._changes } : undefined
   }
 

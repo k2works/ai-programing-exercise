@@ -10,6 +10,20 @@ export class FinancialAnalysisController {
   constructor(private readonly financialAnalysisUseCase: FinancialAnalysisUseCase) {}
 
   /**
+   * エラーハンドラー
+   */
+  private handleError(
+    error: unknown,
+    reply: { status: (code: number) => { send: (body: { error: string }) => void } }
+  ): void {
+    if (error instanceof Error) {
+      reply.status(400).send({ error: error.message })
+    } else {
+      reply.status(500).send({ error: '予期しないエラーが発生しました' })
+    }
+  }
+
+  /**
    * ルートを登録
    */
   async registerRoutes(fastify: FastifyInstance): Promise<void> {
@@ -39,10 +53,7 @@ export class FinancialAnalysisController {
           const result = await this.financialAnalysisUseCase.analyzeByFiscalYear(fiscalYear)
           return reply.send(result)
         } catch (error) {
-          if (error instanceof Error) {
-            return reply.status(400).send({ error: error.message })
-          }
-          return reply.status(500).send({ error: '予期しないエラーが発生しました' })
+          this.handleError(error, reply)
         }
       }
     )
@@ -79,10 +90,7 @@ export class FinancialAnalysisController {
           const result = await this.financialAnalysisUseCase.compareMultiplePeriods(years)
           return reply.send(result)
         } catch (error) {
-          if (error instanceof Error) {
-            return reply.status(400).send({ error: error.message })
-          }
-          return reply.status(500).send({ error: '予期しないエラーが発生しました' })
+          this.handleError(error, reply)
         }
       }
     )

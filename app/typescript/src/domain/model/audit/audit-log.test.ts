@@ -115,6 +115,7 @@ describe('監査ログ テーブル設計', () => {
 
       // 監査ログのプロパティは読み取り専用
       expect(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ;(auditLog as any).userId = 'user002'
       }).toThrow()
     })

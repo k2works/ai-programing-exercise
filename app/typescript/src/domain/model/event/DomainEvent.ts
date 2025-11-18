@@ -37,7 +37,7 @@ export class JournalCreatedEvent extends DomainEvent {
     public readonly journalId: number,
     public readonly journalDate: Date,
     public readonly description: string,
-    public readonly details: any[],
+    public readonly details: unknown[],
     public readonly userId: string,
     public readonly userName: string
   ) {
@@ -55,8 +55,8 @@ export class JournalCreatedEvent extends DomainEvent {
 export class AccountUpdatedEvent extends DomainEvent {
   constructor(
     public readonly accountCode: string,
-    public readonly oldValues: Record<string, any>,
-    public readonly newValues: Record<string, any>,
+    public readonly oldValues: Record<string, unknown>,
+    public readonly newValues: Record<string, unknown>,
     public readonly userId: string,
     public readonly userName: string
   ) {
@@ -74,7 +74,7 @@ export class AccountUpdatedEvent extends DomainEvent {
 export class JournalDeletedEvent extends DomainEvent {
   constructor(
     public readonly journalId: number,
-    public readonly journalData: Record<string, any>,
+    public readonly journalData: Record<string, unknown>,
     public readonly reason: string,
     public readonly userId: string,
     public readonly userName: string
