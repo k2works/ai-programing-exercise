@@ -7,6 +7,7 @@ import { PrismaClient } from '@prisma/client'
 import { accountRoutes } from './routes/account.routes'
 import { journalRoutes } from './routes/journal.routes'
 import { financialStatementRoutes } from './routes/financial-statement.routes'
+import { financialAnalysisRoutes } from './routes/financial-analysis.routes'
 import { setupAuditApi } from '../audit/adapter/web/setup'
 
 /**
@@ -43,6 +44,7 @@ export async function buildApp(options?: { prisma?: PrismaClient }): Promise<Fas
         { name: 'journals', description: '仕訳関連 API' },
         { name: 'balances', description: '残高関連 API' },
         { name: 'statements', description: '財務諸表関連 API' },
+        { name: 'financial-analysis', description: '財務分析関連 API' },
         { name: 'audit', description: '監査ログ関連 API' }
       ]
     }
@@ -84,6 +86,7 @@ export async function buildApp(options?: { prisma?: PrismaClient }): Promise<Fas
   await app.register(accountRoutes, options || {})
   await app.register(journalRoutes, options || {})
   await app.register(financialStatementRoutes, options || {})
+  await app.register(financialAnalysisRoutes, options || {})
 
   // 監査 API のセットアップ
   setupAuditApi(app, prisma)
