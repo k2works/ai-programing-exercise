@@ -23,8 +23,8 @@ export async function createServer() {
   await server.register(swagger, {
     openapi: {
       info: {
-        title: 'Bouquet Management System API',
-        description: 'API documentation for Bouquet Management System',
+        title: 'Bouquet API',
+        description: 'API documentation for Bouquet',
         version: '0.1.0',
       },
       servers: [

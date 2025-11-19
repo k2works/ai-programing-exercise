@@ -1,4 +1,4 @@
-# Bouquet Management System
+# Bouquet
 
 花束管理システムのモノレポプロジェクト
 
