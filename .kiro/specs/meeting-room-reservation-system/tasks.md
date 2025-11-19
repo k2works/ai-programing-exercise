@@ -134,22 +134,22 @@
     - UserPort.javaの作成
     - _要件: すべて_
 
-- [ ] 7. 永続化層の実装（出力アダプタ）
-  - [ ] 7.1 JPAエンティティの作成
+- [x] 7. 永続化層の実装（出力アダプタ）
+  - [x] 7.1 JPAエンティティの作成
     - UserEntity.javaの作成
     - MeetingRoomEntity.javaの作成
     - ReservableRoomEntity.javaの作成
     - ReservationEntity.javaの作成
     - _要件: すべて_
   
-  - [ ] 7.2 JPAリポジトリの作成
+  - [x] 7.2 JPAリポジトリの作成
     - UserJpaRepository.javaの作成
     - MeetingRoomJpaRepository.javaの作成
     - ReservableRoomJpaRepository.javaの作成（悲観的ロック含む）
     - ReservationJpaRepository.javaの作成
     - _要件: すべて_
   
-  - [ ] 7.3 永続化アダプタの実装
+  - [x] 7.3 永続化アダプタの実装
     - UserPersistenceAdapter.javaの作成
     - MeetingRoomPersistenceAdapter.javaの作成
     - ReservableRoomPersistenceAdapter.javaの作成
