@@ -26,7 +26,7 @@
   - Axiosクライアントの設定
   - _要件: 全体_
 
-- [ ] 4. 開発環境のDockerセットアップ
+- [x] 4. 開発環境のDockerセットアップ
   - docker-compose.ymlの作成（PostgreSQL、バックエンド、フロントエンド）
   - 環境変数管理（.env.example）
   - Testcontainersの設定

@@ -14,9 +14,30 @@ app/
 
 ## セットアップ
 
+### ローカル開発（Docker）
+
 ```bash
+# 環境変数ファイルをコピー
+cp .env.example .env
+
+# Dockerコンテナを起動
+docker-compose up -d
+
+# ログを確認
+docker-compose logs -f
+```
+
+### ローカル開発（Node.js直接）
+
+```bash
+# 環境変数ファイルをコピー
+cp .env.example .env
+
 # 依存関係のインストール
 npm install
+
+# PostgreSQLを起動（Dockerのみ）
+docker-compose up -d postgres
 
 # 開発サーバーの起動（バックエンド + フロントエンド）
 npm run dev
