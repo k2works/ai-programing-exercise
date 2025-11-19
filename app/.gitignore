@@ -5,6 +5,11 @@ node_modules/
 dist/
 build/
 *.tsbuildinfo
+*.js
+*.d.ts
+!*.config.js
+!*.config.ts
+!gulpfile.js
 
 # Environment variables
 .env
