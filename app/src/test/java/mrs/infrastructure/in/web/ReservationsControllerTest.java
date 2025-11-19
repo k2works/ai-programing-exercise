@@ -20,6 +20,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -64,6 +65,7 @@ class ReservationsControllerTest {
 
         mockMvc.perform(post("/reservations/{date}/{roomId}", date, roomId)
                 .with(user(userDetails))
+                .with(csrf())
                 .param("startTime", "09:00")
                 .param("endTime", "10:00"))
             .andExpect(status().is3xxRedirection())
@@ -83,7 +85,8 @@ class ReservationsControllerTest {
         when(reservationService.canCancel(any(Reservation.class), any(User.class))).thenReturn(true);
 
         mockMvc.perform(post("/reservations/{reservationId}", reservationId)
-                .with(user(userDetails)))
+                .with(user(userDetails))
+                .with(csrf()))
             .andExpect(status().is3xxRedirection())
             .andExpect(redirectedUrl("/reservations/" + date + "/" + roomId));
 
