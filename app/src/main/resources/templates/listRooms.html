@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>会議室一覧 - 会議室予約システム</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <h1>会議室予約システム</h1>
+        
+        <div class="user-info">
+            <span sec:authentication="name">ユーザー</span>さん
+            <form th:action="@{/logout}" method="post" style="display: inline;">
+                <button type="submit">ログアウト</button>
+            </form>
+        </div>
+        
+        <h2>会議室一覧</h2>
+        
+        <div class="date-nav">
+            <a th:href="@{/rooms/{date}(date=${#temporals.format(date.minusDays(1), 'yyyy-MM-dd')})}">前日</a>
+            <span th:text="${#temporals.format(date, 'yyyy年MM月dd日')}">日付</span>
+            <a th:href="@{/rooms/{date}(date=${#temporals.format(date.plusDays(1), 'yyyy-MM-dd')})}">翌日</a>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>会議室名</th>
+                    <th>予約</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="room : ${rooms}">
+                    <td th:text="${room.meetingRoom().roomName().value()}">会議室名</td>
+                    <td>
+                        <a th:href="@{/reservations/{date}/{roomId}(date=${date},roomId=${room.reservableRoomId().roomId().value()})}">
+                            予約
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
