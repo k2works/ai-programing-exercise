@@ -121,13 +121,13 @@
     - ReservableRoomList.javaの作成
     - _要件: 2.2_
 
-- [ ] 6. ポートインターフェースの定義
-  - [ ] 6.1 入力ポート（ユースケース）の定義
+- [x] 6. ポートインターフェースの定義
+  - [x] 6.1 入力ポート（ユースケース）の定義
     - ReservationUseCase.javaの作成
     - RoomUseCase.javaの作成
     - _要件: すべて_
   
-  - [ ] 6.2 出力ポート（リポジトリ）の定義
+  - [x] 6.2 出力ポート（リポジトリ）の定義
     - ReservationPort.javaの作成
     - ReservableRoomPort.javaの作成
     - MeetingRoomPort.javaの作成
