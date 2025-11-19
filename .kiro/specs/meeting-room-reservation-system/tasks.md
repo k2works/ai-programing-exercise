@@ -187,8 +187,8 @@
     - **プロパティ2: 無効な認証情報での認証拒否**
     - **検証: 要件 1.1, 1.2**
 
-- [ ] 9. アプリケーションサービスの実装
-  - [ ] 9.1 ReservationServiceの実装
+- [x] 9. アプリケーションサービスの実装
+  - [x] 9.1 ReservationServiceの実装
     - ReservationService.javaの作成
     - reserve()メソッドの実装（悲観的ロック、重複チェック）
     - cancel()メソッドの実装（権限チェック）
@@ -207,7 +207,7 @@
     - **プロパティ25: 競合時のトランザクションロールバック**
     - **検証: 要件 3.1, 3.2, 3.3, 3.6, 5.1, 5.2, 5.3, 10.3**
   
-  - [ ] 9.3 RoomServiceの実装
+  - [x] 9.3 RoomServiceの実装
     - RoomService.javaの作成
     - findReservableRooms()メソッドの実装
     - findMeetingRoom()メソッドの実装
