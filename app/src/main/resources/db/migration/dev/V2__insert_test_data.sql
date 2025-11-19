@@ -1,9 +1,9 @@
 -- テストユーザーの追加
 -- パスワードは "password" をBCryptでハッシュ化したもの
 INSERT INTO usr (user_id, first_name, last_name, password, role_name) VALUES
-('admin', '管理者', '太郎', '$2a$10$oxSJl.keBwxmsMLkcT9lPeAIxfNTPNQxpeywMrF7A3kVszwUTqfTK', 'ADMIN'),
-('user1', '一般', '花子', '$2a$10$oxSJl.keBwxmsMLkcT9lPeAIxfNTPNQxpeywMrF7A3kVszwUTqfTK', 'USER'),
-('user2', '一般', '次郎', '$2a$10$oxSJl.keBwxmsMLkcT9lPeAIxfNTPNQxpeywMrF7A3kVszwUTqfTK', 'USER');
+('admin', '管理者', '太郎', '$2a$10$mkAqkcb22hTz3bNjjGxkiOj3aRtk1FzaEamf.SlUwApbr/VYQLAKK', 'ADMIN'),
+('user1', '一般', '花子', '$2a$10$mkAqkcb22hTz3bNjjGxkiOj3aRtk1FzaEamf.SlUwApbr/VYQLAKK', 'USER'),
+('user2', '一般', '次郎', '$2a$10$mkAqkcb22hTz3bNjjGxkiOj3aRtk1FzaEamf.SlUwApbr/VYQLAKK', 'USER');
 
 -- 会議室の追加
 INSERT INTO meeting_room (room_name) VALUES
