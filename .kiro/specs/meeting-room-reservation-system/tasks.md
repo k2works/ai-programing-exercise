@@ -23,8 +23,8 @@
   - データベース接続の確認
   - _要件: すべて_
 
-- [ ] 3. ドメインモデルの実装（認証ドメイン）
-  - [ ] 3.1 UserId値オブジェクトの実装
+- [x] 3. ドメインモデルの実装（認証ドメイン）
+  - [x] 3.1 UserId値オブジェクトの実装
     - UserId.javaの作成
     - バリデーションロジックの実装
     - _要件: 1.1, 1.2_
@@ -33,7 +33,7 @@
     - **プロパティ1: 有効な認証情報での認証成功**
     - **検証: 要件 1.1**
   
-  - [ ] 3.3 Password値オブジェクトの実装
+  - [x] 3.3 Password値オブジェクトの実装
     - Password.javaの作成
     - BCrypt暗号化判定メソッドの実装
     - _要件: 8.2_
@@ -42,52 +42,52 @@
     - **プロパティ19: パスワードのBCrypt暗号化**
     - **検証: 要件 8.2**
   
-  - [ ] 3.5 Name値オブジェクトの実装
+  - [x] 3.5 Name値オブジェクトの実装
     - Name.javaの作成
     - フルネーム取得メソッドの実装
     - _要件: 1.1_
   
-  - [ ] 3.6 RoleName列挙型の実装
+  - [x] 3.6 RoleName列挙型の実装
     - RoleName.javaの作成（ADMIN, USER）
     - _要件: 6.1_
   
-  - [ ] 3.7 Userエンティティの実装
+  - [x] 3.7 Userエンティティの実装
     - User.javaの作成
     - isAdmin()メソッドの実装
     - _要件: 1.1, 6.1_
   
-  - [ ]* 3.8 Userエンティティの単体テストを作成
+  - [x] 3.8 Userエンティティの単体テストを作成
     - ユーザー作成のテスト
     - 管理者判定のテスト
     - _要件: 1.1, 6.1_
 
-- [ ] 4. ドメインモデルの実装（会議室ドメイン）
-  - [ ] 4.1 RoomId値オブジェクトの実装
+- [x] 4. ドメインモデルの実装（会議室ドメイン）
+  - [x] 4.1 RoomId値オブジェクトの実装
     - RoomId.javaの作成
     - _要件: 2.1, 2.2_
   
-  - [ ] 4.2 RoomName値オブジェクトの実装
+  - [x] 4.2 RoomName値オブジェクトの実装
     - RoomName.javaの作成
     - _要件: 2.1, 2.2_
   
-  - [ ] 4.3 MeetingRoomエンティティの実装
+  - [x] 4.3 MeetingRoomエンティティの実装
     - MeetingRoom.javaの作成
     - _要件: 2.1, 2.2_
   
-  - [ ]* 4.4 会議室ドメインの単体テストを作成
+  - [x] 4.4 会議室ドメインの単体テストを作成
     - 会議室作成のテスト
     - _要件: 2.1, 2.2_
 
-- [ ] 5. ドメインモデルの実装（予約ドメイン）
-  - [ ] 5.1 ReservationId値オブジェクトの実装
+- [x] 5. ドメインモデルの実装（予約ドメイン）
+  - [x] 5.1 ReservationId値オブジェクトの実装
     - ReservationId.javaの作成
     - _要件: 3.1_
   
-  - [ ] 5.2 ReservedDate値オブジェクトの実装
+  - [x] 5.2 ReservedDate値オブジェクトの実装
     - ReservedDate.javaの作成
     - _要件: 3.1_
   
-  - [ ] 5.3 ReservationTimeSlot値オブジェクトの実装
+  - [x] 5.3 ReservationTimeSlot値オブジェクトの実装
     - ReservationTimeSlot.javaの作成
     - overlap()メソッドの実装（時間帯重複判定）
     - _要件: 3.2, 10.4_
@@ -96,15 +96,15 @@
     - **プロパティ26: 時間枠重複検出アルゴリズム**
     - **検証: 要件 10.4**
   
-  - [ ] 5.5 ReservableRoomId値オブジェクトの実装
+  - [x] 5.5 ReservableRoomId値オブジェクトの実装
     - ReservableRoomId.javaの作成
     - _要件: 3.1_
   
-  - [ ] 5.6 ReservableRoomエンティティの実装
+  - [x] 5.6 ReservableRoomエンティティの実装
     - ReservableRoom.javaの作成
     - _要件: 3.1_
   
-  - [ ] 5.7 Reservationエンティティの実装
+  - [x] 5.7 Reservationエンティティの実装
     - Reservation.javaの作成
     - overlap()メソッドの実装（予約重複判定）
     - _要件: 3.1, 3.2_
@@ -113,11 +113,11 @@
     - **プロパティ7: 予約重複の検出と拒否**
     - **検証: 要件 3.2**
   
-  - [ ] 5.9 ReservationListコレクションの実装
+  - [x] 5.9 ReservationListコレクションの実装
     - ReservationList.javaの作成
     - _要件: 4.1, 4.2_
   
-  - [ ] 5.10 ReservableRoomListコレクションの実装
+  - [x] 5.10 ReservableRoomListコレクションの実装
     - ReservableRoomList.javaの作成
     - _要件: 2.2_
 
