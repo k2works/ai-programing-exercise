@@ -218,22 +218,22 @@
     - **プロパティ5: 会議室一覧のソート順**
     - **検証: 要件 2.2, 2.5**
 
-- [ ] 10. カスタムバリデーションの実装
-  - [ ] 10.1 @ThirtyMinutesUnitアノテーションとバリデータの実装
+- [x] 10. カスタムバリデーションの実装
+  - [x] 10.1 @ThirtyMinutesUnitアノテーションとバリデータの実装
     - ThirtyMinutesUnit.javaの作成
     - ThirtyMinutesUnitValidator.javaの作成
     - _要件: 3.5, 9.3_
   
-  - [ ]* 10.2 @ThirtyMinutesUnitのプロパティテストを作成
+  - [x] 10.2 @ThirtyMinutesUnitのプロパティテストを作成
     - **プロパティ9: 30分単位時刻の検証**
     - **検証: 要件 3.5, 9.3**
   
-  - [ ] 10.3 @EndTimeMustBeAfterStartTimeアノテーションとバリデータの実装
+  - [x] 10.3 @EndTimeMustBeAfterStartTimeアノテーションとバリデータの実装
     - EndTimeMustBeAfterStartTime.javaの作成
     - EndTimeMustBeAfterStartTimeValidator.javaの作成
     - _要件: 3.4, 9.4_
   
-  - [ ]* 10.4 @EndTimeMustBeAfterStartTimeのプロパティテストを作成
+  - [x] 10.4 @EndTimeMustBeAfterStartTimeのプロパティテストを作成
     - **プロパティ23: 終了時刻の検証**
     - **検証: 要件 9.4**
 
