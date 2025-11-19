@@ -54,8 +54,9 @@ public class ReservationPersistenceAdapter implements ReservationPort {
     }
 
     private ReservationEntity toEntity(Reservation reservation) {
+        Integer id = reservation.reservationId() != null ? reservation.reservationId().value() : null;
         return new ReservationEntity(
-            reservation.reservationId().value(),
+            id,
             reservation.timeSlot().startTime(),
             reservation.timeSlot().endTime(),
             reservation.reservableRoomId().reservedDate(),
