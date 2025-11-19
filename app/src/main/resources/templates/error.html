@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>エラー - 会議室予約システム</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <h1>会議室予約システム</h1>
+        <h2>エラー</h2>
+        
+        <div class="error" th:text="${error}">エラーメッセージ</div>
+        
+        <p>
+            <a th:href="@{/rooms}">会議室一覧に戻る</a>
+        </p>
+    </div>
+</body>
+</html>
