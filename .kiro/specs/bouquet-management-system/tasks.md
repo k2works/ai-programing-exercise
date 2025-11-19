@@ -18,7 +18,7 @@
   - OpenAPI/Swagger UIの設定
   - _要件: 全体_
 
-- [ ] 3. フロントエンド基盤のセットアップ
+- [x] 3. フロントエンド基盤のセットアップ
   - Vite + Reactプロジェクトの初期化
   - React Router v6のセットアップ
   - Material-UI/Tailwind CSSの設定
