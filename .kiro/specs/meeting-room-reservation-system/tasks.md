@@ -162,8 +162,8 @@
     - 悲観的ロックの動作確認
     - _要件: 3.6, 10.1_
 
-- [ ] 8. Spring Security設定の実装
-  - [ ] 8.1 WebSecurityConfigの作成
+- [x] 8. Spring Security設定の実装
+  - [x] 8.1 WebSecurityConfigの作成
     - セキュリティフィルターチェーンの設定
     - パスワードエンコーダーの設定
     - フォームログインの設定
@@ -174,15 +174,15 @@
     - **プロパティ20: 保護リソースへのアクセス制御**
     - **検証: 要件 8.1, 8.3**
   
-  - [ ] 8.3 AuthUserDetailsの実装
+  - [x] 8.3 AuthUserDetailsの実装
     - AuthUserDetails.javaの作成（UserDetails実装）
     - _要件: 1.1_
   
-  - [ ] 8.4 AuthUserDetailsServiceの実装
+  - [x] 8.4 AuthUserDetailsServiceの実装
     - AuthUserDetailsService.javaの作成（UserDetailsService実装）
     - _要件: 1.1, 1.2_
   
-  - [ ]* 8.5 AuthUserDetailsServiceのテストを作成
+  - [x] 8.5 AuthUserDetailsServiceのテストを作成
     - **プロパティ1: 有効な認証情報での認証成功**
     - **プロパティ2: 無効な認証情報での認証拒否**
     - **検証: 要件 1.1, 1.2**
