@@ -10,7 +10,7 @@ describe('App', () => {
         <App />
       </BrowserRouter>
     );
-    
+
     expect(screen.getByText('Bouquet Management System')).toBeDefined();
   });
 });

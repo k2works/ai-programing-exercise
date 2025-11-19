@@ -14,7 +14,7 @@ export async function startPostgresContainer() {
 
   const host = container.getHost();
   const port = container.getMappedPort(5432);
-  
+
   return {
     url: `postgresql://test:test@${host}:${port}/test_db`,
     container,

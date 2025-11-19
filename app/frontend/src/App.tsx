@@ -7,9 +7,7 @@ function Home() {
       <Typography variant="h3" component="h1" gutterBottom>
         Bouquet Management System
       </Typography>
-      <Typography variant="body1">
-        フロントエンド基盤のセットアップが完了しました。
-      </Typography>
+      <Typography variant="body1">フロントエンド基盤のセットアップが完了しました。</Typography>
     </Box>
   );
 }

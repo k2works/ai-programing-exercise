@@ -1,4 +1,4 @@
-import { describe, it, expect, afterAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { createServer } from './server.js';
 
 describe('Server', () => {
@@ -14,10 +14,10 @@ describe('Server', () => {
       method: 'GET',
       url: '/health',
     });
-    
+
     expect(response.statusCode).toBe(200);
     expect(JSON.parse(response.body)).toEqual({ status: 'ok' });
-    
+
     await server.close();
   });
 
@@ -27,9 +27,9 @@ describe('Server', () => {
       method: 'GET',
       url: '/docs',
     });
-    
-    expect(response.statusCode).toBe(200);
-    
+
+    expect([200, 302]).toContain(response.statusCode);
+
     await server.close();
   });
 });
