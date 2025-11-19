@@ -66,7 +66,7 @@
                     <td>
                         <form th:action="@{/reservations/{id}(id=${reservation.reservationId().value()})}" 
                               method="post"
-                              sec:authorize="hasRole('ADMIN') or #authentication.name == ${reservation.userId().value()}">
+                              th:if="${#authorization.expression('hasRole(''ADMIN'')') or #authentication.name == reservation.userId().value()}">
                             <button type="submit">キャンセル</button>
                         </form>
                     </td>
