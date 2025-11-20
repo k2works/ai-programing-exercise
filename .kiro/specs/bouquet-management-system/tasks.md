@@ -470,7 +470,7 @@
   - **Property 21: 30日より古い注文は返品不可**
   - **検証: 要件 17.4**
 
-- [ ] 52. 出荷管理APIエンドポイントの実装
+- [x] 52. 出荷管理APIエンドポイントの実装
   - GET /api/shipments/picking-list
   - POST /api/shipments/:id/confirm-picking
   - POST /api/shipments
