@@ -102,7 +102,7 @@
   - Prismaとの統合
   - _要件: 2.1, 2.2, 2.5_
 
-- [ ] 12. ユーザー管理サービスの実装
+- [x] 12. ユーザー管理サービスの実装
   - ユーザー登録（registerUser）
   - ユーザー更新（updateUser）
   - ユーザー無効化/再有効化（deactivate/reactivate）
