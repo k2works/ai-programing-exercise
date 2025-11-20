@@ -16,12 +16,22 @@ export async function authRoutes(fastify: FastifyInstance) {
   // Login
   fastify.post('/login', {
     schema: {
+      description: 'User login',
+      tags: ['auth'],
       body: {
         type: 'object',
         required: ['userId', 'password'],
         properties: {
-          userId: { type: 'string' },
-          password: { type: 'string' },
+          userId: { 
+            type: 'string',
+            description: 'User ID (e.g., admin-001)',
+            example: 'admin-001'
+          },
+          password: { 
+            type: 'string',
+            description: 'User password',
+            example: 'admin123'
+          },
         },
       },
       response: {
