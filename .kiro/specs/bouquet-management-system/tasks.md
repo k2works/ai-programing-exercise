@@ -127,7 +127,7 @@
 
 ## 商品管理コンテキスト
 
-- [ ] 14. 商品集約の実装
+- [x] 14. 商品集約の実装
   - Productエンティティ
   - ProductCompositionエンティティ
   - 販売状態管理（canOrder, stopSales, resumeSales, endSales）
