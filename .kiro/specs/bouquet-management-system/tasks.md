@@ -266,26 +266,26 @@
 
 ## 在庫管理コンテキスト
 
-- [ ] 29. 仕入先集約の実装
+- [x] 29. 仕入先集約の実装
   - Supplierエンティティ
   - 取引状態管理（activate/deactivate）
   - create/reconstructファクトリメソッド
   - _要件: 19.1, 19.2, 19.3, 19.4, 19.5_
 
-- [ ] 30. 仕入先リポジトリの実装
+- [x] 30. 仕入先リポジトリの実装
   - ISupplierRepositoryインターフェース
   - PrismaSupplierRepository実装
   - findById, findByCode, save
   - _要件: 19.1, 19.2_
 
-- [ ] 31. 単品集約の実装
+- [x] 31. 単品集約の実装
   - Itemエンティティ
   - 有効期限チェック（isExpired）
   - 最小発注日計算（getMinimumOrderDate）
   - create/reconstructファクトリメソッド
   - _要件: 10.1, 10.3, 10.5, 11.3_
 
-- [ ] 32. 単品リポジトリの実装
+- [x] 32. 単品リポジトリの実装
   - IItemRepositoryインターフェース
   - PrismaItemRepository実装
   - findById, findByCode, save
