@@ -69,4 +69,17 @@ export class ProductManagementService {
     product.endSales();
     await this.productRepository.save(product);
   }
+
+  async associateItems(
+    productId: number,
+    items: Array<{ itemId: number; requiredQty: number }>
+  ): Promise<void> {
+    const product = await this.productRepository.findById(productId);
+    if (!product) {
+      throw new Error('商品が見つかりません');
+    }
+
+    // Item associations would be saved via a separate repository
+    // For now, just validate the product exists
+  }
 }

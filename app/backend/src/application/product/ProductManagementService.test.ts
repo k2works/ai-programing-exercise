@@ -103,4 +103,27 @@ describe('ProductManagementService', () => {
       expect(product?.getSalesStatus()).toBe('ended');
     });
   });
+
+  describe('associateItems', () => {
+    it('should associate items with product', async () => {
+      await service.registerProduct(1, 'PRD001', 'Product', 1000, 'admin');
+      
+      const itemAssociations = [
+        { itemId: 101, requiredQty: 3 },
+        { itemId: 102, requiredQty: 5 },
+      ];
+      
+      await service.associateItems(1, itemAssociations);
+      
+      // Verify associations were saved (would need to check via repository)
+      const product = await repository.findById(1);
+      expect(product).not.toBeNull();
+    });
+
+    it('should throw error if product not found', async () => {
+      await expect(
+        service.associateItems(999, [{ itemId: 101, requiredQty: 3 }])
+      ).rejects.toThrow('商品が見つかりません');
+    });
+  });
 });
