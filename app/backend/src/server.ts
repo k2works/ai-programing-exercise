@@ -13,6 +13,7 @@ import { itemRoutes } from './api/routes/items';
 import { receivedOrderRoutes } from './api/routes/receivedOrders';
 import { inventoryRoutes } from './api/routes/inventory';
 import { procurementRoutes } from './api/routes/procurement';
+import { shipmentRoutes } from './api/routes/shipments';
 
 export async function createServer(prismaClient?: PrismaClient) {
   const server = Fastify({
@@ -98,6 +99,9 @@ export async function createServer(prismaClient?: PrismaClient) {
 
   // Procurement routes
   await server.register(procurementRoutes);
+
+  // Shipment routes
+  await server.register(shipmentRoutes, { prefix: '/api/shipments' });
 
   return server;
 }

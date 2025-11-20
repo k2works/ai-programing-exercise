@@ -20,7 +20,14 @@ import type {
 } from '@tanstack/react-query'
 import type {
   GetApiAuthMe200,
+  GetApiShipmentsPickingList200,
+  GetApiShipmentsPickingListParams,
   PostApiAuthLogout200,
+  PostApiShipments201,
+  PostApiShipmentsBody,
+  PostApiShipmentsIdConfirmPicking200,
+  PostApiShipmentsReturns201,
+  PostApiShipmentsReturnsBody,
   PostApiUsersBody,
   PutApiUsersIdBody
 } from '.././model'
@@ -434,6 +441,213 @@ const {mutation: mutationOptions} = options ?? {};
       > => {
 
       const mutationOptions = getPatchApiUsersIdReactivateMutationOptions(options);
+
+      return useMutation(mutationOptions);
+    }
+    export const getApiShipmentsPickingList = (
+    params: GetApiShipmentsPickingListParams,
+ signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<GetApiShipmentsPickingList200>(
+      {url: `/api/shipments/picking-list`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+  
+
+export const getGetApiShipmentsPickingListQueryKey = (params: GetApiShipmentsPickingListParams,) => {
+    return [`/api/shipments/picking-list`, ...(params ? [params]: [])] as const;
+    }
+
+    
+export const getGetApiShipmentsPickingListQueryOptions = <TData = Awaited<ReturnType<typeof getApiShipmentsPickingList>>, TError = unknown>(params: GetApiShipmentsPickingListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiShipmentsPickingList>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiShipmentsPickingListQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiShipmentsPickingList>>> = ({ signal }) => getApiShipmentsPickingList(params, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiShipmentsPickingList>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetApiShipmentsPickingListQueryResult = NonNullable<Awaited<ReturnType<typeof getApiShipmentsPickingList>>>
+export type GetApiShipmentsPickingListQueryError = unknown
+
+export const useGetApiShipmentsPickingList = <TData = Awaited<ReturnType<typeof getApiShipmentsPickingList>>, TError = unknown>(
+ params: GetApiShipmentsPickingListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiShipmentsPickingList>>, TError, TData>>, }
+
+  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+
+  const queryOptions = getGetApiShipmentsPickingListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+export const postApiShipmentsIdConfirmPicking = (
+    id: number,
+ ) => {
+      
+      
+      return customInstance<PostApiShipmentsIdConfirmPicking200>(
+      {url: `/api/shipments/${id}/confirm-picking`, method: 'POST'
+    },
+      );
+    }
+  
+
+
+export const getPostApiShipmentsIdConfirmPickingMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiShipmentsIdConfirmPicking>>, TError,{id: number}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postApiShipmentsIdConfirmPicking>>, TError,{id: number}, TContext> => {
+const {mutation: mutationOptions} = options ?? {};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiShipmentsIdConfirmPicking>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  postApiShipmentsIdConfirmPicking(id,)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiShipmentsIdConfirmPickingMutationResult = NonNullable<Awaited<ReturnType<typeof postApiShipmentsIdConfirmPicking>>>
+    
+    export type PostApiShipmentsIdConfirmPickingMutationError = unknown
+
+    export const usePostApiShipmentsIdConfirmPicking = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiShipmentsIdConfirmPicking>>, TError,{id: number}, TContext>, }
+): UseMutationResult<
+        Awaited<ReturnType<typeof postApiShipmentsIdConfirmPicking>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+
+      const mutationOptions = getPostApiShipmentsIdConfirmPickingMutationOptions(options);
+
+      return useMutation(mutationOptions);
+    }
+    export const postApiShipments = (
+    postApiShipmentsBody: PostApiShipmentsBody,
+ ) => {
+      
+      
+      return customInstance<PostApiShipments201>(
+      {url: `/api/shipments/`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: postApiShipmentsBody
+    },
+      );
+    }
+  
+
+
+export const getPostApiShipmentsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiShipments>>, TError,{data: PostApiShipmentsBody}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postApiShipments>>, TError,{data: PostApiShipmentsBody}, TContext> => {
+const {mutation: mutationOptions} = options ?? {};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiShipments>>, {data: PostApiShipmentsBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postApiShipments(data,)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiShipmentsMutationResult = NonNullable<Awaited<ReturnType<typeof postApiShipments>>>
+    export type PostApiShipmentsMutationBody = PostApiShipmentsBody
+    export type PostApiShipmentsMutationError = unknown
+
+    export const usePostApiShipments = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiShipments>>, TError,{data: PostApiShipmentsBody}, TContext>, }
+): UseMutationResult<
+        Awaited<ReturnType<typeof postApiShipments>>,
+        TError,
+        {data: PostApiShipmentsBody},
+        TContext
+      > => {
+
+      const mutationOptions = getPostApiShipmentsMutationOptions(options);
+
+      return useMutation(mutationOptions);
+    }
+    export const postApiShipmentsReturns = (
+    postApiShipmentsReturnsBody: PostApiShipmentsReturnsBody,
+ ) => {
+      
+      
+      return customInstance<PostApiShipmentsReturns201>(
+      {url: `/api/shipments/returns`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: postApiShipmentsReturnsBody
+    },
+      );
+    }
+  
+
+
+export const getPostApiShipmentsReturnsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiShipmentsReturns>>, TError,{data: PostApiShipmentsReturnsBody}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postApiShipmentsReturns>>, TError,{data: PostApiShipmentsReturnsBody}, TContext> => {
+const {mutation: mutationOptions} = options ?? {};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiShipmentsReturns>>, {data: PostApiShipmentsReturnsBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postApiShipmentsReturns(data,)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiShipmentsReturnsMutationResult = NonNullable<Awaited<ReturnType<typeof postApiShipmentsReturns>>>
+    export type PostApiShipmentsReturnsMutationBody = PostApiShipmentsReturnsBody
+    export type PostApiShipmentsReturnsMutationError = unknown
+
+    export const usePostApiShipmentsReturns = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiShipmentsReturns>>, TError,{data: PostApiShipmentsReturnsBody}, TContext>, }
+): UseMutationResult<
+        Awaited<ReturnType<typeof postApiShipmentsReturns>>,
+        TError,
+        {data: PostApiShipmentsReturnsBody},
+        TContext
+      > => {
+
+      const mutationOptions = getPostApiShipmentsReturnsMutationOptions(options);
 
       return useMutation(mutationOptions);
     }
