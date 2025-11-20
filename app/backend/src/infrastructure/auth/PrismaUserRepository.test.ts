@@ -1,25 +1,22 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { PrismaClient } from '@prisma/client';
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { PrismaUserRepository } from './PrismaUserRepository';
 import { User } from '../../domain/auth/User';
-
-const prisma = new PrismaClient();
-const repository = new PrismaUserRepository(prisma);
+import { setupTestDatabase, teardownTestDatabase, getPrismaClient } from '../../test/prisma-test-helper';
 
 describe('PrismaUserRepository', () => {
-  beforeEach(async () => {
-    // Clean up test data
-    await prisma.user.deleteMany({
-      where: {
-        id: {
-          startsWith: 'test-',
-        },
-      },
-    });
+  let repository: PrismaUserRepository;
+
+  beforeAll(async () => {
+    const prisma = await setupTestDatabase();
+    repository = new PrismaUserRepository(prisma);
+  }, 60000);
+
+  afterAll(async () => {
+    await teardownTestDatabase();
   });
 
-  afterEach(async () => {
-    // Clean up test data
+  beforeEach(async () => {
+    const prisma = getPrismaClient();
     await prisma.user.deleteMany({
       where: {
         id: {
@@ -31,6 +28,7 @@ describe('PrismaUserRepository', () => {
 
   describe('save and findById', () => {
     it('should save and retrieve user', async () => {
+      const prisma = getPrismaClient();
       const user = await User.createWithHashedPassword(
         'test-user-001',
         'Taro',
@@ -41,7 +39,6 @@ describe('PrismaUserRepository', () => {
         'system'
       );
 
-      // Save user with password
       await prisma.user.create({
         data: {
           id: user.getId(),
@@ -70,6 +67,7 @@ describe('PrismaUserRepository', () => {
 
   describe('delete', () => {
     it('should delete user', async () => {
+      const prisma = getPrismaClient();
       await prisma.user.create({
         data: {
           id: 'test-user-002',

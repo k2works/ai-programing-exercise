@@ -1,20 +1,24 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { PrismaClient } from '@prisma/client';
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { UserManagementService } from './UserManagementService';
 import { PrismaUserRepository } from '../../infrastructure/auth/PrismaUserRepository';
-
-const prisma = new PrismaClient();
-const repository = new PrismaUserRepository(prisma);
-const service = new UserManagementService(repository);
+import { setupTestDatabase, teardownTestDatabase, getPrismaClient } from '../../test/prisma-test-helper';
 
 describe('UserManagementService', () => {
-  beforeEach(async () => {
-    await prisma.user.deleteMany({
-      where: { id: { startsWith: 'test-' } },
-    });
+  let service: UserManagementService;
+  let repository: PrismaUserRepository;
+
+  beforeAll(async () => {
+    const prisma = await setupTestDatabase();
+    repository = new PrismaUserRepository(prisma);
+    service = new UserManagementService(repository);
+  }, 60000);
+
+  afterAll(async () => {
+    await teardownTestDatabase();
   });
 
-  afterEach(async () => {
+  beforeEach(async () => {
+    const prisma = getPrismaClient();
     await prisma.user.deleteMany({
       where: { id: { startsWith: 'test-' } },
     });
