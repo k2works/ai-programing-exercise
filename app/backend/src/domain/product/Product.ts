@@ -96,6 +96,14 @@ export class Product {
     return this.salesStatus;
   }
 
+  getCreatedBy(): string {
+    return this.createdBy;
+  }
+
+  getCreatedAt(): Date {
+    return this.createdAt;
+  }
+
   toJSON() {
     return {
       id: this.id,
