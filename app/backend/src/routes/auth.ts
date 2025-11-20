@@ -2,7 +2,6 @@ import { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { AuthService } from '../application/auth/AuthService';
 import { PrismaUserRepository } from '../infrastructure/auth/PrismaUserRepository';
-import { prisma } from '../lib/prisma';
 
 const loginSchema = z.object({
   userId: z.string(),
@@ -11,7 +10,7 @@ const loginSchema = z.object({
 
 export async function authRoutes(fastify: FastifyInstance) {
   const authService = new AuthService(process.env.JWT_SECRET || 'your-secret-key-change-in-production');
-  const userRepository = new PrismaUserRepository(prisma);
+  const userRepository = new PrismaUserRepository((fastify as any).prisma);
 
   // Login
   fastify.post('/login', {

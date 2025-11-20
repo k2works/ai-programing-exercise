@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { GenericContainer, StartedTestContainer } from 'testcontainers';
 import { execSync } from 'child_process';
+import bcrypt from 'bcrypt';
 
 let container: StartedTestContainer;
 let prisma: PrismaClient;
@@ -32,6 +33,20 @@ export async function setupTestDatabase() {
   // Run migrations
   execSync('npx prisma migrate deploy', {
     env: { ...process.env, DATABASE_URL: databaseUrl },
+  });
+
+  // Create test user
+  const hashedPassword = await bcrypt.hash('admin123', 10);
+  await prisma.user.create({
+    data: {
+      id: 'admin-001',
+      firstName: 'Admin',
+      lastName: 'User',
+      password: hashedPassword,
+      roleName: 'admin',
+      userType: 'staff',
+      createdBy: 'system',
+    },
   });
 
   return prisma;

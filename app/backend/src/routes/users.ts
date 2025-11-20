@@ -2,7 +2,6 @@ import { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { UserManagementService } from '../application/user/UserManagementService';
 import { PrismaUserRepository } from '../infrastructure/auth/PrismaUserRepository';
-import { prisma } from '../lib/prisma';
 
 const createUserSchema = z.object({
   id: z.string(),
@@ -19,7 +18,7 @@ const updateUserSchema = z.object({
 });
 
 export async function userRoutes(fastify: FastifyInstance) {
-  const userRepository = new PrismaUserRepository(prisma);
+  const userRepository = new PrismaUserRepository((fastify as any).prisma);
   const userService = new UserManagementService(userRepository);
 
   // Create user
