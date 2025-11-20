@@ -291,7 +291,7 @@
   - findById, findByCode, save
   - _要件: 10.1, 10.2_
 
-- [ ] 33. 在庫ロット集約の実装
+- [x] 33. 在庫ロット集約の実装
   - InventoryLotエンティティ
   - 利用可能数量計算（getAvailableQuantity）
   - 在庫引当（allocate）
@@ -306,7 +306,7 @@
   - **Property 14: 有効期限切れロットは利用不可**
   - **検証: 要件 11.3**
 
-- [ ] 34. 在庫リポジトリの実装
+- [x] 34. 在庫リポジトリの実装
   - IInventoryRepositoryインターフェース
   - PrismaInventoryRepository実装
   - findByItemId, findAvailableLots, save
