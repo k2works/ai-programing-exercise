@@ -3,14 +3,21 @@ import cors from '@fastify/cors';
 import jwt from '@fastify/jwt';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
+import { PrismaClient } from '@prisma/client';
 import { authenticate } from './plugins/auth';
 import { authRoutes } from './routes/auth';
 import { userRoutes } from './routes/users';
+import { productRoutes } from './api/routes/products';
+
+const prisma = new PrismaClient();
 
 export async function createServer() {
   const server = Fastify({
     logger: true,
   });
+
+  // Register Prisma
+  server.decorate('prisma', prisma);
 
   // CORS
   await server.register(cors, {
@@ -70,5 +77,10 @@ export async function createServer() {
   // User routes
   await server.register(userRoutes, { prefix: '/api/users' });
 
+  // Product routes
+  await server.register(productRoutes);
+
   return server;
 }
+
+export const buildServer = createServer;
