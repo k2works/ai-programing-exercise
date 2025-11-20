@@ -10,7 +10,7 @@ const loginSchema = z.object({
 });
 
 export async function authRoutes(fastify: FastifyInstance) {
-  const authService = new AuthService(process.env.JWT_SECRET || 'secret');
+  const authService = new AuthService(process.env.JWT_SECRET || 'your-secret-key-change-in-production');
   const userRepository = new PrismaUserRepository(prisma);
 
   // Login
