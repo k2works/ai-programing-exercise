@@ -25,6 +25,7 @@ export async function productRoutes(server: FastifyInstance) {
       onRequest: [server.authenticate],
       schema: {
         tags: ['products'],
+        security: [{ bearerAuth: [] }],
       },
     },
     async (request, reply) => {
@@ -42,6 +43,7 @@ export async function productRoutes(server: FastifyInstance) {
       onRequest: [server.authenticate],
       schema: {
         tags: ['products'],
+        security: [{ bearerAuth: [] }],
       },
     },
     async (request, reply) => {
@@ -62,6 +64,7 @@ export async function productRoutes(server: FastifyInstance) {
       onRequest: [server.authenticate],
       schema: {
         tags: ['products'],
+        security: [{ bearerAuth: [] }],
       },
     },
     async (request, reply) => {
@@ -76,6 +79,7 @@ export async function productRoutes(server: FastifyInstance) {
       onRequest: [server.authenticate],
       schema: {
         tags: ['products'],
+        security: [{ bearerAuth: [] }],
       },
     },
     async (request, reply) => {
@@ -93,6 +97,7 @@ export async function productRoutes(server: FastifyInstance) {
       onRequest: [server.authenticate],
       schema: {
         tags: ['products'],
+        security: [{ bearerAuth: [] }],
       },
     },
     async (request, reply) => {
@@ -108,6 +113,7 @@ export async function productRoutes(server: FastifyInstance) {
       onRequest: [server.authenticate],
       schema: {
         tags: ['products'],
+        security: [{ bearerAuth: [] }],
       },
     },
     async (request, reply) => {
@@ -123,6 +129,7 @@ export async function productRoutes(server: FastifyInstance) {
       onRequest: [server.authenticate],
       schema: {
         tags: ['products'],
+        security: [{ bearerAuth: [] }],
       },
     },
     async (request, reply) => {
