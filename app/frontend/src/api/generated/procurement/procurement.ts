@@ -21,6 +21,10 @@ import type {
 import type {
   DeleteApiPlacementOrdersId200,
   GetApiPlacementOrdersId200,
+  PostApiArrivals201,
+  PostApiArrivalsBody,
+  PostApiArrivalsIdInspect200,
+  PostApiArrivalsIdInspectBody,
   PostApiPlacementOrders201,
   PostApiPlacementOrdersBody
 } from '.././model'
@@ -183,3 +187,107 @@ export const useGetApiPlacementOrdersId = <TData = Awaited<ReturnType<typeof get
 
 
 
+export const postApiArrivals = (
+    postApiArrivalsBody: PostApiArrivalsBody,
+ ) => {
+      
+      
+      return customInstance<PostApiArrivals201>(
+      {url: `/api/arrivals`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: postApiArrivalsBody
+    },
+      );
+    }
+  
+
+
+export const getPostApiArrivalsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiArrivals>>, TError,{data: PostApiArrivalsBody}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postApiArrivals>>, TError,{data: PostApiArrivalsBody}, TContext> => {
+const {mutation: mutationOptions} = options ?? {};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiArrivals>>, {data: PostApiArrivalsBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postApiArrivals(data,)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiArrivalsMutationResult = NonNullable<Awaited<ReturnType<typeof postApiArrivals>>>
+    export type PostApiArrivalsMutationBody = PostApiArrivalsBody
+    export type PostApiArrivalsMutationError = unknown
+
+    export const usePostApiArrivals = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiArrivals>>, TError,{data: PostApiArrivalsBody}, TContext>, }
+): UseMutationResult<
+        Awaited<ReturnType<typeof postApiArrivals>>,
+        TError,
+        {data: PostApiArrivalsBody},
+        TContext
+      > => {
+
+      const mutationOptions = getPostApiArrivalsMutationOptions(options);
+
+      return useMutation(mutationOptions);
+    }
+    export const postApiArrivalsIdInspect = (
+    id: string,
+    postApiArrivalsIdInspectBody: PostApiArrivalsIdInspectBody,
+ ) => {
+      
+      
+      return customInstance<PostApiArrivalsIdInspect200>(
+      {url: `/api/arrivals/${id}/inspect`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: postApiArrivalsIdInspectBody
+    },
+      );
+    }
+  
+
+
+export const getPostApiArrivalsIdInspectMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiArrivalsIdInspect>>, TError,{id: string;data: PostApiArrivalsIdInspectBody}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postApiArrivalsIdInspect>>, TError,{id: string;data: PostApiArrivalsIdInspectBody}, TContext> => {
+const {mutation: mutationOptions} = options ?? {};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiArrivalsIdInspect>>, {id: string;data: PostApiArrivalsIdInspectBody}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  postApiArrivalsIdInspect(id,data,)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiArrivalsIdInspectMutationResult = NonNullable<Awaited<ReturnType<typeof postApiArrivalsIdInspect>>>
+    export type PostApiArrivalsIdInspectMutationBody = PostApiArrivalsIdInspectBody
+    export type PostApiArrivalsIdInspectMutationError = unknown
+
+    export const usePostApiArrivalsIdInspect = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiArrivalsIdInspect>>, TError,{id: string;data: PostApiArrivalsIdInspectBody}, TContext>, }
+): UseMutationResult<
+        Awaited<ReturnType<typeof postApiArrivalsIdInspect>>,
+        TError,
+        {id: string;data: PostApiArrivalsIdInspectBody},
+        TContext
+      > => {
+
+      const mutationOptions = getPostApiArrivalsIdInspectMutationOptions(options);
+
+      return useMutation(mutationOptions);
+    }
+    
