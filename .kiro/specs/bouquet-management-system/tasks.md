@@ -410,14 +410,14 @@
 
 ## 出荷管理コンテキスト
 
-- [ ] 45. 出荷集約の実装
+- [x] 45. 出荷集約の実装
   - Shipmentエンティティ
   - Salesエンティティ
   - 出荷日バリデーション
   - create/reconstructファクトリメソッド
   - _要件: 16.1, 16.2, 16.5_
 
-- [ ] 46. 出荷リポジトリの実装
+- [x] 46. 出荷リポジトリの実装
   - IShipmentRepositoryインターフェース
   - PrismaShipmentRepository実装
   - findById, findByReceivedOrderId, save
