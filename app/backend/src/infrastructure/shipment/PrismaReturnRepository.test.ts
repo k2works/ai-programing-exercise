@@ -1,15 +1,26 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { PrismaClient } from '@prisma/client';
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { PrismaReturnRepository } from './PrismaReturnRepository';
 import { Return } from '../../domain/shipment/Return';
-import { clearDatabase } from '../../test/prisma-test-helper';
-
-const prisma = new PrismaClient();
-const repository = new PrismaReturnRepository(prisma);
+import { setupTestDatabase, teardownTestDatabase, getPrismaClient } from '../../test/prisma-test-helper';
 
 describe('PrismaReturnRepository', () => {
+  let repository: PrismaReturnRepository;
+
+  beforeAll(async () => {
+    const prisma = await setupTestDatabase();
+    repository = new PrismaReturnRepository(prisma);
+  }, 60000);
+
+  afterAll(async () => {
+    await teardownTestDatabase();
+  });
+
   beforeEach(async () => {
-    await clearDatabase(prisma);
+    const prisma = getPrismaClient();
+    await prisma.return.deleteMany({});
+    await prisma.order.deleteMany({});
+    await prisma.product.deleteMany({});
+    await prisma.customer.deleteMany({});
 
     await prisma.customer.create({
       data: {

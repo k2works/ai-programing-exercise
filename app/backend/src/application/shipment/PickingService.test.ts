@@ -1,32 +1,37 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { PrismaClient } from '@prisma/client';
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { PickingService } from './PickingService';
 import { PrismaReceivedOrderRepository } from '../../infrastructure/receivedOrder/PrismaReceivedOrderRepository';
 import { PrismaInventoryRepository } from '../../infrastructure/inventory/PrismaInventoryRepository';
 import { PrismaProductCompositionRepository } from '../../infrastructure/product/PrismaProductCompositionRepository';
-import { clearDatabase } from '../../test/prisma-test-helper';
-
-const prisma = new PrismaClient();
+import { setupTestDatabase, teardownTestDatabase, getPrismaClient } from '../../test/prisma-test-helper';
 
 describe('PickingService', () => {
   let service: PickingService;
   let itemId: number;
 
-  beforeEach(async () => {
-    await clearDatabase(prisma);
-
+  beforeAll(async () => {
+    const prisma = await setupTestDatabase();
     const receivedOrderRepo = new PrismaReceivedOrderRepository(prisma);
     const inventoryRepo = new PrismaInventoryRepository(prisma);
     const compositionRepo = new PrismaProductCompositionRepository(prisma);
+    service = new PickingService(receivedOrderRepo, inventoryRepo, compositionRepo, prisma);
+  }, 60000);
 
-    service = new PickingService(
-      receivedOrderRepo,
-      inventoryRepo,
-      compositionRepo,
-      prisma
-    );
+  afterAll(async () => {
+    await teardownTestDatabase();
+  });
 
-    // Setup test data
+  beforeEach(async () => {
+    const prisma = getPrismaClient();
+    await prisma.inventory.deleteMany({});
+    await prisma.receivedOrder.deleteMany({});
+    await prisma.order.deleteMany({});
+    await prisma.productComposition.deleteMany({});
+    await prisma.item.deleteMany({});
+    await prisma.product.deleteMany({});
+    await prisma.supplier.deleteMany({});
+    await prisma.customer.deleteMany({});
+
     await prisma.customer.create({
       data: {
         id: 1,
@@ -134,7 +139,7 @@ describe('PickingService', () => {
       expect(pickingList.items).toHaveLength(1);
       expect(pickingList.items[0].itemId).toBe(itemId);
       expect(pickingList.items[0].itemName).toBe('Rose');
-      expect(pickingList.items[0].requiredQuantity).toBe(10); // 2 products * 5 items each
+      expect(pickingList.items[0].requiredQuantity).toBe(10);
     });
   });
 
@@ -142,6 +147,7 @@ describe('PickingService', () => {
     it('should confirm picking and reduce inventory', async () => {
       await service.confirmPicking(1, 'user1');
 
+      const prisma = getPrismaClient();
       const inventory = await prisma.inventory.findFirst({
         where: { itemId },
       });

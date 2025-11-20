@@ -1,24 +1,32 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { PrismaClient } from '@prisma/client';
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { ShipmentService } from './ShipmentService';
 import { PrismaShipmentRepository } from '../../infrastructure/shipment/PrismaShipmentRepository';
 import { PrismaReceivedOrderRepository } from '../../infrastructure/receivedOrder/PrismaReceivedOrderRepository';
-import { clearDatabase } from '../../test/prisma-test-helper';
-
-const prisma = new PrismaClient();
+import { setupTestDatabase, teardownTestDatabase, getPrismaClient } from '../../test/prisma-test-helper';
 
 describe('ShipmentService', () => {
   let service: ShipmentService;
 
-  beforeEach(async () => {
-    await clearDatabase(prisma);
-
+  beforeAll(async () => {
+    const prisma = await setupTestDatabase();
     const shipmentRepo = new PrismaShipmentRepository(prisma);
     const receivedOrderRepo = new PrismaReceivedOrderRepository(prisma);
-
     service = new ShipmentService(shipmentRepo, receivedOrderRepo, prisma);
+  }, 60000);
 
-    // Setup test data
+  afterAll(async () => {
+    await teardownTestDatabase();
+  });
+
+  beforeEach(async () => {
+    const prisma = getPrismaClient();
+    await prisma.sales.deleteMany({});
+    await prisma.shipment.deleteMany({});
+    await prisma.receivedOrder.deleteMany({});
+    await prisma.order.deleteMany({});
+    await prisma.product.deleteMany({});
+    await prisma.customer.deleteMany({});
+
     await prisma.customer.create({
       data: {
         id: 1,
@@ -81,6 +89,7 @@ describe('ShipmentService', () => {
         'user1'
       );
 
+      const prisma = getPrismaClient();
       const shipment = await prisma.shipment.findFirst({
         where: { receivedOrderId: 1 },
       });

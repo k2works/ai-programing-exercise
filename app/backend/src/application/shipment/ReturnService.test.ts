@@ -1,21 +1,28 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { PrismaClient } from '@prisma/client';
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { ReturnService } from './ReturnService';
 import { PrismaReturnRepository } from '../../infrastructure/shipment/PrismaReturnRepository';
-import { clearDatabase } from '../../test/prisma-test-helper';
-
-const prisma = new PrismaClient();
+import { setupTestDatabase, teardownTestDatabase, getPrismaClient } from '../../test/prisma-test-helper';
 
 describe('ReturnService', () => {
   let service: ReturnService;
 
-  beforeEach(async () => {
-    await clearDatabase(prisma);
-
+  beforeAll(async () => {
+    const prisma = await setupTestDatabase();
     const returnRepo = new PrismaReturnRepository(prisma);
     service = new ReturnService(returnRepo, prisma);
+  }, 60000);
 
-    // Setup test data
+  afterAll(async () => {
+    await teardownTestDatabase();
+  });
+
+  beforeEach(async () => {
+    const prisma = getPrismaClient();
+    await prisma.return.deleteMany({});
+    await prisma.order.deleteMany({});
+    await prisma.product.deleteMany({});
+    await prisma.customer.deleteMany({});
+
     await prisma.customer.create({
       data: {
         id: 1,
@@ -65,6 +72,7 @@ describe('ReturnService', () => {
         'user1'
       );
 
+      const prisma = getPrismaClient();
       const returnRecord = await prisma.return.findFirst({
         where: { orderId: 1 },
       });

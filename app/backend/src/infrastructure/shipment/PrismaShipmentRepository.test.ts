@@ -1,17 +1,28 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { PrismaClient } from '@prisma/client';
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { PrismaShipmentRepository } from './PrismaShipmentRepository';
 import { Shipment } from '../../domain/shipment/Shipment';
-import { clearDatabase } from '../../test/prisma-test-helper';
-
-const prisma = new PrismaClient();
-const repository = new PrismaShipmentRepository(prisma);
+import { setupTestDatabase, teardownTestDatabase, getPrismaClient } from '../../test/prisma-test-helper';
 
 describe('PrismaShipmentRepository', () => {
-  beforeEach(async () => {
-    await clearDatabase(prisma);
+  let repository: PrismaShipmentRepository;
 
-    // Create required foreign key data
+  beforeAll(async () => {
+    const prisma = await setupTestDatabase();
+    repository = new PrismaShipmentRepository(prisma);
+  }, 60000);
+
+  afterAll(async () => {
+    await teardownTestDatabase();
+  });
+
+  beforeEach(async () => {
+    const prisma = getPrismaClient();
+    await prisma.shipment.deleteMany({});
+    await prisma.receivedOrder.deleteMany({});
+    await prisma.order.deleteMany({});
+    await prisma.product.deleteMany({});
+    await prisma.customer.deleteMany({});
+
     await prisma.customer.create({
       data: {
         id: 1,
