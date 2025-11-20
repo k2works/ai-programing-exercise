@@ -371,13 +371,13 @@
   - findById, findBySupplierId, save
   - _要件: 13.1, 9.3_
 
-- [ ] 40. 入荷・検収集約の実装
+- [x] 40. 入荷・検収集約の実装
   - Arrivalエンティティ
   - ArrivalLineエンティティ
   - 検収状態管理（未検収、検収済、返品）
   - _要件: 14.1, 14.2, 14.3, 14.4_
 
-- [ ] 41. 入荷リポジトリの実装
+- [x] 41. 入荷リポジトリの実装
   - IArrivalRepositoryインターフェース
   - PrismaArrivalRepository実装
   - findById, findByPlacementOrderId, save
