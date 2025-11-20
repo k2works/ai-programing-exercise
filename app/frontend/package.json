@@ -10,6 +10,7 @@
     "test:coverage": "vitest --coverage",
     "lint": "eslint src --ext .ts,.tsx",
     "format": "prettier --write \"src/**/*.{ts,tsx}\"",
+    "generate:api": "orval",
     "typecheck": "tsc --noEmit",
     "generate:api": "orval"
   },
@@ -18,6 +19,7 @@
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^7.3.5",
     "@mui/material": "^5.15.14",
+    "@tanstack/react-query": "^5.90.10",
     "axios": "^1.6.8",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

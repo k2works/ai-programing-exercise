@@ -1,5 +1,6 @@
 import { Routes, Route, Link } from 'react-router-dom';
 import { Container, Typography, Box, Button, AppBar, Toolbar } from '@mui/material';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { LoginPage } from './pages/LoginPage';
 import { ProductList } from './pages/ProductList';
@@ -9,6 +10,8 @@ import { Checkout } from './pages/Checkout';
 import { OrderList } from './pages/OrderList';
 import { OrderDetail } from './pages/OrderDetail';
 import { ProtectedRoute } from './components/ProtectedRoute';
+
+const queryClient = new QueryClient();
 
 function Home() {
   const { user, logout } = useAuth();
@@ -134,9 +137,11 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 
