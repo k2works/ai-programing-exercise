@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import {
   Container,
   Typography,
@@ -11,48 +10,26 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useGetApiProducts } from '../api/generated/products/products';
 
-interface Product {
-  id: number;
-  code: string;
+interface CartItem {
+  productId: number;
   name: string;
-  salesPrice: number;
-  salesStatus: string;
+  price: number;
+  quantity: number;
 }
 
 export function ProductList() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: products, isLoading } = useGetApiProducts();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  const fetchProducts = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:3000/api/products', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setProducts(response.data);
-    } catch (error) {
-      console.error('Failed to fetch products:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleViewDetails = (productId: number) => {
     navigate(`/products/${productId}`);
   };
 
-  const handleAddToCart = (product: Product) => {
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-    const existingItem = cart.find((item: any) => item.productId === product.id);
+  const handleAddToCart = (product: any) => {
+    const cart: CartItem[] = JSON.parse(localStorage.getItem('cart') || '[]');
+    const existingItem = cart.find((item) => item.productId === product.id);
 
     if (existingItem) {
       existingItem.quantity += 1;
@@ -69,7 +46,7 @@ export function ProductList() {
     alert('カートに追加しました');
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
         <CircularProgress />
@@ -84,7 +61,7 @@ export function ProductList() {
       </Typography>
 
       <Grid container spacing={3}>
-        {products.map((product) => (
+        {products?.map((product: any) => (
           <Grid item xs={12} sm={6} md={4} key={product.id}>
             <Card>
               <CardContent>
@@ -115,7 +92,7 @@ export function ProductList() {
         ))}
       </Grid>
 
-      {products.length === 0 && (
+      {products?.length === 0 && (
         <Box textAlign="center" mt={4}>
           <Typography color="text.secondary">
             販売中の商品がありません

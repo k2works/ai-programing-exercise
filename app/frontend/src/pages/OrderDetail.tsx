@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -15,65 +15,30 @@ import {
   DialogContent,
   DialogActions,
 } from '@mui/material';
-import axios from 'axios';
-
-interface Order {
-  id: number;
-  orderDate: string;
-  customerId: number;
-  productId: number;
-  quantity: number;
-  desiredDeliveryDate: string;
-  deliveryAddress: string;
-  deliveryPhone: string;
-  deliveryMessage: string | null;
-  status: string;
-}
+import {
+  useGetApiOrdersId,
+  usePatchApiOrdersIdDeliveryDate,
+  usePatchApiOrdersIdCancel,
+} from '../api/generated/orders/orders';
 
 export function OrderDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [order, setOrder] = useState<Order | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: order, isLoading, refetch } = useGetApiOrdersId(id!);
+  const { mutateAsync: changeDeliveryDate } = usePatchApiOrdersIdDeliveryDate();
+  const { mutateAsync: cancelOrder } = usePatchApiOrdersIdCancel();
   const [changeDateDialogOpen, setChangeDateDialogOpen] = useState(false);
   const [newDeliveryDate, setNewDeliveryDate] = useState('');
 
-  useEffect(() => {
-    fetchOrder();
-  }, [id]);
-
-  const fetchOrder = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`http://localhost:3000/api/orders/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setOrder(response.data);
-      setNewDeliveryDate(response.data.desiredDeliveryDate.split('T')[0]);
-    } catch (error) {
-      console.error('Failed to fetch order:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleChangeDeliveryDate = async () => {
     try {
-      const token = localStorage.getItem('token');
-      await axios.patch(
-        `http://localhost:3000/api/orders/${id}/delivery-date`,
-        { newDate: newDeliveryDate },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await changeDeliveryDate({
+        id: id!,
+        data: { newDate: newDeliveryDate },
+      });
       alert('配送日を変更しました');
       setChangeDateDialogOpen(false);
-      fetchOrder();
+      refetch();
     } catch (error: any) {
       alert(error.response?.data?.message || '配送日の変更に失敗しました');
     }
@@ -83,18 +48,9 @@ export function OrderDetail() {
     if (!confirm('注文をキャンセルしますか？')) return;
 
     try {
-      const token = localStorage.getItem('token');
-      await axios.patch(
-        `http://localhost:3000/api/orders/${id}/cancel`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await cancelOrder({ id: id! });
       alert('注文をキャンセルしました');
-      fetchOrder();
+      refetch();
     } catch (error: any) {
       alert(error.response?.data?.message || '注文のキャンセルに失敗しました');
     }
@@ -114,7 +70,7 @@ export function OrderDetail() {
     return status === 'pending';
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
         <CircularProgress />
@@ -195,7 +151,12 @@ export function OrderDetail() {
             <>
               <Button
                 variant="outlined"
-                onClick={() => setChangeDateDialogOpen(true)}
+                onClick={() => {
+                  setNewDeliveryDate(
+                    new Date(order.desiredDeliveryDate).toISOString().split('T')[0]
+                  );
+                  setChangeDateDialogOpen(true);
+                }}
               >
                 配送日変更
               </Button>

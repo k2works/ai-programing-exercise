@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -15,47 +14,12 @@ import {
   Chip,
   CircularProgress,
 } from '@mui/material';
-import axios from 'axios';
-
-interface Order {
-  id: number;
-  orderDate: string;
-  productId: number;
-  quantity: number;
-  desiredDeliveryDate: string;
-  deliveryAddress: string;
-  status: string;
-}
+import { useGetApiCustomersCustomerIdOrders } from '../api/generated/orders/orders';
 
 export function OrderList() {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
+  const customerId = '1'; // TODO: Get from user context
+  const { data: orders, isLoading } = useGetApiCustomersCustomerIdOrders(customerId);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    fetchOrders();
-  }, []);
-
-  const fetchOrders = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      // TODO: Get actual customer ID from user context
-      const customerId = 1;
-      const response = await axios.get(
-        `http://localhost:3000/api/customers/${customerId}/orders`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setOrders(response.data);
-    } catch (error) {
-      console.error('Failed to fetch orders:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const getStatusLabel = (status: string) => {
     const statusMap: { [key: string]: { label: string; color: any } } = {
@@ -71,7 +35,7 @@ export function OrderList() {
     navigate(`/orders/${orderId}`);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
         <CircularProgress />
@@ -85,7 +49,7 @@ export function OrderList() {
         注文履歴
       </Typography>
 
-      {orders.length === 0 ? (
+      {orders?.length === 0 ? (
         <Box textAlign="center" mt={4}>
           <Typography color="text.secondary" gutterBottom>
             注文履歴がありません
@@ -109,7 +73,7 @@ export function OrderList() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {orders.map((order) => {
+              {orders?.map((order: any) => {
                 const statusInfo = getStatusLabel(order.status);
                 return (
                   <TableRow key={order.id}>

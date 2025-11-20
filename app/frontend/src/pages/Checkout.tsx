@@ -15,7 +15,7 @@ import {
   TableHead,
   TableRow,
 } from '@mui/material';
-import axios from 'axios';
+import { usePostApiOrders } from '../api/generated/orders/orders';
 
 interface CartItem {
   productId: number;
@@ -31,7 +31,7 @@ export function Checkout() {
   const [deliveryPhone, setDeliveryPhone] = useState('');
   const [deliveryMessage, setDeliveryMessage] = useState('');
   const [desiredDeliveryDate, setDesiredDeliveryDate] = useState('');
-  const [loading, setLoading] = useState(false);
+  const { mutateAsync: createOrder, isPending } = usePostApiOrders();
 
   const getTotalPrice = () => {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0);
@@ -45,44 +45,30 @@ export function Checkout() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
 
     try {
-      const token = localStorage.getItem('token');
-      
-      // Create orders for each cart item
       for (const item of cart) {
         const orderId = Date.now() + Math.floor(Math.random() * 1000);
-        await axios.post(
-          'http://localhost:3000/api/orders',
-          {
+        await createOrder({
+          data: {
             id: orderId,
             orderDate: new Date().toISOString().split('T')[0],
-            customerId: 1, // TODO: Get from user context
+            customerId: 1,
             productId: item.productId,
             quantity: item.quantity,
             desiredDeliveryDate,
             deliveryAddress,
             deliveryPhone,
-            deliveryMessage: deliveryMessage || null,
+            deliveryMessage: deliveryMessage || undefined,
           },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        });
       }
 
-      // Clear cart
       localStorage.removeItem('cart');
       alert('注文が完了しました');
       navigate('/orders');
     } catch (error: any) {
-      console.error('Failed to create order:', error);
       alert(error.response?.data?.message || '注文の作成に失敗しました');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -188,10 +174,10 @@ export function Checkout() {
               variant="contained"
               size="large"
               onClick={handleSubmit}
-              disabled={loading || !deliveryAddress || !deliveryPhone || !desiredDeliveryDate}
+              disabled={isPending || !deliveryAddress || !deliveryPhone || !desiredDeliveryDate}
               sx={{ mt: 2 }}
             >
-              {loading ? '処理中...' : '注文を確定'}
+              {isPending ? '処理中...' : '注文を確定'}
             </Button>
             <Button
               fullWidth

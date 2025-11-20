@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -9,42 +9,13 @@ import {
   CircularProgress,
   TextField,
 } from '@mui/material';
-import axios from 'axios';
-
-interface Product {
-  id: number;
-  code: string;
-  name: string;
-  salesPrice: number;
-  salesStatus: string;
-}
+import { useGetApiProductsId } from '../api/generated/products/products';
 
 export function ProductDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [product, setProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: product, isLoading } = useGetApiProductsId(id!);
   const [quantity, setQuantity] = useState(1);
-
-  useEffect(() => {
-    fetchProduct();
-  }, [id]);
-
-  const fetchProduct = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`http://localhost:3000/api/products/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setProduct(response.data);
-    } catch (error) {
-      console.error('Failed to fetch product:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -68,7 +39,7 @@ export function ProductDetail() {
     navigate('/products');
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
         <CircularProgress />
