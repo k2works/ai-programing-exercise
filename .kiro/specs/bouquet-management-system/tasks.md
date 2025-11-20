@@ -423,13 +423,13 @@
   - findById, findByReceivedOrderId, save
   - _要件: 16.1, 16.2_
 
-- [ ] 47. 返品集約の実装
+- [x] 47. 返品集約の実装
   - Returnエンティティ
   - 返品期限チェック（30日制限）
   - create/reconstructファクトリメソッド
   - _要件: 17.1, 17.2, 17.4_
 
-- [ ] 48. 返品リポジトリの実装
+- [x] 48. 返品リポジトリの実装
   - IReturnRepositoryインターフェース
   - PrismaReturnRepository実装
   - findById, findByOrderId, save
