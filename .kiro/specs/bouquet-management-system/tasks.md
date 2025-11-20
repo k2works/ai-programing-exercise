@@ -223,19 +223,19 @@
 
 ## 受注処理コンテキスト
 
-- [ ] 24. 受注集約の実装
+- [x] 24. 受注集約の実装
   - ReceivedOrderエンティティの実装
   - 引当状態管理（未引当、引当済）
   - 受注金額・消費税の計算
   - _要件: 7.1, 7.2_
 
-- [ ] 25. 受注リポジトリの実装
+- [x] 25. 受注リポジトリの実装
   - IReceivedOrderRepositoryインターフェース
   - PrismaReceivedOrderRepository実装
   - findById, findByOrderId, save
   - _要件: 7.1, 7.2_
 
-- [ ] 26. 在庫引当サービスの実装
+- [x] 26. 在庫引当サービスの実装
   - InventoryAllocationServiceドメインサービス
   - 在庫引当ロジック（allocate）
   - FIFO（先入先出）アルゴリズム
@@ -251,14 +251,14 @@
   - **Property 12: 在庫不足時の引当失敗**
   - **検証: 要件 7.4**
 
-- [ ] 27. 受注サービスの実装
+- [x] 27. 受注サービスの実装
   - 受注確認（confirmOrder）
   - 在庫引当の実行
   - 出荷日計算
   - 注文確認通知の送信
   - _要件: 7.1, 7.2, 7.3, 7.4, 7.5_
 
-- [ ] 28. 受注APIエンドポイントの実装（スタッフ向け）
+- [x] 28. 受注APIエンドポイントの実装（スタッフ向け）
   - GET /api/staff/orders/pending
   - POST /api/staff/orders/:id/confirm
   - GET /api/staff/orders/:id
