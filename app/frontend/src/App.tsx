@@ -12,6 +12,7 @@ import { OrderDetail } from './pages/OrderDetail';
 import { ProductManagement } from './pages/ProductManagement';
 import { ReceivedOrderList } from './pages/ReceivedOrderList';
 import { ReceivedOrderDetail } from './pages/ReceivedOrderDetail';
+import { InventoryManagement } from './pages/InventoryManagement';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 const queryClient = new QueryClient();
@@ -45,6 +46,11 @@ function Home() {
         {isStaff && (
           <Button variant="outlined" color="secondary" component={Link} to="/staff/orders">
             受注管理
+          </Button>
+        )}
+        {isStaff && (
+          <Button variant="outlined" color="secondary" component={Link} to="/staff/inventory">
+            在庫管理
           </Button>
         )}
         {isAdmin && (
@@ -87,6 +93,11 @@ function AppContent() {
             {isStaff && (
               <Button color="inherit" component={Link} to="/staff/orders">
                 受注
+              </Button>
+            )}
+            {isStaff && (
+              <Button color="inherit" component={Link} to="/staff/inventory">
+                在庫
               </Button>
             )}
             {isAdmin && (
@@ -177,6 +188,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <ReceivedOrderDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/staff/inventory"
+            element={
+              <ProtectedRoute>
+                <InventoryManagement />
               </ProtectedRoute>
             }
           />
