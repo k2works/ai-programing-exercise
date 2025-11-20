@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { GenericContainer, StartedTestContainer } from 'testcontainers';
 import { execSync } from 'child_process';
+import path from 'path';
 import bcrypt from 'bcrypt';
 
 let container: StartedTestContainer;
@@ -31,8 +32,10 @@ export async function setupTestDatabase() {
   });
 
   // Run migrations
-  execSync('npx prisma migrate deploy', {
+  const schemaPath = path.join(__dirname, '../../prisma/schema.prisma');
+  execSync(`npx prisma migrate deploy --schema "${schemaPath}"`, {
     env: { ...process.env, DATABASE_URL: databaseUrl },
+    stdio: 'inherit',
   });
 
   // Create test user

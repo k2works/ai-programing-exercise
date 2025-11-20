@@ -76,10 +76,13 @@ export async function orderRoutes(server: FastifyInstance) {
           }
         }
 
+        // At this point, customerId is guaranteed to be set; narrow the type for TS
+        const ensuredCustomerId: number = customerId as number;
+
         await service.createOrder(
           data.id,
           new Date(data.orderDate),
-          customerId,
+          ensuredCustomerId,
           data.productId,
           data.quantity,
           new Date(data.desiredDeliveryDate),

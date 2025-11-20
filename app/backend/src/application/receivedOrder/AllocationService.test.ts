@@ -1,29 +1,19 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { PrismaClient } from '@prisma/client';
-import { GenericContainer, StartedTestContainer } from 'testcontainers';
 import { AllocationService } from './AllocationService';
+import {
+  setupTestDatabase,
+  teardownTestDatabase,
+  getPrismaClient,
+} from '../../test/prisma-test-helper';
 
 describe('AllocationService', () => {
-  let container: StartedTestContainer;
   let prisma: PrismaClient;
   let service: AllocationService;
 
   beforeAll(async () => {
-    container = await new GenericContainer('postgres:16-alpine')
-      .withEnvironment({ POSTGRES_PASSWORD: 'test', POSTGRES_DB: 'testdb' })
-      .withExposedPorts(5432)
-      .start();
-
-    const connectionString = `postgresql://postgres:test@${container.getHost()}:${container.getMappedPort(5432)}/testdb`;
-    prisma = new PrismaClient({ datasources: { db: { url: connectionString } } });
-
-    await prisma.$executeRawUnsafe('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
-    const { execSync } = await import('child_process');
-    execSync(`DATABASE_URL="${connectionString}" npx prisma migrate deploy`, {
-      cwd: process.cwd(),
-      stdio: 'inherit',
-    });
-
+    await setupTestDatabase();
+    prisma = getPrismaClient();
     service = new AllocationService(prisma);
 
     // Setup test data
@@ -101,8 +91,7 @@ describe('AllocationService', () => {
   }, 60000);
 
   afterAll(async () => {
-    await prisma.$disconnect();
-    await container.stop();
+    await teardownTestDatabase();
   });
 
   it('should allocate inventory successfully', async () => {

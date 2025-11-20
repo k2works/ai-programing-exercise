@@ -125,6 +125,12 @@ export class User {
     return this.status;
   }
 
+  // Expose hashed password for infrastructure layer and reconstruction
+  // Note: this returns the hashed password, never the plain text
+  getPassword(): string {
+    return this.password;
+  }
+
   toJSON() {
     return {
       id: this.id,

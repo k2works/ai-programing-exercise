@@ -11,6 +11,8 @@
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "npm run dev --workspace=backend",
     "dev:frontend": "npm run dev --workspace=frontend",
+    "dev:migrate": "npm run prisma:migrate --workspace=backend",
+    "dev:seed": "npm run prisma:seed --workspace=backend",
     "build": "npm run build --workspaces",
     "test": "npm run test --workspaces",
     "lint": "npm run lint --workspaces",

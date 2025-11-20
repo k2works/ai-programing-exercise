@@ -43,7 +43,7 @@ export class UserManagementService {
       user.getId(),
       firstName ?? user.getFirstName(),
       lastName ?? user.getLastName(),
-      user.toJSON().password,
+      user.getPassword(),
       user.getRoleName(),
       user.getUserType(),
       user.getStatus(),

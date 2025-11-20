@@ -1,30 +1,20 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { PrismaClient } from '@prisma/client';
-import { GenericContainer, StartedTestContainer } from 'testcontainers';
 import { PrismaReceivedOrderRepository } from './PrismaReceivedOrderRepository';
 import { ReceivedOrder } from '../../domain/receivedOrder/ReceivedOrder';
+import {
+  setupTestDatabase,
+  teardownTestDatabase,
+  getPrismaClient,
+} from '../../test/prisma-test-helper';
 
 describe('PrismaReceivedOrderRepository', () => {
-  let container: StartedTestContainer;
   let prisma: PrismaClient;
   let repository: PrismaReceivedOrderRepository;
 
   beforeAll(async () => {
-    container = await new GenericContainer('postgres:16-alpine')
-      .withEnvironment({ POSTGRES_PASSWORD: 'test', POSTGRES_DB: 'testdb' })
-      .withExposedPorts(5432)
-      .start();
-
-    const connectionString = `postgresql://postgres:test@${container.getHost()}:${container.getMappedPort(5432)}/testdb`;
-    prisma = new PrismaClient({ datasources: { db: { url: connectionString } } });
-
-    await prisma.$executeRawUnsafe('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
-    const { execSync } = await import('child_process');
-    execSync(`DATABASE_URL="${connectionString}" npx prisma migrate deploy`, {
-      cwd: process.cwd(),
-      stdio: 'inherit',
-    });
-
+    await setupTestDatabase();
+    prisma = getPrismaClient();
     repository = new PrismaReceivedOrderRepository(prisma);
 
     // Setup test data
@@ -79,8 +69,7 @@ describe('PrismaReceivedOrderRepository', () => {
   }, 60000);
 
   afterAll(async () => {
-    await prisma.$disconnect();
-    await container.stop();
+    await teardownTestDatabase();
   });
 
   it('should save and find received order by id', async () => {
