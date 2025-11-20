@@ -28,6 +28,7 @@ import {
   usePostApiSuppliers,
   usePatchApiSuppliersIdActivate,
   usePatchApiSuppliersIdDeactivate,
+  useGetApiInventory,
 } from '../api/generated/inventory/inventory';
 
 interface TabPanelProps {
@@ -51,6 +52,7 @@ export function InventoryManagement() {
   const [supplierDialogOpen, setSupplierDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
   const { data: items, refetch } = useGetApiItems();
+  const { data: inventories } = useGetApiInventory();
   const { mutateAsync: createItem } = usePostApiItems();
   const { mutateAsync: updateItem } = usePutApiItemsId();
   const { mutateAsync: createSupplier } = usePostApiSuppliers();
@@ -196,6 +198,7 @@ export function InventoryManagement() {
         <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)}>
           <Tab label="単品管理" />
           <Tab label="仕入先管理" />
+          <Tab label="在庫ロット" />
         </Tabs>
       </Box>
 
@@ -283,6 +286,45 @@ export function InventoryManagement() {
                     >
                       {supplier.status === 'active' ? '無効化' : '有効化'}
                     </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </TabPanel>
+
+      <TabPanel value={tabValue} index={2}>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>ロット番号</TableCell>
+                <TableCell>単品名</TableCell>
+                <TableCell>入荷日</TableCell>
+                <TableCell>消費期限</TableCell>
+                <TableCell align="right">数量</TableCell>
+                <TableCell align="right">引当済</TableCell>
+                <TableCell align="right">利用可能</TableCell>
+                <TableCell>ステータス</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {(inventories as any)?.map((inv: any) => (
+                <TableRow key={inv.id}>
+                  <TableCell>{inv.lotNumber}</TableCell>
+                  <TableCell>{inv.item?.name || '-'}</TableCell>
+                  <TableCell>{new Date(inv.arrivalDate).toLocaleDateString('ja-JP')}</TableCell>
+                  <TableCell>{new Date(inv.expirationDate).toLocaleDateString('ja-JP')}</TableCell>
+                  <TableCell align="right">{inv.quantity}</TableCell>
+                  <TableCell align="right">{inv.allocatedQty}</TableCell>
+                  <TableCell align="right">{inv.availableQty}</TableCell>
+                  <TableCell>
+                    <Chip
+                      label={inv.status === 'available' ? '利用可能' : inv.status}
+                      color={inv.status === 'available' ? 'success' : 'default'}
+                      size="small"
+                    />
                   </TableCell>
                 </TableRow>
               ))}

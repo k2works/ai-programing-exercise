@@ -269,4 +269,22 @@ export async function inventoryRoutes(server: FastifyInstance) {
       }
     }
   );
+
+  server.get(
+    '/api/inventory',
+    {
+      onRequest: [server.authenticate],
+      schema: {
+        tags: ['inventory'],
+        security: [{ bearerAuth: [] }],
+      },
+    },
+    async (request, reply) => {
+      const inventories = await (server as any).prisma.inventory.findMany({
+        include: { item: true },
+        orderBy: { id: 'asc' },
+      });
+      reply.send(inventories);
+    }
+  );
 }
