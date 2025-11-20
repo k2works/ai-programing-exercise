@@ -6,9 +6,12 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './deleteApiPlacementOrdersId200';
 export * from './getApiAuthMe200';
 export * from './getApiItems200Item';
 export * from './getApiItemsId200';
+export * from './getApiPlacementOrdersId200';
+export * from './getApiPlacementOrdersId200LinesItem';
 export * from './getApiProducts200Item';
 export * from './getApiProductsId200';
 export * from './getApiProductsIdComposition200Item';
@@ -26,6 +29,9 @@ export * from './postApiAuthLogout200';
 export * from './postApiItems201';
 export * from './postApiItemsBody';
 export * from './postApiOrdersBody';
+export * from './postApiPlacementOrders201';
+export * from './postApiPlacementOrdersBody';
+export * from './postApiPlacementOrdersBodyLinesItem';
 export * from './postApiProducts201';
 export * from './postApiProductsBody';
 export * from './postApiProductsIdComposition200';
