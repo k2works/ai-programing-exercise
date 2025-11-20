@@ -5,6 +5,7 @@ import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import { authenticate } from './plugins/auth';
 import { authRoutes } from './routes/auth';
+import { userRoutes } from './routes/users';
 
 export async function createServer() {
   const server = Fastify({
@@ -65,6 +66,9 @@ export async function createServer() {
 
   // Auth routes
   await server.register(authRoutes, { prefix: '/api/auth' });
+
+  // User routes
+  await server.register(userRoutes, { prefix: '/api/users' });
 
   return server;
 }

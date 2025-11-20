@@ -114,10 +114,13 @@
   - **Property 5: ユーザー作成後の取得一貫性**
   - **検証: 要件 2.1**
 
-- [ ] 13. ユーザー管理APIエンドポイントの実装
+- [x] 13. ユーザー管理APIエンドポイントの実装
   - POST /api/users
   - PUT /api/users/:id
   - DELETE /api/users/:id
+  - PATCH /api/users/:id/deactivate
+  - PATCH /api/users/:id/reactivate
+  - _要件: 2.1, 2.2, 2.3, 2.4, 2.5_
   - PATCH /api/users/:id/deactivate
   - PATCH /api/users/:id/reactivate
   - _要件: 2.1, 2.2, 2.3, 2.4, 2.5_
