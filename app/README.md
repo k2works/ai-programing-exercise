@@ -14,10 +14,14 @@ app/
 
 ## セットアップ
 
+### 前提条件
+
+- Docker と Docker Compose がインストールされていること
+
 ### ローカル開発（Docker）
 
 ```bash
-# 環境変数ファイルをコピー
+# 環境変数ファイルを作成
 cp .env.example .env
 
 # Dockerコンテナを起動
@@ -26,6 +30,8 @@ docker-compose up -d
 # ログを確認
 docker-compose logs -f
 ```
+
+**注意**: 初回起動時は、データベースの初期化に時間がかかる場合があります。
 
 ### ローカル開発（Node.js直接）
 
