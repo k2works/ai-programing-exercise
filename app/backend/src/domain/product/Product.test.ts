@@ -70,4 +70,22 @@ describe('Product', () => {
       expect(product.getSalesStatus()).toBe('ended');
     });
   });
+
+  describe('toJSON', () => {
+    it('should return all product data including createdBy', () => {
+      const product = Product.create(1, 'PRD001', 'Rose Bouquet', 3000, 'admin');
+      const json = product.toJSON();
+      
+      console.log('Product toJSON result:', JSON.stringify(json, null, 2));
+      
+      expect(json.id).toBe(1);
+      expect(json.code).toBe('PRD001');
+      expect(json.name).toBe('Rose Bouquet');
+      expect(json.salesPrice).toBe(3000);
+      expect(json.salesStatus).toBe('on_sale');
+      expect(json.createdBy).toBe('admin');
+      expect(json.createdAt).toBeInstanceOf(Date);
+      expect(json.updatedAt).toBeInstanceOf(Date);
+    });
+  });
 });

@@ -29,7 +29,7 @@ export async function productRoutes(server: FastifyInstance) {
     },
     async (request, reply) => {
       const { id, code, name, salesPrice } = createProductSchema.parse(request.body);
-      const userId = (request.user as any).id;
+      const userId = (request.user as any).userId;
 
       await service.registerProduct(id, code, name, salesPrice, userId);
       reply.code(201).send({ message: '商品を登録しました' });
