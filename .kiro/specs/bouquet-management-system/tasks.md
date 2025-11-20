@@ -383,7 +383,7 @@
   - findById, findByPlacementOrderId, save
   - _要件: 14.1, 14.2_
 
-- [ ] 42. 発注サービスの実装
+- [x] 42. 発注サービスの実装
   - 発注作成（createPlacementOrder）
   - 発注キャンセル（cancelPlacementOrder）
   - 在庫推移への反映
@@ -401,7 +401,7 @@
   - **Property 18: 受入時の在庫追加**
   - **検証: 要件 14.3**
 
-- [ ] 44. 発注管理APIエンドポイントの実装
+- [x] 44. 発注管理APIエンドポイントの実装
   - POST /api/placement-orders
   - DELETE /api/placement-orders/:id
   - POST /api/arrivals
