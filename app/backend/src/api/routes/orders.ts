@@ -51,20 +51,40 @@ export async function orderRoutes(server: FastifyInstance) {
       const data = createOrderSchema.parse(request.body);
       const userId = (request.user as any).userId;
 
-      await service.createOrder(
-        data.id,
-        new Date(data.orderDate),
-        data.customerId,
-        data.productId,
-        data.quantity,
-        new Date(data.desiredDeliveryDate),
-        data.deliveryAddress,
-        data.deliveryPhone,
-        data.deliveryMessage || null,
-        userId
-      );
+      try {
+        // Verify customer exists
+        const customer = await (request.server as any).prisma.customer.findUnique({
+          where: { id: data.customerId },
+        });
 
-      reply.code(201).send({ message: '注文を作成しました' });
+        if (!customer) {
+          return reply.code(400).send({ 
+            error: '顧客が見つかりません',
+            customerId: data.customerId 
+          });
+        }
+
+        await service.createOrder(
+          data.id,
+          new Date(data.orderDate),
+          data.customerId,
+          data.productId,
+          data.quantity,
+          new Date(data.desiredDeliveryDate),
+          data.deliveryAddress,
+          data.deliveryPhone,
+          data.deliveryMessage || null,
+          userId
+        );
+
+        reply.code(201).send({ message: '注文を作成しました' });
+      } catch (error: any) {
+        request.log.error(error);
+        reply.code(500).send({ 
+          error: '注文の作成に失敗しました',
+          details: error.message 
+        });
+      }
     }
   );
 
