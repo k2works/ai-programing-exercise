@@ -4,8 +4,8 @@ import { Box, TextField, Button, Typography, Alert } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 
 export function LoginPage() {
-  const [userId, setUserId] = useState('');
-  const [password, setPassword] = useState('');
+  const [userId, setUserId] = useState('admin-001');
+  const [password, setPassword] = useState('admin123');
   const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
