@@ -37,23 +37,32 @@ export function Checkout() {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0);
   };
 
+  const getLocalDateString = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const getMinDeliveryDate = () => {
     const date = new Date();
     date.setDate(date.getDate() + 2);
-    return date.toISOString().split('T')[0];
+    return getLocalDateString(date);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
+      const orderDate = getLocalDateString(new Date());
+      
       for (let i = 0; i < cart.length; i++) {
         const item = cart[i];
         const orderId = Math.floor(Math.random() * 1000000) + 1;
         await createOrder({
           data: {
             id: orderId,
-            orderDate: new Date().toISOString().split('T')[0],
+            orderDate,
             productId: item.productId,
             quantity: item.quantity,
             desiredDeliveryDate,
