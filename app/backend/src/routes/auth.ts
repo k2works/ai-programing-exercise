@@ -25,14 +25,16 @@ export async function authRoutes(fastify: FastifyInstance) {
           userId: { 
             type: 'string',
             description: 'User ID (e.g., admin-001)',
-            example: 'admin-001'
           },
           password: { 
             type: 'string',
             description: 'User password',
-            example: 'admin123'
           },
         },
+        examples: [{
+          userId: 'admin-001',
+          password: 'admin123'
+        }]
       },
       response: {
         200: {
