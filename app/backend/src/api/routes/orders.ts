@@ -6,7 +6,7 @@ import { PrismaOrderRepository } from '../../infrastructure/order/PrismaOrderRep
 const createOrderSchema = z.object({
   id: z.number(),
   orderDate: z.string(),
-  customerId: z.number(),
+  customerId: z.number().optional(),
   productId: z.number(),
   quantity: z.number(),
   desiredDeliveryDate: z.string(),
@@ -32,11 +32,11 @@ export async function orderRoutes(server: FastifyInstance) {
         security: [{ bearerAuth: [] }],
         body: {
           type: 'object',
-          required: ['id', 'orderDate', 'customerId', 'productId', 'quantity', 'desiredDeliveryDate', 'deliveryAddress', 'deliveryPhone'],
+          required: ['id', 'orderDate', 'productId', 'quantity', 'desiredDeliveryDate', 'deliveryAddress', 'deliveryPhone'],
           properties: {
             id: { type: 'number' },
             orderDate: { type: 'string', format: 'date' },
-            customerId: { type: 'number' },
+            customerId: { type: 'number', description: 'Optional - defaults to first customer if not provided' },
             productId: { type: 'number' },
             quantity: { type: 'number' },
             desiredDeliveryDate: { type: 'string', format: 'date' },
@@ -52,22 +52,34 @@ export async function orderRoutes(server: FastifyInstance) {
       const userId = (request.user as any).userId;
 
       try {
-        // Verify customer exists
-        const customer = await (request.server as any).prisma.customer.findUnique({
-          where: { id: data.customerId },
-        });
-
-        if (!customer) {
-          return reply.code(400).send({ 
-            error: '顧客が見つかりません',
-            customerId: data.customerId 
+        // Get customer ID - use provided ID or get first customer for logged-in user
+        let customerId = data.customerId;
+        
+        if (!customerId) {
+          // Get first customer as default
+          const customer = await (request.server as any).prisma.customer.findFirst();
+          if (!customer) {
+            return reply.code(400).send({ error: '顧客が見つかりません' });
+          }
+          customerId = customer.id;
+        } else {
+          // Verify customer exists
+          const customer = await (request.server as any).prisma.customer.findUnique({
+            where: { id: customerId },
           });
+
+          if (!customer) {
+            return reply.code(400).send({ 
+              error: '顧客が見つかりません',
+              customerId: customerId 
+            });
+          }
         }
 
         await service.createOrder(
           data.id,
           new Date(data.orderDate),
-          data.customerId,
+          customerId,
           data.productId,
           data.quantity,
           new Date(data.desiredDeliveryDate),

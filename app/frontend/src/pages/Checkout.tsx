@@ -54,7 +54,6 @@ export function Checkout() {
           data: {
             id: orderId,
             orderDate: new Date().toISOString().split('T')[0],
-            customerId: 1,
             productId: item.productId,
             quantity: item.quantity,
             desiredDeliveryDate,

@@ -7,7 +7,8 @@
  */
 
 export type PostApiOrdersBody = {
-  customerId: number;
+  /** Optional - defaults to first customer if not provided */
+  customerId?: number;
   deliveryAddress: string;
   /** @nullable */
   deliveryMessage?: string | null;
