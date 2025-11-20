@@ -19,7 +19,14 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Alert,
 } from '@mui/material';
+import {
+  useGetApiShipmentsPickingList,
+  usePostApiShipmentsIdConfirmPicking,
+  usePostApiShipments,
+  usePostApiShipmentsReturns,
+} from '../api/generated/default/default';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -42,46 +49,85 @@ export default function ShipmentManagement() {
   const [shipmentDialogOpen, setShipmentDialogOpen] = useState(false);
   const [returnDialogOpen, setReturnDialogOpen] = useState(false);
   const [receivedOrderId, setReceivedOrderId] = useState('');
-  const [pickingList, setPickingList] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  const { data: pickingList, refetch: refetchPickingList } = useGetApiShipmentsPickingList(
+    { receivedOrderId: parseInt(receivedOrderId) || 0 },
+    { query: { enabled: false } }
+  );
+
+  const confirmPickingMutation = usePostApiShipmentsIdConfirmPicking();
+  const createShipmentMutation = usePostApiShipments();
+  const processReturnMutation = usePostApiShipmentsReturns();
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
+    setError(null);
+    setSuccess(null);
   };
 
   const handleGeneratePickingList = async () => {
-    // TODO: Call API to generate picking list
-    console.log('Generate picking list for received order:', receivedOrderId);
-    setPickingList({
-      receivedOrderId: parseInt(receivedOrderId),
-      items: [
-        { itemId: 1, itemName: 'Rose', requiredQuantity: 10, lotNumber: 'LOT-001' },
-        { itemId: 2, itemName: 'Lily', requiredQuantity: 5, lotNumber: 'LOT-002' },
-      ],
-    });
+    try {
+      setError(null);
+      await refetchPickingList();
+    } catch (err) {
+      setError('ピッキングリストの生成に失敗しました');
+    }
   };
 
   const handleConfirmPicking = async () => {
-    // TODO: Call API to confirm picking
-    console.log('Confirm picking for received order:', receivedOrderId);
-    setPickingDialogOpen(false);
-    setPickingList(null);
-    setReceivedOrderId('');
+    try {
+      setError(null);
+      await confirmPickingMutation.mutateAsync({ id: parseInt(receivedOrderId) });
+      setSuccess('ピッキングが確認されました');
+      setPickingDialogOpen(false);
+      setReceivedOrderId('');
+    } catch (err) {
+      setError('ピッキング確認に失敗しました');
+    }
   };
 
   const handleCreateShipment = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    // TODO: Call API to create shipment
-    console.log('Create shipment:', Object.fromEntries(formData));
-    setShipmentDialogOpen(false);
+    
+    try {
+      setError(null);
+      await createShipmentMutation.mutateAsync({
+        data: {
+          receivedOrderId: parseInt(formData.get('receivedOrderId') as string),
+          shipmentDate: formData.get('shipmentDate') as string,
+          carrier: formData.get('carrier') as string || undefined,
+          trackingNumber: formData.get('trackingNumber') as string || undefined,
+        },
+      });
+      setSuccess('出荷が登録されました');
+      setShipmentDialogOpen(false);
+    } catch (err) {
+      setError('出荷登録に失敗しました');
+    }
   };
 
   const handleProcessReturn = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    // TODO: Call API to process return
-    console.log('Process return:', Object.fromEntries(formData));
-    setReturnDialogOpen(false);
+    
+    try {
+      setError(null);
+      await processReturnMutation.mutateAsync({
+        data: {
+          orderId: parseInt(formData.get('orderId') as string),
+          returnDate: formData.get('returnDate') as string,
+          reason: formData.get('reason') as string || undefined,
+          refundAmount: parseInt(formData.get('refundAmount') as string),
+        },
+      });
+      setSuccess('返品が登録されました');
+      setReturnDialogOpen(false);
+    } catch (err) {
+      setError('返品登録に失敗しました');
+    }
   };
 
   return (
@@ -89,6 +135,18 @@ export default function ShipmentManagement() {
       <Typography variant="h4" gutterBottom>
         出荷管理
       </Typography>
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
+
+      {success && (
+        <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess(null)}>
+          {success}
+        </Alert>
+      )}
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tabValue} onChange={handleTabChange}>
@@ -185,7 +243,7 @@ export default function ShipmentManagement() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {pickingList.items.map((item: any) => (
+                  {pickingList.items?.map((item) => (
                     <TableRow key={item.itemId}>
                       <TableCell>{item.itemName}</TableCell>
                       <TableCell align="right">{item.requiredQuantity}</TableCell>
