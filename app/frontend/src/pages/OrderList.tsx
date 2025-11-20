@@ -18,7 +18,8 @@ import { useGetApiCustomersCustomerIdOrders } from '../api/generated/orders/orde
 
 export function OrderList() {
   const customerId = '1'; // TODO: Get from user context
-  const { data: orders, isLoading } = useGetApiCustomersCustomerIdOrders(customerId);
+  const { data: ordersData, isLoading } = useGetApiCustomersCustomerIdOrders(customerId);
+  const orders = (ordersData || []) as any[]; // Type assertion to fix generated API type issue
   const navigate = useNavigate();
 
   const getStatusLabel = (status: string) => {

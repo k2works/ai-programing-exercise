@@ -71,7 +71,7 @@ export function ProductDetail() {
           </Typography>
 
           <Typography variant="h5" color="primary" sx={{ mt: 2, mb: 3 }}>
-            ¥{product.salesPrice.toLocaleString()}
+            ¥{product.salesPrice?.toLocaleString() || '0'}
           </Typography>
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 3 }}>

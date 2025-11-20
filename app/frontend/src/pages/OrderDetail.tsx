@@ -24,7 +24,8 @@ import {
 export function OrderDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { data: order, isLoading, refetch } = useGetApiOrdersId(id!);
+  const { data: orderData, isLoading, refetch } = useGetApiOrdersId(id!);
+  const order = orderData as any; // Type assertion to fix generated API type issue
   const { mutateAsync: changeDeliveryDate } = usePatchApiOrdersIdDeliveryDate();
   const { mutateAsync: cancelOrder } = usePatchApiOrdersIdCancel();
   const [changeDateDialogOpen, setChangeDateDialogOpen] = useState(false);
