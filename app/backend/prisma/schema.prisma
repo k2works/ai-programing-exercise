@@ -7,15 +7,309 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ========================================
+// 認証スキーマ
+// ========================================
+
 model User {
   id        String   @id @default(uuid())
-  email     String   @unique
+  firstName String   @map("first_name")
+  lastName  String   @map("last_name")
   password  String
-  name      String
-  role      String
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  roleName  String   @map("role_name")
+  userType  String   @map("user_type")
+  status    String   @default("active")
+  createdBy String   @map("created_by")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("users")
+}
+
+// ========================================
+// 注文スキーマ
+// ========================================
+
+model Product {
+  id            Int      @id @default(autoincrement()) @map("product_number")
+  code          String   @unique @map("product_code") @db.VarChar(6)
+  name          String   @map("product_name") @db.VarChar(40)
+  abbreviation  String?  @map("product_abbreviation") @db.VarChar(40)
+  category      String   @map("product_category") @db.VarChar(5)
+  salesPrice    Decimal  @map("sales_price") @db.Decimal(8, 0)
+  purchasePrice Decimal  @map("purchase_price") @db.Decimal(8, 0)
+  taxCategory   String   @map("tax_category") @db.VarChar(5)
+  salesStatus   String   @map("sales_status") @db.VarChar(20)
+  createdBy     String   @map("created_by") @db.VarChar(40)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  compositions ProductComposition[]
+  orders       Order[]
+
+  @@map("products")
+}
+
+model ProductComposition {
+  productId       Int @map("product_number")
+  itemId          Int @map("item_number")
+  requiredQty     Int @map("required_quantity")
+
+  product Product @relation(fields: [productId], references: [id])
+  item    Item    @relation(fields: [itemId], references: [id])
+
+  @@id([productId, itemId])
+  @@map("product_compositions")
+}
+
+model Customer {
+  id              Int      @id @default(autoincrement()) @map("customer_number")
+  code            String   @unique @map("customer_code") @db.VarChar(40)
+  name            String   @map("customer_name") @db.VarChar(40)
+  phone           String?  @map("contact_phone") @db.VarChar(20)
+  email           String?  @map("contact_email") @db.VarChar(100)
+  creditCardInfo  String?  @map("credit_card_info") @db.VarChar(255)
+  createdBy       String   @map("created_by") @db.VarChar(40)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  orders Order[]
+
+  @@map("customers")
+}
+
+model Order {
+  id                Int      @id @default(autoincrement()) @map("order_number")
+  orderDate         DateTime @map("order_date") @db.Date
+  customerId        Int      @map("customer_number")
+  productId         Int      @map("product_number")
+  quantity          Int
+  desiredDeliveryDate DateTime @map("desired_delivery_date") @db.Date
+  deliveryAddress   String   @map("delivery_address") @db.VarChar(200)
+  deliveryPhone     String   @map("delivery_phone") @db.VarChar(20)
+  deliveryMessage   String?  @map("delivery_message") @db.Text
+  status            String   @db.VarChar(20)
+  createdBy         String   @map("created_by") @db.VarChar(40)
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  customer      Customer       @relation(fields: [customerId], references: [id])
+  product       Product        @relation(fields: [productId], references: [id])
+  receivedOrder ReceivedOrder?
+  returns       Return[]
+
+  @@map("orders")
+}
+
+model ReceivedOrder {
+  id                  Int      @id @default(autoincrement()) @map("received_order_number")
+  orderId             Int      @unique @map("order_number")
+  receivedDate        DateTime @map("received_date") @db.Date
+  scheduledShipmentDate DateTime @map("scheduled_shipment_date") @db.Date
+  allocationStatus    String   @map("allocation_status") @db.VarChar(20)
+  totalAmount         Decimal  @map("total_amount") @db.Decimal(10, 0)
+  totalTax            Decimal  @map("total_tax") @db.Decimal(10, 0)
+  createdBy           String   @map("created_by") @db.VarChar(40)
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  order    Order      @relation(fields: [orderId], references: [id])
+  shipment Shipment?
+
+  @@map("received_orders")
+}
+
+model Shipment {
+  id              Int      @id @default(autoincrement()) @map("shipment_number")
+  receivedOrderId Int      @unique @map("received_order_number")
+  shipmentDate    DateTime @map("shipment_date") @db.Date
+  carrier         String?  @db.VarChar(100)
+  trackingNumber  String?  @map("tracking_number") @db.VarChar(100)
+  createdBy       String   @map("created_by") @db.VarChar(40)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  receivedOrder ReceivedOrder @relation(fields: [receivedOrderId], references: [id])
+  sales         Sales?
+
+  @@map("shipments")
+}
+
+model Sales {
+  id          Int      @id @default(autoincrement()) @map("sales_number")
+  shipmentId  Int      @unique @map("shipment_number")
+  salesDate   DateTime @map("sales_date") @db.Date
+  totalAmount Decimal  @map("total_amount") @db.Decimal(10, 0)
+  totalTax    Decimal  @map("total_tax") @db.Decimal(10, 0)
+  createdBy   String   @map("created_by") @db.VarChar(40)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  shipment Shipment @relation(fields: [shipmentId], references: [id])
+
+  @@map("sales")
+}
+
+model Return {
+  id          Int      @id @default(autoincrement()) @map("return_number")
+  orderId     Int      @map("order_number")
+  returnDate  DateTime @map("return_date") @db.Date
+  reason      String?  @db.Text
+  refundAmount Decimal @map("refund_amount") @db.Decimal(10, 0)
+  status      String   @db.VarChar(20)
+  createdBy   String   @map("created_by") @db.VarChar(40)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@map("returns")
+}
+
+// ========================================
+// 在庫スキーマ
+// ========================================
+
+model Item {
+  id                Int      @id @default(autoincrement()) @map("item_number")
+  code              String   @unique @map("item_code") @db.VarChar(40)
+  name              String   @map("item_name") @db.VarChar(40)
+  supplierId        Int      @map("supplier_number")
+  qualityDays       Int      @map("quality_days")
+  leadTime          Int      @map("lead_time")
+  purchaseUnitQty   Int      @map("purchase_unit_quantity")
+  purchasePrice     Decimal  @map("purchase_price") @db.Decimal(8, 0)
+  createdBy         String   @map("created_by") @db.VarChar(40)
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  supplier              Supplier              @relation(fields: [supplierId], references: [id])
+  compositions          ProductComposition[]
+  inventories           Inventory[]
+  placementOrderLines   PlacementOrderLine[]
+  arrivalLines          ArrivalLine[]
+
+  @@map("items")
+}
+
+model Supplier {
+  id          Int      @id @default(autoincrement()) @map("supplier_number")
+  code        String   @unique @map("supplier_code") @db.VarChar(40)
+  name        String   @map("supplier_name") @db.VarChar(40)
+  phone       String?  @map("contact_phone") @db.VarChar(20)
+  email       String?  @map("contact_email") @db.VarChar(100)
+  status      String   @db.VarChar(20)
+  createdBy   String   @map("created_by") @db.VarChar(40)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  items            Item[]
+  placementOrders  PlacementOrder[]
+
+  @@map("suppliers")
+}
+
+model Inventory {
+  id                Int      @id @default(autoincrement()) @map("inventory_id")
+  itemId            Int      @map("item_number")
+  lotNumber         String   @map("lot_number") @db.VarChar(50)
+  arrivalDate       DateTime @map("arrival_date") @db.Date
+  expirationDate    DateTime @map("expiration_date") @db.Date
+  quantity          Int
+  allocatedQty      Int      @map("allocated_quantity")
+  availableQty      Int      @map("available_quantity")
+  status            String   @db.VarChar(20)
+  createdBy         String   @map("created_by") @db.VarChar(40)
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  item Item @relation(fields: [itemId], references: [id])
+
+  @@map("inventories")
+}
+
+model PlacementOrder {
+  id                  Int      @id @default(autoincrement()) @map("placement_order_number")
+  orderDate           DateTime @map("order_date") @db.Date
+  supplierId          Int      @map("supplier_number")
+  desiredDeliveryDate DateTime @map("desired_delivery_date") @db.Date
+  totalAmount         Decimal  @map("total_amount") @db.Decimal(10, 0)
+  totalTax            Decimal  @map("total_tax") @db.Decimal(10, 0)
+  status              String   @db.VarChar(20)
+  createdBy           String   @map("created_by") @db.VarChar(40)
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  supplier Supplier             @relation(fields: [supplierId], references: [id])
+  lines    PlacementOrderLine[]
+  arrivals Arrival[]
+
+  @@map("placement_orders")
+}
+
+model PlacementOrderLine {
+  id                Int      @id @default(autoincrement()) @map("placement_order_line_number")
+  placementOrderId  Int      @map("placement_order_number")
+  itemId            Int      @map("item_number")
+  orderQty          Int      @map("order_quantity")
+  arrivedQty        Int      @map("arrived_quantity")
+  purchasePrice     Decimal  @map("purchase_price") @db.Decimal(8, 0)
+  createdBy         String   @map("created_by") @db.VarChar(40)
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  placementOrder PlacementOrder @relation(fields: [placementOrderId], references: [id])
+  item           Item           @relation(fields: [itemId], references: [id])
+  arrivalLines   ArrivalLine[]
+
+  @@map("placement_order_lines")
+}
+
+model Arrival {
+  id                Int      @id @default(autoincrement()) @map("arrival_number")
+  placementOrderId  Int      @map("placement_order_number")
+  arrivalDate       DateTime @map("arrival_date") @db.Date
+  inspectionStatus  String   @map("inspection_status") @db.VarChar(20)
+  createdBy         String   @map("created_by") @db.VarChar(40)
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  placementOrder PlacementOrder @relation(fields: [placementOrderId], references: [id])
+  lines          ArrivalLine[]
+  purchase       Purchase?
+
+  @@map("arrivals")
+}
+
+model ArrivalLine {
+  id                    Int      @id @default(autoincrement()) @map("arrival_line_number")
+  arrivalId             Int      @map("arrival_number")
+  placementOrderLineId  Int      @map("placement_order_line_number")
+  itemId                Int      @map("item_number")
+  arrivedQty            Int      @map("arrived_quantity")
+  inspectionResult      String   @map("inspection_result") @db.VarChar(20)
+  createdBy             String   @map("created_by") @db.VarChar(40)
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  arrival            Arrival            @relation(fields: [arrivalId], references: [id])
+  placementOrderLine PlacementOrderLine @relation(fields: [placementOrderLineId], references: [id])
+  item               Item               @relation(fields: [itemId], references: [id])
+
+  @@map("arrival_lines")
+}
+
+model Purchase {
+  id            Int      @id @default(autoincrement()) @map("purchase_number")
+  arrivalId     Int      @unique @map("arrival_number")
+  purchaseDate  DateTime @map("purchase_date") @db.Date
+  totalAmount   Decimal  @map("total_amount") @db.Decimal(10, 0)
+  totalTax      Decimal  @map("total_tax") @db.Decimal(10, 0)
+  createdBy     String   @map("created_by") @db.VarChar(40)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  arrival Arrival @relation(fields: [arrivalId], references: [id])
+
+  @@map("purchases")
 }

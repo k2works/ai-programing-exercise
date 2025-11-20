@@ -34,7 +34,7 @@
 
 ## データモデルとスキーマ
 
-- [ ] 5. Prismaスキーマの定義
+- [x] 5. Prismaスキーマの定義
   - 認証スキーマ（User）
   - 注文スキーマ（Product, Customer, Order, ReceivedOrder, Shipment, Sales, Return）
   - 在庫スキーマ（Item, Supplier, Inventory, PlacementOrder, PlacementOrderLine, Arrival, ArrivalLine, Purchase）
