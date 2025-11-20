@@ -435,7 +435,7 @@
   - findById, findByOrderId, save
   - _要件: 17.1_
 
-- [ ] 49. ピッキングサービスの実装
+- [x] 49. ピッキングサービスの実装
   - ピッキングリスト生成（generatePickingList）
   - ピッキング確認（confirmPicking）
   - 商品組立指示書生成
