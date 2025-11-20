@@ -19,11 +19,15 @@ import {
   DialogActions,
   TextField,
   Grid,
+  Chip,
 } from '@mui/material';
 import { useGetApiItems } from '../api/generated/items/items';
 import {
   usePostApiItems,
   usePutApiItemsId,
+  usePostApiSuppliers,
+  usePatchApiSuppliersIdActivate,
+  usePatchApiSuppliersIdDeactivate,
 } from '../api/generated/inventory/inventory';
 
 interface TabPanelProps {
@@ -44,10 +48,20 @@ function TabPanel(props: TabPanelProps) {
 export function InventoryManagement() {
   const [tabValue, setTabValue] = useState(0);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [supplierDialogOpen, setSupplierDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
   const { data: items, refetch } = useGetApiItems();
   const { mutateAsync: createItem } = usePostApiItems();
   const { mutateAsync: updateItem } = usePutApiItemsId();
+  const { mutateAsync: createSupplier } = usePostApiSuppliers();
+  const { mutateAsync: activateSupplier } = usePatchApiSuppliersIdActivate();
+  const { mutateAsync: deactivateSupplier } = usePatchApiSuppliersIdDeactivate();
+
+  // Mock suppliers data - in real app, fetch from API
+  const [suppliers, setSuppliers] = useState([
+    { id: 1, code: 'SUP001', name: 'Supplier A', status: 'active' },
+    { id: 2, code: 'SUP002', name: 'Supplier B', status: 'inactive' },
+  ]);
 
   const [formData, setFormData] = useState({
     id: 0,
@@ -58,6 +72,14 @@ export function InventoryManagement() {
     leadTime: 3,
     purchaseUnitQty: 10,
     purchasePrice: 100,
+  });
+
+  const [supplierFormData, setSupplierFormData] = useState({
+    id: 0,
+    code: '',
+    name: '',
+    phone: '',
+    email: '',
   });
 
   const handleCreate = () => {
@@ -111,6 +133,54 @@ export function InventoryManagement() {
       }
       setDialogOpen(false);
       refetch();
+    } catch (error: any) {
+      alert(error.response?.data?.error || '操作に失敗しました');
+    }
+  };
+
+  const handleCreateSupplier = () => {
+    setSupplierFormData({ id: 0, code: '', name: '', phone: '', email: '' });
+    setSupplierDialogOpen(true);
+  };
+
+  const handleSubmitSupplier = async () => {
+    try {
+      await createSupplier({
+        data: {
+          id: supplierFormData.id,
+          code: supplierFormData.code,
+          name: supplierFormData.name,
+          phone: supplierFormData.phone || null,
+          email: supplierFormData.email || null,
+        },
+      });
+      alert('仕入先を登録しました');
+      setSupplierDialogOpen(false);
+      // Refresh suppliers list
+      setSuppliers([
+        ...suppliers,
+        { ...supplierFormData, status: 'active' },
+      ]);
+    } catch (error: any) {
+      alert(error.response?.data?.error || '操作に失敗しました');
+    }
+  };
+
+  const handleToggleSupplierStatus = async (id: number, currentStatus: string) => {
+    try {
+      if (currentStatus === 'active') {
+        await deactivateSupplier({ id: String(id) });
+        alert('仕入先を無効化しました');
+      } else {
+        await activateSupplier({ id: String(id) });
+        alert('仕入先を有効化しました');
+      }
+      // Update local state
+      setSuppliers(
+        suppliers.map((s) =>
+          s.id === id ? { ...s, status: currentStatus === 'active' ? 'inactive' : 'active' } : s
+        )
+      );
     } catch (error: any) {
       alert(error.response?.data?.error || '操作に失敗しました');
     }
@@ -175,7 +245,50 @@ export function InventoryManagement() {
       </TabPanel>
 
       <TabPanel value={tabValue} index={1}>
-        <Typography>仕入先管理機能は今後実装予定</Typography>
+        <Box display="flex" justifyContent="flex-end" mb={2}>
+          <Button variant="contained" onClick={handleCreateSupplier}>
+            仕入先登録
+          </Button>
+        </Box>
+
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>ID</TableCell>
+                <TableCell>コード</TableCell>
+                <TableCell>名称</TableCell>
+                <TableCell>ステータス</TableCell>
+                <TableCell align="center">操作</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {suppliers.map((supplier) => (
+                <TableRow key={supplier.id}>
+                  <TableCell>{supplier.id}</TableCell>
+                  <TableCell>{supplier.code}</TableCell>
+                  <TableCell>{supplier.name}</TableCell>
+                  <TableCell>
+                    <Chip
+                      label={supplier.status === 'active' ? '有効' : '無効'}
+                      color={supplier.status === 'active' ? 'success' : 'default'}
+                      size="small"
+                    />
+                  </TableCell>
+                  <TableCell align="center">
+                    <Button
+                      size="small"
+                      color={supplier.status === 'active' ? 'warning' : 'success'}
+                      onClick={() => handleToggleSupplierStatus(supplier.id, supplier.status)}
+                    >
+                      {supplier.status === 'active' ? '無効化' : '有効化'}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </TabPanel>
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
@@ -278,6 +391,76 @@ export function InventoryManagement() {
           <Button onClick={() => setDialogOpen(false)}>キャンセル</Button>
           <Button onClick={handleSubmit} variant="contained">
             {editingItem ? '更新' : '登録'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={supplierDialogOpen}
+        onClose={() => setSupplierDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>仕入先登録</DialogTitle>
+        <DialogContent>
+          <Grid container spacing={2} sx={{ mt: 1 }}>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="ID"
+                type="number"
+                value={supplierFormData.id}
+                onChange={(e) =>
+                  setSupplierFormData({ ...supplierFormData, id: Number(e.target.value) })
+                }
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="コード"
+                value={supplierFormData.code}
+                onChange={(e) => setSupplierFormData({ ...supplierFormData, code: e.target.value })}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="名称"
+                value={supplierFormData.name}
+                onChange={(e) => setSupplierFormData({ ...supplierFormData, name: e.target.value })}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="電話番号"
+                value={supplierFormData.phone}
+                onChange={(e) =>
+                  setSupplierFormData({ ...supplierFormData, phone: e.target.value })
+                }
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="メールアドレス"
+                type="email"
+                value={supplierFormData.email}
+                onChange={(e) =>
+                  setSupplierFormData({ ...supplierFormData, email: e.target.value })
+                }
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setSupplierDialogOpen(false)}>キャンセル</Button>
+          <Button onClick={handleSubmitSupplier} variant="contained">
+            登録
           </Button>
         </DialogActions>
       </Dialog>
