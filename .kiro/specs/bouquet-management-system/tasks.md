@@ -348,7 +348,7 @@
 
 ## 発注管理コンテキスト
 
-- [ ] 38. 発注集約の実装
+- [x] 38. 発注集約の実装
   - PlacementOrderエンティティ
   - PlacementOrderLineエンティティ
   - リードタイムバリデーション
@@ -365,7 +365,7 @@
   - **Property 17: 発注数量は購入単位の倍数**
   - **検証: 要件 13.2**
 
-- [ ] 39. 発注リポジトリの実装
+- [x] 39. 発注リポジトリの実装
   - IPlacementOrderRepositoryインターフェース
   - PrismaPlacementOrderRepository実装
   - findById, findBySupplierId, save
