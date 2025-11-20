@@ -50,15 +50,17 @@ export function Checkout() {
       for (const item of cart) {
         const orderId = Date.now() + Math.floor(Math.random() * 1000);
         await createOrder({
-          id: orderId,
-          orderDate: new Date().toISOString().split('T')[0],
-          customerId: 1,
-          productId: item.productId,
-          quantity: item.quantity,
-          desiredDeliveryDate,
-          deliveryAddress,
-          deliveryPhone,
-          deliveryMessage: deliveryMessage || undefined,
+          data: {
+            id: orderId,
+            orderDate: new Date().toISOString().split('T')[0],
+            customerId: 1,
+            productId: item.productId,
+            quantity: item.quantity,
+            desiredDeliveryDate,
+            deliveryAddress,
+            deliveryPhone,
+            deliveryMessage: deliveryMessage || undefined,
+          },
         });
       }
 
