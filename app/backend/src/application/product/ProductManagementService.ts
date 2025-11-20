@@ -1,8 +1,12 @@
 import { IProductRepository } from '../../domain/product/IProductRepository';
+import { IProductCompositionRepository } from '../../domain/product/IProductCompositionRepository';
 import { Product } from '../../domain/product/Product';
 
 export class ProductManagementService {
-  constructor(private readonly productRepository: IProductRepository) {}
+  constructor(
+    private readonly productRepository: IProductRepository,
+    private readonly compositionRepository?: IProductCompositionRepository
+  ) {}
 
   async registerProduct(
     id: number,
@@ -79,7 +83,8 @@ export class ProductManagementService {
       throw new Error('商品が見つかりません');
     }
 
-    // Item associations would be saved via a separate repository
-    // For now, just validate the product exists
+    if (this.compositionRepository) {
+      await this.compositionRepository.saveCompositions(productId, items);
+    }
   }
 }
