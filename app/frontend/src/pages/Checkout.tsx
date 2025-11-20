@@ -47,8 +47,9 @@ export function Checkout() {
     e.preventDefault();
 
     try {
-      for (const item of cart) {
-        const orderId = Date.now() + Math.floor(Math.random() * 1000);
+      for (let i = 0; i < cart.length; i++) {
+        const item = cart[i];
+        const orderId = Math.floor(Math.random() * 1000000) + 1;
         await createOrder({
           data: {
             id: orderId,
