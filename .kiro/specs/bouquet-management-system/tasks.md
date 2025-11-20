@@ -154,9 +154,11 @@
   - 販売制御（stopSales, resumeSales, endSales）
   - _要件: 3.1, 3.2, 3.3, 4.1, 4.2, 4.3_
 
-- [ ] 16.1 単品関連付け機能の実装
+- [x] 16.1 単品関連付け機能の実装
   - 商品構成（ProductComposition）の管理
   - 単品関連付け（associateItems）メソッドの追加
+  - IProductCompositionRepository インターフェース
+  - PrismaProductCompositionRepository 実装
   - _要件: 3.3_
 
 - [x] 17. 商品管理APIエンドポイントの実装
