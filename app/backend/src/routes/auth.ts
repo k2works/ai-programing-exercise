@@ -80,6 +80,7 @@ export async function authRoutes(fastify: FastifyInstance) {
   fastify.get('/me', {
     onRequest: [fastify.authenticate],
     schema: {
+      security: [{ bearerAuth: [] }],
       response: {
         200: {
           type: 'object',

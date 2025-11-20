@@ -27,6 +27,19 @@ app/
 - **ロール**: admin
 - **タイプ**: staff
 
+### Swagger UIでの認証
+
+1. http://localhost:3000/docs にアクセス
+2. POST /api/auth/login でログイン
+3. レスポンスから `token` をコピー
+4. 画面右上の **Authorize** ボタンをクリック
+5. トークンを入力（**Bearerプレフィックスなし**）
+   ```
+   eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+   ```
+6. **Authorize** をクリック
+7. 認証が必要なエンドポイントが使用可能に
+
 ### ローカル開発（Docker）
 
 ```bash
