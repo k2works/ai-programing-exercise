@@ -142,7 +142,7 @@
   - **Property 7: 保留中注文がある商品は販売終了不可**
   - **検証: 要件 4.5**
 
-- [ ] 15. 商品リポジトリの実装
+- [x] 15. 商品リポジトリの実装
   - findById, findByCode, findOnSale
   - save
   - Prismaとの統合
