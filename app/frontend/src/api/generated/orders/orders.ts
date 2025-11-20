@@ -18,17 +18,23 @@ import type {
   UseQueryOptions,
   UseQueryResult
 } from '@tanstack/react-query'
+import type {
+  PatchApiOrdersIdDeliveryDateBody,
+  PostApiOrdersBody
+} from '.././model'
 import { customInstance } from '../../mutator/custom-instance';
 
 
 
 export const postApiOrders = (
-    
+    postApiOrdersBody: PostApiOrdersBody,
  ) => {
       
       
       return customInstance<void>(
-      {url: `/api/orders`, method: 'POST'
+      {url: `/api/orders`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: postApiOrdersBody
     },
       );
     }
@@ -36,17 +42,17 @@ export const postApiOrders = (
 
 
 export const getPostApiOrdersMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiOrders>>, TError,void, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postApiOrders>>, TError,void, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiOrders>>, TError,{data: PostApiOrdersBody}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postApiOrders>>, TError,{data: PostApiOrdersBody}, TContext> => {
 const {mutation: mutationOptions} = options ?? {};
 
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiOrders>>, void> = () => {
-          
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiOrders>>, {data: PostApiOrdersBody}> = (props) => {
+          const {data} = props ?? {};
 
-          return  postApiOrders()
+          return  postApiOrders(data,)
         }
 
         
@@ -55,15 +61,15 @@ const {mutation: mutationOptions} = options ?? {};
   return  { mutationFn, ...mutationOptions }}
 
     export type PostApiOrdersMutationResult = NonNullable<Awaited<ReturnType<typeof postApiOrders>>>
-    
+    export type PostApiOrdersMutationBody = PostApiOrdersBody
     export type PostApiOrdersMutationError = unknown
 
     export const usePostApiOrders = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiOrders>>, TError,void, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiOrders>>, TError,{data: PostApiOrdersBody}, TContext>, }
 ): UseMutationResult<
         Awaited<ReturnType<typeof postApiOrders>>,
         TError,
-        void,
+        {data: PostApiOrdersBody},
         TContext
       > => {
 
@@ -128,11 +134,14 @@ export const useGetApiOrdersId = <TData = Awaited<ReturnType<typeof getApiOrders
 
 export const patchApiOrdersIdDeliveryDate = (
     id: string,
+    patchApiOrdersIdDeliveryDateBody: PatchApiOrdersIdDeliveryDateBody,
  ) => {
       
       
       return customInstance<void>(
-      {url: `/api/orders/${id}/delivery-date`, method: 'PATCH'
+      {url: `/api/orders/${id}/delivery-date`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: patchApiOrdersIdDeliveryDateBody
     },
       );
     }
@@ -140,17 +149,17 @@ export const patchApiOrdersIdDeliveryDate = (
 
 
 export const getPatchApiOrdersIdDeliveryDateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchApiOrdersIdDeliveryDate>>, TError,{id: string}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof patchApiOrdersIdDeliveryDate>>, TError,{id: string}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchApiOrdersIdDeliveryDate>>, TError,{id: string;data: PatchApiOrdersIdDeliveryDateBody}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof patchApiOrdersIdDeliveryDate>>, TError,{id: string;data: PatchApiOrdersIdDeliveryDateBody}, TContext> => {
 const {mutation: mutationOptions} = options ?? {};
 
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof patchApiOrdersIdDeliveryDate>>, {id: string}> = (props) => {
-          const {id} = props ?? {};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof patchApiOrdersIdDeliveryDate>>, {id: string;data: PatchApiOrdersIdDeliveryDateBody}> = (props) => {
+          const {id,data} = props ?? {};
 
-          return  patchApiOrdersIdDeliveryDate(id,)
+          return  patchApiOrdersIdDeliveryDate(id,data,)
         }
 
         
@@ -159,15 +168,15 @@ const {mutation: mutationOptions} = options ?? {};
   return  { mutationFn, ...mutationOptions }}
 
     export type PatchApiOrdersIdDeliveryDateMutationResult = NonNullable<Awaited<ReturnType<typeof patchApiOrdersIdDeliveryDate>>>
-    
+    export type PatchApiOrdersIdDeliveryDateMutationBody = PatchApiOrdersIdDeliveryDateBody
     export type PatchApiOrdersIdDeliveryDateMutationError = unknown
 
     export const usePatchApiOrdersIdDeliveryDate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchApiOrdersIdDeliveryDate>>, TError,{id: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchApiOrdersIdDeliveryDate>>, TError,{id: string;data: PatchApiOrdersIdDeliveryDateBody}, TContext>, }
 ): UseMutationResult<
         Awaited<ReturnType<typeof patchApiOrdersIdDeliveryDate>>,
         TError,
-        {id: string},
+        {id: string;data: PatchApiOrdersIdDeliveryDateBody},
         TContext
       > => {
 

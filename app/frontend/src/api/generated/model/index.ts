@@ -7,9 +7,11 @@
  */
 
 export * from './getApiAuthMe200';
+export * from './patchApiOrdersIdDeliveryDateBody';
 export * from './postApiAuthLogin200';
 export * from './postApiAuthLogin200User';
 export * from './postApiAuthLoginBody';
 export * from './postApiAuthLogout200';
+export * from './postApiOrdersBody';
 export * from './postApiUsersBody';
 export * from './putApiUsersIdBody';

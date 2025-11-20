@@ -30,6 +30,21 @@ export async function orderRoutes(server: FastifyInstance) {
       schema: {
         tags: ['orders'],
         security: [{ bearerAuth: [] }],
+        body: {
+          type: 'object',
+          required: ['id', 'orderDate', 'customerId', 'productId', 'quantity', 'desiredDeliveryDate', 'deliveryAddress', 'deliveryPhone'],
+          properties: {
+            id: { type: 'number' },
+            orderDate: { type: 'string', format: 'date' },
+            customerId: { type: 'number' },
+            productId: { type: 'number' },
+            quantity: { type: 'number' },
+            desiredDeliveryDate: { type: 'string', format: 'date' },
+            deliveryAddress: { type: 'string' },
+            deliveryPhone: { type: 'string' },
+            deliveryMessage: { type: 'string', nullable: true },
+          },
+        },
       },
     },
     async (request, reply) => {
@@ -81,6 +96,13 @@ export async function orderRoutes(server: FastifyInstance) {
       schema: {
         tags: ['orders'],
         security: [{ bearerAuth: [] }],
+        body: {
+          type: 'object',
+          required: ['newDate'],
+          properties: {
+            newDate: { type: 'string', format: 'date' },
+          },
+        },
       },
     },
     async (request, reply) => {
