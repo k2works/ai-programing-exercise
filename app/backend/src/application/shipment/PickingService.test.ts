@@ -1,0 +1,152 @@
+import { describe, it, expect, beforeEach } from 'vitest';
+import { PrismaClient } from '@prisma/client';
+import { PickingService } from './PickingService';
+import { PrismaReceivedOrderRepository } from '../../infrastructure/receivedOrder/PrismaReceivedOrderRepository';
+import { PrismaInventoryRepository } from '../../infrastructure/inventory/PrismaInventoryRepository';
+import { PrismaProductCompositionRepository } from '../../infrastructure/product/PrismaProductCompositionRepository';
+import { clearDatabase } from '../../test/prisma-test-helper';
+
+const prisma = new PrismaClient();
+
+describe('PickingService', () => {
+  let service: PickingService;
+  let itemId: number;
+
+  beforeEach(async () => {
+    await clearDatabase(prisma);
+
+    const receivedOrderRepo = new PrismaReceivedOrderRepository(prisma);
+    const inventoryRepo = new PrismaInventoryRepository(prisma);
+    const compositionRepo = new PrismaProductCompositionRepository(prisma);
+
+    service = new PickingService(
+      receivedOrderRepo,
+      inventoryRepo,
+      compositionRepo,
+      prisma
+    );
+
+    // Setup test data
+    await prisma.customer.create({
+      data: {
+        id: 1,
+        code: 'CUST01',
+        name: 'Test Customer',
+        createdBy: 'test',
+      },
+    });
+
+    await prisma.product.create({
+      data: {
+        id: 1,
+        code: 'PROD01',
+        name: 'Test Bouquet',
+        category: 'bouqu',
+        purchasePrice: 5000,
+        salesPrice: 10000,
+        taxCategory: 'stand',
+        salesStatus: 'available',
+        createdBy: 'test',
+      },
+    });
+
+    await prisma.supplier.create({
+      data: {
+        id: 1,
+        code: 'SUP001',
+        name: 'Test Supplier',
+        status: 'active',
+        createdBy: 'test',
+      },
+    });
+
+    const item = await prisma.item.create({
+      data: {
+        code: 'ITEM01',
+        name: 'Rose',
+        qualityDays: 7,
+        leadTime: 2,
+        purchaseUnitQty: 10,
+        purchasePrice: 1000,
+        supplierId: 1,
+        createdBy: 'test',
+      },
+    });
+
+    itemId = item.id;
+
+    await prisma.productComposition.create({
+      data: {
+        productId: 1,
+        itemId: item.id,
+        requiredQty: 5,
+      },
+    });
+
+    await prisma.order.create({
+      data: {
+        id: 1,
+        customerId: 1,
+        productId: 1,
+        orderDate: new Date('2024-01-10'),
+        quantity: 2,
+        desiredDeliveryDate: new Date('2024-01-15'),
+        deliveryAddress: 'Test Address',
+        deliveryPhone: '000-0000-0000',
+        status: 'confirmed',
+        createdBy: 'test',
+      },
+    });
+
+    await prisma.receivedOrder.create({
+      data: {
+        id: 1,
+        orderId: 1,
+        receivedDate: new Date('2024-01-10'),
+        scheduledShipmentDate: new Date('2024-01-15'),
+        totalAmount: 20000,
+        totalTax: 2000,
+        allocationStatus: 'allocated',
+        createdBy: 'test',
+      },
+    });
+
+    await prisma.inventory.create({
+      data: {
+        itemId: item.id,
+        lotNumber: 'LOT-001',
+        quantity: 100,
+        allocatedQty: 0,
+        availableQty: 100,
+        arrivalDate: new Date('2024-01-13'),
+        expirationDate: new Date('2024-01-20'),
+        status: 'available',
+        createdBy: 'test',
+      },
+    });
+  });
+
+  describe('generatePickingList', () => {
+    it('should generate picking list for received order', async () => {
+      const pickingList = await service.generatePickingList(1);
+
+      expect(pickingList.receivedOrderId).toBe(1);
+      expect(pickingList.items).toHaveLength(1);
+      expect(pickingList.items[0].itemId).toBe(itemId);
+      expect(pickingList.items[0].itemName).toBe('Rose');
+      expect(pickingList.items[0].requiredQuantity).toBe(10); // 2 products * 5 items each
+    });
+  });
+
+  describe('confirmPicking', () => {
+    it('should confirm picking and reduce inventory', async () => {
+      await service.confirmPicking(1, 'user1');
+
+      const inventory = await prisma.inventory.findFirst({
+        where: { itemId },
+      });
+
+      expect(inventory?.allocatedQty).toBe(10);
+    });
+  });
+});
