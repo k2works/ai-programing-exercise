@@ -5,6 +5,9 @@ import { LoginPage } from './pages/LoginPage';
 import { ProductList } from './pages/ProductList';
 import { ProductDetail } from './pages/ProductDetail';
 import { Cart } from './pages/Cart';
+import { Checkout } from './pages/Checkout';
+import { OrderList } from './pages/OrderList';
+import { OrderDetail } from './pages/OrderDetail';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 function Home() {
@@ -27,6 +30,9 @@ function Home() {
         </Button>
         <Button variant="outlined" component={Link} to="/cart">
           カート
+        </Button>
+        <Button variant="outlined" component={Link} to="/orders">
+          注文履歴
         </Button>
       </Box>
       <Button variant="outlined" onClick={logout} sx={{ mt: 2 }}>
@@ -54,6 +60,9 @@ function AppContent() {
             </Button>
             <Button color="inherit" component={Link} to="/cart">
               カート
+            </Button>
+            <Button color="inherit" component={Link} to="/orders">
+              注文
             </Button>
           </Toolbar>
         </AppBar>
@@ -90,6 +99,30 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <Cart />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/checkout"
+            element={
+              <ProtectedRoute>
+                <Checkout />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orders"
+            element={
+              <ProtectedRoute>
+                <OrderList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orders/:id"
+            element={
+              <ProtectedRoute>
+                <OrderDetail />
               </ProtectedRoute>
             }
           />
