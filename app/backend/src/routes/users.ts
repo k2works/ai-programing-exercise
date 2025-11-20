@@ -23,8 +23,9 @@ export async function userRoutes(fastify: FastifyInstance) {
 
   // Create user
   fastify.post('/', {
-    onRequest: [fastify.authenticate],
+    onRequest: [fastify.authenticateApiKeyOrJwt],
     schema: {
+      security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
       body: {
         type: 'object',
         required: ['id', 'firstName', 'lastName', 'password', 'roleName', 'userType'],
@@ -61,8 +62,9 @@ export async function userRoutes(fastify: FastifyInstance) {
 
   // Update user
   fastify.put('/:id', {
-    onRequest: [fastify.authenticate],
+    onRequest: [fastify.authenticateApiKeyOrJwt],
     schema: {
+      security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
       params: {
         type: 'object',
         properties: {
@@ -96,8 +98,9 @@ export async function userRoutes(fastify: FastifyInstance) {
 
   // Delete user
   fastify.delete('/:id', {
-    onRequest: [fastify.authenticate],
+    onRequest: [fastify.authenticateApiKeyOrJwt],
     schema: {
+      security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
       params: {
         type: 'object',
         properties: {
@@ -122,8 +125,9 @@ export async function userRoutes(fastify: FastifyInstance) {
 
   // Deactivate user
   fastify.patch('/:id/deactivate', {
-    onRequest: [fastify.authenticate],
+    onRequest: [fastify.authenticateApiKeyOrJwt],
     schema: {
+      security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
       params: {
         type: 'object',
         properties: {
@@ -148,8 +152,9 @@ export async function userRoutes(fastify: FastifyInstance) {
 
   // Reactivate user
   fastify.patch('/:id/reactivate', {
-    onRequest: [fastify.authenticate],
+    onRequest: [fastify.authenticateApiKeyOrJwt],
     schema: {
+      security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
       params: {
         type: 'object',
         properties: {

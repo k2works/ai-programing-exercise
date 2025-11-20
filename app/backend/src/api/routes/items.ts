@@ -4,10 +4,10 @@ export async function itemRoutes(server: FastifyInstance) {
   server.get(
     '/api/items',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['items'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
         response: {
           200: {
             type: 'array',

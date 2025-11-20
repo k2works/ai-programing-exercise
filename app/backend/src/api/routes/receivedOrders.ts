@@ -20,10 +20,10 @@ export async function receivedOrderRoutes(server: FastifyInstance) {
   server.get(
     '/api/staff/orders/pending',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['staff-orders'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
         response: {
           200: {
             type: 'array',
@@ -58,10 +58,10 @@ export async function receivedOrderRoutes(server: FastifyInstance) {
   server.post(
     '/api/staff/orders/:id/confirm',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['staff-orders'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
         response: {
           200: {
             type: 'object',
@@ -106,10 +106,10 @@ export async function receivedOrderRoutes(server: FastifyInstance) {
   server.get(
     '/api/staff/orders/:id',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['staff-orders'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
         response: {
           200: {
             type: 'object',

@@ -26,10 +26,10 @@ export async function orderRoutes(server: FastifyInstance) {
   server.post(
     '/api/orders',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['orders'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
         body: {
           type: 'object',
           required: ['id', 'orderDate', 'productId', 'quantity', 'desiredDeliveryDate', 'deliveryAddress', 'deliveryPhone'],
@@ -106,10 +106,10 @@ export async function orderRoutes(server: FastifyInstance) {
   server.get(
     '/api/orders/:id',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['orders'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
       },
     },
     async (request, reply) => {
@@ -127,10 +127,10 @@ export async function orderRoutes(server: FastifyInstance) {
   server.patch(
     '/api/orders/:id/delivery-date',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['orders'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
         body: {
           type: 'object',
           required: ['newDate'],
@@ -152,10 +152,10 @@ export async function orderRoutes(server: FastifyInstance) {
   server.patch(
     '/api/orders/:id/cancel',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['orders'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
       },
     },
     async (request, reply) => {
@@ -169,10 +169,10 @@ export async function orderRoutes(server: FastifyInstance) {
   server.get(
     '/api/customers/:customerId/orders',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['orders'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
       },
     },
     async (request, reply) => {

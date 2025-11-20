@@ -5,6 +5,7 @@ import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import { PrismaClient } from '@prisma/client';
 import { authenticate } from './plugins/auth';
+import { authenticateApiKeyOrJwt } from './plugins/apiKey';
 import { authRoutes } from './routes/auth';
 import { userRoutes } from './routes/users';
 import { productRoutes } from './api/routes/products';
@@ -36,6 +37,8 @@ export async function createServer(prismaClient?: PrismaClient) {
 
   // Register authenticate decorator
   server.decorate('authenticate', authenticate);
+  // Register API Key or JWT authenticate decorator
+  server.decorate('authenticateApiKeyOrJwt', authenticateApiKeyOrJwt);
 
   // Swagger
   await server.register(swagger, {
@@ -57,6 +60,12 @@ export async function createServer(prismaClient?: PrismaClient) {
             type: 'http',
             scheme: 'bearer',
             bearerFormat: 'JWT',
+          },
+          ApiKeyAuth: {
+            type: 'apiKey',
+            in: 'header',
+            name: 'x-api-key',
+            description: 'Provide API key via `x-api-key` header',
           },
         },
       },

@@ -77,9 +77,9 @@ export async function authRoutes(fastify: FastifyInstance) {
 
   // Get current user
   fastify.get('/me', {
-    onRequest: [fastify.authenticate],
+    onRequest: [fastify.authenticateApiKeyOrJwt],
     schema: {
-      security: [{ bearerAuth: [] }],
+      security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
       response: {
         200: {
           type: 'object',

@@ -54,10 +54,10 @@ export async function procurementRoutes(server: FastifyInstance) {
   server.post(
     '/api/placement-orders',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['procurement'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
         body: {
           type: 'object',
           required: ['id', 'orderDate', 'supplierId', 'desiredDeliveryDate', 'lines'],
@@ -110,10 +110,10 @@ export async function procurementRoutes(server: FastifyInstance) {
   server.delete(
     '/api/placement-orders/:id',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['procurement'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
         response: {
           200: {
             type: 'object',
@@ -137,10 +137,10 @@ export async function procurementRoutes(server: FastifyInstance) {
   server.get(
     '/api/placement-orders/:id',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['procurement'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
         response: {
           200: {
             type: 'object',
@@ -188,10 +188,10 @@ export async function procurementRoutes(server: FastifyInstance) {
   server.post(
     '/api/arrivals',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['procurement'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
         body: {
           type: 'object',
           required: ['id', 'placementOrderId', 'arrivalDate', 'lines'],
@@ -243,10 +243,10 @@ export async function procurementRoutes(server: FastifyInstance) {
   server.post(
     '/api/arrivals/:id/inspect',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['procurement'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
         body: {
           type: 'object',
           required: ['lineInspections'],

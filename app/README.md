@@ -46,6 +46,59 @@ app/
 - 401 Unauthorizedエラーが出る場合は、バックエンドを再起動してください
 - 新しいトークンを取得してください
 
+### APIキー認証（バックエンド）
+
+バックエンドAPIは「APIキー」または「JWT」のいずれかで認証可能です（どちらか片方でOK）。
+
+- ヘッダー名: `x-api-key`
+- 環境変数: `.env` に `API_KEY` を設定
+- 適用範囲: `/api/*` のエンドポイント（`/health` と `/docs`、および `/api/auth/login` は除外）
+- Swagger: `ApiKeyAuth`（`apiKey`スキーム）が追加され、UIからAPIキーの入力が可能
+
+#### 1) 設定手順
+
+1. `.env` にAPIキーを設定
+   ```env
+   API_KEY=your-secure-api-key
+   ```
+2. バックエンドを再起動
+   - Docker: `docker-compose restart backend`
+   - ローカル: `npm run dev:backend` を再起動
+
+APIキーを未設定のままにすると、APIキーでは認証できず、JWTのみ有効になります。
+
+#### 2) リクエスト例（cURL）
+
+```bash
+# APIキーでの呼び出し
+curl -H "x-api-key: your-secure-api-key" \
+     http://localhost:3000/api/items
+
+# JWTでの呼び出し（従来通り）
+curl -H "Authorization: Bearer <JWT_TOKEN>" \
+     http://localhost:3000/api/items
+```
+
+#### 3) Swagger UIでの利用
+
+1. 右上の「Authorize」をクリック
+2. `bearerAuth`（JWT）または `ApiKeyAuth`（APIキー）のどちらか一方を入力
+   - ApiKeyAuth: `x-api-key` に設定した値をそのまま入力
+   - bearerAuth: `POST /api/auth/login` の応答 `token` を入力（Bearerプレフィックスなし）
+3. Authorizeを押下し、閉じる
+
+#### 4) 動作仕様の要点
+
+- 認証は「APIキー or JWT」。どちらか一方が正しければアクセス可能
+- 不正または未指定の場合は `401 Unauthorized` を返却
+- 監視ログは最小限（キーの具体値はログ出力しません）
+
+#### 5) セキュリティ上の注意
+
+- `API_KEY` は十分に長く、推測困難な値を使用してください
+- `.env` はバージョン管理に含めないでください（本リポジトリは`.env.example`を参照）
+- キーの定期的なローテーションを推奨します（新旧キーを並行運用したい場合は、複数キー対応への拡張をご検討ください）
+
 ### ローカル開発（Docker）
 
 ```bash

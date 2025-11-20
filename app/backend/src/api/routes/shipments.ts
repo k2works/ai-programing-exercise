@@ -32,9 +32,9 @@ export async function shipmentRoutes(fastify: FastifyInstance) {
 
   // Get picking list
   fastify.get('/picking-list', {
-    onRequest: [fastify.authenticate],
+    onRequest: [fastify.authenticateApiKeyOrJwt],
     schema: {
-      security: [{ bearerAuth: [] }],
+      security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
       querystring: {
         type: 'object',
         required: ['receivedOrderId'],
@@ -70,9 +70,9 @@ export async function shipmentRoutes(fastify: FastifyInstance) {
 
   // Confirm picking
   fastify.post('/:id/confirm-picking', {
-    onRequest: [fastify.authenticate],
+    onRequest: [fastify.authenticateApiKeyOrJwt],
     schema: {
-      security: [{ bearerAuth: [] }],
+      security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
       params: {
         type: 'object',
         properties: {
@@ -98,9 +98,9 @@ export async function shipmentRoutes(fastify: FastifyInstance) {
 
   // Create shipment
   fastify.post('/', {
-    onRequest: [fastify.authenticate],
+    onRequest: [fastify.authenticateApiKeyOrJwt],
     schema: {
-      security: [{ bearerAuth: [] }],
+      security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
       body: {
         type: 'object',
         required: ['receivedOrderId', 'shipmentDate'],
@@ -143,9 +143,9 @@ export async function shipmentRoutes(fastify: FastifyInstance) {
 
   // Create return
   fastify.post('/returns', {
-    onRequest: [fastify.authenticate],
+    onRequest: [fastify.authenticateApiKeyOrJwt],
     schema: {
-      security: [{ bearerAuth: [] }],
+      security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
       body: {
         type: 'object',
         required: ['orderId', 'returnDate', 'refundAmount'],

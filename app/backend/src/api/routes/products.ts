@@ -33,10 +33,10 @@ export async function productRoutes(server: FastifyInstance) {
   server.post(
     '/api/products',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['products'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
         body: {
           type: 'object',
           required: ['id', 'code', 'name', 'salesPrice'],
@@ -69,10 +69,10 @@ export async function productRoutes(server: FastifyInstance) {
   server.get(
     '/api/products/:id',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['products'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
         response: {
           200: {
             type: 'object',
@@ -105,10 +105,10 @@ export async function productRoutes(server: FastifyInstance) {
   server.get(
     '/api/products',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['products'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
         response: {
           200: {
             type: 'array',
@@ -138,10 +138,10 @@ export async function productRoutes(server: FastifyInstance) {
   server.put(
     '/api/products/:id',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['products'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
         body: {
           type: 'object',
           required: ['name', 'salesPrice'],
@@ -172,10 +172,10 @@ export async function productRoutes(server: FastifyInstance) {
   server.patch(
     '/api/products/:id/stop-sales',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['products'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
       },
     },
     async (request, reply) => {
@@ -188,10 +188,10 @@ export async function productRoutes(server: FastifyInstance) {
   server.patch(
     '/api/products/:id/resume-sales',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['products'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
       },
     },
     async (request, reply) => {
@@ -204,10 +204,10 @@ export async function productRoutes(server: FastifyInstance) {
   server.patch(
     '/api/products/:id/end-sales',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['products'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
       },
     },
     async (request, reply) => {
@@ -220,10 +220,10 @@ export async function productRoutes(server: FastifyInstance) {
   server.post(
     '/api/products/:id/composition',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['products'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
         body: {
           type: 'object',
           required: ['items'],
@@ -262,10 +262,10 @@ export async function productRoutes(server: FastifyInstance) {
   server.get(
     '/api/products/:id/composition',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['products'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
         response: {
           200: {
             type: 'array',

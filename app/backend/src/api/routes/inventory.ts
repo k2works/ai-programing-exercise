@@ -38,10 +38,10 @@ export async function inventoryRoutes(server: FastifyInstance) {
   server.post(
     '/api/items',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['inventory'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
         body: {
           type: 'object',
           required: ['id', 'code', 'name', 'supplierId', 'qualityDays', 'leadTime', 'purchaseUnitQty', 'purchasePrice'],
@@ -90,10 +90,10 @@ export async function inventoryRoutes(server: FastifyInstance) {
   server.put(
     '/api/items/:id',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['inventory'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
         body: {
           type: 'object',
           required: ['qualityDays', 'leadTime', 'purchaseUnitQty', 'purchasePrice'],
@@ -134,10 +134,10 @@ export async function inventoryRoutes(server: FastifyInstance) {
   server.get(
     '/api/items/:id',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['inventory'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
         response: {
           200: {
             type: 'object',
@@ -173,10 +173,10 @@ export async function inventoryRoutes(server: FastifyInstance) {
   server.post(
     '/api/suppliers',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['inventory'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
         body: {
           type: 'object',
           required: ['id', 'code', 'name'],
@@ -219,10 +219,10 @@ export async function inventoryRoutes(server: FastifyInstance) {
   server.patch(
     '/api/suppliers/:id/deactivate',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['inventory'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
         response: {
           200: {
             type: 'object',
@@ -246,10 +246,10 @@ export async function inventoryRoutes(server: FastifyInstance) {
   server.patch(
     '/api/suppliers/:id/activate',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['inventory'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
         response: {
           200: {
             type: 'object',
@@ -273,10 +273,10 @@ export async function inventoryRoutes(server: FastifyInstance) {
   server.get(
     '/api/inventory',
     {
-      onRequest: [server.authenticate],
+      onRequest: [server.authenticateApiKeyOrJwt],
       schema: {
         tags: ['inventory'],
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }, { ApiKeyAuth: [] }],
       },
     },
     async (request, reply) => {
