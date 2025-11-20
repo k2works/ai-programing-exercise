@@ -9,14 +9,13 @@ import { authRoutes } from './routes/auth';
 import { userRoutes } from './routes/users';
 import { productRoutes } from './api/routes/products';
 
-const prisma = new PrismaClient();
-
-export async function createServer() {
+export async function createServer(prismaClient?: PrismaClient) {
   const server = Fastify({
     logger: true,
   });
 
   // Register Prisma
+  const prisma = prismaClient || new PrismaClient();
   server.decorate('prisma', prisma);
 
   // CORS

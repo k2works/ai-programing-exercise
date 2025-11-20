@@ -1,13 +1,16 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { buildServer } from '../../server';
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { FastifyInstance } from 'fastify';
+import { createServer } from '../../server';
+import { setupTestDatabase, teardownTestDatabase, getPrismaClient } from '../../test/prisma-test-helper';
 
 describe('Product API', () => {
   let server: FastifyInstance;
   let authToken: string;
 
   beforeAll(async () => {
-    server = await buildServer();
+    await setupTestDatabase();
+    const testPrisma = getPrismaClient();
+    server = await createServer(testPrisma);
     await server.ready();
 
     // Login to get auth token
@@ -20,10 +23,22 @@ describe('Product API', () => {
       },
     });
     authToken = JSON.parse(loginResponse.body).token;
-  });
+  }, 60000);
 
   afterAll(async () => {
     await server.close();
+    await teardownTestDatabase();
+  });
+
+  beforeEach(async () => {
+    const prisma = getPrismaClient();
+    await prisma.product.deleteMany({
+      where: {
+        code: {
+          startsWith: 'TST',
+        },
+      },
+    });
   });
 
   describe('POST /api/products', () => {
@@ -63,6 +78,20 @@ describe('Product API', () => {
 
   describe('GET /api/products/:id', () => {
     it('should get product by id', async () => {
+      await server.inject({
+        method: 'POST',
+        url: '/api/products',
+        headers: {
+          authorization: `Bearer ${authToken}`,
+        },
+        payload: {
+          id: 100,
+          code: 'TST001',
+          name: 'Test Product',
+          salesPrice: 1000,
+        },
+      });
+
       const response = await server.inject({
         method: 'GET',
         url: '/api/products/100',
@@ -107,6 +136,20 @@ describe('Product API', () => {
 
   describe('PUT /api/products/:id', () => {
     it('should update product', async () => {
+      await server.inject({
+        method: 'POST',
+        url: '/api/products',
+        headers: {
+          authorization: `Bearer ${authToken}`,
+        },
+        payload: {
+          id: 100,
+          code: 'TST001',
+          name: 'Test Product',
+          salesPrice: 1000,
+        },
+      });
+
       const response = await server.inject({
         method: 'PUT',
         url: '/api/products/100',
@@ -125,6 +168,20 @@ describe('Product API', () => {
 
   describe('PATCH /api/products/:id/stop-sales', () => {
     it('should stop sales', async () => {
+      await server.inject({
+        method: 'POST',
+        url: '/api/products',
+        headers: {
+          authorization: `Bearer ${authToken}`,
+        },
+        payload: {
+          id: 100,
+          code: 'TST001',
+          name: 'Test Product',
+          salesPrice: 1000,
+        },
+      });
+
       const response = await server.inject({
         method: 'PATCH',
         url: '/api/products/100/stop-sales',
@@ -139,6 +196,28 @@ describe('Product API', () => {
 
   describe('PATCH /api/products/:id/resume-sales', () => {
     it('should resume sales', async () => {
+      await server.inject({
+        method: 'POST',
+        url: '/api/products',
+        headers: {
+          authorization: `Bearer ${authToken}`,
+        },
+        payload: {
+          id: 100,
+          code: 'TST001',
+          name: 'Test Product',
+          salesPrice: 1000,
+        },
+      });
+
+      await server.inject({
+        method: 'PATCH',
+        url: '/api/products/100/stop-sales',
+        headers: {
+          authorization: `Bearer ${authToken}`,
+        },
+      });
+
       const response = await server.inject({
         method: 'PATCH',
         url: '/api/products/100/resume-sales',
@@ -153,6 +232,20 @@ describe('Product API', () => {
 
   describe('PATCH /api/products/:id/end-sales', () => {
     it('should end sales', async () => {
+      await server.inject({
+        method: 'POST',
+        url: '/api/products',
+        headers: {
+          authorization: `Bearer ${authToken}`,
+        },
+        payload: {
+          id: 100,
+          code: 'TST001',
+          name: 'Test Product',
+          salesPrice: 1000,
+        },
+      });
+
       const response = await server.inject({
         method: 'PATCH',
         url: '/api/products/100/end-sales',
