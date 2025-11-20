@@ -10,6 +10,8 @@ import { Checkout } from './pages/Checkout';
 import { OrderList } from './pages/OrderList';
 import { OrderDetail } from './pages/OrderDetail';
 import { ProductManagement } from './pages/ProductManagement';
+import { ReceivedOrderList } from './pages/ReceivedOrderList';
+import { ReceivedOrderDetail } from './pages/ReceivedOrderDetail';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 const queryClient = new QueryClient();
@@ -17,6 +19,7 @@ const queryClient = new QueryClient();
 function Home() {
   const { user, logout } = useAuth();
   const isAdmin = user?.roleName === 'admin';
+  const isStaff = user?.roleName === 'staff' || isAdmin;
 
   return (
     <Box sx={{ mt: 4 }}>
@@ -39,6 +42,11 @@ function Home() {
         <Button variant="outlined" component={Link} to="/orders">
           注文履歴
         </Button>
+        {isStaff && (
+          <Button variant="outlined" color="secondary" component={Link} to="/staff/orders">
+            受注管理
+          </Button>
+        )}
         {isAdmin && (
           <Button variant="outlined" color="secondary" component={Link} to="/admin/products">
             商品管理
@@ -55,6 +63,7 @@ function Home() {
 function AppContent() {
   const { isAuthenticated, user } = useAuth();
   const isAdmin = user?.roleName === 'admin';
+  const isStaff = user?.roleName === 'staff' || isAdmin;
 
   return (
     <>
@@ -75,6 +84,11 @@ function AppContent() {
             <Button color="inherit" component={Link} to="/orders">
               注文
             </Button>
+            {isStaff && (
+              <Button color="inherit" component={Link} to="/staff/orders">
+                受注
+              </Button>
+            )}
             {isAdmin && (
               <Button color="inherit" component={Link} to="/admin/products">
                 管理
@@ -147,6 +161,22 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <ProductManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/staff/orders"
+            element={
+              <ProtectedRoute>
+                <ReceivedOrderList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/staff/orders/:id"
+            element={
+              <ProtectedRoute>
+                <ReceivedOrderDetail />
               </ProtectedRoute>
             }
           />
