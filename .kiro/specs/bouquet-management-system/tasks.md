@@ -96,7 +96,7 @@
 
 ## ユーザー管理コンテキスト
 
-- [ ] 11. ユーザーリポジトリの実装
+- [x] 11. ユーザーリポジトリの実装
   - findById, findByEmail
   - save, delete
   - Prismaとの統合
