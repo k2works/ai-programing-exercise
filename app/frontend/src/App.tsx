@@ -1,7 +1,10 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Link } from 'react-router-dom';
 import { Container, Typography, Box, Button, AppBar, Toolbar } from '@mui/material';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { LoginPage } from './pages/LoginPage';
+import { ProductList } from './pages/ProductList';
+import { ProductDetail } from './pages/ProductDetail';
+import { Cart } from './pages/Cart';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 function Home() {
@@ -18,6 +21,14 @@ function Home() {
       <Typography variant="body2" color="text.secondary">
         ロール: {user?.roleName} | タイプ: {user?.userType}
       </Typography>
+      <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
+        <Button variant="contained" component={Link} to="/products">
+          商品を見る
+        </Button>
+        <Button variant="outlined" component={Link} to="/cart">
+          カート
+        </Button>
+      </Box>
       <Button variant="outlined" onClick={logout} sx={{ mt: 2 }}>
         ログアウト
       </Button>
@@ -34,8 +45,16 @@ function AppContent() {
         <AppBar position="static">
           <Toolbar>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              Bouquet
+              <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>
+                Bouquet
+              </Link>
             </Typography>
+            <Button color="inherit" component={Link} to="/products">
+              商品
+            </Button>
+            <Button color="inherit" component={Link} to="/cart">
+              カート
+            </Button>
           </Toolbar>
         </AppBar>
       )}
@@ -47,6 +66,30 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <Home />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/products"
+            element={
+              <ProtectedRoute>
+                <ProductList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/products/:id"
+            element={
+              <ProtectedRoute>
+                <ProductDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/cart"
+            element={
+              <ProtectedRoute>
+                <Cart />
               </ProtectedRoute>
             }
           />
