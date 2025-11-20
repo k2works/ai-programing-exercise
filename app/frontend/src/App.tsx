@@ -9,12 +9,14 @@ import { Cart } from './pages/Cart';
 import { Checkout } from './pages/Checkout';
 import { OrderList } from './pages/OrderList';
 import { OrderDetail } from './pages/OrderDetail';
+import { ProductManagement } from './pages/ProductManagement';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 const queryClient = new QueryClient();
 
 function Home() {
   const { user, logout } = useAuth();
+  const isAdmin = user?.roleName === 'admin';
 
   return (
     <Box sx={{ mt: 4 }}>
@@ -37,6 +39,11 @@ function Home() {
         <Button variant="outlined" component={Link} to="/orders">
           注文履歴
         </Button>
+        {isAdmin && (
+          <Button variant="outlined" color="secondary" component={Link} to="/admin/products">
+            商品管理
+          </Button>
+        )}
       </Box>
       <Button variant="outlined" onClick={logout} sx={{ mt: 2 }}>
         ログアウト
@@ -46,7 +53,8 @@ function Home() {
 }
 
 function AppContent() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  const isAdmin = user?.roleName === 'admin';
 
   return (
     <>
@@ -67,6 +75,11 @@ function AppContent() {
             <Button color="inherit" component={Link} to="/orders">
               注文
             </Button>
+            {isAdmin && (
+              <Button color="inherit" component={Link} to="/admin/products">
+                管理
+              </Button>
+            )}
           </Toolbar>
         </AppBar>
       )}
@@ -126,6 +139,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <OrderDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/products"
+            element={
+              <ProtectedRoute>
+                <ProductManagement />
               </ProtectedRoute>
             }
           />

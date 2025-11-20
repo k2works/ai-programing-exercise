@@ -7,11 +7,22 @@
  */
 
 export * from './getApiAuthMe200';
+export * from './getApiItems200Item';
+export * from './getApiProducts200Item';
+export * from './getApiProductsId200';
+export * from './getApiProductsIdComposition200Item';
 export * from './patchApiOrdersIdDeliveryDateBody';
 export * from './postApiAuthLogin200';
 export * from './postApiAuthLogin200User';
 export * from './postApiAuthLoginBody';
 export * from './postApiAuthLogout200';
 export * from './postApiOrdersBody';
+export * from './postApiProducts201';
+export * from './postApiProductsBody';
+export * from './postApiProductsIdComposition200';
+export * from './postApiProductsIdCompositionBody';
+export * from './postApiProductsIdCompositionBodyItemsItem';
 export * from './postApiUsersBody';
+export * from './putApiProductsId200';
+export * from './putApiProductsIdBody';
 export * from './putApiUsersIdBody';

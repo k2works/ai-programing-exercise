@@ -18,17 +18,30 @@ import type {
   UseQueryOptions,
   UseQueryResult
 } from '@tanstack/react-query'
+import type {
+  GetApiProducts200Item,
+  GetApiProductsId200,
+  GetApiProductsIdComposition200Item,
+  PostApiProducts201,
+  PostApiProductsBody,
+  PostApiProductsIdComposition200,
+  PostApiProductsIdCompositionBody,
+  PutApiProductsId200,
+  PutApiProductsIdBody
+} from '.././model'
 import { customInstance } from '../../mutator/custom-instance';
 
 
 
 export const postApiProducts = (
-    
+    postApiProductsBody: PostApiProductsBody,
  ) => {
       
       
-      return customInstance<void>(
-      {url: `/api/products`, method: 'POST'
+      return customInstance<PostApiProducts201>(
+      {url: `/api/products`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: postApiProductsBody
     },
       );
     }
@@ -36,17 +49,17 @@ export const postApiProducts = (
 
 
 export const getPostApiProductsMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiProducts>>, TError,void, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postApiProducts>>, TError,void, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiProducts>>, TError,{data: PostApiProductsBody}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postApiProducts>>, TError,{data: PostApiProductsBody}, TContext> => {
 const {mutation: mutationOptions} = options ?? {};
 
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiProducts>>, void> = () => {
-          
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiProducts>>, {data: PostApiProductsBody}> = (props) => {
+          const {data} = props ?? {};
 
-          return  postApiProducts()
+          return  postApiProducts(data,)
         }
 
         
@@ -55,15 +68,15 @@ const {mutation: mutationOptions} = options ?? {};
   return  { mutationFn, ...mutationOptions }}
 
     export type PostApiProductsMutationResult = NonNullable<Awaited<ReturnType<typeof postApiProducts>>>
-    
+    export type PostApiProductsMutationBody = PostApiProductsBody
     export type PostApiProductsMutationError = unknown
 
     export const usePostApiProducts = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiProducts>>, TError,void, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiProducts>>, TError,{data: PostApiProductsBody}, TContext>, }
 ): UseMutationResult<
         Awaited<ReturnType<typeof postApiProducts>>,
         TError,
-        void,
+        {data: PostApiProductsBody},
         TContext
       > => {
 
@@ -77,7 +90,7 @@ const {mutation: mutationOptions} = options ?? {};
 ) => {
       
       
-      return customInstance<void>(
+      return customInstance<GetApiProducts200Item[]>(
       {url: `/api/products`, method: 'GET', signal
     },
       );
@@ -132,7 +145,7 @@ export const getApiProductsId = (
 ) => {
       
       
-      return customInstance<void>(
+      return customInstance<GetApiProductsId200>(
       {url: `/api/products/${id}`, method: 'GET', signal
     },
       );
@@ -183,11 +196,14 @@ export const useGetApiProductsId = <TData = Awaited<ReturnType<typeof getApiProd
 
 export const putApiProductsId = (
     id: string,
+    putApiProductsIdBody: PutApiProductsIdBody,
  ) => {
       
       
-      return customInstance<void>(
-      {url: `/api/products/${id}`, method: 'PUT'
+      return customInstance<PutApiProductsId200>(
+      {url: `/api/products/${id}`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: putApiProductsIdBody
     },
       );
     }
@@ -195,17 +211,17 @@ export const putApiProductsId = (
 
 
 export const getPutApiProductsIdMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiProductsId>>, TError,{id: string}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof putApiProductsId>>, TError,{id: string}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiProductsId>>, TError,{id: string;data: PutApiProductsIdBody}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof putApiProductsId>>, TError,{id: string;data: PutApiProductsIdBody}, TContext> => {
 const {mutation: mutationOptions} = options ?? {};
 
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putApiProductsId>>, {id: string}> = (props) => {
-          const {id} = props ?? {};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putApiProductsId>>, {id: string;data: PutApiProductsIdBody}> = (props) => {
+          const {id,data} = props ?? {};
 
-          return  putApiProductsId(id,)
+          return  putApiProductsId(id,data,)
         }
 
         
@@ -214,15 +230,15 @@ const {mutation: mutationOptions} = options ?? {};
   return  { mutationFn, ...mutationOptions }}
 
     export type PutApiProductsIdMutationResult = NonNullable<Awaited<ReturnType<typeof putApiProductsId>>>
-    
+    export type PutApiProductsIdMutationBody = PutApiProductsIdBody
     export type PutApiProductsIdMutationError = unknown
 
     export const usePutApiProductsId = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiProductsId>>, TError,{id: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiProductsId>>, TError,{id: string;data: PutApiProductsIdBody}, TContext>, }
 ): UseMutationResult<
         Awaited<ReturnType<typeof putApiProductsId>>,
         TError,
-        {id: string},
+        {id: string;data: PutApiProductsIdBody},
         TContext
       > => {
 
@@ -377,4 +393,110 @@ const {mutation: mutationOptions} = options ?? {};
 
       return useMutation(mutationOptions);
     }
+    export const postApiProductsIdComposition = (
+    id: string,
+    postApiProductsIdCompositionBody: PostApiProductsIdCompositionBody,
+ ) => {
+      
+      
+      return customInstance<PostApiProductsIdComposition200>(
+      {url: `/api/products/${id}/composition`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: postApiProductsIdCompositionBody
+    },
+      );
+    }
+  
+
+
+export const getPostApiProductsIdCompositionMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiProductsIdComposition>>, TError,{id: string;data: PostApiProductsIdCompositionBody}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postApiProductsIdComposition>>, TError,{id: string;data: PostApiProductsIdCompositionBody}, TContext> => {
+const {mutation: mutationOptions} = options ?? {};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiProductsIdComposition>>, {id: string;data: PostApiProductsIdCompositionBody}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  postApiProductsIdComposition(id,data,)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiProductsIdCompositionMutationResult = NonNullable<Awaited<ReturnType<typeof postApiProductsIdComposition>>>
+    export type PostApiProductsIdCompositionMutationBody = PostApiProductsIdCompositionBody
+    export type PostApiProductsIdCompositionMutationError = unknown
+
+    export const usePostApiProductsIdComposition = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiProductsIdComposition>>, TError,{id: string;data: PostApiProductsIdCompositionBody}, TContext>, }
+): UseMutationResult<
+        Awaited<ReturnType<typeof postApiProductsIdComposition>>,
+        TError,
+        {id: string;data: PostApiProductsIdCompositionBody},
+        TContext
+      > => {
+
+      const mutationOptions = getPostApiProductsIdCompositionMutationOptions(options);
+
+      return useMutation(mutationOptions);
+    }
+    export const getApiProductsIdComposition = (
+    id: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<GetApiProductsIdComposition200Item[]>(
+      {url: `/api/products/${id}/composition`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+export const getGetApiProductsIdCompositionQueryKey = (id: string,) => {
+    return [`/api/products/${id}/composition`] as const;
+    }
+
     
+export const getGetApiProductsIdCompositionQueryOptions = <TData = Awaited<ReturnType<typeof getApiProductsIdComposition>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiProductsIdComposition>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiProductsIdCompositionQueryKey(id);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiProductsIdComposition>>> = ({ signal }) => getApiProductsIdComposition(id, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiProductsIdComposition>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetApiProductsIdCompositionQueryResult = NonNullable<Awaited<ReturnType<typeof getApiProductsIdComposition>>>
+export type GetApiProductsIdCompositionQueryError = unknown
+
+export const useGetApiProductsIdComposition = <TData = Awaited<ReturnType<typeof getApiProductsIdComposition>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiProductsIdComposition>>, TError, TData>>, }
+
+  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+
+  const queryOptions = getGetApiProductsIdCompositionQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
