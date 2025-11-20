@@ -173,23 +173,25 @@
 
 ## 注文管理コンテキスト
 
-- [ ] 18. 得意先集約の実装
+- [x] 18. 得意先集約の実装
   - Customerエンティティ
-  - 連絡先情報管理
+  - 連絡先情報管理（updateContactInfo）
+  - create/reconstructファクトリメソッド
   - _要件: 18.1, 18.2, 18.3_
 
-- [ ] 19. 得意先リポジトリの実装
+- [x] 19. 得意先リポジトリの実装
   - findById, findByCode
   - save
   - Prismaとの統合
   - _要件: 18.1, 18.2_
 
-- [ ] 20. 注文集約の実装
+- [x] 20. 注文集約の実装
   - Orderエンティティ
-  - 注文作成バリデーション（配送日チェック）
+  - 注文作成バリデーション（配送日は注文日の2日後以降）
   - 出荷日計算（getShipmentDate）
   - 注文変更（changeDeliveryDate）
   - 注文キャンセル（cancel）
+  - 出荷済み注文の変更・キャンセル制限
   - _要件: 6.1, 6.2, 6.3, 6.4, 6.5, 8.1, 8.2, 8.3, 8.4, 8.5, 9.1, 9.2, 9.3, 9.4, 9.5_
 
 - [ ]* 20.1 注文配送日バリデーションのプロパティベーステスト
@@ -200,25 +202,26 @@
   - **Property 9: 出荷済み注文は変更・キャンセル不可**
   - **検証: 要件 8.5, 9.5**
 
-- [ ] 21. 注文リポジトリの実装
+- [x] 21. 注文リポジトリの実装
   - findById, findByCustomerId, findPendingOrders
   - save
   - Prismaとの統合
   - _要件: 6.1, 7.1, 8.1, 9.1_
 
-- [ ] 22. 注文サービスの実装
-  - 注文配置（placeOrder）
-  - 注文変更（modifyOrder）
+- [x] 22. 注文管理サービスの実装
+  - 注文作成（createOrder）
+  - 配送日変更（changeDeliveryDate）
   - 注文キャンセル（cancelOrder）
-  - 注文確認通知
+  - 顧客注文取得（getCustomerOrders）
+  - 保留中注文取得（getPendingOrders）
   - _要件: 6.1, 6.2, 6.3, 6.4, 6.5, 8.1, 8.2, 8.3, 8.4, 9.1, 9.2, 9.3, 9.4, 9.5_
 
-- [ ] 23. 注文APIエンドポイントの実装（得意先向け）
+- [x] 23. 注文管理APIエンドポイントの実装
   - POST /api/orders
-  - PUT /api/orders/:id
-  - DELETE /api/orders/:id
-  - GET /api/orders
   - GET /api/orders/:id
+  - PATCH /api/orders/:id/delivery-date
+  - PATCH /api/orders/:id/cancel
+  - GET /api/customers/:customerId/orders
   - _要件: 6.1, 8.1, 9.1_
 
 ## 受注処理コンテキスト
