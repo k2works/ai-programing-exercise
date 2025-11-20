@@ -3,6 +3,8 @@ import cors from '@fastify/cors';
 import jwt from '@fastify/jwt';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
+import { authenticate } from './plugins/auth';
+import { authRoutes } from './routes/auth';
 
 export async function createServer() {
   const server = Fastify({
@@ -18,6 +20,9 @@ export async function createServer() {
   await server.register(jwt, {
     secret: process.env.JWT_SECRET || 'your-secret-key-change-in-production',
   });
+
+  // Register authenticate decorator
+  server.decorate('authenticate', authenticate);
 
   // Swagger
   await server.register(swagger, {
@@ -57,6 +62,9 @@ export async function createServer() {
   server.get('/health', async () => {
     return { status: 'ok' };
   });
+
+  // Auth routes
+  await server.register(authRoutes, { prefix: '/api/auth' });
 
   return server;
 }

@@ -88,7 +88,7 @@
   - **Property 4: 30分非アクティブでセッション終了**
   - **検証: 要件 1.3**
 
-- [ ] 10. 認証APIエンドポイントの実装
+- [x] 10. 認証APIエンドポイントの実装
   - POST /api/auth/login
   - POST /api/auth/logout
   - GET /api/auth/me
