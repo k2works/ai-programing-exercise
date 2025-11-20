@@ -49,3 +49,30 @@ export async function teardownTestDatabase() {
 export function getPrismaClient() {
   return prisma;
 }
+
+export async function clearDatabase(prismaClient: PrismaClient) {
+  const tables = [
+    'sales',
+    'shipments',
+    'returns',
+    'received_orders',
+    'orders',
+    'product_compositions',
+    'products',
+    'customers',
+    'arrival_lines',
+    'arrivals',
+    'placement_order_lines',
+    'placement_orders',
+    'inventories',
+    'items',
+    'suppliers',
+    'users',
+  ];
+
+  for (const table of tables) {
+    await prismaClient.$executeRawUnsafe(
+      `TRUNCATE TABLE "${table}" CASCADE;`
+    );
+  }
+}
