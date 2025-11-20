@@ -49,7 +49,7 @@
 
 ## ドメインモデルと値オブジェクト
 
-- [ ] 7. 値オブジェクトの実装
+- [x] 7. 値オブジェクトの実装
   - UserId, UserName, Password, Email, RoleName
   - ProductId, ProductCode, ProductName, Price, SalesStatus
   - OrderId, OrderDate, DeliveryDate, DeliveryAddress, OrderStatus
