@@ -148,4 +148,141 @@ public class FinancialStatementService {
             item.setRatio(ratio);
         }
     }
+
+    /**
+     * 損益計算書を生成する
+     *
+     * @param fromDate 開始日
+     * @param toDate 終了日
+     * @return 損益計算書
+     */
+    public IncomeStatement generateIncomeStatement(LocalDate fromDate, LocalDate toDate) {
+        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
+
+            // 収益を取得（取引要素区分='4'）
+            List<IncomeStatementItem> revenues = fetchIncomeStatementItems(conn, fromDate, toDate, "4");
+
+            // 費用を取得（取引要素区分='5'）
+            List<IncomeStatementItem> expenses = fetchIncomeStatementItems(conn, fromDate, toDate, "5");
+
+            // 合計を計算
+            BigDecimal totalRevenues = calculateIncomeStatementTotal(revenues);
+            BigDecimal totalExpenses = calculateIncomeStatementTotal(expenses);
+
+            // 売上原価（勘定科目コードが51で始まる）
+            BigDecimal costOfSales = expenses.stream()
+                    .filter(e -> e.getAccountCode().startsWith("51"))
+                    .map(IncomeStatementItem::getBalance)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            // 販管費（勘定科目コードが6または52で始まる）
+            BigDecimal operatingExpenses = expenses.stream()
+                    .filter(e -> e.getAccountCode().startsWith("6") || e.getAccountCode().startsWith("52"))
+                    .map(IncomeStatementItem::getBalance)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            // 利益項目の計算
+            BigDecimal grossProfit = totalRevenues.subtract(costOfSales);
+            BigDecimal operatingIncome = grossProfit.subtract(operatingExpenses);
+            BigDecimal netIncome = totalRevenues.subtract(totalExpenses);
+
+            // 対売上比を計算
+            calculatePercentages(revenues, totalRevenues);
+            calculatePercentages(expenses, totalRevenues);
+
+            return new IncomeStatement(
+                    fromDate,
+                    toDate,
+                    revenues,
+                    expenses,
+                    grossProfit,
+                    operatingIncome,
+                    netIncome,
+                    totalRevenues,
+                    totalExpenses
+            );
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to generate income statement", e);
+        }
+    }
+
+    /**
+     * 損益計算書の明細項目を取得
+     */
+    private List<IncomeStatementItem> fetchIncomeStatementItems(
+            Connection conn, LocalDate fromDate, LocalDate toDate, String elementType) throws SQLException {
+
+        String sql = """
+            SELECT
+                a."勘定科目コード" as account_code,
+                a."勘定科目名" as account_name,
+                CASE
+                    WHEN a."勘定科目種別" = '収益' THEN
+                        COALESCE(SUM(d."貸方金額"), 0) - COALESCE(SUM(d."借方金額"), 0)
+                    ELSE
+                        COALESCE(SUM(d."借方金額"), 0) - COALESCE(SUM(d."貸方金額"), 0)
+                END as balance
+            FROM "勘定科目マスタ" a
+            LEFT JOIN "日次勘定科目残高" d
+                ON a."勘定科目コード" = d."勘定科目コード"
+                AND d."起票日" BETWEEN ? AND ?
+                AND d."決算仕訳フラグ" = 0
+            WHERE a."BSPL区分" = 'P'
+              AND a."取引要素区分" = ?
+            GROUP BY a."勘定科目コード", a."勘定科目名", a."勘定科目種別"
+            HAVING CASE
+                WHEN a."勘定科目種別" = '収益' THEN
+                    COALESCE(SUM(d."貸方金額"), 0) - COALESCE(SUM(d."借方金額"), 0)
+                ELSE
+                    COALESCE(SUM(d."借方金額"), 0) - COALESCE(SUM(d."貸方金額"), 0)
+            END != 0
+            ORDER BY a."勘定科目コード"
+            """;
+
+        List<IncomeStatementItem> items = new ArrayList<>();
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setObject(1, fromDate);
+            pstmt.setObject(2, toDate);
+            pstmt.setString(3, elementType);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    String accountCode = rs.getString("account_code");
+                    String accountName = rs.getString("account_name");
+                    BigDecimal balance = rs.getBigDecimal("balance");
+
+                    items.add(new IncomeStatementItem(accountCode, accountName, balance, BigDecimal.ZERO));
+                }
+            }
+        }
+
+        return items;
+    }
+
+    /**
+     * 損益計算書の合計を計算
+     */
+    private BigDecimal calculateIncomeStatementTotal(List<IncomeStatementItem> items) {
+        return items.stream()
+                .map(IncomeStatementItem::getBalance)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    /**
+     * 対売上比を計算（%）
+     */
+    private void calculatePercentages(List<IncomeStatementItem> items, BigDecimal totalRevenues) {
+        if (totalRevenues.compareTo(BigDecimal.ZERO) == 0) {
+            return;
+        }
+
+        for (IncomeStatementItem item : items) {
+            BigDecimal percentage = item.getBalance()
+                    .multiply(new BigDecimal("100"))
+                    .divide(totalRevenues, 2, RoundingMode.HALF_UP);
+            item.setPercentage(percentage);
+        }
+    }
 }
