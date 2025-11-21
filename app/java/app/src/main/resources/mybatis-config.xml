@@ -42,5 +42,6 @@
         <mapper resource="mapper/AutoJournalPatternItemMapper.xml"/>
         <mapper resource="mapper/AutoJournalLogMapper.xml"/>
         <mapper resource="mapper/DailyAccountBalanceMapper.xml"/>
+        <mapper resource="mapper/FinancialDataMapper.xml"/>
     </mappers>
 </configuration>

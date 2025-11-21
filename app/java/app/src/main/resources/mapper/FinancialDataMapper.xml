@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.accounting.infrastructure.persistence.mapper.FinancialDataMapper">
+
+    <!-- 貸借対照表の明細項目を取得 -->
+    <select id="findBalanceSheetItems" resultType="map">
+        SELECT
+            a."勘定科目コード" as accountCode,
+            a."勘定科目名" as accountName,
+            CASE
+                WHEN a."勘定科目種別" IN ('資産', '費用') THEN
+                    COALESCE(SUM(d."借方金額"), 0) - COALESCE(SUM(d."貸方金額"), 0)
+                ELSE
+                    COALESCE(SUM(d."貸方金額"), 0) - COALESCE(SUM(d."借方金額"), 0)
+            END as balance
+        FROM "勘定科目マスタ" a
+        LEFT JOIN "日次勘定科目残高" d
+            ON a."勘定科目コード" = d."勘定科目コード"
+            AND d."起票日" = #{asOfDate}
+            AND d."決算仕訳フラグ" = 0
+        WHERE a."BSPL区分" = 'B'
+          AND a."取引要素区分" = #{elementType}
+        GROUP BY a."勘定科目コード", a."勘定科目名", a."勘定科目種別"
+        HAVING CASE
+            WHEN a."勘定科目種別" IN ('資産', '費用') THEN
+                COALESCE(SUM(d."借方金額"), 0) - COALESCE(SUM(d."貸方金額"), 0)
+            ELSE
+                COALESCE(SUM(d."貸方金額"), 0) - COALESCE(SUM(d."借方金額"), 0)
+        END != 0
+        ORDER BY a."勘定科目コード"
+    </select>
+
+    <!-- 損益計算書の明細項目を取得 -->
+    <select id="findIncomeStatementItems" resultType="map">
+        SELECT
+            a."勘定科目コード" as accountCode,
+            a."勘定科目名" as accountName,
+            CASE
+                WHEN a."勘定科目種別" = '収益' THEN
+                    COALESCE(SUM(d."貸方金額"), 0) - COALESCE(SUM(d."借方金額"), 0)
+                ELSE
+                    COALESCE(SUM(d."借方金額"), 0) - COALESCE(SUM(d."貸方金額"), 0)
+            END as balance
+        FROM "勘定科目マスタ" a
+        LEFT JOIN "日次勘定科目残高" d
+            ON a."勘定科目コード" = d."勘定科目コード"
+            AND d."起票日" BETWEEN #{fromDate} AND #{toDate}
+            AND d."決算仕訳フラグ" = 0
+        WHERE a."BSPL区分" = 'P'
+          AND a."取引要素区分" = #{elementType}
+        GROUP BY a."勘定科目コード", a."勘定科目名", a."勘定科目種別"
+        HAVING CASE
+            WHEN a."勘定科目種別" = '収益' THEN
+                COALESCE(SUM(d."貸方金額"), 0) - COALESCE(SUM(d."借方金額"), 0)
+            ELSE
+                COALESCE(SUM(d."借方金額"), 0) - COALESCE(SUM(d."貸方金額"), 0)
+        END != 0
+        ORDER BY a."勘定科目コード"
+    </select>
+
+</mapper>
