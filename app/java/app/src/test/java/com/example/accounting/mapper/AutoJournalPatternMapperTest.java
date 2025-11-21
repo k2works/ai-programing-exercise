@@ -1,9 +1,7 @@
-package com.example.accounting;
+package com.example.accounting.mapper;
 
 import com.example.accounting.entity.AutoJournalPattern;
 import com.example.accounting.entity.AutoJournalPatternItem;
-import com.example.accounting.mapper.AutoJournalPatternItemMapper;
-import com.example.accounting.mapper.AutoJournalPatternMapper;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
