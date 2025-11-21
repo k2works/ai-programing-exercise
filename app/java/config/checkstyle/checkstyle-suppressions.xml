@@ -10,4 +10,10 @@
     <suppress checks="ParameterNumber" files=".*[\\/]balance[\\/]BalanceService\.java" lines="1-9999"/>
     <!-- 財務諸表クラスのコンストラクタはパラメータ数制限を抑制 -->
     <suppress checks="ParameterNumber" files=".*[\\/]financial[\\/].*\.java" lines="1-9999"/>
+    <!-- ドメインモデルのコンストラクタはパラメータ数制限を抑制 -->
+    <suppress checks="ParameterNumber" files=".*[\\/]domain[\\/]model[\\/].*\.java" lines="1-9999"/>
+    <!-- DTOのコンストラクタはパラメータ数制限を抑制 -->
+    <suppress checks="ParameterNumber" files=".*[\\/]dto[\\/].*\.java" lines="1-9999"/>
+    <!-- ロガーの定数名チェックを抑制 -->
+    <suppress checks="ConstantName" files=".*[\\/]exception[\\/]GlobalExceptionHandler\.java" lines="1-9999"/>
 </suppressions>

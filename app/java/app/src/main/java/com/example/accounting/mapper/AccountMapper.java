@@ -50,6 +50,22 @@ public interface AccountMapper {
     List<Account> findByType(@Param("accountType") String accountType);
 
     /**
+     * BSPL区分で検索する
+     *
+     * @param bsplType BSPL区分
+     * @return 勘定科目リスト
+     */
+    List<Account> findByBsplType(@Param("bsplType") String bsplType);
+
+    /**
+     * 勘定科目コードで検索する（findByCodeのエイリアス）
+     *
+     * @param accountCode 勘定科目コード
+     * @return 勘定科目
+     */
+    Account findByAccountCode(@Param("accountCode") String accountCode);
+
+    /**
      * 合計科目のみ取得する
      *
      * @return 合計科目リスト

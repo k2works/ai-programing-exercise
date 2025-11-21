@@ -79,6 +79,17 @@
         ORDER BY "表示順序", "勘定科目コード"
     </select>
 
+    <select id="findByBsplType" resultMap="AccountResultMap">
+        SELECT * FROM "勘定科目マスタ"
+        WHERE "BSPL区分" = #{bsplType}
+        ORDER BY "表示順序", "勘定科目コード"
+    </select>
+
+    <select id="findByAccountCode" resultMap="AccountResultMap">
+        SELECT * FROM "勘定科目マスタ"
+        WHERE "勘定科目コード" = #{accountCode}
+    </select>
+
     <select id="findSummaryAccounts" resultMap="AccountResultMap">
         SELECT * FROM "勘定科目マスタ"
         WHERE "合計科目" = true
