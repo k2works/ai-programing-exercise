@@ -1,4 +1,4 @@
-package com.example.accounting.config;
+package com.example.accounting.application.config;
 
 import javax.sql.DataSource;
 import org.apache.ibatis.session.SqlSessionFactory;
