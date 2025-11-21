@@ -1,25 +1,21 @@
-package com.example.accounting.domain.model.financial;
+package com.example.accounting.application.model.financial;
 
 import java.math.BigDecimal;
 
 /**
- * 損益計算書の項目（勘定科目ごとの金額と構成比率）
+ * 貸借対照表の明細項目
  */
-public class IncomeStatementItem {
+public class BalanceSheetItem {
     private String accountCode;
     private String accountName;
     private BigDecimal balance;
-    private BigDecimal percentage;  // 対売上比
+    private BigDecimal ratio;  // 構成比率（%）
 
-    public IncomeStatementItem() {
-    }
-
-    public IncomeStatementItem(String accountCode, String accountName,
-                               BigDecimal balance, BigDecimal percentage) {
+    public BalanceSheetItem(String accountCode, String accountName, BigDecimal balance, BigDecimal ratio) {
         this.accountCode = accountCode;
         this.accountName = accountName;
         this.balance = balance;
-        this.percentage = percentage;
+        this.ratio = ratio;
     }
 
     public String getAccountCode() {
@@ -46,11 +42,11 @@ public class IncomeStatementItem {
         this.balance = balance;
     }
 
-    public BigDecimal getPercentage() {
-        return percentage;
+    public BigDecimal getRatio() {
+        return ratio;
     }
 
-    public void setPercentage(BigDecimal percentage) {
-        this.percentage = percentage;
+    public void setRatio(BigDecimal ratio) {
+        this.ratio = ratio;
     }
 }

@@ -2,7 +2,7 @@ package com.example.accounting.application.service;
 
 import com.example.accounting.TestDatabaseConfig;
 import com.example.accounting.application.port.out.DailyBalanceRepository;
-import com.example.accounting.domain.model.DailyBalance;
+import com.example.accounting.application.model.DailyBalance;
 import com.example.accounting.infrastructure.persistence.mapper.DailyAccountBalanceMapper;
 import com.example.accounting.infrastructure.persistence.repository.DailyBalanceRepositoryImpl;
 import org.apache.ibatis.io.Resources;

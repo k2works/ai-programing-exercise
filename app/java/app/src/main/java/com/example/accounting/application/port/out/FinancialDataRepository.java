@@ -1,7 +1,7 @@
 package com.example.accounting.application.port.out;
 
-import com.example.accounting.domain.model.financial.BalanceSheetItem;
-import com.example.accounting.domain.model.financial.IncomeStatementItem;
+import com.example.accounting.application.model.financial.BalanceSheetItem;
+import com.example.accounting.application.model.financial.IncomeStatementItem;
 
 import java.time.LocalDate;
 import java.util.List;

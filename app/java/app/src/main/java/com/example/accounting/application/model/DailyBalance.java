@@ -1,4 +1,4 @@
-package com.example.accounting.domain.model;
+package com.example.accounting.application.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

@@ -1,4 +1,4 @@
-package com.example.accounting.domain.model.financial;
+package com.example.accounting.application.model.financial;
 
 import java.math.BigDecimal;
 

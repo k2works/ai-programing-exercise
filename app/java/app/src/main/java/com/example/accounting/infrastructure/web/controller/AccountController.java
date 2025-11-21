@@ -1,7 +1,7 @@
 package com.example.accounting.infrastructure.web.controller;
 
 import com.example.accounting.application.service.AccountService;
-import com.example.accounting.domain.model.Account;
+import com.example.accounting.application.model.Account;
 import com.example.accounting.infrastructure.web.dto.AccountRequest;
 import com.example.accounting.infrastructure.web.dto.AccountResponse;
 import jakarta.validation.Valid;

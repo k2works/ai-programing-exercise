@@ -1,4 +1,4 @@
-package com.example.accounting.domain.model;
+package com.example.accounting.application.model;
 
 /**
  * 勘定科目ドメインモデル

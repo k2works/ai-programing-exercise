@@ -1,11 +1,11 @@
 package com.example.accounting.application.service;
 
 import com.example.accounting.application.port.out.FinancialDataRepository;
-import com.example.accounting.domain.model.financial.BalanceSheet;
-import com.example.accounting.domain.model.financial.BalanceSheetItem;
-import com.example.accounting.domain.model.financial.FinancialRatios;
-import com.example.accounting.domain.model.financial.IncomeStatement;
-import com.example.accounting.domain.model.financial.IncomeStatementItem;
+import com.example.accounting.application.model.financial.BalanceSheet;
+import com.example.accounting.application.model.financial.BalanceSheetItem;
+import com.example.accounting.application.model.financial.FinancialRatios;
+import com.example.accounting.application.model.financial.IncomeStatement;
+import com.example.accounting.application.model.financial.IncomeStatementItem;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
