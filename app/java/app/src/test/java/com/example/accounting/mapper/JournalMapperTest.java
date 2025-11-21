@@ -1,13 +1,10 @@
 package com.example.accounting.mapper;
 
+import com.example.accounting.TestDatabaseConfig;
 import com.example.accounting.entity.Journal;
 import com.example.accounting.entity.JournalDetail;
 import com.example.accounting.entity.JournalDetailItem;
-import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -15,49 +12,18 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Testcontainers
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @DisplayName("仕訳 Mapper - MyBatis テスト")
-class JournalMapperTest {
-
-    @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
-            .withDatabaseName("testdb")
-            .withUsername("testuser")
-            .withPassword("testpass");
-
-    private static SqlSessionFactory sqlSessionFactory;
+class JournalMapperTest extends TestDatabaseConfig {
 
     @BeforeAll
     static void setUp() throws Exception {
-        // Flyway マイグレーション実行
-        Flyway flyway = Flyway.configure()
-                .dataSource(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword())
-                .locations("classpath:db/migration")
-                .load();
-        flyway.migrate();
-
-        // MyBatis セットアップ
-        Properties properties = new Properties();
-        properties.setProperty("driver", "org.postgresql.Driver");
-        properties.setProperty("url", postgres.getJdbcUrl());
-        properties.setProperty("username", postgres.getUsername());
-        properties.setProperty("password", postgres.getPassword());
-
-        InputStream inputStream = Resources.getResourceAsStream("mybatis-config.xml");
-        sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream, properties);
-
         // テスト用勘定科目を登録
         try (SqlSession session = sqlSessionFactory.openSession()) {
             session.getConnection().createStatement().executeUpdate("""

@@ -1,44 +1,51 @@
 package com.example.accounting;
 
-import org.junit.jupiter.api.AfterAll;
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeAll;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.io.InputStream;
+import java.util.Properties;
+
 /**
- * Testcontainersを使用したデータベーステストの基底クラス
+ * Testcontainersを使用したMyBatisテストの基底クラス
+ *
+ * 全てのMapperTestクラスで共通のセットアップ処理を提供します。
  */
-@SpringBootTest
-@ActiveProfiles("test")
 @Testcontainers
 public abstract class TestDatabaseConfig {
 
     @Container
-    private static final PostgreSQLContainer<?> POSTGRES_CONTAINER =
+    protected static final PostgreSQLContainer<?> postgres =
         new PostgreSQLContainer<>("postgres:16-alpine")
             .withDatabaseName("testdb")
             .withUsername("testuser")
             .withPassword("testpass");
 
-    @DynamicPropertySource
-    static void registerPgProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", POSTGRES_CONTAINER::getJdbcUrl);
-        registry.add("spring.datasource.username", POSTGRES_CONTAINER::getUsername);
-        registry.add("spring.datasource.password", POSTGRES_CONTAINER::getPassword);
-    }
+    protected static SqlSessionFactory sqlSessionFactory;
 
     @BeforeAll
-    static void beforeAll() {
-        POSTGRES_CONTAINER.start();
-    }
+    static void setUpDatabase() throws Exception {
+        // Flyway マイグレーション実行
+        Flyway flyway = Flyway.configure()
+                .dataSource(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword())
+                .locations("classpath:db/migration")
+                .load();
+        flyway.migrate();
 
-    @AfterAll
-    static void afterAll() {
-        POSTGRES_CONTAINER.stop();
+        // MyBatis セットアップ
+        Properties properties = new Properties();
+        properties.setProperty("driver", "org.postgresql.Driver");
+        properties.setProperty("url", postgres.getJdbcUrl());
+        properties.setProperty("username", postgres.getUsername());
+        properties.setProperty("password", postgres.getPassword());
+
+        InputStream inputStream = Resources.getResourceAsStream("mybatis-config.xml");
+        sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream, properties);
     }
 }
