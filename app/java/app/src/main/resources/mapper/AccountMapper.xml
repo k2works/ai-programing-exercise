@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.accounting.mapper.AccountMapper">
+
+    <!-- 日本語カラム名と英語プロパティ名のマッピング -->
+    <resultMap id="AccountResultMap" type="com.example.accounting.domain.Account">
+        <id property="accountId" column="勘定科目ID"/>
+        <result property="accountCode" column="勘定科目コード"/>
+        <result property="accountName" column="勘定科目名"/>
+        <result property="accountNameKana" column="勘定科目カナ"/>
+        <result property="accountType" column="勘定科目種別"/>
+        <result property="isSummaryAccount" column="合計科目"/>
+        <result property="bsplType" column="BSPL区分"/>
+        <result property="transactionElementType" column="取引要素区分"/>
+        <result property="expenseType" column="費用区分"/>
+        <result property="displayOrder" column="表示順序"/>
+        <result property="isAggregationTarget" column="集計対象"/>
+        <result property="taxCode" column="課税取引コード"/>
+        <result property="balance" column="残高"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.example.accounting.domain.Account"
+            useGeneratedKeys="true" keyProperty="accountId" keyColumn="勘定科目ID">
+        INSERT INTO "勘定科目マスタ" (
+            "勘定科目コード",
+            "勘定科目名",
+            "勘定科目カナ",
+            "勘定科目種別",
+            "合計科目",
+            "BSPL区分",
+            "取引要素区分",
+            "費用区分",
+            "表示順序",
+            "集計対象",
+            "課税取引コード",
+            "残高",
+            "作成日時",
+            "更新日時"
+        ) VALUES (
+            #{accountCode},
+            #{accountName},
+            #{accountNameKana},
+            #{accountType}::account_type,
+            #{isSummaryAccount},
+            #{bsplType},
+            #{transactionElementType},
+            #{expenseType},
+            #{displayOrder},
+            #{isAggregationTarget},
+            #{taxCode},
+            #{balance},
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <select id="findByCode" resultMap="AccountResultMap">
+        SELECT * FROM "勘定科目マスタ"
+        WHERE "勘定科目コード" = #{accountCode}
+    </select>
+
+    <select id="findById" resultMap="AccountResultMap">
+        SELECT * FROM "勘定科目マスタ"
+        WHERE "勘定科目ID" = #{accountId}
+    </select>
+
+    <select id="findAll" resultMap="AccountResultMap">
+        SELECT * FROM "勘定科目マスタ"
+        ORDER BY "表示順序", "勘定科目コード"
+    </select>
+
+    <select id="findByType" resultMap="AccountResultMap">
+        SELECT * FROM "勘定科目マスタ"
+        WHERE "勘定科目種別" = #{accountType}::account_type
+        ORDER BY "表示順序", "勘定科目コード"
+    </select>
+
+    <select id="findSummaryAccounts" resultMap="AccountResultMap">
+        SELECT * FROM "勘定科目マスタ"
+        WHERE "合計科目" = true
+        ORDER BY "表示順序", "勘定科目コード"
+    </select>
+
+    <select id="findDetailAccounts" resultMap="AccountResultMap">
+        SELECT * FROM "勘定科目マスタ"
+        WHERE "合計科目" = false
+        ORDER BY "表示順序", "勘定科目コード"
+    </select>
+
+    <update id="update" parameterType="com.example.accounting.domain.Account">
+        UPDATE "勘定科目マスタ"
+        SET "勘定科目名" = #{accountName},
+            "勘定科目カナ" = #{accountNameKana},
+            "勘定科目種別" = #{accountType}::account_type,
+            "合計科目" = #{isSummaryAccount},
+            "BSPL区分" = #{bsplType},
+            "取引要素区分" = #{transactionElementType},
+            "費用区分" = #{expenseType},
+            "表示順序" = #{displayOrder},
+            "集計対象" = #{isAggregationTarget},
+            "課税取引コード" = #{taxCode},
+            "残高" = #{balance},
+            "更新日時" = CURRENT_TIMESTAMP
+        WHERE "勘定科目コード" = #{accountCode}
+    </update>
+
+    <update id="updateBalance">
+        UPDATE "勘定科目マスタ"
+        SET "残高" = #{balance},
+            "更新日時" = CURRENT_TIMESTAMP
+        WHERE "勘定科目コード" = #{accountCode}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM "勘定科目マスタ"
+        WHERE "勘定科目コード" = #{accountCode}
+    </delete>
+</mapper>
