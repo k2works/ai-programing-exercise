@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.accounting.mapper.JournalMapper">
+
+    <!-- 結果マップ：仕訳 -->
+    <resultMap id="journalResultMap" type="com.example.accounting.entity.Journal">
+        <id property="journalNo" column="仕訳伝票番号"/>
+        <result property="journalDate" column="起票日"/>
+        <result property="inputDate" column="入力日"/>
+        <result property="settlementFlag" column="決算仕訳フラグ"/>
+        <result property="singleEntryFlag" column="単振フラグ"/>
+        <result property="journalType" column="仕訳伝票区分"/>
+        <result property="recurringFlag" column="定期計上フラグ"/>
+        <result property="employeeCode" column="社員コード"/>
+        <result property="departmentCode" column="部門コード"/>
+        <result property="redSlipFlag" column="赤伝フラグ"/>
+        <result property="redBlackVoucherNo" column="赤黒伝票番号"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+        <collection property="details" ofType="com.example.accounting.entity.JournalDetail"
+                    select="findDetailsByJournalNo" column="仕訳伝票番号"/>
+    </resultMap>
+
+    <!-- 結果マップ：仕訳明細 -->
+    <resultMap id="detailResultMap" type="com.example.accounting.entity.JournalDetail">
+        <id property="journalNo" column="仕訳伝票番号"/>
+        <id property="lineNumber" column="仕訳行番号"/>
+        <result property="description" column="行摘要"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+        <collection property="items" ofType="com.example.accounting.entity.JournalDetailItem"
+                    select="findItemsByJournalNoAndLine" column="{journalNo=仕訳伝票番号,lineNumber=仕訳行番号}"/>
+    </resultMap>
+
+    <!-- 結果マップ：仕訳貸借明細 -->
+    <resultMap id="itemResultMap" type="com.example.accounting.entity.JournalDetailItem">
+        <id property="journalNo" column="仕訳伝票番号"/>
+        <id property="lineNumber" column="仕訳行番号"/>
+        <id property="debitCreditFlag" column="仕訳行貸借区分"/>
+        <result property="currencyCode" column="通貨コード"/>
+        <result property="exchangeRate" column="為替レート"/>
+        <result property="departmentCode" column="部門コード"/>
+        <result property="projectCode" column="プロジェクトコード"/>
+        <result property="accountCode" column="勘定科目コード"/>
+        <result property="subAccountCode" column="補助科目コード"/>
+        <result property="amount" column="仕訳金額"/>
+        <result property="baseAmount" column="基軸換算仕訳金額"/>
+        <result property="taxType" column="消費税区分"/>
+        <result property="taxRate" column="消費税率"/>
+        <result property="taxCalcType" column="消費税計算区分"/>
+        <result property="dueDate" column="期日"/>
+        <result property="cashFlowFlag" column="資金繰フラグ"/>
+        <result property="segmentCode" column="セグメントコード"/>
+        <result property="offsetAccountCode" column="相手勘定科目コード"/>
+        <result property="offsetSubAccountCode" column="相手補助科目コード"/>
+        <result property="noteCode" column="付箋コード"/>
+        <result property="noteContent" column="付箋内容"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+    </resultMap>
+
+    <!-- 仕訳登録 -->
+    <insert id="insertJournal">
+        INSERT INTO "仕訳" (
+            "仕訳伝票番号", "起票日", "入力日", "決算仕訳フラグ", "単振フラグ",
+            "仕訳伝票区分", "定期計上フラグ", "社員コード", "部門コード",
+            "赤伝フラグ", "赤黒伝票番号"
+        ) VALUES (
+            #{journalNo}, #{journalDate}, #{inputDate}, #{settlementFlag}, #{singleEntryFlag},
+            #{journalType}, #{recurringFlag}, #{employeeCode}, #{departmentCode},
+            #{redSlipFlag}, #{redBlackVoucherNo}
+        )
+    </insert>
+
+    <!-- 仕訳明細登録 -->
+    <insert id="insertJournalDetail">
+        INSERT INTO "仕訳明細" (
+            "仕訳伝票番号", "仕訳行番号", "行摘要"
+        ) VALUES (
+            #{journalNo}, #{lineNumber}, #{description}
+        )
+    </insert>
+
+    <!-- 仕訳貸借明細登録 -->
+    <insert id="insertJournalDetailItem">
+        INSERT INTO "仕訳貸借明細" (
+            "仕訳伝票番号", "仕訳行番号", "仕訳行貸借区分",
+            "通貨コード", "為替レート", "部門コード", "プロジェクトコード",
+            "勘定科目コード", "補助科目コード", "仕訳金額", "基軸換算仕訳金額",
+            "消費税区分", "消費税率", "消費税計算区分", "期日", "資金繰フラグ",
+            "セグメントコード", "相手勘定科目コード", "相手補助科目コード",
+            "付箋コード", "付箋内容"
+        ) VALUES (
+            #{journalNo}, #{lineNumber}, #{debitCreditFlag},
+            #{currencyCode}, #{exchangeRate}, #{departmentCode}, #{projectCode},
+            #{accountCode}, #{subAccountCode}, #{amount}, #{baseAmount},
+            #{taxType}, #{taxRate}, #{taxCalcType}, #{dueDate}, #{cashFlowFlag},
+            #{segmentCode}, #{offsetAccountCode}, #{offsetSubAccountCode},
+            #{noteCode}, #{noteContent}
+        )
+    </insert>
+
+    <!-- 仕訳取得 -->
+    <select id="findByJournalNo" resultMap="journalResultMap">
+        SELECT * FROM "仕訳"
+        WHERE "仕訳伝票番号" = #{journalNo}
+    </select>
+
+    <!-- 仕訳明細取得 -->
+    <select id="findDetailsByJournalNo" resultMap="detailResultMap">
+        SELECT * FROM "仕訳明細"
+        WHERE "仕訳伝票番号" = #{journalNo}
+        ORDER BY "仕訳行番号"
+    </select>
+
+    <!-- 仕訳貸借明細取得 -->
+    <select id="findItemsByJournalNoAndLine" resultMap="itemResultMap">
+        SELECT * FROM "仕訳貸借明細"
+        WHERE "仕訳伝票番号" = #{journalNo}
+          AND "仕訳行番号" = #{lineNumber}
+        ORDER BY "仕訳行貸借区分"
+    </select>
+
+    <!-- 仕訳削除 -->
+    <delete id="deleteByJournalNo">
+        DELETE FROM "仕訳" WHERE "仕訳伝票番号" = #{journalNo}
+    </delete>
+
+    <!-- 全仕訳取得 -->
+    <select id="findAll" resultMap="journalResultMap">
+        SELECT * FROM "仕訳"
+        ORDER BY "起票日" DESC, "仕訳伝票番号"
+    </select>
+
+</mapper>

@@ -36,5 +36,6 @@
         <mapper resource="mapper/AccountMapper.xml"/>
         <mapper resource="mapper/AccountStructureMapper.xml"/>
         <mapper resource="mapper/TaxTransactionMapper.xml"/>
+        <mapper resource="mapper/JournalMapper.xml"/>
     </mappers>
 </configuration>
