@@ -285,4 +285,87 @@ public class FinancialStatementService {
             item.setPercentage(percentage);
         }
     }
+
+    /**
+     * 財務指標を計算する
+     *
+     * @param balanceSheet 貸借対照表
+     * @param incomeStatement 損益計算書
+     * @return 財務指標
+     */
+    public FinancialRatios calculateFinancialRatios(
+            BalanceSheet balanceSheet,
+            IncomeStatement incomeStatement) {
+
+        // 流動資産・流動負債の抽出
+        BigDecimal currentAssets = balanceSheet.getAssets().stream()
+                .filter(asset -> asset.getAccountCode().startsWith("11")
+                        || asset.getAccountCode().startsWith("12"))
+                .map(BalanceSheetItem::getBalance)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal currentLiabilities = balanceSheet.getLiabilities().stream()
+                .filter(liability -> liability.getAccountCode().startsWith("21"))
+                .map(BalanceSheetItem::getBalance)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // 各種指標の計算
+        BigDecimal currentRatio = currentLiabilities.compareTo(BigDecimal.ZERO) > 0
+                ? currentAssets.divide(currentLiabilities, 10, RoundingMode.HALF_UP)
+                        .multiply(new BigDecimal("100"))
+                        .setScale(2, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO;
+
+        BigDecimal debtToEquityRatio = balanceSheet.getTotalAssets().compareTo(BigDecimal.ZERO) > 0
+                ? balanceSheet.getTotalEquity()
+                        .divide(balanceSheet.getTotalAssets(), 10, RoundingMode.HALF_UP)
+                        .multiply(new BigDecimal("100"))
+                        .setScale(2, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO;
+
+        BigDecimal grossProfitMargin = incomeStatement.getTotalRevenues().compareTo(BigDecimal.ZERO) > 0
+                ? incomeStatement.getGrossProfit()
+                        .divide(incomeStatement.getTotalRevenues(), 10, RoundingMode.HALF_UP)
+                        .multiply(new BigDecimal("100"))
+                        .setScale(2, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO;
+
+        BigDecimal operatingProfitMargin = incomeStatement.getTotalRevenues().compareTo(BigDecimal.ZERO) > 0
+                ? incomeStatement.getOperatingIncome()
+                        .divide(incomeStatement.getTotalRevenues(), 10, RoundingMode.HALF_UP)
+                        .multiply(new BigDecimal("100"))
+                        .setScale(2, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO;
+
+        BigDecimal netProfitMargin = incomeStatement.getTotalRevenues().compareTo(BigDecimal.ZERO) > 0
+                ? incomeStatement.getNetIncome()
+                        .divide(incomeStatement.getTotalRevenues(), 10, RoundingMode.HALF_UP)
+                        .multiply(new BigDecimal("100"))
+                        .setScale(2, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO;
+
+        BigDecimal roa = balanceSheet.getTotalAssets().compareTo(BigDecimal.ZERO) > 0
+                ? incomeStatement.getNetIncome()
+                        .divide(balanceSheet.getTotalAssets(), 10, RoundingMode.HALF_UP)
+                        .multiply(new BigDecimal("100"))
+                        .setScale(2, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO;
+
+        BigDecimal roe = balanceSheet.getTotalEquity().compareTo(BigDecimal.ZERO) > 0
+                ? incomeStatement.getNetIncome()
+                        .divide(balanceSheet.getTotalEquity(), 10, RoundingMode.HALF_UP)
+                        .multiply(new BigDecimal("100"))
+                        .setScale(2, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO;
+
+        return new FinancialRatios(
+                currentRatio,
+                debtToEquityRatio,
+                grossProfitMargin,
+                operatingProfitMargin,
+                netProfitMargin,
+                roa,
+                roe
+        );
+    }
 }
