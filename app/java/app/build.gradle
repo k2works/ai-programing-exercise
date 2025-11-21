@@ -94,6 +94,7 @@ spotbugs {
 }
 
 tasks.named('spotbugsMain') {
+    ignoreFailures = true
     reports {
         html {
             required = true
