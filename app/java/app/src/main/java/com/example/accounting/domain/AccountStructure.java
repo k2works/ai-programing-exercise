@@ -16,7 +16,8 @@ public class AccountStructure {
     private LocalDateTime createdAt;       // 作成日時
     private LocalDateTime updatedAt;       // 更新日時
 
-    public AccountStructure() {}
+    public AccountStructure() {
+    }
 
     public AccountStructure(String accountCode, String accountPath, Integer hierarchyLevel,
                            String parentAccountCode, Integer displayOrder) {
@@ -60,12 +61,12 @@ public class AccountStructure {
 
     @Override
     public String toString() {
-        return "AccountStructure{" +
-                "accountCode='" + accountCode + '\'' +
-                ", accountPath='" + accountPath + '\'' +
-                ", hierarchyLevel=" + hierarchyLevel +
-                ", parentAccountCode='" + parentAccountCode + '\'' +
-                ", displayOrder=" + displayOrder +
-                '}';
+        return "AccountStructure{"
+                + "accountCode='" + accountCode + '\''
+                + ", accountPath='" + accountPath + '\''
+                + ", hierarchyLevel=" + hierarchyLevel
+                + ", parentAccountCode='" + parentAccountCode + '\''
+                + ", displayOrder=" + displayOrder
+                + '}';
     }
 }

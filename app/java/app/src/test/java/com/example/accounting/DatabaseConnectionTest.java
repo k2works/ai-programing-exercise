@@ -29,11 +29,11 @@ class DatabaseConnectionTest extends TestDatabaseConfig {
     void testTableExists() {
         // 勘定科目マスタテーブルの存在確認
         Boolean exists = jdbcTemplate.queryForObject(
-            "SELECT EXISTS (" +
-            "  SELECT FROM information_schema.tables " +
-            "  WHERE table_schema = 'public' " +
-            "  AND table_name = '勘定科目マスタ'" +
-            ")",
+            "SELECT EXISTS ("
+            + "  SELECT FROM information_schema.tables "
+            + "  WHERE table_schema = 'public' "
+            + "  AND table_name = '勘定科目マスタ'"
+            + ")",
             Boolean.class
         );
         assertThat(exists).isTrue();
@@ -44,8 +44,8 @@ class DatabaseConnectionTest extends TestDatabaseConfig {
     void testDataCleanup() {
         // 最初のテストデータ挿入
         jdbcTemplate.update(
-            "INSERT INTO \"勘定科目マスタ\" (\"勘定科目コード\", \"勘定科目名\", \"勘定科目種別\", \"残高\") " +
-            "VALUES (?, ?, ?::account_type, ?)",
+            "INSERT INTO \"勘定科目マスタ\" (\"勘定科目コード\", \"勘定科目名\", \"勘定科目種別\", \"残高\") "
+            + "VALUES (?, ?, ?::account_type, ?)",
             "1000", "現金", "資産", 50000
         );
 

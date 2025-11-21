@@ -19,7 +19,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 public abstract class TestDatabaseConfig {
 
     @Container
-    private static final PostgreSQLContainer<?> postgresContainer =
+    private static final PostgreSQLContainer<?> POSTGRES_CONTAINER =
         new PostgreSQLContainer<>("postgres:16-alpine")
             .withDatabaseName("testdb")
             .withUsername("testuser")
@@ -27,18 +27,18 @@ public abstract class TestDatabaseConfig {
 
     @DynamicPropertySource
     static void registerPgProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgresContainer::getJdbcUrl);
-        registry.add("spring.datasource.username", postgresContainer::getUsername);
-        registry.add("spring.datasource.password", postgresContainer::getPassword);
+        registry.add("spring.datasource.url", POSTGRES_CONTAINER::getJdbcUrl);
+        registry.add("spring.datasource.username", POSTGRES_CONTAINER::getUsername);
+        registry.add("spring.datasource.password", POSTGRES_CONTAINER::getPassword);
     }
 
     @BeforeAll
     static void beforeAll() {
-        postgresContainer.start();
+        POSTGRES_CONTAINER.start();
     }
 
     @AfterAll
     static void afterAll() {
-        postgresContainer.stop();
+        POSTGRES_CONTAINER.stop();
     }
 }

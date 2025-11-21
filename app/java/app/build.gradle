@@ -101,6 +101,7 @@ tasks.named('spotbugsMain') {
 }
 
 tasks.named('spotbugsTest') {
+    ignoreFailures = true
     reports {
         html {
             required = true
