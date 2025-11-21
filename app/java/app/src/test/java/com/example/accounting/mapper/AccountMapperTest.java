@@ -1,6 +1,6 @@
 package com.example.accounting.mapper;
 
-import com.example.accounting.domain.Account;
+import com.example.accounting.entity.Account;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;

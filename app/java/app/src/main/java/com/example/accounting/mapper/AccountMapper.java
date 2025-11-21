@@ -1,6 +1,6 @@
 package com.example.accounting.mapper;
 
-import com.example.accounting.domain.Account;
+import com.example.accounting.entity.Account;
 import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;

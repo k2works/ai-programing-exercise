@@ -1,6 +1,6 @@
 package com.example.accounting.mapper;
 
-import com.example.accounting.domain.AccountStructure;
+import com.example.accounting.entity.AccountStructure;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

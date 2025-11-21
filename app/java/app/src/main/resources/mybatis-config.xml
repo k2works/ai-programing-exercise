@@ -17,7 +17,7 @@
     </settings>
 
     <typeAliases>
-        <package name="com.example.accounting.domain"/>
+        <package name="com.example.accounting.entity"/>
     </typeAliases>
 
     <environments default="development">
