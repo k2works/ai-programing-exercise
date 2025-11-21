@@ -69,7 +69,7 @@ class Journal3LayerTest {
     @Test
     @Order(1)
     @DisplayName("3層構造での仕訳登録_単純な仕訳")
-    void test_3層構造での仕訳登録_単純な仕訳() throws SQLException {
+    void testSimpleJournalEntryWith3LayerStructure() throws SQLException {
         // Given: 現金100,000円で商品を仕入れる仕訳
         String journalNo = "JE-20250101-001";
         LocalDate journalDate = LocalDate.of(2025, 1, 1);
@@ -184,7 +184,7 @@ class Journal3LayerTest {
     @Test
     @Order(2)
     @DisplayName("3層構造での仕訳登録_複合仕訳")
-    void test_3層構造での仕訳登録_複合仕訳() throws SQLException {
+    void testComplexJournalEntryWith3LayerStructure() throws SQLException {
         // Given: 売掛金の回収（振込手数料差引）
         // 売掛金 100,000円 → 普通預金 99,560円 + 支払手数料 440円
         String journalNo = "JE-20250102-001";
@@ -336,7 +336,7 @@ class Journal3LayerTest {
     @Test
     @Order(3)
     @DisplayName("外部キー制約_仕訳削除時に明細も削除される")
-    void test_外部キー制約_仕訳削除時に明細も削除される() throws SQLException {
+    void testCascadeDeleteOnJournalDeletion() throws SQLException {
         // Given: 仕訳を登録
         String journalNo = "JE-20250103-001";
         LocalDate journalDate = LocalDate.of(2025, 1, 3);

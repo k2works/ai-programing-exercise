@@ -240,9 +240,9 @@ public class JournalDetailItem {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         JournalDetailItem that = (JournalDetailItem) o;
-        return Objects.equals(journalNo, that.journalNo) &&
-                Objects.equals(lineNumber, that.lineNumber) &&
-                Objects.equals(debitCreditFlag, that.debitCreditFlag);
+        return Objects.equals(journalNo, that.journalNo)
+                && Objects.equals(lineNumber, that.lineNumber)
+                && Objects.equals(debitCreditFlag, that.debitCreditFlag);
     }
 
     @Override
@@ -252,30 +252,30 @@ public class JournalDetailItem {
 
     @Override
     public String toString() {
-        return "JournalDetailItem{" +
-                "journalNo='" + journalNo + '\'' +
-                ", lineNumber=" + lineNumber +
-                ", debitCreditFlag='" + debitCreditFlag + '\'' +
-                ", currencyCode='" + currencyCode + '\'' +
-                ", exchangeRate=" + exchangeRate +
-                ", departmentCode='" + departmentCode + '\'' +
-                ", projectCode='" + projectCode + '\'' +
-                ", accountCode='" + accountCode + '\'' +
-                ", subAccountCode='" + subAccountCode + '\'' +
-                ", amount=" + amount +
-                ", baseAmount=" + baseAmount +
-                ", taxType='" + taxType + '\'' +
-                ", taxRate=" + taxRate +
-                ", taxCalcType='" + taxCalcType + '\'' +
-                ", dueDate=" + dueDate +
-                ", cashFlowFlag=" + cashFlowFlag +
-                ", segmentCode='" + segmentCode + '\'' +
-                ", offsetAccountCode='" + offsetAccountCode + '\'' +
-                ", offsetSubAccountCode='" + offsetSubAccountCode + '\'' +
-                ", noteCode='" + noteCode + '\'' +
-                ", noteContent='" + noteContent + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                '}';
+        return "JournalDetailItem{"
+                + "journalNo='" + journalNo + '\''
+                + ", lineNumber=" + lineNumber
+                + ", debitCreditFlag='" + debitCreditFlag + '\''
+                + ", currencyCode='" + currencyCode + '\''
+                + ", exchangeRate=" + exchangeRate
+                + ", departmentCode='" + departmentCode + '\''
+                + ", projectCode='" + projectCode + '\''
+                + ", accountCode='" + accountCode + '\''
+                + ", subAccountCode='" + subAccountCode + '\''
+                + ", amount=" + amount
+                + ", baseAmount=" + baseAmount
+                + ", taxType='" + taxType + '\''
+                + ", taxRate=" + taxRate
+                + ", taxCalcType='" + taxCalcType + '\''
+                + ", dueDate=" + dueDate
+                + ", cashFlowFlag=" + cashFlowFlag
+                + ", segmentCode='" + segmentCode + '\''
+                + ", offsetAccountCode='" + offsetAccountCode + '\''
+                + ", offsetSubAccountCode='" + offsetSubAccountCode + '\''
+                + ", noteCode='" + noteCode + '\''
+                + ", noteContent='" + noteContent + '\''
+                + ", createdAt=" + createdAt
+                + ", updatedAt=" + updatedAt
+                + '}';
     }
 }

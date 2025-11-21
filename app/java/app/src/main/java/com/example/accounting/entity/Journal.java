@@ -175,21 +175,21 @@ public class Journal {
 
     @Override
     public String toString() {
-        return "Journal{" +
-                "journalNo='" + journalNo + '\'' +
-                ", journalDate=" + journalDate +
-                ", inputDate=" + inputDate +
-                ", settlementFlag=" + settlementFlag +
-                ", singleEntryFlag=" + singleEntryFlag +
-                ", journalType=" + journalType +
-                ", recurringFlag=" + recurringFlag +
-                ", employeeCode='" + employeeCode + '\'' +
-                ", departmentCode='" + departmentCode + '\'' +
-                ", redSlipFlag=" + redSlipFlag +
-                ", redBlackVoucherNo='" + redBlackVoucherNo + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", details=" + details +
-                '}';
+        return "Journal{"
+                + "journalNo='" + journalNo + '\''
+                + ", journalDate=" + journalDate
+                + ", inputDate=" + inputDate
+                + ", settlementFlag=" + settlementFlag
+                + ", singleEntryFlag=" + singleEntryFlag
+                + ", journalType=" + journalType
+                + ", recurringFlag=" + recurringFlag
+                + ", employeeCode='" + employeeCode + '\''
+                + ", departmentCode='" + departmentCode + '\''
+                + ", redSlipFlag=" + redSlipFlag
+                + ", redBlackVoucherNo='" + redBlackVoucherNo + '\''
+                + ", createdAt=" + createdAt
+                + ", updatedAt=" + updatedAt
+                + ", details=" + details
+                + '}';
     }
 }

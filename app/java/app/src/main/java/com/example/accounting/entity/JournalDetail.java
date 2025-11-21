@@ -87,8 +87,8 @@ public class JournalDetail {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         JournalDetail that = (JournalDetail) o;
-        return Objects.equals(journalNo, that.journalNo) &&
-                Objects.equals(lineNumber, that.lineNumber);
+        return Objects.equals(journalNo, that.journalNo)
+                && Objects.equals(lineNumber, that.lineNumber);
     }
 
     @Override
@@ -98,13 +98,13 @@ public class JournalDetail {
 
     @Override
     public String toString() {
-        return "JournalDetail{" +
-                "journalNo='" + journalNo + '\'' +
-                ", lineNumber=" + lineNumber +
-                ", description='" + description + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", items=" + items +
-                '}';
+        return "JournalDetail{"
+                + "journalNo='" + journalNo + '\''
+                + ", lineNumber=" + lineNumber
+                + ", description='" + description + '\''
+                + ", createdAt=" + createdAt
+                + ", updatedAt=" + updatedAt
+                + ", items=" + items
+                + '}';
     }
 }
