@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.accounting.mapper.AutoJournalPatternMapper">
+
+    <!-- ResultMap for AutoJournalPattern -->
+    <resultMap id="patternResultMap" type="com.example.accounting.entity.AutoJournalPattern">
+        <id property="id" column="ID"/>
+        <result property="patternCode" column="パターンコード"/>
+        <result property="patternName" column="パターン名"/>
+        <result property="sourceTableName" column="ソーステーブル名"/>
+        <result property="description" column="説明"/>
+        <result property="isActive" column="有効フラグ"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+        <collection property="items" ofType="com.example.accounting.entity.AutoJournalPatternItem"
+                    select="findItemsByPatternId" column="ID"/>
+    </resultMap>
+
+    <!-- ResultMap for AutoJournalPatternItem -->
+    <resultMap id="itemResultMap" type="com.example.accounting.entity.AutoJournalPatternItem">
+        <id property="id" column="ID"/>
+        <result property="patternId" column="パターンID"/>
+        <result property="lineNumber" column="行番号"/>
+        <result property="debitCreditFlag" column="貸借区分"/>
+        <result property="accountCode" column="勘定科目コード"/>
+        <result property="amountExpression" column="金額式"/>
+        <result property="descriptionTemplate" column="摘要テンプレート"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+    </resultMap>
+
+    <!-- 全件取得 -->
+    <select id="findAll" resultMap="patternResultMap">
+        SELECT * FROM "自動仕訳パターン"
+        ORDER BY "ID"
+    </select>
+
+    <!-- ID検索 -->
+    <select id="findById" parameterType="long" resultMap="patternResultMap">
+        SELECT * FROM "自動仕訳パターン"
+        WHERE "ID" = #{id}
+    </select>
+
+    <!-- パターンコード検索 -->
+    <select id="findByPatternCode" parameterType="string" resultMap="patternResultMap">
+        SELECT * FROM "自動仕訳パターン"
+        WHERE "パターンコード" = #{patternCode}
+    </select>
+
+    <!-- ソーステーブル名で検索 -->
+    <select id="findBySourceTableName" parameterType="string" resultMap="patternResultMap">
+        SELECT * FROM "自動仕訳パターン"
+        WHERE "ソーステーブル名" = #{sourceTableName}
+        ORDER BY "ID"
+    </select>
+
+    <!-- 有効なパターンを取得 -->
+    <select id="findActivePatterns" resultMap="patternResultMap">
+        SELECT * FROM "自動仕訳パターン"
+        WHERE "有効フラグ" = true
+        ORDER BY "ID"
+    </select>
+
+    <!-- パターンIDでパターン明細を取得（collectionで使用） -->
+    <select id="findItemsByPatternId" parameterType="long" resultMap="itemResultMap">
+        SELECT * FROM "自動仕訳パターン明細"
+        WHERE "パターンID" = #{id}
+        ORDER BY "行番号"
+    </select>
+
+    <!-- 挿入 -->
+    <insert id="insert" parameterType="com.example.accounting.entity.AutoJournalPattern"
+            useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
+        INSERT INTO "自動仕訳パターン" (
+            "パターンコード", "パターン名", "ソーステーブル名", "説明", "有効フラグ"
+        ) VALUES (
+            #{patternCode}, #{patternName}, #{sourceTableName}, #{description}, #{isActive}
+        )
+    </insert>
+
+    <!-- 更新 -->
+    <update id="update" parameterType="com.example.accounting.entity.AutoJournalPattern">
+        UPDATE "自動仕訳パターン"
+        SET "パターン名" = #{patternName},
+            "ソーステーブル名" = #{sourceTableName},
+            "説明" = #{description},
+            "有効フラグ" = #{isActive},
+            "更新日時" = CURRENT_TIMESTAMP
+        WHERE "ID" = #{id}
+    </update>
+
+    <!-- 削除 -->
+    <delete id="delete" parameterType="long">
+        DELETE FROM "自動仕訳パターン"
+        WHERE "ID" = #{id}
+    </delete>
+
+</mapper>

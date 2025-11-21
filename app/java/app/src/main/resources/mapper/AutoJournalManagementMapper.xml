@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.accounting.mapper.AutoJournalManagementMapper">
+
+    <!-- ResultMap for AutoJournalManagement -->
+    <resultMap id="managementResultMap" type="com.example.accounting.entity.AutoJournalManagement">
+        <id property="id" column="ID"/>
+        <result property="sourceTableName" column="ソーステーブル名"/>
+        <result property="lastProcessedAt" column="最終処理日時"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+    </resultMap>
+
+    <!-- 全件取得 -->
+    <select id="findAll" resultMap="managementResultMap">
+        SELECT * FROM "自動仕訳管理"
+        ORDER BY "ID"
+    </select>
+
+    <!-- ID検索 -->
+    <select id="findById" parameterType="long" resultMap="managementResultMap">
+        SELECT * FROM "自動仕訳管理"
+        WHERE "ID" = #{id}
+    </select>
+
+    <!-- ソーステーブル名で検索 -->
+    <select id="findBySourceTableName" parameterType="string" resultMap="managementResultMap">
+        SELECT * FROM "自動仕訳管理"
+        WHERE "ソーステーブル名" = #{sourceTableName}
+    </select>
+
+    <!-- 挿入 -->
+    <insert id="insert" parameterType="com.example.accounting.entity.AutoJournalManagement"
+            useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
+        INSERT INTO "自動仕訳管理" (
+            "ソーステーブル名", "最終処理日時"
+        ) VALUES (
+            #{sourceTableName}, #{lastProcessedAt}
+        )
+    </insert>
+
+    <!-- 更新 -->
+    <update id="update" parameterType="com.example.accounting.entity.AutoJournalManagement">
+        UPDATE "自動仕訳管理"
+        SET "最終処理日時" = #{lastProcessedAt},
+            "更新日時" = CURRENT_TIMESTAMP
+        WHERE "ID" = #{id}
+    </update>
+
+    <!-- 削除 -->
+    <delete id="delete" parameterType="long">
+        DELETE FROM "自動仕訳管理"
+        WHERE "ID" = #{id}
+    </delete>
+
+</mapper>

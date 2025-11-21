@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.accounting.mapper.AutoJournalPatternItemMapper">
+
+    <!-- ResultMap for AutoJournalPatternItem -->
+    <resultMap id="itemResultMap" type="com.example.accounting.entity.AutoJournalPatternItem">
+        <id property="id" column="ID"/>
+        <result property="patternId" column="パターンID"/>
+        <result property="lineNumber" column="行番号"/>
+        <result property="debitCreditFlag" column="貸借区分"/>
+        <result property="accountCode" column="勘定科目コード"/>
+        <result property="amountExpression" column="金額式"/>
+        <result property="descriptionTemplate" column="摘要テンプレート"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+    </resultMap>
+
+    <!-- 全件取得 -->
+    <select id="findAll" resultMap="itemResultMap">
+        SELECT * FROM "自動仕訳パターン明細"
+        ORDER BY "パターンID", "行番号"
+    </select>
+
+    <!-- ID検索 -->
+    <select id="findById" parameterType="long" resultMap="itemResultMap">
+        SELECT * FROM "自動仕訳パターン明細"
+        WHERE "ID" = #{id}
+    </select>
+
+    <!-- パターンIDで検索 -->
+    <select id="findByPatternId" parameterType="long" resultMap="itemResultMap">
+        SELECT * FROM "自動仕訳パターン明細"
+        WHERE "パターンID" = #{patternId}
+        ORDER BY "行番号"
+    </select>
+
+    <!-- 挿入 -->
+    <insert id="insert" parameterType="com.example.accounting.entity.AutoJournalPatternItem"
+            useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
+        INSERT INTO "自動仕訳パターン明細" (
+            "パターンID", "行番号", "貸借区分", "勘定科目コード", "金額式", "摘要テンプレート"
+        ) VALUES (
+            #{patternId}, #{lineNumber}, #{debitCreditFlag}, #{accountCode},
+            #{amountExpression}, #{descriptionTemplate}
+        )
+    </insert>
+
+    <!-- 更新 -->
+    <update id="update" parameterType="com.example.accounting.entity.AutoJournalPatternItem">
+        UPDATE "自動仕訳パターン明細"
+        SET "行番号" = #{lineNumber},
+            "貸借区分" = #{debitCreditFlag},
+            "勘定科目コード" = #{accountCode},
+            "金額式" = #{amountExpression},
+            "摘要テンプレート" = #{descriptionTemplate},
+            "更新日時" = CURRENT_TIMESTAMP
+        WHERE "ID" = #{id}
+    </update>
+
+    <!-- 削除 -->
+    <delete id="delete" parameterType="long">
+        DELETE FROM "自動仕訳パターン明細"
+        WHERE "ID" = #{id}
+    </delete>
+
+    <!-- パターンIDで削除 -->
+    <delete id="deleteByPatternId" parameterType="long">
+        DELETE FROM "自動仕訳パターン明細"
+        WHERE "パターンID" = #{patternId}
+    </delete>
+
+</mapper>

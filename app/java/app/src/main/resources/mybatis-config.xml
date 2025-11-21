@@ -37,5 +37,9 @@
         <mapper resource="mapper/AccountStructureMapper.xml"/>
         <mapper resource="mapper/TaxTransactionMapper.xml"/>
         <mapper resource="mapper/JournalMapper.xml"/>
+        <mapper resource="mapper/AutoJournalManagementMapper.xml"/>
+        <mapper resource="mapper/AutoJournalPatternMapper.xml"/>
+        <mapper resource="mapper/AutoJournalPatternItemMapper.xml"/>
+        <mapper resource="mapper/AutoJournalLogMapper.xml"/>
     </mappers>
 </configuration>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.accounting.mapper.AutoJournalLogMapper">
+
+    <!-- ResultMap for AutoJournalLog -->
+    <resultMap id="logResultMap" type="com.example.accounting.entity.AutoJournalLog">
+        <id property="id" column="ID"/>
+        <result property="patternId" column="パターンID"/>
+        <result property="executedAt" column="実行日時"/>
+        <result property="processedCount" column="処理件数"/>
+        <result property="generatedCount" column="生成件数"/>
+        <result property="status" column="ステータス"/>
+        <result property="message" column="メッセージ"/>
+        <result property="errorDetail" column="エラー詳細"/>
+        <result property="createdAt" column="作成日時"/>
+    </resultMap>
+
+    <!-- 全件取得 -->
+    <select id="findAll" resultMap="logResultMap">
+        SELECT * FROM "自動仕訳実行ログ"
+        ORDER BY "実行日時" DESC
+    </select>
+
+    <!-- ID検索 -->
+    <select id="findById" parameterType="long" resultMap="logResultMap">
+        SELECT * FROM "自動仕訳実行ログ"
+        WHERE "ID" = #{id}
+    </select>
+
+    <!-- パターンIDで検索 -->
+    <select id="findByPatternId" parameterType="long" resultMap="logResultMap">
+        SELECT * FROM "自動仕訳実行ログ"
+        WHERE "パターンID" = #{patternId}
+        ORDER BY "実行日時" DESC
+    </select>
+
+    <!-- ステータスで検索 -->
+    <select id="findByStatus" parameterType="string" resultMap="logResultMap">
+        SELECT * FROM "自動仕訳実行ログ"
+        WHERE "ステータス" = #{status}
+        ORDER BY "実行日時" DESC
+    </select>
+
+    <!-- 挿入 -->
+    <insert id="insert" parameterType="com.example.accounting.entity.AutoJournalLog"
+            useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
+        INSERT INTO "自動仕訳実行ログ" (
+            "パターンID", "実行日時", "処理件数", "生成件数",
+            "ステータス", "メッセージ", "エラー詳細"
+        ) VALUES (
+            #{patternId}, #{executedAt}, #{processedCount}, #{generatedCount},
+            #{status}, #{message}, #{errorDetail}
+        )
+    </insert>
+
+    <!-- 更新 -->
+    <update id="update" parameterType="com.example.accounting.entity.AutoJournalLog">
+        UPDATE "自動仕訳実行ログ"
+        SET "処理件数" = #{processedCount},
+            "生成件数" = #{generatedCount},
+            "ステータス" = #{status},
+            "メッセージ" = #{message},
+            "エラー詳細" = #{errorDetail}
+        WHERE "ID" = #{id}
+    </update>
+
+    <!-- 削除 -->
+    <delete id="delete" parameterType="long">
+        DELETE FROM "自動仕訳実行ログ"
+        WHERE "ID" = #{id}
+    </delete>
+
+</mapper>
