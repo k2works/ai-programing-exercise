@@ -7,6 +7,7 @@ plugins {
     id 'com.github.spotbugs' version '6.0.7'
     id 'org.springframework.boot' version '3.2.0'
     id 'io.spring.dependency-management' version '1.1.4'
+    id 'org.flywaydb.flyway' version '9.22.0'
 }
 
 group = 'com.example.accounting'
@@ -107,4 +108,12 @@ tasks.named('spotbugsTest') {
             required = true
         }
     }
+}
+
+flyway {
+    url = project.findProperty('flyway.url') ?: 'jdbc:postgresql://localhost:5432/accounting_system'
+    user = project.findProperty('flyway.user') ?: 'postgres'
+    password = project.findProperty('flyway.password') ?: 'postgres'
+    locations = ['classpath:db/migration']
+    baselineOnMigrate = true
 }
