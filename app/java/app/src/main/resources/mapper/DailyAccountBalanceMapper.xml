@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.accounting.infrastructure.persistence.mapper.DailyAccountBalanceMapper">
+
+    <!-- ResultMap -->
+    <resultMap id="DailyAccountBalanceResultMap" type="com.example.accounting.infrastructure.persistence.entity.DailyAccountBalance">
+        <result property="entryDate" column="起票日"/>
+        <result property="accountCode" column="勘定科目コード"/>
+        <result property="subAccountCode" column="補助科目コード"/>
+        <result property="departmentCode" column="部門コード"/>
+        <result property="projectCode" column="プロジェクトコード"/>
+        <result property="settlementFlag" column="決算仕訳フラグ"/>
+        <result property="debitAmount" column="借方金額"/>
+        <result property="creditAmount" column="貸方金額"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+    </resultMap>
+
+    <!-- UPSERT -->
+    <insert id="upsert" parameterType="com.example.accounting.infrastructure.persistence.entity.DailyAccountBalance">
+        INSERT INTO "日次勘定科目残高" (
+            "起票日",
+            "勘定科目コード",
+            "補助科目コード",
+            "部門コード",
+            "プロジェクトコード",
+            "決算仕訳フラグ",
+            "借方金額",
+            "貸方金額"
+        ) VALUES (
+            #{entryDate},
+            #{accountCode},
+            #{subAccountCode},
+            #{departmentCode},
+            #{projectCode},
+            #{settlementFlag},
+            #{debitAmount},
+            #{creditAmount}
+        )
+        ON CONFLICT (
+            "起票日",
+            "勘定科目コード",
+            "補助科目コード",
+            "部門コード",
+            "プロジェクトコード",
+            "決算仕訳フラグ"
+        )
+        DO UPDATE SET
+            "借方金額" = "日次勘定科目残高"."借方金額" + EXCLUDED."借方金額",
+            "貸方金額" = "日次勘定科目残高"."貸方金額" + EXCLUDED."貸方金額",
+            "更新日時" = CURRENT_TIMESTAMP
+    </insert>
+
+    <!-- キーで検索 -->
+    <select id="findByKey" resultMap="DailyAccountBalanceResultMap">
+        SELECT
+            "起票日",
+            "勘定科目コード",
+            "補助科目コード",
+            "部門コード",
+            "プロジェクトコード",
+            "決算仕訳フラグ",
+            "借方金額",
+            "貸方金額",
+            "作成日時",
+            "更新日時"
+        FROM "日次勘定科目残高"
+        WHERE "起票日" = #{entryDate}
+          AND "勘定科目コード" = #{accountCode}
+          AND "補助科目コード" = #{subAccountCode}
+          AND "部門コード" = #{departmentCode}
+          AND "プロジェクトコード" = #{projectCode}
+          AND "決算仕訳フラグ" = #{settlementFlag}
+    </select>
+
+    <!-- 日付で検索 -->
+    <select id="findByDate" resultMap="DailyAccountBalanceResultMap">
+        SELECT
+            "起票日",
+            "勘定科目コード",
+            "補助科目コード",
+            "部門コード",
+            "プロジェクトコード",
+            "決算仕訳フラグ",
+            "借方金額",
+            "貸方金額",
+            "作成日時",
+            "更新日時"
+        FROM "日次勘定科目残高"
+        WHERE "起票日" = #{entryDate}
+        ORDER BY "勘定科目コード", "補助科目コード"
+    </select>
+
+    <!-- 期間で検索 -->
+    <select id="findByDateRange" resultMap="DailyAccountBalanceResultMap">
+        SELECT
+            "起票日",
+            "勘定科目コード",
+            "補助科目コード",
+            "部門コード",
+            "プロジェクトコード",
+            "決算仕訳フラグ",
+            "借方金額",
+            "貸方金額",
+            "作成日時",
+            "更新日時"
+        FROM "日次勘定科目残高"
+        WHERE "起票日" BETWEEN #{startDate} AND #{endDate}
+        ORDER BY "起票日", "勘定科目コード", "補助科目コード"
+    </select>
+
+    <!-- 勘定科目コードで検索 -->
+    <select id="findByAccountCode" resultMap="DailyAccountBalanceResultMap">
+        SELECT
+            "起票日",
+            "勘定科目コード",
+            "補助科目コード",
+            "部門コード",
+            "プロジェクトコード",
+            "決算仕訳フラグ",
+            "借方金額",
+            "貸方金額",
+            "作成日時",
+            "更新日時"
+        FROM "日次勘定科目残高"
+        WHERE "勘定科目コード" = #{accountCode}
+        ORDER BY "起票日", "補助科目コード"
+    </select>
+
+</mapper>
