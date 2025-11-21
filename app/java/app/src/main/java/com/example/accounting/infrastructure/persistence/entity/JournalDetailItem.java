@@ -1,4 +1,4 @@
-package com.example.accounting.entity;
+package com.example.accounting.infrastructure.persistence.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

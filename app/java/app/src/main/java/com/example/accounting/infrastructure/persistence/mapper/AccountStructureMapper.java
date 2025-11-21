@@ -1,6 +1,6 @@
-package com.example.accounting.mapper;
+package com.example.accounting.infrastructure.persistence.mapper;
 
-import com.example.accounting.entity.AccountStructure;
+import com.example.accounting.infrastructure.persistence.entity.AccountStructure;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

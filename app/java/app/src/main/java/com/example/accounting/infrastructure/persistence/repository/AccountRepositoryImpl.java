@@ -2,7 +2,7 @@ package com.example.accounting.infrastructure.persistence.repository;
 
 import com.example.accounting.application.port.out.AccountRepository;
 import com.example.accounting.domain.model.Account;
-import com.example.accounting.mapper.AccountMapper;
+import com.example.accounting.infrastructure.persistence.mapper.AccountMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -31,7 +31,7 @@ public class AccountRepositoryImpl implements AccountRepository {
 
     @Override
     public Optional<Account> findByCode(String accountCode) {
-        com.example.accounting.entity.Account entity = accountMapper.findByAccountCode(accountCode);
+        com.example.accounting.infrastructure.persistence.entity.Account entity = accountMapper.findByAccountCode(accountCode);
         return Optional.ofNullable(entity).map(this::toDomainModel);
     }
 
@@ -44,7 +44,7 @@ public class AccountRepositoryImpl implements AccountRepository {
 
     @Override
     public Account save(Account account) {
-        com.example.accounting.entity.Account entity = accountMapper.findByAccountCode(account.getAccountCode());
+        com.example.accounting.infrastructure.persistence.entity.Account entity = accountMapper.findByAccountCode(account.getAccountCode());
 
         if (entity == null) {
             // 新規作成
@@ -68,7 +68,7 @@ public class AccountRepositoryImpl implements AccountRepository {
     /**
      * EntityからDomain Modelへ変換
      */
-    private Account toDomainModel(com.example.accounting.entity.Account entity) {
+    private Account toDomainModel(com.example.accounting.infrastructure.persistence.entity.Account entity) {
         if (entity == null) {
             return null;
         }
@@ -90,8 +90,8 @@ public class AccountRepositoryImpl implements AccountRepository {
     /**
      * Domain ModelからEntityへ変換
      */
-    private com.example.accounting.entity.Account toEntity(Account domain) {
-        com.example.accounting.entity.Account entity = new com.example.accounting.entity.Account();
+    private com.example.accounting.infrastructure.persistence.entity.Account toEntity(Account domain) {
+        com.example.accounting.infrastructure.persistence.entity.Account entity = new com.example.accounting.infrastructure.persistence.entity.Account();
         entity.setAccountCode(domain.getAccountCode());
         entity.setAccountName(domain.getAccountName());
         entity.setAccountNameKana(domain.getAccountKana());

@@ -1,8 +1,8 @@
-package com.example.accounting.mapper;
+package com.example.accounting.infrastructure.persistence.mapper;
 
-import com.example.accounting.entity.Journal;
-import com.example.accounting.entity.JournalDetail;
-import com.example.accounting.entity.JournalDetailItem;
+import com.example.accounting.infrastructure.persistence.entity.Journal;
+import com.example.accounting.infrastructure.persistence.entity.JournalDetail;
+import com.example.accounting.infrastructure.persistence.entity.JournalDetailItem;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

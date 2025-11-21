@@ -17,7 +17,7 @@ mybatis:
   configuration:
     map-underscore-to-camel-case: false
   mapper-locations: classpath*:mapper/*.xml
-  type-aliases-package: com.example.accounting.entity
+  type-aliases-package: com.example.accounting.infrastructure.persistence.entity
 
 server:
   port: 8080

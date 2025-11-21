@@ -1,4 +1,4 @@
-package com.example.accounting.entity;
+package com.example.accounting.infrastructure.persistence.entity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

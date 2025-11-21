@@ -1,7 +1,7 @@
-package com.example.accounting.mapper;
+package com.example.accounting.infrastructure.persistence.mapper;
 
 import com.example.accounting.TestDatabaseConfig;
-import com.example.accounting.entity.TaxTransaction;
+import com.example.accounting.infrastructure.persistence.entity.TaxTransaction;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;

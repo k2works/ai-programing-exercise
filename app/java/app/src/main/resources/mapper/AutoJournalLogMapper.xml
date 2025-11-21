@@ -2,10 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.example.accounting.mapper.AutoJournalLogMapper">
+<mapper namespace="com.example.accounting.infrastructure.persistence.mapper.AutoJournalLogMapper">
 
     <!-- ResultMap for AutoJournalLog -->
-    <resultMap id="logResultMap" type="com.example.accounting.entity.AutoJournalLog">
+    <resultMap id="logResultMap" type="com.example.accounting.infrastructure.persistence.entity.AutoJournalLog">
         <id property="id" column="ID"/>
         <result property="patternId" column="パターンID"/>
         <result property="executedAt" column="実行日時"/>
@@ -44,7 +44,7 @@
     </select>
 
     <!-- 挿入 -->
-    <insert id="insert" parameterType="com.example.accounting.entity.AutoJournalLog"
+    <insert id="insert" parameterType="com.example.accounting.infrastructure.persistence.entity.AutoJournalLog"
             useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
         INSERT INTO "自動仕訳実行ログ" (
             "パターンID", "実行日時", "処理件数", "生成件数",
@@ -56,7 +56,7 @@
     </insert>
 
     <!-- 更新 -->
-    <update id="update" parameterType="com.example.accounting.entity.AutoJournalLog">
+    <update id="update" parameterType="com.example.accounting.infrastructure.persistence.entity.AutoJournalLog">
         UPDATE "自動仕訳実行ログ"
         SET "処理件数" = #{processedCount},
             "生成件数" = #{generatedCount},

@@ -2,10 +2,10 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.example.accounting.mapper.AccountStructureMapper">
+<mapper namespace="com.example.accounting.infrastructure.persistence.mapper.AccountStructureMapper">
 
     <!-- 日本語カラム名と英語プロパティ名のマッピング -->
-    <resultMap id="AccountStructureResultMap" type="com.example.accounting.entity.AccountStructure">
+    <resultMap id="AccountStructureResultMap" type="com.example.accounting.infrastructure.persistence.entity.AccountStructure">
         <id property="accountCode" column="勘定科目コード"/>
         <result property="accountPath" column="勘定科目パス"/>
         <result property="hierarchyLevel" column="階層レベル"/>
@@ -15,7 +15,7 @@
         <result property="updatedAt" column="更新日時"/>
     </resultMap>
 
-    <insert id="insert" parameterType="com.example.accounting.entity.AccountStructure">
+    <insert id="insert" parameterType="com.example.accounting.infrastructure.persistence.entity.AccountStructure">
         INSERT INTO "勘定科目構成マスタ" (
             "勘定科目コード",
             "勘定科目パス",
@@ -58,7 +58,7 @@
         ORDER BY "表示順序", "勘定科目コード"
     </select>
 
-    <update id="update" parameterType="com.example.accounting.entity.AccountStructure">
+    <update id="update" parameterType="com.example.accounting.infrastructure.persistence.entity.AccountStructure">
         UPDATE "勘定科目構成マスタ"
         SET "勘定科目パス" = #{accountPath},
             "階層レベル" = #{hierarchyLevel},

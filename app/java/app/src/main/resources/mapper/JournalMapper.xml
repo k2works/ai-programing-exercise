@@ -2,10 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.example.accounting.mapper.JournalMapper">
+<mapper namespace="com.example.accounting.infrastructure.persistence.mapper.JournalMapper">
 
     <!-- 結果マップ：仕訳 -->
-    <resultMap id="journalResultMap" type="com.example.accounting.entity.Journal">
+    <resultMap id="journalResultMap" type="com.example.accounting.infrastructure.persistence.entity.Journal">
         <id property="journalNo" column="仕訳伝票番号"/>
         <result property="journalDate" column="起票日"/>
         <result property="inputDate" column="入力日"/>
@@ -19,23 +19,23 @@
         <result property="redBlackVoucherNo" column="赤黒伝票番号"/>
         <result property="createdAt" column="作成日時"/>
         <result property="updatedAt" column="更新日時"/>
-        <collection property="details" ofType="com.example.accounting.entity.JournalDetail"
+        <collection property="details" ofType="com.example.accounting.infrastructure.persistence.entity.JournalDetail"
                     select="findDetailsByJournalNo" column="仕訳伝票番号"/>
     </resultMap>
 
     <!-- 結果マップ：仕訳明細 -->
-    <resultMap id="detailResultMap" type="com.example.accounting.entity.JournalDetail">
+    <resultMap id="detailResultMap" type="com.example.accounting.infrastructure.persistence.entity.JournalDetail">
         <id property="journalNo" column="仕訳伝票番号"/>
         <id property="lineNumber" column="仕訳行番号"/>
         <result property="description" column="行摘要"/>
         <result property="createdAt" column="作成日時"/>
         <result property="updatedAt" column="更新日時"/>
-        <collection property="items" ofType="com.example.accounting.entity.JournalDetailItem"
+        <collection property="items" ofType="com.example.accounting.infrastructure.persistence.entity.JournalDetailItem"
                     select="findItemsByJournalNoAndLine" column="{journalNo=仕訳伝票番号,lineNumber=仕訳行番号}"/>
     </resultMap>
 
     <!-- 結果マップ：仕訳貸借明細 -->
-    <resultMap id="itemResultMap" type="com.example.accounting.entity.JournalDetailItem">
+    <resultMap id="itemResultMap" type="com.example.accounting.infrastructure.persistence.entity.JournalDetailItem">
         <id property="journalNo" column="仕訳伝票番号"/>
         <id property="lineNumber" column="仕訳行番号"/>
         <id property="debitCreditFlag" column="仕訳行貸借区分"/>
