@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.accounting.mapper.TaxTransactionMapper">
+
+    <!-- 日本語カラム名と英語プロパティ名のマッピング -->
+    <resultMap id="TaxTransactionResultMap" type="com.example.accounting.domain.TaxTransaction">
+        <id property="taxCode" column="課税取引コード"/>
+        <result property="taxName" column="課税取引名"/>
+        <result property="taxRate" column="税率"/>
+        <result property="description" column="説明"/>
+        <result property="isActive" column="有効フラグ"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.example.accounting.domain.TaxTransaction">
+        INSERT INTO "課税取引マスタ" (
+            "課税取引コード",
+            "課税取引名",
+            "税率",
+            "説明",
+            "有効フラグ",
+            "作成日時",
+            "更新日時"
+        ) VALUES (
+            #{taxCode},
+            #{taxName},
+            #{taxRate},
+            #{description},
+            #{isActive},
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <select id="findByCode" resultMap="TaxTransactionResultMap">
+        SELECT * FROM "課税取引マスタ"
+        WHERE "課税取引コード" = #{taxCode}
+    </select>
+
+    <select id="findAll" resultMap="TaxTransactionResultMap">
+        SELECT * FROM "課税取引マスタ"
+        ORDER BY "課税取引コード"
+    </select>
+
+    <!-- 動的 SQL による条件検索 -->
+    <select id="search" resultMap="TaxTransactionResultMap">
+        SELECT * FROM "課税取引マスタ"
+        <where>
+            <if test="taxName != null and taxName != ''">
+                AND "課税取引名" LIKE CONCAT('%', #{taxName}, '%')
+            </if>
+            <if test="minTaxRate != null">
+                AND "税率" >= #{minTaxRate}
+            </if>
+            <if test="isActive != null">
+                AND "有効フラグ" = #{isActive}
+            </if>
+        </where>
+        ORDER BY "課税取引コード"
+    </select>
+
+    <update id="update" parameterType="com.example.accounting.domain.TaxTransaction">
+        UPDATE "課税取引マスタ"
+        SET "課税取引名" = #{taxName},
+            "税率" = #{taxRate},
+            "説明" = #{description},
+            "有効フラグ" = #{isActive},
+            "更新日時" = CURRENT_TIMESTAMP
+        WHERE "課税取引コード" = #{taxCode}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM "課税取引マスタ"
+        WHERE "課税取引コード" = #{taxCode}
+    </delete>
+</mapper>
