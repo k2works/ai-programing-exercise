@@ -6,4 +6,6 @@
 <suppressions>
     <!-- エンティティクラスのコンストラクタはパラメータ数制限を抑制 -->
     <suppress checks="ParameterNumber" files=".*[\\/]entity[\\/].*\.java" lines="1-9999"/>
+    <!-- BalanceService の updateDailyBalance メソッドはパラメータ数制限を抑制 -->
+    <suppress checks="ParameterNumber" files=".*[\\/]balance[\\/]BalanceService\.java" lines="1-9999"/>
 </suppressions>
