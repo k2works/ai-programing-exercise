@@ -1,0 +1,8 @@
+/*
+ * 財務会計システム - Gradle設定
+ *
+ * This is a Gradle settings file that defines the project structure.
+ */
+
+rootProject.name = 'accounting-system-db'
+include 'app'

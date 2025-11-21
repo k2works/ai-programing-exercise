@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.accounting.mapper.AccountStructureMapper">
+
+    <!-- 日本語カラム名と英語プロパティ名のマッピング -->
+    <resultMap id="AccountStructureResultMap" type="com.example.accounting.domain.AccountStructure">
+        <id property="accountCode" column="勘定科目コード"/>
+        <result property="accountPath" column="勘定科目パス"/>
+        <result property="hierarchyLevel" column="階層レベル"/>
+        <result property="parentAccountCode" column="親科目コード"/>
+        <result property="displayOrder" column="表示順序"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.example.accounting.domain.AccountStructure">
+        INSERT INTO "勘定科目構成マスタ" (
+            "勘定科目コード",
+            "勘定科目パス",
+            "階層レベル",
+            "親科目コード",
+            "表示順序",
+            "作成日時",
+            "更新日時"
+        ) VALUES (
+            #{accountCode},
+            #{accountPath},
+            #{hierarchyLevel},
+            #{parentAccountCode},
+            #{displayOrder},
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <select id="findByCode" resultMap="AccountStructureResultMap">
+        SELECT * FROM "勘定科目構成マスタ"
+        WHERE "勘定科目コード" = #{accountCode}
+    </select>
+
+    <select id="findAll" resultMap="AccountStructureResultMap">
+        SELECT * FROM "勘定科目構成マスタ"
+        ORDER BY "勘定科目パス"
+    </select>
+
+    <select id="findChildren" resultMap="AccountStructureResultMap">
+        SELECT * FROM "勘定科目構成マスタ"
+        WHERE "勘定科目パス" LIKE CONCAT('%~', #{accountCode}, '~%')
+           OR "勘定科目コード" = #{accountCode}
+        ORDER BY "勘定科目パス"
+    </select>
+
+    <select id="findByLevel" resultMap="AccountStructureResultMap">
+        SELECT * FROM "勘定科目構成マスタ"
+        WHERE "階層レベル" = #{hierarchyLevel}
+        ORDER BY "表示順序", "勘定科目コード"
+    </select>
+
+    <update id="update" parameterType="com.example.accounting.domain.AccountStructure">
+        UPDATE "勘定科目構成マスタ"
+        SET "勘定科目パス" = #{accountPath},
+            "階層レベル" = #{hierarchyLevel},
+            "親科目コード" = #{parentAccountCode},
+            "表示順序" = #{displayOrder},
+            "更新日時" = CURRENT_TIMESTAMP
+        WHERE "勘定科目コード" = #{accountCode}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM "勘定科目構成マスタ"
+        WHERE "勘定科目コード" = #{accountCode}
+    </delete>
+</mapper>
