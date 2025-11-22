@@ -1,5 +1,6 @@
 package com.example.accounting.infrastructure.out.persistence.dao;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
  * イベントソーシングパターンのイベントストアテーブルに対応
  */
 @Data
+@Builder
 public class EventStore {
     /**
      * イベントID（グローバルシーケンス番号）
