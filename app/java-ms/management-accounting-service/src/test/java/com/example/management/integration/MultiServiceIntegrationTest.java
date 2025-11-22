@@ -206,7 +206,7 @@ class MultiServiceIntegrationTest {
      * サービス間通信のエンドツーエンドテスト
      */
     @Test
-    void 財務会計サービスのJournals APIから仕訳データが取得できること() {
+    void 財務会計サービスの仕訳APIから仕訳データが取得できること() {
         // Given: 財務会計サービスが起動している
 
         // When: 財務会計サービスの journals API にアクセス
