@@ -124,17 +124,26 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     /**
      * 特定年度の仕訳データを投入
+     *
+     * Note: 現在の実装は簡略化版です。
+     * 本来は仕訳明細も含めて登録すべきですが、JournalRepository の実装により
+     * 明細登録の方法が異なるため、現状は仕訳ヘッダーのみ登録しています。
+     * 将来的に仕訳明細を含めた完全な実装に更新する予定です。
      */
     private void seedFiscalYearData(
             List<JournalData> journals,
             List<JournalEntryData> entries,
             String fiscalYear) {
 
+        int journalNo = 1;
         for (JournalData journalData : journals) {
             Journal journal = new Journal();
+            // 仕訳伝票番号を生成（形式: 年度-連番）
+            String journalNoStr = String.format("%s-%04d", fiscalYear, journalNo++);
+            journal.setJournalNo(journalNoStr);
             journal.setJournalDate(journalData.journalDate());
-            // Note: Journal モデルには description フィールドがないため、
-            // 仕訳明細のみで内容を表現します
+            journal.setInputDate(journalData.journalDate());
+            journal.setJournalType(1); // デフォルト: 通常仕訳
 
             // 仕訳を保存
             Journal savedJournal = journalRepository.save(journal);
