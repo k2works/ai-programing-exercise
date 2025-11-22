@@ -65,7 +65,7 @@ class AppTest {
         assertThat(applicationContext.containsBean("auditLogController")).isTrue();
 
         // Event listener
-        assertThat(applicationContext.containsBean("auditEventListener")).isTrue();
+        assertThat(applicationContext.containsBean("auditEventListenerAdapter")).isTrue();
     }
 
     @Test

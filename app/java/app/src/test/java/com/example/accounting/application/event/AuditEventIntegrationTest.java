@@ -8,6 +8,7 @@ import com.example.accounting.application.service.AuditLogService;
 import com.example.accounting.domain.model.Account;
 import com.example.accounting.domain.model.audit.AuditAction;
 import com.example.accounting.domain.model.audit.AuditLog;
+import com.example.accounting.infrastructure.in.event.AuditEventListenerAdapter;
 import com.example.accounting.infrastructure.out.persistence.adapter.AccountAdapter;
 import com.example.accounting.infrastructure.out.persistence.adapter.AuditLogAdapter;
 import com.example.accounting.infrastructure.out.persistence.mapper.AccountMapper;
@@ -56,7 +57,7 @@ class AuditEventIntegrationTest extends TestDatabaseConfig {
 
         // Event Publisher の設定（同期実行）
         eventPublisher = new SimpleApplicationEventMulticaster();
-        AuditEventListener listener = new AuditEventListener(auditLogService);
+        AuditEventListenerAdapter listener = new AuditEventListenerAdapter(auditLogService);
         eventPublisher.addApplicationListener(event -> {
             if (event instanceof PayloadApplicationEvent) {
                 Object payload = ((PayloadApplicationEvent<?>) event).getPayload();

@@ -1,5 +1,6 @@
-package com.example.accounting.application.event;
+package com.example.accounting.infrastructure.in.event;
 
+import com.example.accounting.application.port.in.AuditEventListener;
 import com.example.accounting.application.service.AuditLogService;
 import com.example.accounting.domain.event.AccountCreatedEvent;
 import com.example.accounting.domain.event.AccountDeletedEvent;
@@ -8,27 +9,26 @@ import com.example.accounting.domain.event.JournalCreatedEvent;
 import com.example.accounting.domain.event.JournalDeletedEvent;
 import com.example.accounting.domain.event.JournalUpdatedEvent;
 import com.example.accounting.domain.model.audit.AuditLog;
+import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
- * 監査イベントリスナー
+ * 監査イベントリスナー Adapter
  *
  * ドメインイベントを受け取り、自動的に監査ログを記録します。
  */
 @Component
-public class AuditEventListener {
+@RequiredArgsConstructor
+public class AuditEventListenerAdapter implements AuditEventListener {
 
     private final AuditLogService auditLogService;
-
-    public AuditEventListener(AuditLogService auditLogService) {
-        this.auditLogService = auditLogService;
-    }
 
     /**
      * 勘定科目作成イベントをリッスン
      */
+    @Override
     @TransactionalEventListener
     @Async
     public void handleAccountCreated(AccountCreatedEvent event) {
@@ -47,6 +47,7 @@ public class AuditEventListener {
     /**
      * 勘定科目更新イベントをリッスン
      */
+    @Override
     @TransactionalEventListener
     @Async
     public void handleAccountUpdated(AccountUpdatedEvent event) {
@@ -65,6 +66,7 @@ public class AuditEventListener {
     /**
      * 勘定科目削除イベントをリッスン
      */
+    @Override
     @TransactionalEventListener
     @Async
     public void handleAccountDeleted(AccountDeletedEvent event) {
@@ -83,6 +85,7 @@ public class AuditEventListener {
     /**
      * 仕訳作成イベントをリッスン
      */
+    @Override
     @TransactionalEventListener
     @Async
     public void handleJournalCreated(JournalCreatedEvent event) {
@@ -101,6 +104,7 @@ public class AuditEventListener {
     /**
      * 仕訳更新イベントをリッスン
      */
+    @Override
     @TransactionalEventListener
     @Async
     public void handleJournalUpdated(JournalUpdatedEvent event) {
@@ -119,6 +123,7 @@ public class AuditEventListener {
     /**
      * 仕訳削除イベントをリッスン
      */
+    @Override
     @TransactionalEventListener
     @Async
     public void handleJournalDeleted(JournalDeletedEvent event) {
