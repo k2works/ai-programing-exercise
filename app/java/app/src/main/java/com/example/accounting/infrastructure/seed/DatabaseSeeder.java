@@ -13,7 +13,9 @@ import com.example.accounting.infrastructure.seed.AccountingSeedData.JournalEntr
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,23 +36,33 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final AccountRepository accountRepository;
     private final JournalRepository journalRepository;
     private final DailyBalanceRepository dailyBalanceRepository;
+    private final ApplicationContext applicationContext;
 
     @Override
     @Transactional
     public void run(String... args) throws Exception {
         log.info("=== Starting Database Seeding ===");
 
-        // 既存データのクリーンアップ
-        cleanupExistingData();
+        try {
+            // 既存データのクリーンアップ
+            cleanupExistingData();
 
-        // マスタデータの投入
-        seedAccounts();
+            // マスタデータの投入
+            seedAccounts();
 
-        // トランザクションデータの投入
-        seedJournalsAndEntries();
-        seedDailyBalances();
+            // トランザクションデータの投入
+            seedJournalsAndEntries();
+            seedDailyBalances();
 
-        log.info("=== Database Seeding Completed Successfully ===");
+            log.info("=== Database Seeding Completed Successfully ===");
+        } catch (Exception e) {
+            log.error("Database seeding failed", e);
+            System.exit(1);
+        }
+
+        // シード処理完了後にアプリケーションを終了
+        log.info("Shutting down application...");
+        SpringApplication.exit(applicationContext, () -> 0);
     }
 
     /**

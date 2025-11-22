@@ -133,4 +133,5 @@ tasks.register('seedDatabase', JavaExec) {
     mainClass = 'com.example.accounting.App'
     systemProperty 'accounting.seed.enabled', 'true'
     systemProperty 'spring.profiles.active', project.findProperty('seedProfile') ?: 'dev'
+    systemProperty 'spring.main.web-application-type', 'none'
 }
