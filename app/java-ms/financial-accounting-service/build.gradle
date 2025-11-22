@@ -1,5 +1,20 @@
 plugins {
+    id 'java'
+    id 'application'
+    id 'org.springframework.boot' version '3.2.0'
+    id 'io.spring.dependency-management' version '1.1.4'
     id 'org.flywaydb.flyway' version '9.22.0'
+}
+
+group = 'com.example.accounting'
+version = '1.0.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = '21'
+}
+
+repositories {
+    mavenCentral()
 }
 
 dependencies {
@@ -22,6 +37,17 @@ dependencies {
 
     // Database
     runtimeOnly 'org.postgresql:postgresql'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+test {
+    useJUnitPlatform()
 }
 
 application {

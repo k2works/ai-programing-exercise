@@ -1079,3 +1079,10 @@ rebar3.crashdump
 docs/wiki
 CLAUDE.local.md
 .claude
+
+# Gradle
+.gradle/
+**/build/
+!gradle-wrapper.jar
+gradle-app.setting
+.gradletasknamecache
