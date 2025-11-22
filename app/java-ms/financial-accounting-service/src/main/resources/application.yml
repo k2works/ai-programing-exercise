@@ -5,9 +5,9 @@ spring:
   application:
     name: financial-accounting-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/financial_accounting
-    username: postgres
-    password: postgres
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/financial_accounting}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
   flyway:
     enabled: true
@@ -15,21 +15,6 @@ spring:
     locations: classpath:db/migration
 
 mybatis:
-  mapper-locations: classpath*:mapper/**/*.xml
-  type-aliases-package: com.example.financial.domain
+  mapper-locations: classpath:mapper/*.xml
   configuration:
     map-underscore-to-camel-case: true
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics
-  endpoint:
-    health:
-      show-details: always
-
-logging:
-  level:
-    com.example.financial: DEBUG
-    org.springframework.web: INFO

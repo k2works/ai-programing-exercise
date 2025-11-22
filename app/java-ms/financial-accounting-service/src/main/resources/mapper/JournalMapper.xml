@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.accounting.infrastructure.adapter.out.persistence.mybatis.mapper.JournalMapper">
+
+    <resultMap id="JournalResultMap" type="com.example.accounting.domain.Journal">
+        <id property="journalId" column="journal_id"/>
+        <result property="journalDate" column="journal_date"/>
+        <result property="description" column="description"/>
+        <result property="fiscalYear" column="fiscal_year"/>
+    </resultMap>
+
+    <insert id="insertJournal" parameterType="com.example.accounting.domain.Journal"
+            useGeneratedKeys="true" keyProperty="journalId">
+        INSERT INTO journals (journal_date, description, fiscal_year, created_at, updated_at)
+        VALUES (#{journalDate}, #{description}, #{fiscalYear}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+    </insert>
+
+    <insert id="insertJournalEntry" parameterType="com.example.accounting.domain.JournalEntry">
+        INSERT INTO journal_entries (journal_id, account_code, debit_amount, credit_amount, description)
+        VALUES (#{journalId}, #{accountCode}, #{debitAmount}, #{creditAmount}, #{description})
+    </insert>
+
+    <select id="findById" resultMap="JournalResultMap">
+        SELECT * FROM journals WHERE journal_id = #{journalId}
+    </select>
+
+    <select id="findByFiscalYear" resultMap="JournalResultMap">
+        SELECT * FROM journals WHERE fiscal_year = #{fiscalYear} ORDER BY journal_date
+    </select>
+
+    <select id="findEntriesByJournalId" resultType="com.example.accounting.domain.JournalEntry">
+        SELECT
+            journal_entry_id as journalEntryId,
+            journal_id as journalId,
+            account_code as accountCode,
+            debit_amount as debitAmount,
+            credit_amount as creditAmount,
+            description
+        FROM journal_entries
+        WHERE journal_id = #{journalId}
+    </select>
+
+</mapper>
