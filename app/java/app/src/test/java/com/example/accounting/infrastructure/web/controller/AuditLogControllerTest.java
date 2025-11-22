@@ -11,7 +11,6 @@ import com.example.accounting.infrastructure.out.persistence.adapter.AccountAdap
 import com.example.accounting.infrastructure.out.persistence.adapter.AuditLogAdapter;
 import com.example.accounting.infrastructure.out.persistence.mapper.AccountMapper;
 import com.example.accounting.infrastructure.out.persistence.mapper.AuditLogMapper;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

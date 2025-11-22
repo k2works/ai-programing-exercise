@@ -12,7 +12,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
  * MyBatis設定
  */
 @Configuration
-@MapperScan("com.example.accounting.infrastructure.persistence.mapper")
+@MapperScan("com.example.accounting.infrastructure.out.persistence.mapper")
 public class MyBatisConfig {
 
     @Bean
@@ -25,7 +25,7 @@ public class MyBatisConfig {
         sessionFactory.setMapperLocations(resolver.getResources("classpath:mapper/*.xml"));
 
         // Type Aliasesの設定
-        sessionFactory.setTypeAliasesPackage("com.example.accounting.infrastructure.persistence.entity");
+        sessionFactory.setTypeAliasesPackage("com.example.accounting.infrastructure.out.persistence.dao");
 
         return sessionFactory.getObject();
     }
