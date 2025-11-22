@@ -194,36 +194,3 @@ public class FinancialRatioAnalyzer {
             .setScale(SCALE, ROUNDING_MODE);
     }
 }
-
-/**
- * 財務分析結果
- */
-record AnalysisResult(
-    Profitability profitability,
-    Efficiency efficiency,
-    Safety safety
-) {}
-
-/**
- * 収益性指標
- */
-record Profitability(
-    BigDecimal operatingProfitMargin  // 売上高営業利益率
-) {}
-
-/**
- * 効率性指標
- */
-record Efficiency(
-    BigDecimal totalAssetTurnover,           // 総資本回転率
-    BigDecimal tangibleFixedAssetTurnover    // 有形固定資産回転率
-) {}
-
-/**
- * 安全性指標
- */
-record Safety(
-    BigDecimal currentRatio,  // 流動比率
-    BigDecimal quickRatio,    // 当座比率
-    BigDecimal equityRatio    // 自己資本比率
-) {}

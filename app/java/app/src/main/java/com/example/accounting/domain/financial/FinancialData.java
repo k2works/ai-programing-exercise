@@ -2,7 +2,6 @@ package com.example.accounting.domain.financial;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * 財務データを表現する値オブジェクト
