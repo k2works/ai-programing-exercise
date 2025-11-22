@@ -1,5 +1,6 @@
 package com.example.financial;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -20,7 +21,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  *   <li>GET /api/v1/financial-statements/income-statement - 損益計算書の生成</li>
  * </ul>
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.example.financial", "com.example.accounting"})
+@MapperScan("com.example.accounting.infrastructure.adapter.out.persistence.mybatis.mapper")
 public class FinancialAccountingApplication {
 
     public static void main(String[] args) {

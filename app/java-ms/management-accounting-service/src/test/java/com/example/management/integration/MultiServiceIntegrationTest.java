@@ -3,6 +3,7 @@ package com.example.management.integration;
 import com.example.management.application.AnalyzeFinancialDataUseCase;
 import com.example.management.domain.FinancialAnalysisResult;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -104,6 +105,11 @@ class MultiServiceIntegrationTest {
         System.out.println("Financial Service URL: http://" +
             financialAccountingService.getHost() + ":" +
             financialAccountingService.getMappedPort(8081));
+
+        // 財務会計サービスのログを出力
+        System.out.println("\n=== Financial Accounting Service Logs ===");
+        System.out.println(financialAccountingService.getLogs());
+        System.out.println("=== End of Logs ===\n");
     }
 
     /**
@@ -144,32 +150,32 @@ class MultiServiceIntegrationTest {
 
         // Then: 分析結果の検証
         assertThat(result).isNotNull();
-        assertThat(result.getData()).isNotNull();
-        assertThat(result.getRatios()).isNotNull();
+        assertThat(result.getFinancialData()).isNotNull();
+        assertThat(result.getFinancialRatios()).isNotNull();
 
         // 財務データの検証（D社 令和4年度の値）
-        assertThat(result.getData().getSales())
+        assertThat(result.getFinancialData().getSales())
                 .as("売上高がシードデータと一致すること")
                 .isGreaterThan(BigDecimal.ZERO);
 
-        assertThat(result.getData().getOperatingProfit())
+        assertThat(result.getFinancialData().getOperatingProfit())
                 .as("営業利益が取得できること")
                 .isGreaterThan(BigDecimal.ZERO);
 
-        assertThat(result.getData().getTotalAssets())
+        assertThat(result.getFinancialData().getTotalAssets())
                 .as("総資産が取得できること")
                 .isGreaterThan(BigDecimal.ZERO);
 
         // 財務比率の検証
-        assertThat(result.getRatios().getOperatingProfitMargin())
+        assertThat(result.getFinancialRatios().getOperatingProfitMargin())
                 .as("営業利益率が計算されていること")
                 .isGreaterThan(BigDecimal.ZERO);
 
-        assertThat(result.getRatios().getReturnOnAssets())
+        assertThat(result.getFinancialRatios().getReturnOnAssets())
                 .as("ROA が計算されていること")
                 .isGreaterThan(BigDecimal.ZERO);
 
-        assertThat(result.getRatios().getDebtRatio())
+        assertThat(result.getFinancialRatios().getDebtRatio())
                 .as("負債比率が計算されていること")
                 .isGreaterThanOrEqualTo(BigDecimal.ZERO)
                 .isLessThanOrEqualTo(BigDecimal.ONE);
