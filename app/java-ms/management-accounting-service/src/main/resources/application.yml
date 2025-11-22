@@ -7,7 +7,7 @@ spring:
 
 # Financial Accounting Service の URL
 financial-accounting-service:
-  url: http://localhost:8081
+  base-url: http://localhost:8081
 
 management:
   endpoints:
