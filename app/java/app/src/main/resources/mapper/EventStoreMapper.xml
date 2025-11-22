@@ -102,4 +102,13 @@
         FROM "イベントストア"
     </select>
 
+    <!-- 特定バージョン以降のイベントを取得 -->
+    <select id="findByAggregateIdAfterVersion" resultMap="EventStoreResultMap">
+        SELECT *
+        FROM "イベントストア"
+        WHERE "集約ID" = #{aggregateId}
+          AND "シーケンス番号" &gt; #{afterVersion}
+        ORDER BY "シーケンス番号"
+    </select>
+
 </mapper>

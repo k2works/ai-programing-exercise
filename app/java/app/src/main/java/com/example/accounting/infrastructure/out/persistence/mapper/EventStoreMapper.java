@@ -84,4 +84,16 @@ public interface EventStoreMapper {
      * @return イベント数
      */
     long count();
+
+    /**
+     * 特定バージョン以降のイベントを取得
+     *
+     * @param aggregateId 集約ID
+     * @param afterVersion このバージョンより後のイベントを取得
+     * @return イベントリスト（シーケンス番号順）
+     */
+    List<EventStore> findByAggregateIdAfterVersion(
+        @Param("aggregateId") String aggregateId,
+        @Param("afterVersion") int afterVersion
+    );
 }

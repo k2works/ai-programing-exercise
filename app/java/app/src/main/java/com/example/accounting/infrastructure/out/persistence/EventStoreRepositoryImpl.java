@@ -93,6 +93,14 @@ public class EventStoreRepositoryImpl implements EventStoreRepository {
         return maxSequence != null ? maxSequence : 0;
     }
 
+    @Override
+    public List<DomainEvent> getEventsAfterVersion(String aggregateId, int afterVersion) {
+        List<EventStore> entities = eventStoreMapper.findByAggregateIdAfterVersion(aggregateId, afterVersion);
+        return entities.stream()
+                .map(this::toDomainEvent)
+                .toList();
+    }
+
     /**
      * JSON シリアライズ
      *

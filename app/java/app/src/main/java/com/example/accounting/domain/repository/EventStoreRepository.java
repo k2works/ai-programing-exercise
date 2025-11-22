@@ -45,4 +45,13 @@ public interface EventStoreRepository {
      * @return 現在のバージョン（イベント数）
      */
     int getCurrentVersion(String aggregateId);
+
+    /**
+     * 特定バージョン以降のイベントを取得
+     *
+     * @param aggregateId 集約ID
+     * @param afterVersion このバージョンより後のイベントを取得
+     * @return イベントリスト
+     */
+    List<DomainEvent> getEventsAfterVersion(String aggregateId, int afterVersion);
 }

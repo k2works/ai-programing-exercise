@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.accounting.infrastructure.out.persistence.mapper.SnapshotMapper">
+
+    <!-- スナップショットを挿入 -->
+    <insert id="insertSnapshot">
+        INSERT INTO aggregate_snapshot (
+            aggregate_id, aggregate_type, version, snapshot_data
+        ) VALUES (
+            #{aggregateId}, #{aggregateType}, #{version}, #{snapshotData}::jsonb
+        )
+        ON CONFLICT (aggregate_id, version) DO NOTHING
+    </insert>
+
+    <!-- 最新のスナップショットを取得 -->
+    <select id="selectLatestSnapshot" resultType="com.example.accounting.infrastructure.out.persistence.dao.AggregateSnapshot">
+        SELECT
+            aggregate_id,
+            aggregate_type,
+            version,
+            snapshot_data::text as snapshot_data,
+            created_at
+        FROM aggregate_snapshot
+        WHERE aggregate_id = #{aggregateId}
+        ORDER BY version DESC
+        LIMIT 1
+    </select>
+
+    <!-- 古いスナップショットを削除 -->
+    <delete id="deleteOldSnapshots">
+        DELETE FROM aggregate_snapshot
+        WHERE aggregate_id = #{aggregateId}
+          AND version NOT IN (
+              SELECT version
+              FROM aggregate_snapshot
+              WHERE aggregate_id = #{aggregateId}
+              ORDER BY version DESC
+              LIMIT #{keepCount}
+          )
+    </delete>
+
+</mapper>

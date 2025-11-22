@@ -4,6 +4,9 @@ import com.example.accounting.domain.event.DomainEvent;
 import com.example.accounting.domain.event.JournalEntryApprovedEvent;
 import com.example.accounting.domain.event.JournalEntryCreatedEvent;
 import com.example.accounting.domain.event.JournalEntryDeletedEvent;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 import java.math.BigDecimal;
@@ -27,10 +30,38 @@ public class JournalEntryAggregate {
     private boolean deleted = false;
 
     // 未コミットイベント（まだイベントストアに保存されていない）
+    @JsonIgnore
     private final List<DomainEvent> uncommittedEvents = new ArrayList<>();
 
     // バージョン（楽観的ロック用）
     private int version = 0;
+
+    /**
+     * デフォルトコンストラクタ
+     */
+    public JournalEntryAggregate() {
+    }
+
+    /**
+     * JSON デシリアライズ用コンストラクタ
+     */
+    @JsonCreator
+    public JournalEntryAggregate(
+            @JsonProperty("id") String id,
+            @JsonProperty("entryDate") LocalDate entryDate,
+            @JsonProperty("description") String description,
+            @JsonProperty("lineItems") List<LineItem> lineItems,
+            @JsonProperty("status") JournalEntryStatus status,
+            @JsonProperty("deleted") boolean deleted,
+            @JsonProperty("version") int version) {
+        this.id = id;
+        this.entryDate = entryDate;
+        this.description = description;
+        this.lineItems = lineItems != null ? new ArrayList<>(lineItems) : new ArrayList<>();
+        this.status = status;
+        this.deleted = deleted;
+        this.version = version;
+    }
 
     /**
      * イベント再生（Event Replay）
@@ -159,11 +190,27 @@ public class JournalEntryAggregate {
     }
 
     /**
-     * イベント適用（Apply）
+     * 未コミットイベントをクリア
+     */
+    public void markEventsAsCommitted() {
+        uncommittedEvents.clear();
+    }
+
+    /**
+     * バージョンを設定（スナップショット復元用）
+     *
+     * @param version バージョン
+     */
+    public void setVersion(int version) {
+        this.version = version;
+    }
+
+    /**
+     * イベントを適用（スナップショット復元用）
      *
      * @param event ドメインイベント
      */
-    private void apply(DomainEvent event) {
+    public void apply(DomainEvent event) {
         if (event instanceof JournalEntryCreatedEvent e) {
             this.id = e.getJournalEntryId();
             this.entryDate = e.getEntryDate();
@@ -181,12 +228,5 @@ public class JournalEntryAggregate {
         } else if (event instanceof JournalEntryDeletedEvent e) {
             this.deleted = true;
         }
-    }
-
-    /**
-     * 未コミットイベントをクリア
-     */
-    public void markEventsAsCommitted() {
-        uncommittedEvents.clear();
     }
 }
