@@ -1,0 +1,973 @@
+name: 仕訳管理ツール
+description: 財務会計システムの仕訳を管理するツール（複数一括対応）
+author: 開発チーム
+host: EXCEL
+api_set: {}
+script:
+  content: |
+    const API_BASE_URL = 'http://localhost:8080';
+
+    interface JournalLine {
+      debitCreditFlag: string;
+      currencyCode?: string;
+      exchangeRate?: string;
+      departmentCode?: string;
+      projectCode?: string;
+      accountCode: string;
+      subAccountCode?: string;
+      amount: string;
+      baseAmount?: string;
+      taxType?: string;
+      taxRate?: number;
+      taxCalcType?: string;
+      dueDate?: string;
+      cashFlowFlag?: boolean;
+      segmentCode?: string;
+      offsetAccountCode?: string;
+      offsetSubAccountCode?: string;
+      noteCode?: string;
+      noteContent?: string;
+    }
+
+    interface JournalEntry {
+      lineNumber: number;
+      description: string;
+      lines: JournalLine[];
+    }
+
+    interface Journal {
+      journalNo: string;
+      journalDate: string;
+      inputDate?: string;
+      settlementFlag?: boolean;
+      singleEntryFlag?: boolean;
+      journalType?: number;
+      recurringFlag?: boolean;
+      employeeCode?: string;
+      departmentCode?: string;
+      redSlipFlag?: boolean;
+      redBlackVoucherNo?: string;
+      entries: JournalEntry[];
+    }
+
+    class JournalAPI {
+      private baseUrl: string;
+
+      constructor(baseUrl: string = API_BASE_URL) {
+        this.baseUrl = baseUrl;
+      }
+
+      private async request<T>(method: string, path: string, body?: any): Promise<T> {
+        const url = `${this.baseUrl}${path}`;
+        const options: RequestInit = {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        };
+
+        if (body) {
+          options.body = JSON.stringify(body);
+        }
+
+        try {
+          const response = await fetch(url, options);
+
+          if (!response.ok) {
+            const error = await response.text();
+            throw new Error(`API Error: ${response.status} - ${error}`);
+          }
+
+          if (response.status === 204) {
+            return null as T;
+          }
+
+          return await response.json();
+        } catch (error) {
+          console.error('API Request Failed:', error);
+          throw error;
+        }
+      }
+
+      async getAllJournals(): Promise<Journal[]> {
+        return this.request<Journal[]>('GET', '/api/v1/journals');
+      }
+
+      async getJournal(journalNo: string): Promise<Journal> {
+        return this.request<Journal>('GET', `/api/v1/journals/${journalNo}`);
+      }
+
+      async createJournal(journal: Journal): Promise<Journal> {
+        return this.request<Journal>('POST', '/api/v1/journals', journal);
+      }
+
+      async updateJournal(journalNo: string, journal: Journal): Promise<Journal> {
+        return this.request<Journal>('PUT', `/api/v1/journals/${journalNo}`, journal);
+      }
+
+      async deleteJournal(journalNo: string): Promise<void> {
+        return this.request<void>('DELETE', `/api/v1/journals/${journalNo}`);
+      }
+    }
+
+    const api = new JournalAPI();
+
+    // シート名定数
+    const SHEET_NAMES = {
+      LIST: "仕訳一覧",
+      REGISTER: "仕訳登録"
+    };
+
+    /**
+     * 仕訳一覧シートを作成・更新
+     */
+    async function loadJournalsList() {
+      try {
+        await Excel.run(async (context) => {
+          const workbook = context.workbook;
+          workbook.worksheets.load("items/name");
+          await context.sync();
+
+          // シートを取得または作成
+          let sheet: Excel.Worksheet;
+          const existingSheet = workbook.worksheets.items.find(s => s.name === SHEET_NAMES.LIST);
+
+          if (existingSheet) {
+            sheet = workbook.worksheets.getItem(SHEET_NAMES.LIST);
+            // 既存のデータをクリア
+            try {
+              const usedRange = sheet.getUsedRange();
+              usedRange.clear();
+              await context.sync();
+            } catch {
+              // 空のシートの場合はクリア不要
+            }
+          } else {
+            sheet = workbook.worksheets.add(SHEET_NAMES.LIST);
+          }
+
+          // シートをアクティブに
+          sheet.activate();
+
+          // APIから仕訳一覧を取得
+          const journals = await api.getAllJournals();
+
+          // ヘッダー行
+          const headers = [
+            ["仕訳番号", "仕訳日付", "入力日付", "決算", "仕訳区分", "明細数", "借方金額", "貸方金額"]
+          ];
+
+          // データ行
+          const data = journals.map(journal => {
+            // 借方・貸方の合計を計算
+            let debitTotal = 0;
+            let creditTotal = 0;
+            let entryCount = 0;
+
+            if (journal.entries) {
+              journal.entries.forEach(entry => {
+                if (entry.lines) {
+                  entry.lines.forEach(line => {
+                    const amount = parseFloat(line.amount || "0");
+                    if (line.debitCreditFlag === "借") {
+                      debitTotal += amount;
+                    } else if (line.debitCreditFlag === "貸") {
+                      creditTotal += amount;
+                    }
+                  });
+                  entryCount += entry.lines.length;
+                }
+              });
+            }
+
+            return [
+              journal.journalNo,
+              journal.journalDate,
+              journal.inputDate || "",
+              journal.settlementFlag ? "○" : "",
+              journal.journalType || "",
+              entryCount,
+              debitTotal,
+              creditTotal
+            ];
+          });
+
+          const allData = [...headers, ...data];
+
+          // A1から書き込み
+          const range = sheet.getRange("A1").getResizedRange(allData.length - 1, headers[0].length - 1);
+          range.values = allData;
+
+          // ヘッダー行の書式設定
+          const headerRange = sheet.getRange("A1").getResizedRange(0, headers[0].length - 1);
+          headerRange.format.fill.color = "#4472C4";
+          headerRange.format.font.color = "white";
+          headerRange.format.font.bold = true;
+
+          // 金額列の書式設定
+          if (data.length > 0) {
+            const debitAmountRange = sheet.getRange(`G2:G${data.length + 1}`);
+            const creditAmountRange = sheet.getRange(`H2:H${data.length + 1}`);
+            debitAmountRange.numberFormat = [["#,##0"]];
+            creditAmountRange.numberFormat = [["#,##0"]];
+          }
+
+          // 列幅を自動調整
+          range.format.autofitColumns();
+
+          // テーブルとして書式設定
+          try {
+            // 既存のテーブルを削除
+            sheet.tables.load("items");
+            await context.sync();
+
+            for (const table of sheet.tables.items) {
+              table.delete();
+            }
+            await context.sync();
+          } catch {
+            // テーブルがない場合は無視
+          }
+
+          const table = sheet.tables.add(range, true);
+          table.name = "JournalListTable";
+          table.style = "TableStyleMedium2";
+
+          await context.sync();
+
+          console.log("========================================");
+          console.log(`${journals.length}件の仕訳を読み込みました`);
+          console.log("========================================");
+        });
+      } catch (error) {
+        console.error("========================================");
+        console.error("エラー発生");
+        console.error(error);
+        console.error("========================================");
+      }
+    }
+
+    /**
+     * 仕訳登録シートを作成（簡易振替伝票形式）
+     */
+    async function createRegisterSheet() {
+      try {
+        await Excel.run(async (context) => {
+          const workbook = context.workbook;
+          workbook.worksheets.load("items/name");
+          await context.sync();
+
+          // シートを取得または作成
+          let sheet: Excel.Worksheet;
+          const existingSheet = workbook.worksheets.items.find(s => s.name === SHEET_NAMES.REGISTER);
+
+          if (existingSheet) {
+            sheet = workbook.worksheets.getItem(SHEET_NAMES.REGISTER);
+            // 既存のデータをクリア
+            try {
+              const usedRange = sheet.getUsedRange();
+              usedRange.clear();
+              await context.sync();
+            } catch {
+              // 空のシートの場合はクリア不要
+            }
+          } else {
+            sheet = workbook.worksheets.add(SHEET_NAMES.REGISTER);
+          }
+
+          // シートをアクティブに
+          sheet.activate();
+
+          // テンプレートヘッダー（簡易振替伝票形式）
+          const headers = [
+            ["仕訳番号", "仕訳日付", "摘要", "借方科目", "借方金額", "貸方科目", "貸方金額"]
+          ];
+
+          // サンプルデータ（3行）
+          const sampleData = [
+            ["", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", ""]
+          ];
+
+          const allData = [...headers, ...sampleData];
+
+          // A1から書き込み
+          const range = sheet.getRange("A1").getResizedRange(allData.length - 1, headers[0].length - 1);
+          range.values = allData;
+
+          // ヘッダー行の書式設定
+          const headerRange = sheet.getRange("A1").getResizedRange(0, headers[0].length - 1);
+          headerRange.format.fill.color = "#70AD47";
+          headerRange.format.font.color = "white";
+          headerRange.format.font.bold = true;
+
+          // 列幅を自動調整
+          range.format.autofitColumns();
+
+          // 説明を追加
+          const instructionRange = sheet.getRange("I1:I15");
+          const instructions = [
+            ["【使い方】"],
+            ["1. 下の行に仕訳データを入力"],
+            ["2. 必須項目："],
+            ["   - 仕訳番号"],
+            ["   - 仕訳日付（YYYY-MM-DD形式）"],
+            ["   - 摘要"],
+            ["   - 借方科目コード"],
+            ["   - 借方金額"],
+            ["   - 貸方科目コード"],
+            ["   - 貸方金額"],
+            [""],
+            ["【注意】"],
+            ["- 簡易振替伝票形式（借方1科目、貸方1科目）"],
+            ["- 仕訳日付: 2021-04-01 形式で入力"],
+            ["- 金額: 数値のみ（カンマ不要）"]
+          ];
+          instructionRange.values = instructions;
+          instructionRange.format.fill.color = "#FFF2CC";
+
+          await context.sync();
+
+          console.log("========================================");
+          console.log("登録シートを作成しました");
+          console.log("========================================");
+        });
+      } catch (error) {
+        console.error("========================================");
+        console.error("エラー発生");
+        console.error(error);
+        console.error("========================================");
+      }
+    }
+
+    /**
+     * 登録シートからデータを読み込み（簡易振替伝票形式）
+     */
+    async function readRegisterSheet(): Promise<Journal[]> {
+      return await Excel.run(async (context) => {
+        const workbook = context.workbook;
+        workbook.worksheets.load("items/name");
+        await context.sync();
+
+        // シートの存在確認
+        const existingSheet = workbook.worksheets.items.find(s => s.name === SHEET_NAMES.REGISTER);
+        if (!existingSheet) {
+          throw new Error("「仕訳登録」シートが見つかりません。先に「登録シート作成」ボタンを押してください。");
+        }
+
+        const sheet = context.workbook.worksheets.getItem(SHEET_NAMES.REGISTER);
+
+        // データ範囲を取得（ヘッダー除く、A2から開始）
+        const dataRange = sheet.getRange("A2:G100");
+        dataRange.load("values");
+        await context.sync();
+
+        const journals: Journal[] = [];
+        for (const row of dataRange.values) {
+          // Excel のセル値を文字列に変換
+          const journalNo = row[0] != null ? String(row[0]).trim() : "";
+
+          // 仕訳番号が空の行はスキップ
+          if (!journalNo) {
+            continue;
+          }
+
+          const journalDate = row[1] != null ? String(row[1]).trim() : "";
+          const description = row[2] != null ? String(row[2]).trim() : "";
+          const debitAccount = row[3] != null ? String(row[3]).trim() : "";
+          const debitAmount = row[4] != null ? String(row[4]).trim() : "";
+          const creditAccount = row[5] != null ? String(row[5]).trim() : "";
+          const creditAmount = row[6] != null ? String(row[6]).trim() : "";
+
+          // 必須項目のバリデーション
+          if (!journalNo || !journalDate || !description || !debitAccount || !debitAmount || !creditAccount || !creditAmount) {
+            throw new Error(`行データが不正です: 仕訳番号=${journalNo}`);
+          }
+
+          // 簡易振替伝票形式のJournalオブジェクトを作成
+          const journal: Journal = {
+            journalNo: journalNo,
+            journalDate: journalDate,
+            inputDate: journalDate,
+            settlementFlag: false,
+            singleEntryFlag: false,
+            journalType: 1,
+            recurringFlag: false,
+            redSlipFlag: false,
+            entries: [
+              {
+                lineNumber: 1,
+                description: description,
+                lines: [
+                  {
+                    debitCreditFlag: "借",
+                    accountCode: debitAccount,
+                    amount: debitAmount,
+                    currencyCode: "JPY",
+                    exchangeRate: "1.0",
+                    cashFlowFlag: false
+                  },
+                  {
+                    debitCreditFlag: "貸",
+                    accountCode: creditAccount,
+                    amount: creditAmount,
+                    currencyCode: "JPY",
+                    exchangeRate: "1.0",
+                    cashFlowFlag: false
+                  }
+                ]
+              }
+            ]
+          };
+
+          journals.push(journal);
+        }
+
+        return journals;
+      });
+    }
+
+    /**
+     * 一括登録
+     */
+    async function bulkCreate() {
+      try {
+        console.log("一括登録開始");
+        const journals = await readRegisterSheet();
+        console.log(`読み込んだデータ: ${journals.length}件`);
+
+        if (journals.length === 0) {
+          console.log("登録するデータがありません");
+          return;
+        }
+
+        console.log(`${journals.length}件の仕訳を登録します`);
+        let successCount = 0;
+        let errorCount = 0;
+        const errors: string[] = [];
+
+        for (const journal of journals) {
+          try {
+            console.log(`登録中: ${journal.journalNo} - ${journal.journalDate}`);
+            await api.createJournal(journal);
+            successCount++;
+            console.log(`成功: ${journal.journalNo}`);
+          } catch (error) {
+            errorCount++;
+            errors.push(`${journal.journalNo}: ${error.message}`);
+          }
+        }
+
+        console.log("========================================");
+        console.log("登録完了");
+        console.log(`成功: ${successCount}件`);
+        console.log(`失敗: ${errorCount}件`);
+        if (errors.length > 0) {
+          console.log("\nエラー詳細:");
+          errors.forEach(err => console.log(`  - ${err}`));
+        }
+        console.log("========================================");
+
+        // 一覧を再読み込み
+        if (successCount > 0) {
+          await loadJournalsList();
+        }
+      } catch (error) {
+        console.error("========================================");
+        console.error("エラー発生");
+        console.error(error);
+        console.error("========================================");
+      }
+    }
+
+    /**
+     * 一括更新
+     */
+    async function bulkUpdate() {
+      try {
+        console.log("一括更新開始");
+        const journals = await readRegisterSheet();
+        console.log(`読み込んだデータ: ${journals.length}件`);
+
+        if (journals.length === 0) {
+          console.log("更新するデータがありません");
+          return;
+        }
+
+        console.log(`${journals.length}件の仕訳を更新します`);
+        let successCount = 0;
+        let errorCount = 0;
+        const errors: string[] = [];
+
+        for (const journal of journals) {
+          try {
+            console.log(`更新中: ${journal.journalNo} - ${journal.journalDate}`);
+            await api.updateJournal(journal.journalNo, journal);
+            successCount++;
+            console.log(`成功: ${journal.journalNo}`);
+          } catch (error) {
+            errorCount++;
+            errors.push(`${journal.journalNo}: ${error.message}`);
+          }
+        }
+
+        console.log("========================================");
+        console.log("更新完了");
+        console.log(`成功: ${successCount}件`);
+        console.log(`失敗: ${errorCount}件`);
+        if (errors.length > 0) {
+          console.log("\nエラー詳細:");
+          errors.forEach(err => console.log(`  - ${err}`));
+        }
+        console.log("========================================");
+
+        // 一覧を再読み込み
+        if (successCount > 0) {
+          await loadJournalsList();
+        }
+      } catch (error) {
+        console.error("========================================");
+        console.error("エラー発生");
+        console.error(error);
+        console.error("========================================");
+      }
+    }
+
+    /**
+     * 一括削除
+     */
+    async function bulkDelete() {
+      try {
+        console.log("一括削除開始");
+        const journals = await readRegisterSheet();
+        console.log(`読み込んだデータ: ${journals.length}件`);
+
+        if (journals.length === 0) {
+          console.log("削除するデータがありません");
+          return;
+        }
+
+        const journalNos = journals.map(j => j.journalNo).join(", ");
+        console.log(`以下の${journals.length}件の仕訳を削除します: ${journalNos}`);
+        let successCount = 0;
+        let errorCount = 0;
+        const errors: string[] = [];
+
+        for (const journal of journals) {
+          try {
+            console.log(`削除中: ${journal.journalNo}`);
+            await api.deleteJournal(journal.journalNo);
+            successCount++;
+            console.log(`成功: ${journal.journalNo}`);
+          } catch (error) {
+            errorCount++;
+            errors.push(`${journal.journalNo}: ${error.message}`);
+          }
+        }
+
+        console.log("========================================");
+        console.log("削除完了");
+        console.log(`成功: ${successCount}件`);
+        console.log(`失敗: ${errorCount}件`);
+        if (errors.length > 0) {
+          console.log("\nエラー詳細:");
+          errors.forEach(err => console.log(`  - ${err}`));
+        }
+        console.log("========================================");
+
+        // 一覧を再読み込み
+        if (successCount > 0) {
+          await loadJournalsList();
+        }
+      } catch (error) {
+        console.error("========================================");
+        console.error("エラー発生");
+        console.error(error);
+        console.error("========================================");
+      }
+    }
+
+    // イベントリスナーの登録
+    Office.onReady(() => {
+      console.log("Office.onReady - イベントリスナーを登録します");
+
+      const loadListBtn = document.getElementById("load-list");
+      const createSheetBtn = document.getElementById("create-register-sheet");
+      const bulkCreateBtn = document.getElementById("bulk-create");
+      const bulkUpdateBtn = document.getElementById("bulk-update");
+      const bulkDeleteBtn = document.getElementById("bulk-delete");
+
+      console.log("ボタン要素:", {
+        loadList: !!loadListBtn,
+        createSheet: !!createSheetBtn,
+        bulkCreate: !!bulkCreateBtn,
+        bulkUpdate: !!bulkUpdateBtn,
+        bulkDelete: !!bulkDeleteBtn
+      });
+
+      loadListBtn?.addEventListener("click", loadJournalsList);
+      createSheetBtn?.addEventListener("click", createRegisterSheet);
+      bulkCreateBtn?.addEventListener("click", bulkCreate);
+      bulkUpdateBtn?.addEventListener("click", bulkUpdate);
+      bulkDeleteBtn?.addEventListener("click", bulkDelete);
+
+      console.log("イベントリスナー登録完了");
+    });
+  language: typescript
+template:
+  content: |
+    <div class="ms-welcome">
+      <header class="ms-welcome__header ms-bgColor-themePrimary">
+        <h1 class="ms-font-xxl ms-fontColor-white">仕訳管理</h1>
+        <p class="ms-font-m ms-fontColor-white">簡易振替伝票形式（一括登録・更新・削除対応）</p>
+      </header>
+
+      <main class="ms-welcome__main">
+        <section class="ms-welcome__features">
+          <h2 class="ms-font-xl">操作方法</h2>
+
+          <div class="instruction-section">
+            <h3 class="ms-font-l">1. 仕訳一覧の表示</h3>
+            <p>登録されているすべての仕訳を「仕訳一覧」シートに表示します。</p>
+            <button class="ms-Button ms-Button--primary" id="load-list">
+              <span class="ms-Button-label">📋 一覧表示</span>
+            </button>
+          </div>
+
+          <div class="instruction-section">
+            <h3 class="ms-font-l">2. 登録シートの作成</h3>
+            <p>「仕訳登録」シートを作成し、データ入力用のテンプレートを表示します。</p>
+            <button class="ms-Button ms-Button--primary" id="create-register-sheet">
+              <span class="ms-Button-label">📝 登録シート作成</span>
+            </button>
+          </div>
+
+          <div class="instruction-section">
+            <h3 class="ms-font-l">3. データ入力（簡易振替伝票形式）</h3>
+            <p>「仕訳登録」シートに以下の項目を入力してください：</p>
+            <table class="input-table">
+              <tr><th>列</th><th>項目</th><th>必須</th><th>備考</th></tr>
+              <tr><td>A</td><td>仕訳番号</td><td>✓</td><td>例: J001</td></tr>
+              <tr><td>B</td><td>仕訳日付</td><td>✓</td><td>YYYY-MM-DD形式</td></tr>
+              <tr><td>C</td><td>摘要</td><td>✓</td><td>取引内容</td></tr>
+              <tr><td>D</td><td>借方科目コード</td><td>✓</td><td>例: 1111</td></tr>
+              <tr><td>E</td><td>借方金額</td><td>✓</td><td>数値のみ</td></tr>
+              <tr><td>F</td><td>貸方科目コード</td><td>✓</td><td>例: 4111</td></tr>
+              <tr><td>G</td><td>貸方金額</td><td>✓</td><td>数値のみ</td></tr>
+            </table>
+            <p class="note">※ 複数行まとめて入力できます（最大99行）</p>
+            <p class="note">※ 簡易振替伝票形式（借方1科目、貸方1科目のシンプルな仕訳のみ対応）</p>
+          </div>
+
+          <div class="instruction-section">
+            <h3 class="ms-font-l">4. 一括操作の実行</h3>
+            <div class="button-group">
+              <button class="ms-Button ms-Button--hero" id="bulk-create">
+                <span class="ms-Button-label">➕ 一括登録</span>
+              </button>
+              <button class="ms-Button ms-Button--hero" id="bulk-update">
+                <span class="ms-Button-label">🔄 一括更新</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="instruction-section danger">
+            <h3 class="ms-font-l">5. 一括削除</h3>
+            <p>⚠️ 仕訳番号列（A列）に削除したい仕訳番号を入力してください。</p>
+            <button class="ms-Button ms-Button--danger" id="bulk-delete">
+              <span class="ms-Button-label">🗑️ 一括削除</span>
+            </button>
+          </div>
+
+          <div class="info-section">
+            <h3 class="ms-font-l">注意事項</h3>
+            <ul>
+              <li>APIサーバーが http://localhost:8080 で起動している必要があります</li>
+              <li>簡易振替伝票形式（借方1科目、貸方1科目）のみ対応</li>
+              <li>仕訳日付は「2021-04-01」形式で入力してください</li>
+              <li>金額は数値のみ（カンマ不要）で入力してください</li>
+              <li>借方金額と貸方金額は必ず一致させてください</li>
+              <li>一括操作はエラーが発生しても処理を継続します</li>
+              <li>処理完了後にエラーサマリーが表示されます</li>
+            </ul>
+          </div>
+
+          <div class="example-section">
+            <h3 class="ms-font-l">入力例</h3>
+            <table class="example-table">
+              <tr>
+                <th>仕訳番号</th>
+                <th>仕訳日付</th>
+                <th>摘要</th>
+                <th>借方科目</th>
+                <th>借方金額</th>
+                <th>貸方科目</th>
+                <th>貸方金額</th>
+              </tr>
+              <tr>
+                <td>J001</td>
+                <td>2021-04-01</td>
+                <td>商品売上</td>
+                <td>1111</td>
+                <td>100000</td>
+                <td>4111</td>
+                <td>100000</td>
+              </tr>
+              <tr>
+                <td>J002</td>
+                <td>2021-04-05</td>
+                <td>給与支払</td>
+                <td>5111</td>
+                <td>300000</td>
+                <td>1111</td>
+                <td>300000</td>
+              </tr>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+  language: html
+style:
+  content: |
+    .ms-welcome {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .ms-welcome__header {
+      min-height: 100px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #ED7D31 0%, #C65911 100%);
+    }
+
+    .ms-welcome__header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .ms-welcome__header p {
+      margin: 10px 0 0 0;
+      font-size: 14px;
+    }
+
+    .ms-welcome__main {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .ms-welcome__features {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .ms-welcome__features h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #ED7D31;
+    }
+
+    .instruction-section {
+      margin-bottom: 25px;
+      padding: 15px;
+      background-color: #f3f2f1;
+      border-radius: 8px;
+      border-left: 4px solid #ED7D31;
+    }
+
+    .instruction-section.danger {
+      background-color: #fef0f0;
+      border-left-color: #d32f2f;
+    }
+
+    .instruction-section h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      color: #ED7D31;
+      font-size: 16px;
+    }
+
+    .instruction-section.danger h3 {
+      color: #d32f2f;
+    }
+
+    .instruction-section p {
+      margin: 0 0 15px 0;
+      line-height: 1.6;
+    }
+
+    .note {
+      font-size: 12px;
+      color: #666;
+      font-style: italic;
+    }
+
+    .input-table {
+      width: 100%;
+      margin: 15px 0;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .input-table th,
+    .input-table td {
+      padding: 8px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    .input-table th {
+      background-color: #ED7D31;
+      color: white;
+      font-weight: bold;
+    }
+
+    .input-table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .example-section {
+      margin-top: 25px;
+      padding: 15px;
+      background-color: #e8f5e9;
+      border-left: 4px solid #4CAF50;
+      border-radius: 8px;
+    }
+
+    .example-section h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      color: #2e7d32;
+    }
+
+    .example-table {
+      width: 100%;
+      margin-top: 10px;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .example-table th,
+    .example-table td {
+      padding: 6px;
+      border: 1px solid #c8e6c9;
+      text-align: left;
+    }
+
+    .example-table th {
+      background-color: #4CAF50;
+      color: white;
+      font-weight: bold;
+    }
+
+    .example-table tr:nth-child(even) {
+      background-color: #f1f8e9;
+    }
+
+    .button-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .ms-Button {
+      width: 100%;
+      height: 44px;
+      font-size: 14px;
+      margin-top: 10px;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .button-group .ms-Button {
+      margin-top: 0;
+    }
+
+    .ms-Button--primary {
+      background-color: #ED7D31;
+      border-color: #ED7D31;
+      color: white;
+    }
+
+    .ms-Button--primary:hover {
+      background-color: #C65911;
+      border-color: #C65911;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .ms-Button--hero {
+      background-color: #70AD47;
+      border-color: #70AD47;
+      color: white;
+      font-weight: bold;
+    }
+
+    .ms-Button--hero:hover {
+      background-color: #5a8f38;
+      border-color: #5a8f38;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .ms-Button--danger {
+      background-color: #d32f2f;
+      border-color: #d32f2f;
+      color: white;
+      font-weight: bold;
+    }
+
+    .ms-Button--danger:hover {
+      background-color: #b71c1c;
+      border-color: #b71c1c;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .info-section {
+      margin-top: 30px;
+      padding: 15px;
+      background-color: #fff4ce;
+      border-left: 4px solid #ffc107;
+      border-radius: 8px;
+    }
+
+    .info-section h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      color: #856404;
+    }
+
+    .info-section ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .info-section li {
+      margin-bottom: 8px;
+      line-height: 1.6;
+      color: #856404;
+    }
+  language: css
+libraries: |
+  https://appsforoffice.microsoft.com/lib/1/hosted/office.js
+  @types/office-js
+
+  @microsoft/office-js-helpers@1.0.1/dist/office.helpers.min.js
+  @microsoft/office-js-helpers@1.0.1/dist/office.helpers.d.ts
+
+  core-js@2.4.1/client/core.min.js
+  @types/core-js
+
+  jquery@3.1.1
+  @types/jquery@3.3.1
