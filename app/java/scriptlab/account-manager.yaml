@@ -254,6 +254,14 @@ script:
         alert(`エラーが発生しました: ${error.message}`);
       }
     }
+
+    // イベントリスナーの登録
+    Office.onReady(() => {
+      document.getElementById("load-accounts")?.addEventListener("click", loadAccounts);
+      document.getElementById("create-account")?.addEventListener("click", createAccountFromSheet);
+      document.getElementById("update-account")?.addEventListener("click", updateAccountFromSheet);
+      document.getElementById("delete-account")?.addEventListener("click", deleteAccountFromSheet);
+    });
   language: typescript
 template:
   content: |

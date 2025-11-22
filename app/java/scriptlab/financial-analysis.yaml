@@ -253,6 +253,12 @@ script:
         alert(`エラーが発生しました: ${error.message}`);
       }
     }
+
+    // イベントリスナーの登録
+    Office.onReady(() => {
+      document.getElementById("analyze-single")?.addEventListener("click", analyzeSingleYear);
+      document.getElementById("analyze-compare")?.addEventListener("click", compareYears);
+    });
   language: typescript
 template:
   content: |
