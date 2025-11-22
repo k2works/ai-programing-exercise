@@ -11,6 +11,7 @@ import com.example.accounting.infrastructure.out.persistence.mapper.EventStoreMa
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ import java.util.List;
 public class EventStoreRepositoryImpl implements EventStoreRepository {
     private final EventStoreMapper eventStoreMapper;
     private final ObjectMapper objectMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -58,6 +60,9 @@ public class EventStoreRepositoryImpl implements EventStoreRepository {
 
                 eventStoreMapper.insert(eventStore);
                 sequenceNumber++;
+
+                // イベント発行（Projection のトリガー）
+                eventPublisher.publishEvent(event);
             } catch (DuplicateKeyException e) {
                 throw new ConcurrentModificationException(
                     "Concurrent modification detected for aggregate: " + aggregateId, e

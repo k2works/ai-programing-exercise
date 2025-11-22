@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.accounting.infrastructure.out.persistence.mapper.JournalEntryReadModelMapper">
+
+    <!-- Result Map -->
+    <resultMap id="JournalEntryReadModelResultMap"
+               type="com.example.accounting.infrastructure.out.persistence.dao.JournalEntryReadModel">
+        <id property="id" column="id"/>
+        <result property="entryDate" column="entry_date"/>
+        <result property="description" column="description"/>
+        <result property="status" column="status"/>
+        <result property="deleted" column="deleted"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="approvedBy" column="approved_by"/>
+        <result property="approvalComment" column="approval_comment"/>
+        <collection property="lineItems" ofType="com.example.accounting.infrastructure.out.persistence.dao.JournalEntryLineReadModel">
+            <id property="id" column="line_id"/>
+            <result property="journalEntryId" column="journal_entry_id"/>
+            <result property="accountCode" column="account_code"/>
+            <result property="debitCredit" column="debit_credit"/>
+            <result property="amount" column="amount"/>
+        </collection>
+    </resultMap>
+
+    <!-- 仕訳を挿入 -->
+    <insert id="insertJournalEntry">
+        INSERT INTO journal_entry_read_model (
+            id, entry_date, description, status, deleted, created_at, updated_at, approved_by, approval_comment
+        ) VALUES (
+            #{id}, #{entryDate}, #{description}, #{status}, #{deleted}, #{createdAt}, #{updatedAt}, #{approvedBy}, #{approvalComment}
+        )
+    </insert>
+
+    <!-- 仕訳明細を挿入 -->
+    <insert id="insertJournalEntryLine">
+        INSERT INTO journal_entry_line_read_model (
+            journal_entry_id, account_code, debit_credit, amount
+        ) VALUES (
+            #{journalEntryId}, #{accountCode}, #{debitCredit}, #{amount}
+        )
+    </insert>
+
+    <!-- 仕訳ステータスを更新 -->
+    <update id="updateJournalEntryStatus">
+        UPDATE journal_entry_read_model
+        SET status = #{status},
+            updated_at = #{updatedAt},
+            approved_by = #{approvedBy},
+            approval_comment = #{approvalComment}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 削除済みとしてマーク -->
+    <update id="markAsDeleted">
+        UPDATE journal_entry_read_model
+        SET deleted = true,
+            updated_at = #{updatedAt}
+        WHERE id = #{id}
+    </update>
+
+    <!-- ID で仕訳を取得 -->
+    <select id="findById" resultMap="JournalEntryReadModelResultMap">
+        SELECT
+            j.id,
+            j.entry_date,
+            j.description,
+            j.status,
+            j.deleted,
+            j.created_at,
+            j.updated_at,
+            j.approved_by,
+            j.approval_comment,
+            l.id as line_id,
+            l.journal_entry_id,
+            l.account_code,
+            l.debit_credit,
+            l.amount
+        FROM journal_entry_read_model j
+        LEFT JOIN journal_entry_line_read_model l ON j.id = l.journal_entry_id
+        WHERE j.id = #{id}
+    </select>
+
+    <!-- すべての仕訳を取得 -->
+    <select id="findAll" resultMap="JournalEntryReadModelResultMap">
+        SELECT
+            j.id,
+            j.entry_date,
+            j.description,
+            j.status,
+            j.deleted,
+            j.created_at,
+            j.updated_at,
+            j.approved_by,
+            j.approval_comment,
+            l.id as line_id,
+            l.journal_entry_id,
+            l.account_code,
+            l.debit_credit,
+            l.amount
+        FROM journal_entry_read_model j
+        LEFT JOIN journal_entry_line_read_model l ON j.id = l.journal_entry_id
+        ORDER BY j.entry_date DESC, j.id
+    </select>
+
+    <!-- 起票日で仕訳を取得 -->
+    <select id="findByEntryDate" resultMap="JournalEntryReadModelResultMap">
+        SELECT
+            j.id,
+            j.entry_date,
+            j.description,
+            j.status,
+            j.deleted,
+            j.created_at,
+            j.updated_at,
+            j.approved_by,
+            j.approval_comment,
+            l.id as line_id,
+            l.journal_entry_id,
+            l.account_code,
+            l.debit_credit,
+            l.amount
+        FROM journal_entry_read_model j
+        LEFT JOIN journal_entry_line_read_model l ON j.id = l.journal_entry_id
+        WHERE j.entry_date = #{entryDate}
+        ORDER BY j.id
+    </select>
+
+    <!-- ステータスで仕訳を取得 -->
+    <select id="findByStatus" resultMap="JournalEntryReadModelResultMap">
+        SELECT
+            j.id,
+            j.entry_date,
+            j.description,
+            j.status,
+            j.deleted,
+            j.created_at,
+            j.updated_at,
+            j.approved_by,
+            j.approval_comment,
+            l.id as line_id,
+            l.journal_entry_id,
+            l.account_code,
+            l.debit_credit,
+            l.amount
+        FROM journal_entry_read_model j
+        LEFT JOIN journal_entry_line_read_model l ON j.id = l.journal_entry_id
+        WHERE j.status = #{status}
+        ORDER BY j.entry_date DESC, j.id
+    </select>
+
+    <!-- 削除されていない仕訳を取得 -->
+    <select id="findNotDeleted" resultMap="JournalEntryReadModelResultMap">
+        SELECT
+            j.id,
+            j.entry_date,
+            j.description,
+            j.status,
+            j.deleted,
+            j.created_at,
+            j.updated_at,
+            j.approved_by,
+            j.approval_comment,
+            l.id as line_id,
+            l.journal_entry_id,
+            l.account_code,
+            l.debit_credit,
+            l.amount
+        FROM journal_entry_read_model j
+        LEFT JOIN journal_entry_line_read_model l ON j.id = l.journal_entry_id
+        WHERE j.deleted = false
+        ORDER BY j.entry_date DESC, j.id
+    </select>
+
+</mapper>
