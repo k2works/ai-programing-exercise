@@ -55,14 +55,23 @@ public class DatabaseSeeder implements CommandLineRunner {
             seedDailyBalances();
 
             log.info("=== Database Seeding Completed Successfully ===");
+
+            // シード処理完了後にアプリケーションを終了（トランザクションコミット後に実行）
+            new Thread(() -> {
+                try {
+                    Thread.sleep(1000); // トランザクションコミットを待つ
+                    log.info("Shutting down application...");
+                    int exitCode = SpringApplication.exit(applicationContext, () -> 0);
+                    System.exit(exitCode);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    System.exit(1);
+                }
+            }).start();
         } catch (Exception e) {
             log.error("Database seeding failed", e);
-            System.exit(1);
+            throw e; // トランザクションをロールバックさせる
         }
-
-        // シード処理完了後にアプリケーションを終了
-        log.info("Shutting down application...");
-        SpringApplication.exit(applicationContext, () -> 0);
     }
 
     /**
