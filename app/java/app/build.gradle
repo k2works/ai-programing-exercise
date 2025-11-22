@@ -124,3 +124,13 @@ flyway {
     locations = ['classpath:db/migration']
     baselineOnMigrate = true
 }
+
+// Seed データ投入タスク
+tasks.register('seedDatabase', JavaExec) {
+    group = 'database'
+    description = 'Seed the database with initial data'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.example.accounting.App'
+    systemProperty 'accounting.seed.enabled', 'true'
+    systemProperty 'spring.profiles.active', project.findProperty('seedProfile') ?: 'dev'
+}
