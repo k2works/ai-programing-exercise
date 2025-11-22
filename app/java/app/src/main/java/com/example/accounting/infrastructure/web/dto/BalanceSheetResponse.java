@@ -1,7 +1,7 @@
 package com.example.accounting.infrastructure.web.dto;
 
-import com.example.accounting.application.model.financial.BalanceSheet;
-import com.example.accounting.application.model.financial.BalanceSheetItem;
+import com.example.accounting.domain.model.financial.BalanceSheet;
+import com.example.accounting.domain.model.financial.BalanceSheetItem;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

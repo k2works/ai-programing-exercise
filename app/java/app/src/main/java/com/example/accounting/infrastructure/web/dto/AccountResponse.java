@@ -1,6 +1,6 @@
 package com.example.accounting.infrastructure.web.dto;
 
-import com.example.accounting.application.model.Account;
+import com.example.accounting.domain.model.Account;
 
 /**
  * 勘定科目レスポンス DTO

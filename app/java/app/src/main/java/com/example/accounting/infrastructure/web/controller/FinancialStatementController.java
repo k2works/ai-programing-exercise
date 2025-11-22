@@ -1,9 +1,9 @@
 package com.example.accounting.infrastructure.web.controller;
 
 import com.example.accounting.application.service.FinancialStatementService;
-import com.example.accounting.application.model.financial.BalanceSheet;
-import com.example.accounting.application.model.financial.FinancialRatios;
-import com.example.accounting.application.model.financial.IncomeStatement;
+import com.example.accounting.domain.model.financial.BalanceSheet;
+import com.example.accounting.domain.model.financial.FinancialRatios;
+import com.example.accounting.domain.model.financial.IncomeStatement;
 import com.example.accounting.infrastructure.web.dto.BalanceSheetResponse;
 import com.example.accounting.infrastructure.web.dto.FinancialRatiosResponse;
 import com.example.accounting.infrastructure.web.dto.IncomeStatementResponse;

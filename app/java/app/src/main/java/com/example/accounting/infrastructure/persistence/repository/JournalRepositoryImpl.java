@@ -1,8 +1,8 @@
 package com.example.accounting.infrastructure.persistence.repository;
 
-import com.example.accounting.application.model.Journal;
-import com.example.accounting.application.model.JournalEntry;
-import com.example.accounting.application.model.JournalLine;
+import com.example.accounting.domain.model.Journal;
+import com.example.accounting.domain.model.JournalEntry;
+import com.example.accounting.domain.model.JournalLine;
 import com.example.accounting.application.port.out.JournalRepository;
 import com.example.accounting.infrastructure.persistence.entity.JournalDetail;
 import com.example.accounting.infrastructure.persistence.entity.JournalDetailItem;

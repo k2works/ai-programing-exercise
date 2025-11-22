@@ -1,7 +1,7 @@
 package com.example.accounting.infrastructure.persistence.repository;
 
 import com.example.accounting.application.port.out.AccountRepository;
-import com.example.accounting.application.model.Account;
+import com.example.accounting.domain.model.Account;
 import com.example.accounting.infrastructure.persistence.mapper.AccountMapper;
 import org.springframework.stereotype.Repository;
 

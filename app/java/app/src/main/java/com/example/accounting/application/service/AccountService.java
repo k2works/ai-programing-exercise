@@ -2,7 +2,7 @@ package com.example.accounting.application.service;
 
 import com.example.accounting.application.exception.AccountNotFoundException;
 import com.example.accounting.application.port.out.AccountRepository;
-import com.example.accounting.application.model.Account;
+import com.example.accounting.domain.model.Account;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

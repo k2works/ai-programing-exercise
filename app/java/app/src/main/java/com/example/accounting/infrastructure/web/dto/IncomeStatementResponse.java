@@ -1,7 +1,7 @@
 package com.example.accounting.infrastructure.web.dto;
 
-import com.example.accounting.application.model.financial.IncomeStatement;
-import com.example.accounting.application.model.financial.IncomeStatementItem;
+import com.example.accounting.domain.model.financial.IncomeStatement;
+import com.example.accounting.domain.model.financial.IncomeStatementItem;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

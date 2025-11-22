@@ -1,6 +1,6 @@
 package com.example.accounting.infrastructure.web.dto;
 
-import com.example.accounting.application.model.financial.FinancialRatios;
+import com.example.accounting.domain.model.financial.FinancialRatios;
 
 import java.math.BigDecimal;
 

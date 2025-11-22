@@ -1,8 +1,8 @@
 package com.example.accounting.infrastructure.persistence.repository;
 
 import com.example.accounting.application.port.out.FinancialDataRepository;
-import com.example.accounting.application.model.financial.BalanceSheetItem;
-import com.example.accounting.application.model.financial.IncomeStatementItem;
+import com.example.accounting.domain.model.financial.BalanceSheetItem;
+import com.example.accounting.domain.model.financial.IncomeStatementItem;
 import com.example.accounting.infrastructure.persistence.mapper.FinancialDataMapper;
 import org.springframework.stereotype.Repository;
 

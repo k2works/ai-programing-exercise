@@ -1,9 +1,9 @@
 package com.example.accounting.infrastructure.web.controller;
 
 import com.example.accounting.application.exception.JournalNotFoundException;
-import com.example.accounting.application.model.Journal;
-import com.example.accounting.application.model.JournalEntry;
-import com.example.accounting.application.model.JournalLine;
+import com.example.accounting.domain.model.Journal;
+import com.example.accounting.domain.model.JournalEntry;
+import com.example.accounting.domain.model.JournalLine;
 import com.example.accounting.application.service.JournalService;
 import com.example.accounting.infrastructure.web.dto.JournalRequest;
 import com.example.accounting.infrastructure.web.dto.JournalResponse;
