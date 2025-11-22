@@ -1,4 +1,4 @@
-package com.example.accounting.infrastructure.out.persistence;
+package com.example.accounting.infrastructure.out.persistence.adapter;
 
 import com.example.accounting.domain.event.DomainEvent;
 import com.example.accounting.domain.event.JournalEntryApprovedEvent;
@@ -20,11 +20,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * イベントストアリポジトリ実装（MyBatis）
+ * イベントストアリポジトリ Adapter（MyBatis）
  */
 @Repository
 @RequiredArgsConstructor
-public class EventStoreRepositoryImpl implements EventStoreRepository {
+public class EventStoreAdapter implements EventStoreRepository {
     private final EventStoreMapper eventStoreMapper;
     private final ObjectMapper objectMapper;
     private final ApplicationEventPublisher eventPublisher;

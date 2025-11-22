@@ -1,4 +1,4 @@
-package com.example.accounting.infrastructure.out.persistence;
+package com.example.accounting.infrastructure.out.persistence.adapter;
 
 import com.example.accounting.domain.aggregate.JournalEntryAggregate;
 import com.example.accounting.domain.repository.SnapshotRepository;
@@ -13,11 +13,11 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 /**
- * スナップショットリポジトリ実装
+ * スナップショットリポジトリ Adapter
  */
 @Repository
 @RequiredArgsConstructor
-public class SnapshotRepositoryImpl implements SnapshotRepository {
+public class SnapshotAdapter implements SnapshotRepository {
     private final SnapshotMapper snapshotMapper;
     private final ObjectMapper objectMapper;
 
