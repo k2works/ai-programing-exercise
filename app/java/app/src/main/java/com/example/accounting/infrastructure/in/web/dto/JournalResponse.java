@@ -1,4 +1,4 @@
-package com.example.accounting.infrastructure.web.dto;
+package com.example.accounting.infrastructure.in.web.dto;
 
 import com.example.accounting.domain.model.Journal;
 import com.example.accounting.domain.model.JournalEntry;

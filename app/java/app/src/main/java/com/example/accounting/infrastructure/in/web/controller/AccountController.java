@@ -1,9 +1,9 @@
-package com.example.accounting.infrastructure.web.controller;
+package com.example.accounting.infrastructure.in.web.controller;
 
 import com.example.accounting.application.port.in.AccountUseCase;
 import com.example.accounting.domain.model.Account;
-import com.example.accounting.infrastructure.web.dto.AccountRequest;
-import com.example.accounting.infrastructure.web.dto.AccountResponse;
+import com.example.accounting.infrastructure.in.web.dto.AccountRequest;
+import com.example.accounting.infrastructure.in.web.dto.AccountResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

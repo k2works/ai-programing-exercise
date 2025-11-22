@@ -1,12 +1,12 @@
-package com.example.accounting.infrastructure.web.controller;
+package com.example.accounting.infrastructure.in.web.controller;
 
 import com.example.accounting.application.exception.JournalNotFoundException;
 import com.example.accounting.domain.model.Journal;
 import com.example.accounting.domain.model.JournalEntry;
 import com.example.accounting.domain.model.JournalLine;
 import com.example.accounting.application.port.in.JournalUseCase;
-import com.example.accounting.infrastructure.web.dto.JournalRequest;
-import com.example.accounting.infrastructure.web.dto.JournalResponse;
+import com.example.accounting.infrastructure.in.web.dto.JournalRequest;
+import com.example.accounting.infrastructure.in.web.dto.JournalResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

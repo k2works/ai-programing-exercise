@@ -1,12 +1,12 @@
-package com.example.accounting.infrastructure.web.controller;
+package com.example.accounting.infrastructure.in.web.controller;
 
 import com.example.accounting.application.port.in.FinancialStatementUseCase;
 import com.example.accounting.domain.model.financial.BalanceSheet;
 import com.example.accounting.domain.model.financial.FinancialRatios;
 import com.example.accounting.domain.model.financial.IncomeStatement;
-import com.example.accounting.infrastructure.web.dto.BalanceSheetResponse;
-import com.example.accounting.infrastructure.web.dto.FinancialRatiosResponse;
-import com.example.accounting.infrastructure.web.dto.IncomeStatementResponse;
+import com.example.accounting.infrastructure.in.web.dto.BalanceSheetResponse;
+import com.example.accounting.infrastructure.in.web.dto.FinancialRatiosResponse;
+import com.example.accounting.infrastructure.in.web.dto.IncomeStatementResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
