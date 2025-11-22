@@ -1,4 +1,4 @@
-package com.example.accounting.domain.model.management.financial;
+package com.example.accounting.domain.model.management;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package com.example.accounting.domain.model.management.financial;
+package com.example.accounting.domain.model.management;
 
 /**
  * 財務分析結果
