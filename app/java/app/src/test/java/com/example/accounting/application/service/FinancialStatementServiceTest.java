@@ -230,7 +230,7 @@ class FinancialStatementServiceTest extends TestDatabaseConfig {
                 POSTGRES.getPassword())) {
             conn.createStatement().executeUpdate(String.format("""
                 INSERT INTO "日次勘定科目残高"
-                ("計上日", "勘定科目コード", "補助科目コード", "部門コード", "プロジェクトコード", "決算仕訳", "借方金額", "貸方金額")
+                ("起票日", "勘定科目コード", "補助科目コード", "部門コード", "プロジェクトコード", "決算仕訳フラグ", "借方金額", "貸方金額")
                 VALUES
                 ('%s', '1110', '', '', '', 0, 1000000, 0),  -- 現金 100万（借方）
                 ('%s', '1120', '', '', '', 0, 200000, 0),   -- 普通預金 20万（借方）
@@ -253,7 +253,7 @@ class FinancialStatementServiceTest extends TestDatabaseConfig {
             // 期間中の各日付にデータを投入（簡略化のため開始日のみ）
             conn.createStatement().executeUpdate(String.format("""
                 INSERT INTO "日次勘定科目残高"
-                ("計上日", "勘定科目コード", "補助科目コード", "部門コード", "プロジェクトコード", "決算仕訳", "借方金額", "貸方金額")
+                ("起票日", "勘定科目コード", "補助科目コード", "部門コード", "プロジェクトコード", "決算仕訳フラグ", "借方金額", "貸方金額")
                 VALUES
                 ('%s', '4110', '', '', '', 0, 0, 1000000),  -- 売上高 100万（貸方）
                 ('%s', '5110', '', '', '', 0, 600000, 0),   -- 売上原価 60万（借方）

@@ -1,4 +1,4 @@
-package com.example.accounting.balance;
+package com.example.accounting.domain.model.balance;
 
 import com.example.accounting.TestDatabaseConfig;
 import org.junit.jupiter.api.AfterEach;

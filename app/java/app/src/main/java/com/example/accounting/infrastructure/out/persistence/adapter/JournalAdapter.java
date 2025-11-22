@@ -57,14 +57,22 @@ public class JournalAdapter implements JournalRepository {
         journalMapper.insertJournal(entity);
 
         // 明細登録
+        int detailLineNumber = 1;
         for (JournalEntry entry : journal.getEntries()) {
-            JournalDetail detail = toDetailEntity(journal.getJournalNo(), entry);
-            journalMapper.insertJournalDetail(detail);
-
-            // 貸借明細登録
+            // 各JournalLineを別々の明細行として登録
             for (JournalLine line : entry.getLines()) {
-                JournalDetailItem item = toItemEntity(journal.getJournalNo(), entry.getLineNumber(), line);
+                // 明細行登録
+                JournalDetail detail = new JournalDetail();
+                detail.setJournalNo(journal.getJournalNo());
+                detail.setLineNumber(detailLineNumber);
+                detail.setDescription(entry.getDescription());
+                journalMapper.insertJournalDetail(detail);
+
+                // 貸借明細登録
+                JournalDetailItem item = toItemEntity(journal.getJournalNo(), detailLineNumber, line);
                 journalMapper.insertJournalDetailItem(item);
+
+                detailLineNumber++;
             }
         }
 

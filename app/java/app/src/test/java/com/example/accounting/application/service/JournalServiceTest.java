@@ -79,7 +79,7 @@ class JournalServiceTest extends TestDatabaseConfig {
                 POSTGRES.getJdbcUrl(),
                 POSTGRES.getUsername(),
                 POSTGRES.getPassword())) {
-            conn.createStatement().execute("DELETE FROM \"仕訳明細項目\"");
+            conn.createStatement().execute("DELETE FROM \"仕訳貸借明細\"");
             conn.createStatement().execute("DELETE FROM \"仕訳明細\"");
             conn.createStatement().execute("DELETE FROM \"仕訳\"");
         }
@@ -89,7 +89,7 @@ class JournalServiceTest extends TestDatabaseConfig {
     @DisplayName("新規仕訳を作成できる")
     void testCreateJournal() {
         // Given: 新規仕訳（現金仕入）
-        Journal journal = createSimpleJournal("J001", LocalDate.of(2025, 1, 1),
+        Journal journal = createSimpleJournal("J_CREATE_001", LocalDate.of(2025, 1, 1),
                 "5010", new BigDecimal("10000"),  // 借方：仕入高
                 "1010", new BigDecimal("10000")); // 貸方：現金
 
@@ -98,22 +98,24 @@ class JournalServiceTest extends TestDatabaseConfig {
 
         // Then: 正しく作成されている
         assertThat(created).isNotNull();
-        assertThat(created.getJournalNo()).isEqualTo("J001");
-        assertThat(created.getEntries()).hasSize(1);
-        assertThat(created.getEntries().get(0).getLines()).hasSize(2);
+        assertThat(created.getJournalNo()).isEqualTo("J_CREATE_001");
+        // 各JournalLineは別々の明細行として保存される
+        assertThat(created.getEntries()).hasSize(2);
+        assertThat(created.getEntries().get(0).getLines()).hasSize(1);
+        assertThat(created.getEntries().get(1).getLines()).hasSize(1);
     }
 
     @Test
     @DisplayName("重複する仕訳番号で作成するとエラー")
     void testCreateJournalWithDuplicateNo() {
         // Given: 既存の仕訳
-        Journal journal = createSimpleJournal("J001", LocalDate.of(2025, 1, 1),
+        Journal journal = createSimpleJournal("J_DUP_001", LocalDate.of(2025, 1, 1),
                 "5010", new BigDecimal("10000"),
                 "1010", new BigDecimal("10000"));
         journalService.createJournal(journal);
 
         // When/Then: 同じ仕訳番号で作成すると例外
-        Journal duplicate = createSimpleJournal("J001", LocalDate.of(2025, 1, 2),
+        Journal duplicate = createSimpleJournal("J_DUP_001", LocalDate.of(2025, 1, 2),
                 "5010", new BigDecimal("5000"),
                 "1010", new BigDecimal("5000"));
         assertThatThrownBy(() -> journalService.createJournal(duplicate))
@@ -125,9 +127,9 @@ class JournalServiceTest extends TestDatabaseConfig {
     @DisplayName("全仕訳を取得できる")
     void testGetAllJournals() {
         // Given: 複数の仕訳
-        journalService.createJournal(createSimpleJournal("J001", LocalDate.of(2025, 1, 1),
+        journalService.createJournal(createSimpleJournal("J_ALL_001", LocalDate.of(2025, 1, 1),
                 "5010", new BigDecimal("10000"), "1010", new BigDecimal("10000")));
-        journalService.createJournal(createSimpleJournal("J002", LocalDate.of(2025, 1, 2),
+        journalService.createJournal(createSimpleJournal("J_ALL_002", LocalDate.of(2025, 1, 2),
                 "5010", new BigDecimal("20000"), "1020", new BigDecimal("20000")));
 
         // When: 全仕訳を取得
@@ -137,22 +139,22 @@ class JournalServiceTest extends TestDatabaseConfig {
         assertThat(journals).hasSize(2);
         assertThat(journals)
                 .extracting(Journal::getJournalNo)
-                .containsExactlyInAnyOrder("J001", "J002");
+                .containsExactlyInAnyOrder("J_ALL_001", "J_ALL_002");
     }
 
     @Test
     @DisplayName("仕訳番号で仕訳を取得できる")
     void testGetJournalByNo() {
         // Given: 仕訳
-        journalService.createJournal(createSimpleJournal("J001", LocalDate.of(2025, 1, 1),
+        journalService.createJournal(createSimpleJournal("J_GET_001", LocalDate.of(2025, 1, 1),
                 "5010", new BigDecimal("10000"), "1010", new BigDecimal("10000")));
 
         // When: 仕訳番号で取得
-        Journal journal = journalService.getJournalByNo("J001");
+        Journal journal = journalService.getJournalByNo("J_GET_001");
 
         // Then: 正しく取得できる
         assertThat(journal).isNotNull();
-        assertThat(journal.getJournalNo()).isEqualTo("J001");
+        assertThat(journal.getJournalNo()).isEqualTo("J_GET_001");
         assertThat(journal.getEntries()).isNotEmpty();
     }
 
@@ -160,7 +162,7 @@ class JournalServiceTest extends TestDatabaseConfig {
     @DisplayName("存在しない仕訳番号で取得するとエラー")
     void testGetJournalByNoNotFound() {
         // When/Then: 存在しない仕訳番号で取得すると例外
-        assertThatThrownBy(() -> journalService.getJournalByNo("J999"))
+        assertThatThrownBy(() -> journalService.getJournalByNo("J_NOT_FOUND"))
                 .isInstanceOf(JournalNotFoundException.class)
                 .hasMessageContaining("が見つかりません");
     }
@@ -169,18 +171,18 @@ class JournalServiceTest extends TestDatabaseConfig {
     @DisplayName("仕訳を更新できる")
     void testUpdateJournal() {
         // Given: 既存の仕訳
-        Journal original = createSimpleJournal("J001", LocalDate.of(2025, 1, 1),
+        Journal original = createSimpleJournal("J_UPD_001", LocalDate.of(2025, 1, 1),
                 "5010", new BigDecimal("10000"), "1010", new BigDecimal("10000"));
         journalService.createJournal(original);
 
         // When: 金額を変更
-        Journal updated = createSimpleJournal("J001", LocalDate.of(2025, 1, 1),
+        Journal updated = createSimpleJournal("J_UPD_001", LocalDate.of(2025, 1, 1),
                 "5010", new BigDecimal("15000"), "1010", new BigDecimal("15000"));
-        Journal result = journalService.updateJournal("J001", updated);
+        Journal result = journalService.updateJournal("J_UPD_001", updated);
 
         // Then: 更新されている
         assertThat(result).isNotNull();
-        Journal fetched = journalService.getJournalByNo("J001");
+        Journal fetched = journalService.getJournalByNo("J_UPD_001");
         assertThat(fetched.getEntries().get(0).getLines().get(0).getAmount())
                 .isEqualByComparingTo(new BigDecimal("15000"));
     }
@@ -189,14 +191,14 @@ class JournalServiceTest extends TestDatabaseConfig {
     @DisplayName("仕訳番号を変更しようとするとエラー")
     void testUpdateJournalNoChange() {
         // Given: 既存の仕訳
-        Journal original = createSimpleJournal("J001", LocalDate.of(2025, 1, 1),
+        Journal original = createSimpleJournal("J_CHG_001", LocalDate.of(2025, 1, 1),
                 "5010", new BigDecimal("10000"), "1010", new BigDecimal("10000"));
         journalService.createJournal(original);
 
         // When/Then: 仕訳番号を変更しようとすると例外
-        Journal updated = createSimpleJournal("J002", LocalDate.of(2025, 1, 1),
+        Journal updated = createSimpleJournal("J_CHG_002", LocalDate.of(2025, 1, 1),
                 "5010", new BigDecimal("10000"), "1010", new BigDecimal("10000"));
-        assertThatThrownBy(() -> journalService.updateJournal("J001", updated))
+        assertThatThrownBy(() -> journalService.updateJournal("J_CHG_001", updated))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("変更できません");
     }
@@ -205,15 +207,15 @@ class JournalServiceTest extends TestDatabaseConfig {
     @DisplayName("仕訳を削除できる")
     void testDeleteJournal() {
         // Given: 既存の仕訳
-        Journal journal = createSimpleJournal("J001", LocalDate.of(2025, 1, 1),
+        Journal journal = createSimpleJournal("J_DEL_001", LocalDate.of(2025, 1, 1),
                 "5010", new BigDecimal("10000"), "1010", new BigDecimal("10000"));
         journalService.createJournal(journal);
 
         // When: 仕訳を削除
-        journalService.deleteJournal("J001");
+        journalService.deleteJournal("J_DEL_001");
 
         // Then: 削除されている
-        assertThatThrownBy(() -> journalService.getJournalByNo("J001"))
+        assertThatThrownBy(() -> journalService.getJournalByNo("J_DEL_001"))
                 .isInstanceOf(JournalNotFoundException.class);
     }
 
@@ -221,7 +223,7 @@ class JournalServiceTest extends TestDatabaseConfig {
     @DisplayName("存在しない仕訳を削除しようとするとエラー")
     void testDeleteJournalNotFound() {
         // When/Then: 存在しない仕訳を削除しようとすると例外
-        assertThatThrownBy(() -> journalService.deleteJournal("J999"))
+        assertThatThrownBy(() -> journalService.deleteJournal("J_DEL_NOT_FOUND"))
                 .isInstanceOf(JournalNotFoundException.class)
                 .hasMessageContaining("が見つかりません");
     }
@@ -231,7 +233,7 @@ class JournalServiceTest extends TestDatabaseConfig {
     void testCreateComplexJournal() {
         // Given: 複合仕訳（現金・預金で仕入）
         Journal journal = new Journal();
-        journal.setJournalNo("J001");
+        journal.setJournalNo("J_COMPLEX_001");
         journal.setJournalDate(LocalDate.of(2025, 1, 1));
         journal.setInputDate(LocalDate.of(2025, 1, 1));
         journal.setSettlementFlag(false);
@@ -257,15 +259,17 @@ class JournalServiceTest extends TestDatabaseConfig {
         // When: 複合仕訳を作成
         Journal created = journalService.createJournal(journal);
 
-        // Then: 正しく作成されている
-        assertThat(created.getEntries().get(0).getLines()).hasSize(3);
+        // Then: 正しく作成されている（各JournalLineは別々の明細行として保存される）
+        assertThat(created.getEntries()).hasSize(3);
 
-        // 借方合計と貸方合計が一致
-        BigDecimal debitTotal = created.getEntries().get(0).getLines().stream()
+        // 全明細行から借方合計と貸方合計を計算
+        BigDecimal debitTotal = created.getEntries().stream()
+                .flatMap(e -> e.getLines().stream())
                 .filter(JournalLine::isDebit)
                 .map(JournalLine::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal creditTotal = created.getEntries().get(0).getLines().stream()
+        BigDecimal creditTotal = created.getEntries().stream()
+                .flatMap(e -> e.getLines().stream())
                 .filter(JournalLine::isCredit)
                 .map(JournalLine::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
