@@ -93,20 +93,30 @@ script:
     async function loadAccountsList() {
       try {
         await Excel.run(async (context) => {
+          const workbook = context.workbook;
+          workbook.worksheets.load("items/name");
+          await context.sync();
+
           // シートを取得または作成
           let sheet: Excel.Worksheet;
-          try {
-            sheet = context.workbook.worksheets.getItem(SHEET_NAMES.LIST);
-          } catch {
-            sheet = context.workbook.worksheets.add(SHEET_NAMES.LIST);
+          const existingSheet = workbook.worksheets.items.find(s => s.name === SHEET_NAMES.LIST);
+
+          if (existingSheet) {
+            sheet = workbook.worksheets.getItem(SHEET_NAMES.LIST);
+            // 既存のデータをクリア
+            try {
+              const usedRange = sheet.getUsedRange();
+              usedRange.clear();
+              await context.sync();
+            } catch {
+              // 空のシートの場合はクリア不要
+            }
+          } else {
+            sheet = workbook.worksheets.add(SHEET_NAMES.LIST);
           }
 
           // シートをアクティブに
           sheet.activate();
-
-          // 既存のデータをクリア
-          const usedRange = sheet.getUsedRange();
-          usedRange.clear();
 
           // APIから勘定科目一覧を取得
           const accounts = await api.getAllAccounts();
@@ -144,6 +154,19 @@ script:
           range.format.autofitColumns();
 
           // テーブルとして書式設定
+          try {
+            // 既存のテーブルを削除
+            sheet.tables.load("items");
+            await context.sync();
+
+            for (const table of sheet.tables.items) {
+              table.delete();
+            }
+            await context.sync();
+          } catch {
+            // テーブルがない場合は無視
+          }
+
           const table = sheet.tables.add(range, true);
           table.name = "AccountListTable";
           table.style = "TableStyleMedium2";
@@ -165,20 +188,30 @@ script:
     async function createRegisterSheet() {
       try {
         await Excel.run(async (context) => {
+          const workbook = context.workbook;
+          workbook.worksheets.load("items/name");
+          await context.sync();
+
           // シートを取得または作成
           let sheet: Excel.Worksheet;
-          try {
-            sheet = context.workbook.worksheets.getItem(SHEET_NAMES.REGISTER);
-          } catch {
-            sheet = context.workbook.worksheets.add(SHEET_NAMES.REGISTER);
+          const existingSheet = workbook.worksheets.items.find(s => s.name === SHEET_NAMES.REGISTER);
+
+          if (existingSheet) {
+            sheet = workbook.worksheets.getItem(SHEET_NAMES.REGISTER);
+            // 既存のデータをクリア
+            try {
+              const usedRange = sheet.getUsedRange();
+              usedRange.clear();
+              await context.sync();
+            } catch {
+              // 空のシートの場合はクリア不要
+            }
+          } else {
+            sheet = workbook.worksheets.add(SHEET_NAMES.REGISTER);
           }
 
           // シートをアクティブに
           sheet.activate();
-
-          // 既存のデータをクリア
-          const usedRange = sheet.getUsedRange();
-          usedRange.clear();
 
           // テンプレートヘッダー
           const headers = [
