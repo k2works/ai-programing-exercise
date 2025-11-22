@@ -16,6 +16,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationContext;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -24,6 +25,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * DatabaseSeeder 統合テスト
@@ -49,8 +51,11 @@ class DatabaseSeederTest extends TestDatabaseConfig {
         journalRepository = new JournalAdapter(journalMapper);
         dailyBalanceRepository = new DailyBalanceAdapter(dailyBalanceMapper);
 
+        // ApplicationContext のモック作成
+        ApplicationContext applicationContext = mock(ApplicationContext.class);
+
         // DatabaseSeeder の初期化
-        databaseSeeder = new DatabaseSeeder(accountRepository, journalRepository, dailyBalanceRepository);
+        databaseSeeder = new DatabaseSeeder(accountRepository, journalRepository, dailyBalanceRepository, applicationContext);
     }
 
     @AfterEach
