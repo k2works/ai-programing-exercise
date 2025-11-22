@@ -1,0 +1,1034 @@
+openapi: 3.0.1
+info:
+  title: 財務会計システム API
+  description: 財務会計システムのREST API仕様書
+  contact:
+    name: 開発チーム
+    email: dev@example.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+tags:
+- name: 財務分析
+  description: 財務分析 API
+- name: 勘定科目
+  description: 勘定科目マスタ管理API
+- name: Journal Entry Event Sourcing
+  description: イベントソーシング版仕訳API
+- name: 財務諸表
+  description: 財務諸表・財務指標生成API
+- name: 仕訳
+  description: 仕訳管理API
+- name: 監査ログAPI
+  description: 監査ログの照会API
+paths:
+  /api/v1/journals/{journalNo}:
+    get:
+      tags:
+      - 仕訳
+      summary: 仕訳取得
+      description: 仕訳番号を指定して仕訳を取得します
+      operationId: getJournal
+      parameters:
+      - name: journalNo
+        in: path
+        description: 仕訳番号
+        required: true
+        schema:
+          type: string
+      responses:
+        "404":
+          description: 仕訳が見つかりません
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JournalResponse'
+        "200":
+          description: 正常に取得
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JournalResponse'
+    put:
+      tags:
+      - 仕訳
+      summary: 仕訳更新
+      description: 既存の仕訳を更新します
+      operationId: updateJournal
+      parameters:
+      - name: journalNo
+        in: path
+        description: 仕訳番号
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JournalRequest'
+        required: true
+      responses:
+        "400":
+          description: リクエストが不正です
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JournalResponse'
+        "404":
+          description: 仕訳が見つかりません
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JournalResponse'
+        "200":
+          description: 正常に更新
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JournalResponse'
+    delete:
+      tags:
+      - 仕訳
+      summary: 仕訳削除
+      description: 仕訳を削除します
+      operationId: deleteJournal
+      parameters:
+      - name: journalNo
+        in: path
+        description: 仕訳番号
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: 正常に削除
+        "404":
+          description: 仕訳が見つかりません
+  /api/v1/accounts/{accountCode}:
+    get:
+      tags:
+      - 勘定科目
+      summary: 勘定科目取得
+      description: 科目コードを指定して勘定科目を取得します
+      operationId: getAccount
+      parameters:
+      - name: accountCode
+        in: path
+        description: 勘定科目コード
+        required: true
+        schema:
+          type: string
+      responses:
+        "404":
+          description: 勘定科目が見つかりません
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+        "200":
+          description: 正常に取得
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+    put:
+      tags:
+      - 勘定科目
+      summary: 勘定科目更新
+      description: 既存の勘定科目を更新します
+      operationId: updateAccount
+      parameters:
+      - name: accountCode
+        in: path
+        description: 勘定科目コード
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountRequest'
+        required: true
+      responses:
+        "404":
+          description: 勘定科目が見つかりません
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+        "400":
+          description: 入力値が不正です
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+        "200":
+          description: 正常に更新
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+    delete:
+      tags:
+      - 勘定科目
+      summary: 勘定科目削除
+      description: 指定された勘定科目を削除します
+      operationId: deleteAccount
+      parameters:
+      - name: accountCode
+        in: path
+        description: 勘定科目コード
+        required: true
+        schema:
+          type: string
+      responses:
+        "404":
+          description: 勘定科目が見つかりません
+        "204":
+          description: 正常に削除
+  /api/v1/journals:
+    get:
+      tags:
+      - 仕訳
+      summary: 仕訳一覧取得
+      description: 登録されているすべての仕訳を取得します
+      operationId: getAllJournals
+      responses:
+        "200":
+          description: 正常に取得
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JournalResponse'
+    post:
+      tags:
+      - 仕訳
+      summary: 仕訳作成
+      description: 新しい仕訳を作成します
+      operationId: createJournal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JournalRequest'
+        required: true
+      responses:
+        "400":
+          description: リクエストが不正です
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JournalResponse'
+        "201":
+          description: 正常に作成
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JournalResponse'
+  /api/v1/journal-entries-es:
+    post:
+      tags:
+      - Journal Entry Event Sourcing
+      summary: 仕訳を作成する（イベントソーシング）
+      operationId: createJournalEntry
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateJournalEntryRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CreateJournalEntryResponse'
+  /api/v1/journal-entries-es/{id}/approve:
+    post:
+      tags:
+      - Journal Entry Event Sourcing
+      summary: 仕訳を承認する
+      operationId: approveJournalEntry
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApproveJournalEntryRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+  /api/v1/accounts:
+    get:
+      tags:
+      - 勘定科目
+      summary: 勘定科目一覧取得
+      description: 登録されているすべての勘定科目を取得します
+      operationId: getAllAccounts
+      responses:
+        "200":
+          description: 正常に取得
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+    post:
+      tags:
+      - 勘定科目
+      summary: 勘定科目作成
+      description: 新しい勘定科目を作成します
+      operationId: createAccount
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountRequest'
+        required: true
+      responses:
+        "201":
+          description: 正常に作成
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+        "400":
+          description: 入力値が不正です
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+  /api/v1/journal-entries-es/{id}:
+    get:
+      tags:
+      - Journal Entry Event Sourcing
+      summary: 仕訳を取得する（イベント再生）
+      operationId: getJournalEntry
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JournalEntryResponse'
+    delete:
+      tags:
+      - Journal Entry Event Sourcing
+      summary: 仕訳を削除する
+      operationId: deleteJournalEntry
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteJournalEntryRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+  /api/v1/financial-statements/income-statement:
+    get:
+      tags:
+      - 財務諸表
+      summary: 損益計算書取得
+      description: 指定期間の損益計算書を生成します
+      operationId: getIncomeStatement
+      parameters:
+      - name: fromDate
+        in: query
+        description: 開始日（省略時は当月1日）
+        required: false
+        schema:
+          type: string
+          format: date
+        example: 2025-01-01
+      - name: toDate
+        in: query
+        description: 終了日（省略時は本日）
+        required: false
+        schema:
+          type: string
+          format: date
+        example: 2025-03-31
+      responses:
+        "200":
+          description: 正常に取得
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/IncomeStatementResponse'
+  /api/v1/financial-statements/financial-ratios:
+    get:
+      tags:
+      - 財務諸表
+      summary: 財務指標取得
+      description: 貸借対照表と損益計算書から財務指標を計算します
+      operationId: getFinancialRatios
+      parameters:
+      - name: asOfDate
+        in: query
+        description: 貸借対照表基準日（省略時は本日）
+        required: false
+        schema:
+          type: string
+          format: date
+        example: 2025-03-31
+      - name: fromDate
+        in: query
+        description: 損益計算書開始日（省略時は当月1日）
+        required: false
+        schema:
+          type: string
+          format: date
+        example: 2025-01-01
+      - name: toDate
+        in: query
+        description: 損益計算書終了日（省略時は本日）
+        required: false
+        schema:
+          type: string
+          format: date
+        example: 2025-03-31
+      responses:
+        "200":
+          description: 正常に取得
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/FinancialRatiosResponse'
+  /api/v1/financial-statements/balance-sheet:
+    get:
+      tags:
+      - 財務諸表
+      summary: 貸借対照表取得
+      description: 指定日時点の貸借対照表を生成します
+      operationId: getBalanceSheet
+      parameters:
+      - name: asOfDate
+        in: query
+        description: 基準日（省略時は本日）
+        required: false
+        schema:
+          type: string
+          format: date
+        example: 2025-03-31
+      responses:
+        "200":
+          description: 正常に取得
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BalanceSheetResponse'
+  /api/v1/financial-analysis/{fiscalYear}:
+    get:
+      tags:
+      - 財務分析
+      summary: 会計年度別財務分析
+      description: 指定された会計年度の財務データと財務指標を分析します
+      operationId: analyzeByFiscalYear
+      parameters:
+      - name: fiscalYear
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/FinancialAnalysisResult'
+  /api/v1/financial-analysis/compare:
+    get:
+      tags:
+      - 財務分析
+      summary: 複数期間比較分析
+      description: 複数の会計年度を比較分析し、トレンドを表示します
+      operationId: compareMultiplePeriods
+      parameters:
+      - name: fiscalYears
+        in: query
+        required: true
+        schema:
+          type: array
+          items:
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ComparativeAnalysisResult'
+  /api/v1/audit-logs/user/{userId}:
+    get:
+      tags:
+      - 監査ログAPI
+      summary: ユーザーの操作履歴を取得する
+      operationId: getUserActivity
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: startDate
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date-time
+      - name: endDate
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date-time
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuditLogResponse'
+  /api/v1/audit-logs/period:
+    get:
+      tags:
+      - 監査ログAPI
+      summary: 期間別の監査ログを取得する
+      operationId: getAuditLogsByPeriod
+      parameters:
+      - name: startDate
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date-time
+      - name: endDate
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date-time
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 100
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuditLogResponse'
+  /api/v1/audit-logs/entity/{entityType}/{entityId}:
+    get:
+      tags:
+      - 監査ログAPI
+      summary: エンティティの変更履歴を取得する
+      operationId: getEntityHistory
+      parameters:
+      - name: entityType
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: entityId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuditLogResponse'
+components:
+  schemas:
+    JournalEntryDto:
+      type: object
+      properties:
+        lineNumber:
+          type: integer
+          format: int32
+        description:
+          type: string
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/JournalLineDto'
+    JournalLineDto:
+      type: object
+      properties:
+        debitCreditFlag:
+          type: string
+        currencyCode:
+          type: string
+        exchangeRate:
+          type: number
+        departmentCode:
+          type: string
+        projectCode:
+          type: string
+        accountCode:
+          type: string
+        subAccountCode:
+          type: string
+        amount:
+          type: number
+        baseAmount:
+          type: number
+        taxType:
+          type: string
+        taxRate:
+          type: integer
+          format: int32
+        taxCalcType:
+          type: string
+        dueDate:
+          type: string
+          format: date
+        cashFlowFlag:
+          type: boolean
+        segmentCode:
+          type: string
+        offsetAccountCode:
+          type: string
+        offsetSubAccountCode:
+          type: string
+        noteCode:
+          type: string
+        noteContent:
+          type: string
+    JournalRequest:
+      type: object
+      properties:
+        journalNo:
+          type: string
+        journalDate:
+          type: string
+          format: date
+        inputDate:
+          type: string
+          format: date
+        settlementFlag:
+          type: boolean
+        singleEntryFlag:
+          type: boolean
+        journalType:
+          type: integer
+          format: int32
+        recurringFlag:
+          type: boolean
+        employeeCode:
+          type: string
+        departmentCode:
+          type: string
+        redSlipFlag:
+          type: boolean
+        redBlackVoucherNo:
+          type: string
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/JournalEntryDto'
+      description: 仕訳情報
+    JournalResponse:
+      type: object
+      properties:
+        journalNo:
+          type: string
+        journalDate:
+          type: string
+          format: date
+        inputDate:
+          type: string
+          format: date
+        settlementFlag:
+          type: boolean
+        singleEntryFlag:
+          type: boolean
+        journalType:
+          type: integer
+          format: int32
+        recurringFlag:
+          type: boolean
+        employeeCode:
+          type: string
+        departmentCode:
+          type: string
+        redSlipFlag:
+          type: boolean
+        redBlackVoucherNo:
+          type: string
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/JournalEntryDto'
+    AccountRequest:
+      required:
+      - accountCode
+      - accountName
+      - bsplType
+      type: object
+      properties:
+        accountCode:
+          maxLength: 10
+          minLength: 0
+          type: string
+        accountName:
+          maxLength: 40
+          minLength: 0
+          type: string
+        accountAbbr:
+          maxLength: 20
+          minLength: 0
+          type: string
+        accountKana:
+          maxLength: 40
+          minLength: 0
+          type: string
+        bsplType:
+          pattern: "^[BP]$"
+          type: string
+        debitCreditType:
+          pattern: "^[借貸]$"
+          type: string
+        elementType:
+          maxLength: 10
+          minLength: 0
+          type: string
+        displayOrder:
+          type: integer
+          format: int32
+      description: 勘定科目情報
+    AccountResponse:
+      type: object
+      properties:
+        accountCode:
+          type: string
+        accountName:
+          type: string
+        accountAbbr:
+          type: string
+        accountKana:
+          type: string
+        bsplType:
+          type: string
+        debitCreditType:
+          type: string
+        elementType:
+          type: string
+        displayOrder:
+          type: integer
+          format: int32
+    CreateJournalEntryRequest:
+      type: object
+      properties:
+        entryDate:
+          type: string
+          format: date
+        description:
+          type: string
+        lineItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/LineItemRequest'
+        userId:
+          type: string
+    LineItemRequest:
+      type: object
+      properties:
+        accountCode:
+          type: string
+        debitCredit:
+          type: string
+        amount:
+          type: number
+    CreateJournalEntryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+    ApproveJournalEntryRequest:
+      type: object
+      properties:
+        approvedBy:
+          type: string
+        comment:
+          type: string
+    JournalEntryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        entryDate:
+          type: string
+          format: date
+        description:
+          type: string
+        status:
+          type: string
+        deleted:
+          type: boolean
+        lineItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/LineItem'
+    LineItem:
+      type: object
+      properties:
+        accountCode:
+          type: string
+        debitCredit:
+          type: string
+        amount:
+          type: number
+    IncomeStatementItemDto:
+      type: object
+      properties:
+        accountCode:
+          type: string
+        accountName:
+          type: string
+        balance:
+          type: number
+        percentage:
+          type: number
+    IncomeStatementResponse:
+      type: object
+      properties:
+        fromDate:
+          type: string
+          format: date
+        toDate:
+          type: string
+          format: date
+        revenues:
+          type: array
+          items:
+            $ref: '#/components/schemas/IncomeStatementItemDto'
+        expenses:
+          type: array
+          items:
+            $ref: '#/components/schemas/IncomeStatementItemDto'
+        grossProfit:
+          type: number
+        operatingIncome:
+          type: number
+        netIncome:
+          type: number
+        totalRevenues:
+          type: number
+        totalExpenses:
+          type: number
+    FinancialRatiosResponse:
+      type: object
+      properties:
+        currentRatio:
+          type: number
+        debtToEquityRatio:
+          type: number
+        grossProfitMargin:
+          type: number
+        operatingProfitMargin:
+          type: number
+        netProfitMargin:
+          type: number
+        roa:
+          type: number
+        roe:
+          type: number
+    BalanceSheetItemDto:
+      type: object
+      properties:
+        accountCode:
+          type: string
+        accountName:
+          type: string
+        balance:
+          type: number
+        ratio:
+          type: number
+    BalanceSheetResponse:
+      type: object
+      properties:
+        asOfDate:
+          type: string
+          format: date
+        assets:
+          type: array
+          items:
+            $ref: '#/components/schemas/BalanceSheetItemDto'
+        liabilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/BalanceSheetItemDto'
+        equity:
+          type: array
+          items:
+            $ref: '#/components/schemas/BalanceSheetItemDto'
+        totalAssets:
+          type: number
+        totalLiabilities:
+          type: number
+        totalEquity:
+          type: number
+        totalLiabilitiesAndEquity:
+          type: number
+    EfficiencyDto:
+      type: object
+      properties:
+        totalAssetTurnover:
+          type: number
+        tangibleFixedAssetTurnover:
+          type: number
+    FinancialAnalysisResult:
+      type: object
+      properties:
+        fiscalYear:
+          type: integer
+          format: int32
+        financialData:
+          $ref: '#/components/schemas/FinancialDataDto'
+        ratios:
+          $ref: '#/components/schemas/RatiosDto'
+    FinancialDataDto:
+      type: object
+      properties:
+        sales:
+          type: number
+        operatingProfit:
+          type: number
+        totalAssets:
+          type: number
+        tangibleFixedAssets:
+          type: number
+        currentAssets:
+          type: number
+        currentLiabilities:
+          type: number
+        quickAssets:
+          type: number
+        equity:
+          type: number
+    ProfitabilityDto:
+      type: object
+      properties:
+        operatingProfitMargin:
+          type: number
+    RatiosDto:
+      type: object
+      properties:
+        profitability:
+          $ref: '#/components/schemas/ProfitabilityDto'
+        efficiency:
+          $ref: '#/components/schemas/EfficiencyDto'
+        safety:
+          $ref: '#/components/schemas/SafetyDto'
+    SafetyDto:
+      type: object
+      properties:
+        currentRatio:
+          type: number
+        quickRatio:
+          type: number
+        equityRatio:
+          type: number
+    ComparativeAnalysisResult:
+      type: object
+      properties:
+        periods:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinancialAnalysisResult'
+        trends:
+          $ref: '#/components/schemas/TrendsDto'
+    TrendsDto:
+      type: object
+      properties:
+        operatingProfitMarginChange:
+          type: number
+        totalAssetTurnoverChange:
+          type: number
+        equityRatioChange:
+          type: number
+    AuditLogResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        entityType:
+          type: string
+        entityId:
+          type: string
+        action:
+          type: string
+        userId:
+          type: string
+        userName:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        oldValues:
+          type: object
+          additionalProperties:
+            type: object
+        newValues:
+          type: object
+          additionalProperties:
+            type: object
+        changes:
+          type: object
+          additionalProperties:
+            type: object
+        reason:
+          type: string
+        summary:
+          type: string
+    DeleteJournalEntryRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+        userId:
+          type: string
