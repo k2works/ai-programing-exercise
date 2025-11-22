@@ -282,22 +282,23 @@ script:
 
         const accounts: Account[] = [];
         for (const row of dataRange.values) {
-          const accountCode = row[0] as string;
+          // Excel のセル値を文字列に変換（数値の場合もあるため）
+          const accountCode = row[0] != null ? String(row[0]).trim() : "";
 
           // 科目コードが空の行はスキップ
-          if (!accountCode || accountCode.trim() === "") {
+          if (!accountCode) {
             continue;
           }
 
           const account: Account = {
-            accountCode: accountCode.trim(),
-            accountName: (row[1] as string)?.trim() || "",
-            accountAbbr: (row[2] as string)?.trim() || undefined,
-            accountKana: (row[3] as string)?.trim() || undefined,
-            bsplType: (row[4] as string)?.trim() || "",
-            debitCreditType: (row[5] as string)?.trim() || undefined,
-            elementType: (row[6] as string)?.trim() || undefined,
-            displayOrder: row[7] ? parseInt(row[7] as string) : undefined
+            accountCode: accountCode,
+            accountName: row[1] != null ? String(row[1]).trim() : "",
+            accountAbbr: row[2] != null ? String(row[2]).trim() || undefined : undefined,
+            accountKana: row[3] != null ? String(row[3]).trim() || undefined : undefined,
+            bsplType: row[4] != null ? String(row[4]).trim() : "",
+            debitCreditType: row[5] != null ? String(row[5]).trim() || undefined : undefined,
+            elementType: row[6] != null ? String(row[6]).trim() || undefined : undefined,
+            displayOrder: row[7] != null ? parseInt(String(row[7])) : undefined
           };
 
           // 必須項目のバリデーション
