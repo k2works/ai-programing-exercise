@@ -1,4 +1,4 @@
-package com.example.accounting.application.projection;
+package com.example.accounting.infrastructure.out.persistence.adapter;
 
 import com.example.accounting.application.service.JournalEntryEventSourcingService;
 import com.example.accounting.application.service.JournalEntryQueryService;
@@ -25,12 +25,12 @@ import static org.awaitility.Awaitility.await;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
- * JournalEntryProjection の統合テスト（CQRS パターン）
+ * JournalEntryProjectionAdapter の統合テスト（CQRS パターン）
  */
 @SpringBootTest
 @Testcontainers
-@DisplayName("JournalEntryProjection の統合テスト")
-class JournalEntryProjectionTest {
+@DisplayName("JournalEntryProjectionAdapter の統合テスト")
+class JournalEntryProjectionAdapterTest {
 
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine")

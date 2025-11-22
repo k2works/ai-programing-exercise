@@ -1,5 +1,6 @@
-package com.example.accounting.application.projection;
+package com.example.accounting.infrastructure.out.persistence.adapter;
 
+import com.example.accounting.application.port.out.JournalEntryProjection;
 import com.example.accounting.domain.event.JournalEntryApprovedEvent;
 import com.example.accounting.domain.event.JournalEntryCreatedEvent;
 import com.example.accounting.domain.event.JournalEntryDeletedEvent;
@@ -13,14 +14,14 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
- * 仕訳 Projection
+ * 仕訳 Projection Adapter
  *
  * イベントストアから Read Model を構築
  */
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class JournalEntryProjection {
+public class JournalEntryProjectionAdapter implements JournalEntryProjection {
     private final JournalEntryReadModelMapper readModelMapper;
 
     /**
@@ -28,6 +29,7 @@ public class JournalEntryProjection {
      *
      * @param event 仕訳作成イベント
      */
+    @Override
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleJournalEntryCreated(JournalEntryCreatedEvent event) {
@@ -62,6 +64,7 @@ public class JournalEntryProjection {
      *
      * @param event 仕訳承認イベント
      */
+    @Override
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleJournalEntryApproved(JournalEntryApprovedEvent event) {
@@ -81,6 +84,7 @@ public class JournalEntryProjection {
      *
      * @param event 仕訳削除イベント
      */
+    @Override
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleJournalEntryDeleted(JournalEntryDeletedEvent event) {
