@@ -338,17 +338,21 @@ script:
         }
 
         if (!confirm(`${accounts.length}件の勘定科目を登録しますか？`)) {
+          console.log("登録をキャンセルしました");
           return;
         }
 
+        console.log("登録処理を開始します");
         let successCount = 0;
         let errorCount = 0;
         const errors: string[] = [];
 
         for (const account of accounts) {
           try {
+            console.log(`登録中: ${account.accountCode} - ${account.accountName}`);
             await api.createAccount(account);
             successCount++;
+            console.log(`成功: ${account.accountCode}`);
           } catch (error) {
             errorCount++;
             errors.push(`${account.accountCode}: ${error.message}`);
@@ -391,17 +395,21 @@ script:
         }
 
         if (!confirm(`${accounts.length}件の勘定科目を更新しますか？`)) {
+          console.log("更新をキャンセルしました");
           return;
         }
 
+        console.log("更新処理を開始します");
         let successCount = 0;
         let errorCount = 0;
         const errors: string[] = [];
 
         for (const account of accounts) {
           try {
+            console.log(`更新中: ${account.accountCode} - ${account.accountName}`);
             await api.updateAccount(account.accountCode, account);
             successCount++;
+            console.log(`成功: ${account.accountCode}`);
           } catch (error) {
             errorCount++;
             errors.push(`${account.accountCode}: ${error.message}`);
@@ -445,17 +453,21 @@ script:
 
         const accountCodes = accounts.map(a => a.accountCode).join(", ");
         if (!confirm(`以下の${accounts.length}件の勘定科目を削除しますか？\n\n${accountCodes}`)) {
+          console.log("削除をキャンセルしました");
           return;
         }
 
+        console.log("削除処理を開始します");
         let successCount = 0;
         let errorCount = 0;
         const errors: string[] = [];
 
         for (const account of accounts) {
           try {
+            console.log(`削除中: ${account.accountCode}`);
             await api.deleteAccount(account.accountCode);
             successCount++;
+            console.log(`成功: ${account.accountCode}`);
           } catch (error) {
             errorCount++;
             errors.push(`${account.accountCode}: ${error.message}`);
