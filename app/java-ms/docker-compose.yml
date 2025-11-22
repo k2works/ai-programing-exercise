@@ -14,6 +14,21 @@ services:
     networks:
       - accounting-network
 
+  # PostgreSQL for Management Accounting Service
+  postgres-management:
+    image: postgres:16-alpine
+    container_name: postgres-management
+    environment:
+      POSTGRES_DB: management_accounting
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - management-db-data:/var/lib/postgresql/data
+    networks:
+      - accounting-network
+
   # API Gateway
   api-gateway:
     build:
@@ -58,14 +73,19 @@ services:
       - "8082:8082"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - FINANCIAL_ACCOUNTING_SERVICE_URL=http://financial-accounting-service:8081
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-management:5432/management_accounting
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - FINANCIAL_ACCOUNTING_SERVICE_BASE_URL=http://financial-accounting-service:8081
     depends_on:
+      - postgres-management
       - financial-accounting-service
     networks:
       - accounting-network
 
 volumes:
   financial-db-data:
+  management-db-data:
 
 networks:
   accounting-network:
