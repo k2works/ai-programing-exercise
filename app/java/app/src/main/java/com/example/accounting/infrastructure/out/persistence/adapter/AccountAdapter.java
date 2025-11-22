@@ -101,6 +101,7 @@ public class AccountAdapter implements AccountRepository {
         entity.setIsAggregationTarget("1".equals(domain.getAggregationType()));
         entity.setDisplayOrder(domain.getDisplayOrder());
         entity.setIsSummaryAccount(false);
+        entity.setBalance(java.math.BigDecimal.ZERO); // 初期残高は0
 
         return entity;
     }
