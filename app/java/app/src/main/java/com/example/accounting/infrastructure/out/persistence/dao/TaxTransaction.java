@@ -1,4 +1,4 @@
-package com.example.accounting.infrastructure.out.persistence.entity;
+package com.example.accounting.infrastructure.out.persistence.dao;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

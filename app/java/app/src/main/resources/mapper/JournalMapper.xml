@@ -5,7 +5,7 @@
 <mapper namespace="com.example.accounting.infrastructure.out.persistence.mapper.JournalMapper">
 
     <!-- 結果マップ：仕訳 -->
-    <resultMap id="journalResultMap" type="com.example.accounting.infrastructure.out.persistence.entity.Journal">
+    <resultMap id="journalResultMap" type="com.example.accounting.infrastructure.out.persistence.dao.Journal">
         <id property="journalNo" column="仕訳伝票番号"/>
         <result property="journalDate" column="起票日"/>
         <result property="inputDate" column="入力日"/>
@@ -19,23 +19,23 @@
         <result property="redBlackVoucherNo" column="赤黒伝票番号"/>
         <result property="createdAt" column="作成日時"/>
         <result property="updatedAt" column="更新日時"/>
-        <collection property="details" ofType="com.example.accounting.infrastructure.out.persistence.entity.JournalDetail"
+        <collection property="details" ofType="com.example.accounting.infrastructure.out.persistence.dao.JournalDetail"
                     select="findDetailsByJournalNo" column="仕訳伝票番号"/>
     </resultMap>
 
     <!-- 結果マップ：仕訳明細 -->
-    <resultMap id="detailResultMap" type="com.example.accounting.infrastructure.out.persistence.entity.JournalDetail">
+    <resultMap id="detailResultMap" type="com.example.accounting.infrastructure.out.persistence.dao.JournalDetail">
         <id property="journalNo" column="仕訳伝票番号"/>
         <id property="lineNumber" column="仕訳行番号"/>
         <result property="description" column="行摘要"/>
         <result property="createdAt" column="作成日時"/>
         <result property="updatedAt" column="更新日時"/>
-        <collection property="items" ofType="com.example.accounting.infrastructure.out.persistence.entity.JournalDetailItem"
+        <collection property="items" ofType="com.example.accounting.infrastructure.out.persistence.dao.JournalDetailItem"
                     select="findItemsByJournalNoAndLine" column="{journalNo=仕訳伝票番号,lineNumber=仕訳行番号}"/>
     </resultMap>
 
     <!-- 結果マップ：仕訳貸借明細 -->
-    <resultMap id="itemResultMap" type="com.example.accounting.infrastructure.out.persistence.entity.JournalDetailItem">
+    <resultMap id="itemResultMap" type="com.example.accounting.infrastructure.out.persistence.dao.JournalDetailItem">
         <id property="journalNo" column="仕訳伝票番号"/>
         <id property="lineNumber" column="仕訳行番号"/>
         <id property="debitCreditFlag" column="仕訳行貸借区分"/>

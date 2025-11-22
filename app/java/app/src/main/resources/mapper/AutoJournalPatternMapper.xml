@@ -5,7 +5,7 @@
 <mapper namespace="com.example.accounting.infrastructure.out.persistence.mapper.AutoJournalPatternMapper">
 
     <!-- ResultMap for AutoJournalPattern -->
-    <resultMap id="patternResultMap" type="com.example.accounting.infrastructure.out.persistence.entity.AutoJournalPattern">
+    <resultMap id="patternResultMap" type="com.example.accounting.infrastructure.out.persistence.dao.AutoJournalPattern">
         <id property="id" column="ID"/>
         <result property="patternCode" column="パターンコード"/>
         <result property="patternName" column="パターン名"/>
@@ -14,12 +14,12 @@
         <result property="isActive" column="有効フラグ"/>
         <result property="createdAt" column="作成日時"/>
         <result property="updatedAt" column="更新日時"/>
-        <collection property="items" ofType="com.example.accounting.infrastructure.out.persistence.entity.AutoJournalPatternItem"
+        <collection property="items" ofType="com.example.accounting.infrastructure.out.persistence.dao.AutoJournalPatternItem"
                     select="findItemsByPatternId" column="ID"/>
     </resultMap>
 
     <!-- ResultMap for AutoJournalPatternItem -->
-    <resultMap id="itemResultMap" type="com.example.accounting.infrastructure.out.persistence.entity.AutoJournalPatternItem">
+    <resultMap id="itemResultMap" type="com.example.accounting.infrastructure.out.persistence.dao.AutoJournalPatternItem">
         <id property="id" column="ID"/>
         <result property="patternId" column="パターンID"/>
         <result property="lineNumber" column="行番号"/>
@@ -71,7 +71,7 @@
     </select>
 
     <!-- 挿入 -->
-    <insert id="insert" parameterType="com.example.accounting.infrastructure.out.persistence.entity.AutoJournalPattern"
+    <insert id="insert" parameterType="com.example.accounting.infrastructure.out.persistence.dao.AutoJournalPattern"
             useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
         INSERT INTO "自動仕訳パターン" (
             "パターンコード", "パターン名", "ソーステーブル名", "説明", "有効フラグ"
@@ -81,7 +81,7 @@
     </insert>
 
     <!-- 更新 -->
-    <update id="update" parameterType="com.example.accounting.infrastructure.out.persistence.entity.AutoJournalPattern">
+    <update id="update" parameterType="com.example.accounting.infrastructure.out.persistence.dao.AutoJournalPattern">
         UPDATE "自動仕訳パターン"
         SET "パターン名" = #{patternName},
             "ソーステーブル名" = #{sourceTableName},

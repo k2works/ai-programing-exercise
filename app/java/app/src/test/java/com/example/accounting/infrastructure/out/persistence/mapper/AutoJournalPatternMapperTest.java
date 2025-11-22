@@ -1,8 +1,8 @@
 package com.example.accounting.infrastructure.out.persistence.mapper;
 
 import com.example.accounting.TestDatabaseConfig;
-import com.example.accounting.infrastructure.out.persistence.entity.AutoJournalPattern;
-import com.example.accounting.infrastructure.out.persistence.entity.AutoJournalPatternItem;
+import com.example.accounting.infrastructure.out.persistence.dao.AutoJournalPattern;
+import com.example.accounting.infrastructure.out.persistence.dao.AutoJournalPatternItem;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;

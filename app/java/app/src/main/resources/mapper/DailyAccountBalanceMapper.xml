@@ -5,7 +5,7 @@
 <mapper namespace="com.example.accounting.infrastructure.out.persistence.mapper.DailyAccountBalanceMapper">
 
     <!-- ResultMap -->
-    <resultMap id="DailyAccountBalanceResultMap" type="com.example.accounting.infrastructure.out.persistence.entity.DailyAccountBalance">
+    <resultMap id="DailyAccountBalanceResultMap" type="com.example.accounting.infrastructure.out.persistence.dao.DailyAccountBalance">
         <result property="entryDate" column="起票日"/>
         <result property="accountCode" column="勘定科目コード"/>
         <result property="subAccountCode" column="補助科目コード"/>
@@ -19,7 +19,7 @@
     </resultMap>
 
     <!-- UPSERT -->
-    <insert id="upsert" parameterType="com.example.accounting.infrastructure.out.persistence.entity.DailyAccountBalance">
+    <insert id="upsert" parameterType="com.example.accounting.infrastructure.out.persistence.dao.DailyAccountBalance">
         INSERT INTO "日次勘定科目残高" (
             "起票日",
             "勘定科目コード",

@@ -5,7 +5,7 @@
 <mapper namespace="com.example.accounting.infrastructure.out.persistence.mapper.AutoJournalLogMapper">
 
     <!-- ResultMap for AutoJournalLog -->
-    <resultMap id="logResultMap" type="com.example.accounting.infrastructure.out.persistence.entity.AutoJournalLog">
+    <resultMap id="logResultMap" type="com.example.accounting.infrastructure.out.persistence.dao.AutoJournalLog">
         <id property="id" column="ID"/>
         <result property="patternId" column="パターンID"/>
         <result property="executedAt" column="実行日時"/>
@@ -44,7 +44,7 @@
     </select>
 
     <!-- 挿入 -->
-    <insert id="insert" parameterType="com.example.accounting.infrastructure.out.persistence.entity.AutoJournalLog"
+    <insert id="insert" parameterType="com.example.accounting.infrastructure.out.persistence.dao.AutoJournalLog"
             useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
         INSERT INTO "自動仕訳実行ログ" (
             "パターンID", "実行日時", "処理件数", "生成件数",
@@ -56,7 +56,7 @@
     </insert>
 
     <!-- 更新 -->
-    <update id="update" parameterType="com.example.accounting.infrastructure.out.persistence.entity.AutoJournalLog">
+    <update id="update" parameterType="com.example.accounting.infrastructure.out.persistence.dao.AutoJournalLog">
         UPDATE "自動仕訳実行ログ"
         SET "処理件数" = #{processedCount},
             "生成件数" = #{generatedCount},

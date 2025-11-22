@@ -5,7 +5,7 @@
 <mapper namespace="com.example.accounting.infrastructure.out.persistence.mapper.AutoJournalPatternItemMapper">
 
     <!-- ResultMap for AutoJournalPatternItem -->
-    <resultMap id="itemResultMap" type="com.example.accounting.infrastructure.out.persistence.entity.AutoJournalPatternItem">
+    <resultMap id="itemResultMap" type="com.example.accounting.infrastructure.out.persistence.dao.AutoJournalPatternItem">
         <id property="id" column="ID"/>
         <result property="patternId" column="パターンID"/>
         <result property="lineNumber" column="行番号"/>
@@ -37,7 +37,7 @@
     </select>
 
     <!-- 挿入 -->
-    <insert id="insert" parameterType="com.example.accounting.infrastructure.out.persistence.entity.AutoJournalPatternItem"
+    <insert id="insert" parameterType="com.example.accounting.infrastructure.out.persistence.dao.AutoJournalPatternItem"
             useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
         INSERT INTO "自動仕訳パターン明細" (
             "パターンID", "行番号", "貸借区分", "勘定科目コード", "金額式", "摘要テンプレート"
@@ -48,7 +48,7 @@
     </insert>
 
     <!-- 更新 -->
-    <update id="update" parameterType="com.example.accounting.infrastructure.out.persistence.entity.AutoJournalPatternItem">
+    <update id="update" parameterType="com.example.accounting.infrastructure.out.persistence.dao.AutoJournalPatternItem">
         UPDATE "自動仕訳パターン明細"
         SET "行番号" = #{lineNumber},
             "貸借区分" = #{debitCreditFlag},

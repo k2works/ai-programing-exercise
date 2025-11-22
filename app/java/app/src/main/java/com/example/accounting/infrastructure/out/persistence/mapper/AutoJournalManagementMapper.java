@@ -1,6 +1,6 @@
 package com.example.accounting.infrastructure.out.persistence.mapper;
 
-import com.example.accounting.infrastructure.out.persistence.entity.AutoJournalManagement;
+import com.example.accounting.infrastructure.out.persistence.dao.AutoJournalManagement;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

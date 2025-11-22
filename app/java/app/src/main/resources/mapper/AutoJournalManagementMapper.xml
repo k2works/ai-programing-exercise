@@ -5,7 +5,7 @@
 <mapper namespace="com.example.accounting.infrastructure.out.persistence.mapper.AutoJournalManagementMapper">
 
     <!-- ResultMap for AutoJournalManagement -->
-    <resultMap id="managementResultMap" type="com.example.accounting.infrastructure.out.persistence.entity.AutoJournalManagement">
+    <resultMap id="managementResultMap" type="com.example.accounting.infrastructure.out.persistence.dao.AutoJournalManagement">
         <id property="id" column="ID"/>
         <result property="sourceTableName" column="ソーステーブル名"/>
         <result property="lastProcessedAt" column="最終処理日時"/>
@@ -32,7 +32,7 @@
     </select>
 
     <!-- 挿入 -->
-    <insert id="insert" parameterType="com.example.accounting.infrastructure.out.persistence.entity.AutoJournalManagement"
+    <insert id="insert" parameterType="com.example.accounting.infrastructure.out.persistence.dao.AutoJournalManagement"
             useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
         INSERT INTO "自動仕訳管理" (
             "ソーステーブル名", "最終処理日時"
@@ -42,7 +42,7 @@
     </insert>
 
     <!-- 更新 -->
-    <update id="update" parameterType="com.example.accounting.infrastructure.out.persistence.entity.AutoJournalManagement">
+    <update id="update" parameterType="com.example.accounting.infrastructure.out.persistence.dao.AutoJournalManagement">
         UPDATE "自動仕訳管理"
         SET "最終処理日時" = #{lastProcessedAt},
             "更新日時" = CURRENT_TIMESTAMP

@@ -1,7 +1,7 @@
 package com.example.accounting.infrastructure.out.persistence.mapper;
 
 import com.example.accounting.TestDatabaseConfig;
-import com.example.accounting.infrastructure.out.persistence.entity.TaxTransaction;
+import com.example.accounting.infrastructure.out.persistence.dao.TaxTransaction;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;

@@ -1,4 +1,4 @@
-package com.example.accounting.infrastructure.out.persistence.entity;
+package com.example.accounting.infrastructure.out.persistence.dao;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

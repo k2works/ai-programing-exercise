@@ -31,7 +31,7 @@ public class AccountAdapter implements AccountRepository {
 
     @Override
     public Optional<Account> findByCode(String accountCode) {
-        com.example.accounting.infrastructure.out.persistence.entity.Account entity = accountMapper.findByAccountCode(accountCode);
+        com.example.accounting.infrastructure.out.persistence.dao.Account entity = accountMapper.findByAccountCode(accountCode);
         return Optional.ofNullable(entity).map(this::toDomainModel);
     }
 
@@ -44,7 +44,7 @@ public class AccountAdapter implements AccountRepository {
 
     @Override
     public Account save(Account account) {
-        com.example.accounting.infrastructure.out.persistence.entity.Account entity = accountMapper.findByAccountCode(account.getAccountCode());
+        com.example.accounting.infrastructure.out.persistence.dao.Account entity = accountMapper.findByAccountCode(account.getAccountCode());
 
         if (entity == null) {
             // 新規作成
@@ -68,7 +68,7 @@ public class AccountAdapter implements AccountRepository {
     /**
      * EntityからDomain Modelへ変換
      */
-    private Account toDomainModel(com.example.accounting.infrastructure.out.persistence.entity.Account entity) {
+    private Account toDomainModel(com.example.accounting.infrastructure.out.persistence.dao.Account entity) {
         if (entity == null) {
             return null;
         }
@@ -90,8 +90,8 @@ public class AccountAdapter implements AccountRepository {
     /**
      * Domain ModelからEntityへ変換
      */
-    private com.example.accounting.infrastructure.out.persistence.entity.Account toEntity(Account domain) {
-        com.example.accounting.infrastructure.out.persistence.entity.Account entity = new com.example.accounting.infrastructure.out.persistence.entity.Account();
+    private com.example.accounting.infrastructure.out.persistence.dao.Account toEntity(Account domain) {
+        com.example.accounting.infrastructure.out.persistence.dao.Account entity = new com.example.accounting.infrastructure.out.persistence.dao.Account();
         entity.setAccountCode(domain.getAccountCode());
         entity.setAccountName(domain.getAccountName());
         entity.setAccountNameKana(domain.getAccountKana());

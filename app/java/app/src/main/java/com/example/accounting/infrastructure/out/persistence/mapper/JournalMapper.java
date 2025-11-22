@@ -1,8 +1,8 @@
 package com.example.accounting.infrastructure.out.persistence.mapper;
 
-import com.example.accounting.infrastructure.out.persistence.entity.Journal;
-import com.example.accounting.infrastructure.out.persistence.entity.JournalDetail;
-import com.example.accounting.infrastructure.out.persistence.entity.JournalDetailItem;
+import com.example.accounting.infrastructure.out.persistence.dao.Journal;
+import com.example.accounting.infrastructure.out.persistence.dao.JournalDetail;
+import com.example.accounting.infrastructure.out.persistence.dao.JournalDetailItem;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

@@ -1,6 +1,6 @@
 package com.example.accounting.infrastructure.out.persistence.mapper;
 
-import com.example.accounting.infrastructure.out.persistence.entity.DailyAccountBalance;
+import com.example.accounting.infrastructure.out.persistence.dao.DailyAccountBalance;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.time.LocalDate;

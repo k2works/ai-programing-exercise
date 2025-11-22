@@ -4,8 +4,8 @@ import com.example.accounting.domain.model.Journal;
 import com.example.accounting.domain.model.JournalEntry;
 import com.example.accounting.domain.model.JournalLine;
 import com.example.accounting.application.port.out.JournalRepository;
-import com.example.accounting.infrastructure.out.persistence.entity.JournalDetail;
-import com.example.accounting.infrastructure.out.persistence.entity.JournalDetailItem;
+import com.example.accounting.infrastructure.out.persistence.dao.JournalDetail;
+import com.example.accounting.infrastructure.out.persistence.dao.JournalDetailItem;
 import com.example.accounting.infrastructure.out.persistence.mapper.JournalMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +36,7 @@ public class JournalAdapter implements JournalRepository {
 
     @Override
     public Optional<Journal> findByJournalNo(String journalNo) {
-        com.example.accounting.infrastructure.out.persistence.entity.Journal entity =
+        com.example.accounting.infrastructure.out.persistence.dao.Journal entity =
                 journalMapper.findByJournalNo(journalNo);
         return Optional.ofNullable(entity).map(this::toDomainModel);
     }
@@ -44,7 +44,7 @@ public class JournalAdapter implements JournalRepository {
     @Override
     @Transactional
     public Journal save(Journal journal) {
-        com.example.accounting.infrastructure.out.persistence.entity.Journal existingEntity =
+        com.example.accounting.infrastructure.out.persistence.dao.Journal existingEntity =
                 journalMapper.findByJournalNo(journal.getJournalNo());
 
         if (existingEntity != null) {
@@ -53,7 +53,7 @@ public class JournalAdapter implements JournalRepository {
         }
 
         // ヘッダー登録
-        com.example.accounting.infrastructure.out.persistence.entity.Journal entity = toEntity(journal);
+        com.example.accounting.infrastructure.out.persistence.dao.Journal entity = toEntity(journal);
         journalMapper.insertJournal(entity);
 
         // 明細登録
@@ -80,7 +80,7 @@ public class JournalAdapter implements JournalRepository {
     /**
      * EntityからDomain Modelへ変換
      */
-    private Journal toDomainModel(com.example.accounting.infrastructure.out.persistence.entity.Journal entity) {
+    private Journal toDomainModel(com.example.accounting.infrastructure.out.persistence.dao.Journal entity) {
         if (entity == null) {
             return null;
         }
@@ -159,9 +159,9 @@ public class JournalAdapter implements JournalRepository {
     /**
      * Domain ModelからEntityへ変換
      */
-    private com.example.accounting.infrastructure.out.persistence.entity.Journal toEntity(Journal domain) {
-        com.example.accounting.infrastructure.out.persistence.entity.Journal entity =
-                new com.example.accounting.infrastructure.out.persistence.entity.Journal();
+    private com.example.accounting.infrastructure.out.persistence.dao.Journal toEntity(Journal domain) {
+        com.example.accounting.infrastructure.out.persistence.dao.Journal entity =
+                new com.example.accounting.infrastructure.out.persistence.dao.Journal();
         entity.setJournalNo(domain.getJournalNo());
         entity.setJournalDate(domain.getJournalDate());
         entity.setInputDate(domain.getInputDate());

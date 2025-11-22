@@ -1,6 +1,6 @@
 package com.example.accounting.infrastructure.out.persistence.mapper;
 
-import com.example.accounting.infrastructure.out.persistence.entity.TaxTransaction;
+import com.example.accounting.infrastructure.out.persistence.dao.TaxTransaction;
 import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;

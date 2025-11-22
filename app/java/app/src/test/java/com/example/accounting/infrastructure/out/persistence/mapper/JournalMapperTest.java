@@ -1,9 +1,9 @@
 package com.example.accounting.infrastructure.out.persistence.mapper;
 
 import com.example.accounting.TestDatabaseConfig;
-import com.example.accounting.infrastructure.out.persistence.entity.Journal;
-import com.example.accounting.infrastructure.out.persistence.entity.JournalDetail;
-import com.example.accounting.infrastructure.out.persistence.entity.JournalDetailItem;
+import com.example.accounting.infrastructure.out.persistence.dao.Journal;
+import com.example.accounting.infrastructure.out.persistence.dao.JournalDetail;
+import com.example.accounting.infrastructure.out.persistence.dao.JournalDetailItem;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;

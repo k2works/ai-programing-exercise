@@ -1,7 +1,7 @@
 package com.example.accounting.infrastructure.out.persistence.mapper;
 
 import com.example.accounting.TestDatabaseConfig;
-import com.example.accounting.infrastructure.out.persistence.entity.AccountStructure;
+import com.example.accounting.infrastructure.out.persistence.dao.AccountStructure;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
