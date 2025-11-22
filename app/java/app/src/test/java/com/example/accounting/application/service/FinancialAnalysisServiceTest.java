@@ -1,8 +1,9 @@
 package com.example.accounting.application.service;
 
-import com.example.accounting.application.port.in.ComparativeAnalysisResult;
-import com.example.accounting.application.port.in.FinancialAnalysisResult;
+import com.example.accounting.infrastructure.in.web.dto.management.ComparativeAnalysisResult;
+import com.example.accounting.infrastructure.in.web.dto.management.FinancialAnalysisResult;
 import com.example.accounting.application.port.out.DailyBalanceRepository;
+import com.example.accounting.application.service.management.FinancialAnalysisService;
 import com.example.accounting.domain.model.DailyBalance;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

@@ -1,5 +1,8 @@
 package com.example.accounting.application.port.in;
 
+import com.example.accounting.infrastructure.in.web.dto.management.ComparativeAnalysisResult;
+import com.example.accounting.infrastructure.in.web.dto.management.FinancialAnalysisResult;
+
 import java.util.List;
 
 /**

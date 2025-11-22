@@ -1,6 +1,7 @@
-package com.example.accounting.infrastructure.web.controller;
+package com.example.accounting.infrastructure.in.web.controller;
 
 import com.example.accounting.application.port.in.FinancialAnalysisUseCase;
+import com.example.accounting.infrastructure.in.web.controller.management.FinancialAnalysisController;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

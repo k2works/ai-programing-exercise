@@ -1,4 +1,4 @@
-package com.example.accounting.application.service;
+package com.example.accounting.application.service.management;
 
 import com.example.accounting.application.port.in.*;
 import com.example.accounting.application.port.out.DailyBalanceRepository;
@@ -6,15 +6,14 @@ import com.example.accounting.domain.model.management.AnalysisResult;
 import com.example.accounting.domain.model.management.FinancialData;
 import com.example.accounting.domain.model.management.FinancialRatioAnalyzer;
 import com.example.accounting.domain.model.DailyBalance;
+import com.example.accounting.infrastructure.in.web.dto.management.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 財務分析サービス

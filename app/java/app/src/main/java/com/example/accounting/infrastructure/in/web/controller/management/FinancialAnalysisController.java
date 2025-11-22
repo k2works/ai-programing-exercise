@@ -1,7 +1,7 @@
-package com.example.accounting.infrastructure.web.controller;
+package com.example.accounting.infrastructure.in.web.controller.management;
 
-import com.example.accounting.application.port.in.ComparativeAnalysisResult;
-import com.example.accounting.application.port.in.FinancialAnalysisResult;
+import com.example.accounting.infrastructure.in.web.dto.management.ComparativeAnalysisResult;
+import com.example.accounting.infrastructure.in.web.dto.management.FinancialAnalysisResult;
 import com.example.accounting.application.port.in.FinancialAnalysisUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

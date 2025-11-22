@@ -1,4 +1,4 @@
-package com.example.accounting.application.port.in;
+package com.example.accounting.infrastructure.in.web.dto.management;
 
 import java.util.List;
 
