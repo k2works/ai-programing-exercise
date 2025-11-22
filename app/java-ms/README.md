@@ -5,33 +5,24 @@
 
 ## アーキテクチャ概要
 
-```
-┌─────────────┐
-│  クライアント  │
-└──────┬──────┘
-       │ HTTP
-       ▼
-┌─────────────┐
-│ API Gateway │ (Port 8080)
-│Spring Cloud │
-│  Gateway    │
-└──────┬──────┘
-       │
-       ├───────────────────────┬────────────────────────┐
-       │                       │                        │
-       ▼                       ▼                        ▼
-┌──────────────┐      ┌───────────────┐      ┌────────────────┐
-│  財務会計     │      │   管理会計      │      │   PostgreSQL   │
-│  サービス     │◄─────│   サービス      │      │   (財務会計DB)  │
-│ (Port 8081)  │      │  (Port 8082)   │      │                │
-└──────┬───────┘      └───────────────┘      └────────────────┘
-       │
-       │
-       ▼
-┌──────────────┐
-│ PostgreSQL   │
-│ (財務会計DB)  │
-└──────────────┘
+```mermaid
+graph TB
+    Client[クライアント]
+    Gateway[API Gateway<br/>Port 8080<br/>Spring Cloud Gateway]
+    FinancialService[財務会計サービス<br/>Port 8081]
+    ManagementService[管理会計サービス<br/>Port 8082]
+    FinancialDB[(PostgreSQL<br/>財務会計DB)]
+
+    Client -->|HTTP| Gateway
+    Gateway -->|Route| FinancialService
+    Gateway -->|Route| ManagementService
+    ManagementService -->|HTTP/REST| FinancialService
+    FinancialService -->|JDBC| FinancialDB
+
+    style Gateway fill:#e1f5ff
+    style FinancialService fill:#d4edda
+    style ManagementService fill:#fff3cd
+    style FinancialDB fill:#cce5ff
 ```
 
 ## サービス構成
