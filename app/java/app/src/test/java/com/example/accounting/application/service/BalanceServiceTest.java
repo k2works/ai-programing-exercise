@@ -3,10 +3,9 @@ package com.example.accounting.application.service;
 import com.example.accounting.TestDatabaseConfig;
 import com.example.accounting.application.port.out.DailyBalanceRepository;
 import com.example.accounting.domain.model.DailyBalance;
-import com.example.accounting.infrastructure.persistence.mapper.DailyAccountBalanceMapper;
-import com.example.accounting.infrastructure.persistence.repository.DailyBalanceRepositoryImpl;
+import com.example.accounting.infrastructure.out.persistence.mapper.DailyAccountBalanceMapper;
+import com.example.accounting.infrastructure.out.persistence.repository.DailyBalanceRepositoryImpl;
 import org.apache.ibatis.io.Resources;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.AfterEach;
@@ -40,7 +39,7 @@ class BalanceServiceTest extends TestDatabaseConfig {
     static void setUp() throws Exception {
         // データベースセットアップ
         Flyway flyway = Flyway.configure()
-                .dataSource(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword())
+                .dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
                 .locations("classpath:db/migration")
                 .load();
         flyway.migrate();
@@ -48,9 +47,9 @@ class BalanceServiceTest extends TestDatabaseConfig {
         // MyBatis セットアップ
         Properties properties = new Properties();
         properties.setProperty("driver", "org.postgresql.Driver");
-        properties.setProperty("url", postgres.getJdbcUrl());
-        properties.setProperty("username", postgres.getUsername());
-        properties.setProperty("password", postgres.getPassword());
+        properties.setProperty("url", POSTGRES.getJdbcUrl());
+        properties.setProperty("username", POSTGRES.getUsername());
+        properties.setProperty("password", POSTGRES.getPassword());
 
         InputStream inputStream = Resources.getResourceAsStream("mybatis-config.xml");
         sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream, properties);
@@ -64,9 +63,9 @@ class BalanceServiceTest extends TestDatabaseConfig {
      */
     private static void insertTestAccounts() {
         try (Connection conn = DriverManager.getConnection(
-                postgres.getJdbcUrl(),
-                postgres.getUsername(),
-                postgres.getPassword())) {
+                POSTGRES.getJdbcUrl(),
+                POSTGRES.getUsername(),
+                POSTGRES.getPassword())) {
             conn.createStatement().executeUpdate("""
                 INSERT INTO "勘定科目マスタ" ("勘定科目コード", "勘定科目名", "勘定科目種別", "合計科目", "集計対象", "残高")
                 VALUES
@@ -94,9 +93,9 @@ class BalanceServiceTest extends TestDatabaseConfig {
     @AfterEach
     void cleanup() throws SQLException {
         try (Connection conn = DriverManager.getConnection(
-                postgres.getJdbcUrl(),
-                postgres.getUsername(),
-                postgres.getPassword())) {
+                POSTGRES.getJdbcUrl(),
+                POSTGRES.getUsername(),
+                POSTGRES.getPassword())) {
             conn.createStatement().execute("DELETE FROM \"日次勘定科目残高\"");
         }
     }

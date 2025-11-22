@@ -34,9 +34,9 @@ class MonthlyAccountBalanceTest extends TestDatabaseConfig {
     @AfterEach
     void cleanup() throws SQLException {
         try (Connection conn = DriverManager.getConnection(
-                postgres.getJdbcUrl(),
-                postgres.getUsername(),
-                postgres.getPassword())) {
+                POSTGRES.getJdbcUrl(),
+                POSTGRES.getUsername(),
+                POSTGRES.getPassword())) {
             conn.createStatement().execute("DELETE FROM \"月次勘定科目残高\"");
         }
     }
@@ -51,9 +51,9 @@ class MonthlyAccountBalanceTest extends TestDatabaseConfig {
         String accountCode = "1020";  // 普通預金
 
         try (Connection conn = DriverManager.getConnection(
-                postgres.getJdbcUrl(),
-                postgres.getUsername(),
-                postgres.getPassword())) {
+                POSTGRES.getJdbcUrl(),
+                POSTGRES.getUsername(),
+                POSTGRES.getPassword())) {
 
             // When: 月次残高を登録
             PreparedStatement pstmt = conn.prepareStatement("""
@@ -95,9 +95,9 @@ class MonthlyAccountBalanceTest extends TestDatabaseConfig {
         String accountCode = "1020";
 
         try (Connection conn = DriverManager.getConnection(
-                postgres.getJdbcUrl(),
-                postgres.getUsername(),
-                postgres.getPassword())) {
+                POSTGRES.getJdbcUrl(),
+                POSTGRES.getUsername(),
+                POSTGRES.getPassword())) {
 
             PreparedStatement pstmt = conn.prepareStatement("""
                 INSERT INTO "月次勘定科目残高" (
@@ -140,9 +140,9 @@ class MonthlyAccountBalanceTest extends TestDatabaseConfig {
         String accountCode = "1020";
 
         try (Connection conn = DriverManager.getConnection(
-                postgres.getJdbcUrl(),
-                postgres.getUsername(),
-                postgres.getPassword())) {
+                POSTGRES.getJdbcUrl(),
+                POSTGRES.getUsername(),
+                POSTGRES.getPassword())) {
 
             // When & Then: 月度=0で登録を試みるとエラー
             boolean exceptionThrown = false;
@@ -194,9 +194,9 @@ class MonthlyAccountBalanceTest extends TestDatabaseConfig {
         String accountCode = "4010";  // 売上高
 
         try (Connection conn = DriverManager.getConnection(
-                postgres.getJdbcUrl(),
-                postgres.getUsername(),
-                postgres.getPassword())) {
+                POSTGRES.getJdbcUrl(),
+                POSTGRES.getUsername(),
+                POSTGRES.getPassword())) {
 
             // When: 部門001と部門002の残高を登録
             PreparedStatement pstmt1 = conn.prepareStatement("""
@@ -252,9 +252,9 @@ class MonthlyAccountBalanceTest extends TestDatabaseConfig {
         String accountCode = "1020";  // 普通預金
 
         try (Connection conn = DriverManager.getConnection(
-                postgres.getJdbcUrl(),
-                postgres.getUsername(),
-                postgres.getPassword())) {
+                POSTGRES.getJdbcUrl(),
+                POSTGRES.getUsername(),
+                POSTGRES.getPassword())) {
 
             // When: 2024年12月と2025年1月の残高を登録
             PreparedStatement pstmt1 = conn.prepareStatement("""
@@ -306,9 +306,9 @@ class MonthlyAccountBalanceTest extends TestDatabaseConfig {
      */
     private static void insertTestAccounts() {
         try (Connection conn = DriverManager.getConnection(
-                postgres.getJdbcUrl(),
-                postgres.getUsername(),
-                postgres.getPassword())) {
+                POSTGRES.getJdbcUrl(),
+                POSTGRES.getUsername(),
+                POSTGRES.getPassword())) {
             conn.createStatement().executeUpdate("""
                 INSERT INTO "勘定科目マスタ" ("勘定科目コード", "勘定科目名", "勘定科目種別", "合計科目", "集計対象", "残高")
                 VALUES

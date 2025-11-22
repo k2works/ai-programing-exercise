@@ -35,9 +35,9 @@ class LedgerViewTest extends TestDatabaseConfig {
     @AfterEach
     void cleanup() throws SQLException {
         try (Connection conn = DriverManager.getConnection(
-                postgres.getJdbcUrl(),
-                postgres.getUsername(),
-                postgres.getPassword())) {
+                POSTGRES.getJdbcUrl(),
+                POSTGRES.getUsername(),
+                POSTGRES.getPassword())) {
             conn.createStatement().execute("DELETE FROM \"日次勘定科目残高\"");
         }
     }
@@ -53,9 +53,9 @@ class LedgerViewTest extends TestDatabaseConfig {
         String accountCode = "1020";  // 普通預金
 
         try (Connection conn = DriverManager.getConnection(
-                postgres.getJdbcUrl(),
-                postgres.getUsername(),
-                postgres.getPassword())) {
+                POSTGRES.getJdbcUrl(),
+                POSTGRES.getUsername(),
+                POSTGRES.getPassword())) {
 
             // 1/10: 借方 100,000
             PreparedStatement pstmt1 = conn.prepareStatement("""
@@ -127,9 +127,9 @@ class LedgerViewTest extends TestDatabaseConfig {
         LocalDate date = LocalDate.of(2025, 1, 15);
 
         try (Connection conn = DriverManager.getConnection(
-                postgres.getJdbcUrl(),
-                postgres.getUsername(),
-                postgres.getPassword())) {
+                POSTGRES.getJdbcUrl(),
+                POSTGRES.getUsername(),
+                POSTGRES.getPassword())) {
 
             // 普通預金（資産・借方）: 借方 500,000、貸方 200,000
             PreparedStatement pstmt1 = conn.prepareStatement("""
@@ -208,9 +208,9 @@ class LedgerViewTest extends TestDatabaseConfig {
         String accountCode = "5110";  // 仕入
 
         try (Connection conn = DriverManager.getConnection(
-                postgres.getJdbcUrl(),
-                postgres.getUsername(),
-                postgres.getPassword())) {
+                POSTGRES.getJdbcUrl(),
+                POSTGRES.getUsername(),
+                POSTGRES.getPassword())) {
 
             // 通常仕訳（決算仕訳フラグ=0）
             PreparedStatement pstmt1 = conn.prepareStatement("""
@@ -254,9 +254,9 @@ class LedgerViewTest extends TestDatabaseConfig {
      */
     private static void insertTestAccounts() {
         try (Connection conn = DriverManager.getConnection(
-                postgres.getJdbcUrl(),
-                postgres.getUsername(),
-                postgres.getPassword())) {
+                POSTGRES.getJdbcUrl(),
+                POSTGRES.getUsername(),
+                POSTGRES.getPassword())) {
             conn.createStatement().executeUpdate("""
                 INSERT INTO "勘定科目マスタ" ("勘定科目コード", "勘定科目名", "勘定科目種別", "合計科目", "集計対象", "残高")
                 VALUES

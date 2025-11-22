@@ -2,10 +2,10 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.example.accounting.infrastructure.persistence.mapper.TaxTransactionMapper">
+<mapper namespace="com.example.accounting.infrastructure.out.persistence.mapper.TaxTransactionMapper">
 
     <!-- 日本語カラム名と英語プロパティ名のマッピング -->
-    <resultMap id="TaxTransactionResultMap" type="com.example.accounting.infrastructure.persistence.entity.TaxTransaction">
+    <resultMap id="TaxTransactionResultMap" type="com.example.accounting.infrastructure.out.persistence.entity.TaxTransaction">
         <id property="taxCode" column="課税取引コード"/>
         <result property="taxName" column="課税取引名"/>
         <result property="taxRate" column="税率"/>
@@ -15,7 +15,7 @@
         <result property="updatedAt" column="更新日時"/>
     </resultMap>
 
-    <insert id="insert" parameterType="com.example.accounting.infrastructure.persistence.entity.TaxTransaction">
+    <insert id="insert" parameterType="com.example.accounting.infrastructure.out.persistence.entity.TaxTransaction">
         INSERT INTO "課税取引マスタ" (
             "課税取引コード",
             "課税取引名",
@@ -62,7 +62,7 @@
         ORDER BY "課税取引コード"
     </select>
 
-    <update id="update" parameterType="com.example.accounting.infrastructure.persistence.entity.TaxTransaction">
+    <update id="update" parameterType="com.example.accounting.infrastructure.out.persistence.entity.TaxTransaction">
         UPDATE "課税取引マスタ"
         SET "課税取引名" = #{taxName},
             "税率" = #{taxRate},

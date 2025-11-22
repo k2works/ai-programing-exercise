@@ -17,7 +17,7 @@
     </settings>
 
     <typeAliases>
-        <package name="com.example.accounting.infrastructure.persistence.entity"/>
+        <package name="com.example.accounting.infrastructure.out.persistence.entity"/>
     </typeAliases>
 
     <environments default="development">

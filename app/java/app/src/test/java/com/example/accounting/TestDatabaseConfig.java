@@ -21,7 +21,7 @@ import java.util.Properties;
 public abstract class TestDatabaseConfig {
 
     @Container
-    protected static final PostgreSQLContainer<?> postgres =
+    protected static final PostgreSQLContainer<?> POSTGRES =
         new PostgreSQLContainer<>("postgres:16-alpine")
             .withDatabaseName("testdb")
             .withUsername("testuser")
@@ -33,7 +33,7 @@ public abstract class TestDatabaseConfig {
     static void setUpDatabase() throws Exception {
         // Flyway マイグレーション実行
         Flyway flyway = Flyway.configure()
-                .dataSource(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword())
+                .dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
                 .locations("classpath:db/migration")
                 .load();
         flyway.migrate();
@@ -41,9 +41,9 @@ public abstract class TestDatabaseConfig {
         // MyBatis セットアップ
         Properties properties = new Properties();
         properties.setProperty("driver", "org.postgresql.Driver");
-        properties.setProperty("url", postgres.getJdbcUrl());
-        properties.setProperty("username", postgres.getUsername());
-        properties.setProperty("password", postgres.getPassword());
+        properties.setProperty("url", POSTGRES.getJdbcUrl());
+        properties.setProperty("username", POSTGRES.getUsername());
+        properties.setProperty("password", POSTGRES.getPassword());
 
         InputStream inputStream = Resources.getResourceAsStream("mybatis-config.xml");
         sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream, properties);
