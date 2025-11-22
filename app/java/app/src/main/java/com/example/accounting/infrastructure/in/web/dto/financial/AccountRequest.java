@@ -1,6 +1,6 @@
-package com.example.accounting.infrastructure.in.web.dto;
+package com.example.accounting.infrastructure.in.web.dto.financial;
 
-import com.example.accounting.domain.model.Account;
+import com.example.accounting.domain.model.financial.Account;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;

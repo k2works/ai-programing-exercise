@@ -1,7 +1,7 @@
 package com.example.accounting.infrastructure.out.persistence.adapter;
 
-import com.example.accounting.application.service.JournalEntryEventSourcingService;
-import com.example.accounting.application.service.JournalEntryQueryService;
+import com.example.accounting.application.service.finacial.JournalEntryEventSourcingService;
+import com.example.accounting.application.service.finacial.JournalEntryQueryService;
 import com.example.accounting.infrastructure.out.persistence.dao.JournalEntryReadModel;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,4 +1,4 @@
-package com.example.accounting.domain.model;
+package com.example.accounting.domain.model.financial;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

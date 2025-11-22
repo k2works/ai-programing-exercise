@@ -1,7 +1,7 @@
-package com.example.accounting.application.service;
+package com.example.accounting.application.service.finacial;
 
 import com.example.accounting.application.port.out.DailyBalanceRepository;
-import com.example.accounting.domain.model.DailyBalance;
+import com.example.accounting.domain.model.financial.DailyBalance;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

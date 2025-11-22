@@ -1,5 +1,6 @@
 package com.example.accounting.application.service;
 
+import com.example.accounting.application.service.finacial.JournalEntryEventSourcingService;
 import com.example.accounting.domain.aggregate.JournalEntryAggregate;
 import com.example.accounting.domain.aggregate.JournalEntryStatus;
 import com.example.accounting.domain.event.DomainEvent;

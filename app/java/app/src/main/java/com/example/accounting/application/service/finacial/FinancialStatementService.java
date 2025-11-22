@@ -1,4 +1,4 @@
-package com.example.accounting.application.service;
+package com.example.accounting.application.service.finacial;
 
 import com.example.accounting.application.port.out.FinancialDataRepository;
 import com.example.accounting.application.port.in.FinancialStatementUseCase;

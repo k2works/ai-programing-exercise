@@ -1,4 +1,4 @@
-package com.example.accounting.domain.model;
+package com.example.accounting.domain.model.financial;
 
 import java.util.ArrayList;
 import java.util.List;

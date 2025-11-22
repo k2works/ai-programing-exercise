@@ -1,9 +1,9 @@
-package com.example.accounting.application.service;
+package com.example.accounting.application.service.finacial;
 
 import com.example.accounting.application.exception.JournalNotFoundException;
 import com.example.accounting.application.port.in.JournalUseCase;
 import com.example.accounting.application.port.out.JournalRepository;
-import com.example.accounting.domain.model.Journal;
+import com.example.accounting.domain.model.financial.Journal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -1,6 +1,6 @@
 package com.example.accounting.application.port.in;
 
-import com.example.accounting.domain.model.Account;
+import com.example.accounting.domain.model.financial.Account;
 import java.util.List;
 
 /**

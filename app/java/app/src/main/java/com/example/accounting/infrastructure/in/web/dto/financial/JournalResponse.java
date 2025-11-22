@@ -1,8 +1,8 @@
-package com.example.accounting.infrastructure.in.web.dto;
+package com.example.accounting.infrastructure.in.web.dto.financial;
 
-import com.example.accounting.domain.model.Journal;
-import com.example.accounting.domain.model.JournalEntry;
-import com.example.accounting.domain.model.JournalLine;
+import com.example.accounting.domain.model.financial.Journal;
+import com.example.accounting.domain.model.financial.JournalEntry;
+import com.example.accounting.domain.model.financial.JournalLine;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

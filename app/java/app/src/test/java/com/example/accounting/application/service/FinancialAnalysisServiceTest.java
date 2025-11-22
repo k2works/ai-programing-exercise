@@ -4,7 +4,7 @@ import com.example.accounting.infrastructure.in.web.dto.management.ComparativeAn
 import com.example.accounting.infrastructure.in.web.dto.management.FinancialAnalysisResult;
 import com.example.accounting.application.port.out.DailyBalanceRepository;
 import com.example.accounting.application.service.management.FinancialAnalysisService;
-import com.example.accounting.domain.model.DailyBalance;
+import com.example.accounting.domain.model.financial.DailyBalance;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

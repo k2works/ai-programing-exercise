@@ -1,4 +1,4 @@
-package com.example.accounting.infrastructure.in.web.dto;
+package com.example.accounting.infrastructure.in.web.dto.financial;
 
 import com.example.accounting.domain.model.audit.AuditLog;
 import com.fasterxml.jackson.annotation.JsonFormat;

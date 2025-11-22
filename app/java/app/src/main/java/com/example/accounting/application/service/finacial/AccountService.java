@@ -1,4 +1,4 @@
-package com.example.accounting.application.service;
+package com.example.accounting.application.service.finacial;
 
 import com.example.accounting.application.exception.AccountNotFoundException;
 import com.example.accounting.application.port.in.AccountUseCase;
@@ -6,7 +6,7 @@ import com.example.accounting.application.port.out.AccountRepository;
 import com.example.accounting.domain.event.AccountCreatedEvent;
 import com.example.accounting.domain.event.AccountDeletedEvent;
 import com.example.accounting.domain.event.AccountUpdatedEvent;
-import com.example.accounting.domain.model.Account;
+import com.example.accounting.domain.model.financial.Account;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

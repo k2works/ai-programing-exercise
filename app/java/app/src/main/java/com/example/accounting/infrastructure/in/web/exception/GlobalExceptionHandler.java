@@ -1,7 +1,7 @@
 package com.example.accounting.infrastructure.in.web.exception;
 
 import com.example.accounting.application.exception.AccountNotFoundException;
-import com.example.accounting.infrastructure.in.web.dto.ErrorResponse;
+import com.example.accounting.infrastructure.in.web.dto.financial.ErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;

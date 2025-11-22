@@ -1,4 +1,4 @@
-package com.example.accounting.application.service;
+package com.example.accounting.application.service.finacial;
 
 import com.example.accounting.infrastructure.out.persistence.dao.JournalEntryReadModel;
 import com.example.accounting.infrastructure.out.persistence.mapper.JournalEntryReadModelMapper;

@@ -2,6 +2,7 @@ package com.example.accounting.application.service;
 
 import com.example.accounting.TestDatabaseConfig;
 import com.example.accounting.application.port.out.FinancialDataRepository;
+import com.example.accounting.application.service.finacial.FinancialStatementService;
 import com.example.accounting.domain.model.financial.BalanceSheet;
 import com.example.accounting.domain.model.financial.FinancialRatios;
 import com.example.accounting.domain.model.financial.IncomeStatement;

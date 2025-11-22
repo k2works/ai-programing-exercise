@@ -1,6 +1,6 @@
-package com.example.accounting.infrastructure.in.web.controller;
+package com.example.accounting.infrastructure.in.web.controller.financial;
 
-import com.example.accounting.application.service.JournalEntryEventSourcingService;
+import com.example.accounting.application.service.finacial.JournalEntryEventSourcingService;
 import com.example.accounting.domain.aggregate.JournalEntryAggregate;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

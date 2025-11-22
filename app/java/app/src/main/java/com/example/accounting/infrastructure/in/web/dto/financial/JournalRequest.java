@@ -1,4 +1,4 @@
-package com.example.accounting.infrastructure.in.web.dto;
+package com.example.accounting.infrastructure.in.web.dto.financial;
 
 import java.time.LocalDate;
 import java.util.List;

@@ -5,7 +5,7 @@ import com.example.accounting.application.port.out.DailyBalanceRepository;
 import com.example.accounting.domain.model.management.AnalysisResult;
 import com.example.accounting.domain.model.management.FinancialData;
 import com.example.accounting.domain.model.management.FinancialRatioAnalyzer;
-import com.example.accounting.domain.model.DailyBalance;
+import com.example.accounting.domain.model.financial.DailyBalance;
 import com.example.accounting.infrastructure.in.web.dto.management.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

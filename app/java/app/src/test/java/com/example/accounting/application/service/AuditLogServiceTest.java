@@ -2,6 +2,7 @@ package com.example.accounting.application.service;
 
 import com.example.accounting.TestDatabaseConfig;
 import com.example.accounting.application.port.out.AuditLogRepository;
+import com.example.accounting.application.service.finacial.AuditLogService;
 import com.example.accounting.domain.model.audit.AuditAction;
 import com.example.accounting.domain.model.audit.AuditLog;
 import com.example.accounting.infrastructure.out.persistence.adapter.AuditLogAdapter;

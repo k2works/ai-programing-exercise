@@ -1,7 +1,7 @@
 package com.example.accounting.infrastructure.out.persistence.adapter;
 
 import com.example.accounting.application.port.out.DailyBalanceRepository;
-import com.example.accounting.domain.model.DailyBalance;
+import com.example.accounting.domain.model.financial.DailyBalance;
 import com.example.accounting.infrastructure.out.persistence.dao.DailyAccountBalance;
 import com.example.accounting.infrastructure.out.persistence.mapper.DailyAccountBalanceMapper;
 import org.springframework.stereotype.Repository;

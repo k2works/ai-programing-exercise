@@ -1,6 +1,6 @@
 package com.example.accounting.application.port.out;
 
-import com.example.accounting.domain.model.DailyBalance;
+import com.example.accounting.domain.model.financial.DailyBalance;
 
 import java.time.LocalDate;
 import java.util.List;

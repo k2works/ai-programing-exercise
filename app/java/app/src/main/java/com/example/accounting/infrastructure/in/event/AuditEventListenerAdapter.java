@@ -1,7 +1,7 @@
 package com.example.accounting.infrastructure.in.event;
 
 import com.example.accounting.application.port.in.AuditEventListener;
-import com.example.accounting.application.service.AuditLogService;
+import com.example.accounting.application.service.finacial.AuditLogService;
 import com.example.accounting.domain.event.AccountCreatedEvent;
 import com.example.accounting.domain.event.AccountDeletedEvent;
 import com.example.accounting.domain.event.AccountUpdatedEvent;

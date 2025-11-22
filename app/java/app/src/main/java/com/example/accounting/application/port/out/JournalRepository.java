@@ -1,6 +1,6 @@
 package com.example.accounting.application.port.out;
 
-import com.example.accounting.domain.model.Journal;
+import com.example.accounting.domain.model.financial.Journal;
 import java.util.List;
 import java.util.Optional;
 

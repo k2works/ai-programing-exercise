@@ -1,8 +1,8 @@
 package com.example.accounting.infrastructure.out.persistence.adapter;
 
-import com.example.accounting.domain.model.Journal;
-import com.example.accounting.domain.model.JournalEntry;
-import com.example.accounting.domain.model.JournalLine;
+import com.example.accounting.domain.model.financial.Journal;
+import com.example.accounting.domain.model.financial.JournalEntry;
+import com.example.accounting.domain.model.financial.JournalLine;
 import com.example.accounting.application.port.out.JournalRepository;
 import com.example.accounting.infrastructure.out.persistence.dao.JournalDetail;
 import com.example.accounting.infrastructure.out.persistence.dao.JournalDetailItem;

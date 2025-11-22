@@ -1,8 +1,8 @@
 package com.example.accounting.infrastructure.in.web.controller;
 
-import com.example.accounting.infrastructure.in.web.controller.JournalEntryEventSourcingController.CreateJournalEntryRequest;
-import com.example.accounting.infrastructure.in.web.controller.JournalEntryEventSourcingController.ApproveJournalEntryRequest;
-import com.example.accounting.infrastructure.in.web.controller.JournalEntryEventSourcingController.DeleteJournalEntryRequest;
+import com.example.accounting.infrastructure.in.web.controller.financial.JournalEntryEventSourcingController.CreateJournalEntryRequest;
+import com.example.accounting.infrastructure.in.web.controller.financial.JournalEntryEventSourcingController.ApproveJournalEntryRequest;
+import com.example.accounting.infrastructure.in.web.controller.financial.JournalEntryEventSourcingController.DeleteJournalEntryRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

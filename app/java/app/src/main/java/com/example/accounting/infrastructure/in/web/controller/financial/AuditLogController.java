@@ -1,8 +1,8 @@
-package com.example.accounting.infrastructure.in.web.controller;
+package com.example.accounting.infrastructure.in.web.controller.financial;
 
-import com.example.accounting.application.service.AuditLogService;
+import com.example.accounting.application.service.finacial.AuditLogService;
 import com.example.accounting.domain.model.audit.AuditLog;
-import com.example.accounting.infrastructure.in.web.dto.AuditLogResponse;
+import com.example.accounting.infrastructure.in.web.dto.financial.AuditLogResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
