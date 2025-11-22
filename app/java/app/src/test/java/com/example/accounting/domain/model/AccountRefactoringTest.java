@@ -1,4 +1,4 @@
-package com.example.accounting;
+package com.example.accounting.domain.model;
 
 import com.example.accounting.testsetup.TestDatabase;
 import org.junit.jupiter.api.AfterAll;
