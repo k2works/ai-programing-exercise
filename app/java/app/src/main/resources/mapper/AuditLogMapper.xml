@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.accounting.infrastructure.out.persistence.mapper.AuditLogMapper">
+
+    <resultMap id="auditLogResultMap" type="com.example.accounting.infrastructure.out.persistence.dao.AuditLog">
+        <id property="logId" column="ログID"/>
+        <result property="entityType" column="エンティティ種別"/>
+        <result property="entityId" column="エンティティID"/>
+        <result property="action" column="操作種別"/>
+        <result property="userId" column="ユーザーID"/>
+        <result property="userName" column="ユーザー名"/>
+        <result property="timestamp" column="タイムスタンプ"/>
+        <result property="oldValues" column="変更前の値"/>
+        <result property="newValues" column="変更後の値"/>
+        <result property="changes" column="変更内容"/>
+        <result property="reason" column="理由"/>
+        <result property="ipAddress" column="IPアドレス"/>
+        <result property="userAgent" column="ユーザーエージェント"/>
+        <result property="createdAt" column="作成日時"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.example.accounting.infrastructure.out.persistence.dao.AuditLog"
+            useGeneratedKeys="true" keyProperty="logId">
+        INSERT INTO "監査ログ" (
+            "エンティティ種別", "エンティティID", "操作種別", "ユーザーID", "ユーザー名",
+            "タイムスタンプ", "変更前の値", "変更後の値", "変更内容", "理由",
+            "IPアドレス", "ユーザーエージェント"
+        ) VALUES (
+            #{entityType}, #{entityId}, #{action}, #{userId}, #{userName},
+            #{timestamp}, #{oldValues}::jsonb, #{newValues}::jsonb,
+            #{changes}::jsonb, #{reason}, #{ipAddress}, #{userAgent}
+        )
+    </insert>
+
+    <select id="findByEntity" resultMap="auditLogResultMap">
+        SELECT
+            "ログID", "エンティティ種別", "エンティティID", "操作種別",
+            "ユーザーID", "ユーザー名", "タイムスタンプ",
+            "変更前の値"::text AS "変更前の値",
+            "変更後の値"::text AS "変更後の値",
+            "変更内容"::text AS "変更内容",
+            "理由", "IPアドレス", "ユーザーエージェント", "作成日時"
+        FROM "監査ログ"
+        WHERE "エンティティ種別" = #{entityType}
+          AND "エンティティID" = #{entityId}
+        ORDER BY "タイムスタンプ" DESC
+    </select>
+
+    <select id="findByUser" resultMap="auditLogResultMap">
+        SELECT
+            "ログID", "エンティティ種別", "エンティティID", "操作種別",
+            "ユーザーID", "ユーザー名", "タイムスタンプ",
+            "変更前の値"::text AS "変更前の値",
+            "変更後の値"::text AS "変更後の値",
+            "変更内容"::text AS "変更内容",
+            "理由", "IPアドレス", "ユーザーエージェント", "作成日時"
+        FROM "監査ログ"
+        WHERE "ユーザーID" = #{userId}
+          AND "タイムスタンプ" BETWEEN #{startDate} AND #{endDate}
+        ORDER BY "タイムスタンプ" DESC
+    </select>
+
+    <select id="findByPeriod" resultMap="auditLogResultMap">
+        SELECT
+            "ログID", "エンティティ種別", "エンティティID", "操作種別",
+            "ユーザーID", "ユーザー名", "タイムスタンプ",
+            "変更前の値"::text AS "変更前の値",
+            "変更後の値"::text AS "変更後の値",
+            "変更内容"::text AS "変更内容",
+            "理由", "IPアドレス", "ユーザーエージェント", "作成日時"
+        FROM "監査ログ"
+        WHERE "タイムスタンプ" BETWEEN #{startDate} AND #{endDate}
+        ORDER BY "タイムスタンプ" DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="findAll" resultMap="auditLogResultMap">
+        SELECT
+            "ログID", "エンティティ種別", "エンティティID", "操作種別",
+            "ユーザーID", "ユーザー名", "タイムスタンプ",
+            "変更前の値"::text AS "変更前の値",
+            "変更後の値"::text AS "変更後の値",
+            "変更内容"::text AS "変更内容",
+            "理由", "IPアドレス", "ユーザーエージェント", "作成日時"
+        FROM "監査ログ"
+        ORDER BY "タイムスタンプ" DESC
+    </select>
+</mapper>
