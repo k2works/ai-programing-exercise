@@ -1,4 +1,4 @@
-package com.example.accounting.domain.repository;
+package com.example.accounting.application.port.out;
 
 import com.example.accounting.domain.aggregate.JournalEntryAggregate;
 

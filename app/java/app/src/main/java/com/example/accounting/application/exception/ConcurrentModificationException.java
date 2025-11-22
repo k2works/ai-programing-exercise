@@ -1,4 +1,4 @@
-package com.example.accounting.domain.repository;
+package com.example.accounting.application.exception;
 
 /**
  * 並行修正例外

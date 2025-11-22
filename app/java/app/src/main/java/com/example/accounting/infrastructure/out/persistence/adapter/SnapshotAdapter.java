@@ -1,7 +1,7 @@
 package com.example.accounting.infrastructure.out.persistence.adapter;
 
 import com.example.accounting.domain.aggregate.JournalEntryAggregate;
-import com.example.accounting.domain.repository.SnapshotRepository;
+import com.example.accounting.application.port.out.SnapshotRepository;
 import com.example.accounting.infrastructure.out.persistence.dao.AggregateSnapshot;
 import com.example.accounting.infrastructure.out.persistence.mapper.SnapshotMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
