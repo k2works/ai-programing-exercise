@@ -273,6 +273,16 @@ script:
      */
     async function readRegisterSheet(): Promise<Account[]> {
       return await Excel.run(async (context) => {
+        const workbook = context.workbook;
+        workbook.worksheets.load("items/name");
+        await context.sync();
+
+        // シートの存在確認
+        const existingSheet = workbook.worksheets.items.find(s => s.name === SHEET_NAMES.REGISTER);
+        if (!existingSheet) {
+          throw new Error("「勘定科目登録」シートが見つかりません。先に「登録シート作成」ボタンを押してください。");
+        }
+
         const sheet = context.workbook.worksheets.getItem(SHEET_NAMES.REGISTER);
 
         // データ範囲を取得（ヘッダー除く、A2から開始）
@@ -318,7 +328,9 @@ script:
      */
     async function bulkCreate() {
       try {
+        console.log("一括登録開始");
         const accounts = await readRegisterSheet();
+        console.log(`読み込んだデータ: ${accounts.length}件`);
 
         if (accounts.length === 0) {
           alert("登録するデータがありません");
@@ -369,7 +381,9 @@ script:
      */
     async function bulkUpdate() {
       try {
+        console.log("一括更新開始");
         const accounts = await readRegisterSheet();
+        console.log(`読み込んだデータ: ${accounts.length}件`);
 
         if (accounts.length === 0) {
           alert("更新するデータがありません");
@@ -420,7 +434,9 @@ script:
      */
     async function bulkDelete() {
       try {
+        console.log("一括削除開始");
         const accounts = await readRegisterSheet();
+        console.log(`読み込んだデータ: ${accounts.length}件`);
 
         if (accounts.length === 0) {
           alert("削除するデータがありません");
@@ -469,11 +485,29 @@ script:
 
     // イベントリスナーの登録
     Office.onReady(() => {
-      document.getElementById("load-list")?.addEventListener("click", loadAccountsList);
-      document.getElementById("create-register-sheet")?.addEventListener("click", createRegisterSheet);
-      document.getElementById("bulk-create")?.addEventListener("click", bulkCreate);
-      document.getElementById("bulk-update")?.addEventListener("click", bulkUpdate);
-      document.getElementById("bulk-delete")?.addEventListener("click", bulkDelete);
+      console.log("Office.onReady - イベントリスナーを登録します");
+
+      const loadListBtn = document.getElementById("load-list");
+      const createSheetBtn = document.getElementById("create-register-sheet");
+      const bulkCreateBtn = document.getElementById("bulk-create");
+      const bulkUpdateBtn = document.getElementById("bulk-update");
+      const bulkDeleteBtn = document.getElementById("bulk-delete");
+
+      console.log("ボタン要素:", {
+        loadList: !!loadListBtn,
+        createSheet: !!createSheetBtn,
+        bulkCreate: !!bulkCreateBtn,
+        bulkUpdate: !!bulkUpdateBtn,
+        bulkDelete: !!bulkDeleteBtn
+      });
+
+      loadListBtn?.addEventListener("click", loadAccountsList);
+      createSheetBtn?.addEventListener("click", createRegisterSheet);
+      bulkCreateBtn?.addEventListener("click", bulkCreate);
+      bulkUpdateBtn?.addEventListener("click", bulkUpdate);
+      bulkDeleteBtn?.addEventListener("click", bulkDelete);
+
+      console.log("イベントリスナー登録完了");
     });
   language: typescript
 template:
