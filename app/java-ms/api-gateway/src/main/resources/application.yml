@@ -1,0 +1,55 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        # Financial Accounting Service
+        - id: financial-accounting-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/v1/accounts/**,/api/v1/journals/**,/api/v1/financial-statements/**,/api/v1/audit-logs/**
+
+        # Management Accounting Service
+        - id: management-accounting-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/v1/financial-analysis/**,/api/v1/financial-ratios/**,/api/v1/trends/**
+
+      # CORS Configuration
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins:
+              - "https://*.cdn.office.net"
+              - "https://*.officeapps.live.com"
+              - "https://*.office.com"
+              - "http://localhost:*"
+              - "https://localhost:*"
+            allowed-methods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+              - PATCH
+            allowed-headers: "*"
+            allow-credentials: true
+            max-age: 3600
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,gateway
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.web: INFO

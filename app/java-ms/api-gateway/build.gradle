@@ -1,0 +1,9 @@
+dependencies {
+    // Spring Cloud Gateway
+    implementation 'org.springframework.cloud:spring-cloud-starter-gateway:4.1.0'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+}
+
+application {
+    mainClass = 'com.example.gateway.ApiGatewayApplication'
+}

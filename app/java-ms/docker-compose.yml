@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  # PostgreSQL for Financial Accounting Service
+  postgres-financial:
+    image: postgres:16-alpine
+    container_name: postgres-financial
+    environment:
+      POSTGRES_DB: financial_accounting
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - financial-db-data:/var/lib/postgresql/data
+    networks:
+      - accounting-network
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - financial-accounting-service
+      - management-accounting-service
+    networks:
+      - accounting-network
+
+  # Financial Accounting Service
+  financial-accounting-service:
+    build:
+      context: ./financial-accounting-service
+      dockerfile: Dockerfile
+    container_name: financial-accounting-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-financial:5432/financial_accounting
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    depends_on:
+      - postgres-financial
+    networks:
+      - accounting-network
+
+  # Management Accounting Service
+  management-accounting-service:
+    build:
+      context: ./management-accounting-service
+      dockerfile: Dockerfile
+    container_name: management-accounting-service
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - FINANCIAL_ACCOUNTING_SERVICE_URL=http://financial-accounting-service:8081
+    depends_on:
+      - financial-accounting-service
+    networks:
+      - accounting-network
+
+volumes:
+  financial-db-data:
+
+networks:
+  accounting-network:
+    driver: bridge

@@ -1,0 +1,5 @@
+rootProject.name = 'accounting-system-microservices'
+
+include 'financial-accounting-service'
+include 'management-accounting-service'
+include 'api-gateway'
