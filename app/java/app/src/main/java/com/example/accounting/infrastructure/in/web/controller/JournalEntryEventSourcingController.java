@@ -1,4 +1,4 @@
-package com.example.accounting.infrastructure.web.controller;
+package com.example.accounting.infrastructure.in.web.controller;
 
 import com.example.accounting.application.service.JournalEntryEventSourcingService;
 import com.example.accounting.domain.aggregate.JournalEntryAggregate;
