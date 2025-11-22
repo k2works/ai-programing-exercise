@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.accounting.infrastructure.out.persistence.mapper.EventStoreMapper">
+
+    <!-- ResultMap -->
+    <resultMap id="EventStoreResultMap" type="com.example.accounting.infrastructure.out.persistence.dao.EventStore">
+        <id property="eventId" column="イベントID"/>
+        <result property="aggregateId" column="集約ID"/>
+        <result property="aggregateType" column="集約種別"/>
+        <result property="eventType" column="イベント種別"/>
+        <result property="eventVersion" column="イベントバージョン"/>
+        <result property="eventData" column="イベントデータ"/>
+        <result property="occurredAt" column="発生日時"/>
+        <result property="userId" column="ユーザーID"/>
+        <result property="correlationId" column="相関ID"/>
+        <result property="causationId" column="因果ID"/>
+        <result property="sequenceNumber" column="シーケンス番号"/>
+    </resultMap>
+
+    <!-- イベント保存 -->
+    <insert id="insert" parameterType="com.example.accounting.infrastructure.out.persistence.dao.EventStore"
+            useGeneratedKeys="true" keyProperty="eventId" keyColumn="イベントID">
+        INSERT INTO "イベントストア" (
+            "集約ID",
+            "集約種別",
+            "イベント種別",
+            "イベントバージョン",
+            "イベントデータ",
+            "発生日時",
+            "ユーザーID",
+            "相関ID",
+            "因果ID",
+            "シーケンス番号"
+        ) VALUES (
+            #{aggregateId},
+            #{aggregateType},
+            #{eventType},
+            #{eventVersion},
+            #{eventData}::jsonb,
+            #{occurredAt},
+            #{userId},
+            #{correlationId},
+            #{causationId},
+            #{sequenceNumber}
+        )
+    </insert>
+
+    <!-- Aggregate ID でイベントを取得 -->
+    <select id="findByAggregateId" resultMap="EventStoreResultMap">
+        SELECT *
+        FROM "イベントストア"
+        WHERE "集約ID" = #{aggregateId}
+        ORDER BY "シーケンス番号"
+    </select>
+
+    <!-- Aggregate ID と時点でイベントを取得 -->
+    <select id="findByAggregateIdUntil" resultMap="EventStoreResultMap">
+        SELECT *
+        FROM "イベントストア"
+        WHERE "集約ID" = #{aggregateId}
+          AND "発生日時" &lt;= #{until}
+        ORDER BY "シーケンス番号"
+    </select>
+
+    <!-- イベント種別でイベントを取得 -->
+    <select id="findByEventType" resultMap="EventStoreResultMap">
+        SELECT *
+        FROM "イベントストア"
+        WHERE "イベント種別" = #{eventType}
+        ORDER BY "発生日時"
+    </select>
+
+    <!-- 相関IDでイベントを取得 -->
+    <select id="findByCorrelationId" resultMap="EventStoreResultMap">
+        SELECT *
+        FROM "イベントストア"
+        WHERE "相関ID" = #{correlationId}
+        ORDER BY "発生日時"
+    </select>
+
+    <!-- 期間でイベントを取得 -->
+    <select id="findByPeriod" resultMap="EventStoreResultMap">
+        SELECT *
+        FROM "イベントストア"
+        WHERE "発生日時" BETWEEN #{startDate} AND #{endDate}
+        ORDER BY "発生日時"
+        LIMIT #{limit}
+    </select>
+
+    <!-- 最新シーケンス番号を取得 -->
+    <select id="getLatestSequenceNumber" resultType="java.lang.Integer">
+        SELECT MAX("シーケンス番号")
+        FROM "イベントストア"
+        WHERE "集約ID" = #{aggregateId}
+    </select>
+
+    <!-- 全イベント数を取得 -->
+    <select id="count" resultType="long">
+        SELECT COUNT(*)
+        FROM "イベントストア"
+    </select>
+
+</mapper>
