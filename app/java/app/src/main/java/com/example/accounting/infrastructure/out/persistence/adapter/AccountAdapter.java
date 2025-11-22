@@ -1,4 +1,4 @@
-package com.example.accounting.infrastructure.out.persistence.repository;
+package com.example.accounting.infrastructure.out.persistence.adapter;
 
 import com.example.accounting.application.port.out.AccountRepository;
 import com.example.accounting.domain.model.Account;
@@ -10,15 +10,15 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * 勘定科目リポジトリ実装（Output Adapter）
+ * 勘定科目 Output Adapter
  * MyBatis Mapperとドメインモデルの橋渡し
  */
 @Repository
-public class AccountRepositoryImpl implements AccountRepository {
+public class AccountAdapter implements AccountRepository {
 
     private final AccountMapper accountMapper;
 
-    public AccountRepositoryImpl(AccountMapper accountMapper) {
+    public AccountAdapter(AccountMapper accountMapper) {
         this.accountMapper = accountMapper;
     }
 

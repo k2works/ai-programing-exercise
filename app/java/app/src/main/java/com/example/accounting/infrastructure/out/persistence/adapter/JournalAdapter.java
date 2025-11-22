@@ -1,4 +1,4 @@
-package com.example.accounting.infrastructure.out.persistence.repository;
+package com.example.accounting.infrastructure.out.persistence.adapter;
 
 import com.example.accounting.domain.model.Journal;
 import com.example.accounting.domain.model.JournalEntry;
@@ -15,15 +15,15 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * 仕訳リポジトリ実装（Output Adapter）
+ * 仕訳 Output Adapter
  * MyBatis Mapperとドメインモデルの橋渡し
  */
 @Repository
-public class JournalRepositoryImpl implements JournalRepository {
+public class JournalAdapter implements JournalRepository {
 
     private final JournalMapper journalMapper;
 
-    public JournalRepositoryImpl(JournalMapper journalMapper) {
+    public JournalAdapter(JournalMapper journalMapper) {
         this.journalMapper = journalMapper;
     }
 

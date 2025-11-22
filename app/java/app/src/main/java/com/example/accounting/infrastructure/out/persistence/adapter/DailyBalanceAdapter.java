@@ -1,4 +1,4 @@
-package com.example.accounting.infrastructure.out.persistence.repository;
+package com.example.accounting.infrastructure.out.persistence.adapter;
 
 import com.example.accounting.application.port.out.DailyBalanceRepository;
 import com.example.accounting.domain.model.DailyBalance;
@@ -12,14 +12,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * 日次残高リポジトリ実装（Output Adapter）
+ * 日次残高 Output Adapter
  */
 @Repository
-public class DailyBalanceRepositoryImpl implements DailyBalanceRepository {
+public class DailyBalanceAdapter implements DailyBalanceRepository {
 
     private final DailyAccountBalanceMapper mapper;
 
-    public DailyBalanceRepositoryImpl(DailyAccountBalanceMapper mapper) {
+    public DailyBalanceAdapter(DailyAccountBalanceMapper mapper) {
         this.mapper = mapper;
     }
 

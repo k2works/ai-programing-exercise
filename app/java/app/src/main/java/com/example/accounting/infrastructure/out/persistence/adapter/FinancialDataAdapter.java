@@ -1,4 +1,4 @@
-package com.example.accounting.infrastructure.out.persistence.repository;
+package com.example.accounting.infrastructure.out.persistence.adapter;
 
 import com.example.accounting.application.port.out.FinancialDataRepository;
 import com.example.accounting.domain.model.financial.BalanceSheetItem;
@@ -13,14 +13,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 財務データリポジトリ実装（Output Adapter）
+ * 財務データ Output Adapter
  */
 @Repository
-public class FinancialDataRepositoryImpl implements FinancialDataRepository {
+public class FinancialDataAdapter implements FinancialDataRepository {
 
     private final FinancialDataMapper mapper;
 
-    public FinancialDataRepositoryImpl(FinancialDataMapper mapper) {
+    public FinancialDataAdapter(FinancialDataMapper mapper) {
         this.mapper = mapper;
     }
 

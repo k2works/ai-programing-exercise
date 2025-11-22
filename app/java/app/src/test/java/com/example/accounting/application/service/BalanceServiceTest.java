@@ -4,7 +4,7 @@ import com.example.accounting.TestDatabaseConfig;
 import com.example.accounting.application.port.out.DailyBalanceRepository;
 import com.example.accounting.domain.model.DailyBalance;
 import com.example.accounting.infrastructure.out.persistence.mapper.DailyAccountBalanceMapper;
-import com.example.accounting.infrastructure.out.persistence.repository.DailyBalanceRepositoryImpl;
+import com.example.accounting.infrastructure.out.persistence.adapter.DailyBalanceAdapter;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.flywaydb.core.Flyway;
@@ -86,7 +86,7 @@ class BalanceServiceTest extends TestDatabaseConfig {
         mapper = sqlSessionFactory.openSession(true).getMapper(DailyAccountBalanceMapper.class);
 
         // Repository と Service の初期化
-        DailyBalanceRepository repository = new DailyBalanceRepositoryImpl(mapper);
+        DailyBalanceRepository repository = new DailyBalanceAdapter(mapper);
         balanceService = new BalanceService(repository);
     }
 
