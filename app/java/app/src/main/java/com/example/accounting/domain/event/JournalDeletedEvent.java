@@ -36,4 +36,14 @@ public class JournalDeletedEvent extends DomainEvent {
     public String getEventType() {
         return "JournalDeleted";
     }
+
+    @Override
+    public String getAggregateId() {
+        return journalNo;
+    }
+
+    @Override
+    public String getUserId() {
+        return userId;
+    }
 }

@@ -36,4 +36,14 @@ public class AccountDeletedEvent extends DomainEvent {
     public String getEventType() {
         return "AccountDeleted";
     }
+
+    @Override
+    public String getAggregateId() {
+        return accountCode;
+    }
+
+    @Override
+    public String getUserId() {
+        return userId;
+    }
 }

@@ -36,4 +36,14 @@ public class JournalUpdatedEvent extends DomainEvent {
     public String getEventType() {
         return "JournalUpdated";
     }
+
+    @Override
+    public String getAggregateId() {
+        return journalNo;
+    }
+
+    @Override
+    public String getUserId() {
+        return userId;
+    }
 }

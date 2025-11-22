@@ -33,4 +33,14 @@ public class AccountCreatedEvent extends DomainEvent {
     public String getEventType() {
         return "AccountCreated";
     }
+
+    @Override
+    public String getAggregateId() {
+        return accountCode;
+    }
+
+    @Override
+    public String getUserId() {
+        return userId;
+    }
 }

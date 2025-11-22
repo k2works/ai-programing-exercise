@@ -36,4 +36,14 @@ public class AccountUpdatedEvent extends DomainEvent {
     public String getEventType() {
         return "AccountUpdated";
     }
+
+    @Override
+    public String getAggregateId() {
+        return accountCode;
+    }
+
+    @Override
+    public String getUserId() {
+        return userId;
+    }
 }

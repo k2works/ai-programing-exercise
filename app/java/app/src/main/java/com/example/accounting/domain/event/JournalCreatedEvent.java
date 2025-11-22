@@ -33,4 +33,14 @@ public class JournalCreatedEvent extends DomainEvent {
     public String getEventType() {
         return "JournalCreated";
     }
+
+    @Override
+    public String getAggregateId() {
+        return journalNo;
+    }
+
+    @Override
+    public String getUserId() {
+        return userId;
+    }
 }
