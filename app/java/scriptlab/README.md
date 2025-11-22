@@ -4,8 +4,17 @@ Excel Script Lab で使用できる財務会計システム REST API の JavaScr
 
 ## ファイル構成
 
+### OpenAPI 仕様書
 - `openapi.yaml` - OpenAPI 3.0 仕様書
-- `api-client.js` - JavaScript API クライアント（Script Lab用）
+
+### JavaScript/TypeScript クライアント
+- `api-client.js` - JavaScript API クライアント（汎用ライブラリ）
+
+### Script Lab 統合ツール（YAML形式）
+- `financial-analysis.yaml` - 財務分析ツール（TypeScript + HTML + CSS）
+- `account-manager.yaml` - 勘定科目管理ツール（TypeScript + HTML + CSS）
+
+### ドキュメント
 - `README.md` - このドキュメント
 
 ## セットアップ
@@ -21,6 +30,19 @@ cd app/java
 
 ### 2. Excel Script Lab でのセットアップ
 
+#### 方法A: YAML ファイルからインポート（推奨）
+
+1. Excel を開く
+2. `挿入` タブ → `アドイン` → `Script Lab` を選択
+3. Script Lab の `Import` ボタンをクリック
+4. 以下のいずれかの YAML ファイルの内容をコピーして貼り付け：
+   - `financial-analysis.yaml` - 財務分析ツール
+   - `account-manager.yaml` - 勘定科目管理ツール
+5. `Import` をクリック
+6. インポートされたスクリプトを実行
+
+#### 方法B: 手動セットアップ
+
 1. Excel を開く
 2. `挿入` タブ → `アドイン` → `Script Lab` を選択
 3. Script Lab で新しいスクリプトを作成
@@ -28,7 +50,51 @@ cd app/java
 
 ## 使用方法
 
-### 基本的な使い方
+### Script Lab YAML ツールの使い方
+
+#### 財務分析ツール（financial-analysis.yaml）
+
+**単年度分析:**
+1. セル B1 に会計年度を入力（例: 2021）
+2. 「単年度分析実行」ボタンをクリック
+3. A3 以降に財務データと各種指標が表示されます
+
+**複数期間比較:**
+1. セル B1, C1, D1 に比較したい会計年度を入力（例: 2021, 2022, 2023）
+2. 「複数期間比較実行」ボタンをクリック
+3. A3 以降に比較結果が横並びで表示されます
+4. トレンド情報（変化率）も表示されます
+
+#### 勘定科目管理ツール（account-manager.yaml）
+
+**勘定科目一覧の読み込み:**
+1. 「一覧読み込み」ボタンをクリック
+2. A1 から勘定科目の一覧が表形式で表示されます
+
+**勘定科目の新規登録:**
+1. 以下のセルに値を入力：
+   - B2: 科目コード（必須）
+   - B3: 科目名（必須）
+   - B4: 略称
+   - B5: カナ
+   - B6: BS/PL区分（必須、"B" or "P"）
+   - B7: 借貸区分（"借" or "貸"）
+   - B8: 要素区分
+   - B9: 表示順序
+2. 「新規登録」ボタンをクリック
+
+**勘定科目の更新:**
+1. 上記と同じセルに値を入力
+2. 「更新」ボタンをクリック
+
+**勘定科目の削除:**
+1. B2 セルに削除する科目コードを入力
+2. 「削除」ボタンをクリック
+3. 確認ダイアログで OK をクリック
+
+### JavaScript API クライアントの使い方（api-client.js）
+
+#### 基本的な使い方
 
 ```javascript
 // API クライアントを初期化（api-client.js を読み込むと自動的に window.FinancialAccountingAPI が利用可能になります）

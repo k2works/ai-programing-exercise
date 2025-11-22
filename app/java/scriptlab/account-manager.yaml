@@ -1,0 +1,485 @@
+name: 勘定科目管理ツール
+description: 財務会計システムの勘定科目マスタを管理するツール
+author: 開発チーム
+host: EXCEL
+api_set: {}
+script:
+  content: |
+    const API_BASE_URL = 'http://localhost:8080';
+
+    interface Account {
+      accountCode: string;
+      accountName: string;
+      accountAbbr?: string;
+      accountKana?: string;
+      bsplType: string;
+      debitCreditType?: string;
+      elementType?: string;
+      displayOrder?: number;
+    }
+
+    class AccountAPI {
+      private baseUrl: string;
+
+      constructor(baseUrl: string = API_BASE_URL) {
+        this.baseUrl = baseUrl;
+      }
+
+      private async request<T>(method: string, path: string, body?: any): Promise<T> {
+        const url = `${this.baseUrl}${path}`;
+        const options: RequestInit = {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        };
+
+        if (body) {
+          options.body = JSON.stringify(body);
+        }
+
+        try {
+          const response = await fetch(url, options);
+
+          if (!response.ok) {
+            const error = await response.text();
+            throw new Error(`API Error: ${response.status} - ${error}`);
+          }
+
+          if (response.status === 204) {
+            return null as T;
+          }
+
+          return await response.json();
+        } catch (error) {
+          console.error('API Request Failed:', error);
+          throw error;
+        }
+      }
+
+      async getAllAccounts(): Promise<Account[]> {
+        return this.request<Account[]>('GET', '/api/v1/accounts');
+      }
+
+      async getAccount(accountCode: string): Promise<Account> {
+        return this.request<Account>('GET', `/api/v1/accounts/${accountCode}`);
+      }
+
+      async createAccount(account: Account): Promise<Account> {
+        return this.request<Account>('POST', '/api/v1/accounts', account);
+      }
+
+      async updateAccount(accountCode: string, account: Account): Promise<Account> {
+        return this.request<Account>('PUT', `/api/v1/accounts/${accountCode}`, account);
+      }
+
+      async deleteAccount(accountCode: string): Promise<void> {
+        return this.request<void>('DELETE', `/api/v1/accounts/${accountCode}`);
+      }
+    }
+
+    const api = new AccountAPI();
+
+    async function loadAccounts() {
+      try {
+        await Excel.run(async (context) => {
+          const sheet = context.workbook.worksheets.getActiveWorksheet();
+
+          // APIから勘定科目一覧を取得
+          const accounts = await api.getAllAccounts();
+
+          // ヘッダー行
+          const headers = [
+            ["科目コード", "科目名", "略称", "カナ", "BS/PL", "借貸", "要素", "表示順"]
+          ];
+
+          // データ行
+          const data = accounts.map(account => [
+            account.accountCode,
+            account.accountName,
+            account.accountAbbr || "",
+            account.accountKana || "",
+            account.bsplType,
+            account.debitCreditType || "",
+            account.elementType || "",
+            account.displayOrder || ""
+          ]);
+
+          const allData = [...headers, ...data];
+
+          // A1から書き込み
+          const range = sheet.getRange("A1").getResizedRange(allData.length - 1, headers[0].length - 1);
+          range.values = allData;
+
+          // ヘッダー行の書式設定
+          const headerRange = sheet.getRange("A1").getResizedRange(0, headers[0].length - 1);
+          headerRange.format.fill.color = "#4472C4";
+          headerRange.format.font.color = "white";
+          headerRange.format.font.bold = true;
+
+          // 列幅を自動調整
+          range.format.autofitColumns();
+
+          await context.sync();
+
+          console.log(`${accounts.length}件の勘定科目を読み込みました`);
+        });
+      } catch (error) {
+        console.error("エラー:", error);
+        alert(`エラーが発生しました: ${error.message}`);
+      }
+    }
+
+    async function createAccountFromSheet() {
+      try {
+        await Excel.run(async (context) => {
+          const sheet = context.workbook.worksheets.getActiveWorksheet();
+
+          // 入力フォームから値を取得（仮定: B列に値が入力されている）
+          const inputRange = sheet.getRange("B2:B9");
+          inputRange.load("values");
+          await context.sync();
+
+          const values = inputRange.values;
+
+          const account: Account = {
+            accountCode: values[0][0] as string,
+            accountName: values[1][0] as string,
+            accountAbbr: values[2][0] as string || undefined,
+            accountKana: values[3][0] as string || undefined,
+            bsplType: values[4][0] as string,
+            debitCreditType: values[5][0] as string || undefined,
+            elementType: values[6][0] as string || undefined,
+            displayOrder: values[7][0] ? parseInt(values[7][0] as string) : undefined
+          };
+
+          // バリデーション
+          if (!account.accountCode || !account.accountName || !account.bsplType) {
+            throw new Error("科目コード、科目名、BS/PL区分は必須です");
+          }
+
+          // API経由で作成
+          const result = await api.createAccount(account);
+
+          console.log("勘定科目を作成しました:", result);
+          alert("勘定科目を作成しました");
+
+          // リストを再読み込み
+          await loadAccounts();
+        });
+      } catch (error) {
+        console.error("エラー:", error);
+        alert(`エラーが発生しました: ${error.message}`);
+      }
+    }
+
+    async function updateAccountFromSheet() {
+      try {
+        await Excel.run(async (context) => {
+          const sheet = context.workbook.worksheets.getActiveWorksheet();
+
+          // 入力フォームから値を取得
+          const inputRange = sheet.getRange("B2:B9");
+          inputRange.load("values");
+          await context.sync();
+
+          const values = inputRange.values;
+
+          const accountCode = values[0][0] as string;
+          if (!accountCode) {
+            throw new Error("科目コードは必須です");
+          }
+
+          const account: Account = {
+            accountCode: accountCode,
+            accountName: values[1][0] as string,
+            accountAbbr: values[2][0] as string || undefined,
+            accountKana: values[3][0] as string || undefined,
+            bsplType: values[4][0] as string,
+            debitCreditType: values[5][0] as string || undefined,
+            elementType: values[6][0] as string || undefined,
+            displayOrder: values[7][0] ? parseInt(values[7][0] as string) : undefined
+          };
+
+          // API経由で更新
+          const result = await api.updateAccount(accountCode, account);
+
+          console.log("勘定科目を更新しました:", result);
+          alert("勘定科目を更新しました");
+
+          // リストを再読み込み
+          await loadAccounts();
+        });
+      } catch (error) {
+        console.error("エラー:", error);
+        alert(`エラーが発生しました: ${error.message}`);
+      }
+    }
+
+    async function deleteAccountFromSheet() {
+      try {
+        await Excel.run(async (context) => {
+          const sheet = context.workbook.worksheets.getActiveWorksheet();
+
+          // 科目コードを取得
+          const codeRange = sheet.getRange("B2");
+          codeRange.load("values");
+          await context.sync();
+
+          const accountCode = codeRange.values[0][0] as string;
+          if (!accountCode) {
+            throw new Error("科目コードを入力してください");
+          }
+
+          if (!confirm(`科目コード「${accountCode}」を削除してよろしいですか？`)) {
+            return;
+          }
+
+          // API経由で削除
+          await api.deleteAccount(accountCode);
+
+          console.log("勘定科目を削除しました");
+          alert("勘定科目を削除しました");
+
+          // 入力フォームをクリア
+          const clearRange = sheet.getRange("B2:B9");
+          clearRange.clear();
+
+          // リストを再読み込み
+          await loadAccounts();
+        });
+      } catch (error) {
+        console.error("エラー:", error);
+        alert(`エラーが発生しました: ${error.message}`);
+      }
+    }
+  language: typescript
+template:
+  content: |
+    <div class="ms-welcome">
+      <header class="ms-welcome__header ms-bgColor-themePrimary">
+        <h1 class="ms-font-xxl ms-fontColor-white">勘定科目管理</h1>
+        <p class="ms-font-m ms-fontColor-white">勘定科目マスタの参照・登録・更新・削除</p>
+      </header>
+
+      <main class="ms-welcome__main">
+        <section class="ms-welcome__features">
+          <h2 class="ms-font-xl">操作方法</h2>
+
+          <div class="instruction-section">
+            <h3 class="ms-font-l">勘定科目一覧の読み込み</h3>
+            <p>「一覧読み込み」ボタンをクリックすると、登録されているすべての勘定科目がA1から表形式で表示されます。</p>
+            <button class="ms-Button ms-Button--primary" id="load-accounts">
+              <span class="ms-Button-label">一覧読み込み</span>
+            </button>
+          </div>
+
+          <div class="instruction-section">
+            <h3 class="ms-font-l">勘定科目の登録・更新</h3>
+            <p>以下のセルに値を入力してボタンをクリックしてください：</p>
+            <table class="input-table">
+              <tr><td>科目コード</td><td>B2</td></tr>
+              <tr><td>科目名</td><td>B3</td></tr>
+              <tr><td>略称</td><td>B4</td></tr>
+              <tr><td>カナ</td><td>B5</td></tr>
+              <tr><td>BS/PL区分</td><td>B6（B or P）</td></tr>
+              <tr><td>借貸区分</td><td>B7（借 or 貸）</td></tr>
+              <tr><td>要素区分</td><td>B8</td></tr>
+              <tr><td>表示順</td><td>B9</td></tr>
+            </table>
+            <div class="button-group">
+              <button class="ms-Button ms-Button--primary" id="create-account">
+                <span class="ms-Button-label">新規登録</span>
+              </button>
+              <button class="ms-Button ms-Button--primary" id="update-account">
+                <span class="ms-Button-label">更新</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="instruction-section danger">
+            <h3 class="ms-font-l">勘定科目の削除</h3>
+            <p>B2セルに削除する科目コードを入力してボタンをクリックしてください。</p>
+            <button class="ms-Button ms-Button--danger" id="delete-account">
+              <span class="ms-Button-label">削除</span>
+            </button>
+          </div>
+
+          <div class="info-section">
+            <h3 class="ms-font-l">注意事項</h3>
+            <ul>
+              <li>APIサーバーが http://localhost:8080 で起動している必要があります</li>
+              <li>必須項目：科目コード、科目名、BS/PL区分</li>
+              <li>BS/PL区分は「B」（貸借対照表）または「P」（損益計算書）</li>
+              <li>借貸区分は「借」または「貸」</li>
+            </ul>
+          </div>
+        </section>
+      </main>
+    </div>
+  language: html
+style:
+  content: |
+    .ms-welcome {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .ms-welcome__header {
+      min-height: 100px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ms-welcome__header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .ms-welcome__header p {
+      margin: 10px 0 0 0;
+      font-size: 14px;
+    }
+
+    .ms-welcome__main {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .ms-welcome__features {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .ms-welcome__features h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #4472C4;
+    }
+
+    .instruction-section {
+      margin-bottom: 30px;
+      padding: 15px;
+      background-color: #f3f2f1;
+      border-radius: 4px;
+    }
+
+    .instruction-section.danger {
+      background-color: #fef0f0;
+      border-left: 4px solid #d32f2f;
+    }
+
+    .instruction-section h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      color: #4472C4;
+    }
+
+    .instruction-section.danger h3 {
+      color: #d32f2f;
+    }
+
+    .instruction-section p {
+      margin: 0 0 15px 0;
+      line-height: 1.6;
+    }
+
+    .input-table {
+      width: 100%;
+      margin-bottom: 15px;
+      border-collapse: collapse;
+    }
+
+    .input-table td {
+      padding: 6px;
+      border: 1px solid #ddd;
+    }
+
+    .input-table td:first-child {
+      font-weight: bold;
+      background-color: #f9f9f9;
+      width: 40%;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .ms-Button {
+      width: 100%;
+      height: 40px;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    .button-group .ms-Button {
+      flex: 1;
+    }
+
+    .ms-Button--primary {
+      background-color: #4472C4;
+      border-color: #4472C4;
+      color: white;
+    }
+
+    .ms-Button--primary:hover {
+      background-color: #365a9e;
+      border-color: #365a9e;
+    }
+
+    .ms-Button--danger {
+      background-color: #d32f2f;
+      border-color: #d32f2f;
+      color: white;
+    }
+
+    .ms-Button--danger:hover {
+      background-color: #b71c1c;
+      border-color: #b71c1c;
+    }
+
+    .info-section {
+      margin-top: 30px;
+      padding: 15px;
+      background-color: #fff4ce;
+      border-left: 4px solid #ffc107;
+      border-radius: 4px;
+    }
+
+    .info-section h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      color: #856404;
+    }
+
+    .info-section ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .info-section li {
+      margin-bottom: 8px;
+      line-height: 1.6;
+      color: #856404;
+    }
+  language: css
+libraries: |
+  https://appsforoffice.microsoft.com/lib/1/hosted/office.js
+  @types/office-js
+
+  @microsoft/office-js-helpers@1.0.1/dist/office.helpers.min.js
+  @microsoft/office-js-helpers@1.0.1/dist/office.helpers.d.ts
+
+  core-js@2.4.1/client/core.min.js
+  @types/core-js
+
+  jquery@3.1.1
+  @types/jquery@3.3.1

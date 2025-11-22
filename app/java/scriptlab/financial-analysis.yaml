@@ -1,0 +1,437 @@
+name: 財務分析ツール
+description: 財務会計システムAPIを使用した財務分析ツール
+author: 開発チーム
+host: EXCEL
+api_set: {}
+script:
+  content: |
+    const API_BASE_URL = 'http://localhost:8080';
+
+    interface FinancialData {
+      sales: number;
+      operatingProfit: number;
+      totalAssets: number;
+      tangibleFixedAssets: number;
+      currentAssets: number;
+      currentLiabilities: number;
+      quickAssets: number;
+      equity: number;
+    }
+
+    interface Profitability {
+      operatingProfitMargin: number;
+    }
+
+    interface Efficiency {
+      totalAssetTurnover: number;
+      tangibleFixedAssetTurnover: number;
+    }
+
+    interface Safety {
+      currentRatio: number;
+      quickRatio: number;
+      equityRatio: number;
+    }
+
+    interface Ratios {
+      profitability: Profitability;
+      efficiency: Efficiency;
+      safety: Safety;
+    }
+
+    interface FinancialAnalysisResult {
+      fiscalYear: number;
+      financialData: FinancialData;
+      ratios: Ratios;
+    }
+
+    interface Trends {
+      operatingProfitMarginChange: number;
+      totalAssetTurnoverChange: number;
+      equityRatioChange: number;
+    }
+
+    interface ComparativeAnalysisResult {
+      periods: FinancialAnalysisResult[];
+      trends: Trends;
+    }
+
+    class FinancialAPI {
+      private baseUrl: string;
+
+      constructor(baseUrl: string = API_BASE_URL) {
+        this.baseUrl = baseUrl;
+      }
+
+      private async request<T>(method: string, path: string, body?: any): Promise<T> {
+        const url = `${this.baseUrl}${path}`;
+        const options: RequestInit = {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        };
+
+        if (body) {
+          options.body = JSON.stringify(body);
+        }
+
+        try {
+          const response = await fetch(url, options);
+
+          if (!response.ok) {
+            throw new Error(`API Error: ${response.status} ${response.statusText}`);
+          }
+
+          if (response.status === 204) {
+            return null as T;
+          }
+
+          return await response.json();
+        } catch (error) {
+          console.error('API Request Failed:', error);
+          throw error;
+        }
+      }
+
+      async analyzeByFiscalYear(fiscalYear: number): Promise<FinancialAnalysisResult> {
+        return this.request<FinancialAnalysisResult>('GET', `/api/v1/financial-analysis/${fiscalYear}`);
+      }
+
+      async compareMultiplePeriods(fiscalYears: number[]): Promise<ComparativeAnalysisResult> {
+        const query = fiscalYears.map(year => `fiscalYears=${year}`).join('&');
+        return this.request<ComparativeAnalysisResult>('GET', `/api/v1/financial-analysis/compare?${query}`);
+      }
+    }
+
+    const api = new FinancialAPI();
+
+    async function analyzeSingleYear() {
+      try {
+        await Excel.run(async (context) => {
+          const sheet = context.workbook.worksheets.getActiveWorksheet();
+
+          // 年度入力セルから年度を取得
+          const yearRange = sheet.getRange("B1");
+          yearRange.load("values");
+          await context.sync();
+
+          const fiscalYear = parseInt(yearRange.values[0][0] as string);
+
+          if (isNaN(fiscalYear)) {
+            throw new Error("B1セルに有効な年度を入力してください");
+          }
+
+          // APIから財務分析データを取得
+          const result = await api.analyzeByFiscalYear(fiscalYear);
+
+          // 結果をシートに書き込み
+          const outputData = [
+            ["財務分析結果", ""],
+            ["会計年度", result.fiscalYear],
+            ["", ""],
+            ["【財務データ】", ""],
+            ["売上高", result.financialData.sales.toLocaleString()],
+            ["営業利益", result.financialData.operatingProfit.toLocaleString()],
+            ["総資産", result.financialData.totalAssets.toLocaleString()],
+            ["有形固定資産", result.financialData.tangibleFixedAssets.toLocaleString()],
+            ["流動資産", result.financialData.currentAssets.toLocaleString()],
+            ["流動負債", result.financialData.currentLiabilities.toLocaleString()],
+            ["当座資産", result.financialData.quickAssets.toLocaleString()],
+            ["純資産", result.financialData.equity.toLocaleString()],
+            ["", ""],
+            ["【収益性指標】", ""],
+            ["売上高営業利益率", `${result.ratios.profitability.operatingProfitMargin}%`],
+            ["", ""],
+            ["【効率性指標】", ""],
+            ["総資本回転率", `${result.ratios.efficiency.totalAssetTurnover}回`],
+            ["有形固定資産回転率", `${result.ratios.efficiency.tangibleFixedAssetTurnover}回`],
+            ["", ""],
+            ["【安全性指標】", ""],
+            ["流動比率", `${result.ratios.safety.currentRatio}%`],
+            ["当座比率", `${result.ratios.safety.quickRatio}%`],
+            ["自己資本比率", `${result.ratios.safety.equityRatio}%`]
+          ];
+
+          const outputRange = sheet.getRange("A3").getResizedRange(outputData.length - 1, 1);
+          outputRange.values = outputData;
+          outputRange.format.autofitColumns();
+
+          // ヘッダー部分の書式設定
+          const headerRange = sheet.getRange("A3:B3");
+          headerRange.format.fill.color = "#4472C4";
+          headerRange.format.font.color = "white";
+          headerRange.format.font.bold = true;
+
+          await context.sync();
+
+          console.log("財務分析結果を書き込みました");
+        });
+      } catch (error) {
+        console.error("エラー:", error);
+        alert(`エラーが発生しました: ${error.message}`);
+      }
+    }
+
+    async function compareYears() {
+      try {
+        await Excel.run(async (context) => {
+          const sheet = context.workbook.worksheets.getActiveWorksheet();
+
+          // 年度入力範囲から年度リストを取得
+          const yearsRange = sheet.getRange("B1:D1");
+          yearsRange.load("values");
+          await context.sync();
+
+          const fiscalYears: number[] = [];
+          for (const value of yearsRange.values[0]) {
+            const year = parseInt(value as string);
+            if (!isNaN(year)) {
+              fiscalYears.push(year);
+            }
+          }
+
+          if (fiscalYears.length < 2) {
+            throw new Error("B1:D1セルに2つ以上の年度を入力してください");
+          }
+
+          // APIから比較分析データを取得
+          const result = await api.compareMultiplePeriods(fiscalYears);
+
+          // 各期間のデータを横並びで表示
+          const headers = ["指標", ...fiscalYears.map(y => `${y}年度`)];
+          const outputData: any[][] = [headers];
+
+          // 財務データ
+          outputData.push(["【財務データ】", ...Array(fiscalYears.length).fill("")]);
+          outputData.push(["売上高", ...result.periods.map(p => p.financialData.sales.toLocaleString())]);
+          outputData.push(["営業利益", ...result.periods.map(p => p.financialData.operatingProfit.toLocaleString())]);
+          outputData.push(["総資産", ...result.periods.map(p => p.financialData.totalAssets.toLocaleString())]);
+
+          // 収益性指標
+          outputData.push(["", ...Array(fiscalYears.length).fill("")]);
+          outputData.push(["【収益性指標】", ...Array(fiscalYears.length).fill("")]);
+          outputData.push(["売上高営業利益率", ...result.periods.map(p => `${p.ratios.profitability.operatingProfitMargin}%`)]);
+
+          // 効率性指標
+          outputData.push(["", ...Array(fiscalYears.length).fill("")]);
+          outputData.push(["【効率性指標】", ...Array(fiscalYears.length).fill("")]);
+          outputData.push(["総資本回転率", ...result.periods.map(p => `${p.ratios.efficiency.totalAssetTurnover}回`)]);
+          outputData.push(["有形固定資産回転率", ...result.periods.map(p => `${p.ratios.efficiency.tangibleFixedAssetTurnover}回`)]);
+
+          // 安全性指標
+          outputData.push(["", ...Array(fiscalYears.length).fill("")]);
+          outputData.push(["【安全性指標】", ...Array(fiscalYears.length).fill("")]);
+          outputData.push(["流動比率", ...result.periods.map(p => `${p.ratios.safety.currentRatio}%`)]);
+          outputData.push(["当座比率", ...result.periods.map(p => `${p.ratios.safety.quickRatio}%`)]);
+          outputData.push(["自己資本比率", ...result.periods.map(p => `${p.ratios.safety.equityRatio}%`)]);
+
+          // トレンド情報
+          outputData.push(["", ...Array(fiscalYears.length).fill("")]);
+          outputData.push(["【トレンド】", ...Array(fiscalYears.length).fill("")]);
+          outputData.push(["営業利益率変化", result.trends.operatingProfitMarginChange.toFixed(2)]);
+          outputData.push(["総資本回転率変化", result.trends.totalAssetTurnoverChange.toFixed(2)]);
+          outputData.push(["自己資本比率変化", result.trends.equityRatioChange.toFixed(2)]);
+
+          const outputRange = sheet.getRange("A3").getResizedRange(outputData.length - 1, fiscalYears.length);
+          outputRange.values = outputData;
+          outputRange.format.autofitColumns();
+
+          // ヘッダー行の書式設定
+          const headerRange = sheet.getRange("A3").getResizedRange(0, fiscalYears.length);
+          headerRange.format.fill.color = "#4472C4";
+          headerRange.format.font.color = "white";
+          headerRange.format.font.bold = true;
+
+          await context.sync();
+
+          console.log("比較分析結果を書き込みました");
+        });
+      } catch (error) {
+        console.error("エラー:", error);
+        alert(`エラーが発生しました: ${error.message}`);
+      }
+    }
+  language: typescript
+template:
+  content: |
+    <div class="ms-welcome">
+      <header class="ms-welcome__header ms-bgColor-themePrimary">
+        <h1 class="ms-font-xxl ms-fontColor-white">財務分析ツール</h1>
+        <p class="ms-font-m ms-fontColor-white">財務会計システムAPIを使用した財務分析</p>
+      </header>
+
+      <main class="ms-welcome__main">
+        <section class="ms-welcome__features">
+          <h2 class="ms-font-xl">使い方</h2>
+
+          <div class="instruction-section">
+            <h3 class="ms-font-l">単年度分析</h3>
+            <ol>
+              <li>セルB1に会計年度を入力（例: 2021）</li>
+              <li>「単年度分析実行」ボタンをクリック</li>
+              <li>A3以降に分析結果が表示されます</li>
+            </ol>
+          </div>
+
+          <div class="instruction-section">
+            <h3 class="ms-font-l">複数期間比較</h3>
+            <ol>
+              <li>セルB1, C1, D1に比較したい会計年度を入力（例: 2021, 2022, 2023）</li>
+              <li>「複数期間比較実行」ボタンをクリック</li>
+              <li>A3以降に比較結果が横並びで表示されます</li>
+            </ol>
+          </div>
+
+          <div class="button-section">
+            <button class="ms-Button ms-Button--primary" id="analyze-single">
+              <span class="ms-Button-label">単年度分析実行</span>
+            </button>
+
+            <button class="ms-Button ms-Button--primary" id="analyze-compare">
+              <span class="ms-Button-label">複数期間比較実行</span>
+            </button>
+          </div>
+
+          <div class="info-section">
+            <h3 class="ms-font-l">注意事項</h3>
+            <ul>
+              <li>APIサーバーが http://localhost:8080 で起動している必要があります</li>
+              <li>実行前にシートをクリアしてください</li>
+              <li>エラーが発生した場合はコンソールを確認してください</li>
+            </ul>
+          </div>
+        </section>
+      </main>
+    </div>
+  language: html
+style:
+  content: |
+    .ms-welcome {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .ms-welcome__header {
+      min-height: 100px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ms-welcome__header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .ms-welcome__header p {
+      margin: 10px 0 0 0;
+      font-size: 14px;
+    }
+
+    .ms-welcome__main {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .ms-welcome__features {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .ms-welcome__features h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #4472C4;
+    }
+
+    .instruction-section {
+      margin-bottom: 30px;
+      padding: 15px;
+      background-color: #f3f2f1;
+      border-radius: 4px;
+    }
+
+    .instruction-section h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      color: #4472C4;
+    }
+
+    .instruction-section ol,
+    .instruction-section ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .instruction-section li {
+      margin-bottom: 8px;
+      line-height: 1.6;
+    }
+
+    .button-section {
+      margin: 30px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .ms-Button {
+      width: 100%;
+      height: 40px;
+      font-size: 14px;
+    }
+
+    .ms-Button--primary {
+      background-color: #4472C4;
+      border-color: #4472C4;
+    }
+
+    .ms-Button--primary:hover {
+      background-color: #365a9e;
+      border-color: #365a9e;
+    }
+
+    .info-section {
+      margin-top: 30px;
+      padding: 15px;
+      background-color: #fff4ce;
+      border-left: 4px solid #ffc107;
+      border-radius: 4px;
+    }
+
+    .info-section h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      color: #856404;
+    }
+
+    .info-section ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .info-section li {
+      margin-bottom: 8px;
+      line-height: 1.6;
+      color: #856404;
+    }
+  language: css
+libraries: |
+  https://appsforoffice.microsoft.com/lib/1/hosted/office.js
+  @types/office-js
+
+  @microsoft/office-js-helpers@1.0.1/dist/office.helpers.min.js
+  @microsoft/office-js-helpers@1.0.1/dist/office.helpers.d.ts
+
+  core-js@2.4.1/client/core.min.js
+  @types/core-js
+
+  jquery@3.1.1
+  @types/jquery@3.3.1
