@@ -1,8 +1,9 @@
 package com.example.accounting.application.service;
 
 import com.example.accounting.application.exception.JournalNotFoundException;
-import com.example.accounting.domain.model.Journal;
+import com.example.accounting.application.port.in.JournalUseCase;
 import com.example.accounting.application.port.out.JournalRepository;
+import com.example.accounting.domain.model.Journal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,11 +11,11 @@ import java.util.List;
 
 /**
  * 仕訳サービス（Application Service）
- * ビジネスロジックを実装
+ * Input Port の実装としてビジネスロジックを提供
  */
 @Service
 @Transactional
-public class JournalService {
+public class JournalService implements JournalUseCase {
 
     private final JournalRepository journalRepository;
 
@@ -22,17 +23,13 @@ public class JournalService {
         this.journalRepository = journalRepository;
     }
 
-    /**
-     * すべての仕訳を取得
-     */
+    @Override
     @Transactional(readOnly = true)
     public List<Journal> getAllJournals() {
         return journalRepository.findAll();
     }
 
-    /**
-     * 仕訳番号で仕訳を取得
-     */
+    @Override
     @Transactional(readOnly = true)
     public Journal getJournalByNo(String journalNo) {
         return journalRepository.findByJournalNo(journalNo)
@@ -40,9 +37,7 @@ public class JournalService {
                         "仕訳番号 " + journalNo + " が見つかりません"));
     }
 
-    /**
-     * 仕訳を作成
-     */
+    @Override
     public Journal createJournal(Journal journal) {
         // ビジネスルール：仕訳番号の重複チェック
         journalRepository.findByJournalNo(journal.getJournalNo()).ifPresent(existing -> {
@@ -53,9 +48,7 @@ public class JournalService {
         return journalRepository.save(journal);
     }
 
-    /**
-     * 仕訳を更新
-     */
+    @Override
     public Journal updateJournal(String journalNo, Journal journal) {
         // 存在チェック
         getJournalByNo(journalNo);
@@ -68,9 +61,7 @@ public class JournalService {
         return journalRepository.save(journal);
     }
 
-    /**
-     * 仕訳を削除
-     */
+    @Override
     public void deleteJournal(String journalNo) {
         // 存在チェック
         getJournalByNo(journalNo);

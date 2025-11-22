@@ -4,7 +4,7 @@ import com.example.accounting.application.exception.JournalNotFoundException;
 import com.example.accounting.domain.model.Journal;
 import com.example.accounting.domain.model.JournalEntry;
 import com.example.accounting.domain.model.JournalLine;
-import com.example.accounting.application.service.JournalService;
+import com.example.accounting.application.port.in.JournalUseCase;
 import com.example.accounting.infrastructure.web.dto.JournalRequest;
 import com.example.accounting.infrastructure.web.dto.JournalResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,10 +37,10 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/v1/journals")
 public class JournalController {
 
-    private final JournalService journalService;
+    private final JournalUseCase journalUseCase;
 
-    public JournalController(JournalService journalService) {
-        this.journalService = journalService;
+    public JournalController(JournalUseCase journalUseCase) {
+        this.journalUseCase = journalUseCase;
     }
 
     @Operation(summary = "仕訳一覧取得", description = "登録されているすべての仕訳を取得します")
@@ -50,7 +50,7 @@ public class JournalController {
     })
     @GetMapping
     public ResponseEntity<List<JournalResponse>> getAllJournals() {
-        List<Journal> journals = journalService.getAllJournals();
+        List<Journal> journals = journalUseCase.getAllJournals();
         List<JournalResponse> response = journals.stream()
                 .map(JournalResponse::from)
                 .collect(Collectors.toList());
@@ -67,7 +67,7 @@ public class JournalController {
             @Parameter(description = "仕訳番号", required = true)
             @PathVariable String journalNo) {
         try {
-            Journal journal = journalService.getJournalByNo(journalNo);
+            Journal journal = journalUseCase.getJournalByNo(journalNo);
             return ResponseEntity.ok(JournalResponse.from(journal));
         } catch (JournalNotFoundException e) {
             return ResponseEntity.notFound().build();
@@ -84,7 +84,7 @@ public class JournalController {
             @Parameter(description = "仕訳情報", required = true)
             @RequestBody JournalRequest request) {
         Journal journal = toModel(request);
-        Journal created = journalService.createJournal(journal);
+        Journal created = journalUseCase.createJournal(journal);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(JournalResponse.from(created));
     }
@@ -103,7 +103,7 @@ public class JournalController {
             @RequestBody JournalRequest request) {
         try {
             Journal journal = toModel(request);
-            Journal updated = journalService.updateJournal(journalNo, journal);
+            Journal updated = journalUseCase.updateJournal(journalNo, journal);
             return ResponseEntity.ok(JournalResponse.from(updated));
         } catch (JournalNotFoundException e) {
             return ResponseEntity.notFound().build();
@@ -120,7 +120,7 @@ public class JournalController {
             @Parameter(description = "仕訳番号", required = true)
             @PathVariable String journalNo) {
         try {
-            journalService.deleteJournal(journalNo);
+            journalUseCase.deleteJournal(journalNo);
             return ResponseEntity.noContent().build();
         } catch (JournalNotFoundException e) {
             return ResponseEntity.notFound().build();

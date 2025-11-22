@@ -1,6 +1,7 @@
 package com.example.accounting.application.service;
 
 import com.example.accounting.application.exception.AccountNotFoundException;
+import com.example.accounting.application.port.in.AccountUseCase;
 import com.example.accounting.application.port.out.AccountRepository;
 import com.example.accounting.domain.model.Account;
 import org.springframework.stereotype.Service;
@@ -10,11 +11,11 @@ import java.util.List;
 
 /**
  * 勘定科目サービス（Application Service）
- * ビジネスロジックを実装
+ * Input Port の実装としてビジネスロジックを提供
  */
 @Service
 @Transactional
-public class AccountService {
+public class AccountService implements AccountUseCase {
 
     private final AccountRepository accountRepository;  // Output Portに依存
 
@@ -22,17 +23,13 @@ public class AccountService {
         this.accountRepository = accountRepository;
     }
 
-    /**
-     * すべての勘定科目を取得
-     */
+    @Override
     @Transactional(readOnly = true)
     public List<Account> getAllAccounts() {
         return accountRepository.findAll();
     }
 
-    /**
-     * 科目コードで勘定科目を取得
-     */
+    @Override
     @Transactional(readOnly = true)
     public Account getAccountByCode(String accountCode) {
         return accountRepository.findByCode(accountCode)
@@ -40,9 +37,7 @@ public class AccountService {
                         "科目コード " + accountCode + " が見つかりません"));
     }
 
-    /**
-     * BSPL区分で勘定科目を取得
-     */
+    @Override
     @Transactional(readOnly = true)
     public List<Account> getAccountsByBsplType(String bsplType) {
         if (!bsplType.equals("B") && !bsplType.equals("P")) {
@@ -51,9 +46,7 @@ public class AccountService {
         return accountRepository.findByBsplType(bsplType);
     }
 
-    /**
-     * 勘定科目を作成
-     */
+    @Override
     public Account createAccount(Account account) {
         // ビジネスルール：科目コードの重複チェック
         accountRepository.findByCode(account.getAccountCode()).ifPresent(existing -> {
@@ -64,9 +57,7 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
-    /**
-     * 勘定科目を更新
-     */
+    @Override
     public Account updateAccount(String accountCode, Account account) {
         // 存在チェック
         getAccountByCode(accountCode);
@@ -79,9 +70,7 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
-    /**
-     * 勘定科目を削除
-     */
+    @Override
     public void deleteAccount(String accountCode) {
         // 存在チェック
         getAccountByCode(accountCode);

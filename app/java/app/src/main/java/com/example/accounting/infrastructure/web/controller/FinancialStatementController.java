@@ -1,6 +1,6 @@
 package com.example.accounting.infrastructure.web.controller;
 
-import com.example.accounting.application.service.FinancialStatementService;
+import com.example.accounting.application.port.in.FinancialStatementUseCase;
 import com.example.accounting.domain.model.financial.BalanceSheet;
 import com.example.accounting.domain.model.financial.FinancialRatios;
 import com.example.accounting.domain.model.financial.IncomeStatement;
@@ -31,10 +31,10 @@ import java.time.LocalDate;
 @RequestMapping("/api/v1/financial-statements")
 public class FinancialStatementController {
 
-    private final FinancialStatementService financialStatementService;
+    private final FinancialStatementUseCase financialStatementUseCase;
 
-    public FinancialStatementController(FinancialStatementService financialStatementService) {
-        this.financialStatementService = financialStatementService;
+    public FinancialStatementController(FinancialStatementUseCase financialStatementUseCase) {
+        this.financialStatementUseCase = financialStatementUseCase;
     }
 
     /**
@@ -56,7 +56,7 @@ public class FinancialStatementController {
             LocalDate asOfDate) {
 
         LocalDate targetDate = asOfDate != null ? asOfDate : LocalDate.now();
-        BalanceSheet balanceSheet = financialStatementService.generateBalanceSheet(targetDate);
+        BalanceSheet balanceSheet = financialStatementUseCase.generateBalanceSheet(targetDate);
         return ResponseEntity.ok(BalanceSheetResponse.from(balanceSheet));
     }
 
@@ -86,7 +86,7 @@ public class FinancialStatementController {
         LocalDate from = fromDate != null ? fromDate : LocalDate.now().withDayOfMonth(1);
         LocalDate to = toDate != null ? toDate : LocalDate.now();
 
-        IncomeStatement incomeStatement = financialStatementService.generateIncomeStatement(from, to);
+        IncomeStatement incomeStatement = financialStatementUseCase.generateIncomeStatement(from, to);
         return ResponseEntity.ok(IncomeStatementResponse.from(incomeStatement));
     }
 
@@ -122,9 +122,9 @@ public class FinancialStatementController {
         LocalDate plFrom = fromDate != null ? fromDate : LocalDate.now().withDayOfMonth(1);
         LocalDate plTo = toDate != null ? toDate : LocalDate.now();
 
-        BalanceSheet balanceSheet = financialStatementService.generateBalanceSheet(bsDate);
-        IncomeStatement incomeStatement = financialStatementService.generateIncomeStatement(plFrom, plTo);
-        FinancialRatios ratios = financialStatementService.calculateFinancialRatios(
+        BalanceSheet balanceSheet = financialStatementUseCase.generateBalanceSheet(bsDate);
+        IncomeStatement incomeStatement = financialStatementUseCase.generateIncomeStatement(plFrom, plTo);
+        FinancialRatios ratios = financialStatementUseCase.calculateFinancialRatios(
                 balanceSheet, incomeStatement);
 
         return ResponseEntity.ok(FinancialRatiosResponse.from(ratios));

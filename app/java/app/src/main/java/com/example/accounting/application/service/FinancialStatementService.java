@@ -1,6 +1,7 @@
 package com.example.accounting.application.service;
 
 import com.example.accounting.application.port.out.FinancialDataRepository;
+import com.example.accounting.application.port.in.FinancialStatementUseCase;
 import com.example.accounting.domain.model.financial.BalanceSheet;
 import com.example.accounting.domain.model.financial.BalanceSheetItem;
 import com.example.accounting.domain.model.financial.FinancialRatios;
@@ -19,7 +20,7 @@ import java.util.List;
  */
 @Service
 @Transactional(readOnly = true)
-public class FinancialStatementService {
+public class FinancialStatementService implements FinancialStatementUseCase {
 
     private final FinancialDataRepository financialDataRepository;
 
@@ -33,6 +34,7 @@ public class FinancialStatementService {
      * @param asOfDate 基準日
      * @return 貸借対照表
      */
+    @Override
     public BalanceSheet generateBalanceSheet(LocalDate asOfDate) {
         // 資産を取得（取引要素区分='1'）
         List<BalanceSheetItem> assets = financialDataRepository.findBalanceSheetItems(asOfDate, "1");
@@ -98,6 +100,7 @@ public class FinancialStatementService {
      * @param toDate 終了日
      * @return 損益計算書
      */
+    @Override
     public IncomeStatement generateIncomeStatement(LocalDate fromDate, LocalDate toDate) {
         // 収益を取得（取引要素区分='4'）
         List<IncomeStatementItem> revenues = financialDataRepository.findIncomeStatementItems(
@@ -177,6 +180,7 @@ public class FinancialStatementService {
      * @param incomeStatement 損益計算書
      * @return 財務指標
      */
+    @Override
     public FinancialRatios calculateFinancialRatios(
             BalanceSheet balanceSheet,
             IncomeStatement incomeStatement) {

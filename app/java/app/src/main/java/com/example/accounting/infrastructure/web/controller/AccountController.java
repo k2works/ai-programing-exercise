@@ -1,6 +1,6 @@
 package com.example.accounting.infrastructure.web.controller;
 
-import com.example.accounting.application.service.AccountService;
+import com.example.accounting.application.port.in.AccountUseCase;
 import com.example.accounting.domain.model.Account;
 import com.example.accounting.infrastructure.web.dto.AccountRequest;
 import com.example.accounting.infrastructure.web.dto.AccountResponse;
@@ -34,10 +34,10 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/v1/accounts")
 public class AccountController {
 
-    private final AccountService accountService;
+    private final AccountUseCase accountUseCase;
 
-    public AccountController(AccountService accountService) {
-        this.accountService = accountService;
+    public AccountController(AccountUseCase accountUseCase) {
+        this.accountUseCase = accountUseCase;
     }
 
     /**
@@ -50,7 +50,7 @@ public class AccountController {
     })
     @GetMapping
     public ResponseEntity<List<AccountResponse>> getAllAccounts() {
-        List<Account> accounts = accountService.getAllAccounts();
+        List<Account> accounts = accountUseCase.getAllAccounts();
         List<AccountResponse> response = accounts.stream()
                 .map(AccountResponse::from)
                 .collect(Collectors.toList());
@@ -70,7 +70,7 @@ public class AccountController {
     public ResponseEntity<AccountResponse> getAccount(
             @Parameter(description = "勘定科目コード", required = true)
             @PathVariable String accountCode) {
-        Account account = accountService.getAccountByCode(accountCode);
+        Account account = accountUseCase.getAccountByCode(accountCode);
         return ResponseEntity.ok(AccountResponse.from(account));
     }
 
@@ -88,7 +88,7 @@ public class AccountController {
             @Parameter(description = "勘定科目情報", required = true)
             @Valid @RequestBody AccountRequest request) {
         Account account = request.toDomain();
-        Account created = accountService.createAccount(account);
+        Account created = accountUseCase.createAccount(account);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(AccountResponse.from(created));
     }
@@ -110,7 +110,7 @@ public class AccountController {
             @Parameter(description = "更新する勘定科目情報", required = true)
             @Valid @RequestBody AccountRequest request) {
         Account account = request.toDomain();
-        Account updated = accountService.updateAccount(accountCode, account);
+        Account updated = accountUseCase.updateAccount(accountCode, account);
         return ResponseEntity.ok(AccountResponse.from(updated));
     }
 
@@ -126,7 +126,7 @@ public class AccountController {
     public ResponseEntity<Void> deleteAccount(
             @Parameter(description = "勘定科目コード", required = true)
             @PathVariable String accountCode) {
-        accountService.deleteAccount(accountCode);
+        accountUseCase.deleteAccount(accountCode);
         return ResponseEntity.noContent().build();
     }
 }
