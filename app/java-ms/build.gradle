@@ -23,9 +23,9 @@ subprojects {
     }
 
     dependencies {
-        // Lombok
-        compileOnly 'org.projectlombok:lombok'
-        annotationProcessor 'org.projectlombok:lombok'
+        // Lombok (Java 21 対応バージョン)
+        compileOnly 'org.projectlombok:lombok:1.18.34'
+        annotationProcessor 'org.projectlombok:lombok:1.18.34'
 
         // Test
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
