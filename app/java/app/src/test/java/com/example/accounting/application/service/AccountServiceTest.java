@@ -35,7 +35,8 @@ class AccountServiceTest extends TestDatabaseConfig {
 
         // Repository と Service の初期化
         AccountRepository repository = new AccountAdapter(mapper);
-        accountService = new AccountService(repository);
+        // テストでは EventPublisher に null を渡す（イベント発行なし）
+        accountService = new AccountService(repository, event -> { });
     }
 
     @AfterEach
