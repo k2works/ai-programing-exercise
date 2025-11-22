@@ -2,9 +2,9 @@ package com.example.accounting.application.service;
 
 import com.example.accounting.application.port.in.*;
 import com.example.accounting.application.port.out.DailyBalanceRepository;
-import com.example.accounting.domain.financial.AnalysisResult;
-import com.example.accounting.domain.financial.FinancialData;
-import com.example.accounting.domain.financial.FinancialRatioAnalyzer;
+import com.example.accounting.domain.model.management.financial.AnalysisResult;
+import com.example.accounting.domain.model.management.financial.FinancialData;
+import com.example.accounting.domain.model.management.financial.FinancialRatioAnalyzer;
 import com.example.accounting.domain.model.DailyBalance;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

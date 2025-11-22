@@ -1,4 +1,4 @@
-package com.example.accounting.domain.financial;
+package com.example.accounting.domain.model.management.financial;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
