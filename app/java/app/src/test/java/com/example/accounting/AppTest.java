@@ -58,14 +58,21 @@ class AppTest {
         assertThat(applicationContext.containsBean("accountService")).isTrue();
         assertThat(applicationContext.containsBean("journalService")).isTrue();
         assertThat(applicationContext.containsBean("auditLogService")).isTrue();
+        assertThat(applicationContext.containsBean("balanceService")).isTrue();
+        assertThat(applicationContext.containsBean("financialStatementService")).isTrue();
+        assertThat(applicationContext.containsBean("journalEntryEventSourcingService")).isTrue();
+        assertThat(applicationContext.containsBean("journalEntryQueryService")).isTrue();
 
         // Controller beans
         assertThat(applicationContext.containsBean("accountController")).isTrue();
         assertThat(applicationContext.containsBean("journalController")).isTrue();
         assertThat(applicationContext.containsBean("auditLogController")).isTrue();
+        assertThat(applicationContext.containsBean("financialStatementController")).isTrue();
+        assertThat(applicationContext.containsBean("journalEntryEventSourcingController")).isTrue();
 
-        // Event listener
+        // Event listener and Projection
         assertThat(applicationContext.containsBean("auditEventListenerAdapter")).isTrue();
+        assertThat(applicationContext.containsBean("journalEntryProjectionAdapter")).isTrue();
     }
 
     @Test
@@ -120,5 +127,24 @@ class AppTest {
             String.class
         );
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    @DisplayName("財務諸表 API エンドポイントが応答する")
+    void financialStatementApiEndpointResponds() {
+        ResponseEntity<String> response = restTemplate.getForEntity(
+            "/api/v1/financial-statements/balance-sheet?fiscalYear=2024&accountingPeriod=1",
+            String.class
+        );
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    @DisplayName("イベントソーシング版仕訳 API エンドポイントが利用可能")
+    void journalEntryEventSourcingApiIsAvailable() {
+        // Swagger UI で API が公開されていることを確認
+        ResponseEntity<String> response = restTemplate.getForEntity("/v3/api-docs", String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).contains("journal-entries-es");
     }
 }
