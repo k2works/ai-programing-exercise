@@ -7,6 +7,13 @@ import com.example.accounting.application.model.financial.IncomeStatement;
 import com.example.accounting.infrastructure.web.dto.BalanceSheetResponse;
 import com.example.accounting.infrastructure.web.dto.FinancialRatiosResponse;
 import com.example.accounting.infrastructure.web.dto.IncomeStatementResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +26,7 @@ import java.time.LocalDate;
 /**
  * 財務諸表 REST API コントローラー（Input Adapter）
  */
+@Tag(name = "財務諸表", description = "財務諸表・財務指標生成API")
 @RestController
 @RequestMapping("/api/v1/financial-statements")
 public class FinancialStatementController {
@@ -35,8 +43,14 @@ public class FinancialStatementController {
      * @param asOfDate 基準日（デフォルト：システム日付）
      * @return 貸借対照表
      */
+    @Operation(summary = "貸借対照表取得", description = "指定日時点の貸借対照表を生成します")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "正常に取得",
+                content = @Content(schema = @Schema(implementation = BalanceSheetResponse.class)))
+    })
     @GetMapping("/balance-sheet")
     public ResponseEntity<BalanceSheetResponse> getBalanceSheet(
+            @Parameter(description = "基準日（省略時は本日）", example = "2025-03-31")
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate asOfDate) {
@@ -53,11 +67,18 @@ public class FinancialStatementController {
      * @param toDate 終了日（デフォルト：システム日付）
      * @return 損益計算書
      */
+    @Operation(summary = "損益計算書取得", description = "指定期間の損益計算書を生成します")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "正常に取得",
+                content = @Content(schema = @Schema(implementation = IncomeStatementResponse.class)))
+    })
     @GetMapping("/income-statement")
     public ResponseEntity<IncomeStatementResponse> getIncomeStatement(
+            @Parameter(description = "開始日（省略時は当月1日）", example = "2025-01-01")
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate fromDate,
+            @Parameter(description = "終了日（省略時は本日）", example = "2025-03-31")
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate toDate) {
@@ -77,14 +98,22 @@ public class FinancialStatementController {
      * @param toDate 損益計算書の終了日（デフォルト：システム日付）
      * @return 財務指標
      */
+    @Operation(summary = "財務指標取得", description = "貸借対照表と損益計算書から財務指標を計算します")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "正常に取得",
+                content = @Content(schema = @Schema(implementation = FinancialRatiosResponse.class)))
+    })
     @GetMapping("/financial-ratios")
     public ResponseEntity<FinancialRatiosResponse> getFinancialRatios(
+            @Parameter(description = "貸借対照表基準日（省略時は本日）", example = "2025-03-31")
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate asOfDate,
+            @Parameter(description = "損益計算書開始日（省略時は当月1日）", example = "2025-01-01")
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate fromDate,
+            @Parameter(description = "損益計算書終了日（省略時は本日）", example = "2025-03-31")
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate toDate) {
