@@ -173,12 +173,15 @@ script:
 
           await context.sync();
 
+          console.log("========================================");
           console.log(`${accounts.length}件の勘定科目を読み込みました`);
-          alert(`${accounts.length}件の勘定科目を読み込みました`);
+          console.log("========================================");
         });
       } catch (error) {
-        console.error("エラー:", error);
-        alert(`エラーが発生しました: ${error.message}`);
+        console.error("========================================");
+        console.error("エラー発生");
+        console.error(error);
+        console.error("========================================");
       }
     }
 
@@ -259,12 +262,15 @@ script:
 
           await context.sync();
 
+          console.log("========================================");
           console.log("登録シートを作成しました");
-          alert("登録シートを作成しました");
+          console.log("========================================");
         });
       } catch (error) {
-        console.error("エラー:", error);
-        alert(`エラーが発生しました: ${error.message}`);
+        console.error("========================================");
+        console.error("エラー発生");
+        console.error(error);
+        console.error("========================================");
       }
     }
 
@@ -333,16 +339,11 @@ script:
         console.log(`読み込んだデータ: ${accounts.length}件`);
 
         if (accounts.length === 0) {
-          alert("登録するデータがありません");
+          console.log("登録するデータがありません");
           return;
         }
 
-        if (!confirm(`${accounts.length}件の勘定科目を登録しますか？`)) {
-          console.log("登録をキャンセルしました");
-          return;
-        }
-
-        console.log("登録処理を開始します");
+        console.log(`${accounts.length}件の勘定科目を登録します`);
         let successCount = 0;
         let errorCount = 0;
         const errors: string[] = [];
@@ -359,24 +360,25 @@ script:
           }
         }
 
-        let message = `登録完了\n成功: ${successCount}件\n失敗: ${errorCount}件`;
+        console.log("========================================");
+        console.log("登録完了");
+        console.log(`成功: ${successCount}件`);
+        console.log(`失敗: ${errorCount}件`);
         if (errors.length > 0) {
-          message += "\n\nエラー詳細:\n" + errors.slice(0, 5).join("\n");
-          if (errors.length > 5) {
-            message += `\n... 他${errors.length - 5}件`;
-          }
+          console.log("\nエラー詳細:");
+          errors.forEach(err => console.log(`  - ${err}`));
         }
-
-        console.log(message);
-        alert(message);
+        console.log("========================================");
 
         // 一覧を再読み込み
         if (successCount > 0) {
           await loadAccountsList();
         }
       } catch (error) {
-        console.error("エラー:", error);
-        alert(`エラーが発生しました: ${error.message}`);
+        console.error("========================================");
+        console.error("エラー発生");
+        console.error(error);
+        console.error("========================================");
       }
     }
 
@@ -390,16 +392,11 @@ script:
         console.log(`読み込んだデータ: ${accounts.length}件`);
 
         if (accounts.length === 0) {
-          alert("更新するデータがありません");
+          console.log("更新するデータがありません");
           return;
         }
 
-        if (!confirm(`${accounts.length}件の勘定科目を更新しますか？`)) {
-          console.log("更新をキャンセルしました");
-          return;
-        }
-
-        console.log("更新処理を開始します");
+        console.log(`${accounts.length}件の勘定科目を更新します`);
         let successCount = 0;
         let errorCount = 0;
         const errors: string[] = [];
@@ -416,24 +413,25 @@ script:
           }
         }
 
-        let message = `更新完了\n成功: ${successCount}件\n失敗: ${errorCount}件`;
+        console.log("========================================");
+        console.log("更新完了");
+        console.log(`成功: ${successCount}件`);
+        console.log(`失敗: ${errorCount}件`);
         if (errors.length > 0) {
-          message += "\n\nエラー詳細:\n" + errors.slice(0, 5).join("\n");
-          if (errors.length > 5) {
-            message += `\n... 他${errors.length - 5}件`;
-          }
+          console.log("\nエラー詳細:");
+          errors.forEach(err => console.log(`  - ${err}`));
         }
-
-        console.log(message);
-        alert(message);
+        console.log("========================================");
 
         // 一覧を再読み込み
         if (successCount > 0) {
           await loadAccountsList();
         }
       } catch (error) {
-        console.error("エラー:", error);
-        alert(`エラーが発生しました: ${error.message}`);
+        console.error("========================================");
+        console.error("エラー発生");
+        console.error(error);
+        console.error("========================================");
       }
     }
 
@@ -447,17 +445,12 @@ script:
         console.log(`読み込んだデータ: ${accounts.length}件`);
 
         if (accounts.length === 0) {
-          alert("削除するデータがありません");
+          console.log("削除するデータがありません");
           return;
         }
 
         const accountCodes = accounts.map(a => a.accountCode).join(", ");
-        if (!confirm(`以下の${accounts.length}件の勘定科目を削除しますか？\n\n${accountCodes}`)) {
-          console.log("削除をキャンセルしました");
-          return;
-        }
-
-        console.log("削除処理を開始します");
+        console.log(`以下の${accounts.length}件の勘定科目を削除します: ${accountCodes}`);
         let successCount = 0;
         let errorCount = 0;
         const errors: string[] = [];
@@ -474,24 +467,25 @@ script:
           }
         }
 
-        let message = `削除完了\n成功: ${successCount}件\n失敗: ${errorCount}件`;
+        console.log("========================================");
+        console.log("削除完了");
+        console.log(`成功: ${successCount}件`);
+        console.log(`失敗: ${errorCount}件`);
         if (errors.length > 0) {
-          message += "\n\nエラー詳細:\n" + errors.slice(0, 5).join("\n");
-          if (errors.length > 5) {
-            message += `\n... 他${errors.length - 5}件`;
-          }
+          console.log("\nエラー詳細:");
+          errors.forEach(err => console.log(`  - ${err}`));
         }
-
-        console.log(message);
-        alert(message);
+        console.log("========================================");
 
         // 一覧を再読み込み
         if (successCount > 0) {
           await loadAccountsList();
         }
       } catch (error) {
-        console.error("エラー:", error);
-        alert(`エラーが発生しました: ${error.message}`);
+        console.error("========================================");
+        console.error("エラー発生");
+        console.error(error);
+        console.error("========================================");
       }
     }
 
