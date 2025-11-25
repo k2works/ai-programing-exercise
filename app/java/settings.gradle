@@ -4,5 +4,5 @@
  * This is a Gradle settings file that defines the project structure.
  */
 
-rootProject.name = 'accounting-system-db'
+rootProject.name = 'accounting-system'
 include 'fas'
