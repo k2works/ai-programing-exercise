@@ -15,8 +15,8 @@ namespace AccountingSystem.Tests.DomainTests
             {
                 AccountCode = "1110",
                 AccountName = "現金預金",
-                AccountType = "資産",
-                SumAccount = false
+                AccountType = AccountType.Asset,
+                IsSummaryAccount = false
             };
 
             // Act
@@ -40,8 +40,8 @@ namespace AccountingSystem.Tests.DomainTests
             {
                 AccountCode = null!,
                 AccountName = "現金預金",
-                AccountType = "資産",
-                SumAccount = false
+                AccountType = AccountType.Asset,
+                IsSummaryAccount = false
             };
 
             // Act
