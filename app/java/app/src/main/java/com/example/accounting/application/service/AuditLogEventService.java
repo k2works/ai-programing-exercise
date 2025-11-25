@@ -1,6 +1,6 @@
 package com.example.accounting.application.service;
 
-import com.example.accounting.application.port.in.AuditLogUseCase;
+import com.example.accounting.application.port.in.AuditLogEventUseCase;
 import com.example.accounting.domain.event.JournalEntryApprovedEvent;
 import com.example.accounting.domain.event.JournalEntryCreatedEvent;
 import com.example.accounting.domain.event.JournalEntryDeletedEvent;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
  * ビジネスロジックを実装します。
  */
 @Service
-public class AuditLogEventService implements AuditLogUseCase {
+public class AuditLogEventService implements AuditLogEventUseCase {
 
     private static final Logger logger = LoggerFactory.getLogger(AuditLogEventService.class);
 

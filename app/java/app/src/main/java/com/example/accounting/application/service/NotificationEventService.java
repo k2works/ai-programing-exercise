@@ -1,6 +1,6 @@
 package com.example.accounting.application.service;
 
-import com.example.accounting.application.port.in.NotificationUseCase;
+import com.example.accounting.application.port.in.NotificationEventUseCase;
 import com.example.accounting.domain.event.JournalEntryApprovedEvent;
 import com.example.accounting.domain.event.JournalEntryCreatedEvent;
 import com.example.accounting.domain.event.JournalEntryDeletedEvent;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
  * ビジネスロジックを実装します。
  */
 @Service
-public class NotificationEventService implements NotificationUseCase {
+public class NotificationEventService implements NotificationEventUseCase {
 
     private static final Logger logger = LoggerFactory.getLogger(NotificationEventService.class);
 

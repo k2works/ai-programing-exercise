@@ -1,6 +1,6 @@
-package com.example.accounting.infrastructure.in.eventhandler;
+package com.example.accounting.infrastructure.in.event;
 
-import com.example.accounting.application.port.in.AuditLogUseCase;
+import com.example.accounting.application.port.in.NotificationEventUseCase;
 import com.example.accounting.domain.event.JournalEntryApprovedEvent;
 import com.example.accounting.domain.event.JournalEntryCreatedEvent;
 import com.example.accounting.domain.event.JournalEntryDeletedEvent;
@@ -12,21 +12,21 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 /**
- * 監査ログイベントアダプター（入力アダプター）
+ * 通知イベントアダプター（入力アダプター）
  *
- * RabbitMQ からのイベントを受信し、AuditLogUseCase に委譲します。
+ * RabbitMQ からのイベントを受信し、NotificationUseCase に委譲します。
  * ヘキサゴナルアーキテクチャにおける入力アダプターとして機能し、
  * メッセージングインフラストラクチャとアプリケーション層を分離します。
  */
 @Component
 @ConditionalOnProperty(name = "rabbitmq.enabled", havingValue = "true", matchIfMissing = false)
-public class AuditLogEventAdapter {
+public class NotificationEventAdapter {
 
-    private static final Logger logger = LoggerFactory.getLogger(AuditLogEventAdapter.class);
-    private final AuditLogUseCase auditLogUseCase;
+    private static final Logger logger = LoggerFactory.getLogger(NotificationEventAdapter.class);
+    private final NotificationEventUseCase notificationUseCase;
 
-    public AuditLogEventAdapter(AuditLogUseCase auditLogUseCase) {
-        this.auditLogUseCase = auditLogUseCase;
+    public NotificationEventAdapter(NotificationEventUseCase notificationUseCase) {
+        this.notificationUseCase = notificationUseCase;
     }
 
     /**
@@ -34,10 +34,10 @@ public class AuditLogEventAdapter {
      *
      * @param event 仕訳作成イベント
      */
-    @RabbitListener(queues = RabbitMQConsumerConfig.AUDIT_QUEUE)
+    @RabbitListener(queues = RabbitMQConsumerConfig.NOTIFICATION_QUEUE)
     public void handleJournalEntryCreated(JournalEntryCreatedEvent event) {
         logger.debug("【アダプター】仕訳作成イベント受信: journalEntryId={}", event.getJournalEntryId());
-        auditLogUseCase.logJournalEntryCreated(event);
+        notificationUseCase.notifyJournalEntryCreated(event);
     }
 
     /**
@@ -45,10 +45,10 @@ public class AuditLogEventAdapter {
      *
      * @param event 仕訳承認イベント
      */
-    @RabbitListener(queues = RabbitMQConsumerConfig.AUDIT_QUEUE)
+    @RabbitListener(queues = RabbitMQConsumerConfig.NOTIFICATION_QUEUE)
     public void handleJournalEntryApproved(JournalEntryApprovedEvent event) {
         logger.debug("【アダプター】仕訳承認イベント受信: journalEntryId={}", event.getJournalEntryId());
-        auditLogUseCase.logJournalEntryApproved(event);
+        notificationUseCase.notifyJournalEntryApproved(event);
     }
 
     /**
@@ -56,9 +56,9 @@ public class AuditLogEventAdapter {
      *
      * @param event 仕訳削除イベント
      */
-    @RabbitListener(queues = RabbitMQConsumerConfig.AUDIT_QUEUE)
+    @RabbitListener(queues = RabbitMQConsumerConfig.NOTIFICATION_QUEUE)
     public void handleJournalEntryDeleted(JournalEntryDeletedEvent event) {
         logger.debug("【アダプター】仕訳削除イベント受信: journalEntryId={}", event.getJournalEntryId());
-        auditLogUseCase.logJournalEntryDeleted(event);
+        notificationUseCase.notifyJournalEntryDeleted(event);
     }
 }
