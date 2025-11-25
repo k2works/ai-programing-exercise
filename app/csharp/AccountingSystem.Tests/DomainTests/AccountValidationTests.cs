@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using FluentAssertions;
-using AccountingSystem.Domain.Models;
+using AccountingSystem.Infrastructure.DAO;
 using Xunit;
 
 namespace AccountingSystem.Tests.DomainTests

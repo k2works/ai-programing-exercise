@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace AccountingSystem.Domain.Models
+namespace AccountingSystem.Infrastructure.DAO
 {
     /// <summary>
     /// 勘定科目マスタ
