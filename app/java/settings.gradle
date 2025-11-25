@@ -5,4 +5,4 @@
  */
 
 rootProject.name = 'accounting-system-db'
-include 'app'
+include 'fas'
