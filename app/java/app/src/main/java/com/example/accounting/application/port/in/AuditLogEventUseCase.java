@@ -18,19 +18,19 @@ public interface AuditLogEventUseCase {
      *
      * @param event 仕訳作成イベント
      */
-    void logJournalEntryCreated(JournalEntryCreatedEvent event);
+    void handleJournalEntryCreated(JournalEntryCreatedEvent event);
 
     /**
      * 仕訳承認イベントを監査ログに記録
      *
      * @param event 仕訳承認イベント
      */
-    void logJournalEntryApproved(JournalEntryApprovedEvent event);
+    void handleJournalEntryApproved(JournalEntryApprovedEvent event);
 
     /**
      * 仕訳削除イベントを監査ログに記録
      *
      * @param event 仕訳削除イベント
      */
-    void logJournalEntryDeleted(JournalEntryDeletedEvent event);
+    void handleJournalEntryDeleted(JournalEntryDeletedEvent event);
 }

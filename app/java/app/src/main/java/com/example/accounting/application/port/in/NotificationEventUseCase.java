@@ -18,19 +18,19 @@ public interface NotificationEventUseCase {
      *
      * @param event 仕訳作成イベント
      */
-    void notifyJournalEntryCreated(JournalEntryCreatedEvent event);
+    void handleJournalEntryCreated(JournalEntryCreatedEvent event);
 
     /**
      * 仕訳承認イベントに対する通知を送信
      *
      * @param event 仕訳承認イベント
      */
-    void notifyJournalEntryApproved(JournalEntryApprovedEvent event);
+    void handleJournalEntryApproved(JournalEntryApprovedEvent event);
 
     /**
      * 仕訳削除イベントに対する通知を送信
      *
      * @param event 仕訳削除イベント
      */
-    void notifyJournalEntryDeleted(JournalEntryDeletedEvent event);
+    void handleJournalEntryDeleted(JournalEntryDeletedEvent event);
 }
