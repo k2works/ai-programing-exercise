@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.4">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.msbuild" Version="6.0.4">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Dapper" Version="2.1.66" />
+    <PackageReference Include="FluentAssertions" Version="8.8.0" />
+    <PackageReference Include="FluentMigrator.Runner" Version="7.1.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="Npgsql" Version="10.0.0" />
+    <PackageReference Include="Testcontainers" Version="4.9.0" />
+    <PackageReference Include="Testcontainers.MySql" Version="4.9.0" />
+    <PackageReference Include="Testcontainers.PostgreSql" Version="4.9.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AccountingSystem.Domain\AccountingSystem.Domain.csproj" />
+    <ProjectReference Include="..\AccountingSystem.Infrastructure\AccountingSystem.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
