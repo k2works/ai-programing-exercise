@@ -4,10 +4,16 @@ import com.example.accounting.domain.aggregate.JournalEntryAggregate;
 import com.example.accounting.domain.aggregate.LineItem;
 import com.example.accounting.domain.aggregate.DebitCredit;
 import com.example.accounting.domain.event.DomainEvent;
+import com.example.accounting.domain.event.JournalEntryApprovedEvent;
+import com.example.accounting.domain.event.JournalEntryCreatedEvent;
+import com.example.accounting.domain.event.JournalEntryDeletedEvent;
 import com.example.accounting.application.port.out.EventStoreRepository;
 import com.example.accounting.application.port.out.SnapshotRepository;
+import com.example.accounting.infrastructure.messaging.EventPublisher;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,15 +22,31 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * イベントソーシング版仕訳サービス
+ *
+ * イベントソーシングでドメインイベントを永続化し、
+ * RabbitMQ を通じて他のサービスにイベントをパブリッシュします。
  */
 @Service
-@RequiredArgsConstructor
 public class JournalEntryEventSourcingService {
+    private static final Logger logger = LoggerFactory.getLogger(JournalEntryEventSourcingService.class);
+
     private final EventStoreRepository eventStoreRepository;
     private final SnapshotRepository snapshotRepository;
+    private final EventPublisher eventPublisher;  // Optional: RabbitMQ が有効な場合のみ注入
+
+    public JournalEntryEventSourcingService(
+        EventStoreRepository eventStoreRepository,
+        SnapshotRepository snapshotRepository,
+        @Autowired(required = false) EventPublisher eventPublisher
+    ) {
+        this.eventStoreRepository = eventStoreRepository;
+        this.snapshotRepository = snapshotRepository;
+        this.eventPublisher = eventPublisher;
+    }
 
     /** スナップショット作成間隔（イベント数） */
     private static final int SNAPSHOT_INTERVAL = 10;
@@ -69,6 +91,9 @@ public class JournalEntryEventSourcingService {
             0  // 新規作成なので expectedVersion = 0
         );
 
+        // RabbitMQ にイベントをパブリッシュ
+        publishEventsToMessageBroker(aggregate);
+
         aggregate.markEventsAsCommitted();
 
         return id;
@@ -96,6 +121,9 @@ public class JournalEntryEventSourcingService {
             aggregate.getUncommittedEvents(),
             currentVersion
         );
+
+        // RabbitMQ にイベントをパブリッシュ
+        publishEventsToMessageBroker(aggregate);
 
         aggregate.markEventsAsCommitted();
 
@@ -130,6 +158,9 @@ public class JournalEntryEventSourcingService {
             aggregate.getUncommittedEvents(),
             currentVersion
         );
+
+        // RabbitMQ にイベントをパブリッシュ
+        publishEventsToMessageBroker(aggregate);
 
         aggregate.markEventsAsCommitted();
     }
@@ -176,6 +207,65 @@ public class JournalEntryEventSourcingService {
                 throw new IllegalArgumentException("仕訳が見つかりません: " + journalEntryId);
             }
             return JournalEntryAggregate.replay(events);
+        }
+    }
+
+    /**
+     * RabbitMQ にイベントをパブリッシュ
+     *
+     * EventPublisher が注入されている場合（RabbitMQ が有効な場合）のみパブリッシュします。
+     *
+     * @param aggregate イベントを含む Aggregate
+     */
+    private void publishEventsToMessageBroker(JournalEntryAggregate aggregate) {
+        if (eventPublisher == null) {
+            logger.debug("EventPublisher が無効のため、イベントパブリッシュをスキップします");
+            return;
+        }
+
+        for (DomainEvent event : aggregate.getUncommittedEvents()) {
+            switch (event) {
+                case DomainEvent.Created createdEvent -> {
+                    JournalEntryCreatedEvent publishEvent = JournalEntryCreatedEvent.builder()
+                        .journalEntryId(createdEvent.journalEntryId())
+                        .entryDate(createdEvent.entryDate())
+                        .description(createdEvent.description())
+                        .lineItems(createdEvent.lineItems().stream()
+                            .map(item -> JournalEntryCreatedEvent.JournalEntryLineItem.builder()
+                                .accountCode(item.accountCode())
+                                .debitCredit(JournalEntryCreatedEvent.DebitCredit.valueOf(item.debitCredit().name()))
+                                .amount(item.amount())
+                                .build())
+                            .collect(Collectors.toList()))
+                        .userId(createdEvent.userId())
+                        .occurredAt(createdEvent.occurredAt())
+                        .build();
+                    eventPublisher.publishJournalEntryCreated(publishEvent);
+                    logger.info("イベントパブリッシュ: JournalEntryCreated - {}", createdEvent.journalEntryId());
+                }
+                case DomainEvent.Approved approvedEvent -> {
+                    JournalEntryApprovedEvent publishEvent = JournalEntryApprovedEvent.builder()
+                        .journalEntryId(approvedEvent.journalEntryId())
+                        .approvedBy(approvedEvent.approvedBy())
+                        .approvalComment(approvedEvent.approvalComment())
+                        .occurredAt(approvedEvent.occurredAt())
+                        .userId(approvedEvent.approvedBy())
+                        .build();
+                    eventPublisher.publishJournalEntryApproved(publishEvent);
+                    logger.info("イベントパブリッシュ: JournalEntryApproved - {}", approvedEvent.journalEntryId());
+                }
+                case DomainEvent.Deleted deletedEvent -> {
+                    JournalEntryDeletedEvent publishEvent = JournalEntryDeletedEvent.builder()
+                        .journalEntryId(deletedEvent.journalEntryId())
+                        .reason(deletedEvent.reason())
+                        .occurredAt(deletedEvent.occurredAt())
+                        .userId(deletedEvent.userId())
+                        .build();
+                    eventPublisher.publishJournalEntryDeleted(publishEvent);
+                    logger.info("イベントパブリッシュ: JournalEntryDeleted - {}", deletedEvent.journalEntryId());
+                }
+                default -> logger.warn("未対応のイベントタイプ: {}", event.getClass().getSimpleName());
+            }
         }
     }
 
