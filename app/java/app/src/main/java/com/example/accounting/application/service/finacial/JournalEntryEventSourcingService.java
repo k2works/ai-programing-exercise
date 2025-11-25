@@ -9,7 +9,7 @@ import com.example.accounting.domain.event.JournalEntryCreatedEvent;
 import com.example.accounting.domain.event.JournalEntryDeletedEvent;
 import com.example.accounting.application.port.out.EventStoreRepository;
 import com.example.accounting.application.port.out.SnapshotRepository;
-import com.example.accounting.infrastructure.messaging.EventPublisher;
+import com.example.accounting.infrastructure.out.messaging.EventPublisher;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +22,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * イベントソーシング版仕訳サービス

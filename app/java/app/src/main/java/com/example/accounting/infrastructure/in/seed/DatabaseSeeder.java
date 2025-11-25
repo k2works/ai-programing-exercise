@@ -1,4 +1,4 @@
-package com.example.accounting.infrastructure.seed;
+package com.example.accounting.infrastructure.in.seed;
 
 import com.example.accounting.application.port.out.AccountRepository;
 import com.example.accounting.application.port.out.DailyBalanceRepository;
@@ -6,10 +6,10 @@ import com.example.accounting.application.port.out.JournalRepository;
 import com.example.accounting.domain.model.financial.Account;
 import com.example.accounting.domain.model.financial.DailyBalance;
 import com.example.accounting.domain.model.financial.Journal;
-import com.example.accounting.infrastructure.seed.AccountingSeedData.AccountData;
-import com.example.accounting.infrastructure.seed.AccountingSeedData.DailyBalanceData;
-import com.example.accounting.infrastructure.seed.AccountingSeedData.JournalData;
-import com.example.accounting.infrastructure.seed.AccountingSeedData.JournalEntryData;
+import com.example.accounting.infrastructure.in.seed.AccountingSeedData.AccountData;
+import com.example.accounting.infrastructure.in.seed.AccountingSeedData.DailyBalanceData;
+import com.example.accounting.infrastructure.in.seed.AccountingSeedData.JournalData;
+import com.example.accounting.infrastructure.in.seed.AccountingSeedData.JournalEntryData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;

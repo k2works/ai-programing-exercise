@@ -1,4 +1,4 @@
-package com.example.accounting.infrastructure.messaging;
+package com.example.accounting.infrastructure.out.messaging;
 
 import com.example.accounting.domain.event.JournalEntryApprovedEvent;
 import com.example.accounting.domain.event.JournalEntryCreatedEvent;

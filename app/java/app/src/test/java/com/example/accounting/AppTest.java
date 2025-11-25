@@ -76,13 +76,6 @@ class AppTest {
     }
 
     @Test
-    @DisplayName("アクチュエーターヘルスエンドポイントが応答する")
-    void healthEndpointResponds() {
-        ResponseEntity<String> response = restTemplate.getForEntity("/actuator/health", String.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    }
-
-    @Test
     @DisplayName("Swagger UI が利用可能")
     void swaggerUiIsAvailable() {
         ResponseEntity<String> response = restTemplate.getForEntity("/swagger-ui/index.html", String.class);

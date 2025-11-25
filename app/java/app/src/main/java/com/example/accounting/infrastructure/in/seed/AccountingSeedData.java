@@ -1,4 +1,4 @@
-package com.example.accounting.infrastructure.seed;
+package com.example.accounting.infrastructure.in.seed;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
