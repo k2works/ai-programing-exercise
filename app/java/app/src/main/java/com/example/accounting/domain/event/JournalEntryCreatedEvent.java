@@ -1,7 +1,9 @@
 package com.example.accounting.domain.event;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Builder;
 import lombok.Value;
+import lombok.extern.jackson.Jacksonized;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -13,6 +15,8 @@ import java.util.List;
  */
 @Value
 @Builder
+@Jacksonized
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class JournalEntryCreatedEvent extends DomainEvent {
     String journalEntryId;
     LocalDate entryDate;
@@ -41,6 +45,7 @@ public class JournalEntryCreatedEvent extends DomainEvent {
      */
     @Value
     @Builder
+    @Jacksonized
     public static class JournalEntryLineItem {
         String accountCode;
         DebitCredit debitCredit;

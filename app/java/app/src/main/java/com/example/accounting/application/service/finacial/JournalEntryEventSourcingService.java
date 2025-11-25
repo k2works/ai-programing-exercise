@@ -224,47 +224,17 @@ public class JournalEntryEventSourcingService {
         }
 
         for (DomainEvent event : aggregate.getUncommittedEvents()) {
-            switch (event) {
-                case DomainEvent.Created createdEvent -> {
-                    JournalEntryCreatedEvent publishEvent = JournalEntryCreatedEvent.builder()
-                        .journalEntryId(createdEvent.journalEntryId())
-                        .entryDate(createdEvent.entryDate())
-                        .description(createdEvent.description())
-                        .lineItems(createdEvent.lineItems().stream()
-                            .map(item -> JournalEntryCreatedEvent.JournalEntryLineItem.builder()
-                                .accountCode(item.accountCode())
-                                .debitCredit(JournalEntryCreatedEvent.DebitCredit.valueOf(item.debitCredit().name()))
-                                .amount(item.amount())
-                                .build())
-                            .collect(Collectors.toList()))
-                        .userId(createdEvent.userId())
-                        .occurredAt(createdEvent.occurredAt())
-                        .build();
-                    eventPublisher.publishJournalEntryCreated(publishEvent);
-                    logger.info("イベントパブリッシュ: JournalEntryCreated - {}", createdEvent.journalEntryId());
-                }
-                case DomainEvent.Approved approvedEvent -> {
-                    JournalEntryApprovedEvent publishEvent = JournalEntryApprovedEvent.builder()
-                        .journalEntryId(approvedEvent.journalEntryId())
-                        .approvedBy(approvedEvent.approvedBy())
-                        .approvalComment(approvedEvent.approvalComment())
-                        .occurredAt(approvedEvent.occurredAt())
-                        .userId(approvedEvent.approvedBy())
-                        .build();
-                    eventPublisher.publishJournalEntryApproved(publishEvent);
-                    logger.info("イベントパブリッシュ: JournalEntryApproved - {}", approvedEvent.journalEntryId());
-                }
-                case DomainEvent.Deleted deletedEvent -> {
-                    JournalEntryDeletedEvent publishEvent = JournalEntryDeletedEvent.builder()
-                        .journalEntryId(deletedEvent.journalEntryId())
-                        .reason(deletedEvent.reason())
-                        .occurredAt(deletedEvent.occurredAt())
-                        .userId(deletedEvent.userId())
-                        .build();
-                    eventPublisher.publishJournalEntryDeleted(publishEvent);
-                    logger.info("イベントパブリッシュ: JournalEntryDeleted - {}", deletedEvent.journalEntryId());
-                }
-                default -> logger.warn("未対応のイベントタイプ: {}", event.getClass().getSimpleName());
+            if (event instanceof JournalEntryCreatedEvent createdEvent) {
+                eventPublisher.publishJournalEntryCreated(createdEvent);
+                logger.info("イベントパブリッシュ: JournalEntryCreated - {}", createdEvent.getJournalEntryId());
+            } else if (event instanceof JournalEntryApprovedEvent approvedEvent) {
+                eventPublisher.publishJournalEntryApproved(approvedEvent);
+                logger.info("イベントパブリッシュ: JournalEntryApproved - {}", approvedEvent.getJournalEntryId());
+            } else if (event instanceof JournalEntryDeletedEvent deletedEvent) {
+                eventPublisher.publishJournalEntryDeleted(deletedEvent);
+                logger.info("イベントパブリッシュ: JournalEntryDeleted - {}", deletedEvent.getJournalEntryId());
+            } else {
+                logger.warn("未対応のイベントタイプ: {}", event.getClass().getSimpleName());
             }
         }
     }
