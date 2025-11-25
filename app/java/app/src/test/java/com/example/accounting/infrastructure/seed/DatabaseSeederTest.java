@@ -13,6 +13,7 @@ import com.example.accounting.infrastructure.out.persistence.adapter.JournalAdap
 import com.example.accounting.infrastructure.out.persistence.mapper.AccountMapper;
 import com.example.accounting.infrastructure.out.persistence.mapper.DailyAccountBalanceMapper;
 import com.example.accounting.infrastructure.out.persistence.mapper.JournalMapper;
+import org.apache.ibatis.session.SqlSession;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -38,14 +39,17 @@ class DatabaseSeederTest extends TestDatabaseConfig {
     private AccountRepository accountRepository;
     private JournalRepository journalRepository;
     private DailyBalanceRepository dailyBalanceRepository;
+    private SqlSession session;
 
     @BeforeEach
     void setUpEach() {
-        // MyBatis Mapper の取得
-        AccountMapper accountMapper = sqlSessionFactory.openSession(true).getMapper(AccountMapper.class);
-        JournalMapper journalMapper = sqlSessionFactory.openSession(true).getMapper(JournalMapper.class);
-        DailyAccountBalanceMapper dailyBalanceMapper = sqlSessionFactory.openSession(true)
-            .getMapper(DailyAccountBalanceMapper.class);
+        // MyBatis Session 開始(セッションを1つ保持する)
+        session = sqlSessionFactory.openSession(true);
+
+        // 同じセッションから各Mapperを取得
+        AccountMapper accountMapper = session.getMapper(AccountMapper.class);
+        JournalMapper journalMapper = session.getMapper(JournalMapper.class);
+        DailyAccountBalanceMapper dailyBalanceMapper = session.getMapper(DailyAccountBalanceMapper.class);
 
         // Repository の初期化
         accountRepository = new AccountAdapter(accountMapper);
@@ -61,6 +65,11 @@ class DatabaseSeederTest extends TestDatabaseConfig {
 
     @AfterEach
     void cleanup() throws SQLException {
+        // セッションをクローズして接続をプールに戻す
+        if (session != null) {
+            session.close();
+        }
+
         try (Connection conn = DriverManager.getConnection(
                 POSTGRES.getJdbcUrl(),
                 POSTGRES.getUsername(),

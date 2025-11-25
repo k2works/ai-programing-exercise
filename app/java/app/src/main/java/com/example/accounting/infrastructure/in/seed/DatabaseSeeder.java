@@ -56,22 +56,50 @@ public class DatabaseSeeder implements CommandLineRunner {
 
             log.info("=== Database Seeding Completed Successfully ===");
 
-            // シード処理完了後にアプリケーションを終了（トランザクションコミット後に実行）
-            new Thread(() -> {
-                try {
-                    Thread.sleep(1000); // トランザクションコミットを待つ
-                    log.info("Shutting down application...");
-                    int exitCode = SpringApplication.exit(applicationContext, () -> 0);
-                    System.exit(exitCode);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    System.exit(1);
-                }
-            }).start();
+            // シード処理完了後にアプリケーションを終了（必要な場合のみ）
+            if (shouldExitAfterSeeding()) {
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(1000); // トランザクションコミットを待つ
+                        log.info("Shutting down application...");
+                        int exitCode = SpringApplication.exit(applicationContext, () -> 0);
+                        System.exit(exitCode);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        System.exit(1);
+                    }
+                }).start();
+            } else {
+                log.info("Exit-after is disabled. Skipping application shutdown (likely running in tests).");
+            }
         } catch (Exception e) {
             log.error("Database seeding failed", e);
             throw e; // トランザクションをロールバックさせる
         }
+    }
+
+    /**
+     * シード処理後にアプリケーションを終了するかどうか。
+     * 優先順位: Javaシステムプロパティ -> 環境変数 -> 既定 false
+     *
+     * -Daccounting.seed.exit-after=true で有効化可能。
+     * 環境変数 ACCOUNTING_SEED_EXIT_AFTER=true でも可。
+     */
+    private boolean shouldExitAfterSeeding() {
+        try {
+            String sysProp = System.getProperty("accounting.seed.exit-after");
+            if (sysProp != null) {
+                return Boolean.parseBoolean(sysProp);
+            }
+        } catch (SecurityException ignored) {
+            // セキュリティ制限下では無視
+        }
+
+        String env = System.getenv("ACCOUNTING_SEED_EXIT_AFTER");
+        if (env != null) {
+            return Boolean.parseBoolean(env);
+        }
+        return false;
     }
 
     /**
