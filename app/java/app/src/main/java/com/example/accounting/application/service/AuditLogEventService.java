@@ -1,34 +1,27 @@
-package com.example.accounting.infrastructure.eventhandler;
+package com.example.accounting.application.service;
 
+import com.example.accounting.application.port.in.AuditLogUseCase;
 import com.example.accounting.domain.event.JournalEntryApprovedEvent;
 import com.example.accounting.domain.event.JournalEntryCreatedEvent;
 import com.example.accounting.domain.event.JournalEntryDeletedEvent;
-import com.example.accounting.infrastructure.config.RabbitMQConsumerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 /**
- * 監査ログ用イベントハンドラー
+ * 監査ログイベントサービス
  *
- * 仕訳イベントを監査ログとして記録します。
- * すべての仕訳の作成、承認、削除イベントを受信し、監査証跡を残します。
+ * AuditLogUseCase の実装として、仕訳イベントを監査ログに記録します。
+ * ヘキサゴナルアーキテクチャにおけるアプリケーションサービスとして、
+ * ビジネスロジックを実装します。
  */
-@Component
-@ConditionalOnProperty(name = "rabbitmq.enabled", havingValue = "true", matchIfMissing = false)
-public class AuditLogEventHandler {
+@Service
+public class AuditLogEventService implements AuditLogUseCase {
 
-    private static final Logger logger = LoggerFactory.getLogger(AuditLogEventHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(AuditLogEventService.class);
 
-    /**
-     * 仕訳作成イベントを処理
-     *
-     * @param event 仕訳作成イベント
-     */
-    @RabbitListener(queues = RabbitMQConsumerConfig.AUDIT_QUEUE)
-    public void handleJournalEntryCreated(JournalEntryCreatedEvent event) {
+    @Override
+    public void logJournalEntryCreated(JournalEntryCreatedEvent event) {
         logger.info("【監査ログ】仕訳作成: journalEntryId={}, userId={}, entryDate={}, description={}",
             event.getJournalEntryId(),
             event.getUserId(),
@@ -45,13 +38,8 @@ public class AuditLogEventHandler {
         );
     }
 
-    /**
-     * 仕訳承認イベントを処理
-     *
-     * @param event 仕訳承認イベント
-     */
-    @RabbitListener(queues = RabbitMQConsumerConfig.AUDIT_QUEUE)
-    public void handleJournalEntryApproved(JournalEntryApprovedEvent event) {
+    @Override
+    public void logJournalEntryApproved(JournalEntryApprovedEvent event) {
         logger.info("【監査ログ】仕訳承認: journalEntryId={}, approvedBy={}, comment={}",
             event.getJournalEntryId(),
             event.getApprovedBy(),
@@ -66,13 +54,8 @@ public class AuditLogEventHandler {
         );
     }
 
-    /**
-     * 仕訳削除イベントを処理
-     *
-     * @param event 仕訳削除イベント
-     */
-    @RabbitListener(queues = RabbitMQConsumerConfig.AUDIT_QUEUE)
-    public void handleJournalEntryDeleted(JournalEntryDeletedEvent event) {
+    @Override
+    public void logJournalEntryDeleted(JournalEntryDeletedEvent event) {
         logger.info("【監査ログ】仕訳削除: journalEntryId={}, userId={}, reason={}",
             event.getJournalEntryId(),
             event.getUserId(),

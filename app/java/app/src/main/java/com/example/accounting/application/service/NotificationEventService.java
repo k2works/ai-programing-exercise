@@ -1,35 +1,27 @@
-package com.example.accounting.infrastructure.eventhandler;
+package com.example.accounting.application.service;
 
+import com.example.accounting.application.port.in.NotificationUseCase;
 import com.example.accounting.domain.event.JournalEntryApprovedEvent;
 import com.example.accounting.domain.event.JournalEntryCreatedEvent;
 import com.example.accounting.domain.event.JournalEntryDeletedEvent;
-import com.example.accounting.infrastructure.config.RabbitMQConsumerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 /**
- * 通知用イベントハンドラー
+ * 通知イベントサービス
  *
- * 仕訳イベントに基づいて関係者に通知を送信します。
- * 実際のプロダクション環境では、メール送信サービスや
- * Slack/Teams などの通知サービスと連携します。
+ * NotificationUseCase の実装として、仕訳イベントに基づいて通知を送信します。
+ * ヘキサゴナルアーキテクチャにおけるアプリケーションサービスとして、
+ * ビジネスロジックを実装します。
  */
-@Component
-@ConditionalOnProperty(name = "rabbitmq.enabled", havingValue = "true", matchIfMissing = false)
-public class NotificationEventHandler {
+@Service
+public class NotificationEventService implements NotificationUseCase {
 
-    private static final Logger logger = LoggerFactory.getLogger(NotificationEventHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(NotificationEventService.class);
 
-    /**
-     * 仕訳作成イベントを処理
-     *
-     * @param event 仕訳作成イベント
-     */
-    @RabbitListener(queues = RabbitMQConsumerConfig.NOTIFICATION_QUEUE)
-    public void handleJournalEntryCreated(JournalEntryCreatedEvent event) {
+    @Override
+    public void notifyJournalEntryCreated(JournalEntryCreatedEvent event) {
         logger.info("【通知】仕訳作成通知送信: journalEntryId={}, userId={}",
             event.getJournalEntryId(),
             event.getUserId());
@@ -47,13 +39,8 @@ public class NotificationEventHandler {
         );
     }
 
-    /**
-     * 仕訳承認イベントを処理
-     *
-     * @param event 仕訳承認イベント
-     */
-    @RabbitListener(queues = RabbitMQConsumerConfig.NOTIFICATION_QUEUE)
-    public void handleJournalEntryApproved(JournalEntryApprovedEvent event) {
+    @Override
+    public void notifyJournalEntryApproved(JournalEntryApprovedEvent event) {
         logger.info("【通知】仕訳承認通知送信: journalEntryId={}, approvedBy={}",
             event.getJournalEntryId(),
             event.getApprovedBy());
@@ -71,13 +58,8 @@ public class NotificationEventHandler {
         );
     }
 
-    /**
-     * 仕訳削除イベントを処理
-     *
-     * @param event 仕訳削除イベント
-     */
-    @RabbitListener(queues = RabbitMQConsumerConfig.NOTIFICATION_QUEUE)
-    public void handleJournalEntryDeleted(JournalEntryDeletedEvent event) {
+    @Override
+    public void notifyJournalEntryDeleted(JournalEntryDeletedEvent event) {
         logger.info("【通知】仕訳削除通知送信: journalEntryId={}, userId={}",
             event.getJournalEntryId(),
             event.getUserId());
