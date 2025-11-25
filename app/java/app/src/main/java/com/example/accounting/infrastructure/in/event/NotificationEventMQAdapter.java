@@ -20,9 +20,9 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @ConditionalOnProperty(name = "rabbitmq.enabled", havingValue = "true", matchIfMissing = false)
-public class NotificationEventAdapter implements NotificationEventUseCase {
+public class NotificationEventMQAdapter implements NotificationEventUseCase {
 
-    private static final Logger logger = LoggerFactory.getLogger(NotificationEventAdapter.class);
+    private static final Logger logger = LoggerFactory.getLogger(NotificationEventMQAdapter.class);
 
     /**
      * 仕訳作成イベントを受信して通知を送信

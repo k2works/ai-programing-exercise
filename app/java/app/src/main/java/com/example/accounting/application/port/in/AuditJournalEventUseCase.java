@@ -11,7 +11,7 @@ import com.example.accounting.domain.event.JournalEntryDeletedEvent;
  * このインターフェースは、イベント駆動アーキテクチャにおける
  * 入力ポートとして機能します。
  */
-public interface AuditLogEventUseCase {
+public interface AuditJournalEventUseCase {
 
     /**
      * 仕訳作成イベントを監査ログに記録

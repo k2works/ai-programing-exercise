@@ -1,4 +1,4 @@
-package com.example.accounting.application.event;
+package com.example.accounting.integration;
 
 import com.example.accounting.TestDatabaseConfig;
 import com.example.accounting.application.port.out.AccountRepository;
@@ -8,7 +8,7 @@ import com.example.accounting.application.service.finacial.AuditLogService;
 import com.example.accounting.domain.model.financial.Account;
 import com.example.accounting.domain.model.audit.AuditAction;
 import com.example.accounting.domain.model.audit.AuditLog;
-import com.example.accounting.infrastructure.in.event.AuditEventAdapter;
+import com.example.accounting.infrastructure.in.event.AuditAccountEventAdapter;
 import com.example.accounting.infrastructure.out.persistence.adapter.AccountAdapter;
 import com.example.accounting.infrastructure.out.persistence.adapter.AuditLogAdapter;
 import com.example.accounting.infrastructure.out.persistence.mapper.AccountMapper;
@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * ドメインイベントが監査ログに自動的に記録されることを確認
  */
 @DisplayName("監査イベント - 統合テスト")
-class AuditEventIntegrationTest extends TestDatabaseConfig {
+class AuditAccountEventIntegrationTest extends TestDatabaseConfig {
 
     private AccountService accountService;
     private AuditLogService auditLogService;
@@ -57,7 +57,7 @@ class AuditEventIntegrationTest extends TestDatabaseConfig {
 
         // Event Publisher の設定（同期実行）
         eventPublisher = new SimpleApplicationEventMulticaster();
-        AuditEventAdapter listener = new AuditEventAdapter(auditLogService);
+        AuditAccountEventAdapter listener = new AuditAccountEventAdapter(auditLogService);
         eventPublisher.addApplicationListener(event -> {
             if (event instanceof PayloadApplicationEvent) {
                 Object payload = ((PayloadApplicationEvent<?>) event).getPayload();

@@ -1,6 +1,6 @@
 package com.example.accounting.infrastructure.in.event;
 
-import com.example.accounting.application.port.in.AuditLogEventUseCase;
+import com.example.accounting.application.port.in.AuditJournalEventUseCase;
 import com.example.accounting.domain.event.JournalEntryApprovedEvent;
 import com.example.accounting.domain.event.JournalEntryCreatedEvent;
 import com.example.accounting.domain.event.JournalEntryDeletedEvent;
@@ -20,9 +20,9 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @ConditionalOnProperty(name = "rabbitmq.enabled", havingValue = "true", matchIfMissing = false)
-public class AuditLogEventAdapter implements AuditLogEventUseCase {
+public class AuditJournalEventMQAdapter implements AuditJournalEventUseCase {
 
-    private static final Logger logger = LoggerFactory.getLogger(AuditLogEventAdapter.class);
+    private static final Logger logger = LoggerFactory.getLogger(AuditJournalEventMQAdapter.class);
 
     /**
      * 仕訳作成イベントを受信して監査ログに記録

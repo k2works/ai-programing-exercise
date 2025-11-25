@@ -12,7 +12,7 @@ import com.example.accounting.domain.event.JournalUpdatedEvent;
  *
  * ドメインイベントを受け取り、監査ログを記録する責務
  */
-public interface AuditEventUseCase {
+public interface AuditAccountEventUseCase {
     /**
      * 勘定科目作成イベントをリッスン
      *

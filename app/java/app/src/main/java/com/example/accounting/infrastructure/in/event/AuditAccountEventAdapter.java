@@ -1,6 +1,6 @@
 package com.example.accounting.infrastructure.in.event;
 
-import com.example.accounting.application.port.in.AuditEventUseCase;
+import com.example.accounting.application.port.in.AuditAccountEventUseCase;
 import com.example.accounting.application.service.finacial.AuditLogService;
 import com.example.accounting.domain.event.AccountCreatedEvent;
 import com.example.accounting.domain.event.AccountDeletedEvent;
@@ -21,7 +21,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
  */
 @Component
 @RequiredArgsConstructor
-public class AuditEventAdapter implements AuditEventUseCase {
+public class AuditAccountEventAdapter implements AuditAccountEventUseCase {
 
     private final AuditLogService auditLogService;
 
