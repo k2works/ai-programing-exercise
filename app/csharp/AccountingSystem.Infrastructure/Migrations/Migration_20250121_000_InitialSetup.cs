@@ -5,8 +5,8 @@ namespace AccountingSystem.Infrastructure.Migrations
     /// <summary>
     /// 初期セットアップマイグレーション
     /// </summary>
-    [Migration(20250121001)]
-    public class Migration_20250121_001_InitialSetup : Migration
+    [Migration(20250121000)]
+    public class Migration_20250121_000_InitialSetup : Migration
     {
         public override void Up()
         {
