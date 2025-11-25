@@ -48,6 +48,28 @@ services:
     networks:
       - db_network
 
+  # RabbitMQ - メッセージブローカー
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: accounting-system-rabbitmq
+    restart: unless-stopped
+    ports:
+      - "${RABBITMQ_PORT:-5672}:5672"    # AMQP ポート
+      - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"  # 管理UI ポート
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-admin}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-admin123}
+      TZ: 'Asia/Tokyo'
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app_network
+
   # Adminer - データベース管理ツール
   adminer:
     image: adminer:latest
@@ -69,7 +91,11 @@ volumes:
     driver: local
   mysql_data:
     driver: local
+  rabbitmq_data:
+    driver: local
 
 networks:
   db_network:
+    driver: bridge
+  app_network:
     driver: bridge

@@ -13,6 +13,27 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
 
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:admin}
+    password: ${RABBITMQ_PASSWORD:admin123}
+    listener:
+      simple:
+        acknowledge-mode: auto
+        prefetch: 10
+        retry:
+          enabled: true
+          initial-interval: 1000
+          max-attempts: 3
+          multiplier: 2.0
+    template:
+      retry:
+        enabled: true
+        initial-interval: 1000
+        max-attempts: 3
+        multiplier: 2.0
+
 mybatis:
   configuration:
     map-underscore-to-camel-case: false
@@ -36,3 +57,7 @@ logging:
     com.example.accounting: DEBUG
     org.springframework.web: INFO
     org.mybatis: DEBUG
+
+# RabbitMQ イベント駆動アーキテクチャの有効化
+rabbitmq:
+  enabled: ${RABBITMQ_ENABLED:false}
