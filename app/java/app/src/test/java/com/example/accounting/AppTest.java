@@ -71,7 +71,7 @@ class AppTest {
         assertThat(applicationContext.containsBean("journalEntryEventSourcingController")).isTrue();
 
         // Event listener and Projection
-        assertThat(applicationContext.containsBean("auditEventListenerAdapter")).isTrue();
+        assertThat(applicationContext.containsBean("auditEventAdapter")).isTrue();
         assertThat(applicationContext.containsBean("journalEntryProjectionAdapter")).isTrue();
     }
 
