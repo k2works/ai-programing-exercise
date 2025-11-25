@@ -1,4 +1,4 @@
-package com.example.accounting.infrastructure.seed;
+package com.example.accounting.infrastructure.in.seed;
 
 import com.example.accounting.TestDatabaseConfig;
 import com.example.accounting.application.port.out.AccountRepository;
@@ -6,7 +6,6 @@ import com.example.accounting.application.port.out.DailyBalanceRepository;
 import com.example.accounting.application.port.out.JournalRepository;
 import com.example.accounting.domain.model.financial.Account;
 import com.example.accounting.domain.model.financial.DailyBalance;
-import com.example.accounting.infrastructure.in.seed.DatabaseSeeder;
 import com.example.accounting.infrastructure.out.persistence.adapter.AccountAdapter;
 import com.example.accounting.infrastructure.out.persistence.adapter.DailyBalanceAdapter;
 import com.example.accounting.infrastructure.out.persistence.adapter.JournalAdapter;
