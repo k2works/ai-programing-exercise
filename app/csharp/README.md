@@ -17,27 +17,39 @@
 
 ## プロジェクト構成
 
-ヘキサゴナルアーキテクチャ（Ports and Adapters）に基づく単一プロジェクト構成です。
+ヘキサゴナルアーキテクチャ（Ports and Adapters）に基づくマルチプロジェクト構成です。
 
 ```
 AccountingSystem.sln
-├── AccountingSystem.Api/          # Web API（単一プロジェクト）
-│   ├── Application/               # アプリケーション層
-│   │   ├── Exceptions/            # カスタム例外
-│   │   ├── Ports/In/              # 入力ポート（サービスインターフェース）
-│   │   ├── Ports/Out/             # 出力ポート（リポジトリインターフェース）
-│   │   └── Services/              # アプリケーションサービス
-│   ├── Domain/Models/             # ドメインモデル
-│   └── Infrastructure/            # インフラストラクチャ層
-│       ├── Migrations/            # FluentMigrator マイグレーション
-│       ├── Persistence/           # 永続化
-│       │   ├── Dapper/Entities/   # Dapper エンティティ
-│       │   └── Repositories/      # リポジトリ実装
-│       └── Web/                   # Web アダプター
-│           ├── Controllers/       # API コントローラー
-│           ├── Dtos/              # データ転送オブジェクト
-│           └── Middleware/        # ミドルウェア
-└── AccountingSystem.Tests/        # テスト
+├── AccountingSystem.Domain/         # ドメイン層（依存なし）
+│   ├── Entities/                    # エンティティ
+│   ├── Events/                      # ドメインイベント
+│   └── Models/                      # ドメインモデル
+│       └── Financial/               # 財務モデル
+├── AccountingSystem.Application/    # アプリケーション層（→ Domain）
+│   ├── Exceptions/                  # カスタム例外
+│   ├── Ports/                       # ポート
+│   │   ├── In/                      # 入力ポート（サービスインターフェース）
+│   │   └── Out/                     # 出力ポート（リポジトリインターフェース）
+│   └── Services/                    # アプリケーションサービス
+├── AccountingSystem.Infrastructure/ # インフラストラクチャ層（→ Domain, Application）
+│   ├── EventHandlers/               # ドメインイベントハンドラー
+│   ├── Migrations/                  # FluentMigrator マイグレーション
+│   ├── Persistence/                 # 永続化
+│   │   └── Repositories/            # リポジトリ実装
+│   └── Web/                         # Web アダプター
+│       ├── Controllers/             # API コントローラー
+│       ├── Dtos/                    # データ転送オブジェクト
+│       └── Middleware/              # ミドルウェア
+├── AccountingSystem.Api/            # エントリポイント（→ 全プロジェクト）
+│   └── Program.cs                   # アプリケーション起動
+└── AccountingSystem.Tests/          # テスト
+    ├── Application/Services/        # サービステスト
+    ├── Domain/                      # ドメインテスト
+    ├── Infrastructure/              # インフラテスト
+    │   ├── EventHandlers/           # イベントハンドラーテスト
+    │   └── Repositories/            # リポジトリテスト
+    └── Integration/                 # API 統合テスト
 ```
 
 ## 前提条件
@@ -98,6 +110,7 @@ dotnet run -- migrate
 | 20250121012 | 日次勘定残高テーブル作成 |
 | 20250121013 | 月次勘定残高テーブル作成 |
 | 20250121014 | 元帳ビュー作成 |
+| 20250121015 | 監査ログテーブル作成 |
 
 ## Cake ビルドスクリプト
 
@@ -176,9 +189,10 @@ dotnet test --filter "FullyQualifiedName~AccountTest"
 
 | カテゴリ | 説明 |
 |---------|------|
-| Domain | ドメインモデルテスト |
-| Repositories | リポジトリ統合テスト |
-| Services | サービス層テスト |
+| Domain | ドメインモデル・イベントテスト |
+| Infrastructure/Repositories | リポジトリ統合テスト |
+| Infrastructure/EventHandlers | イベントハンドラーテスト |
+| Application/Services | サービス層テスト |
 | Integration | API 統合テスト |
 
 ## 開発手法
