@@ -1,12 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using AccountingSystem.Infrastructure.Web.Dtos;
-using AccountingSystem.Infrastructure.Persistence.Repositories;
-using Dapper;
 using FluentAssertions;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Npgsql;
-using Testcontainers.PostgreSql;
 using Xunit;
 
 namespace AccountingSystem.Tests.Integration;
@@ -14,123 +9,18 @@ namespace AccountingSystem.Tests.Integration;
 /// <summary>
 /// 仕訳 API 統合テスト
 /// </summary>
-public class JournalApiTest : IAsyncLifetime
+public class JournalApiTest : ApiTestBase
 {
-    private PostgreSqlContainer? _postgres;
-    private WebApplicationFactory<Program>? _factory;
-    private HttpClient? _client;
-
-    static JournalApiTest()
+    protected override async Task OnInitializedAsync()
     {
-        SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
-    }
-
-    public async Task InitializeAsync()
-    {
-        // TestContainers で PostgreSQL を起動
-        _postgres = new PostgreSqlBuilder()
-            .WithImage("postgres:16-alpine")
-            .WithDatabase("testdb")
-            .WithUsername("test")
-            .WithPassword("test")
-            .Build();
-
-        await _postgres.StartAsync();
-
-        // マイグレーション実行
-        var connectionString = _postgres.GetConnectionString();
-        await RunMigrationAsync(connectionString);
-
-        // WebApplicationFactory で API サーバーを起動
-        _factory = new WebApplicationFactory<Program>()
-            .WithWebHostBuilder(builder =>
-            {
-                builder.UseSetting(
-                    "ConnectionStrings:DefaultConnection",
-                    connectionString);
-            });
-
-        _client = _factory.CreateClient();
-    }
-
-    public async Task DisposeAsync()
-    {
-        _client?.Dispose();
-        _factory?.Dispose();
-
-        if (_postgres != null)
-        {
-            await _postgres.DisposeAsync();
-        }
-    }
-
-    private static async Task RunMigrationAsync(string connectionString)
-    {
-        await using var connection = new NpgsqlConnection(connectionString);
-        await connection.OpenAsync();
-
-        // 仕訳テーブル
-        await connection.ExecuteAsync(@"
-            CREATE TABLE IF NOT EXISTS ""仕訳"" (
-                ""仕訳伝票番号"" VARCHAR(20) PRIMARY KEY,
-                ""起票日"" DATE NOT NULL,
-                ""入力日"" DATE NOT NULL,
-                ""決算仕訳フラグ"" INTEGER NOT NULL DEFAULT 0,
-                ""単振フラグ"" INTEGER NOT NULL DEFAULT 0,
-                ""仕訳伝票区分"" INTEGER NOT NULL DEFAULT 0,
-                ""定期計上フラグ"" INTEGER NOT NULL DEFAULT 0,
-                ""社員コード"" VARCHAR(10),
-                ""部門コード"" VARCHAR(10),
-                ""赤伝フラグ"" INTEGER NOT NULL DEFAULT 0,
-                ""赤黒伝票番号"" VARCHAR(20),
-                ""作成日時"" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                ""更新日時"" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ");
-
-        // 仕訳明細テーブル
-        await connection.ExecuteAsync(@"
-            CREATE TABLE IF NOT EXISTS ""仕訳明細"" (
-                ""仕訳伝票番号"" VARCHAR(20) NOT NULL,
-                ""仕訳行番号"" INTEGER NOT NULL,
-                ""行摘要"" VARCHAR(200) NOT NULL,
-                ""作成日時"" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                ""更新日時"" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                PRIMARY KEY (""仕訳伝票番号"", ""仕訳行番号""),
-                FOREIGN KEY (""仕訳伝票番号"") REFERENCES ""仕訳""(""仕訳伝票番号"") ON DELETE CASCADE
-            )
-        ");
-
-        // 仕訳貸借明細テーブル
-        await connection.ExecuteAsync(@"
-            CREATE TABLE IF NOT EXISTS ""仕訳貸借明細"" (
-                ""仕訳伝票番号"" VARCHAR(20) NOT NULL,
-                ""仕訳行番号"" INTEGER NOT NULL,
-                ""仕訳行貸借区分"" CHAR(1) NOT NULL,
-                ""通貨コード"" VARCHAR(3) NOT NULL DEFAULT 'JPY',
-                ""為替レート"" DECIMAL(10, 4) NOT NULL DEFAULT 1,
-                ""部門コード"" VARCHAR(10),
-                ""プロジェクトコード"" VARCHAR(10),
-                ""勘定科目コード"" VARCHAR(10) NOT NULL,
-                ""補助科目コード"" VARCHAR(10),
-                ""仕訳金額"" DECIMAL(15, 2) NOT NULL,
-                ""基軸換算仕訳金額"" DECIMAL(15, 2) NOT NULL,
-                ""消費税区分"" VARCHAR(2),
-                ""消費税率"" INTEGER,
-                ""消費税計算区分"" VARCHAR(1),
-                ""期日"" DATE,
-                ""資金繰フラグ"" INTEGER NOT NULL DEFAULT 0,
-                ""セグメントコード"" VARCHAR(10),
-                ""相手勘定科目コード"" VARCHAR(10),
-                ""相手補助科目コード"" VARCHAR(10),
-                ""付箋コード"" VARCHAR(10),
-                ""付箋内容"" VARCHAR(200),
-                ""作成日時"" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                ""更新日時"" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                PRIMARY KEY (""仕訳伝票番号"", ""仕訳行番号"", ""仕訳行貸借区分""),
-                FOREIGN KEY (""仕訳伝票番号"", ""仕訳行番号"")
-                    REFERENCES ""仕訳明細""(""仕訳伝票番号"", ""仕訳行番号"") ON DELETE CASCADE
-            )
+        // 仕訳で使用する勘定科目をセットアップ
+        await ExecuteSqlAsync(@"
+            INSERT INTO ""勘定科目マスタ"" (
+                ""勘定科目コード"", ""勘定科目名"", ""勘定科目種別"", ""合計科目""
+            ) VALUES
+            ('1110', '普通預金', '資産', false),
+            ('4110', '売上高', '収益', false)
+            ON CONFLICT (""勘定科目コード"") DO NOTHING
         ");
     }
 
@@ -185,7 +75,7 @@ public class JournalApiTest : IAsyncLifetime
         var request = CreateValidJournalRequest("J20240115001");
 
         // Act
-        var response = await _client!.PostAsJsonAsync("/api/v1/journals", request);
+        var response = await Client.PostAsJsonAsync("/api/v1/journals", request);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -244,7 +134,7 @@ public class JournalApiTest : IAsyncLifetime
         };
 
         // Act
-        var response = await _client!.PostAsJsonAsync("/api/v1/journals", request);
+        var response = await Client.PostAsJsonAsync("/api/v1/journals", request);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -255,10 +145,10 @@ public class JournalApiTest : IAsyncLifetime
     {
         // Arrange - 最初の仕訳を作成
         var request = CreateValidJournalRequest("J20240115003");
-        await _client!.PostAsJsonAsync("/api/v1/journals", request);
+        await Client.PostAsJsonAsync("/api/v1/journals", request);
 
         // Act - 同じ伝票番号で再度作成
-        var response = await _client!.PostAsJsonAsync("/api/v1/journals", request);
+        var response = await Client.PostAsJsonAsync("/api/v1/journals", request);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
@@ -269,10 +159,10 @@ public class JournalApiTest : IAsyncLifetime
     {
         // Arrange
         var request = CreateValidJournalRequest("J20240115004");
-        await _client!.PostAsJsonAsync("/api/v1/journals", request);
+        await Client.PostAsJsonAsync("/api/v1/journals", request);
 
         // Act
-        var response = await _client!.GetAsync("/api/v1/journals/J20240115004");
+        var response = await Client.GetAsync("/api/v1/journals/J20240115004");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -287,7 +177,7 @@ public class JournalApiTest : IAsyncLifetime
     public async Task GetJournal_NotFound_Returns404()
     {
         // Act
-        var response = await _client!.GetAsync("/api/v1/journals/NOTEXIST");
+        var response = await Client.GetAsync("/api/v1/journals/NOTEXIST");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -298,10 +188,10 @@ public class JournalApiTest : IAsyncLifetime
     {
         // Arrange
         var request = CreateValidJournalRequest("J20240115005");
-        await _client!.PostAsJsonAsync("/api/v1/journals", request);
+        await Client.PostAsJsonAsync("/api/v1/journals", request);
 
         // Act
-        var response = await _client!.GetAsync("/api/v1/journals/J20240115005/balance");
+        var response = await Client.GetAsync("/api/v1/journals/J20240115005/balance");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -319,16 +209,16 @@ public class JournalApiTest : IAsyncLifetime
     {
         // Arrange
         var request = CreateValidJournalRequest("J20240115006");
-        await _client!.PostAsJsonAsync("/api/v1/journals", request);
+        await Client.PostAsJsonAsync("/api/v1/journals", request);
 
         // Act
-        var response = await _client!.DeleteAsync("/api/v1/journals/J20240115006");
+        var response = await Client.DeleteAsync("/api/v1/journals/J20240115006");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         // 削除確認
-        var getResponse = await _client!.GetAsync("/api/v1/journals/J20240115006");
+        var getResponse = await Client.GetAsync("/api/v1/journals/J20240115006");
         getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
@@ -336,7 +226,7 @@ public class JournalApiTest : IAsyncLifetime
     public async Task DeleteJournal_NotFound_Returns404()
     {
         // Act
-        var response = await _client!.DeleteAsync("/api/v1/journals/NOTEXIST");
+        var response = await Client.DeleteAsync("/api/v1/journals/NOTEXIST");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);

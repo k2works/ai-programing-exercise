@@ -1,12 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using AccountingSystem.Infrastructure.Web.Dtos;
-using AccountingSystem.Infrastructure.Persistence.Repositories;
-using Dapper;
 using FluentAssertions;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Npgsql;
-using Testcontainers.PostgreSql;
 using Xunit;
 
 namespace AccountingSystem.Tests.Integration;
@@ -14,121 +9,12 @@ namespace AccountingSystem.Tests.Integration;
 /// <summary>
 /// 勘定科目 API 統合テスト
 /// </summary>
-public class AccountApiTest : IAsyncLifetime
+public class AccountApiTest : ApiTestBase
 {
-    private PostgreSqlContainer? _postgres;
-    private WebApplicationFactory<Program>? _factory;
-    private HttpClient? _client;
-
-    static AccountApiTest()
+    protected override async Task OnInitializedAsync()
     {
-        SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
-    }
-
-    public async Task InitializeAsync()
-    {
-        // TestContainers で PostgreSQL を起動
-        _postgres = new PostgreSqlBuilder()
-            .WithImage("postgres:16-alpine")
-            .WithDatabase("testdb")
-            .WithUsername("test")
-            .WithPassword("test")
-            .Build();
-
-        await _postgres.StartAsync();
-
-        // マイグレーション実行
-        var connectionString = _postgres.GetConnectionString();
-        await RunMigrationAsync(connectionString);
-        await SetupTestDataAsync(connectionString);
-
-        // WebApplicationFactory で API サーバーを起動
-        _factory = new WebApplicationFactory<Program>()
-            .WithWebHostBuilder(builder =>
-            {
-                builder.UseSetting(
-                    "ConnectionStrings:DefaultConnection",
-                    connectionString);
-            });
-
-        _client = _factory.CreateClient();
-    }
-
-    public async Task DisposeAsync()
-    {
-        _client?.Dispose();
-        _factory?.Dispose();
-
-        if (_postgres != null)
-        {
-            await _postgres.DisposeAsync();
-        }
-    }
-
-    private static async Task RunMigrationAsync(string connectionString)
-    {
-        await using var connection = new NpgsqlConnection(connectionString);
-        await connection.OpenAsync();
-
-        // account_type ENUM型を作成
-        await connection.ExecuteAsync(@"
-            DO $$ BEGIN
-                CREATE TYPE account_type AS ENUM (
-                    '資産', '負債', '純資産', '収益', '費用'
-                );
-            EXCEPTION
-                WHEN duplicate_object THEN null;
-            END $$;
-        ");
-
-        // 勘定科目マスタ
-        await connection.ExecuteAsync(@"
-            CREATE TABLE IF NOT EXISTS ""勘定科目マスタ"" (
-                ""勘定科目ID"" SERIAL PRIMARY KEY,
-                ""勘定科目コード"" VARCHAR(10) UNIQUE NOT NULL,
-                ""勘定科目名"" VARCHAR(100) NOT NULL,
-                ""勘定科目カナ"" VARCHAR(100),
-                ""勘定科目種別"" account_type NOT NULL,
-                ""合計科目"" BOOLEAN NOT NULL DEFAULT FALSE,
-                ""BSPL区分"" CHAR(1),
-                ""取引要素区分"" VARCHAR(10),
-                ""費用区分"" VARCHAR(10),
-                ""表示順序"" INTEGER NOT NULL DEFAULT 0,
-                ""集計対象"" BOOLEAN NOT NULL DEFAULT TRUE,
-                ""課税取引コード"" VARCHAR(10),
-                ""残高"" DECIMAL(15, 2) NOT NULL DEFAULT 0,
-                ""作成日時"" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                ""更新日時"" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ");
-
-        // 監査ログテーブル
-        await connection.ExecuteAsync(@"
-            CREATE TABLE IF NOT EXISTS ""監査ログ"" (
-                ""監査ログID"" BIGSERIAL PRIMARY KEY,
-                ""エンティティ種別"" VARCHAR(50) NOT NULL,
-                ""エンティティID"" VARCHAR(100) NOT NULL,
-                ""アクション"" VARCHAR(20) NOT NULL,
-                ""ユーザーID"" VARCHAR(100) NOT NULL,
-                ""ユーザー名"" VARCHAR(200) NOT NULL,
-                ""タイムスタンプ"" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                ""変更前値"" JSONB,
-                ""変更後値"" JSONB,
-                ""変更内容"" JSONB,
-                ""理由"" TEXT,
-                ""IPアドレス"" VARCHAR(45),
-                ""ユーザーエージェント"" TEXT
-            )
-        ");
-    }
-
-    private static async Task SetupTestDataAsync(string connectionString)
-    {
-        await using var connection = new NpgsqlConnection(connectionString);
-        await connection.OpenAsync();
-
         // テストデータ投入
-        await connection.ExecuteAsync(@"
+        await ExecuteSqlAsync(@"
             INSERT INTO ""勘定科目マスタ"" (
                 ""勘定科目コード"", ""勘定科目名"", ""勘定科目種別"", ""合計科目"", ""BSPL区分"", ""表示順序""
             ) VALUES
@@ -144,7 +30,7 @@ public class AccountApiTest : IAsyncLifetime
     public async Task GetAllAccounts_Returns200()
     {
         // Act
-        var response = await _client!.GetAsync("/api/v1/accounts");
+        var response = await Client.GetAsync("/api/v1/accounts");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -158,7 +44,7 @@ public class AccountApiTest : IAsyncLifetime
     public async Task GetAccountByCode_Returns200()
     {
         // Act
-        var response = await _client!.GetAsync("/api/v1/accounts/1110");
+        var response = await Client.GetAsync("/api/v1/accounts/1110");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -173,7 +59,7 @@ public class AccountApiTest : IAsyncLifetime
     public async Task GetAccountByCode_NotFound_Returns404()
     {
         // Act
-        var response = await _client!.GetAsync("/api/v1/accounts/9999");
+        var response = await Client.GetAsync("/api/v1/accounts/9999");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -183,7 +69,7 @@ public class AccountApiTest : IAsyncLifetime
     public async Task GetAccountsByBsplType_Returns200()
     {
         // Act
-        var response = await _client!.GetAsync("/api/v1/accounts/by-bspl-type/B");
+        var response = await Client.GetAsync("/api/v1/accounts/by-bspl-type/B");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -197,7 +83,7 @@ public class AccountApiTest : IAsyncLifetime
     public async Task GetAccountsByBsplType_InvalidType_Returns400()
     {
         // Act
-        var response = await _client!.GetAsync("/api/v1/accounts/by-bspl-type/X");
+        var response = await Client.GetAsync("/api/v1/accounts/by-bspl-type/X");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -207,7 +93,7 @@ public class AccountApiTest : IAsyncLifetime
     public async Task GetAccountsByType_Returns200()
     {
         // Act
-        var response = await _client!.GetAsync("/api/v1/accounts/by-type/資産");
+        var response = await Client.GetAsync("/api/v1/accounts/by-type/資産");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -233,7 +119,7 @@ public class AccountApiTest : IAsyncLifetime
         };
 
         // Act
-        var response = await _client!.PostAsJsonAsync("/api/v1/accounts", request);
+        var response = await Client.PostAsJsonAsync("/api/v1/accounts", request);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -258,7 +144,7 @@ public class AccountApiTest : IAsyncLifetime
         };
 
         // Act
-        var response = await _client!.PostAsJsonAsync("/api/v1/accounts", request);
+        var response = await Client.PostAsJsonAsync("/api/v1/accounts", request);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
@@ -279,7 +165,7 @@ public class AccountApiTest : IAsyncLifetime
         };
 
         // Act
-        var response = await _client!.PutAsJsonAsync("/api/v1/accounts/1120", request);
+        var response = await Client.PutAsJsonAsync("/api/v1/accounts/1120", request);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -302,7 +188,7 @@ public class AccountApiTest : IAsyncLifetime
         };
 
         // Act
-        var response = await _client!.PutAsJsonAsync("/api/v1/accounts/9999", request);
+        var response = await Client.PutAsJsonAsync("/api/v1/accounts/9999", request);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -312,13 +198,13 @@ public class AccountApiTest : IAsyncLifetime
     public async Task DeleteAccount_Returns204()
     {
         // Act
-        var response = await _client!.DeleteAsync("/api/v1/accounts/4110");
+        var response = await Client.DeleteAsync("/api/v1/accounts/4110");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         // 削除確認
-        var getResponse = await _client!.GetAsync("/api/v1/accounts/4110");
+        var getResponse = await Client.GetAsync("/api/v1/accounts/4110");
         getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
@@ -326,7 +212,7 @@ public class AccountApiTest : IAsyncLifetime
     public async Task DeleteAccount_NotFound_Returns404()
     {
         // Act
-        var response = await _client!.DeleteAsync("/api/v1/accounts/9999");
+        var response = await Client.DeleteAsync("/api/v1/accounts/9999");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);

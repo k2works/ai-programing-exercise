@@ -1,89 +1,16 @@
 using System.Net;
 using System.Net.Http.Json;
 using AccountingSystem.Infrastructure.Web.Controllers;
-using AccountingSystem.Infrastructure.Persistence.Repositories;
-using Dapper;
 using FluentAssertions;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Npgsql;
-using Testcontainers.PostgreSql;
 using Xunit;
-using FluentMigrator.Runner;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace AccountingSystem.Tests.Integration;
 
 /// <summary>
 /// イベントソーシング版仕訳 API 統合テスト
 /// </summary>
-public class JournalEntryEventSourcingApiTest : IAsyncLifetime
+public class JournalEntryEventSourcingApiTest : ApiTestBase
 {
-    private PostgreSqlContainer? _postgres;
-    private WebApplicationFactory<Program>? _factory;
-    private HttpClient? _client;
-
-    static JournalEntryEventSourcingApiTest()
-    {
-        SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
-    }
-
-    public async Task InitializeAsync()
-    {
-        // TestContainers で PostgreSQL を起動
-        _postgres = new PostgreSqlBuilder()
-            .WithImage("postgres:16-alpine")
-            .WithDatabase("testdb")
-            .WithUsername("test")
-            .WithPassword("test")
-            .Build();
-
-        await _postgres.StartAsync();
-
-        // FluentMigrator でマイグレーション実行
-        var connectionString = _postgres.GetConnectionString();
-        await RunMigrationAsync(connectionString);
-
-        // WebApplicationFactory で API サーバーを起動
-        _factory = new WebApplicationFactory<Program>()
-            .WithWebHostBuilder(builder =>
-            {
-                builder.UseSetting(
-                    "ConnectionStrings:DefaultConnection",
-                    connectionString);
-            });
-
-        _client = _factory.CreateClient();
-    }
-
-    public async Task DisposeAsync()
-    {
-        _client?.Dispose();
-        _factory?.Dispose();
-
-        if (_postgres != null)
-        {
-            await _postgres.DisposeAsync();
-        }
-    }
-
-    private static async Task RunMigrationAsync(string connectionString)
-    {
-        // FluentMigrator を使用してマイグレーションを実行
-        var serviceProvider = new ServiceCollection()
-            .AddFluentMigratorCore()
-            .ConfigureRunner(rb => rb
-                .AddPostgres()
-                .WithGlobalConnectionString(connectionString)
-                .ScanIn(typeof(AccountingSystem.Infrastructure.MigrationRunner).Assembly)
-                .For.Migrations())
-            .AddLogging(lb => lb.AddFluentMigratorConsole())
-            .BuildServiceProvider(false);
-
-        using var scope = serviceProvider.CreateScope();
-        var runner = scope.ServiceProvider.GetRequiredService<IMigrationRunner>();
-        runner.MigrateUp();
-    }
-
     private static CreateJournalEntryRequest CreateValidRequest()
     {
         return new CreateJournalEntryRequest
@@ -106,7 +33,7 @@ public class JournalEntryEventSourcingApiTest : IAsyncLifetime
         var request = CreateValidRequest();
 
         // Act
-        var response = await _client!.PostAsJsonAsync("/api/v1/journal-entries-es", request);
+        var response = await Client.PostAsJsonAsync("/api/v1/journal-entries-es", request);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -134,7 +61,7 @@ public class JournalEntryEventSourcingApiTest : IAsyncLifetime
         };
 
         // Act
-        var response = await _client!.PostAsJsonAsync("/api/v1/journal-entries-es", request);
+        var response = await Client.PostAsJsonAsync("/api/v1/journal-entries-es", request);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -145,11 +72,11 @@ public class JournalEntryEventSourcingApiTest : IAsyncLifetime
     {
         // Arrange
         var request = CreateValidRequest();
-        var createResponse = await _client!.PostAsJsonAsync("/api/v1/journal-entries-es", request);
+        var createResponse = await Client.PostAsJsonAsync("/api/v1/journal-entries-es", request);
         var created = await createResponse.Content.ReadFromJsonAsync<CreateJournalEntryResponse>();
 
         // Act
-        var response = await _client!.GetAsync($"/api/v1/journal-entries-es/{created!.Id}");
+        var response = await Client.GetAsync($"/api/v1/journal-entries-es/{created!.Id}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -168,7 +95,7 @@ public class JournalEntryEventSourcingApiTest : IAsyncLifetime
     public async Task GetJournalEntry_NotFound_Returns404()
     {
         // Act
-        var response = await _client!.GetAsync("/api/v1/journal-entries-es/non-existent-id");
+        var response = await Client.GetAsync("/api/v1/journal-entries-es/non-existent-id");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -179,7 +106,7 @@ public class JournalEntryEventSourcingApiTest : IAsyncLifetime
     {
         // Arrange
         var createRequest = CreateValidRequest();
-        var createResponse = await _client!.PostAsJsonAsync("/api/v1/journal-entries-es", createRequest);
+        var createResponse = await Client.PostAsJsonAsync("/api/v1/journal-entries-es", createRequest);
         var created = await createResponse.Content.ReadFromJsonAsync<CreateJournalEntryResponse>();
 
         var approveRequest = new ApproveJournalEntryRequest
@@ -189,14 +116,14 @@ public class JournalEntryEventSourcingApiTest : IAsyncLifetime
         };
 
         // Act
-        var response = await _client!.PostAsJsonAsync(
+        var response = await Client.PostAsJsonAsync(
             $"/api/v1/journal-entries-es/{created!.Id}/approve", approveRequest);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         // 状態確認
-        var getResponse = await _client!.GetAsync($"/api/v1/journal-entries-es/{created.Id}");
+        var getResponse = await Client.GetAsync($"/api/v1/journal-entries-es/{created.Id}");
         var journal = await getResponse.Content.ReadFromJsonAsync<JournalEntryResponse>();
         journal!.Status.Should().Be("APPROVED");
     }
@@ -212,7 +139,7 @@ public class JournalEntryEventSourcingApiTest : IAsyncLifetime
         };
 
         // Act
-        var response = await _client!.PostAsJsonAsync(
+        var response = await Client.PostAsJsonAsync(
             "/api/v1/journal-entries-es/non-existent-id/approve", approveRequest);
 
         // Assert
@@ -224,7 +151,7 @@ public class JournalEntryEventSourcingApiTest : IAsyncLifetime
     {
         // Arrange
         var createRequest = CreateValidRequest();
-        var createResponse = await _client!.PostAsJsonAsync("/api/v1/journal-entries-es", createRequest);
+        var createResponse = await Client.PostAsJsonAsync("/api/v1/journal-entries-es", createRequest);
         var created = await createResponse.Content.ReadFromJsonAsync<CreateJournalEntryResponse>();
 
         var approveRequest = new ApproveJournalEntryRequest
@@ -234,11 +161,11 @@ public class JournalEntryEventSourcingApiTest : IAsyncLifetime
         };
 
         // 最初の承認
-        await _client!.PostAsJsonAsync(
+        await Client.PostAsJsonAsync(
             $"/api/v1/journal-entries-es/{created!.Id}/approve", approveRequest);
 
         // Act: 再度承認
-        var response = await _client!.PostAsJsonAsync(
+        var response = await Client.PostAsJsonAsync(
             $"/api/v1/journal-entries-es/{created.Id}/approve", approveRequest);
 
         // Assert
@@ -250,7 +177,7 @@ public class JournalEntryEventSourcingApiTest : IAsyncLifetime
     {
         // Arrange
         var createRequest = CreateValidRequest();
-        var createResponse = await _client!.PostAsJsonAsync("/api/v1/journal-entries-es", createRequest);
+        var createResponse = await Client.PostAsJsonAsync("/api/v1/journal-entries-es", createRequest);
         var created = await createResponse.Content.ReadFromJsonAsync<CreateJournalEntryResponse>();
 
         var deleteRequest = new DeleteJournalEntryRequest
@@ -260,7 +187,7 @@ public class JournalEntryEventSourcingApiTest : IAsyncLifetime
         };
 
         // Act
-        var response = await _client!.SendAsync(new HttpRequestMessage(HttpMethod.Delete,
+        var response = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Delete,
             $"/api/v1/journal-entries-es/{created!.Id}")
         {
             Content = JsonContent.Create(deleteRequest)
@@ -270,7 +197,7 @@ public class JournalEntryEventSourcingApiTest : IAsyncLifetime
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         // 削除確認（論理削除なので取得はできる）
-        var getResponse = await _client!.GetAsync($"/api/v1/journal-entries-es/{created.Id}");
+        var getResponse = await Client.GetAsync($"/api/v1/journal-entries-es/{created.Id}");
         var journal = await getResponse.Content.ReadFromJsonAsync<JournalEntryResponse>();
         journal!.Deleted.Should().BeTrue();
     }
@@ -286,7 +213,7 @@ public class JournalEntryEventSourcingApiTest : IAsyncLifetime
         };
 
         // Act
-        var response = await _client!.SendAsync(new HttpRequestMessage(HttpMethod.Delete,
+        var response = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Delete,
             "/api/v1/journal-entries-es/non-existent-id")
         {
             Content = JsonContent.Create(deleteRequest)
@@ -301,7 +228,7 @@ public class JournalEntryEventSourcingApiTest : IAsyncLifetime
     {
         // Arrange
         var createRequest = CreateValidRequest();
-        var createResponse = await _client!.PostAsJsonAsync("/api/v1/journal-entries-es", createRequest);
+        var createResponse = await Client.PostAsJsonAsync("/api/v1/journal-entries-es", createRequest);
         var created = await createResponse.Content.ReadFromJsonAsync<CreateJournalEntryResponse>();
 
         // 作成直後の時点を記録
@@ -314,11 +241,11 @@ public class JournalEntryEventSourcingApiTest : IAsyncLifetime
             ApprovedBy = "approver1",
             Comment = "承認します"
         };
-        await _client!.PostAsJsonAsync(
+        await Client.PostAsJsonAsync(
             $"/api/v1/journal-entries-es/{created!.Id}/approve", approveRequest);
 
         // Act: 承認前の時点を指定
-        var response = await _client!.GetAsync(
+        var response = await Client.GetAsync(
             $"/api/v1/journal-entries-es/{created.Id}/at?pointInTime={afterCreation:o}");
 
         // Assert
@@ -336,11 +263,11 @@ public class JournalEntryEventSourcingApiTest : IAsyncLifetime
         await Task.Delay(100);
 
         var createRequest = CreateValidRequest();
-        var createResponse = await _client!.PostAsJsonAsync("/api/v1/journal-entries-es", createRequest);
+        var createResponse = await Client.PostAsJsonAsync("/api/v1/journal-entries-es", createRequest);
         var created = await createResponse.Content.ReadFromJsonAsync<CreateJournalEntryResponse>();
 
         // Act: 作成前の時点を指定
-        var response = await _client!.GetAsync(
+        var response = await Client.GetAsync(
             $"/api/v1/journal-entries-es/{created!.Id}/at?pointInTime={beforeCreation:o}");
 
         // Assert
@@ -353,7 +280,7 @@ public class JournalEntryEventSourcingApiTest : IAsyncLifetime
         // Arrange & Act
         // 1. 作成
         var createRequest = CreateValidRequest();
-        var createResponse = await _client!.PostAsJsonAsync("/api/v1/journal-entries-es", createRequest);
+        var createResponse = await Client.PostAsJsonAsync("/api/v1/journal-entries-es", createRequest);
         createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
         var created = await createResponse.Content.ReadFromJsonAsync<CreateJournalEntryResponse>();
 
@@ -363,7 +290,7 @@ public class JournalEntryEventSourcingApiTest : IAsyncLifetime
             ApprovedBy = "approver1",
             Comment = "承認します"
         };
-        var approveResponse = await _client!.PostAsJsonAsync(
+        var approveResponse = await Client.PostAsJsonAsync(
             $"/api/v1/journal-entries-es/{created!.Id}/approve", approveRequest);
         approveResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
@@ -373,7 +300,7 @@ public class JournalEntryEventSourcingApiTest : IAsyncLifetime
             Reason = "取り消しのため",
             UserId = "user1"
         };
-        var deleteResponse = await _client!.SendAsync(new HttpRequestMessage(HttpMethod.Delete,
+        var deleteResponse = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Delete,
             $"/api/v1/journal-entries-es/{created.Id}")
         {
             Content = JsonContent.Create(deleteRequest)
@@ -381,7 +308,7 @@ public class JournalEntryEventSourcingApiTest : IAsyncLifetime
         deleteResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         // Assert: 最終状態の確認
-        var getResponse = await _client!.GetAsync($"/api/v1/journal-entries-es/{created.Id}");
+        var getResponse = await Client.GetAsync($"/api/v1/journal-entries-es/{created.Id}");
         var journal = await getResponse.Content.ReadFromJsonAsync<JournalEntryResponse>();
         journal!.Status.Should().Be("APPROVED");
         journal.Deleted.Should().BeTrue();
