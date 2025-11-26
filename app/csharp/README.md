@@ -5,9 +5,11 @@
 ## 技術スタック
 
 - **.NET 9.0**
+- **ASP.NET Core Web API** - REST API フレームワーク
 - **Dapper** - 軽量 ORM
 - **FluentMigrator** - データベースマイグレーション
 - **PostgreSQL / MySQL** - データベース
+- **Swagger/OpenAPI** - API ドキュメント
 - **Testcontainers** - 統合テスト用コンテナ
 - **xUnit** - テストフレームワーク
 - **FluentAssertions** - アサーションライブラリ
@@ -15,10 +17,26 @@
 
 ## プロジェクト構成
 
+ヘキサゴナルアーキテクチャ（Ports and Adapters）に基づく単一プロジェクト構成です。
+
 ```
 AccountingSystem.sln
-├── AccountingSystem.Domain/       # ドメインモデル
-├── AccountingSystem.Infrastructure/ # データベース、マイグレーション
+├── AccountingSystem.Api/          # Web API（単一プロジェクト）
+│   ├── Application/               # アプリケーション層
+│   │   ├── Exceptions/            # カスタム例外
+│   │   ├── Ports/In/              # 入力ポート（サービスインターフェース）
+│   │   ├── Ports/Out/             # 出力ポート（リポジトリインターフェース）
+│   │   └── Services/              # アプリケーションサービス
+│   ├── Domain/Models/             # ドメインモデル
+│   └── Infrastructure/            # インフラストラクチャ層
+│       ├── Migrations/            # FluentMigrator マイグレーション
+│       ├── Persistence/           # 永続化
+│       │   ├── Dapper/Entities/   # Dapper エンティティ
+│       │   └── Repositories/      # リポジトリ実装
+│       └── Web/                   # Web アダプター
+│           ├── Controllers/       # API コントローラー
+│           ├── Dtos/              # データ転送オブジェクト
+│           └── Middleware/        # ミドルウェア
 └── AccountingSystem.Tests/        # テスト
 ```
 
@@ -39,6 +57,47 @@ dotnet build
 # テスト実行
 dotnet test
 ```
+
+## API サーバーの起動
+
+```bash
+cd AccountingSystem.Api
+
+# 開発モードで起動
+dotnet run
+
+# Swagger UI: http://localhost:5057/swagger
+```
+
+## データベースマイグレーション
+
+FluentMigrator を使用してスキーマを管理しています。
+
+### CLI でマイグレーション実行
+
+```bash
+cd AccountingSystem.Api
+dotnet run -- migrate
+```
+
+### マイグレーションファイル
+
+| バージョン | 説明 |
+|-----------|------|
+| 20250121000 | 初期セットアップ |
+| 20250121001 | 勘定科目マスタテーブル作成 |
+| 20250121002 | 実務項目追加 |
+| 20250121003 | 勘定科目制約追加 |
+| 20250121004 | 勘定科目インデックス追加 |
+| 20250121005 | 課税取引コード追加 |
+| 20250121006 | 勘定科目構成マスタ作成 |
+| 20250121007 | 税取引テーブル作成 |
+| 20250121008 | 3層構造仕訳テーブル作成 |
+| 20250121010 | 自動仕訳テーブル作成 |
+| 20250121011 | 複式簿記チェック制約追加 |
+| 20250121012 | 日次勘定残高テーブル作成 |
+| 20250121013 | 月次勘定残高テーブル作成 |
+| 20250121014 | 元帳ビュー作成 |
 
 ## Cake ビルドスクリプト
 
@@ -75,36 +134,31 @@ docker-compose down
 | MySQL | 3306 | 代替データベース |
 | Adminer | 8080 | DB 管理 UI |
 
-## データベースマイグレーション
+## API エンドポイント
 
-FluentMigrator を使用してスキーマを管理しています。
+### 勘定科目 API
 
-### マイグレーションファイル
+| メソッド | エンドポイント | 説明 |
+|---------|---------------|------|
+| GET | /api/accounts | 勘定科目一覧取得 |
+| GET | /api/accounts/{code} | 勘定科目取得 |
+| POST | /api/accounts | 勘定科目作成 |
+| PUT | /api/accounts/{code} | 勘定科目更新 |
+| DELETE | /api/accounts/{code} | 勘定科目削除 |
 
-| バージョン | 説明 |
-|-----------|------|
-| 20250121000 | 初期セットアップ |
-| 20250121001 | 勘定科目マスタテーブル作成 |
-| 20250121002 | 実務項目追加 |
+### 仕訳 API
 
-### 勘定科目マスタ（勘定科目マスタ）
+| メソッド | エンドポイント | 説明 |
+|---------|---------------|------|
+| GET | /api/journals/{slipNumber} | 仕訳取得 |
+| POST | /api/journals | 仕訳作成 |
+| POST | /api/journals/validate-balance | 貸借バランス検証 |
 
-| カラム | 型 | 説明 |
-|--------|-----|------|
-| 勘定科目ID | INT | 主キー（自動採番） |
-| 勘定科目コード | VARCHAR(20) | 勘定科目コード（ユニーク） |
-| 勘定科目名 | VARCHAR(100) | 勘定科目名 |
-| 勘定科目種別 | ENUM | 資産/負債/純資産/収益/費用 |
-| 残高 | DECIMAL(15,2) | 残高 |
-| BSPL区分 | CHAR(1) | B:貸借対照表, P:損益計算書 |
-| 取引要素区分 | CHAR(1) | 1:資産, 2:負債, 3:純資産, 4:収益, 5:費用 |
-| 費用区分 | CHAR(1) | 費用の詳細分類 |
-| 合計科目 | BOOLEAN | 集計科目フラグ |
-| 表示順序 | INT | 財務諸表での表示順 |
-| 集計対象 | BOOLEAN | 集計対象フラグ |
-| 勘定科目カナ | VARCHAR(40) | 検索用カナ |
-| 作成日時 | TIMESTAMP | 作成日時 |
-| 更新日時 | TIMESTAMP | 更新日時 |
+### 財務諸表 API
+
+| メソッド | エンドポイント | 説明 |
+|---------|---------------|------|
+| GET | /api/financial-statements/balance-sheet | 貸借対照表取得 |
 
 ## テスト
 
@@ -118,14 +172,14 @@ dotnet test
 dotnet test --filter "FullyQualifiedName~AccountTest"
 ```
 
-### テストクラス
+### テストカテゴリ
 
-| クラス | テスト数 | 説明 |
-|--------|---------|------|
-| AccountTest | 6 | 勘定科目 CRUD テスト |
-| AccountRefactoringTest | 3 | 実務項目テスト |
-| AccountValidationTests | 2 | ドメインバリデーション |
-| DatabaseConnectionTests | 2 | DB 接続テスト |
+| カテゴリ | 説明 |
+|---------|------|
+| Domain | ドメインモデルテスト |
+| Repositories | リポジトリ統合テスト |
+| Services | サービス層テスト |
+| Integration | API 統合テスト |
 
 ## 開発手法
 
