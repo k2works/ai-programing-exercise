@@ -1,5 +1,5 @@
-using AccountingSystem.Infrastructure.Entities;
-using AccountingSystem.Infrastructure.Repositories;
+using AccountingSystem.Infrastructure.Persistence.Dapper.Entities;
+using AccountingSystem.Infrastructure.Persistence.Repositories;
 using FluentAssertions;
 using Testcontainers.PostgreSql;
 using Xunit;

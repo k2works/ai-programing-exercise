@@ -1,8 +1,8 @@
 using System.Reflection;
-using AccountingSystem.Api.Middleware;
+using AccountingSystem.Infrastructure.Web.Middleware;
 using AccountingSystem.Application.Services;
-using AccountingSystem.Domain.Financial;
-using AccountingSystem.Infrastructure.Repositories;
+using AccountingSystem.Domain.Models;
+using AccountingSystem.Infrastructure.Persistence.Repositories;
 using Dapper;
 using Microsoft.OpenApi.Models;
 using Npgsql;

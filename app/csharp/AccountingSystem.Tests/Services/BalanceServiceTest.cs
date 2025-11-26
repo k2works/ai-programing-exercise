@@ -1,6 +1,6 @@
 using System.Data;
 using AccountingSystem.Application.Services;
-using AccountingSystem.Infrastructure.Repositories;
+using AccountingSystem.Infrastructure.Persistence.Repositories;
 using Dapper;
 using FluentAssertions;
 using Npgsql;

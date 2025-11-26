@@ -1,4 +1,4 @@
-using AccountingSystem.Domain;
+using AccountingSystem.Domain.Models;
 using FluentAssertions;
 using Xunit;
 

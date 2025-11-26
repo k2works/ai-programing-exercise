@@ -1,5 +1,5 @@
 using System.Data;
-using AccountingSystem.Infrastructure.Repositories;
+using AccountingSystem.Infrastructure.Persistence.Repositories;
 using Dapper;
 using FluentAssertions;
 using Npgsql;

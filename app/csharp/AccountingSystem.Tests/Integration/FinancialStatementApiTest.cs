@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
-using AccountingSystem.Api.Dtos;
-using AccountingSystem.Infrastructure.Repositories;
+using AccountingSystem.Infrastructure.Web.Dtos;
+using AccountingSystem.Infrastructure.Persistence.Repositories;
 using Dapper;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
