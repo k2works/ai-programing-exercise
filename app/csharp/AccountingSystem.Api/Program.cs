@@ -48,7 +48,23 @@ builder.Services.AddScoped<NpgsqlConnection>(sp =>
     return new NpgsqlConnection(connectionString);
 });
 
+// Repositories の登録
+builder.Services.AddScoped<AccountRepository>(sp =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var connectionString = configuration.GetConnectionString("DefaultConnection")!;
+    return new AccountRepository(connectionString);
+});
+builder.Services.AddScoped<JournalRepository>(sp =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var connectionString = configuration.GetConnectionString("DefaultConnection")!;
+    return new JournalRepository(connectionString);
+});
+
 // Application Services の登録
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IJournalService, JournalService>();
 builder.Services.AddScoped<IFinancialStatementService>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();

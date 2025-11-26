@@ -38,6 +38,16 @@ public class GlobalExceptionHandler : IExceptionHandler
                 "Conflict",
                 ex.Message),
 
+            JournalNotFoundException ex => CreateErrorResponse(
+                StatusCodes.Status404NotFound,
+                "Not Found",
+                ex.Message),
+
+            DuplicateJournalException ex => CreateErrorResponse(
+                StatusCodes.Status409Conflict,
+                "Conflict",
+                ex.Message),
+
             ArgumentException ex => CreateErrorResponse(
                 StatusCodes.Status400BadRequest,
                 "Bad Request",
@@ -52,6 +62,8 @@ public class GlobalExceptionHandler : IExceptionHandler
         if (exception is not AccountNotFoundException
             and not InvalidJournalEntryException
             and not DuplicateAccountException
+            and not JournalNotFoundException
+            and not DuplicateJournalException
             and not ArgumentException)
         {
             _logger.LogError(exception, "Unexpected error occurred");
