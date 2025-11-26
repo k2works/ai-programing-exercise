@@ -1,6 +1,5 @@
 using FluentAssertions;
 using Npgsql;
-using Testcontainers.PostgreSql;
 using Xunit;
 
 namespace AccountingSystem.Tests.Domain;
@@ -11,53 +10,22 @@ namespace AccountingSystem.Tests.Domain;
 /// PostgreSQL のビューと関数を使って、仕訳の借方・貸方の合計が
 /// 一致することをデータベースレベルで検証します。
 /// </summary>
-public class DoubleEntryCheckTest : IAsyncLifetime
+public class DoubleEntryCheckTest : DatabaseTestBase
 {
-    private readonly PostgreSqlContainer _postgres;
-    private TestDatabase? _testDb;
-    private NpgsqlConnection? _connection;
-
-    public DoubleEntryCheckTest()
-    {
-        _postgres = new PostgreSqlBuilder()
-            .WithImage("postgres:16-alpine")
-            .WithDatabase("testdb")
-            .WithUsername("testuser")
-            .WithPassword("testpass")
-            .Build();
-    }
-
-    public async Task InitializeAsync()
-    {
-        await _postgres.StartAsync();
-        _testDb = new TestDatabase(_postgres);
-        await _testDb.StartAsync();
-        _connection = new NpgsqlConnection(_postgres.GetConnectionString());
-        await _connection.OpenAsync();
-    }
-
-    public async Task DisposeAsync()
-    {
-        if (_connection != null)
-        {
-            await _connection.DisposeAsync();
-        }
-
-        await _testDb!.StopAsync();
-        await _postgres.DisposeAsync();
-    }
-
     private async Task CleanupAsync()
     {
+        await using var connection = new NpgsqlConnection(ConnectionString);
+        await connection.OpenAsync();
+
         // 各テスト前にデータをクリア
-        await using var command1 = new NpgsqlCommand(@"TRUNCATE TABLE ""仕訳"" CASCADE", _connection);
+        await using var command1 = new NpgsqlCommand(@"TRUNCATE TABLE ""仕訳"" CASCADE", connection);
         await command1.ExecuteNonQueryAsync();
 
-        await using var command2 = new NpgsqlCommand(@"TRUNCATE TABLE ""勘定科目マスタ"" CASCADE", _connection);
+        await using var command2 = new NpgsqlCommand(@"TRUNCATE TABLE ""勘定科目マスタ"" CASCADE", connection);
         await command2.ExecuteNonQueryAsync();
 
         // テスト用勘定科目を登録
-        await InsertTestAccountsAsync();
+        await InsertTestAccountsAsync(connection);
     }
 
     [Fact(DisplayName = "仕訳残高チェックビュー_借方貸方の合計を算出できる")]
@@ -65,8 +33,11 @@ public class DoubleEntryCheckTest : IAsyncLifetime
     {
         await CleanupAsync();
 
+        await using var connection = new NpgsqlConnection(ConnectionString);
+        await connection.OpenAsync();
+
         // 1. 正しい仕訳を登録（借方 = 貸方）
-        await InsertValidJournalEntryAsync("JE001", 100000m);
+        await InsertValidJournalEntryAsync(connection, "JE001", 100000m);
 
         // 2. ビューから残高をチェック
         var sql = @"
@@ -75,7 +46,7 @@ public class DoubleEntryCheckTest : IAsyncLifetime
             WHERE ""仕訳伝票番号"" = @VoucherNo
         ";
 
-        await using var command = new NpgsqlCommand(sql, _connection);
+        await using var command = new NpgsqlCommand(sql, connection);
         command.Parameters.AddWithValue("VoucherNo", "JE001");
 
         await using var reader = await command.ExecuteReaderAsync();
@@ -95,14 +66,17 @@ public class DoubleEntryCheckTest : IAsyncLifetime
     {
         await CleanupAsync();
 
+        await using var connection = new NpgsqlConnection(ConnectionString);
+        await connection.OpenAsync();
+
         // 1. 正しい仕訳を登録
-        await InsertValidJournalEntryAsync("JE001", 100000m);
-        await InsertValidJournalEntryAsync("JE002", 50000m);
+        await InsertValidJournalEntryAsync(connection, "JE001", 100000m);
+        await InsertValidJournalEntryAsync(connection, "JE002", 50000m);
 
         // 2. 複式簿記チェック関数を実行
         var sql = @"SELECT * FROM ""複式簿記チェック""()";
 
-        await using var command = new NpgsqlCommand(sql, _connection);
+        await using var command = new NpgsqlCommand(sql, connection);
         await using var reader = await command.ExecuteReaderAsync();
 
         // 不整合な仕訳はないはず
@@ -114,16 +88,19 @@ public class DoubleEntryCheckTest : IAsyncLifetime
     {
         await CleanupAsync();
 
+        await using var connection = new NpgsqlConnection(ConnectionString);
+        await connection.OpenAsync();
+
         // 1. 正しい仕訳を登録
-        await InsertValidJournalEntryAsync("JE001", 100000m);
+        await InsertValidJournalEntryAsync(connection, "JE001", 100000m);
 
         // 2. 不整合な仕訳を登録（借方 > 貸方）
-        await InsertInvalidJournalEntryAsync("JE002", 50000m, 45000m);
+        await InsertInvalidJournalEntryAsync(connection, "JE002", 50000m, 45000m);
 
         // 3. 複式簿記チェック関数を実行
         var sql = @"SELECT ""不整合伝票番号"", ""差額"" FROM ""複式簿記チェック""()";
 
-        await using var command = new NpgsqlCommand(sql, _connection);
+        await using var command = new NpgsqlCommand(sql, connection);
         await using var reader = await command.ExecuteReaderAsync();
 
         // 不整合な仕訳が検出されるはず
@@ -142,19 +119,22 @@ public class DoubleEntryCheckTest : IAsyncLifetime
     {
         await CleanupAsync();
 
+        await using var connection = new NpgsqlConnection(ConnectionString);
+        await connection.OpenAsync();
+
         // 1. 正しい仕訳
-        await InsertValidJournalEntryAsync("JE001", 100000m);
+        await InsertValidJournalEntryAsync(connection, "JE001", 100000m);
 
         // 2. 不整合な仕訳1（借方 > 貸方）
-        await InsertInvalidJournalEntryAsync("JE002", 50000m, 48000m);
+        await InsertInvalidJournalEntryAsync(connection, "JE002", 50000m, 48000m);
 
         // 3. 不整合な仕訳2（借方 < 貸方）
-        await InsertInvalidJournalEntryAsync("JE003", 30000m, 35000m);
+        await InsertInvalidJournalEntryAsync(connection, "JE003", 30000m, 35000m);
 
         // 4. 複式簿記チェック関数を実行
         var sql = @"SELECT COUNT(*) FROM ""複式簿記チェック""()";
 
-        await using var command = new NpgsqlCommand(sql, _connection);
+        await using var command = new NpgsqlCommand(sql, connection);
         var count = (long)(await command.ExecuteScalarAsync())!;
 
         count.Should().Be(2); // JE002 と JE003 が検出される
@@ -163,7 +143,7 @@ public class DoubleEntryCheckTest : IAsyncLifetime
     /// <summary>
     /// テスト用勘定科目を登録するヘルパーメソッド
     /// </summary>
-    private async Task InsertTestAccountsAsync()
+    private static async Task InsertTestAccountsAsync(NpgsqlConnection connection)
     {
         var sql = @"
             INSERT INTO ""勘定科目マスタ"" (""勘定科目コード"", ""勘定科目名"", ""勘定科目種別"", ""合計科目"", ""集計対象"", ""残高"")
@@ -173,14 +153,14 @@ public class DoubleEntryCheckTest : IAsyncLifetime
             ON CONFLICT DO NOTHING
         ";
 
-        await using var command = new NpgsqlCommand(sql, _connection);
+        await using var command = new NpgsqlCommand(sql, connection);
         await command.ExecuteNonQueryAsync();
     }
 
     /// <summary>
     /// 整合性のある仕訳（借方 = 貸方）を登録するヘルパーメソッド
     /// </summary>
-    private async Task InsertValidJournalEntryAsync(string voucherNo, decimal amount)
+    private static async Task InsertValidJournalEntryAsync(NpgsqlConnection connection, string voucherNo, decimal amount)
     {
         // 仕訳ヘッダー
         var headerSql = @"
@@ -188,7 +168,7 @@ public class DoubleEntryCheckTest : IAsyncLifetime
             VALUES (@VoucherNo, @Date, @Date)
         ";
 
-        await using (var command = new NpgsqlCommand(headerSql, _connection))
+        await using (var command = new NpgsqlCommand(headerSql, connection))
         {
             command.Parameters.AddWithValue("VoucherNo", voucherNo);
             command.Parameters.AddWithValue("Date", DateTime.Today);
@@ -201,7 +181,7 @@ public class DoubleEntryCheckTest : IAsyncLifetime
             VALUES (@VoucherNo, 1, '売上取引')
         ";
 
-        await using (var command = new NpgsqlCommand(lineSql, _connection))
+        await using (var command = new NpgsqlCommand(lineSql, connection))
         {
             command.Parameters.AddWithValue("VoucherNo", voucherNo);
             await command.ExecuteNonQueryAsync();
@@ -216,7 +196,7 @@ public class DoubleEntryCheckTest : IAsyncLifetime
             VALUES (@VoucherNo, 1, 'D', '1100', @Amount, @Amount)
         ";
 
-        await using (var command = new NpgsqlCommand(debitSql, _connection))
+        await using (var command = new NpgsqlCommand(debitSql, connection))
         {
             command.Parameters.AddWithValue("VoucherNo", voucherNo);
             command.Parameters.AddWithValue("Amount", amount);
@@ -232,7 +212,7 @@ public class DoubleEntryCheckTest : IAsyncLifetime
             VALUES (@VoucherNo, 1, 'C', '4100', @Amount, @Amount)
         ";
 
-        await using (var command = new NpgsqlCommand(creditSql, _connection))
+        await using (var command = new NpgsqlCommand(creditSql, connection))
         {
             command.Parameters.AddWithValue("VoucherNo", voucherNo);
             command.Parameters.AddWithValue("Amount", amount);
@@ -243,7 +223,7 @@ public class DoubleEntryCheckTest : IAsyncLifetime
     /// <summary>
     /// 不整合な仕訳（借方 ≠ 貸方）を登録するヘルパーメソッド
     /// </summary>
-    private async Task InsertInvalidJournalEntryAsync(string voucherNo, decimal debitAmount, decimal creditAmount)
+    private static async Task InsertInvalidJournalEntryAsync(NpgsqlConnection connection, string voucherNo, decimal debitAmount, decimal creditAmount)
     {
         // 仕訳ヘッダー
         var headerSql = @"
@@ -251,7 +231,7 @@ public class DoubleEntryCheckTest : IAsyncLifetime
             VALUES (@VoucherNo, @Date, @Date)
         ";
 
-        await using (var command = new NpgsqlCommand(headerSql, _connection))
+        await using (var command = new NpgsqlCommand(headerSql, connection))
         {
             command.Parameters.AddWithValue("VoucherNo", voucherNo);
             command.Parameters.AddWithValue("Date", DateTime.Today);
@@ -264,7 +244,7 @@ public class DoubleEntryCheckTest : IAsyncLifetime
             VALUES (@VoucherNo, 1, '不整合テスト')
         ";
 
-        await using (var command = new NpgsqlCommand(lineSql, _connection))
+        await using (var command = new NpgsqlCommand(lineSql, connection))
         {
             command.Parameters.AddWithValue("VoucherNo", voucherNo);
             await command.ExecuteNonQueryAsync();
@@ -279,7 +259,7 @@ public class DoubleEntryCheckTest : IAsyncLifetime
             VALUES (@VoucherNo, 1, 'D', '1100', @Amount, @Amount)
         ";
 
-        await using (var command = new NpgsqlCommand(debitSql, _connection))
+        await using (var command = new NpgsqlCommand(debitSql, connection))
         {
             command.Parameters.AddWithValue("VoucherNo", voucherNo);
             command.Parameters.AddWithValue("Amount", debitAmount);
@@ -295,7 +275,7 @@ public class DoubleEntryCheckTest : IAsyncLifetime
             VALUES (@VoucherNo, 1, 'C', '4100', @Amount, @Amount)
         ";
 
-        await using (var command = new NpgsqlCommand(creditSql, _connection))
+        await using (var command = new NpgsqlCommand(creditSql, connection))
         {
             command.Parameters.AddWithValue("VoucherNo", voucherNo);
             command.Parameters.AddWithValue("Amount", creditAmount);

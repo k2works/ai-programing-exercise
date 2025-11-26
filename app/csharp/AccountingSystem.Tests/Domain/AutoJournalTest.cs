@@ -1,6 +1,5 @@
 using FluentAssertions;
 using Npgsql;
-using Testcontainers.PostgreSql;
 using Xunit;
 
 namespace AccountingSystem.Tests.Domain;
@@ -12,68 +11,40 @@ namespace AccountingSystem.Tests.Domain;
 /// 定期的に連携されるデータを自動的に仕訳に変換します。
 /// 日付管理方式を採用し、元データを変更せずに差分処理を実現します。
 /// </summary>
-public class AutoJournalTest : IAsyncLifetime
+public class AutoJournalTest : DatabaseTestBase
 {
-    private readonly PostgreSqlContainer _postgres;
-    private TestDatabase? _testDb;
-    private NpgsqlConnection? _connection;
-
-    public AutoJournalTest()
-    {
-        _postgres = new PostgreSqlBuilder()
-            .WithImage("postgres:16-alpine")
-            .WithDatabase("testdb")
-            .WithUsername("testuser")
-            .WithPassword("testpass")
-            .Build();
-    }
-
-    public async Task InitializeAsync()
-    {
-        await _postgres.StartAsync();
-        _testDb = new TestDatabase(_postgres);
-        await _testDb.StartAsync();
-        _connection = new NpgsqlConnection(_postgres.GetConnectionString());
-        await _connection.OpenAsync();
-    }
-
-    public async Task DisposeAsync()
-    {
-        if (_connection != null)
-        {
-            await _connection.DisposeAsync();
-        }
-
-        await _testDb!.StopAsync();
-        await _postgres.DisposeAsync();
-    }
-
     private async Task CleanupAsync()
     {
+        await using var connection = new NpgsqlConnection(ConnectionString);
+        await connection.OpenAsync();
+
         // 各テスト前にデータをクリア（外部キー制約を考慮した順序）
-        await using var command1 = new NpgsqlCommand(@"TRUNCATE TABLE ""自動仕訳実行ログ"" CASCADE", _connection);
+        await using var command1 = new NpgsqlCommand(@"TRUNCATE TABLE ""自動仕訳実行ログ"" CASCADE", connection);
         await command1.ExecuteNonQueryAsync();
 
-        await using var command2 = new NpgsqlCommand(@"TRUNCATE TABLE ""自動仕訳パターン明細"" CASCADE", _connection);
+        await using var command2 = new NpgsqlCommand(@"TRUNCATE TABLE ""自動仕訳パターン明細"" CASCADE", connection);
         await command2.ExecuteNonQueryAsync();
 
-        await using var command3 = new NpgsqlCommand(@"TRUNCATE TABLE ""自動仕訳パターン"" CASCADE", _connection);
+        await using var command3 = new NpgsqlCommand(@"TRUNCATE TABLE ""自動仕訳パターン"" CASCADE", connection);
         await command3.ExecuteNonQueryAsync();
 
-        await using var command4 = new NpgsqlCommand(@"TRUNCATE TABLE ""自動仕訳管理"" CASCADE", _connection);
+        await using var command4 = new NpgsqlCommand(@"TRUNCATE TABLE ""自動仕訳管理"" CASCADE", connection);
         await command4.ExecuteNonQueryAsync();
 
-        await using var command5 = new NpgsqlCommand(@"TRUNCATE TABLE ""勘定科目マスタ"" CASCADE", _connection);
+        await using var command5 = new NpgsqlCommand(@"TRUNCATE TABLE ""勘定科目マスタ"" CASCADE", connection);
         await command5.ExecuteNonQueryAsync();
 
         // テスト用勘定科目を登録
-        await InsertTestAccountsAsync();
+        await InsertTestAccountsAsync(connection);
     }
 
     [Fact(DisplayName = "自動仕訳管理テーブル_最終処理日時を管理できる")]
     public async Task Test_AutoJournalManagement_LastProcessedAt()
     {
         await CleanupAsync();
+
+        await using var connection = new NpgsqlConnection(ConnectionString);
+        await connection.OpenAsync();
 
         // 1. 自動仕訳管理レコードを登録
         var insertSql = @"
@@ -85,7 +56,7 @@ public class AutoJournalTest : IAsyncLifetime
         long managementId;
         var initialProcessedAt = new DateTime(2024, 1, 15, 10, 0, 0);
 
-        await using (var command = new NpgsqlCommand(insertSql, _connection))
+        await using (var command = new NpgsqlCommand(insertSql, connection))
         {
             command.Parameters.AddWithValue("SourceTableName", "売上データ");
             command.Parameters.AddWithValue("LastProcessedAt", initialProcessedAt);
@@ -102,7 +73,7 @@ public class AutoJournalTest : IAsyncLifetime
             WHERE ""自動仕訳管理ID"" = @Id
         ";
 
-        await using (var command = new NpgsqlCommand(updateSql, _connection))
+        await using (var command = new NpgsqlCommand(updateSql, connection))
         {
             command.Parameters.AddWithValue("LastProcessedAt", newProcessedAt);
             command.Parameters.AddWithValue("Id", managementId);
@@ -117,7 +88,7 @@ public class AutoJournalTest : IAsyncLifetime
             WHERE ""自動仕訳管理ID"" = @Id
         ";
 
-        await using (var command = new NpgsqlCommand(selectSql, _connection))
+        await using (var command = new NpgsqlCommand(selectSql, connection))
         {
             command.Parameters.AddWithValue("Id", managementId);
             var result = await command.ExecuteScalarAsync();
@@ -131,6 +102,9 @@ public class AutoJournalTest : IAsyncLifetime
     {
         await CleanupAsync();
 
+        await using var connection = new NpgsqlConnection(ConnectionString);
+        await connection.OpenAsync();
+
         // 1. 自動仕訳パターンを登録
         var patternSql = @"
             INSERT INTO ""自動仕訳パターン"" (
@@ -142,7 +116,7 @@ public class AutoJournalTest : IAsyncLifetime
         ";
 
         long patternId;
-        await using (var command = new NpgsqlCommand(patternSql, _connection))
+        await using (var command = new NpgsqlCommand(patternSql, connection))
         {
             command.Parameters.AddWithValue("PatternCode", "SALES_001");
             command.Parameters.AddWithValue("PatternName", "売上仕訳パターン");
@@ -164,7 +138,7 @@ public class AutoJournalTest : IAsyncLifetime
         ";
 
         // 借方：売掛金
-        await using (var command = new NpgsqlCommand(itemSql, _connection))
+        await using (var command = new NpgsqlCommand(itemSql, connection))
         {
             command.Parameters.AddWithValue("PatternId", patternId);
             command.Parameters.AddWithValue("LineNumber", 1);
@@ -176,7 +150,7 @@ public class AutoJournalTest : IAsyncLifetime
         }
 
         // 貸方：売上
-        await using (var command = new NpgsqlCommand(itemSql, _connection))
+        await using (var command = new NpgsqlCommand(itemSql, connection))
         {
             command.Parameters.AddWithValue("PatternId", patternId);
             command.Parameters.AddWithValue("LineNumber", 2);
@@ -188,7 +162,7 @@ public class AutoJournalTest : IAsyncLifetime
         }
 
         // 貸方：仮受消費税
-        await using (var command = new NpgsqlCommand(itemSql, _connection))
+        await using (var command = new NpgsqlCommand(itemSql, connection))
         {
             command.Parameters.AddWithValue("PatternId", patternId);
             command.Parameters.AddWithValue("LineNumber", 3);
@@ -206,7 +180,7 @@ public class AutoJournalTest : IAsyncLifetime
             WHERE ""自動仕訳パターンID"" = @PatternId
         ";
 
-        await using (var command = new NpgsqlCommand(countSql, _connection))
+        await using (var command = new NpgsqlCommand(countSql, connection))
         {
             command.Parameters.AddWithValue("PatternId", patternId);
             var count = (long)(await command.ExecuteScalarAsync())!;
@@ -219,6 +193,9 @@ public class AutoJournalTest : IAsyncLifetime
     {
         await CleanupAsync();
 
+        await using var connection = new NpgsqlConnection(ConnectionString);
+        await connection.OpenAsync();
+
         // 1. 自動仕訳パターンを登録
         var patternSql = @"
             INSERT INTO ""自動仕訳パターン"" (
@@ -229,7 +206,7 @@ public class AutoJournalTest : IAsyncLifetime
         ";
 
         long patternId;
-        await using (var command = new NpgsqlCommand(patternSql, _connection))
+        await using (var command = new NpgsqlCommand(patternSql, connection))
         {
             patternId = (long)(await command.ExecuteScalarAsync())!;
         }
@@ -244,7 +221,7 @@ public class AutoJournalTest : IAsyncLifetime
             RETURNING ""自動仕訳実行ログID""
         ";
 
-        await using (var command = new NpgsqlCommand(logSql, _connection))
+        await using (var command = new NpgsqlCommand(logSql, connection))
         {
             command.Parameters.AddWithValue("PatternId", patternId);
             command.Parameters.AddWithValue("ExecutedAt", DateTime.Now);
@@ -257,7 +234,7 @@ public class AutoJournalTest : IAsyncLifetime
         }
 
         // 3. 実行ログを登録（エラー）
-        await using (var command = new NpgsqlCommand(logSql, _connection))
+        await using (var command = new NpgsqlCommand(logSql, connection))
         {
             command.Parameters.AddWithValue("PatternId", patternId);
             command.Parameters.AddWithValue("ExecutedAt", DateTime.Now);
@@ -275,7 +252,7 @@ public class AutoJournalTest : IAsyncLifetime
             WHERE ""自動仕訳パターンID"" = @PatternId
         ";
 
-        await using (var command = new NpgsqlCommand(countSql, _connection))
+        await using (var command = new NpgsqlCommand(countSql, connection))
         {
             command.Parameters.AddWithValue("PatternId", patternId);
             var count = (long)(await command.ExecuteScalarAsync())!;
@@ -288,6 +265,9 @@ public class AutoJournalTest : IAsyncLifetime
     {
         await CleanupAsync();
 
+        await using var connection = new NpgsqlConnection(ConnectionString);
+        await connection.OpenAsync();
+
         // 1. パターンを登録
         var patternSql = @"
             INSERT INTO ""自動仕訳パターン"" (
@@ -298,7 +278,7 @@ public class AutoJournalTest : IAsyncLifetime
         ";
 
         long patternId;
-        await using (var command = new NpgsqlCommand(patternSql, _connection))
+        await using (var command = new NpgsqlCommand(patternSql, connection))
         {
             patternId = (long)(await command.ExecuteScalarAsync())!;
         }
@@ -312,7 +292,7 @@ public class AutoJournalTest : IAsyncLifetime
             VALUES (@PatternId, 1, 'D', '1100', '金額')
         ";
 
-        await using (var command = new NpgsqlCommand(itemSql, _connection))
+        await using (var command = new NpgsqlCommand(itemSql, connection))
         {
             command.Parameters.AddWithValue("PatternId", patternId);
             await command.ExecuteNonQueryAsync();
@@ -327,7 +307,7 @@ public class AutoJournalTest : IAsyncLifetime
             VALUES (@PatternId, CURRENT_TIMESTAMP, 10, 10, 'SUCCESS')
         ";
 
-        await using (var command = new NpgsqlCommand(logSql, _connection))
+        await using (var command = new NpgsqlCommand(logSql, connection))
         {
             command.Parameters.AddWithValue("PatternId", patternId);
             await command.ExecuteNonQueryAsync();
@@ -335,7 +315,7 @@ public class AutoJournalTest : IAsyncLifetime
 
         // 4. パターンを削除
         var deleteSql = @"DELETE FROM ""自動仕訳パターン"" WHERE ""自動仕訳パターンID"" = @PatternId";
-        await using (var command = new NpgsqlCommand(deleteSql, _connection))
+        await using (var command = new NpgsqlCommand(deleteSql, connection))
         {
             command.Parameters.AddWithValue("PatternId", patternId);
             var deleted = await command.ExecuteNonQueryAsync();
@@ -344,7 +324,7 @@ public class AutoJournalTest : IAsyncLifetime
 
         // 5. 明細とログが削除されたことを検証
         var checkItemSql = @"SELECT COUNT(*) FROM ""自動仕訳パターン明細"" WHERE ""自動仕訳パターンID"" = @PatternId";
-        await using (var command = new NpgsqlCommand(checkItemSql, _connection))
+        await using (var command = new NpgsqlCommand(checkItemSql, connection))
         {
             command.Parameters.AddWithValue("PatternId", patternId);
             var count = (long)(await command.ExecuteScalarAsync())!;
@@ -352,7 +332,7 @@ public class AutoJournalTest : IAsyncLifetime
         }
 
         var checkLogSql = @"SELECT COUNT(*) FROM ""自動仕訳実行ログ"" WHERE ""自動仕訳パターンID"" = @PatternId";
-        await using (var command = new NpgsqlCommand(checkLogSql, _connection))
+        await using (var command = new NpgsqlCommand(checkLogSql, connection))
         {
             command.Parameters.AddWithValue("PatternId", patternId);
             var count = (long)(await command.ExecuteScalarAsync())!;
@@ -363,7 +343,7 @@ public class AutoJournalTest : IAsyncLifetime
     /// <summary>
     /// テスト用勘定科目を登録するヘルパーメソッド
     /// </summary>
-    private async Task InsertTestAccountsAsync()
+    private static async Task InsertTestAccountsAsync(NpgsqlConnection connection)
     {
         var sql = @"
             INSERT INTO ""勘定科目マスタ"" (""勘定科目コード"", ""勘定科目名"", ""勘定科目種別"", ""合計科目"", ""集計対象"", ""残高"")
@@ -375,7 +355,7 @@ public class AutoJournalTest : IAsyncLifetime
             ON CONFLICT DO NOTHING
         ";
 
-        await using var command = new NpgsqlCommand(sql, _connection);
+        await using var command = new NpgsqlCommand(sql, connection);
         await command.ExecuteNonQueryAsync();
     }
 }
