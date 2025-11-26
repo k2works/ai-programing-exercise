@@ -3,9 +3,35 @@ using AccountingSystem.Infrastructure.Web.Middleware;
 using AccountingSystem.Application.Services;
 using AccountingSystem.Domain.Models;
 using AccountingSystem.Infrastructure.Persistence.Repositories;
+using AccountingSystem.Infrastructure;
 using Dapper;
 using Microsoft.OpenApi.Models;
 using Npgsql;
+
+// マイグレーションコマンドの処理
+if (args.Length > 0 && args[0].Equals("migrate", StringComparison.OrdinalIgnoreCase))
+{
+    var configuration = new ConfigurationBuilder()
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json", optional: false)
+        .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true)
+        .AddEnvironmentVariables()
+        .Build();
+
+    var databaseType = configuration["DatabaseType"] ?? "PostgreSQL";
+    var connectionString = configuration.GetConnectionString("DefaultConnection");
+
+    if (string.IsNullOrEmpty(connectionString))
+    {
+        Console.WriteLine($"接続文字列が見つかりません: DefaultConnection");
+        return 1;
+    }
+
+    Console.WriteLine($"データベースマイグレーション開始: {databaseType}");
+    MigrationRunner.MigrateDatabase(connectionString, databaseType);
+    Console.WriteLine("マイグレーション完了");
+    return 0;
+}
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -95,6 +121,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+return 0;
 
 // テストで WebApplicationFactory を使用するために public に公開
 public partial class Program { }
