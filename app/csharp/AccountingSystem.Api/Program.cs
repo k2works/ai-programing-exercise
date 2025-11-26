@@ -105,6 +105,14 @@ builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
 });
 
+// Event Sourcing リポジトリの登録
+builder.Services.AddScoped<IEventStoreRepository>(sp =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var connectionString = configuration.GetConnectionString("DefaultConnection")!;
+    return new EventStoreRepository(connectionString);
+});
+
 // Application Services の登録（入力ポート）
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IJournalService, JournalService>();
@@ -115,6 +123,7 @@ builder.Services.AddScoped<IFinancialStatementService>(sp =>
     var connectionString = configuration.GetConnectionString("DefaultConnection")!;
     return new FinancialStatementService(connectionString);
 });
+builder.Services.AddScoped<IJournalEntryEventSourcingService, JournalEntryEventSourcingService>();
 
 // グローバル例外ハンドラーの登録
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
