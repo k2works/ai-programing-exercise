@@ -1,3 +1,4 @@
+using MediatR;
 using System.Reflection;
 using AccountingSystem.Infrastructure.Web.Middleware;
 using AccountingSystem.Application.Ports.In;
@@ -90,9 +91,24 @@ builder.Services.AddScoped<IJournalRepository>(sp =>
     return new JournalRepository(connectionString);
 });
 
+// 監査ログリポジトリの登録
+builder.Services.AddScoped<IAuditLogRepository>(sp =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var connectionString = configuration.GetConnectionString("DefaultConnection")!;
+    return new AuditLogRepository(connectionString);
+});
+
+// MediatR の登録（ドメインイベント）
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
+});
+
 // Application Services の登録（入力ポート）
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IJournalService, JournalService>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IFinancialStatementService>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
