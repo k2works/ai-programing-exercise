@@ -1,5 +1,5 @@
 using AccountingSystem.Application.Exceptions;
-using AccountingSystem.Infrastructure.Persistence.Dapper.Entities;
+using AccountingSystem.Domain.Entities;
 using AccountingSystem.Application.Ports.In;
 using AccountingSystem.Application.Ports.Out;
 
