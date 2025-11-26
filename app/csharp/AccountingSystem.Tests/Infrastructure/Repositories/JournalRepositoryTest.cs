@@ -2,7 +2,6 @@ using AccountingSystem.Domain.Entities;
 using AccountingSystem.Infrastructure.Persistence.Repositories;
 using FluentAssertions;
 using Npgsql;
-using Testcontainers.PostgreSql;
 using Xunit;
 
 namespace AccountingSystem.Tests.Infrastructure.Repositories;
@@ -11,39 +10,13 @@ namespace AccountingSystem.Tests.Infrastructure.Repositories;
 /// 3層構造仕訳リポジトリ - 統合テスト
 /// 2.4節: TDDサイクルで実装
 /// </summary>
-public class JournalRepositoryTest : IAsyncLifetime
+public class JournalRepositoryTest : DatabaseTestBase
 {
-    private readonly PostgreSqlContainer _postgres;
-    private TestDatabase? _testDb;
-    private JournalRepository? _repository;
-
-    public JournalRepositoryTest()
-    {
-        _postgres = new PostgreSqlBuilder()
-            .WithImage("postgres:16-alpine")
-            .WithDatabase("testdb")
-            .WithUsername("testuser")
-            .WithPassword("testpass")
-            .Build();
-    }
-
-    public async Task InitializeAsync()
-    {
-        await _postgres.StartAsync();
-        _testDb = new TestDatabase(_postgres);
-        await _testDb.StartAsync();
-        _repository = new JournalRepository(_postgres.GetConnectionString());
-    }
-
-    public async Task DisposeAsync()
-    {
-        await _testDb!.StopAsync();
-        await _postgres.DisposeAsync();
-    }
+    private JournalRepository CreateRepository() => new JournalRepository(ConnectionString);
 
     private async Task CleanupAsync()
     {
-        await using var conn = new NpgsqlConnection(_postgres.GetConnectionString());
+        await using var conn = new NpgsqlConnection(ConnectionString);
         await conn.OpenAsync();
 
         // CASCADE により子テーブルも削除される
@@ -53,7 +26,7 @@ public class JournalRepositoryTest : IAsyncLifetime
 
     private async Task InsertTestAccountAsync(string accountCode, string accountName)
     {
-        await using var conn = new NpgsqlConnection(_postgres.GetConnectionString());
+        await using var conn = new NpgsqlConnection(ConnectionString);
         await conn.OpenAsync();
 
         await using var cmd = new NpgsqlCommand(@"
@@ -74,6 +47,7 @@ public class JournalRepositoryTest : IAsyncLifetime
         // 勘定科目マスタにテストデータを登録
         await InsertTestAccountAsync("1110", "現金");
         await InsertTestAccountAsync("4110", "売上高");
+        var repository = CreateRepository();
 
         var journal = new Journal
         {
@@ -123,9 +97,9 @@ public class JournalRepositoryTest : IAsyncLifetime
             }
         };
 
-        await _repository!.InsertAsync(journal);
+        await repository.InsertAsync(journal);
 
-        var found = await _repository.FindByJournalNoAsync("J2025-0001");
+        var found = await repository.FindByJournalNoAsync("J2025-0001");
         found.Should().NotBeNull();
         found!.JournalNo.Should().Be("J2025-0001");
         found.Details.Should().HaveCount(1);
@@ -142,6 +116,7 @@ public class JournalRepositoryTest : IAsyncLifetime
         await InsertTestAccountAsync("1110", "現金");
         await InsertTestAccountAsync("1120", "売掛金");
         await InsertTestAccountAsync("4110", "売上高");
+        var repository = CreateRepository();
 
         var journal = new Journal
         {
@@ -221,9 +196,9 @@ public class JournalRepositoryTest : IAsyncLifetime
             }
         };
 
-        await _repository!.InsertAsync(journal);
+        await repository.InsertAsync(journal);
 
-        var found = await _repository.FindByJournalNoAsync("J2025-0002");
+        var found = await repository.FindByJournalNoAsync("J2025-0002");
         found.Should().NotBeNull();
         found!.SingleEntryFlag.Should().Be(0);
         found.Details.Should().HaveCount(3);
@@ -236,6 +211,7 @@ public class JournalRepositoryTest : IAsyncLifetime
 
         await InsertTestAccountAsync("1110", "現金");
         await InsertTestAccountAsync("4110", "売上高");
+        var repository = CreateRepository();
 
         var journal = new Journal
         {
@@ -285,13 +261,13 @@ public class JournalRepositoryTest : IAsyncLifetime
             }
         };
 
-        await _repository!.InsertAsync(journal);
+        await repository.InsertAsync(journal);
 
         // 仕訳を削除
-        await _repository.DeleteByJournalNoAsync("J2025-0003");
+        await repository.DeleteByJournalNoAsync("J2025-0003");
 
         // CASCADE により明細も削除されていることを確認
-        var found = await _repository.FindByJournalNoAsync("J2025-0003");
+        var found = await repository.FindByJournalNoAsync("J2025-0003");
         found.Should().BeNull();
     }
 
@@ -302,6 +278,7 @@ public class JournalRepositoryTest : IAsyncLifetime
 
         await InsertTestAccountAsync("1110", "現金");
         await InsertTestAccountAsync("4110", "売上高");
+        var repository = CreateRepository();
 
         var journal = new Journal
         {
@@ -351,9 +328,9 @@ public class JournalRepositoryTest : IAsyncLifetime
             }
         };
 
-        await _repository!.InsertAsync(journal);
+        await repository.InsertAsync(journal);
 
-        var (debitTotal, creditTotal) = await _repository.GetBalanceAsync("J2025-0004");
+        var (debitTotal, creditTotal) = await repository.GetBalanceAsync("J2025-0004");
 
         // 複式簿記の原理: 借方合計 = 貸方合計
         debitTotal.Should().Be(50000.00m);

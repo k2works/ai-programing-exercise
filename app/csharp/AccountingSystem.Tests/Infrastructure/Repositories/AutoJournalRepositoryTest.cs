@@ -2,7 +2,6 @@ using AccountingSystem.Domain.Entities;
 using AccountingSystem.Infrastructure.Persistence.Repositories;
 using FluentAssertions;
 using Npgsql;
-using Testcontainers.PostgreSql;
 using Xunit;
 
 namespace AccountingSystem.Tests.Infrastructure.Repositories;
@@ -10,39 +9,13 @@ namespace AccountingSystem.Tests.Infrastructure.Repositories;
 /// <summary>
 /// 自動仕訳リポジトリ - 統合テスト
 /// </summary>
-public class AutoJournalRepositoryTest : IAsyncLifetime
+public class AutoJournalRepositoryTest : DatabaseTestBase
 {
-    private readonly PostgreSqlContainer _postgres;
-    private TestDatabase? _testDb;
-    private AutoJournalRepository? _repository;
-
-    public AutoJournalRepositoryTest()
-    {
-        _postgres = new PostgreSqlBuilder()
-            .WithImage("postgres:16-alpine")
-            .WithDatabase("testdb")
-            .WithUsername("testuser")
-            .WithPassword("testpass")
-            .Build();
-    }
-
-    public async Task InitializeAsync()
-    {
-        await _postgres.StartAsync();
-        _testDb = new TestDatabase(_postgres);
-        await _testDb.StartAsync();
-        _repository = new AutoJournalRepository(_postgres.GetConnectionString());
-    }
-
-    public async Task DisposeAsync()
-    {
-        await _testDb!.StopAsync();
-        await _postgres.DisposeAsync();
-    }
+    private AutoJournalRepository CreateRepository() => new AutoJournalRepository(ConnectionString);
 
     private async Task CleanupAsync()
     {
-        await using var conn = new NpgsqlConnection(_postgres.GetConnectionString());
+        await using var conn = new NpgsqlConnection(ConnectionString);
         await conn.OpenAsync();
 
         await using var cmd1 = new NpgsqlCommand(@"TRUNCATE TABLE ""自動仕訳実行ログ"" CASCADE", conn);
@@ -60,7 +33,7 @@ public class AutoJournalRepositoryTest : IAsyncLifetime
 
     private async Task InsertTestAccountAsync(string accountCode, string accountName)
     {
-        await using var conn = new NpgsqlConnection(_postgres.GetConnectionString());
+        await using var conn = new NpgsqlConnection(ConnectionString);
         await conn.OpenAsync();
 
         await using var cmd = new NpgsqlCommand(@"
@@ -79,6 +52,7 @@ public class AutoJournalRepositoryTest : IAsyncLifetime
     public async Task TestManagement_InsertAndFind()
     {
         await CleanupAsync();
+        var repository = CreateRepository();
 
         var management = new AutoJournalManagement
         {
@@ -86,10 +60,10 @@ public class AutoJournalRepositoryTest : IAsyncLifetime
             LastProcessedAt = new DateTime(2025, 1, 21, 10, 0, 0)
         };
 
-        var id = await _repository!.InsertManagementAsync(management);
+        var id = await repository.InsertManagementAsync(management);
         id.Should().BeGreaterThan(0);
 
-        var found = await _repository.FindManagementBySourceTableAsync("売上データ");
+        var found = await repository.FindManagementBySourceTableAsync("売上データ");
         found.Should().NotBeNull();
         found!.SourceTableName.Should().Be("売上データ");
         found.LastProcessedAt.Should().Be(new DateTime(2025, 1, 21, 10, 0, 0));
@@ -99,6 +73,7 @@ public class AutoJournalRepositoryTest : IAsyncLifetime
     public async Task TestManagement_UpdateLastProcessedAt()
     {
         await CleanupAsync();
+        var repository = CreateRepository();
 
         var management = new AutoJournalManagement
         {
@@ -106,12 +81,12 @@ public class AutoJournalRepositoryTest : IAsyncLifetime
             LastProcessedAt = new DateTime(2025, 1, 1, 0, 0, 0)
         };
 
-        var id = await _repository!.InsertManagementAsync(management);
+        var id = await repository.InsertManagementAsync(management);
 
         var newProcessedAt = new DateTime(2025, 1, 21, 15, 30, 0);
-        await _repository.UpdateLastProcessedAtAsync(id, newProcessedAt);
+        await repository.UpdateLastProcessedAtAsync(id, newProcessedAt);
 
-        var found = await _repository.FindManagementBySourceTableAsync("給与データ");
+        var found = await repository.FindManagementBySourceTableAsync("給与データ");
         found!.LastProcessedAt.Should().Be(newProcessedAt);
     }
 
@@ -126,6 +101,7 @@ public class AutoJournalRepositoryTest : IAsyncLifetime
         await InsertTestAccountAsync("1300", "売掛金");
         await InsertTestAccountAsync("4100", "売上");
         await InsertTestAccountAsync("2120", "仮受消費税");
+        var repository = CreateRepository();
 
         var pattern = new AutoJournalPattern
         {
@@ -166,10 +142,10 @@ public class AutoJournalRepositoryTest : IAsyncLifetime
             }
         };
 
-        var patternId = await _repository!.InsertPatternAsync(pattern);
+        var patternId = await repository.InsertPatternAsync(pattern);
         patternId.Should().BeGreaterThan(0);
 
-        var found = await _repository.FindPatternByIdAsync(patternId);
+        var found = await repository.FindPatternByIdAsync(patternId);
         found.Should().NotBeNull();
         found!.PatternCode.Should().Be("SALES_001");
         found.PatternName.Should().Be("売上仕訳パターン");
@@ -184,6 +160,7 @@ public class AutoJournalRepositoryTest : IAsyncLifetime
     {
         await CleanupAsync();
         await InsertTestAccountAsync("1100", "現金");
+        var repository = CreateRepository();
 
         var pattern = new AutoJournalPattern
         {
@@ -204,9 +181,9 @@ public class AutoJournalRepositoryTest : IAsyncLifetime
             }
         };
 
-        await _repository!.InsertPatternAsync(pattern);
+        await repository.InsertPatternAsync(pattern);
 
-        var found = await _repository.FindPatternByCodeAsync("CASH_001");
+        var found = await repository.FindPatternByCodeAsync("CASH_001");
         found.Should().NotBeNull();
         found!.PatternName.Should().Be("現金仕訳パターン");
     }
@@ -216,9 +193,10 @@ public class AutoJournalRepositoryTest : IAsyncLifetime
     {
         await CleanupAsync();
         await InsertTestAccountAsync("1100", "現金");
+        var repository = CreateRepository();
 
         // 有効なパターン
-        await _repository!.InsertPatternAsync(new AutoJournalPattern
+        await repository.InsertPatternAsync(new AutoJournalPattern
         {
             PatternCode = "ACTIVE_001",
             PatternName = "有効パターン1",
@@ -237,7 +215,7 @@ public class AutoJournalRepositoryTest : IAsyncLifetime
             }
         });
 
-        await _repository.InsertPatternAsync(new AutoJournalPattern
+        await repository.InsertPatternAsync(new AutoJournalPattern
         {
             PatternCode = "ACTIVE_002",
             PatternName = "有効パターン2",
@@ -257,7 +235,7 @@ public class AutoJournalRepositoryTest : IAsyncLifetime
         });
 
         // 無効なパターン
-        await _repository.InsertPatternAsync(new AutoJournalPattern
+        await repository.InsertPatternAsync(new AutoJournalPattern
         {
             PatternCode = "INACTIVE_001",
             PatternName = "無効パターン",
@@ -276,7 +254,7 @@ public class AutoJournalRepositoryTest : IAsyncLifetime
             }
         });
 
-        var activePatterns = (await _repository.FindActivePattersAsync()).ToList();
+        var activePatterns = (await repository.FindActivePattersAsync()).ToList();
         activePatterns.Should().HaveCount(2);
         activePatterns.Should().OnlyContain(p => p.IsActive);
     }
@@ -286,6 +264,7 @@ public class AutoJournalRepositoryTest : IAsyncLifetime
     {
         await CleanupAsync();
         await InsertTestAccountAsync("1100", "現金");
+        var repository = CreateRepository();
 
         var pattern = new AutoJournalPattern
         {
@@ -306,10 +285,10 @@ public class AutoJournalRepositoryTest : IAsyncLifetime
             }
         };
 
-        var patternId = await _repository!.InsertPatternAsync(pattern);
+        var patternId = await repository.InsertPatternAsync(pattern);
 
         // 実行ログを追加
-        await _repository.InsertExecutionLogAsync(new AutoJournalExecutionLog
+        await repository.InsertExecutionLogAsync(new AutoJournalExecutionLog
         {
             AutoJournalPatternId = patternId,
             ExecutedAt = DateTime.Now,
@@ -319,13 +298,13 @@ public class AutoJournalRepositoryTest : IAsyncLifetime
         });
 
         // パターン削除
-        await _repository.DeletePatternAsync(patternId);
+        await repository.DeletePatternAsync(patternId);
 
         // 削除確認
-        var found = await _repository.FindPatternByIdAsync(patternId);
+        var found = await repository.FindPatternByIdAsync(patternId);
         found.Should().BeNull();
 
-        var logs = await _repository.FindExecutionLogsByPatternIdAsync(patternId);
+        var logs = await repository.FindExecutionLogsByPatternIdAsync(patternId);
         logs.Should().BeEmpty();
     }
 
@@ -338,8 +317,9 @@ public class AutoJournalRepositoryTest : IAsyncLifetime
     {
         await CleanupAsync();
         await InsertTestAccountAsync("1100", "現金");
+        var repository = CreateRepository();
 
-        var patternId = await _repository!.InsertPatternAsync(new AutoJournalPattern
+        var patternId = await repository.InsertPatternAsync(new AutoJournalPattern
         {
             PatternCode = "LOG_TEST",
             PatternName = "ログテスト",
@@ -368,10 +348,10 @@ public class AutoJournalRepositoryTest : IAsyncLifetime
             Message = "正常終了"
         };
 
-        var logId = await _repository.InsertExecutionLogAsync(log);
+        var logId = await repository.InsertExecutionLogAsync(log);
         logId.Should().BeGreaterThan(0);
 
-        var logs = (await _repository.FindExecutionLogsByPatternIdAsync(patternId)).ToList();
+        var logs = (await repository.FindExecutionLogsByPatternIdAsync(patternId)).ToList();
         logs.Should().HaveCount(1);
         logs[0].ProcessedCount.Should().Be(100);
         logs[0].GeneratedCount.Should().Be(98);
@@ -383,8 +363,9 @@ public class AutoJournalRepositoryTest : IAsyncLifetime
     {
         await CleanupAsync();
         await InsertTestAccountAsync("1100", "現金");
+        var repository = CreateRepository();
 
-        var patternId = await _repository!.InsertPatternAsync(new AutoJournalPattern
+        var patternId = await repository.InsertPatternAsync(new AutoJournalPattern
         {
             PatternCode = "LATEST_TEST",
             PatternName = "最新ログテスト",
@@ -404,7 +385,7 @@ public class AutoJournalRepositoryTest : IAsyncLifetime
         });
 
         // 古いログ
-        await _repository.InsertExecutionLogAsync(new AutoJournalExecutionLog
+        await repository.InsertExecutionLogAsync(new AutoJournalExecutionLog
         {
             AutoJournalPatternId = patternId,
             ExecutedAt = new DateTime(2025, 1, 20, 10, 0, 0),
@@ -414,7 +395,7 @@ public class AutoJournalRepositoryTest : IAsyncLifetime
         });
 
         // 新しいログ
-        await _repository.InsertExecutionLogAsync(new AutoJournalExecutionLog
+        await repository.InsertExecutionLogAsync(new AutoJournalExecutionLog
         {
             AutoJournalPatternId = patternId,
             ExecutedAt = new DateTime(2025, 1, 21, 15, 0, 0),
@@ -424,7 +405,7 @@ public class AutoJournalRepositoryTest : IAsyncLifetime
             Message = "最新の処理"
         });
 
-        var latest = await _repository.FindLatestExecutionLogAsync(patternId);
+        var latest = await repository.FindLatestExecutionLogAsync(patternId);
         latest.Should().NotBeNull();
         latest!.ProcessedCount.Should().Be(100);
         latest.Message.Should().Be("最新の処理");

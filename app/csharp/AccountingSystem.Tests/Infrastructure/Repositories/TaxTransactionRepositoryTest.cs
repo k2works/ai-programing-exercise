@@ -1,7 +1,6 @@
 using AccountingSystem.Domain.Entities;
 using AccountingSystem.Infrastructure.Persistence.Repositories;
 using FluentAssertions;
-using Testcontainers.PostgreSql;
 using Xunit;
 
 namespace AccountingSystem.Tests.Infrastructure.Repositories;
@@ -9,40 +8,16 @@ namespace AccountingSystem.Tests.Infrastructure.Repositories;
 /// <summary>
 /// 課税取引マスタ - Dapper 統合テスト
 /// </summary>
-public class TaxTransactionRepositoryTest : IAsyncLifetime
+public class TaxTransactionRepositoryTest : DatabaseTestBase
 {
-    private readonly PostgreSqlContainer _postgres;
-    private TestDatabase? _testDb;
-    private TaxTransactionRepository? _repository;
-
-    public TaxTransactionRepositoryTest()
-    {
-        _postgres = new PostgreSqlBuilder()
-            .WithImage("postgres:16-alpine")
-            .WithDatabase("testdb")
-            .WithUsername("testuser")
-            .WithPassword("testpass")
-            .Build();
-    }
-
-    public async Task InitializeAsync()
-    {
-        await _postgres.StartAsync();
-        _testDb = new TestDatabase(_postgres);
-        await _testDb.StartAsync();
-        _repository = new TaxTransactionRepository(_postgres.GetConnectionString());
-    }
-
-    public async Task DisposeAsync()
-    {
-        await _testDb!.StopAsync();
-        await _postgres.DisposeAsync();
-    }
+    private TaxTransactionRepository CreateRepository() => new TaxTransactionRepository(ConnectionString);
 
     [Fact(DisplayName = "初期データが投入されている")]
     public async Task TestInitialData()
     {
-        var all = await _repository!.FindAllAsync();
+        var repository = CreateRepository();
+
+        var all = await repository.FindAllAsync();
         all.Should().HaveCount(4);
 
         var codes = all.Select(t => t.TaxCode).ToList();
@@ -52,7 +27,9 @@ public class TaxTransactionRepositoryTest : IAsyncLifetime
     [Fact(DisplayName = "課税取引コードで検索できる")]
     public async Task TestFindByCode()
     {
-        var taxable = await _repository!.FindByCodeAsync("01");
+        var repository = CreateRepository();
+
+        var taxable = await repository.FindByCodeAsync("01");
 
         taxable.Should().NotBeNull();
         taxable!.TaxCode.Should().Be("01");
@@ -63,14 +40,18 @@ public class TaxTransactionRepositoryTest : IAsyncLifetime
     [Fact(DisplayName = "有効な課税取引のみ取得できる")]
     public async Task TestFindActive()
     {
+        var repository = CreateRepository();
+
         // すべて有効なので4件取得される
-        var active = await _repository!.FindActiveAsync();
+        var active = await repository.FindActiveAsync();
         active.Should().HaveCount(4);
     }
 
     [Fact(DisplayName = "新しい課税取引を登録できる")]
     public async Task TestInsert()
     {
+        var repository = CreateRepository();
+
         var newTax = new TaxTransaction
         {
             TaxCode = "05",
@@ -80,9 +61,9 @@ public class TaxTransactionRepositoryTest : IAsyncLifetime
             IsActive = true
         };
 
-        await _repository!.InsertAsync(newTax);
+        await repository.InsertAsync(newTax);
 
-        var found = await _repository.FindByCodeAsync("05");
+        var found = await repository.FindByCodeAsync("05");
         found.Should().NotBeNull();
         found!.TaxName.Should().Be("軽減税率");
         found.TaxRate.Should().Be(0.08m);
@@ -91,16 +72,18 @@ public class TaxTransactionRepositoryTest : IAsyncLifetime
     [Fact(DisplayName = "課税取引を更新できる")]
     public async Task TestUpdate()
     {
+        var repository = CreateRepository();
+
         // 既存の課税取引を取得
-        var existing = await _repository!.FindByCodeAsync("01");
+        var existing = await repository.FindByCodeAsync("01");
         existing.Should().NotBeNull();
 
         // 更新
         var updated = existing! with { TaxRate = 0.12m, Description = "更新後の説明" };
-        await _repository.UpdateAsync(updated);
+        await repository.UpdateAsync(updated);
 
         // 検証
-        var found = await _repository.FindByCodeAsync("01");
+        var found = await repository.FindByCodeAsync("01");
         found!.TaxRate.Should().Be(0.12m);
         found.Description.Should().Be("更新後の説明");
     }
@@ -108,6 +91,8 @@ public class TaxTransactionRepositoryTest : IAsyncLifetime
     [Fact(DisplayName = "課税取引を削除できる")]
     public async Task TestDelete()
     {
+        var repository = CreateRepository();
+
         // 新しいデータを登録してから削除
         var newTax = new TaxTransaction
         {
@@ -116,11 +101,11 @@ public class TaxTransactionRepositoryTest : IAsyncLifetime
             TaxRate = 0.00m,
             IsActive = true
         };
-        await _repository!.InsertAsync(newTax);
+        await repository.InsertAsync(newTax);
 
-        await _repository.DeleteAsync("99");
+        await repository.DeleteAsync("99");
 
-        var deleted = await _repository.FindByCodeAsync("99");
+        var deleted = await repository.FindByCodeAsync("99");
         deleted.Should().BeNull();
     }
 }
