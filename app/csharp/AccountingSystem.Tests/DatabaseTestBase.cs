@@ -41,7 +41,15 @@ namespace AccountingSystem.Tests
             {
                 UpdateDatabase(scope.ServiceProvider);
             }
+
+            // サブクラスの初期化処理
+            await OnInitializedAsync();
         }
+
+        /// <summary>
+        /// サブクラスでオーバーライドして初期化処理を追加
+        /// </summary>
+        protected virtual Task OnInitializedAsync() => Task.CompletedTask;
 
         /// <summary>
         /// テスト終了後にPostgreSQLコンテナを停止・破棄
