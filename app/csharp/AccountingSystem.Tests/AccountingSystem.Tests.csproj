@@ -36,6 +36,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AccountingSystem.Api\AccountingSystem.Api.csproj" />
+    <ProjectReference Include="..\AccountingSystem.Domain\AccountingSystem.Domain.csproj" />
+    <ProjectReference Include="..\AccountingSystem.Application\AccountingSystem.Application.csproj" />
+    <ProjectReference Include="..\AccountingSystem.Infrastructure\AccountingSystem.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

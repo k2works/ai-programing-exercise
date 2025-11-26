@@ -6,7 +6,7 @@ using FluentAssertions;
 using Npgsql;
 using Xunit;
 
-namespace AccountingSystem.Tests.Services;
+namespace AccountingSystem.Tests.Application.Services;
 
 /// <summary>
 /// 財務諸表生成サービスのテスト

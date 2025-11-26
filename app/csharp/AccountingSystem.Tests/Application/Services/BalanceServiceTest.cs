@@ -6,7 +6,7 @@ using FluentAssertions;
 using Npgsql;
 using Xunit;
 
-namespace AccountingSystem.Tests.Services;
+namespace AccountingSystem.Tests.Application.Services;
 
 /// <summary>
 /// 残高管理サービスのテスト

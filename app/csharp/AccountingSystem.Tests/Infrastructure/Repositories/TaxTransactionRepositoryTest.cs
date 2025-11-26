@@ -1,10 +1,10 @@
-using AccountingSystem.Infrastructure.Persistence.Dapper.Entities;
+using AccountingSystem.Domain.Entities;
 using AccountingSystem.Infrastructure.Persistence.Repositories;
 using FluentAssertions;
 using Testcontainers.PostgreSql;
 using Xunit;
 
-namespace AccountingSystem.Tests.Repositories;
+namespace AccountingSystem.Tests.Infrastructure.Repositories;
 
 /// <summary>
 /// 課税取引マスタ - Dapper 統合テスト

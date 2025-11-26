@@ -2,7 +2,7 @@ using AccountingSystem.Infrastructure.EventHandlers;
 using AccountingSystem.Application.Ports.In;
 using AccountingSystem.Domain.Models.Audit;
 using AccountingSystem.Domain.Events;
-using AccountingSystem.Infrastructure.Persistence.Dapper.Entities;
+using AccountingSystem.Domain.Entities;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;

@@ -1,10 +1,10 @@
 using AccountingSystem.Domain.Models.Audit;
-using AccountingSystem.Infrastructure.Persistence.Dapper.Entities;
+using AccountingSystem.Domain.Entities;
 using AccountingSystem.Infrastructure.Persistence.Repositories;
 using FluentAssertions;
 using Xunit;
 
-namespace AccountingSystem.Tests.Repositories;
+namespace AccountingSystem.Tests.Infrastructure.Repositories;
 
 /// <summary>
 /// AuditLogRepository の統合テスト
