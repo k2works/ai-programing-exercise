@@ -12,6 +12,7 @@ namespace AccountingSystem.Application.EventHandlers;
 /// ドメインイベントを受信して自動的に監査ログを記録
 /// </summary>
 public class AuditEventHandler :
+    IAuditEventHandler,
     INotificationHandler<AccountCreatedEvent>,
     INotificationHandler<AccountUpdatedEvent>,
     INotificationHandler<AccountDeletedEvent>,
@@ -30,11 +31,49 @@ public class AuditEventHandler :
     }
 
     /// <summary>
-    /// 勘定科目作成イベントの処理
+    /// 勘定科目作成イベントの処理（MediatR用）
     /// </summary>
-    public async Task Handle(
+    public Task Handle(
         AccountCreatedEvent notification,
         CancellationToken cancellationToken)
+        => HandleAccountCreatedAsync(notification, cancellationToken);
+
+    /// <summary>
+    /// 勘定科目更新イベントの処理（MediatR用）
+    /// </summary>
+    public Task Handle(
+        AccountUpdatedEvent notification,
+        CancellationToken cancellationToken)
+        => HandleAccountUpdatedAsync(notification, cancellationToken);
+
+    /// <summary>
+    /// 勘定科目削除イベントの処理（MediatR用）
+    /// </summary>
+    public Task Handle(
+        AccountDeletedEvent notification,
+        CancellationToken cancellationToken)
+        => HandleAccountDeletedAsync(notification, cancellationToken);
+
+    /// <summary>
+    /// 仕訳作成イベントの処理（MediatR用）
+    /// </summary>
+    public Task Handle(
+        JournalCreatedEvent notification,
+        CancellationToken cancellationToken)
+        => HandleJournalCreatedAsync(notification, cancellationToken);
+
+    /// <summary>
+    /// 仕訳削除イベントの処理（MediatR用）
+    /// </summary>
+    public Task Handle(
+        JournalDeletedEvent notification,
+        CancellationToken cancellationToken)
+        => HandleJournalDeletedAsync(notification, cancellationToken);
+
+    /// <inheritdoc />
+    public async Task HandleAccountCreatedAsync(
+        AccountCreatedEvent notification,
+        CancellationToken cancellationToken = default)
     {
         _logger.LogInformation(
             "Handling AccountCreatedEvent: {AccountCode}",
@@ -53,12 +92,10 @@ public class AuditEventHandler :
         await _auditLogService.RecordAsync(auditLog);
     }
 
-    /// <summary>
-    /// 勘定科目更新イベントの処理
-    /// </summary>
-    public async Task Handle(
+    /// <inheritdoc />
+    public async Task HandleAccountUpdatedAsync(
         AccountUpdatedEvent notification,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         _logger.LogInformation(
             "Handling AccountUpdatedEvent: {AccountCode}",
@@ -77,12 +114,10 @@ public class AuditEventHandler :
         await _auditLogService.RecordAsync(auditLog);
     }
 
-    /// <summary>
-    /// 勘定科目削除イベントの処理
-    /// </summary>
-    public async Task Handle(
+    /// <inheritdoc />
+    public async Task HandleAccountDeletedAsync(
         AccountDeletedEvent notification,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         _logger.LogInformation(
             "Handling AccountDeletedEvent: {AccountCode}",
@@ -101,12 +136,10 @@ public class AuditEventHandler :
         await _auditLogService.RecordAsync(auditLog);
     }
 
-    /// <summary>
-    /// 仕訳作成イベントの処理
-    /// </summary>
-    public async Task Handle(
+    /// <inheritdoc />
+    public async Task HandleJournalCreatedAsync(
         JournalCreatedEvent notification,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         _logger.LogInformation(
             "Handling JournalCreatedEvent: {JournalNo}",
@@ -125,12 +158,10 @@ public class AuditEventHandler :
         await _auditLogService.RecordAsync(auditLog);
     }
 
-    /// <summary>
-    /// 仕訳削除イベントの処理
-    /// </summary>
-    public async Task Handle(
+    /// <inheritdoc />
+    public async Task HandleJournalDeletedAsync(
         JournalDeletedEvent notification,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         _logger.LogInformation(
             "Handling JournalDeletedEvent: {JournalNo}",
