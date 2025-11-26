@@ -101,6 +101,25 @@ public class AccountApiTest : IAsyncLifetime
                 ""更新日時"" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ");
+
+        // 監査ログテーブル
+        await connection.ExecuteAsync(@"
+            CREATE TABLE IF NOT EXISTS ""監査ログ"" (
+                ""監査ログID"" BIGSERIAL PRIMARY KEY,
+                ""エンティティ種別"" VARCHAR(50) NOT NULL,
+                ""エンティティID"" VARCHAR(100) NOT NULL,
+                ""アクション"" VARCHAR(20) NOT NULL,
+                ""ユーザーID"" VARCHAR(100) NOT NULL,
+                ""ユーザー名"" VARCHAR(200) NOT NULL,
+                ""タイムスタンプ"" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                ""変更前値"" JSONB,
+                ""変更後値"" JSONB,
+                ""変更内容"" JSONB,
+                ""理由"" TEXT,
+                ""IPアドレス"" VARCHAR(45),
+                ""ユーザーエージェント"" TEXT
+            )
+        ");
     }
 
     private static async Task SetupTestDataAsync(string connectionString)

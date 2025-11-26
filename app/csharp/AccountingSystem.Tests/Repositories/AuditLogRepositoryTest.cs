@@ -49,17 +49,20 @@ public class AuditLogRepositoryTest : DatabaseTestBase
         // Arrange
         var repository = new AuditLogRepository(ConnectionString);
 
-        // 複数の監査ログを登録
+        // 複数の監査ログを登録（時間差を設けて順序を保証）
         var log1 = AuditLog.Create("Account", "1100", AuditAction.CREATE, "user1", "ユーザー1",
             new Dictionary<string, object> { ["name"] = "現金" }, null);
+        await repository.InsertAsync(log1);
+        await Task.Delay(10); // 時間差を確保
+
         var log2 = AuditLog.CreateForUpdate("Account", "1100", "user2", "ユーザー2",
             new Dictionary<string, object> { ["name"] = "現金" },
             new Dictionary<string, object> { ["name"] = "小口現金" }, null);
+        await repository.InsertAsync(log2);
+        await Task.Delay(10); // 時間差を確保
+
         var log3 = AuditLog.Create("Account", "1200", AuditAction.CREATE, "user1", "ユーザー1",
             new Dictionary<string, object> { ["name"] = "普通預金" }, null);
-
-        await repository.InsertAsync(log1);
-        await repository.InsertAsync(log2);
         await repository.InsertAsync(log3);
 
         // Act

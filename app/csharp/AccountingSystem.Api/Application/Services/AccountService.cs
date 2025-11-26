@@ -2,6 +2,8 @@ using AccountingSystem.Application.Exceptions;
 using AccountingSystem.Infrastructure.Persistence.Dapper.Entities;
 using AccountingSystem.Application.Ports.In;
 using AccountingSystem.Application.Ports.Out;
+using AccountingSystem.Domain.Events;
+using MediatR;
 
 namespace AccountingSystem.Application.Services;
 
@@ -11,10 +13,12 @@ namespace AccountingSystem.Application.Services;
 public class AccountService : IAccountService
 {
     private readonly IAccountRepository _accountRepository;
+    private readonly IMediator _mediator;
 
-    public AccountService(IAccountRepository accountRepository)
+    public AccountService(IAccountRepository accountRepository, IMediator mediator)
     {
         _accountRepository = accountRepository;
+        _mediator = mediator;
     }
 
     public async Task<IReadOnlyList<Account>> GetAllAccountsAsync()
@@ -63,7 +67,25 @@ public class AccountService : IAccountService
         }
 
         var accountId = await _accountRepository.InsertAsync(account);
-        return (await _accountRepository.FindByIdAsync(accountId))!;
+        var createdAccount = (await _accountRepository.FindByIdAsync(accountId))!;
+
+        // 監査ログイベント発行
+        await _mediator.Publish(new AccountCreatedEvent
+        {
+            AccountCode = createdAccount.AccountCode,
+            AccountData = new Dictionary<string, object>
+            {
+                ["accountCode"] = createdAccount.AccountCode,
+                ["accountName"] = createdAccount.AccountName,
+                ["accountType"] = createdAccount.AccountType,
+                ["bsplType"] = createdAccount.BsplType ?? string.Empty,
+                ["taxCode"] = createdAccount.TaxCode ?? string.Empty
+            },
+            UserId = "system",
+            UserName = "システム"
+        });
+
+        return createdAccount;
     }
 
     public async Task<Account> UpdateAccountAsync(string accountCode, Account account)
@@ -78,7 +100,31 @@ public class AccountService : IAccountService
 
         var updatedAccount = account with { AccountCode = accountCode };
         await _accountRepository.UpdateAsync(updatedAccount);
-        return (await _accountRepository.FindByCodeAsync(accountCode))!;
+        var result = (await _accountRepository.FindByCodeAsync(accountCode))!;
+
+        // 監査ログイベント発行
+        await _mediator.Publish(new AccountUpdatedEvent
+        {
+            AccountCode = accountCode,
+            OldValues = new Dictionary<string, object>
+            {
+                ["accountName"] = existing.AccountName,
+                ["accountType"] = existing.AccountType,
+                ["bsplType"] = existing.BsplType ?? string.Empty,
+                ["taxCode"] = existing.TaxCode ?? string.Empty
+            },
+            NewValues = new Dictionary<string, object>
+            {
+                ["accountName"] = result.AccountName,
+                ["accountType"] = result.AccountType,
+                ["bsplType"] = result.BsplType ?? string.Empty,
+                ["taxCode"] = result.TaxCode ?? string.Empty
+            },
+            UserId = "system",
+            UserName = "システム"
+        });
+
+        return result;
     }
 
     public async Task DeleteAccountAsync(string accountCode)
@@ -90,6 +136,23 @@ public class AccountService : IAccountService
         }
 
         await _accountRepository.DeleteAsync(accountCode);
+
+        // 監査ログイベント発行
+        await _mediator.Publish(new AccountDeletedEvent
+        {
+            AccountCode = accountCode,
+            DeletedData = new Dictionary<string, object>
+            {
+                ["accountCode"] = existing.AccountCode,
+                ["accountName"] = existing.AccountName,
+                ["accountType"] = existing.AccountType,
+                ["bsplType"] = existing.BsplType ?? string.Empty,
+                ["taxCode"] = existing.TaxCode ?? string.Empty
+            },
+            UserId = "system",
+            UserName = "システム",
+            Reason = "削除操作"
+        });
     }
 
     private static void ValidateAccount(Account account)
