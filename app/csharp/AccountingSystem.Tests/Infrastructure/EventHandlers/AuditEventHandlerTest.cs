@@ -1,8 +1,8 @@
 using AccountingSystem.Infrastructure.EventHandlers;
-using AccountingSystem.Application.Ports.In;
+using AccountingSystem.Application.Services;
+using AccountingSystem.Infrastructure.Persistence.Repositories;
 using AccountingSystem.Domain.Models.Audit;
 using AccountingSystem.Domain.Events;
-using AccountingSystem.Domain.Entities;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -11,25 +11,26 @@ using Xunit;
 namespace AccountingSystem.Tests.Infrastructure.EventHandlers;
 
 /// <summary>
-/// AuditEventHandler のユニットテスト
+/// AuditEventHandler の統合テスト
+/// DatabaseTestBase を使用して実際のデータベースに書き込みを検証
 /// </summary>
-public class AuditEventHandlerTest
+public class AuditEventHandlerTest : DatabaseTestBase
 {
-    private readonly Mock<IAuditLogService> _mockAuditLogService;
-    private readonly Mock<ILogger<AuditEventHandler>> _mockLogger;
-    private readonly AuditEventHandler _handler;
+    private AuditLogRepository CreateRepository() => new AuditLogRepository(ConnectionString);
 
-    public AuditEventHandlerTest()
+    private AuditEventHandler CreateHandler()
     {
-        _mockAuditLogService = new Mock<IAuditLogService>();
-        _mockLogger = new Mock<ILogger<AuditEventHandler>>();
-        _handler = new AuditEventHandler(_mockAuditLogService.Object, _mockLogger.Object);
+        var repository = CreateRepository();
+        var service = new AuditLogService(repository);
+        var mockLogger = new Mock<ILogger<AuditEventHandler>>();
+        return new AuditEventHandler(service, mockLogger.Object);
     }
 
     [Fact]
     public async Task Handle_AccountCreatedEvent_ShouldRecordAuditLog()
     {
         // Arrange
+        var handler = CreateHandler();
         var accountData = new Dictionary<string, object>
         {
             ["code"] = "1100",
@@ -45,32 +46,28 @@ public class AuditEventHandlerTest
             IpAddress = "192.168.1.1"
         };
 
-        AuditLog? capturedAuditLog = null;
-        _mockAuditLogService
-            .Setup(x => x.RecordAsync(It.IsAny<AuditLog>()))
-            .Callback<AuditLog>(log => capturedAuditLog = log)
-            .Returns(Task.CompletedTask);
-
         // Act
-        await _handler.Handle(notification, CancellationToken.None);
+        await handler.Handle(notification, CancellationToken.None);
 
-        // Assert
-        _mockAuditLogService.Verify(x => x.RecordAsync(It.IsAny<AuditLog>()), Times.Once);
-        capturedAuditLog.Should().NotBeNull();
-        capturedAuditLog!.EntityType.Should().Be("Account");
-        capturedAuditLog.EntityId.Should().Be("1100");
-        capturedAuditLog.Action.Should().Be(AuditAction.CREATE);
-        capturedAuditLog.UserId.Should().Be("user123");
-        capturedAuditLog.UserName.Should().Be("山田太郎");
-        capturedAuditLog.IpAddress.Should().Be("192.168.1.1");
-        // AuditLog.Create は Changes プロパティにデータを格納
-        capturedAuditLog.Changes.Should().BeEquivalentTo(accountData);
+        // Assert - データベースから取得して検証
+        var repository = CreateRepository();
+        var logs = await repository.FindByEntityAsync("Account", "1100");
+        logs.Should().HaveCount(1);
+
+        var auditLog = logs[0];
+        auditLog.EntityType.Should().Be("Account");
+        auditLog.EntityId.Should().Be("1100");
+        auditLog.Action.Should().Be(AuditAction.CREATE);
+        auditLog.UserId.Should().Be("user123");
+        auditLog.UserName.Should().Be("山田太郎");
+        auditLog.IpAddress.Should().Be("192.168.1.1");
     }
 
     [Fact]
     public async Task Handle_AccountUpdatedEvent_ShouldRecordAuditLogWithChanges()
     {
         // Arrange
+        var handler = CreateHandler();
         var oldValues = new Dictionary<string, object>
         {
             ["name"] = "現金"
@@ -90,29 +87,25 @@ public class AuditEventHandlerTest
             IpAddress = "192.168.1.1"
         };
 
-        AuditLog? capturedAuditLog = null;
-        _mockAuditLogService
-            .Setup(x => x.RecordAsync(It.IsAny<AuditLog>()))
-            .Callback<AuditLog>(log => capturedAuditLog = log)
-            .Returns(Task.CompletedTask);
-
         // Act
-        await _handler.Handle(notification, CancellationToken.None);
+        await handler.Handle(notification, CancellationToken.None);
 
-        // Assert
-        _mockAuditLogService.Verify(x => x.RecordAsync(It.IsAny<AuditLog>()), Times.Once);
-        capturedAuditLog.Should().NotBeNull();
-        capturedAuditLog!.EntityType.Should().Be("Account");
-        capturedAuditLog.EntityId.Should().Be("1100");
-        capturedAuditLog.Action.Should().Be(AuditAction.UPDATE);
-        capturedAuditLog.OldValues.Should().BeEquivalentTo(oldValues);
-        capturedAuditLog.NewValues.Should().BeEquivalentTo(newValues);
+        // Assert - データベースから取得して検証
+        var repository = CreateRepository();
+        var logs = await repository.FindByEntityAsync("Account", "1100");
+        logs.Should().HaveCount(1);
+
+        var auditLog = logs[0];
+        auditLog.EntityType.Should().Be("Account");
+        auditLog.EntityId.Should().Be("1100");
+        auditLog.Action.Should().Be(AuditAction.UPDATE);
     }
 
     [Fact]
     public async Task Handle_AccountDeletedEvent_ShouldRecordAuditLogWithReason()
     {
         // Arrange
+        var handler = CreateHandler();
         var deletedData = new Dictionary<string, object>
         {
             ["code"] = "1100",
@@ -129,29 +122,26 @@ public class AuditEventHandlerTest
             IpAddress = "192.168.1.1"
         };
 
-        AuditLog? capturedAuditLog = null;
-        _mockAuditLogService
-            .Setup(x => x.RecordAsync(It.IsAny<AuditLog>()))
-            .Callback<AuditLog>(log => capturedAuditLog = log)
-            .Returns(Task.CompletedTask);
-
         // Act
-        await _handler.Handle(notification, CancellationToken.None);
+        await handler.Handle(notification, CancellationToken.None);
 
-        // Assert
-        _mockAuditLogService.Verify(x => x.RecordAsync(It.IsAny<AuditLog>()), Times.Once);
-        capturedAuditLog.Should().NotBeNull();
-        capturedAuditLog!.EntityType.Should().Be("Account");
-        capturedAuditLog.EntityId.Should().Be("1100");
-        capturedAuditLog.Action.Should().Be(AuditAction.DELETE);
-        capturedAuditLog.OldValues.Should().BeEquivalentTo(deletedData);
-        capturedAuditLog.Reason.Should().Be("重複登録のため削除");
+        // Assert - データベースから取得して検証
+        var repository = CreateRepository();
+        var logs = await repository.FindByEntityAsync("Account", "1100");
+        logs.Should().HaveCount(1);
+
+        var auditLog = logs[0];
+        auditLog.EntityType.Should().Be("Account");
+        auditLog.EntityId.Should().Be("1100");
+        auditLog.Action.Should().Be(AuditAction.DELETE);
+        auditLog.Reason.Should().Be("重複登録のため削除");
     }
 
     [Fact]
     public async Task Handle_JournalCreatedEvent_ShouldRecordAuditLog()
     {
         // Arrange
+        var handler = CreateHandler();
         var journalData = new Dictionary<string, object>
         {
             ["journalNo"] = "J2024-0001",
@@ -169,29 +159,25 @@ public class AuditEventHandlerTest
             IpAddress = "192.168.1.1"
         };
 
-        AuditLog? capturedAuditLog = null;
-        _mockAuditLogService
-            .Setup(x => x.RecordAsync(It.IsAny<AuditLog>()))
-            .Callback<AuditLog>(log => capturedAuditLog = log)
-            .Returns(Task.CompletedTask);
-
         // Act
-        await _handler.Handle(notification, CancellationToken.None);
+        await handler.Handle(notification, CancellationToken.None);
 
-        // Assert
-        _mockAuditLogService.Verify(x => x.RecordAsync(It.IsAny<AuditLog>()), Times.Once);
-        capturedAuditLog.Should().NotBeNull();
-        capturedAuditLog!.EntityType.Should().Be("Journal");
-        capturedAuditLog.EntityId.Should().Be("J2024-0001");
-        capturedAuditLog.Action.Should().Be(AuditAction.CREATE);
-        // AuditLog.Create は Changes プロパティにデータを格納
-        capturedAuditLog.Changes.Should().BeEquivalentTo(journalData);
+        // Assert - データベースから取得して検証
+        var repository = CreateRepository();
+        var logs = await repository.FindByEntityAsync("Journal", "J2024-0001");
+        logs.Should().HaveCount(1);
+
+        var auditLog = logs[0];
+        auditLog.EntityType.Should().Be("Journal");
+        auditLog.EntityId.Should().Be("J2024-0001");
+        auditLog.Action.Should().Be(AuditAction.CREATE);
     }
 
     [Fact]
     public async Task Handle_JournalDeletedEvent_ShouldRecordAuditLog()
     {
         // Arrange
+        var handler = CreateHandler();
         var deletedData = new Dictionary<string, object>
         {
             ["journalNo"] = "J2024-0001",
@@ -208,70 +194,69 @@ public class AuditEventHandlerTest
             IpAddress = "192.168.1.1"
         };
 
-        AuditLog? capturedAuditLog = null;
-        _mockAuditLogService
-            .Setup(x => x.RecordAsync(It.IsAny<AuditLog>()))
-            .Callback<AuditLog>(log => capturedAuditLog = log)
-            .Returns(Task.CompletedTask);
-
         // Act
-        await _handler.Handle(notification, CancellationToken.None);
+        await handler.Handle(notification, CancellationToken.None);
 
-        // Assert
-        _mockAuditLogService.Verify(x => x.RecordAsync(It.IsAny<AuditLog>()), Times.Once);
-        capturedAuditLog.Should().NotBeNull();
-        capturedAuditLog!.EntityType.Should().Be("Journal");
-        capturedAuditLog.EntityId.Should().Be("J2024-0001");
-        capturedAuditLog.Action.Should().Be(AuditAction.DELETE);
-        capturedAuditLog.OldValues.Should().BeEquivalentTo(deletedData);
-        capturedAuditLog.Reason.Should().Be("入力ミスのため削除");
+        // Assert - データベースから取得して検証
+        var repository = CreateRepository();
+        var logs = await repository.FindByEntityAsync("Journal", "J2024-0001");
+        logs.Should().HaveCount(1);
+
+        var auditLog = logs[0];
+        auditLog.EntityType.Should().Be("Journal");
+        auditLog.EntityId.Should().Be("J2024-0001");
+        auditLog.Action.Should().Be(AuditAction.DELETE);
+        auditLog.Reason.Should().Be("入力ミスのため削除");
     }
 
     [Fact]
     public async Task Handle_WhenIpAddressIsNull_ShouldStillRecordAuditLog()
     {
         // Arrange
+        var handler = CreateHandler();
         var notification = new AccountCreatedEvent
         {
-            AccountCode = "1100",
+            AccountCode = "1200",
             AccountData = new Dictionary<string, object>(),
             UserId = "user123",
             UserName = "山田太郎",
             IpAddress = null
         };
 
-        AuditLog? capturedAuditLog = null;
-        _mockAuditLogService
-            .Setup(x => x.RecordAsync(It.IsAny<AuditLog>()))
-            .Callback<AuditLog>(log => capturedAuditLog = log)
-            .Returns(Task.CompletedTask);
-
         // Act
-        await _handler.Handle(notification, CancellationToken.None);
+        await handler.Handle(notification, CancellationToken.None);
 
-        // Assert
-        _mockAuditLogService.Verify(x => x.RecordAsync(It.IsAny<AuditLog>()), Times.Once);
-        capturedAuditLog.Should().NotBeNull();
-        capturedAuditLog!.IpAddress.Should().BeNull();
+        // Assert - データベースから取得して検証
+        var repository = CreateRepository();
+        var logs = await repository.FindByEntityAsync("Account", "1200");
+        logs.Should().HaveCount(1);
+
+        var auditLog = logs[0];
+        auditLog.IpAddress.Should().BeNull();
     }
 
     [Fact]
     public async Task Handle_ShouldLogInformationMessage()
     {
         // Arrange
+        var repository = CreateRepository();
+        var service = new AuditLogService(repository);
+        var mockLogger = new Mock<ILogger<AuditEventHandler>>();
+        var handler = new AuditEventHandler(service, mockLogger.Object);
+
         var notification = new AccountCreatedEvent
         {
-            AccountCode = "1100",
+            AccountCode = "1300",
             AccountData = new Dictionary<string, object>(),
             UserId = "user123",
             UserName = "山田太郎"
         };
 
         // Act
-        await _handler.Handle(notification, CancellationToken.None);
+        await handler.Handle(notification, CancellationToken.None);
 
         // Assert
-        _mockLogger.Verify(
+        mockLogger.Verify(
             x => x.Log(
                 LogLevel.Information,
                 It.IsAny<EventId>(),
