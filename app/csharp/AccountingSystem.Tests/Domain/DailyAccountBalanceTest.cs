@@ -5,7 +5,7 @@ using FluentAssertions;
 using Npgsql;
 using Xunit;
 
-namespace AccountingSystem.Tests.Balance;
+namespace AccountingSystem.Tests.Domain;
 
 /// <summary>
 /// 日次勘定科目残高テーブルのテスト
