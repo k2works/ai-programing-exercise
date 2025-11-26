@@ -2,7 +2,7 @@ using AccountingSystem.Infrastructure.Repositories;
 using Dapper;
 using Npgsql;
 
-namespace AccountingSystem.Infrastructure.Services;
+namespace AccountingSystem.Application.Services;
 
 /// <summary>
 /// 残高管理サービス
