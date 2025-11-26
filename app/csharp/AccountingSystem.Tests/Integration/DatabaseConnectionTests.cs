@@ -3,7 +3,7 @@ using FluentAssertions;
 using Npgsql;
 using Xunit;
 
-namespace AccountingSystem.Tests.IntegrationTests
+namespace AccountingSystem.Tests.Integration
 {
     /// <summary>
     /// データベース接続テスト
