@@ -1,3 +1,4 @@
+using AccountingSystem.Application.Ports.Out;
 using AccountingSystem.Infrastructure.Persistence.Dapper.Entities;
 using Dapper;
 using Npgsql;
@@ -7,7 +8,7 @@ namespace AccountingSystem.Infrastructure.Persistence.Repositories;
 /// <summary>
 /// 勘定科目リポジトリ
 /// </summary>
-public class AccountRepository
+public class AccountRepository : IAccountRepository
 {
     private readonly string _connectionString;
 

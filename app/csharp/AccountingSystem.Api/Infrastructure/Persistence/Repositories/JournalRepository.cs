@@ -1,3 +1,4 @@
+using AccountingSystem.Application.Ports.Out;
 using System.Data;
 using AccountingSystem.Infrastructure.Persistence.Dapper.Entities;
 using Dapper;
@@ -30,7 +31,7 @@ public class DateOnlyTypeHandler : SqlMapper.TypeHandler<DateOnly>
 /// 仕訳リポジトリ
 /// 3層構造（仕訳 + 仕訳明細 + 仕訳貸借明細）のCRUD操作を提供
 /// </summary>
-public class JournalRepository
+public class JournalRepository : IJournalRepository
 {
     private readonly string _connectionString;
 

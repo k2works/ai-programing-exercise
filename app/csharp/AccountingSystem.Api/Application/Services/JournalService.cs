@@ -1,6 +1,7 @@
 using AccountingSystem.Application.Exceptions;
 using AccountingSystem.Infrastructure.Persistence.Dapper.Entities;
-using AccountingSystem.Infrastructure.Persistence.Repositories;
+using AccountingSystem.Application.Ports.In;
+using AccountingSystem.Application.Ports.Out;
 
 namespace AccountingSystem.Application.Services;
 
@@ -9,9 +10,9 @@ namespace AccountingSystem.Application.Services;
 /// </summary>
 public class JournalService : IJournalService
 {
-    private readonly JournalRepository _journalRepository;
+    private readonly IJournalRepository _journalRepository;
 
-    public JournalService(JournalRepository journalRepository)
+    public JournalService(IJournalRepository journalRepository)
     {
         _journalRepository = journalRepository;
     }

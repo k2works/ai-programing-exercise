@@ -1,6 +1,7 @@
 using AccountingSystem.Application.Exceptions;
 using AccountingSystem.Infrastructure.Persistence.Dapper.Entities;
-using AccountingSystem.Infrastructure.Persistence.Repositories;
+using AccountingSystem.Application.Ports.In;
+using AccountingSystem.Application.Ports.Out;
 
 namespace AccountingSystem.Application.Services;
 
@@ -9,9 +10,9 @@ namespace AccountingSystem.Application.Services;
 /// </summary>
 public class AccountService : IAccountService
 {
-    private readonly AccountRepository _accountRepository;
+    private readonly IAccountRepository _accountRepository;
 
-    public AccountService(AccountRepository accountRepository)
+    public AccountService(IAccountRepository accountRepository)
     {
         _accountRepository = accountRepository;
     }

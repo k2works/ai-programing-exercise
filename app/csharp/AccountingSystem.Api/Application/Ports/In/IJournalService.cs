@@ -1,9 +1,9 @@
 using AccountingSystem.Infrastructure.Persistence.Dapper.Entities;
 
-namespace AccountingSystem.Application.Services;
+namespace AccountingSystem.Application.Ports.In;
 
 /// <summary>
-/// 仕訳サービスインターフェース
+/// 仕訳サービスインターフェース（入力ポート）
 /// </summary>
 public interface IJournalService
 {

@@ -1,5 +1,7 @@
 using System.Reflection;
 using AccountingSystem.Infrastructure.Web.Middleware;
+using AccountingSystem.Application.Ports.In;
+using AccountingSystem.Application.Ports.Out;
 using AccountingSystem.Application.Services;
 using AccountingSystem.Domain.Models;
 using AccountingSystem.Infrastructure.Persistence.Repositories;
@@ -74,21 +76,21 @@ builder.Services.AddScoped<NpgsqlConnection>(sp =>
     return new NpgsqlConnection(connectionString);
 });
 
-// Repositories の登録
-builder.Services.AddScoped<AccountRepository>(sp =>
+// Repositories の登録（出力ポート）
+builder.Services.AddScoped<IAccountRepository>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
     var connectionString = configuration.GetConnectionString("DefaultConnection")!;
     return new AccountRepository(connectionString);
 });
-builder.Services.AddScoped<JournalRepository>(sp =>
+builder.Services.AddScoped<IJournalRepository>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
     var connectionString = configuration.GetConnectionString("DefaultConnection")!;
     return new JournalRepository(connectionString);
 });
 
-// Application Services の登録
+// Application Services の登録（入力ポート）
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IJournalService, JournalService>();
 builder.Services.AddScoped<IFinancialStatementService>(sp =>
