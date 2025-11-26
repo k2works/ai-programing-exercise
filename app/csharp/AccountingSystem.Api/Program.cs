@@ -4,7 +4,7 @@ using AccountingSystem.Infrastructure.Web.Middleware;
 using AccountingSystem.Application.Ports.In;
 using AccountingSystem.Application.Ports.Out;
 using AccountingSystem.Application.Services;
-using AccountingSystem.Domain.Models;
+using AccountingSystem.Domain.Models.Financial;
 using AccountingSystem.Infrastructure.Persistence.Repositories;
 using AccountingSystem.Infrastructure;
 using Dapper;

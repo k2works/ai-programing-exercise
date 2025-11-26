@@ -1,4 +1,4 @@
-namespace AccountingSystem.Domain.Models;
+namespace AccountingSystem.Domain.Models.Financial;
 
 /// <summary>
 /// 損益計算書の項目（勘定科目ごとの金額と構成比率）

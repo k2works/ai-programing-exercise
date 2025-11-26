@@ -1,4 +1,4 @@
-namespace AccountingSystem.Domain.Audit;
+namespace AccountingSystem.Domain.Models.Audit;
 
 /// <summary>
 /// 監査ログのアクション種別

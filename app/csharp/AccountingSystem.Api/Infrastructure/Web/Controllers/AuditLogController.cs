@@ -1,5 +1,5 @@
 using AccountingSystem.Application.Ports.In;
-using AccountingSystem.Domain.Audit;
+using AccountingSystem.Domain.Models.Audit;
 using AccountingSystem.Infrastructure.Web.Dtos;
 using Microsoft.AspNetCore.Mvc;
 

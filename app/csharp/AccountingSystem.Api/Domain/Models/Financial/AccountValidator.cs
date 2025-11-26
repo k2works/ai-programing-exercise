@@ -1,4 +1,4 @@
-namespace AccountingSystem.Domain.Models;
+namespace AccountingSystem.Domain.Models.Financial;
 
 /// <summary>
 /// 勘定科目の整合性を検証するバリデーター

@@ -1,6 +1,6 @@
 using AccountingSystem.Infrastructure.Persistence.Dapper.Entities;
 using AccountingSystem.Application.Ports.Out;
-using AccountingSystem.Domain.Audit;
+using AccountingSystem.Domain.Models.Audit;
 using Dapper;
 using Npgsql;
 using System.Text.Json;

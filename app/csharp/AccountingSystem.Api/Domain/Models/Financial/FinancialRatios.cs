@@ -1,4 +1,4 @@
-namespace AccountingSystem.Domain.Models;
+namespace AccountingSystem.Domain.Models.Financial;
 
 /// <summary>
 /// 財務指標

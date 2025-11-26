@@ -1,6 +1,6 @@
 using AccountingSystem.Infrastructure.EventHandlers;
 using AccountingSystem.Application.Ports.In;
-using AccountingSystem.Domain.Audit;
+using AccountingSystem.Domain.Models.Audit;
 using AccountingSystem.Domain.Events;
 using AccountingSystem.Infrastructure.Persistence.Dapper.Entities;
 using FluentAssertions;

@@ -1,4 +1,4 @@
-using AccountingSystem.Domain.Audit;
+using AccountingSystem.Domain.Models.Audit;
 using AccountingSystem.Infrastructure.Persistence.Dapper.Entities;
 using AccountingSystem.Infrastructure.Persistence.Repositories;
 using FluentAssertions;

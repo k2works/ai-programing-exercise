@@ -1,5 +1,5 @@
 using AccountingSystem.Infrastructure.Persistence.Dapper.Entities;
-using AccountingSystem.Domain.Audit;
+using AccountingSystem.Domain.Models.Audit;
 
 namespace AccountingSystem.Application.Ports.Out;
 

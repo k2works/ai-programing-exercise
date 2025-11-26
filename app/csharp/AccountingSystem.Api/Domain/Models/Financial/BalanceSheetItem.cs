@@ -1,4 +1,4 @@
-namespace AccountingSystem.Domain.Models;
+namespace AccountingSystem.Domain.Models.Financial;
 
 /// <summary>
 /// 貸借対照表の項目

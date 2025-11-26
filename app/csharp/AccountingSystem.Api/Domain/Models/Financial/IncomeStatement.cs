@@ -1,4 +1,4 @@
-namespace AccountingSystem.Domain.Models;
+namespace AccountingSystem.Domain.Models.Financial;
 
 /// <summary>
 /// 損益計算書（Income Statement / P/L）

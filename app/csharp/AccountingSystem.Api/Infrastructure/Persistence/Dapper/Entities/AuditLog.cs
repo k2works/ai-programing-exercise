@@ -1,4 +1,4 @@
-using AccountingSystem.Domain.Audit;
+using AccountingSystem.Domain.Models.Audit;
 
 namespace AccountingSystem.Infrastructure.Persistence.Dapper.Entities;
 
