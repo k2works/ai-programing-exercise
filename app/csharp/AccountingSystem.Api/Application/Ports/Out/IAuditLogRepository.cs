@@ -1,3 +1,4 @@
+using AccountingSystem.Infrastructure.Persistence.Dapper.Entities;
 using AccountingSystem.Domain.Audit;
 
 namespace AccountingSystem.Application.Ports.Out;

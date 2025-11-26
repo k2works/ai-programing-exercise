@@ -1,4 +1,6 @@
-namespace AccountingSystem.Domain.Audit;
+using AccountingSystem.Domain.Audit;
+
+namespace AccountingSystem.Infrastructure.Persistence.Dapper.Entities;
 
 /// <summary>
 /// 監査ログドメインモデル（不変）
