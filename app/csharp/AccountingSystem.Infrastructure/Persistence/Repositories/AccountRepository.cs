@@ -1,5 +1,5 @@
 using AccountingSystem.Application.Ports.Out;
-using AccountingSystem.Infrastructure.Persistence.Dapper.Entities;
+using AccountingSystem.Domain.Entities;
 using Dapper;
 using Npgsql;
 

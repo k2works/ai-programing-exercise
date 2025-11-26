@@ -1,4 +1,4 @@
-using AccountingSystem.Infrastructure.Persistence.Dapper.Entities;
+using AccountingSystem.Domain.Entities;
 using AccountingSystem.Application.Ports.In;
 using AccountingSystem.Domain.Models.Audit;
 using AccountingSystem.Domain.Events;

@@ -1,6 +1,8 @@
 using AccountingSystem.Infrastructure.Web.Dtos;
 using AccountingSystem.Application.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace AccountingSystem.Infrastructure.Web.Middleware;
 

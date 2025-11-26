@@ -1,4 +1,4 @@
-using AccountingSystem.Infrastructure.Persistence.Dapper.Entities;
+using AccountingSystem.Domain.Entities;
 
 namespace AccountingSystem.Infrastructure.Web.Dtos;
 
