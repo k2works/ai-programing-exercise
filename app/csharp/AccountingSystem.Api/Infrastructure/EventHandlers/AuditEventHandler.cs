@@ -5,7 +5,7 @@ using AccountingSystem.Domain.Events;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace AccountingSystem.Application.EventHandlers;
+namespace AccountingSystem.Infrastructure.EventHandlers;
 
 /// <summary>
 /// 監査ログイベントハンドラー

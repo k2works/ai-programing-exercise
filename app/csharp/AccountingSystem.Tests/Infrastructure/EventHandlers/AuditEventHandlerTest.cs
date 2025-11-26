@@ -1,4 +1,4 @@
-using AccountingSystem.Application.EventHandlers;
+using AccountingSystem.Infrastructure.EventHandlers;
 using AccountingSystem.Application.Ports.In;
 using AccountingSystem.Domain.Audit;
 using AccountingSystem.Domain.Events;
@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
-namespace AccountingSystem.Tests.Application.EventHandlers;
+namespace AccountingSystem.Tests.Infrastructure.EventHandlers;
 
 /// <summary>
 /// AuditEventHandler のユニットテスト
