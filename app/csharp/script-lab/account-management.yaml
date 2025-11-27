@@ -1,0 +1,420 @@
+name: 勘定科目管理ツール
+description: 勘定科目の一覧取得、一括登録、更新、削除を行うツール
+host: EXCEL
+api_set: {}
+script:
+  content: |
+    /**
+     * 勘定科目管理ツール - 財務会計システム API クライアント
+     *
+     * このスクリプトは勘定科目の一覧取得、一括登録、更新、削除を行います。
+     */
+
+    /**
+     * API ベース URL を入力フィールドから取得
+     */
+    function getApiBaseUrl(): string {
+      const urlInput = document.getElementById("api-url") as HTMLInputElement;
+      return urlInput?.value || "http://localhost:5000";
+    }
+
+    /**
+     * 勘定科目一覧を取得してシートに出力
+     */
+    async function fetchAccounts(): Promise<void> {
+      try {
+        const apiBaseUrl = getApiBaseUrl();
+        console.log(`勘定科目一覧を取得中... (API: ${apiBaseUrl})`);
+
+        const response = await fetch(`${apiBaseUrl}/api/v1/accounts`);
+
+        if (!response.ok) {
+          throw new Error(`API エラー: ${response.status} ${response.statusText}`);
+        }
+
+        const accounts = await response.json();
+        console.log(`${accounts.length} 件の勘定科目を取得しました`);
+
+        await Excel.run(async (context) => {
+          // 「勘定科目一覧」シートを取得または作成
+          const sheetName = "勘定科目一覧";
+          const sheets = context.workbook.worksheets;
+          sheets.load("items/name");
+          await context.sync();
+
+          let sheet: Excel.Worksheet;
+          const existingSheet = sheets.items.find(s => s.name === sheetName);
+          if (existingSheet) {
+            sheet = existingSheet;
+            sheet.getUsedRange().clear();
+          } else {
+            sheet = sheets.add(sheetName);
+          }
+          sheet.activate();
+
+          // ヘッダーを出力
+          const headers = ["勘定科目コード", "勘定科目名", "勘定科目種別", "合計科目", "BSPL区分", "残高"];
+          const headerRange = sheet.getRange("A1:F1");
+          headerRange.values = [headers];
+          headerRange.format.font.bold = true;
+          headerRange.format.fill.color = "#4472C4";
+          headerRange.format.font.color = "#FFFFFF";
+
+          // データを出力
+          if (accounts.length > 0) {
+            const dataRows = accounts.map((acc: any) => [
+              acc.accountCode,
+              acc.accountName,
+              acc.accountType,
+              acc.isSummaryAccount ? "はい" : "いいえ",
+              acc.bsplType,
+              acc.balance
+            ]);
+
+            const dataRange = sheet.getRange(`A2:F${accounts.length + 1}`);
+            dataRange.values = dataRows;
+          }
+
+          // 列幅の自動調整
+          sheet.getUsedRange().format.autofitColumns();
+
+          await context.sync();
+          console.log("「勘定科目一覧」シートへの出力が完了しました");
+        });
+
+      } catch (error) {
+        console.error("エラーが発生しました:", error);
+      }
+    }
+
+    /**
+     * 登録用シートを作成
+     */
+    async function createRegistrationSheet(): Promise<void> {
+      await Excel.run(async (context) => {
+        // 「勘定科目登録」シートを取得または作成
+        const sheetName = "勘定科目登録";
+        const sheets = context.workbook.worksheets;
+        sheets.load("items/name");
+        await context.sync();
+
+        let sheet: Excel.Worksheet;
+        const existingSheet = sheets.items.find(s => s.name === sheetName);
+        if (existingSheet) {
+          sheet = existingSheet;
+          sheet.getUsedRange().clear();
+        } else {
+          sheet = sheets.add(sheetName);
+        }
+        sheet.activate();
+
+        // ヘッダーを出力
+        const headers = ["勘定科目コード", "勘定科目名", "勘定科目種別", "開始日"];
+        const headerRange = sheet.getRange("A1:D1");
+        headerRange.values = [headers];
+        headerRange.format.font.bold = true;
+        headerRange.format.fill.color = "#70AD47";
+        headerRange.format.font.color = "#FFFFFF";
+
+        // 入力例を出力
+        const exampleRow = sheet.getRange("A2:D2");
+        exampleRow.values = [["999", "テスト科目", "資産", "2024-04-01"]];
+        exampleRow.format.font.italic = true;
+        exampleRow.format.font.color = "#808080";
+
+        // 勘定科目種別の選択肢をコメントとして追加
+        const typeCell = sheet.getRange("C1");
+        typeCell.note = "種別: 資産, 負債, 純資産, 収益, 費用";
+
+        // 列幅の自動調整
+        sheet.getUsedRange().format.autofitColumns();
+
+        await context.sync();
+        console.log("「勘定科目登録」シートを作成しました");
+        console.log("A2行以降にデータを入力し、「一括登録」ボタンをクリックしてください");
+      });
+    }
+
+    /**
+     * シートから勘定科目を一括登録
+     */
+    async function bulkRegisterAccounts(): Promise<void> {
+      try {
+        await Excel.run(async (context) => {
+          // 「勘定科目登録」シートからデータを読み取る
+          const sheetName = "勘定科目登録";
+          const sheets = context.workbook.worksheets;
+          sheets.load("items/name");
+          await context.sync();
+
+          const sheet = sheets.items.find(s => s.name === sheetName);
+          if (!sheet) {
+            console.error("「勘定科目登録」シートが見つかりません。先に「登録シート作成」を実行してください。");
+            return;
+          }
+
+          const usedRange = sheet.getUsedRange();
+          usedRange.load("values");
+
+          await context.sync();
+
+          const values = usedRange.values;
+          if (values.length <= 1) {
+            console.log("登録するデータがありません");
+            return;
+          }
+
+          // ヘッダー行をスキップしてデータを処理
+          const accounts = values.slice(1)
+            .filter((row: any[]) => row[0] && row[1] && row[2]) // 必須項目が入力されている行のみ
+            .map((row: any[]) => ({
+              accountCode: String(row[0]),
+              accountName: String(row[1]),
+              accountType: String(row[2]),
+              startDate: row[3] ? String(row[3]) : new Date().toISOString().split("T")[0]
+            }));
+
+          const apiBaseUrl = getApiBaseUrl();
+          console.log(`${accounts.length} 件の勘定科目を登録します (API: ${apiBaseUrl})`);
+
+          let successCount = 0;
+          let errorCount = 0;
+
+          for (const account of accounts) {
+            try {
+              const response = await fetch(`${apiBaseUrl}/api/v1/accounts`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify(account)
+              });
+
+              if (response.ok) {
+                successCount++;
+                console.log(`登録成功: ${account.accountCode} - ${account.accountName}`);
+              } else {
+                errorCount++;
+                const errorData = await response.json();
+                console.error(`登録失敗: ${account.accountCode} - ${errorData.message || response.statusText}`);
+              }
+            } catch (error) {
+              errorCount++;
+              console.error(`登録エラー: ${account.accountCode}`, error);
+            }
+          }
+
+          console.log("========================================");
+          console.log(`登録完了: 成功 ${successCount} 件, 失敗 ${errorCount} 件`);
+          console.log("========================================");
+        });
+
+      } catch (error) {
+        console.error("エラーが発生しました:", error);
+      }
+    }
+
+    /**
+     * 選択した勘定科目を削除
+     */
+    async function deleteSelectedAccount(): Promise<void> {
+      try {
+        await Excel.run(async (context) => {
+          // 「勘定科目一覧」シートから削除対象を取得
+          const sheetName = "勘定科目一覧";
+          const sheets = context.workbook.worksheets;
+          sheets.load("items/name");
+          await context.sync();
+
+          const sheet = sheets.items.find(s => s.name === sheetName);
+          if (!sheet) {
+            console.error("「勘定科目一覧」シートが見つかりません。先に「勘定科目一覧を取得」を実行してください。");
+            return;
+          }
+
+          const selectedRange = context.workbook.getSelectedRange();
+          selectedRange.load("values, rowIndex");
+
+          await context.sync();
+
+          // 選択範囲の最初の行からアカウントコードを取得
+          const rowIndex = selectedRange.rowIndex;
+          if (rowIndex === 0) {
+            console.error("ヘッダー行は削除できません");
+            return;
+          }
+
+          const accountCodeCell = sheet.getRange(`A${rowIndex + 1}`);
+          accountCodeCell.load("values");
+
+          await context.sync();
+
+          const accountCode = accountCodeCell.values[0][0];
+          if (!accountCode) {
+            console.error("勘定科目コードが見つかりません");
+            return;
+          }
+
+          const apiBaseUrl = getApiBaseUrl();
+          console.log(`勘定科目 ${accountCode} を削除します (API: ${apiBaseUrl})`);
+
+          const response = await fetch(`${apiBaseUrl}/api/v1/accounts/${accountCode}`, {
+            method: "DELETE"
+          });
+
+          if (response.ok || response.status === 204) {
+            console.log(`勘定科目 ${accountCode} を削除しました`);
+            // 一覧を再取得
+            await fetchAccounts();
+          } else {
+            const errorData = await response.json();
+            console.error(`削除失敗: ${errorData.message || response.statusText}`);
+          }
+        });
+
+      } catch (error) {
+        console.error("エラーが発生しました:", error);
+      }
+    }
+
+    // ボタンクリック時の処理
+    document.getElementById("fetch-accounts")?.addEventListener("click", fetchAccounts);
+    document.getElementById("create-sheet")?.addEventListener("click", createRegistrationSheet);
+    document.getElementById("bulk-register")?.addEventListener("click", bulkRegisterAccounts);
+    document.getElementById("delete-selected")?.addEventListener("click", deleteSelectedAccount);
+
+    console.log("========================================");
+    console.log("勘定科目管理ツールが読み込まれました");
+    console.log("========================================");
+  language: typescript
+template:
+  content: |
+    <section class="ms-font-m">
+      <h2 class="ms-font-xl">勘定科目管理ツール</h2>
+      <p>勘定科目の一覧取得、一括登録、削除を行います。</p>
+
+      <div class="ms-TextField">
+        <label class="ms-Label">API ベース URL</label>
+        <input id="api-url" type="text" class="ms-TextField-field" value="http://localhost:5000" />
+      </div>
+
+      <h3 class="ms-font-l">一覧取得</h3>
+      <button id="fetch-accounts" class="ms-Button ms-Button--primary">
+        <span class="ms-Button-label">勘定科目一覧を取得</span>
+      </button>
+
+      <h3 class="ms-font-l">一括登録</h3>
+      <p class="ms-font-s">1. 「登録シート作成」で入力用シートを作成</p>
+      <p class="ms-font-s">2. データを入力後、「一括登録」を実行</p>
+      <button id="create-sheet" class="ms-Button">
+        <span class="ms-Button-label">登録シート作成</span>
+      </button>
+      <button id="bulk-register" class="ms-Button ms-Button--primary">
+        <span class="ms-Button-label">一括登録</span>
+      </button>
+
+      <h3 class="ms-font-l">削除</h3>
+      <p class="ms-font-s">削除したい行を選択して「選択行を削除」をクリック</p>
+      <button id="delete-selected" class="ms-Button ms-Button--danger">
+        <span class="ms-Button-label">選択行を削除</span>
+      </button>
+    </section>
+  language: html
+style:
+  content: |
+    section {
+      margin: 16px;
+    }
+
+    h2 {
+      margin-bottom: 16px;
+      color: #323130;
+    }
+
+    h3 {
+      margin-top: 24px;
+      margin-bottom: 12px;
+      color: #323130;
+    }
+
+    p {
+      margin: 4px 0;
+    }
+
+    .ms-font-s {
+      font-size: 12px;
+      color: #605e5c;
+    }
+
+    .ms-TextField {
+      margin-bottom: 12px;
+    }
+
+    .ms-Label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 600;
+      color: #323130;
+    }
+
+    .ms-TextField-field {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #8a8886;
+      border-radius: 2px;
+      font-size: 14px;
+    }
+
+    .ms-TextField-field:focus {
+      border-color: #0078d4;
+      outline: none;
+    }
+
+    .ms-Button {
+      margin-top: 8px;
+      margin-right: 8px;
+      padding: 8px 16px;
+      border: 1px solid #8a8886;
+      border-radius: 2px;
+      cursor: pointer;
+      font-size: 14px;
+      background-color: #ffffff;
+      color: #323130;
+    }
+
+    .ms-Button:hover {
+      background-color: #f3f2f1;
+    }
+
+    .ms-Button--primary {
+      background-color: #0078d4;
+      border-color: #0078d4;
+      color: white;
+    }
+
+    .ms-Button--primary:hover {
+      background-color: #106ebe;
+    }
+
+    .ms-Button--danger {
+      background-color: #d13438;
+      border-color: #d13438;
+      color: white;
+    }
+
+    .ms-Button--danger:hover {
+      background-color: #a4262c;
+    }
+  language: css
+libraries: |
+  https://appsforoffice.microsoft.com/lib/1/hosted/office.js
+  @types/office-js
+
+  office-ui-fabric-js@1.4.0/dist/css/fabric.min.css
+  office-ui-fabric-js@1.4.0/dist/css/fabric.components.min.css
+
+  core-js@2.4.1/client/core.min.js
+  @types/core-js
+
+  jquery@3.1.1
+  @types/jquery@3.3.1
