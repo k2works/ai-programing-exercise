@@ -194,3 +194,11 @@ sequenceDiagram
 | PostgreSQL (Management) | 5433 |
 | RabbitMQ AMQP | 5672 |
 | RabbitMQ Management UI | 15672 |
+
+## 管理 UI
+
+### RabbitMQ Management
+
+- **URL**: http://localhost:15672
+- **ユーザー名**: `guest`
+- **パスワード**: `guest`
