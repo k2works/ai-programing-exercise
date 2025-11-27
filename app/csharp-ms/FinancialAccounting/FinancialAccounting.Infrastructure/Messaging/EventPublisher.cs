@@ -1,6 +1,6 @@
 using FinancialAccounting.Application.Ports.Out;
-using FinancialAccounting.Domain.Events;
 using MassTransit;
+using Shared.Contracts.Events;
 
 namespace FinancialAccounting.Infrastructure.Messaging;
 

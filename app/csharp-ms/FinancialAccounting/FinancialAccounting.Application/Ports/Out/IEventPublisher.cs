@@ -1,4 +1,4 @@
-using FinancialAccounting.Domain.Events;
+using Shared.Contracts.Events;
 
 namespace FinancialAccounting.Application.Ports.Out;
 

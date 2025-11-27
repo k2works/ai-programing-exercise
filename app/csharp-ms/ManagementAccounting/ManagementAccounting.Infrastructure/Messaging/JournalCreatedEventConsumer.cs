@@ -1,6 +1,7 @@
 using ManagementAccounting.Application.Ports.In;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using Shared.Contracts.Events;
 
 namespace ManagementAccounting.Infrastructure.Messaging;
 
@@ -27,9 +28,10 @@ public class JournalCreatedEventConsumer : IConsumer<JournalCreatedEvent>
         var @event = context.Message;
 
         _logger.LogInformation(
-            "Received JournalCreatedEvent: JournalId={JournalId}, FiscalYear={FiscalYear}",
+            "Received JournalCreatedEvent: JournalId={JournalId}, FiscalYear={FiscalYear}, TotalAmount={TotalAmount}",
             @event.JournalId,
-            @event.FiscalYear);
+            @event.FiscalYear,
+            @event.TotalAmount);
 
         // 仕訳が作成されたら、該当年度のキャッシュを再計算
         await _analyzeUseCase.AnalyzeAsync(@event.FiscalYear);
@@ -39,8 +41,3 @@ public class JournalCreatedEventConsumer : IConsumer<JournalCreatedEvent>
             @event.FiscalYear);
     }
 }
-
-/// <summary>
-/// 仕訳作成イベント（財務会計サービスから発行）
-/// </summary>
-public record JournalCreatedEvent(int JournalId, int FiscalYear, DateTime JournalDate);

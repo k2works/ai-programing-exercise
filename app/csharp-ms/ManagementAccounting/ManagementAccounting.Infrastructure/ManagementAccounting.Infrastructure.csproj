@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ManagementAccounting.Application\ManagementAccounting.Application.csproj" />
+    <ProjectReference Include="..\..\Shared\Shared.Contracts\Shared.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

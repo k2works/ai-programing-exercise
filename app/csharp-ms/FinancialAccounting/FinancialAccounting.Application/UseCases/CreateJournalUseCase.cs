@@ -1,7 +1,7 @@
 using FinancialAccounting.Application.Ports.In;
 using FinancialAccounting.Application.Ports.Out;
 using FinancialAccounting.Domain.Entities;
-using FinancialAccounting.Domain.Events;
+using Shared.Contracts.Events;
 
 namespace FinancialAccounting.Application.UseCases;
 
