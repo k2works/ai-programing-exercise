@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\ManagementAccounting.Application\ManagementAccounting.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.1.66" />
+    <PackageReference Include="FluentMigrator" Version="6.2.0" />
+    <PackageReference Include="FluentMigrator.Runner" Version="6.2.0" />
+    <PackageReference Include="FluentMigrator.Runner.Postgres" Version="6.2.0" />
+    <PackageReference Include="MassTransit" Version="8.5.6" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="8.5.6" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+    <PackageReference Include="Npgsql" Version="10.0.0" />
+    <PackageReference Include="Refit" Version="8.0.0" />
+    <PackageReference Include="Refit.HttpClientFactory" Version="8.0.0" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>
