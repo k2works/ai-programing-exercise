@@ -4,33 +4,33 @@
 
 ## アーキテクチャ概要
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        API Gateway (YARP)                        │
-│                         localhost:8080                           │
-└─────────────────────────┬───────────────────────────────────────┘
-                          │
-          ┌───────────────┴───────────────┐
-          │                               │
-          ▼                               ▼
-┌─────────────────────┐       ┌─────────────────────┐
-│  Financial Accounting│       │ Management Accounting│
-│     (Port 5001)     │◄──────│     (Port 5002)      │
-└──────────┬──────────┘  HTTP └──────────┬───────────┘
-           │                             │
-           ▼                             ▼
-┌─────────────────────┐       ┌─────────────────────┐
-│   PostgreSQL        │       │   PostgreSQL        │
-│   (Port 5432)       │       │   (Port 5433)       │
-└─────────────────────┘       └─────────────────────┘
+```mermaid
+graph TB
+    subgraph Gateway
+        AG[API Gateway<br/>YARP :8080]
+    end
 
-           │                             │
-           └──────────┬──────────────────┘
-                      ▼
-            ┌─────────────────────┐
-            │     RabbitMQ        │
-            │  (Port 5672/15672)  │
-            └─────────────────────┘
+    subgraph Financial["Financial Accounting Context"]
+        FA[Financial Accounting API<br/>:5001]
+        FDB[(PostgreSQL<br/>:5432)]
+        FA --> FDB
+    end
+
+    subgraph Management["Management Accounting Context"]
+        MA[Management Accounting API<br/>:5002]
+        MDB[(PostgreSQL<br/>:5433)]
+        MA --> MDB
+    end
+
+    subgraph Messaging
+        RMQ[[RabbitMQ<br/>:5672]]
+    end
+
+    AG --> FA
+    AG --> MA
+    MA -->|HTTP| FA
+    FA -->|JournalCreatedEvent| RMQ
+    RMQ -->|Consume| MA
 ```
 
 ## 境界付けられたコンテキスト
@@ -160,13 +160,15 @@ ManagementAccounting.Infrastructure/
 Financial Accounting で仕訳が作成されると `JournalCreatedEvent` を発行。
 Management Accounting がイベントを消費してキャッシュを更新。
 
-```
-Financial Accounting                    Management Accounting
-       │                                        │
-       │  JournalCreatedEvent                   │
-       ├───────────────────────────────────────►│
-       │        (RabbitMQ)                      │
-       │                                        │
+```mermaid
+sequenceDiagram
+    participant FA as Financial Accounting
+    participant RMQ as RabbitMQ
+    participant MA as Management Accounting
+
+    FA->>RMQ: Publish JournalCreatedEvent
+    RMQ->>MA: Consume JournalCreatedEvent
+    MA->>MA: Update Cache
 ```
 
 ## 環境変数
