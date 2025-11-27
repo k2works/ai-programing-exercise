@@ -122,6 +122,61 @@ Swagger UI: `http://localhost:5000/swagger`
 | 仕訳入力 | 仕訳入力用シート |
 | 勘定科目参照 | 勘定科目コード参照用 |
 
+### 4. 仕訳入力ツール イベントソーシング版 (`journal-entry-es-eventbus.yaml`)
+
+イベントソーシング + RabbitMQ イベントバス連携の仕訳入力ツールです。
+
+**API エンドポイント**: `/api/v1/journal-entries-es-eventbus`
+
+**機能**:
+- 仕訳の作成（イベントストアに保存 + RabbitMQ にイベント発行）
+- 仕訳の承認
+- 仕訳の削除（論理削除）
+- 仕訳の取得（イベント再生）
+- タイムトラベル（特定時点の状態取得）
+
+**使用方法**:
+
+**仕訳入力**:
+1. 「入力シート作成」ボタンをクリック
+2. 「ES仕訳入力」シートが作成される
+3. 仕訳ヘッダー（日付、摘要、ユーザーID）を入力
+4. 仕訳明細を入力:
+   - 勘定科目コード
+   - 貸借区分: `DEBIT`（借方）または `CREDIT`（貸方）
+   - 金額
+5. 貸借差額が 0 であることを確認
+6. 「仕訳登録」ボタンをクリック
+
+**仕訳取得**:
+1. 「仕訳ID」に取得したい仕訳の ID を入力
+2. 「取得」ボタンをクリック
+3. 「ES仕訳詳細」シートに仕訳情報が出力される
+
+**仕訳承認**:
+1. 「仕訳ID」に承認したい仕訳の ID を入力
+2. 「承認者ID」と「承認コメント」を入力
+3. 「承認」ボタンをクリック
+
+**仕訳削除**:
+1. 「仕訳ID」に削除したい仕訳の ID を入力
+2. 「削除理由」と「削除者ID」を入力
+3. 「削除」ボタンをクリック
+4. ※イベントソーシングのため論理削除となります
+
+**タイムトラベル**:
+1. 「仕訳ID」に対象の仕訳の ID を入力
+2. 「取得時点」に ISO 形式で日時を入力（例: `2024-01-15T10:30:00Z`）
+3. 「タイムトラベル実行」ボタンをクリック
+4. 指定時点での仕訳状態がコンソールに出力される
+
+**出力されるシート**:
+
+| シート名 | 説明 |
+|---------|------|
+| ES仕訳入力 | イベントソーシング版仕訳入力用シート |
+| ES仕訳詳細 | 取得した仕訳の詳細表示 |
+
 ## トラブルシューティング
 
 ### CORS エラーが発生する場合
@@ -164,6 +219,8 @@ open http://localhost:5000/swagger
 
 ## API エンドポイント
 
+### 標準 API
+
 | メソッド | パス | 説明 |
 |---------|------|------|
 | GET | `/api/v1/financial-analysis/{fiscalYear}` | 単年度の財務分析 |
@@ -176,12 +233,23 @@ open http://localhost:5000/swagger
 | GET | `/api/v1/journals?fiscalYear=X` | 仕訳一覧（年度別） |
 | POST | `/api/v1/journals` | 仕訳登録 |
 
+### イベントソーシング API（イベントバス連携）
+
+| メソッド | パス | 説明 |
+|---------|------|------|
+| POST | `/api/v1/journal-entries-es-eventbus` | 仕訳作成 |
+| GET | `/api/v1/journal-entries-es-eventbus/{id}` | 仕訳取得（イベント再生） |
+| POST | `/api/v1/journal-entries-es-eventbus/{id}/approve` | 仕訳承認 |
+| DELETE | `/api/v1/journal-entries-es-eventbus/{id}` | 仕訳削除（論理削除） |
+| GET | `/api/v1/journal-entries-es-eventbus/{id}/at?pointInTime=X` | タイムトラベル |
+
 ## ファイル構成
 
 ```
 script-lab/
-├── README.md                    # このファイル
-├── financial-analysis.yaml      # 財務分析ツール
-├── account-management.yaml      # 勘定科目管理ツール
-└── journal-entry.yaml           # 仕訳入力ツール
+├── README.md                         # このファイル
+├── financial-analysis.yaml           # 財務分析ツール
+├── account-management.yaml           # 勘定科目管理ツール
+├── journal-entry.yaml                # 仕訳入力ツール（標準版）
+└── journal-entry-es-eventbus.yaml    # 仕訳入力ツール（イベントソーシング版）
 ```
