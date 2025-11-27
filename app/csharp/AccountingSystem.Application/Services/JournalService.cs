@@ -70,6 +70,11 @@ public class JournalService : IJournalService
         return (debitTotal, creditTotal, isBalanced);
     }
 
+    public async Task<IReadOnlyList<Journal>> GetJournalsByFiscalYearAsync(int fiscalYear)
+    {
+        return await _journalRepository.FindByFiscalYearAsync(fiscalYear);
+    }
+
     private static void ValidateJournal(Journal journal)
     {
         if (string.IsNullOrWhiteSpace(journal.JournalNo))

@@ -26,4 +26,9 @@ public interface IJournalService
     /// 借方・貸方の合計を検証
     /// </summary>
     Task<(decimal DebitTotal, decimal CreditTotal, bool IsBalanced)> ValidateBalanceAsync(string journalNo);
+
+    /// <summary>
+    /// 決算期（年度）で仕訳一覧を取得
+    /// </summary>
+    Task<IReadOnlyList<Journal>> GetJournalsByFiscalYearAsync(int fiscalYear);
 }

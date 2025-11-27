@@ -21,6 +21,20 @@ public class JournalController : ControllerBase
     }
 
     /// <summary>
+    /// 決算期（年度）で仕訳一覧を取得
+    /// </summary>
+    /// <param name="fiscalYear">決算期（年度）</param>
+    /// <returns>仕訳一覧</returns>
+    [HttpGet]
+    [ProducesResponseType(typeof(List<JournalSummaryResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetByFiscalYear([FromQuery] int fiscalYear)
+    {
+        var journals = await _journalService.GetJournalsByFiscalYearAsync(fiscalYear);
+        var summaries = journals.Select(JournalSummaryResponse.From).ToList();
+        return Ok(summaries);
+    }
+
+    /// <summary>
     /// 仕訳伝票番号で仕訳を取得
     /// </summary>
     /// <param name="journalNo">仕訳伝票番号</param>

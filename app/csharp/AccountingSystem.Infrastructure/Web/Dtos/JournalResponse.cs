@@ -240,3 +240,56 @@ public record JournalBalanceResponse
     /// <summary>貸借バランスが取れているか</summary>
     public required bool IsBalanced { get; init; }
 }
+
+/// <summary>
+/// 仕訳一覧サマリーレスポンス DTO（Script Lab 用）
+/// </summary>
+public record JournalSummaryResponse
+{
+    /// <summary>仕訳伝票番号</summary>
+    public required string JournalNo { get; init; }
+
+    /// <summary>起票日</summary>
+    public required DateOnly JournalDate { get; init; }
+
+    /// <summary>決算期（年度）</summary>
+    public required int FiscalYear { get; init; }
+
+    /// <summary>摘要（最初の明細の行摘要）</summary>
+    public string? Description { get; init; }
+
+    /// <summary>借方合計</summary>
+    public required decimal TotalDebit { get; init; }
+
+    /// <summary>貸方合計</summary>
+    public required decimal TotalCredit { get; init; }
+
+    /// <summary>Entity から DTO を生成</summary>
+    public static JournalSummaryResponse From(Journal journal)
+    {
+        // 日本の会計年度: 4月〜翌年3月
+        var fiscalYear = journal.JournalDate.Month >= 4
+            ? journal.JournalDate.Year
+            : journal.JournalDate.Year - 1;
+
+        var debitTotal = journal.Details
+            .SelectMany(d => d.Items)
+            .Where(i => i.DebitCreditFlag == "D")
+            .Sum(i => i.Amount);
+
+        var creditTotal = journal.Details
+            .SelectMany(d => d.Items)
+            .Where(i => i.DebitCreditFlag == "C")
+            .Sum(i => i.Amount);
+
+        return new JournalSummaryResponse
+        {
+            JournalNo = journal.JournalNo,
+            JournalDate = journal.JournalDate,
+            FiscalYear = fiscalYear,
+            Description = journal.Details.FirstOrDefault()?.Description,
+            TotalDebit = debitTotal,
+            TotalCredit = creditTotal
+        };
+    }
+}

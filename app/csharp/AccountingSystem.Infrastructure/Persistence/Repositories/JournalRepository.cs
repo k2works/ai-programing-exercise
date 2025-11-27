@@ -222,4 +222,102 @@ public class JournalRepository : IJournalRepository
 
         return ((decimal)result.debittotal, (decimal)result.credittotal);
     }
+
+    /// <summary>
+    /// 決算期（年度）で仕訳一覧を取得
+    /// 日本の会計年度に従い、4月〜翌年3月を1年度とする
+    /// </summary>
+    public async Task<IReadOnlyList<Journal>> FindByFiscalYearAsync(int fiscalYear)
+    {
+        await using var connection = new NpgsqlConnection(_connectionString);
+        await connection.OpenAsync();
+
+        // 会計年度の開始日と終了日（日本の会計年度: 4月1日〜翌年3月31日）
+        var startDate = new DateOnly(fiscalYear, 4, 1);
+        var endDate = new DateOnly(fiscalYear + 1, 3, 31);
+
+        // 1. 仕訳ヘッダー取得
+        var journals = (await connection.QueryAsync<Journal>(@"
+            SELECT
+                ""仕訳伝票番号"" AS JournalNo,
+                ""起票日"" AS JournalDate,
+                ""入力日"" AS InputDate,
+                ""決算仕訳フラグ"" AS SettlementFlag,
+                ""単振フラグ"" AS SingleEntryFlag,
+                ""仕訳伝票区分"" AS JournalType,
+                ""定期計上フラグ"" AS RecurringFlag,
+                ""社員コード"" AS EmployeeCode,
+                ""部門コード"" AS DepartmentCode,
+                ""赤伝フラグ"" AS RedSlipFlag,
+                ""赤黒伝票番号"" AS RedBlackVoucherNo,
+                ""作成日時"" AS CreatedAt,
+                ""更新日時"" AS UpdatedAt
+            FROM ""仕訳""
+            WHERE ""起票日"" >= @StartDate AND ""起票日"" <= @EndDate
+            ORDER BY ""起票日"", ""仕訳伝票番号""
+            ", new { StartDate = startDate, EndDate = endDate })).ToList();
+
+        if (journals.Count == 0) return journals;
+
+        var journalNos = journals.Select(j => j.JournalNo).ToList();
+
+        // 2. 仕訳明細取得
+        var details = (await connection.QueryAsync<JournalDetail>(@"
+            SELECT
+                ""仕訳伝票番号"" AS JournalNo,
+                ""仕訳行番号"" AS LineNumber,
+                ""行摘要"" AS Description,
+                ""作成日時"" AS CreatedAt,
+                ""更新日時"" AS UpdatedAt
+            FROM ""仕訳明細""
+            WHERE ""仕訳伝票番号"" = ANY(@JournalNos)
+            ORDER BY ""仕訳伝票番号"", ""仕訳行番号""
+            ", new { JournalNos = journalNos })).ToList();
+
+        // 3. 仕訳貸借明細取得
+        var items = (await connection.QueryAsync<JournalDetailItem>(@"
+            SELECT
+                ""仕訳伝票番号"" AS JournalNo,
+                ""仕訳行番号"" AS LineNumber,
+                ""仕訳行貸借区分"" AS DebitCreditFlag,
+                ""通貨コード"" AS CurrencyCode,
+                ""為替レート"" AS ExchangeRate,
+                ""部門コード"" AS DepartmentCode,
+                ""プロジェクトコード"" AS ProjectCode,
+                ""勘定科目コード"" AS AccountCode,
+                ""補助科目コード"" AS SubAccountCode,
+                ""仕訳金額"" AS Amount,
+                ""基軸換算仕訳金額"" AS BaseAmount,
+                ""消費税区分"" AS TaxType,
+                ""消費税率"" AS TaxRate,
+                ""消費税計算区分"" AS TaxCalcType,
+                ""期日"" AS DueDate,
+                ""資金繰フラグ"" AS CashFlowFlag,
+                ""セグメントコード"" AS SegmentCode,
+                ""相手勘定科目コード"" AS OffsetAccountCode,
+                ""相手補助科目コード"" AS OffsetSubAccountCode,
+                ""付箋コード"" AS NoteCode,
+                ""付箋内容"" AS NoteContent,
+                ""作成日時"" AS CreatedAt,
+                ""更新日時"" AS UpdatedAt
+            FROM ""仕訳貸借明細""
+            WHERE ""仕訳伝票番号"" = ANY(@JournalNos)
+            ORDER BY ""仕訳伝票番号"", ""仕訳行番号"", ""仕訳行貸借区分""
+            ", new { JournalNos = journalNos })).ToList();
+
+        // 階層構造を構築
+        var detailsGrouped = details.GroupBy(d => d.JournalNo).ToDictionary(g => g.Key, g => g.ToList());
+        var itemsGrouped = items.GroupBy(i => (i.JournalNo, i.LineNumber)).ToDictionary(g => g.Key, g => g.ToList());
+
+        return journals.Select(j =>
+        {
+            var journalDetails = detailsGrouped.GetValueOrDefault(j.JournalNo, new List<JournalDetail>());
+            var detailsWithItems = journalDetails.Select(d => d with
+            {
+                Items = itemsGrouped.GetValueOrDefault((d.JournalNo, d.LineNumber), new List<JournalDetailItem>())
+            }).ToList();
+
+            return j with { Details = detailsWithItems };
+        }).ToList();
+    }
 }
