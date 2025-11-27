@@ -9,6 +9,7 @@ using AccountingSystem.Infrastructure.Persistence.Repositories;
 using AccountingSystem.Infrastructure;
 using AccountingSystem.Infrastructure.Seed;
 using AccountingSystem.Infrastructure.EventHandlers;
+using AccountingSystem.Infrastructure.EventBus;
 using Dapper;
 using Microsoft.OpenApi.Models;
 using Npgsql;
@@ -145,6 +146,12 @@ builder.Services.AddScoped<IFinancialStatementService>(sp =>
 });
 builder.Services.AddScoped<IFinancialAnalysisService, FinancialAnalysisService>();
 builder.Services.AddScoped<IJournalEntryEventSourcingService, JournalEntryEventSourcingService>();
+
+// RabbitMQ イベントバスの登録（IEventPublisher を提供）
+builder.Services.AddRabbitMQEventBus();
+
+// イベントソーシング + イベントバス連携サービスの登録
+builder.Services.AddJournalEntryEventSourcingServiceWithEventBus();
 
 // データベース Seed サービスの登録
 builder.Services.AddHostedService<DatabaseSeeder>();
