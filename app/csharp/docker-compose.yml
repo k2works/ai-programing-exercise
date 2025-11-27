@@ -64,10 +64,33 @@ services:
       - postgres
       - mysql
 
+  # RabbitMQ メッセージブローカー
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: accounting-system-rabbitmq
+    restart: unless-stopped
+    ports:
+      - "${RABBITMQ_PORT:-5672}:5672"      # AMQP ポート
+      - "${RABBITMQ_MGMT_PORT:-15672}:15672"  # 管理UI ポート
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-admin}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-admin123}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - db_network
+
 volumes:
   postgres_data:
     driver: local
   mysql_data:
+    driver: local
+  rabbitmq_data:
     driver: local
 
 networks:
