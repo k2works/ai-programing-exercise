@@ -116,9 +116,10 @@ docker compose up --build
 
 | メソッド | パス | 説明 |
 |---------|------|------|
-| GET | `http://localhost:8080/api/financial/journals` | 仕訳一覧取得 |
-| POST | `http://localhost:8080/api/financial/journals` | 仕訳作成 |
-| GET | `http://localhost:8080/api/management/analysis/{fiscalYear}` | 財務分析取得 |
+| GET | `http://localhost:8080/api/journals?fiscalYear=2024` | 仕訳一覧取得 |
+| GET | `http://localhost:8080/api/journals/{id}` | 仕訳取得 |
+| POST | `http://localhost:8080/api/journals` | 仕訳作成 |
+| GET | `http://localhost:8080/api/financial-analysis/{fiscalYear}` | 財務分析取得 |
 
 ### 直接アクセス
 
