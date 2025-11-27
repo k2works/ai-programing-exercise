@@ -3,39 +3,35 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FinancialAccounting", "FinancialAccounting", "{F00FC520-9058-E550-049B-0A48FC939CBD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinancialAccounting.Domain", "src\FinancialAccounting\FinancialAccounting.Domain\FinancialAccounting.Domain.csproj", "{30C718F8-F9FB-4F7B-A11F-59CA49A35C1F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinancialAccounting.Domain", "FinancialAccounting\FinancialAccounting.Domain\FinancialAccounting.Domain.csproj", "{30C718F8-F9FB-4F7B-A11F-59CA49A35C1F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinancialAccounting.Application", "src\FinancialAccounting\FinancialAccounting.Application\FinancialAccounting.Application.csproj", "{BE387C13-882B-4EBE-97CA-74E9F6FED117}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinancialAccounting.Application", "FinancialAccounting\FinancialAccounting.Application\FinancialAccounting.Application.csproj", "{BE387C13-882B-4EBE-97CA-74E9F6FED117}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinancialAccounting.Infrastructure", "src\FinancialAccounting\FinancialAccounting.Infrastructure\FinancialAccounting.Infrastructure.csproj", "{0DAEB227-97CF-46DC-B849-DFF4F8808C0A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinancialAccounting.Infrastructure", "FinancialAccounting\FinancialAccounting.Infrastructure\FinancialAccounting.Infrastructure.csproj", "{0DAEB227-97CF-46DC-B849-DFF4F8808C0A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinancialAccounting.Api", "src\FinancialAccounting\FinancialAccounting.Api\FinancialAccounting.Api.csproj", "{B099D964-D18C-4CCE-AAC5-04A38E8225D6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinancialAccounting.Api", "FinancialAccounting\FinancialAccounting.Api\FinancialAccounting.Api.csproj", "{B099D964-D18C-4CCE-AAC5-04A38E8225D6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ManagementAccounting", "ManagementAccounting", "{C7654DF6-FE71-1FCB-C7E4-E2F375F5D507}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagementAccounting.Domain", "src\ManagementAccounting\ManagementAccounting.Domain\ManagementAccounting.Domain.csproj", "{F0BA88C4-D254-48C5-940E-22A688642755}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagementAccounting.Domain", "ManagementAccounting\ManagementAccounting.Domain\ManagementAccounting.Domain.csproj", "{F0BA88C4-D254-48C5-940E-22A688642755}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagementAccounting.Application", "src\ManagementAccounting\ManagementAccounting.Application\ManagementAccounting.Application.csproj", "{F6A643C9-226A-4E62-B1D5-499D76DB3B9D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagementAccounting.Application", "ManagementAccounting\ManagementAccounting.Application\ManagementAccounting.Application.csproj", "{F6A643C9-226A-4E62-B1D5-499D76DB3B9D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagementAccounting.Infrastructure", "src\ManagementAccounting\ManagementAccounting.Infrastructure\ManagementAccounting.Infrastructure.csproj", "{34176AEB-4200-4BE7-873B-4C65665B557E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagementAccounting.Infrastructure", "ManagementAccounting\ManagementAccounting.Infrastructure\ManagementAccounting.Infrastructure.csproj", "{34176AEB-4200-4BE7-873B-4C65665B557E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagementAccounting.Api", "src\ManagementAccounting\ManagementAccounting.Api\ManagementAccounting.Api.csproj", "{D44C0285-6F4C-4C56-9FCE-AD496874C0C8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagementAccounting.Api", "ManagementAccounting\ManagementAccounting.Api\ManagementAccounting.Api.csproj", "{D44C0285-6F4C-4C56-9FCE-AD496874C0C8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ApiGateway", "ApiGateway", "{FCA01246-F2C6-0AA7-D43F-FD13BE0B9D88}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiGateway", "src\ApiGateway\ApiGateway\ApiGateway.csproj", "{9FED96BE-06A9-4351-A154-067DC46041A2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiGateway", "ApiGateway\ApiGateway\ApiGateway.csproj", "{9FED96BE-06A9-4351-A154-067DC46041A2}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinancialAccounting.Tests", "FinancialAccounting.Tests\FinancialAccounting.Tests.csproj", "{12DA7B49-DE23-4CE4-B5FE-A7741D8EE982}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinancialAccounting.Tests", "tests\FinancialAccounting.Tests\FinancialAccounting.Tests.csproj", "{12DA7B49-DE23-4CE4-B5FE-A7741D8EE982}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagementAccounting.Tests", "ManagementAccounting.Tests\ManagementAccounting.Tests.csproj", "{A083C899-D4F5-4BEB-9530-EF007463229D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagementAccounting.Tests", "tests\ManagementAccounting.Tests\ManagementAccounting.Tests.csproj", "{A083C899-D4F5-4BEB-9530-EF007463229D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Integration.Tests", "tests\Integration.Tests\Integration.Tests.csproj", "{05118DDB-5313-4724-8EDE-AF851234EE0A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Integration.Tests", "Integration.Tests\Integration.Tests.csproj", "{05118DDB-5313-4724-8EDE-AF851234EE0A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -196,20 +192,14 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{F00FC520-9058-E550-049B-0A48FC939CBD} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{30C718F8-F9FB-4F7B-A11F-59CA49A35C1F} = {F00FC520-9058-E550-049B-0A48FC939CBD}
 		{BE387C13-882B-4EBE-97CA-74E9F6FED117} = {F00FC520-9058-E550-049B-0A48FC939CBD}
 		{0DAEB227-97CF-46DC-B849-DFF4F8808C0A} = {F00FC520-9058-E550-049B-0A48FC939CBD}
 		{B099D964-D18C-4CCE-AAC5-04A38E8225D6} = {F00FC520-9058-E550-049B-0A48FC939CBD}
-		{C7654DF6-FE71-1FCB-C7E4-E2F375F5D507} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{F0BA88C4-D254-48C5-940E-22A688642755} = {C7654DF6-FE71-1FCB-C7E4-E2F375F5D507}
 		{F6A643C9-226A-4E62-B1D5-499D76DB3B9D} = {C7654DF6-FE71-1FCB-C7E4-E2F375F5D507}
 		{34176AEB-4200-4BE7-873B-4C65665B557E} = {C7654DF6-FE71-1FCB-C7E4-E2F375F5D507}
 		{D44C0285-6F4C-4C56-9FCE-AD496874C0C8} = {C7654DF6-FE71-1FCB-C7E4-E2F375F5D507}
-		{FCA01246-F2C6-0AA7-D43F-FD13BE0B9D88} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{9FED96BE-06A9-4351-A154-067DC46041A2} = {FCA01246-F2C6-0AA7-D43F-FD13BE0B9D88}
-		{12DA7B49-DE23-4CE4-B5FE-A7741D8EE982} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
-		{A083C899-D4F5-4BEB-9530-EF007463229D} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
-		{05118DDB-5313-4724-8EDE-AF851234EE0A} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal

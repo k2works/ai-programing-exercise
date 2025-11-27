@@ -3,16 +3,16 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0-preview AS build
 WORKDIR /src
 
 # Copy project files
-COPY ["src/ApiGateway/ApiGateway/ApiGateway.csproj", "src/ApiGateway/ApiGateway/"]
+COPY ["ApiGateway/ApiGateway/ApiGateway.csproj", "ApiGateway/ApiGateway/"]
 
 # Restore
-RUN dotnet restore "src/ApiGateway/ApiGateway/ApiGateway.csproj"
+RUN dotnet restore "ApiGateway/ApiGateway/ApiGateway.csproj"
 
 # Copy source code
-COPY src/ApiGateway/ src/ApiGateway/
+COPY ApiGateway/ ApiGateway/
 
 # Build
-WORKDIR "/src/src/ApiGateway/ApiGateway"
+WORKDIR "/src/ApiGateway/ApiGateway"
 RUN dotnet build "ApiGateway.csproj" -c Release -o /app/build
 
 # Publish

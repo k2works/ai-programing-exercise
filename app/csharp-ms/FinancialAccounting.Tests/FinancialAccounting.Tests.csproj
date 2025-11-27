@@ -22,9 +22,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\FinancialAccounting\FinancialAccounting.Domain\FinancialAccounting.Domain.csproj" />
-    <ProjectReference Include="..\..\src\FinancialAccounting\FinancialAccounting.Application\FinancialAccounting.Application.csproj" />
-    <ProjectReference Include="..\..\src\FinancialAccounting\FinancialAccounting.Infrastructure\FinancialAccounting.Infrastructure.csproj" />
+    <ProjectReference Include="..\FinancialAccounting\FinancialAccounting.Domain\FinancialAccounting.Domain.csproj" />
+    <ProjectReference Include="..\FinancialAccounting\FinancialAccounting.Application\FinancialAccounting.Application.csproj" />
+    <ProjectReference Include="..\FinancialAccounting\FinancialAccounting.Infrastructure\FinancialAccounting.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

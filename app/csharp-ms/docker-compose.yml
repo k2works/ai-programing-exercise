@@ -75,7 +75,7 @@ services:
   financial-accounting-service:
     build:
       context: .
-      dockerfile: src/FinancialAccounting/FinancialAccounting.Api/Dockerfile
+      dockerfile: FinancialAccounting/FinancialAccounting.Api/Dockerfile
     container_name: financial-accounting-service
     environment:
       ASPNETCORE_ENVIRONMENT: Development
@@ -97,7 +97,7 @@ services:
   management-accounting-service:
     build:
       context: .
-      dockerfile: src/ManagementAccounting/ManagementAccounting.Api/Dockerfile
+      dockerfile: ManagementAccounting/ManagementAccounting.Api/Dockerfile
     container_name: management-accounting-service
     environment:
       ASPNETCORE_ENVIRONMENT: Development
@@ -122,7 +122,7 @@ services:
   api-gateway:
     build:
       context: .
-      dockerfile: src/ApiGateway/ApiGateway/Dockerfile
+      dockerfile: ApiGateway/ApiGateway/Dockerfile
     container_name: api-gateway
     environment:
       ASPNETCORE_ENVIRONMENT: Development
