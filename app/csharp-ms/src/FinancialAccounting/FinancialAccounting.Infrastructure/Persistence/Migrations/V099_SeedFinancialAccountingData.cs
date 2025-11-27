@@ -11,33 +11,33 @@ public class V099_SeedFinancialAccountingData : Migration
     public override void Up()
     {
         // 勘定科目マスタのシードデータ
-        // 資産
-        InsertAccount("1110", "現金預金", "資産", 1133270000.00m);
-        InsertAccount("1120", "売掛金", "資産", 864915000.00m);
-        InsertAccount("1130", "有価証券", "資産", 50000000.00m);
-        InsertAccount("1140", "棚卸資産", "資産", 325450000.00m);
-        InsertAccount("1210", "建物", "資産", 580000000.00m);
-        InsertAccount("1220", "機械装置", "資産", 420000000.00m);
-        InsertAccount("1230", "土地", "資産", 750000000.00m);
+        // 資産 (B/S, 借方)
+        InsertAccount("1110", "現金預金", "資産", "B", "借方", 1133270000.00m);
+        InsertAccount("1120", "売掛金", "資産", "B", "借方", 864915000.00m);
+        InsertAccount("1130", "有価証券", "資産", "B", "借方", 50000000.00m);
+        InsertAccount("1140", "棚卸資産", "資産", "B", "借方", 325450000.00m);
+        InsertAccount("1210", "建物", "資産", "B", "借方", 580000000.00m);
+        InsertAccount("1220", "機械装置", "資産", "B", "借方", 420000000.00m);
+        InsertAccount("1230", "土地", "資産", "B", "借方", 750000000.00m);
 
-        // 負債
-        InsertAccount("2110", "買掛金", "負債", 523680000.00m);
-        InsertAccount("2120", "短期借入金", "負債", 200000000.00m);
-        InsertAccount("2210", "長期借入金", "負債", 800000000.00m);
+        // 負債 (B/S, 貸方)
+        InsertAccount("2110", "買掛金", "負債", "B", "貸方", 523680000.00m);
+        InsertAccount("2120", "短期借入金", "負債", "B", "貸方", 200000000.00m);
+        InsertAccount("2210", "長期借入金", "負債", "B", "貸方", 800000000.00m);
 
-        // 純資産
-        InsertAccount("3110", "資本金", "純資産", 1000000000.00m);
-        InsertAccount("3120", "資本剰余金", "純資産", 500000000.00m);
-        InsertAccount("3130", "利益剰余金", "純資産", 1099955000.00m);
+        // 純資産 (B/S, 貸方)
+        InsertAccount("3110", "資本金", "純資産", "B", "貸方", 1000000000.00m);
+        InsertAccount("3120", "資本剰余金", "純資産", "B", "貸方", 500000000.00m);
+        InsertAccount("3130", "利益剰余金", "純資産", "B", "貸方", 1099955000.00m);
 
-        // 収益
-        InsertAccount("4110", "売上高", "収益", 0.00m);
-        InsertAccount("4120", "受取利息", "収益", 0.00m);
+        // 収益 (P/L, 貸方)
+        InsertAccount("4110", "売上高", "収益", "P", "貸方", 0.00m);
+        InsertAccount("4120", "受取利息", "収益", "P", "貸方", 0.00m);
 
-        // 費用
-        InsertAccount("5110", "売上原価", "費用", 0.00m);
-        InsertAccount("5210", "販売費及び一般管理費", "費用", 0.00m);
-        InsertAccount("5220", "支払利息", "費用", 0.00m);
+        // 費用 (P/L, 借方)
+        InsertAccount("5110", "売上原価", "費用", "P", "借方", 0.00m);
+        InsertAccount("5210", "販売費及び一般管理費", "費用", "P", "借方", 0.00m);
+        InsertAccount("5220", "支払利息", "費用", "P", "借方", 0.00m);
 
         // サンプル仕訳データ
         // 売上計上仕訳 (2024年度)
@@ -84,13 +84,15 @@ public class V099_SeedFinancialAccountingData : Migration
         Delete.FromTable("accounts").AllRows();
     }
 
-    private void InsertAccount(string code, string name, string type, decimal balance)
+    private void InsertAccount(string code, string name, string type, string bsPlType, string transactionElementType, decimal balance)
     {
         Insert.IntoTable("accounts").Row(new
         {
             account_code = code,
             account_name = name,
             account_type = type,
+            bs_pl_type = bsPlType,
+            transaction_element_type = transactionElementType,
             balance = balance,
             created_at = DateTime.UtcNow,
             updated_at = DateTime.UtcNow

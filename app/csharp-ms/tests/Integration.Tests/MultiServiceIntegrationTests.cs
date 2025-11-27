@@ -1,28 +1,22 @@
 using System.Net.Http.Json;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.Configuration;
 using Testcontainers.PostgreSql;
 using Testcontainers.RabbitMq;
 
 namespace Integration.Tests;
 
 /// <summary>
-/// マルチサービス統合テスト（TestContainers使用）
-///
-/// 財務会計サービスと管理会計サービスの連携をテスト
+/// 財務会計サービス統合テスト（TestContainers使用）
 /// </summary>
-public class MultiServiceIntegrationTests : IAsyncLifetime
+public class FinancialAccountingIntegrationTests : IAsyncLifetime
 {
     private PostgreSqlContainer _financialPostgres = null!;
-    private PostgreSqlContainer _managementPostgres = null!;
     private RabbitMqContainer _rabbitMq = null!;
 
     private WebApplicationFactory<FinancialAccounting.Api.Controllers.JournalController> _financialFactory = null!;
-    private WebApplicationFactory<ManagementAccounting.Api.Controllers.FinancialAnalysisController> _managementFactory = null!;
 
     private HttpClient _financialClient = null!;
-    private HttpClient _managementClient = null!;
 
     public async Task InitializeAsync()
     {
@@ -30,14 +24,6 @@ public class MultiServiceIntegrationTests : IAsyncLifetime
         _financialPostgres = new PostgreSqlBuilder()
             .WithImage("postgres:16-alpine")
             .WithDatabase("financial_accounting")
-            .WithUsername("test")
-            .WithPassword("test")
-            .Build();
-
-        // PostgreSQL コンテナ（管理会計用）
-        _managementPostgres = new PostgreSqlBuilder()
-            .WithImage("postgres:16-alpine")
-            .WithDatabase("management_accounting")
             .WithUsername("test")
             .WithPassword("test")
             .Build();
@@ -52,61 +38,35 @@ public class MultiServiceIntegrationTests : IAsyncLifetime
         // コンテナを並列で起動
         await Task.WhenAll(
             _financialPostgres.StartAsync(),
-            _managementPostgres.StartAsync(),
             _rabbitMq.StartAsync()
         );
 
         // 財務会計サービス用の WebApplicationFactory
+        var connectionString = _financialPostgres.GetConnectionString();
+        var rabbitHost = _rabbitMq.Hostname;
+        var rabbitPort = _rabbitMq.GetMappedPublicPort(5672).ToString();
+
         _financialFactory = new WebApplicationFactory<FinancialAccounting.Api.Controllers.JournalController>()
             .WithWebHostBuilder(builder =>
             {
-                builder.ConfigureAppConfiguration((context, config) =>
-                {
-                    config.AddInMemoryCollection(new Dictionary<string, string?>
-                    {
-                        ["ConnectionStrings:FinancialAccounting"] = _financialPostgres.GetConnectionString(),
-                        ["RabbitMQ:Host"] = _rabbitMq.Hostname,
-                        ["RabbitMQ:Port"] = _rabbitMq.GetMappedPublicPort(5672).ToString(),
-                        ["RabbitMQ:Username"] = "guest",
-                        ["RabbitMQ:Password"] = "guest"
-                    });
-                });
+                builder.UseSetting("ConnectionStrings:FinancialAccounting", connectionString);
+                builder.UseSetting("RabbitMQ:Host", rabbitHost);
+                builder.UseSetting("RabbitMQ:Port", rabbitPort);
+                builder.UseSetting("RabbitMQ:Username", "guest");
+                builder.UseSetting("RabbitMQ:Password", "guest");
             });
 
         _financialClient = _financialFactory.CreateClient();
-
-        // 管理会計サービス用の WebApplicationFactory
-        _managementFactory = new WebApplicationFactory<ManagementAccounting.Api.Controllers.FinancialAnalysisController>()
-            .WithWebHostBuilder(builder =>
-            {
-                builder.ConfigureAppConfiguration((context, config) =>
-                {
-                    config.AddInMemoryCollection(new Dictionary<string, string?>
-                    {
-                        ["ConnectionStrings:ManagementAccounting"] = _managementPostgres.GetConnectionString(),
-                        ["FinancialAccountingService:BaseUrl"] = _financialClient.BaseAddress!.ToString(),
-                        ["RabbitMQ:Host"] = _rabbitMq.Hostname,
-                        ["RabbitMQ:Port"] = _rabbitMq.GetMappedPublicPort(5672).ToString(),
-                        ["RabbitMQ:Username"] = "guest",
-                        ["RabbitMQ:Password"] = "guest"
-                    });
-                });
-            });
-
-        _managementClient = _managementFactory.CreateClient();
     }
 
     public async Task DisposeAsync()
     {
         _financialClient?.Dispose();
-        _managementClient?.Dispose();
 
         await _financialFactory.DisposeAsync();
-        await _managementFactory.DisposeAsync();
 
         await Task.WhenAll(
             _financialPostgres.DisposeAsync().AsTask(),
-            _managementPostgres.DisposeAsync().AsTask(),
             _rabbitMq.DisposeAsync().AsTask()
         );
     }
@@ -131,7 +91,8 @@ public class MultiServiceIntegrationTests : IAsyncLifetime
         var response = await _financialClient.PostAsJsonAsync("/api/journals", request);
 
         // Assert
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.Created);
+        var content = await response.Content.ReadAsStringAsync();
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.Created, content);
 
         var journal = await response.Content.ReadFromJsonAsync<JournalResponse>();
         journal.Should().NotBeNull();
@@ -154,13 +115,15 @@ public class MultiServiceIntegrationTests : IAsyncLifetime
                 new { AccountCode = "4110", DebitAmount = 0m, CreditAmount = 50000m, Description = "売上" }
             }
         };
-        await _financialClient.PostAsJsonAsync("/api/journals", createRequest);
+        var createResponse = await _financialClient.PostAsJsonAsync("/api/journals", createRequest);
+        createResponse.EnsureSuccessStatusCode();
 
         // Act
         var response = await _financialClient.GetAsync("/api/journals?fiscalYear=2024");
 
         // Assert
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync();
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK, content);
 
         var journals = await response.Content.ReadFromJsonAsync<List<JournalResponse>>();
         journals.Should().NotBeNull();
@@ -186,7 +149,8 @@ public class MultiServiceIntegrationTests : IAsyncLifetime
         // Act
         var response = await _financialClient.PostAsJsonAsync("/api/journals", request);
 
-        // Assert
+        // Assert - ドメインバリデーションにより例外がスローされ、500エラーが返される
+        // 将来的には適切なエラーハンドリングミドルウェアで400を返すべき
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.InternalServerError);
     }
 }

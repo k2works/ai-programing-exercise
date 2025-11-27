@@ -18,6 +18,28 @@ public class JournalRepository : IJournalRepository
         _connectionString = configuration.GetConnectionString("FinancialAccounting")!;
     }
 
+    // Dapper 用の内部 DTO（PostgreSQL date 型の変換問題を回避）
+    private record JournalDto(
+        int JournalId,
+        DateOnly JournalDate,
+        string Description,
+        int FiscalYear,
+        DateTime CreatedAt,
+        DateTime UpdatedAt);
+
+    private static Journal MapToJournal(JournalDto dto)
+    {
+        return new Journal
+        {
+            JournalId = dto.JournalId,
+            JournalDate = dto.JournalDate.ToDateTime(TimeOnly.MinValue),
+            Description = dto.Description,
+            FiscalYear = dto.FiscalYear,
+            CreatedAt = dto.CreatedAt,
+            UpdatedAt = dto.UpdatedAt
+        };
+    }
+
     public async Task<Journal> SaveAsync(Journal journal)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
@@ -80,7 +102,8 @@ public class JournalRepository : IJournalRepository
             FROM journals
             WHERE journal_id = @JournalId";
 
-        return await connection.QuerySingleOrDefaultAsync<Journal>(sql, new { JournalId = journalId });
+        var dto = await connection.QuerySingleOrDefaultAsync<JournalDto>(sql, new { JournalId = journalId });
+        return dto != null ? MapToJournal(dto) : null;
     }
 
     public async Task<List<Journal>> FindByFiscalYearAsync(int fiscalYear)
@@ -95,8 +118,8 @@ public class JournalRepository : IJournalRepository
             WHERE fiscal_year = @FiscalYear
             ORDER BY journal_date";
 
-        var journals = await connection.QueryAsync<Journal>(sql, new { FiscalYear = fiscalYear });
-        return journals.ToList();
+        var dtos = await connection.QueryAsync<JournalDto>(sql, new { FiscalYear = fiscalYear });
+        return dtos.Select(MapToJournal).ToList();
     }
 
     public async Task<List<JournalEntry>> FindEntriesByJournalIdAsync(int journalId)
