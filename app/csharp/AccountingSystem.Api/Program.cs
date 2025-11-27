@@ -7,6 +7,8 @@ using AccountingSystem.Application.Services;
 using AccountingSystem.Domain.Models.Financial;
 using AccountingSystem.Infrastructure.Persistence.Repositories;
 using AccountingSystem.Infrastructure;
+using AccountingSystem.Infrastructure.Seed;
+using AccountingSystem.Infrastructure.EventHandlers;
 using Dapper;
 using Microsoft.OpenApi.Models;
 using Npgsql;
@@ -103,6 +105,8 @@ builder.Services.AddScoped<IAuditLogRepository>(sp =>
 builder.Services.AddMediatR(cfg =>
 {
     cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
+    // Infrastructure アセンブリのイベントハンドラー（AuditEventHandler 等）を登録
+    cfg.RegisterServicesFromAssembly(typeof(AuditEventHandler).Assembly);
 });
 
 // Event Sourcing リポジトリの登録
@@ -111,6 +115,22 @@ builder.Services.AddScoped<IEventStoreRepository>(sp =>
     var configuration = sp.GetRequiredService<IConfiguration>();
     var connectionString = configuration.GetConnectionString("DefaultConnection")!;
     return new EventStoreRepository(connectionString);
+});
+
+// 月次勘定科目残高リポジトリの登録
+builder.Services.AddScoped<IMonthlyAccountBalanceRepository>(sp =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var connectionString = configuration.GetConnectionString("DefaultConnection")!;
+    return new MonthlyAccountBalanceRepository(connectionString);
+});
+
+// 仕訳 Read Model リポジトリの登録（CQRS Query Side）
+builder.Services.AddScoped<IJournalEntryReadModelRepository>(sp =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var connectionString = configuration.GetConnectionString("DefaultConnection")!;
+    return new JournalEntryReadModelRepository(connectionString);
 });
 
 // Application Services の登録（入力ポート）
@@ -123,11 +143,48 @@ builder.Services.AddScoped<IFinancialStatementService>(sp =>
     var connectionString = configuration.GetConnectionString("DefaultConnection")!;
     return new FinancialStatementService(connectionString);
 });
+builder.Services.AddScoped<IFinancialAnalysisService, FinancialAnalysisService>();
 builder.Services.AddScoped<IJournalEntryEventSourcingService, JournalEntryEventSourcingService>();
+
+// データベース Seed サービスの登録
+builder.Services.AddHostedService<DatabaseSeeder>();
 
 // グローバル例外ハンドラーの登録
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
+
+// CORS 設定（Script Lab からのアクセスを許可）
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("ScriptLabPolicy", policy =>
+    {
+        policy
+            // Script Lab、Excel Online、開発環境からのアクセスを許可
+            .WithOrigins(
+                "https://script-lab.azureedge.net",    // Script Lab
+                "https://script-lab-react.azureedge.net", // Script Lab React
+                "https://*.cdn.office.net",           // Office CDN
+                "https://*.officeapps.live.com",      // Excel Online
+                "https://*.office.com",               // Office 365
+                "http://localhost:5000",              // ローカル開発
+                "http://localhost:5001",              // ローカル開発 HTTPS
+                "https://localhost:5001"              // ローカル開発 HTTPS
+            )
+            .SetIsOriginAllowedToAllowWildcardSubdomains()
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
+    });
+
+    // 開発環境用の緩い CORS ポリシー
+    options.AddPolicy("DevelopmentPolicy", policy =>
+    {
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
 
 var app = builder.Build();
 
@@ -139,6 +196,14 @@ if (app.Environment.IsDevelopment())
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "財務会計システム API v1");
     });
+
+    // 開発環境では緩い CORS ポリシーを使用
+    app.UseCors("DevelopmentPolicy");
+}
+else
+{
+    // 本番環境では Script Lab ポリシーを使用
+    app.UseCors("ScriptLabPolicy");
 }
 
 // 例外ハンドリングミドルウェア
