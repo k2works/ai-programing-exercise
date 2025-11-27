@@ -11,6 +11,11 @@ public class ErrorResponse
     public int Status { get; set; }
 
     /// <summary>
+    /// エラーコード
+    /// </summary>
+    public string Code { get; set; } = string.Empty;
+
+    /// <summary>
     /// エラー種別
     /// </summary>
     public string Error { get; set; } = string.Empty;

@@ -69,6 +69,15 @@ public abstract class ApiTestBase : IAsyncLifetime
                     services.RemoveAll<IEventPublisher>();
                     services.AddSingleton<IEventPublisher, NoOpEventPublisher>();
 
+                    // IMonthlyAccountBalanceRepository を登録
+                    services.RemoveAll<IMonthlyAccountBalanceRepository>();
+                    services.AddScoped<IMonthlyAccountBalanceRepository>(sp =>
+                        new MonthlyAccountBalanceRepository(ConnectionString));
+
+                    // IFinancialAnalysisService を登録
+                    services.RemoveAll<IFinancialAnalysisService>();
+                    services.AddScoped<IFinancialAnalysisService, FinancialAnalysisService>();
+
                     // JournalEntryEventSourcingServiceWithEventBus を登録
                     services.AddScoped<JournalEntryEventSourcingServiceWithEventBus>(sp =>
                     {
