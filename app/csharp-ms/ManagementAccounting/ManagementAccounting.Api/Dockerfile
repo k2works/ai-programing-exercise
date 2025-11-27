@@ -7,12 +7,14 @@ COPY ["ManagementAccounting/ManagementAccounting.Api/ManagementAccounting.Api.cs
 COPY ["ManagementAccounting/ManagementAccounting.Application/ManagementAccounting.Application.csproj", "ManagementAccounting/ManagementAccounting.Application/"]
 COPY ["ManagementAccounting/ManagementAccounting.Domain/ManagementAccounting.Domain.csproj", "ManagementAccounting/ManagementAccounting.Domain/"]
 COPY ["ManagementAccounting/ManagementAccounting.Infrastructure/ManagementAccounting.Infrastructure.csproj", "ManagementAccounting/ManagementAccounting.Infrastructure/"]
+COPY ["Shared/Shared.Contracts/Shared.Contracts.csproj", "Shared/Shared.Contracts/"]
 
 # Restore
 RUN dotnet restore "ManagementAccounting/ManagementAccounting.Api/ManagementAccounting.Api.csproj"
 
 # Copy source code
 COPY ManagementAccounting/ ManagementAccounting/
+COPY Shared/ Shared/
 
 # Build
 WORKDIR "/src/ManagementAccounting/ManagementAccounting.Api"

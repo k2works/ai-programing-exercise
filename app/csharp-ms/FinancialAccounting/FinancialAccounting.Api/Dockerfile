@@ -7,12 +7,14 @@ COPY ["FinancialAccounting/FinancialAccounting.Api/FinancialAccounting.Api.cspro
 COPY ["FinancialAccounting/FinancialAccounting.Application/FinancialAccounting.Application.csproj", "FinancialAccounting/FinancialAccounting.Application/"]
 COPY ["FinancialAccounting/FinancialAccounting.Domain/FinancialAccounting.Domain.csproj", "FinancialAccounting/FinancialAccounting.Domain/"]
 COPY ["FinancialAccounting/FinancialAccounting.Infrastructure/FinancialAccounting.Infrastructure.csproj", "FinancialAccounting/FinancialAccounting.Infrastructure/"]
+COPY ["Shared/Shared.Contracts/Shared.Contracts.csproj", "Shared/Shared.Contracts/"]
 
 # Restore
 RUN dotnet restore "FinancialAccounting/FinancialAccounting.Api/FinancialAccounting.Api.csproj"
 
 # Copy source code
 COPY FinancialAccounting/ FinancialAccounting/
+COPY Shared/ Shared/
 
 # Build
 WORKDIR "/src/FinancialAccounting/FinancialAccounting.Api"
