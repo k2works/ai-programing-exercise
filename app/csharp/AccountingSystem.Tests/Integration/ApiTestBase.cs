@@ -1,8 +1,13 @@
+using AccountingSystem.Application.Ports.In;
+using AccountingSystem.Application.Ports.Out;
+using AccountingSystem.Application.Services;
 using AccountingSystem.Infrastructure.Persistence.Repositories;
 using Dapper;
 using FluentMigrator.Runner;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using Npgsql;
 using Testcontainers.PostgreSql;
 using Xunit;
@@ -57,6 +62,22 @@ public abstract class ApiTestBase : IAsyncLifetime
                 builder.UseSetting(
                     "ConnectionStrings:DefaultConnection",
                     ConnectionString);
+
+                builder.ConfigureServices(services =>
+                {
+                    // テスト用のモック IEventPublisher を登録
+                    services.RemoveAll<IEventPublisher>();
+                    services.AddSingleton<IEventPublisher, NoOpEventPublisher>();
+
+                    // JournalEntryEventSourcingServiceWithEventBus を登録
+                    services.AddScoped<JournalEntryEventSourcingServiceWithEventBus>(sp =>
+                    {
+                        var innerService = sp.GetRequiredService<IJournalEntryEventSourcingService>();
+                        var eventPublisher = sp.GetRequiredService<IEventPublisher>();
+                        var logger = sp.GetRequiredService<ILogger<JournalEntryEventSourcingServiceWithEventBus>>();
+                        return new JournalEntryEventSourcingServiceWithEventBus(innerService, eventPublisher, logger);
+                    });
+                });
             });
 
         Client = _factory.CreateClient();
@@ -99,5 +120,17 @@ public abstract class ApiTestBase : IAsyncLifetime
         await using var connection = new NpgsqlConnection(ConnectionString);
         await connection.OpenAsync();
         await connection.ExecuteAsync(sql, param);
+    }
+}
+
+/// <summary>
+/// テスト用の何もしない IEventPublisher 実装
+/// </summary>
+internal class NoOpEventPublisher : IEventPublisher
+{
+    public Task PublishAsync<TEvent>(TEvent @event, string routingKey)
+    {
+        // 何もしない（テスト用）
+        return Task.CompletedTask;
     }
 }
