@@ -32,7 +32,7 @@ class JournalRepository:
    */
   def insertDetail(detail: JournalDetail)(implicit session: DBSession): Int =
     sql"""
-      INSERT INTO "仕訳明細3" (
+      INSERT INTO "仕訳明細" (
         "仕訳伝票番号", "仕訳行番号", "行摘要"
       ) VALUES (
         ${detail.journalNo}, ${detail.lineNumber}, ${detail.lineDescription}
@@ -95,7 +95,7 @@ class JournalRepository:
    */
   def findDetailsByNo(journalNo: String)(implicit session: DBSession): List[JournalDetail] =
     sql"""
-      SELECT * FROM "仕訳明細3"
+      SELECT * FROM "仕訳明細"
       WHERE "仕訳伝票番号" = ${journalNo}
       ORDER BY "仕訳行番号"
     """.map(mapToDetail).list.apply()

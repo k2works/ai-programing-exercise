@@ -33,7 +33,7 @@ class JournalBalanceCheckSpec extends DatabaseSpec with BeforeAndAfterEach:
       """.update.apply()
 
       sql"""
-        INSERT INTO "仕訳明細3" ("仕訳伝票番号", "仕訳行番号", "行摘要")
+        INSERT INTO "仕訳明細" ("仕訳伝票番号", "仕訳行番号", "行摘要")
         VALUES (${journalNo}, 1, ${"テスト"})
       """.update.apply()
 
@@ -94,7 +94,7 @@ class JournalBalanceCheckSpec extends DatabaseSpec with BeforeAndAfterEach:
       """.update.apply()
 
       sql"""
-        INSERT INTO "仕訳明細3" ("仕訳伝票番号", "仕訳行番号", "行摘要")
+        INSERT INTO "仕訳明細" ("仕訳伝票番号", "仕訳行番号", "行摘要")
         VALUES (${journalNo}, 1, ${"関数テスト"})
       """.update.apply()
 
@@ -154,7 +154,7 @@ class JournalBalanceCheckSpec extends DatabaseSpec with BeforeAndAfterEach:
       """.update.apply()
 
       sql"""
-        INSERT INTO "仕訳明細3" ("仕訳伝票番号", "仕訳行番号", "行摘要")
+        INSERT INTO "仕訳明細" ("仕訳伝票番号", "仕訳行番号", "行摘要")
         VALUES (${journalNo}, 1, ${"不平衡テスト"})
       """.update.apply()
 
@@ -207,7 +207,7 @@ class JournalBalanceCheckSpec extends DatabaseSpec with BeforeAndAfterEach:
       """.update.apply()
 
       sql"""
-        INSERT INTO "仕訳明細3" ("仕訳伝票番号", "仕訳行番号", "行摘要")
+        INSERT INTO "仕訳明細" ("仕訳伝票番号", "仕訳行番号", "行摘要")
         VALUES (${balancedNo}, 1, ${"平衡"})
       """.update.apply()
 
@@ -239,7 +239,7 @@ class JournalBalanceCheckSpec extends DatabaseSpec with BeforeAndAfterEach:
       """.update.apply()
 
       sql"""
-        INSERT INTO "仕訳明細3" ("仕訳伝票番号", "仕訳行番号", "行摘要")
+        INSERT INTO "仕訳明細" ("仕訳伝票番号", "仕訳行番号", "行摘要")
         VALUES (${unbalancedNo}, 1, ${"不平衡"})
       """.update.apply()
 

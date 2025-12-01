@@ -43,7 +43,7 @@ ALTER TABLE "仕訳"
   );
 
 -- 2. 仕訳明細テーブル（3層構造用）
-CREATE TABLE IF NOT EXISTS "仕訳明細3" (
+CREATE TABLE IF NOT EXISTS "仕訳明細" (
     "仕訳伝票番号" VARCHAR(20),
     "仕訳行番号" INTEGER,
     "行摘要" VARCHAR(1000) NOT NULL,
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS "仕訳明細3" (
 );
 
 -- インデックス作成
-CREATE INDEX "idx_仕訳明細3_伝票番号" ON "仕訳明細3"("仕訳伝票番号");
+CREATE INDEX "idx_仕訳明細_伝票番号" ON "仕訳明細"("仕訳伝票番号");
 
 -- 3. 仕訳貸借明細テーブル
 CREATE TABLE IF NOT EXISTS "仕訳貸借明細" (
@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS "仕訳貸借明細" (
     "更新日時" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     PRIMARY KEY ("仕訳伝票番号", "仕訳行番号", "仕訳行貸借区分"),
     FOREIGN KEY ("仕訳伝票番号", "仕訳行番号")
-        REFERENCES "仕訳明細3" ("仕訳伝票番号", "仕訳行番号") ON DELETE CASCADE,
+        REFERENCES "仕訳明細" ("仕訳伝票番号", "仕訳行番号") ON DELETE CASCADE,
     FOREIGN KEY ("勘定科目コード")
         REFERENCES "勘定科目マスタ" ("勘定科目コード")
 );
@@ -113,7 +113,7 @@ ALTER TABLE "仕訳貸借明細"
 
 -- コメント追加
 COMMENT ON TABLE "仕訳" IS '仕訳ヘッダー（伝票単位の基本情報）';
-COMMENT ON TABLE "仕訳明細3" IS '仕訳明細（行単位の情報）- 3層構造用';
+COMMENT ON TABLE "仕訳明細" IS '仕訳明細（行単位の情報）- 3層構造用';
 COMMENT ON TABLE "仕訳貸借明細" IS '仕訳貸借明細（借方・貸方の詳細情報）';
 
 COMMENT ON COLUMN "仕訳"."起票日" IS '実際の取引発生日';

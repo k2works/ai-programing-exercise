@@ -41,7 +41,7 @@ class Journal3LayerSpec extends DatabaseSpec with BeforeAndAfterEach:
 
       // 2. 仕訳明細（1行）
       sql"""
-        INSERT INTO "仕訳明細3" (
+        INSERT INTO "仕訳明細" (
           "仕訳伝票番号", "仕訳行番号", "行摘要"
         ) VALUES (${journalNo}, 1, ${"商品仕入"})
       """.update.apply()
@@ -74,7 +74,7 @@ class Journal3LayerSpec extends DatabaseSpec with BeforeAndAfterEach:
 
       // 2. 仕訳明細が登録されている
       val detailCount = sql"""
-        SELECT COUNT(*) as count FROM "仕訳明細3" WHERE "仕訳伝票番号" = ${journalNo}
+        SELECT COUNT(*) as count FROM "仕訳明細" WHERE "仕訳伝票番号" = ${journalNo}
       """.map(_.int("count")).single.apply()
       detailCount shouldBe Some(1)
 
@@ -125,12 +125,12 @@ class Journal3LayerSpec extends DatabaseSpec with BeforeAndAfterEach:
 
       // 2. 仕訳明細（2行）
       sql"""
-        INSERT INTO "仕訳明細3" ("仕訳伝票番号", "仕訳行番号", "行摘要")
+        INSERT INTO "仕訳明細" ("仕訳伝票番号", "仕訳行番号", "行摘要")
         VALUES (${journalNo}, 1, ${"売掛金回収（A社）"})
       """.update.apply()
 
       sql"""
-        INSERT INTO "仕訳明細3" ("仕訳伝票番号", "仕訳行番号", "行摘要")
+        INSERT INTO "仕訳明細" ("仕訳伝票番号", "仕訳行番号", "行摘要")
         VALUES (${journalNo}, 2, ${"振込手数料"})
       """.update.apply()
 
@@ -178,7 +178,7 @@ class Journal3LayerSpec extends DatabaseSpec with BeforeAndAfterEach:
       // Then: データが正しく登録されていることを確認
       // 1. 仕訳明細が2件登録されている
       val detailCount = sql"""
-        SELECT COUNT(*) as count FROM "仕訳明細3" WHERE "仕訳伝票番号" = ${journalNo}
+        SELECT COUNT(*) as count FROM "仕訳明細" WHERE "仕訳伝票番号" = ${journalNo}
       """.map(_.int("count")).single.apply()
       detailCount shouldBe Some(2)
 
@@ -231,7 +231,7 @@ class Journal3LayerSpec extends DatabaseSpec with BeforeAndAfterEach:
       """.update.apply()
 
       sql"""
-        INSERT INTO "仕訳明細3" ("仕訳伝票番号", "仕訳行番号", "行摘要")
+        INSERT INTO "仕訳明細" ("仕訳伝票番号", "仕訳行番号", "行摘要")
         VALUES (${journalNo}, 1, ${"テスト"})
       """.update.apply()
 
@@ -249,7 +249,7 @@ class Journal3LayerSpec extends DatabaseSpec with BeforeAndAfterEach:
 
       // Then: 明細と貸借明細も自動削除される（CASCADE）
       val detailCount = sql"""
-        SELECT COUNT(*) as count FROM "仕訳明細3" WHERE "仕訳伝票番号" = ${journalNo}
+        SELECT COUNT(*) as count FROM "仕訳明細" WHERE "仕訳伝票番号" = ${journalNo}
       """.map(_.int("count")).single.apply()
       detailCount shouldBe Some(0)
 
