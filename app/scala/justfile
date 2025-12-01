@@ -1,0 +1,92 @@
+# justfile
+
+# デフォルトレシピ（just コマンド実行時）
+default:
+    @just --list
+
+# 環境セットアップ
+setup:
+    @echo "環境をセットアップしています..."
+    docker compose up -d
+    @echo "マイグレーションを実行しています..."
+    sbt migrate
+    @echo "セットアップ完了"
+
+# Docker コンテナの起動
+up:
+    docker compose up -d
+
+# Docker コンテナの停止
+down:
+    docker compose down
+
+# テストの実行
+test:
+    sbt test
+
+# カバレッジ付きテスト実行
+coverage:
+    sbt clean coverage test coverageReport
+    @echo "カバレッジレポート: target/scala-3.3.3/scoverage-report/index.html"
+
+# コードフォーマットチェック
+check-format:
+    sbt scalafmtCheck test:scalafmtCheck
+
+# コードフォーマット適用
+format:
+    sbt scalafmtAll
+
+# 静的解析実行
+lint:
+    sbt compile
+
+# すべてのチェック（CI で使用）
+check: check-format lint test
+
+# データベースマイグレーション実行
+migrate:
+    sbt migrate
+
+# マイグレーション情報表示
+migrate-info:
+    sbt migrateInfo
+
+# マイグレーション検証
+migrate-validate:
+    sbt migrateValidate
+
+# データベースのクリーンアップ（開発環境のみ）
+db-clean:
+    @echo "警告: データベースをクリーンアップします"
+    docker compose down -v
+    docker compose up -d
+    @echo "マイグレーションを再実行しています..."
+    sbt migrate
+
+# 開発サーバー起動
+run:
+    sbt run
+
+# sbt コンソール起動
+console:
+    sbt console
+
+# 依存関係の更新確認
+deps-update:
+    sbt dependencyUpdates
+
+# プロジェクトのクリーン
+clean:
+    sbt clean
+    docker compose down
+
+# ログ表示
+logs service="postgres":
+    docker compose logs -f {{service}}
+
+# pgAdmin を開く
+pgadmin:
+    @echo "pgAdmin: http://localhost:5050"
+    @echo "Email: admin@example.com"
+    @echo "Password: admin"
