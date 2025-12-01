@@ -39,6 +39,7 @@ lazy val root = (project in file("."))
       "com.typesafe.akka" %% "akka-stream" % akkaVersion cross CrossVersion.for3Use2_13,
       "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion cross CrossVersion.for3Use2_13,
       "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion % Test cross CrossVersion.for3Use2_13,
+      "com.typesafe.akka" %% "akka-testkit" % akkaVersion % Test cross CrossVersion.for3Use2_13,
 
       // Configuration
       "com.typesafe" % "config" % "1.4.3",
