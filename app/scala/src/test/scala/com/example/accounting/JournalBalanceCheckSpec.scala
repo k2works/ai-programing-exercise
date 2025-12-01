@@ -14,57 +14,7 @@ class JournalBalanceCheckSpec extends DatabaseSpec with BeforeAndAfterEach:
   override def beforeEach(): Unit =
     super.beforeEach()
 
-  behavior of "複式簿記 貸借平衡チェック（2層構造）"
-
-  it should "貸借が平衡している仕訳をビューで確認できる" in withContainers { container =>
-    setupWithMigrations(container)
-
-    DB.localTx { implicit session =>
-      // テスト用勘定科目を登録
-      insertTestAccounts("BC1")
-
-      // 貸借平衡の仕訳を登録
-      sql"""
-        INSERT INTO "仕訳エントリ" ("伝票番号", "仕訳日", "摘要", "合計金額", "作成者")
-        VALUES (${"BC1-001"}, ${LocalDate.of(2025, 1, 1)}, ${"テスト仕訳"}, ${BigDecimal("100000.00")}, ${"user001"})
-      """.update.apply()
-
-      sql"""
-        INSERT INTO "仕訳明細" ("伝票番号", "行番号", "勘定科目コード", "借方金額", "貸方金額", "摘要")
-        VALUES (${"BC1-001"}, 1, ${"BC1-1100"}, ${BigDecimal("100000.00")}, ${BigDecimal("0.00")}, ${"借方"})
-      """.update.apply()
-
-      sql"""
-        INSERT INTO "仕訳明細" ("伝票番号", "行番号", "勘定科目コード", "借方金額", "貸方金額", "摘要")
-        VALUES (${"BC1-001"}, 2, ${"BC1-4100"}, ${BigDecimal("0.00")}, ${BigDecimal("100000.00")}, ${"貸方"})
-      """.update.apply()
-
-      // ビューで確認
-      val result = sql"""
-        SELECT "伝票番号", debit_total, credit_total, diff, is_balanced
-        FROM "v_仕訳エントリ貸借チェック"
-        WHERE "伝票番号" = ${"BC1-001"}
-      """.map { rs =>
-        (
-          rs.string("伝票番号"),
-          BigDecimal(rs.bigDecimal("debit_total")),
-          BigDecimal(rs.bigDecimal("credit_total")),
-          BigDecimal(rs.bigDecimal("diff")),
-          rs.boolean("is_balanced"),
-        )
-      }.single.apply()
-
-      result should not be None
-      val (voucherNo, debit, credit, diff, isBalanced) = result.get
-      voucherNo shouldBe "BC1-001"
-      debit shouldBe BigDecimal("100000.00")
-      credit shouldBe BigDecimal("100000.00")
-      diff shouldBe BigDecimal("0.00")
-      isBalanced shouldBe true
-    }
-  }
-
-  behavior of "複式簿記 貸借平衡チェック（3層構造）"
+  behavior of "複式簿記 貸借平衡チェック"
 
   it should "貸借平衡している仕訳をビューで確認できる" in withContainers { container =>
     setupWithMigrations(container)

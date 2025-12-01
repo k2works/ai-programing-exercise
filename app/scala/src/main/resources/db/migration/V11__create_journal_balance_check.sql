@@ -47,23 +47,7 @@ $$ LANGUAGE plpgsql;
 
 COMMENT ON FUNCTION validate_journal_balance(VARCHAR) IS '特定の仕訳の貸借平衡を検証する関数';
 
--- 3. 2層構造の仕訳明細の貸借平衡をチェックするビュー
-CREATE OR REPLACE VIEW "v_仕訳エントリ貸借チェック" AS
-SELECT
-  jd."伝票番号",
-  SUM(jd."借方金額") AS debit_total,
-  SUM(jd."貸方金額") AS credit_total,
-  SUM(jd."借方金額") - SUM(jd."貸方金額") AS diff,
-  CASE
-    WHEN SUM(jd."借方金額") = SUM(jd."貸方金額") THEN TRUE
-    ELSE FALSE
-  END AS is_balanced
-FROM "仕訳明細" jd
-GROUP BY jd."伝票番号";
-
-COMMENT ON VIEW "v_仕訳エントリ貸借チェック" IS '2層構造仕訳エントリの貸借平衡チェックビュー';
-
--- 4. 3層構造の仕訳の貸借平衡をチェックするビュー
+-- 3. 3層構造の仕訳の貸借平衡をチェックするビュー
 CREATE OR REPLACE VIEW "v_仕訳貸借チェック" AS
 SELECT
   jdc."仕訳伝票番号",
@@ -77,9 +61,9 @@ SELECT
 FROM "仕訳貸借明細" jdc
 GROUP BY jdc."仕訳伝票番号";
 
-COMMENT ON VIEW "v_仕訳貸借チェック" IS '3層構造仕訳の貸借平衡チェックビュー';
+COMMENT ON VIEW "v_仕訳貸借チェック" IS '仕訳の貸借平衡チェックビュー';
 
--- 5. 不平衡仕訳のみを表示するビュー
+-- 4. 不平衡仕訳のみを表示するビュー
 CREATE OR REPLACE VIEW "v_不平衡仕訳" AS
 SELECT *
 FROM "v_仕訳貸借チェック"
