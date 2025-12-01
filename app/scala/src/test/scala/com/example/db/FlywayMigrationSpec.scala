@@ -104,8 +104,8 @@ class FlywayMigrationSpec extends DatabaseSpec:
         .apply()
     }
 
-    // バージョンが順番に並んでいることを確認
-    versions shouldBe versions.sorted
+    // バージョンが数値順に並んでいることを確認
+    versions.map(_.toInt) shouldBe versions.map(_.toInt).sorted
   }
 
   it should "validate migrations successfully" in withContainers { container =>
