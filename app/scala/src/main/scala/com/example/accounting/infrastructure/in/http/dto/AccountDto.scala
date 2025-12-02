@@ -1,4 +1,4 @@
-package com.example.accounting.infrastructure.http.dto
+package com.example.accounting.infrastructure.in.http.dto
 
 import com.example.accounting.domain.account.{Account, AccountType}
 import java.time.LocalDateTime

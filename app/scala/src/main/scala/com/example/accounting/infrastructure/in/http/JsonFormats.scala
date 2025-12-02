@@ -1,9 +1,9 @@
-package com.example.accounting.infrastructure.http
+package com.example.accounting.infrastructure.in.http
 
 import spray.json.*
 import java.time.{LocalDate, LocalDateTime}
 import java.time.format.DateTimeFormatter
-import com.example.accounting.infrastructure.http.dto.*
+import com.example.accounting.infrastructure.in.http.dto.*
 
 /**
  * JSON フォーマット定義

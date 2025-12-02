@@ -1,4 +1,4 @@
-package com.example.accounting.infrastructure.persistence.account
+package com.example.accounting.infrastructure.out.persistence.account
 
 import com.example.accounting.application.port.out.AccountRepository as AccountRepositoryPort
 import com.example.accounting.domain.account.{Account, AccountType}

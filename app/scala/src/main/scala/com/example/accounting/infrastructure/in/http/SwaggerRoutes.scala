@@ -1,4 +1,4 @@
-package com.example.accounting.infrastructure.http
+package com.example.accounting.infrastructure.in.http
 
 import akka.http.scaladsl.server.Directives.*
 import akka.http.scaladsl.server.Route

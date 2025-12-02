@@ -1,7 +1,7 @@
 package com.example.accounting
 
 import com.example.accounting.domain.balance.*
-import com.example.accounting.infrastructure.persistence.balance.BalanceRepository
+import com.example.accounting.infrastructure.out.persistence.balance.BalanceRepository
 import com.example.db.DatabaseSpec
 import org.scalatest.BeforeAndAfterEach
 import scalikejdbc.*

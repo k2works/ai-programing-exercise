@@ -1,4 +1,4 @@
-package com.example.accounting.infrastructure.http
+package com.example.accounting.infrastructure.in.http
 
 import akka.http.scaladsl.server.Directives.*
 import akka.http.scaladsl.server.Route
@@ -7,8 +7,8 @@ import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport.*
 import spray.json.*
 import com.example.accounting.application.*
 import com.example.accounting.application.port.in.AccountUseCase
-import com.example.accounting.infrastructure.http.dto.*
-import com.example.accounting.infrastructure.http.JsonFormats.*
+import com.example.accounting.infrastructure.in.http.dto.*
+import com.example.accounting.infrastructure.in.http.JsonFormats.*
 import com.example.accounting.domain.account.AccountType
 
 import java.net.URLDecoder

@@ -2,7 +2,7 @@ package com.example.accounting
 
 import com.example.db.DatabaseSpec
 import com.example.accounting.domain.account.TaxTransaction
-import com.example.accounting.infrastructure.persistence.account.TaxTransactionRepository
+import com.example.accounting.infrastructure.out.persistence.account.TaxTransactionRepository
 import org.scalatest.BeforeAndAfterEach
 import scalikejdbc.*
 import java.time.LocalDateTime

@@ -4,9 +4,9 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport.*
 import com.example.accounting.application.service.FinancialStatementService
-import com.example.accounting.infrastructure.http.FinancialStatementRoutes
-import com.example.accounting.infrastructure.http.dto.*
-import com.example.accounting.infrastructure.http.JsonFormats.{*, given}
+import com.example.accounting.infrastructure.in.http.FinancialStatementRoutes
+import com.example.accounting.infrastructure.in.http.dto.*
+import com.example.accounting.infrastructure.in.http.JsonFormats.{*, given}
 import com.example.db.DatabaseSpec
 import org.scalatest.BeforeAndAfterEach
 import scalikejdbc.*

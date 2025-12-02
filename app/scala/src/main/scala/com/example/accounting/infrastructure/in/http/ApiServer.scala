@@ -1,12 +1,12 @@
-package com.example.accounting.infrastructure.http
+package com.example.accounting.infrastructure.in.http
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Directives.*
 import akka.http.scaladsl.server.Route
 import com.example.accounting.application.service.*
-import com.example.accounting.infrastructure.persistence.account.AccountRepository
-import com.example.accounting.infrastructure.persistence.journal.JournalRepository
+import com.example.accounting.infrastructure.out.persistence.account.AccountRepository
+import com.example.accounting.infrastructure.out.persistence.journal.JournalRepository
 import scalikejdbc.config.DBs
 
 import scala.concurrent.ExecutionContext

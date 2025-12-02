@@ -1,4 +1,4 @@
-package com.example.accounting.infrastructure.persistence.balance
+package com.example.accounting.infrastructure.out.persistence.balance
 
 import com.example.accounting.domain.balance.*
 import scalikejdbc.*

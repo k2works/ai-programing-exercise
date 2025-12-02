@@ -4,11 +4,11 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport.*
 import com.example.accounting.application.service.JournalService
-import com.example.accounting.infrastructure.persistence.account.AccountRepository
-import com.example.accounting.infrastructure.persistence.journal.JournalRepository
-import com.example.accounting.infrastructure.http.JournalRoutes
-import com.example.accounting.infrastructure.http.dto.*
-import com.example.accounting.infrastructure.http.JsonFormats.{*, given}
+import com.example.accounting.infrastructure.out.persistence.account.AccountRepository
+import com.example.accounting.infrastructure.out.persistence.journal.JournalRepository
+import com.example.accounting.infrastructure.in.http.JournalRoutes
+import com.example.accounting.infrastructure.in.http.dto.*
+import com.example.accounting.infrastructure.in.http.JsonFormats.{*, given}
 import spray.json.*
 import com.example.db.DatabaseSpec
 import org.scalatest.BeforeAndAfterEach

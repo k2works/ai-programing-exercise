@@ -1,4 +1,4 @@
-package com.example.accounting.infrastructure.persistence.journal
+package com.example.accounting.infrastructure.out.persistence.journal
 
 import com.example.accounting.domain.journal.*
 import scalikejdbc.*
