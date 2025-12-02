@@ -110,11 +110,86 @@ pgAdmin でサーバーを追加する際:
 | `sbt test` | テスト実行 |
 | `sbt migrate` | マイグレーション実行 |
 | `sbt migrateInfo` | マイグレーション情報表示 |
+| `just api` | API サーバー起動 |
+| `just test-api` | API テスト実行 |
 | `sbt scalafmt` | コードフォーマット |
 | `sbt scalafmtCheck` | フォーマットチェック |
 | `docker compose up -d` | コンテナ起動 |
 | `docker compose down` | コンテナ停止 |
 | `docker compose down -v` | コンテナ & データ削除 |
+
+## RESTful API
+
+### API サーバーの起動
+
+```bash
+# Docker コンテナとマイグレーションの起動
+just setup
+
+# API サーバーの起動
+just api
+# または
+sbt "runMain com.example.accounting.infrastructure.http.ApiServer"
+```
+
+API サーバーは `http://localhost:8080` で起動します。
+
+### API エンドポイント
+
+#### 勘定科目 API
+
+| Method | Endpoint | 説明 |
+|--------|----------|------|
+| GET | `/api/accounts` | 全勘定科目取得 |
+| POST | `/api/accounts` | 勘定科目作成 |
+| GET | `/api/accounts/:code` | 勘定科目取得 |
+| PUT | `/api/accounts/:code` | 勘定科目更新 |
+| DELETE | `/api/accounts/:code` | 勘定科目削除 |
+| GET | `/api/accounts/type/:type` | 種別で検索（資産、負債、純資産、収益、費用） |
+
+#### 仕訳 API
+
+| Method | Endpoint | 説明 |
+|--------|----------|------|
+| GET | `/api/journals?from=YYYY-MM-DD&to=YYYY-MM-DD` | 期間指定で仕訳取得 |
+| POST | `/api/journals` | 仕訳作成 |
+| GET | `/api/journals/:journalNo` | 仕訳取得 |
+| DELETE | `/api/journals/:journalNo` | 仕訳削除 |
+| GET | `/api/journals/:journalNo/validate` | 仕訳の貸借バランス検証 |
+
+#### 財務諸表 API
+
+| Method | Endpoint | 説明 |
+|--------|----------|------|
+| GET | `/api/financial-statements/balance-sheet?asOf=YYYY-MM-DD` | 貸借対照表取得 |
+| GET | `/api/financial-statements/income-statement?from=YYYY-MM-DD&to=YYYY-MM-DD` | 損益計算書取得 |
+| GET | `/api/financial-statements/ratios?asOf=YYYY-MM-DD` | 財務指標取得 |
+
+### API 使用例
+
+```bash
+# 全勘定科目の取得
+curl http://localhost:8080/api/accounts
+
+# 勘定科目の作成
+curl -X POST http://localhost:8080/api/accounts \
+  -H "Content-Type: application/json" \
+  -d '{
+    "accountCode": "1110",
+    "accountName": "現金",
+    "accountType": "資産",
+    "balance": 0,
+    "bsplDistinction": "B",
+    "isSummaryAccount": false,
+    "isAggregationTarget": true
+  }'
+
+# 貸借対照表の取得
+curl "http://localhost:8080/api/financial-statements/balance-sheet?asOf=2024-03-31"
+
+# 損益計算書の取得
+curl "http://localhost:8080/api/financial-statements/income-statement?from=2024-01-01&to=2024-03-31"
+```
 
 ## 技術スタック
 
@@ -124,7 +199,8 @@ pgAdmin でサーバーを追加する際:
 - **PostgreSQL 15**: データベース
 - **Testcontainers**: Docker ベースのテスト環境
 - **ScalaTest 3.2.18**: テストフレームワーク
-- **Akka HTTP 10.5.3**: HTTP フレームワーク（将来使用）
+- **Akka HTTP 10.5.3**: RESTful API フレームワーク
+- **spray-json**: JSON シリアライゼーション
 
 ## Docker Desktop のセットアップ
 

@@ -68,6 +68,16 @@ db-clean:
 run:
     sbt run
 
+# API サーバー起動
+api:
+    @echo "API サーバーを起動しています..."
+    @echo "Endpoints: http://localhost:8080/api/accounts"
+    sbt "runMain com.example.accounting.infrastructure.http.ApiServer"
+
+# API テストの実行
+test-api:
+    sbt "testOnly com.example.accounting.api.*"
+
 # sbt コンソール起動
 console:
     sbt console
