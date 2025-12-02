@@ -6,6 +6,7 @@ script:
   content: |
     $("#register-book").on("click", () => tryCatch(registerBook));
     $("#get-book").on("click", () => tryCatch(getBook));
+    $("#clear-sheet").on("click", () => tryCatch(clearSheet));
 
     async function registerBook() {
       const isbn = $("#isbn").val() as string;
@@ -63,7 +64,8 @@ script:
 
         if (response.ok) {
           const data = await response.json();
-          showBookInfo(data);
+          await writeToSheet(data);
+          showSuccess("書籍情報をシートに出力しました");
         } else {
           const errorData = await response.json();
           showError(`エラー: ${errorData.message}`);
@@ -73,23 +75,91 @@ script:
       }
     }
 
+    async function writeToSheet(book: any) {
+      await Excel.run(async (context) => {
+        const sheet = context.workbook.worksheets.getActiveWorksheet();
+        
+        // ヘッダー行を探すか作成
+        const usedRange = sheet.getUsedRange();
+        usedRange.load("address,rowCount");
+        await context.sync();
+
+        let headerRow = 1;
+        let dataStartRow = 2;
+
+        // ヘッダーが存在するかチェック
+        const headerRange = sheet.getRange("A1:F1");
+        headerRange.load("values");
+        await context.sync();
+
+        const headers = headerRange.values[0];
+        const expectedHeaders = ["ISBN", "タイトル", "価格", "在庫ID", "在庫数", "ステータス"];
+        
+        // ヘッダーが存在しない場合は作成
+        if (headers[0] !== "ISBN") {
+          const headerRow = sheet.getRange("A1:F1");
+          headerRow.values = [expectedHeaders];
+          headerRow.format.font.bold = true;
+          headerRow.format.fill.color = "#4472C4";
+          headerRow.format.font.color = "white";
+        }
+
+        // データ行を探す（既存のISBNがあれば更新、なければ追加）
+        let targetRow = dataStartRow;
+        let foundExisting = false;
+
+        if (usedRange.rowCount > 1) {
+          const dataRange = sheet.getRange(`A${dataStartRow}:A${usedRange.rowCount}`);
+          dataRange.load("values");
+          await context.sync();
+
+          for (let i = 0; i < dataRange.values.length; i++) {
+            if (dataRange.values[i][0] === book.bookId) {
+              targetRow = dataStartRow + i;
+              foundExisting = true;
+              break;
+            }
+          }
+
+          if (!foundExisting) {
+            targetRow = usedRange.rowCount + 1;
+          }
+        }
+
+        // データを書き込む
+        const dataRange = sheet.getRange(`A${targetRow}:F${targetRow}`);
+        dataRange.values = [[
+          book.bookId,
+          book.title,
+          book.price,
+          book.stockId,
+          book.quantityAvailable,
+          book.status
+        ]];
+
+        // 列幅を自動調整
+        sheet.getRange("A:F").format.autofitColumns();
+
+        await context.sync();
+      });
+    }
+
+    async function clearSheet() {
+      await Excel.run(async (context) => {
+        const sheet = context.workbook.worksheets.getActiveWorksheet();
+        const usedRange = sheet.getUsedRange();
+        usedRange.clear();
+        await context.sync();
+        showSuccess("シートをクリアしました");
+      });
+    }
+
     function showSuccess(message: string) {
       $("#result").text(message).css("color", "green");
     }
 
     function showError(message: string) {
       $("#result").text(message).css("color", "red");
-    }
-
-    function showBookInfo(book: any) {
-      const info = `
-        ISBN: ${book.bookId}
-        タイトル: ${book.title}
-        価格: ¥${book.price}
-        在庫数: ${book.quantityAvailable}
-        ステータス: ${book.status}
-      `;
-      $("#result").text(info).css("color", "blue");
     }
 
     function clearForm() {
@@ -135,13 +205,16 @@ template:
 
         <div class="ms-Grid-row" style="margin-top: 30px;">
           <div class="ms-Grid-col ms-sm12">
-            <h3>書籍を取得</h3>
+            <h3>書籍を取得してシートに出力</h3>
             <div class="ms-TextField">
               <label class="ms-Label">ISBN</label>
               <input id="isbn-get" type="text" class="ms-TextField-field" placeholder="9784167158057" />
             </div>
             <button id="get-book" class="ms-Button" style="margin-top: 15px;">
-              <span class="ms-Button-label">取得</span>
+              <span class="ms-Button-label">取得してシートに出力</span>
+            </button>
+            <button id="clear-sheet" class="ms-Button ms-Button--secondary" style="margin-top: 15px; margin-left: 10px;">
+              <span class="ms-Button-label">シートをクリア</span>
             </button>
           </div>
         </div>
@@ -149,7 +222,7 @@ template:
         <div class="ms-Grid-row" style="margin-top: 30px;">
           <div class="ms-Grid-col ms-sm12">
             <h3>結果</h3>
-            <div id="result" style="padding: 10px; border: 1px solid #ccc; min-height: 100px; white-space: pre-line;">
+            <div id="result" style="padding: 10px; border: 1px solid #ccc; min-height: 50px; white-space: pre-line;">
               ここに結果が表示されます
             </div>
           </div>
@@ -185,6 +258,14 @@ style:
 
     .ms-Button:hover {
       background-color: #106ebe;
+    }
+
+    .ms-Button--secondary {
+      background-color: #6c757d;
+    }
+
+    .ms-Button--secondary:hover {
+      background-color: #5a6268;
     }
 
     .ms-Label {
