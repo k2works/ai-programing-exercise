@@ -7,6 +7,8 @@ script:
     $("#register-book").on("click", () => tryCatch(registerBook));
     $("#get-book").on("click", () => tryCatch(getBook));
     $("#clear-sheet").on("click", () => tryCatch(clearSheet));
+    $("#bulk-register").on("click", () => tryCatch(bulkRegister));
+    $("#bulk-get").on("click", () => tryCatch(bulkGet));
 
     async function registerBook() {
       const isbn = $("#isbn").val() as string;
@@ -154,6 +156,155 @@ script:
       });
     }
 
+    async function bulkRegister() {
+      await Excel.run(async (context) => {
+        const sheet = context.workbook.worksheets.getActiveWorksheet();
+        const usedRange = sheet.getUsedRange();
+        usedRange.load("values,rowCount");
+        await context.sync();
+
+        if (usedRange.rowCount < 2) {
+          showError("登録するデータがありません。ヘッダー行とデータ行が必要です。");
+          return;
+        }
+
+        const values = usedRange.values;
+        const headers = values[0];
+        
+        // ヘッダーの検証
+        const isbnIndex = headers.indexOf("ISBN");
+        const titleIndex = headers.indexOf("タイトル");
+        const priceIndex = headers.indexOf("価格");
+
+        if (isbnIndex === -1 || titleIndex === -1 || priceIndex === -1) {
+          showError("必須カラムが不足しています: ISBN、タイトル、価格");
+          return;
+        }
+
+        let successCount = 0;
+        let errorCount = 0;
+        const errors: string[] = [];
+
+        showError(`一括登録を開始します... (${usedRange.rowCount - 1}件)`);
+
+        for (let i = 1; i < usedRange.rowCount; i++) {
+          const row = values[i];
+          const isbn = row[isbnIndex];
+          const title = row[titleIndex];
+          const priceAmount = parseFloat(row[priceIndex]);
+
+          if (!isbn || !title || !priceAmount) {
+            errorCount++;
+            errors.push(`行${i + 1}: データ不足`);
+            continue;
+          }
+
+          try {
+            const response = await fetch("http://localhost:3000/book", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                isbn: isbn,
+                title: title,
+                priceAmount: priceAmount,
+              }),
+            });
+
+            if (response.ok) {
+              successCount++;
+            } else {
+              const data = await response.json();
+              errorCount++;
+              errors.push(`行${i + 1} (${isbn}): ${data.message}`);
+            }
+          } catch (error) {
+            errorCount++;
+            errors.push(`行${i + 1} (${isbn}): ${error.message}`);
+          }
+        }
+
+        const result = `一括登録完了\n成功: ${successCount}件\nエラー: ${errorCount}件`;
+        if (errors.length > 0) {
+          showError(result + "\n\nエラー詳細:\n" + errors.slice(0, 5).join("\n"));
+        } else {
+          showSuccess(result);
+        }
+      });
+    }
+
+    async function bulkGet() {
+      await Excel.run(async (context) => {
+        const sheet = context.workbook.worksheets.getActiveWorksheet();
+        const usedRange = sheet.getUsedRange();
+        usedRange.load("values,rowCount");
+        await context.sync();
+
+        if (usedRange.rowCount < 2) {
+          showError("取得するISBNがありません。");
+          return;
+        }
+
+        const values = usedRange.values;
+        const headers = values[0];
+        const isbnIndex = headers.indexOf("ISBN");
+
+        if (isbnIndex === -1) {
+          showError("ISBNカラムが見つかりません");
+          return;
+        }
+
+        let successCount = 0;
+        let errorCount = 0;
+
+        showError(`一括取得を開始します... (${usedRange.rowCount - 1}件)`);
+
+        for (let i = 1; i < usedRange.rowCount; i++) {
+          const isbn = values[i][isbnIndex];
+
+          if (!isbn) {
+            errorCount++;
+            continue;
+          }
+
+          try {
+            const response = await fetch(`http://localhost:3000/book/${isbn}`, {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              await updateSheetRow(context, sheet, i + 1, data);
+              successCount++;
+            } else {
+              errorCount++;
+            }
+          } catch (error) {
+            errorCount++;
+          }
+        }
+
+        await context.sync();
+        showSuccess(`一括取得完了\n成功: ${successCount}件\nエラー: ${errorCount}件`);
+      });
+    }
+
+    async function updateSheetRow(context: Excel.RequestContext, sheet: Excel.Worksheet, rowNumber: number, book: any) {
+      const dataRange = sheet.getRange(`A${rowNumber}:F${rowNumber}`);
+      dataRange.values = [[
+        book.bookId,
+        book.title,
+        book.price,
+        book.stockId,
+        book.quantityAvailable,
+        book.status
+      ]];
+    }
+
     function showSuccess(message: string) {
       $("#result").text(message).css("color", "green");
     }
@@ -221,6 +372,19 @@ template:
 
         <div class="ms-Grid-row" style="margin-top: 30px;">
           <div class="ms-Grid-col ms-sm12">
+            <h3>一括操作</h3>
+            <p class="ms-font-s">シートのデータを使って一括処理を実行します</p>
+            <button id="bulk-register" class="ms-Button ms-Button--success" style="margin-top: 15px;">
+              <span class="ms-Button-label">シートから一括登録</span>
+            </button>
+            <button id="bulk-get" class="ms-Button ms-Button--success" style="margin-top: 15px; margin-left: 10px;">
+              <span class="ms-Button-label">シートのISBNから一括取得</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="ms-Grid-row" style="margin-top: 30px;">
+          <div class="ms-Grid-col ms-sm12">
             <h3>結果</h3>
             <div id="result" style="padding: 10px; border: 1px solid #ccc; min-height: 50px; white-space: pre-line;">
               ここに結果が表示されます
@@ -266,6 +430,14 @@ style:
 
     .ms-Button--secondary:hover {
       background-color: #5a6268;
+    }
+
+    .ms-Button--success {
+      background-color: #28a745;
+    }
+
+    .ms-Button--success:hover {
+      background-color: #218838;
     }
 
     .ms-Label {
