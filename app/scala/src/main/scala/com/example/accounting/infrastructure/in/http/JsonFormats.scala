@@ -77,4 +77,9 @@ trait JsonFormats extends DefaultJsonProtocol:
   given financialRatiosResponseFormat: RootJsonFormat[FinancialRatiosResponse] =
     jsonFormat7(FinancialRatiosResponse.apply)
 
+  // 監査ログ
+  given auditLogResponseFormat: RootJsonFormat[AuditLogResponse] = jsonFormat12(AuditLogResponse.apply)
+  given listAuditLogResponseFormat: RootJsonFormat[List[AuditLogResponse]] = listFormat[AuditLogResponse]
+  given auditLogSearchRequestFormat: RootJsonFormat[AuditLogSearchRequest] = jsonFormat7(AuditLogSearchRequest.apply)
+
 object JsonFormats extends JsonFormats

@@ -6,6 +6,7 @@ import akka.http.scaladsl.server.Directives.*
 import akka.http.scaladsl.server.Route
 import com.example.accounting.application.service.*
 import com.example.accounting.infrastructure.out.persistence.account.AccountRepository
+import com.example.accounting.infrastructure.out.persistence.audit.AuditLogRepository
 import com.example.accounting.infrastructure.out.persistence.journal.JournalRepository
 import scalikejdbc.config.DBs
 
@@ -27,22 +28,26 @@ object ApiServer:
     // リポジトリの初期化
     val accountRepository = AccountRepository()
     val journalRepository = JournalRepository()
+    val auditLogRepository = AuditLogRepository()
 
     // サービスの初期化
     val accountService = AccountService(accountRepository)
     val journalService = JournalService(journalRepository, accountRepository)
     val financialStatementService = FinancialStatementService()
+    val auditLogService = AuditLogService(auditLogRepository)
 
     // ルートの初期化
     val accountRoutes = AccountRoutes(accountService)
     val journalRoutes = JournalRoutes(journalService)
     val financialStatementRoutes = FinancialStatementRoutes(financialStatementService)
+    val auditLogRoutes = AuditLogRoutes(auditLogService)
 
     // ルートの結合
     val routes: Route = concat(
       accountRoutes.routes,
       journalRoutes.routes,
       financialStatementRoutes.routes,
+      auditLogRoutes.routes,
       SwaggerRoutes.routes,
     )
 
