@@ -8,6 +8,24 @@ import scalikejdbc.*
  */
 class AccountRepository:
 
+  private def fromResultSet(rs: WrappedResultSet): Account = Account(
+    accountId = Some(rs.int("勘定科目ID")),
+    accountCode = rs.string("勘定科目コード"),
+    accountName = rs.string("勘定科目名"),
+    accountType = AccountType.fromString(rs.string("勘定科目種別")),
+    balance = rs.bigDecimal("残高"),
+    bsplDistinction = rs.stringOpt("BSPL区分"),
+    transactionElement = rs.stringOpt("取引要素区分"),
+    expenseDistinction = rs.stringOpt("費用区分"),
+    isSummaryAccount = rs.boolean("合計科目"),
+    displayOrder = rs.intOpt("表示順序"),
+    isAggregationTarget = rs.boolean("集計対象"),
+    accountKana = rs.stringOpt("勘定科目カナ"),
+    taxCode = rs.stringOpt("課税取引コード"),
+    createdAt = rs.localDateTime("作成日時"),
+    updatedAt = rs.localDateTime("更新日時"),
+  )
+
   /**
    * 勘定科目を登録
    */
@@ -40,7 +58,7 @@ class AccountRepository:
     sql"""
       SELECT * FROM "勘定科目マスタ"
       WHERE "勘定科目ID" = ${id}
-    """.map(Account.apply).single.apply()
+    """.map(fromResultSet).single.apply()
 
   /**
    * 勘定科目コードで検索
@@ -49,7 +67,7 @@ class AccountRepository:
     sql"""
       SELECT * FROM "勘定科目マスタ"
       WHERE "勘定科目コード" = ${code}
-    """.map(Account.apply).single.apply()
+    """.map(fromResultSet).single.apply()
 
   /**
    * すべての勘定科目を取得
@@ -58,7 +76,7 @@ class AccountRepository:
     sql"""
       SELECT * FROM "勘定科目マスタ"
       ORDER BY "勘定科目コード"
-    """.map(Account.apply).list.apply()
+    """.map(fromResultSet).list.apply()
 
   /**
    * 勘定科目種別で検索
@@ -68,7 +86,7 @@ class AccountRepository:
       SELECT * FROM "勘定科目マスタ"
       WHERE "勘定科目種別" = ${accountType.value}::account_type
       ORDER BY "表示順序", "勘定科目コード"
-    """.map(Account.apply).list.apply()
+    """.map(fromResultSet).list.apply()
 
   /**
    * BSPL区分で検索
@@ -78,7 +96,7 @@ class AccountRepository:
       SELECT * FROM "勘定科目マスタ"
       WHERE "BSPL区分" = ${distinction}
       ORDER BY "表示順序", "勘定科目コード"
-    """.map(Account.apply).list.apply()
+    """.map(fromResultSet).list.apply()
 
   /**
    * 集計対象の勘定科目を取得
@@ -88,7 +106,7 @@ class AccountRepository:
       SELECT * FROM "勘定科目マスタ"
       WHERE "集計対象" = true
       ORDER BY "表示順序", "勘定科目コード"
-    """.map(Account.apply).list.apply()
+    """.map(fromResultSet).list.apply()
 
   /**
    * 合計科目を取得
@@ -98,7 +116,7 @@ class AccountRepository:
       SELECT * FROM "勘定科目マスタ"
       WHERE "合計科目" = true
       ORDER BY "表示順序", "勘定科目コード"
-    """.map(Account.apply).list.apply()
+    """.map(fromResultSet).list.apply()
 
   /**
    * 課税取引コードで検索
@@ -108,7 +126,7 @@ class AccountRepository:
       SELECT * FROM "勘定科目マスタ"
       WHERE "課税取引コード" = ${taxCode}
       ORDER BY "勘定科目コード"
-    """.map(Account.apply).list.apply()
+    """.map(fromResultSet).list.apply()
 
   /**
    * 勘定科目カナで前方一致検索
@@ -119,7 +137,7 @@ class AccountRepository:
       SELECT * FROM "勘定科目マスタ"
       WHERE "勘定科目カナ" LIKE ${pattern}
       ORDER BY "勘定科目カナ", "勘定科目コード"
-    """.map(Account.apply).list.apply()
+    """.map(fromResultSet).list.apply()
 
   /**
    * 勘定科目を更新
