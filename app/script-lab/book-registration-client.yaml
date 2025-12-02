@@ -18,6 +18,8 @@ script:
       }
 
       try {
+        showError("APIサーバーに接続中...");
+        
         const response = await fetch("http://localhost:3000/book", {
           method: "POST",
           headers: {
@@ -39,7 +41,7 @@ script:
           showError(`エラー: ${data.message}`);
         }
       } catch (error) {
-        showError(`通信エラー: ${error.message}`);
+        showError(`通信エラー: ${error.message}\nURL: http://localhost:3000/book\nサーバーが起動しているか確認してください`);
       }
     }
 
