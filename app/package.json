@@ -10,7 +10,10 @@
     "migrate:deploy": "prisma migrate deploy",
     "migrate:reset": "prisma migrate reset",
     "db:generate": "prisma generate",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "dev": "ts-node src/Presentation/Express/index.ts",
+    "start": "node dist/Presentation/Express/index.js",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
