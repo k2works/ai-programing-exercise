@@ -8,6 +8,7 @@ import com.example.accounting.application.service.*
 import com.example.accounting.infrastructure.out.persistence.account.AccountRepository
 import com.example.accounting.infrastructure.out.persistence.audit.AuditLogRepository
 import com.example.accounting.infrastructure.out.persistence.journal.JournalRepository
+import com.example.accounting.infrastructure.out.persistence.eventsourcing.{EventStoreRepositoryImpl, JournalReadModelRepositoryImpl}
 import scalikejdbc.config.DBs
 
 import scala.concurrent.ExecutionContext
@@ -29,23 +30,28 @@ object ApiServer:
     val accountRepository = AccountRepository()
     val journalRepository = JournalRepository()
     val auditLogRepository = AuditLogRepository()
+    val eventStoreRepository = EventStoreRepositoryImpl()
+    val journalReadModelRepository = JournalReadModelRepositoryImpl()
 
     // サービスの初期化
     val accountService = AccountService(accountRepository)
     val journalService = JournalService(journalRepository, accountRepository)
     val financialStatementService = FinancialStatementService()
     val auditLogService = AuditLogService(auditLogRepository)
+    val journalEntryService = JournalEntryService(eventStoreRepository, journalReadModelRepository)
 
     // ルートの初期化
     val accountRoutes = AccountRoutes(accountService)
     val journalRoutes = JournalRoutes(journalService)
     val financialStatementRoutes = FinancialStatementRoutes(financialStatementService)
     val auditLogRoutes = AuditLogRoutes(auditLogService)
+    val journalEntryRoutes = JournalEntryRoutes(journalEntryService)
 
     // ルートの結合
     val routes: Route = concat(
       accountRoutes.routes,
       journalRoutes.routes,
+      journalEntryRoutes.routes,
       financialStatementRoutes.routes,
       auditLogRoutes.routes,
       SwaggerRoutes.routes,

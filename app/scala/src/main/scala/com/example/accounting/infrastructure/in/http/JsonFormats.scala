@@ -1,7 +1,7 @@
 package com.example.accounting.infrastructure.in.http
 
 import spray.json.*
-import java.time.{LocalDate, LocalDateTime}
+import java.time.{Instant, LocalDate, LocalDateTime}
 import java.time.format.DateTimeFormatter
 import com.example.accounting.infrastructure.in.http.dto.*
 
@@ -81,5 +81,41 @@ trait JsonFormats extends DefaultJsonProtocol:
   given auditLogResponseFormat: RootJsonFormat[AuditLogResponse] = jsonFormat12(AuditLogResponse.apply)
   given listAuditLogResponseFormat: RootJsonFormat[List[AuditLogResponse]] = listFormat[AuditLogResponse]
   given auditLogSearchRequestFormat: RootJsonFormat[AuditLogSearchRequest] = jsonFormat7(AuditLogSearchRequest.apply)
+
+  // Instant 用フォーマット
+  given instantFormat: JsonFormat[Instant] = new JsonFormat[Instant]:
+    def write(instant: Instant): JsValue = JsString(instant.toString)
+    def read(value: JsValue): Instant = value match
+      case JsString(s) => Instant.parse(s)
+      case _           => deserializationError("Instant expected")
+
+  // 仕訳エントリ（イベントソーシング）
+  given journalEntryDetailRequestFormat: RootJsonFormat[JournalEntryDetailRequest] =
+    jsonFormat5(JournalEntryDetailRequest.apply)
+  given listJournalEntryDetailRequestFormat: RootJsonFormat[List[JournalEntryDetailRequest]] =
+    listFormat[JournalEntryDetailRequest]
+  given journalEntryCreateRequestFormat: RootJsonFormat[JournalEntryCreateRequest] = {
+    given ld: RootJsonFormat[List[JournalEntryDetailRequest]] = listJournalEntryDetailRequestFormat
+    jsonFormat4(JournalEntryCreateRequest.apply)
+  }
+  given journalEntryApproveRequestFormat: RootJsonFormat[JournalEntryApproveRequest] =
+    jsonFormat1(JournalEntryApproveRequest.apply)
+  given journalEntryRejectRequestFormat: RootJsonFormat[JournalEntryRejectRequest] =
+    jsonFormat2(JournalEntryRejectRequest.apply)
+  given journalEntryDeleteRequestFormat: RootJsonFormat[JournalEntryDeleteRequest] =
+    jsonFormat2(JournalEntryDeleteRequest.apply)
+  given journalEntryDetailResponseFormat: RootJsonFormat[JournalEntryDetailResponse] =
+    jsonFormat5(JournalEntryDetailResponse.apply)
+  given listJournalEntryDetailResponseFormat: RootJsonFormat[List[JournalEntryDetailResponse]] =
+    listFormat[JournalEntryDetailResponse]
+  given journalEntryResponseFormat: RootJsonFormat[JournalEntryResponse] = {
+    given ld: RootJsonFormat[List[JournalEntryDetailResponse]] = listJournalEntryDetailResponseFormat
+    jsonFormat13(JournalEntryResponse.apply)
+  }
+  given listJournalEntryResponseFormat: RootJsonFormat[List[JournalEntryResponse]] = listFormat[JournalEntryResponse]
+  given journalEntryEventResponseFormat: RootJsonFormat[JournalEntryEventResponse] =
+    jsonFormat4(JournalEntryEventResponse.apply)
+  given listJournalEntryEventResponseFormat: RootJsonFormat[List[JournalEntryEventResponse]] =
+    listFormat[JournalEntryEventResponse]
 
 object JsonFormats extends JsonFormats
