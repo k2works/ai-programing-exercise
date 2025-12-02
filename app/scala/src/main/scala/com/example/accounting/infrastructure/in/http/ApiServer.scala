@@ -39,6 +39,7 @@ object ApiServer:
     val financialStatementService = FinancialStatementService()
     val auditLogService = AuditLogService(auditLogRepository)
     val journalEntryService = JournalEntryService(eventStoreRepository, journalReadModelRepository)
+    val financialAnalysisService = FinancialAnalysisService()
 
     // ルートの初期化
     val accountRoutes = AccountRoutes(accountService)
@@ -46,19 +47,23 @@ object ApiServer:
     val financialStatementRoutes = FinancialStatementRoutes(financialStatementService)
     val auditLogRoutes = AuditLogRoutes(auditLogService)
     val journalEntryRoutes = JournalEntryRoutes(journalEntryService)
+    val financialAnalysisRoutes = FinancialAnalysisRoutes(financialAnalysisService)
 
-    // ルートの結合
-    val routes: Route = concat(
-      accountRoutes.routes,
-      journalRoutes.routes,
-      journalEntryRoutes.routes,
-      financialStatementRoutes.routes,
-      auditLogRoutes.routes,
-      SwaggerRoutes.routes,
+    // ルートの結合（CORS 対応）
+    val routes: Route = CorsSupport.corsHandler(
+      concat(
+        accountRoutes.routes,
+        journalRoutes.routes,
+        journalEntryRoutes.routes,
+        financialStatementRoutes.routes,
+        financialAnalysisRoutes.routes,
+        auditLogRoutes.routes,
+        SwaggerRoutes.routes,
+      )
     )
 
-    // サーバーの起動
-    val bindingFuture = Http().newServerAt("localhost", 8080).bind(routes)
+    // サーバーの起動（0.0.0.0 で全インターフェースからのアクセスを許可）
+    val bindingFuture = Http().newServerAt("0.0.0.0", 8080).bind(routes)
 
     println("財務会計システム API サーバーが起動しました: http://localhost:8080/")
     println("Swagger UI: http://localhost:8080/swagger-ui/")

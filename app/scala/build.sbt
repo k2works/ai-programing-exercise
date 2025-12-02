@@ -84,3 +84,9 @@ lazy val migrateValidate = taskKey[Unit]("Validate migrations")
 migrateValidate := {
   (Compile / runMain).toTask(" com.example.db.MigrationRunner validate").value
 }
+
+// Custom task for seeding database
+lazy val seed = taskKey[Unit]("Seed database with sample data")
+seed := {
+  (Compile / runMain).toTask(" com.example.accounting.infrastructure.seed.DatabaseSeeder").value
+}

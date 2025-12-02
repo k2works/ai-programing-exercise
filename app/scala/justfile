@@ -56,6 +56,12 @@ migrate-info:
 migrate-validate:
     sbt migrateValidate
 
+# シードデータ投入
+seed:
+    @echo "シードデータを投入しています..."
+    sbt seed
+    @echo "シードデータ投入完了"
+
 # データベースのクリーンアップ（開発環境のみ）
 db-clean:
     @echo "警告: データベースをクリーンアップします"
