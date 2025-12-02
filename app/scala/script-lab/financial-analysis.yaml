@@ -1,0 +1,326 @@
+name: 財務分析ツール
+description: 財務会計システム API から財務分析データを取得し、Excel シートに出力するツール（Scala版）
+host: EXCEL
+api_set: {}
+script:
+  content: |
+    /**
+     * 財務分析ツール - 財務会計システム API クライアント（Scala版）
+     *
+     * このスクリプトは財務会計システムの REST API から財務分析データを取得し、
+     * Excel シートに出力します。
+     */
+
+    /**
+     * API ベース URL を入力フィールドから取得
+     */
+    function getApiBaseUrl(): string {
+      const urlInput = document.getElementById("api-url") as HTMLInputElement;
+      return urlInput?.value || "http://localhost:8080";
+    }
+
+    /**
+     * 財務分析データを取得してシートに出力
+     */
+    async function fetchFinancialAnalysis(fiscalYear: number): Promise<void> {
+      try {
+        const apiBaseUrl = getApiBaseUrl();
+        console.log(`財務分析データを取得中: ${fiscalYear}年度 (API: ${apiBaseUrl})`);
+
+        const response = await fetch(`${apiBaseUrl}/api/v1/financial-analysis/${fiscalYear}`);
+
+        if (!response.ok) {
+          if (response.status === 404) {
+            console.error(`${fiscalYear}年度のデータが見つかりません`);
+            return;
+          }
+          throw new Error(`API エラー: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log("取得したデータ:", data);
+
+        await Excel.run(async (context) => {
+          // 「財務分析」シートを取得または作成
+          const sheetName = `財務分析_${fiscalYear}`;
+          const sheets = context.workbook.worksheets;
+          sheets.load("items/name");
+          await context.sync();
+
+          let sheet: Excel.Worksheet;
+          const existingSheet = sheets.items.find(s => s.name === sheetName);
+          if (existingSheet) {
+            sheet = existingSheet;
+            sheet.getUsedRange().clear();
+          } else {
+            sheet = sheets.add(sheetName);
+          }
+          sheet.activate();
+
+          // ヘッダーを出力
+          const headerRange = sheet.getRange("A1:B1");
+          headerRange.values = [["項目", `${fiscalYear}年度`]];
+          headerRange.format.font.bold = true;
+          headerRange.format.fill.color = "#4472C4";
+          headerRange.format.font.color = "#FFFFFF";
+
+          // 収益性指標
+          const profitabilityData = [
+            ["【収益性指標】", ""],
+            ["売上高総利益率 (%)", data.profitability.grossProfitMargin.toFixed(2)],
+            ["売上高営業利益率 (%)", data.profitability.operatingProfitMargin.toFixed(2)],
+            ["売上高経常利益率 (%)", data.profitability.ordinaryProfitMargin.toFixed(2)],
+            ["売上高販管費比率 (%)", data.profitability.sellingExpenseRatio.toFixed(2)],
+            ["", ""],
+            ["【効率性指標】", ""],
+            ["総資本回転率 (回)", data.efficiency.totalAssetTurnover.toFixed(2)],
+            ["有形固定資産回転率 (回)", data.efficiency.fixedAssetTurnover.toFixed(2)],
+            ["", ""],
+            ["【安全性指標】", ""],
+            ["流動比率 (%)", data.safety.currentRatio.toFixed(2)],
+            ["負債比率 (%)", data.safety.debtRatio.toFixed(2)],
+            ["自己資本比率 (%)", data.safety.equityRatio.toFixed(2)]
+          ];
+
+          const dataRange = sheet.getRange(`A2:B${profitabilityData.length + 1}`);
+          dataRange.values = profitabilityData;
+
+          // セクションヘッダーのスタイル設定
+          const sectionHeaders = ["A2", "A8", "A12"];
+          for (const cell of sectionHeaders) {
+            const sectionRange = sheet.getRange(cell);
+            sectionRange.format.font.bold = true;
+            sectionRange.format.fill.color = "#E2EFDA";
+          }
+
+          // 列幅の自動調整
+          sheet.getUsedRange().format.autofitColumns();
+
+          await context.sync();
+          console.log("シートへの出力が完了しました");
+        });
+
+      } catch (error) {
+        console.error("エラーが発生しました:", error);
+      }
+    }
+
+    /**
+     * 複数年度の財務分析データを比較取得
+     */
+    async function fetchFinancialAnalysisRange(fromYear: number, toYear: number): Promise<void> {
+      try {
+        const apiBaseUrl = getApiBaseUrl();
+        console.log(`財務分析データを取得中: ${fromYear}～${toYear}年度 (API: ${apiBaseUrl})`);
+
+        const response = await fetch(
+          `${apiBaseUrl}/api/v1/financial-analysis/compare?fromYear=${fromYear}&toYear=${toYear}`
+        );
+
+        if (!response.ok) {
+          throw new Error(`API エラー: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log("取得したデータ:", data);
+
+        const dataList = data.results;
+
+        await Excel.run(async (context) => {
+          // 「財務分析比較」シートを取得または作成
+          const sheetName = `財務分析_${fromYear}-${toYear}`;
+          const sheets = context.workbook.worksheets;
+          sheets.load("items/name");
+          await context.sync();
+
+          let sheet: Excel.Worksheet;
+          const existingSheet = sheets.items.find(s => s.name === sheetName);
+          if (existingSheet) {
+            sheet = existingSheet;
+            sheet.getUsedRange().clear();
+          } else {
+            sheet = sheets.add(sheetName);
+          }
+          sheet.activate();
+
+          // ヘッダーを出力
+          const years = dataList.map((d: any) => `${d.fiscalYear}年度`);
+          const headerValues = [["項目", ...years]];
+          const headerRange = sheet.getRange(`A1:${String.fromCharCode(65 + years.length)}1`);
+          headerRange.values = headerValues;
+          headerRange.format.font.bold = true;
+          headerRange.format.fill.color = "#4472C4";
+          headerRange.format.font.color = "#FFFFFF";
+
+          // データ行を構築
+          const rows = [
+            ["【収益性指標】", ...years.map(() => "")],
+            ["売上高総利益率 (%)", ...dataList.map((d: any) => d.profitability.grossProfitMargin.toFixed(2))],
+            ["売上高営業利益率 (%)", ...dataList.map((d: any) => d.profitability.operatingProfitMargin.toFixed(2))],
+            ["売上高経常利益率 (%)", ...dataList.map((d: any) => d.profitability.ordinaryProfitMargin.toFixed(2))],
+            ["売上高販管費比率 (%)", ...dataList.map((d: any) => d.profitability.sellingExpenseRatio.toFixed(2))],
+            ["", ...years.map(() => "")],
+            ["【効率性指標】", ...years.map(() => "")],
+            ["総資本回転率 (回)", ...dataList.map((d: any) => d.efficiency.totalAssetTurnover.toFixed(2))],
+            ["有形固定資産回転率 (回)", ...dataList.map((d: any) => d.efficiency.fixedAssetTurnover.toFixed(2))],
+            ["", ...years.map(() => "")],
+            ["【安全性指標】", ...years.map(() => "")],
+            ["流動比率 (%)", ...dataList.map((d: any) => d.safety.currentRatio.toFixed(2))],
+            ["負債比率 (%)", ...dataList.map((d: any) => d.safety.debtRatio.toFixed(2))],
+            ["自己資本比率 (%)", ...dataList.map((d: any) => d.safety.equityRatio.toFixed(2))]
+          ];
+
+          // 変化量がある場合は追加
+          if (data.changes) {
+            rows.push(["", ...years.map(() => "")]);
+            rows.push(["【前年度比変化】", ...years.map(() => "")]);
+            rows.push(["営業利益率変化 (pt)", data.changes.profitability.operatingProfitMarginChange.toFixed(2)]);
+          }
+
+          const dataRange = sheet.getRange(`A2:${String.fromCharCode(65 + years.length)}${rows.length + 1}`);
+          dataRange.values = rows;
+
+          // 列幅の自動調整
+          sheet.getUsedRange().format.autofitColumns();
+
+          await context.sync();
+          console.log("シートへの出力が完了しました");
+        });
+
+      } catch (error) {
+        console.error("エラーが発生しました:", error);
+      }
+    }
+
+    // ボタンクリック時の処理
+    document.getElementById("run-single")?.addEventListener("click", () => {
+      const yearInput = document.getElementById("fiscal-year") as HTMLInputElement;
+      const year = parseInt(yearInput.value, 10);
+      if (isNaN(year)) {
+        console.error("有効な年度を入力してください");
+        return;
+      }
+      fetchFinancialAnalysis(year);
+    });
+
+    document.getElementById("run-range")?.addEventListener("click", () => {
+      const fromInput = document.getElementById("from-year") as HTMLInputElement;
+      const toInput = document.getElementById("to-year") as HTMLInputElement;
+      const fromYear = parseInt(fromInput.value, 10);
+      const toYear = parseInt(toInput.value, 10);
+      if (isNaN(fromYear) || isNaN(toYear)) {
+        console.error("有効な年度範囲を入力してください");
+        return;
+      }
+      fetchFinancialAnalysisRange(fromYear, toYear);
+    });
+
+    console.log("========================================");
+    console.log("財務分析ツール（Scala版）が読み込まれました");
+    console.log("========================================");
+  language: typescript
+template:
+  content: |
+    <section class="ms-font-m">
+      <h2 class="ms-font-xl">財務分析ツール</h2>
+      <p>財務会計システム API（Scala版）から財務分析データを取得します。</p>
+
+      <div class="ms-TextField">
+        <label class="ms-Label">API ベース URL</label>
+        <input id="api-url" type="text" class="ms-TextField-field" value="http://localhost:8080" />
+      </div>
+
+      <h3 class="ms-font-l">単年度分析</h3>
+      <div class="ms-TextField">
+        <label class="ms-Label">決算期（年度）</label>
+        <input id="fiscal-year" type="number" class="ms-TextField-field" value="2021" />
+      </div>
+      <button id="run-single" class="ms-Button ms-Button--primary">
+        <span class="ms-Button-label">分析実行</span>
+      </button>
+
+      <h3 class="ms-font-l">期間比較分析</h3>
+      <div class="ms-TextField">
+        <label class="ms-Label">開始年度</label>
+        <input id="from-year" type="number" class="ms-TextField-field" value="2021" />
+      </div>
+      <div class="ms-TextField">
+        <label class="ms-Label">終了年度</label>
+        <input id="to-year" type="number" class="ms-TextField-field" value="2022" />
+      </div>
+      <button id="run-range" class="ms-Button ms-Button--primary">
+        <span class="ms-Button-label">比較分析実行</span>
+      </button>
+    </section>
+  language: html
+style:
+  content: |
+    section {
+      margin: 16px;
+    }
+
+    h2 {
+      margin-bottom: 16px;
+      color: #323130;
+    }
+
+    h3 {
+      margin-top: 24px;
+      margin-bottom: 12px;
+      color: #323130;
+    }
+
+    .ms-TextField {
+      margin-bottom: 12px;
+    }
+
+    .ms-Label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 600;
+      color: #323130;
+    }
+
+    .ms-TextField-field {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #8a8886;
+      border-radius: 2px;
+      font-size: 14px;
+    }
+
+    .ms-TextField-field:focus {
+      border-color: #0078d4;
+      outline: none;
+    }
+
+    .ms-Button {
+      margin-top: 8px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 2px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .ms-Button--primary {
+      background-color: #0078d4;
+      color: white;
+    }
+
+    .ms-Button--primary:hover {
+      background-color: #106ebe;
+    }
+  language: css
+libraries: |
+  https://appsforoffice.microsoft.com/lib/1/hosted/office.js
+  @types/office-js
+
+  office-ui-fabric-js@1.4.0/dist/css/fabric.min.css
+  office-ui-fabric-js@1.4.0/dist/css/fabric.components.min.css
+
+  core-js@2.4.1/client/core.min.js
+  @types/core-js
+
+  jquery@3.1.1
+  @types/jquery@3.3.1

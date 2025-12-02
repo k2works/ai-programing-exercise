@@ -1,0 +1,748 @@
+name: 仕訳入力ツール（イベントソーシング版）
+description: イベントソーシングを使用した仕訳入力ツール（Scala版）
+host: EXCEL
+api_set: {}
+script:
+  content: |
+    /**
+     * 仕訳入力ツール（イベントソーシング版） - 財務会計システム API クライアント（Scala版）
+     *
+     * このスクリプトはイベントソーシングを使用した仕訳の作成、承認、却下、削除を行います。
+     * タイムトラベル機能により、特定時点の仕訳状態を取得することもできます。
+     */
+
+    /**
+     * API ベース URL を入力フィールドから取得
+     */
+    function getApiBaseUrl(): string {
+      const urlInput = document.getElementById("api-url") as HTMLInputElement;
+      return urlInput?.value || "http://localhost:8080";
+    }
+
+    /**
+     * Excel のシリアル値または日付文字列を ISO 形式（YYYY-MM-DD）に変換
+     */
+    function toIsoDateString(value: any): string {
+      if (!value) return "";
+
+      if (typeof value === "string") {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+          return value;
+        }
+        if (/^\d{4}\/\d{2}\/\d{2}$/.test(value)) {
+          return value.replace(/\//g, "-");
+        }
+        const parsed = new Date(value);
+        if (!isNaN(parsed.getTime())) {
+          return parsed.toISOString().split("T")[0];
+        }
+        return value;
+      }
+
+      if (typeof value === "number") {
+        const excelEpoch = new Date(1899, 11, 30);
+        const date = new Date(excelEpoch.getTime() + value * 24 * 60 * 60 * 1000);
+        return date.toISOString().split("T")[0];
+      }
+
+      return String(value);
+    }
+
+    /**
+     * 仕訳入力用シートを作成
+     */
+    async function createJournalEntrySheet(): Promise<void> {
+      await Excel.run(async (context) => {
+        const sheetName = "ES仕訳入力";
+        const sheets = context.workbook.worksheets;
+        sheets.load("items/name");
+        await context.sync();
+
+        let sheet: Excel.Worksheet;
+        const existingSheet = sheets.items.find(s => s.name === sheetName);
+        if (existingSheet) {
+          sheet = existingSheet;
+          sheet.getUsedRange().clear();
+        } else {
+          sheet = sheets.add(sheetName);
+        }
+        sheet.activate();
+
+        // 仕訳ヘッダー情報
+        const headerSection = sheet.getRange("A1:B1");
+        headerSection.values = [["【仕訳ヘッダー】", ""]];
+        headerSection.format.font.bold = true;
+        headerSection.format.fill.color = "#70AD47";
+        headerSection.format.font.color = "#FFFFFF";
+
+        const headerLabels = sheet.getRange("A2:A4");
+        headerLabels.values = [["仕訳日付"], ["摘要"], ["作成者"]];
+        headerLabels.format.font.bold = true;
+
+        const headerValues = sheet.getRange("B2:B4");
+        headerValues.values = [
+          [new Date().toISOString().split("T")[0]],
+          [""],
+          ["user1"]
+        ];
+
+        // 仕訳明細
+        const detailSection = sheet.getRange("A6:E6");
+        detailSection.values = [["【仕訳明細】", "", "", "", ""]];
+        detailSection.format.font.bold = true;
+        detailSection.format.fill.color = "#4472C4";
+        detailSection.format.font.color = "#FFFFFF";
+        detailSection.merge();
+
+        const detailHeaders = ["行番号", "勘定科目コード", "貸借区分", "金額", "摘要"];
+        const detailHeaderRange = sheet.getRange("A7:E7");
+        detailHeaderRange.values = [detailHeaders];
+        detailHeaderRange.format.font.bold = true;
+        detailHeaderRange.format.fill.color = "#D9E2F3";
+
+        // 入力例
+        const exampleRows = sheet.getRange("A8:E9");
+        exampleRows.values = [
+          ["1", "111", "D", "10000", "売上入金（借方）"],
+          ["2", "41", "C", "10000", "売上計上（貸方）"]
+        ];
+        exampleRows.format.font.italic = true;
+        exampleRows.format.font.color = "#808080";
+
+        // 注釈
+        const note = sheet.getRange("A21:E21");
+        note.values = [["※貸借区分: D=借方(Debit), C=貸方(Credit)", "", "", "", ""]];
+        note.format.font.italic = true;
+        note.format.font.color = "#605e5c";
+
+        // 列幅の自動調整
+        sheet.getUsedRange().format.autofitColumns();
+
+        await context.sync();
+        console.log("「ES仕訳入力」シートを作成しました");
+      });
+    }
+
+    /**
+     * 仕訳を作成
+     */
+    async function createJournalEntry(): Promise<void> {
+      try {
+        await Excel.run(async (context) => {
+          const sheetName = "ES仕訳入力";
+          const sheets = context.workbook.worksheets;
+          sheets.load("items/name");
+          await context.sync();
+
+          const sheet = sheets.items.find(s => s.name === sheetName);
+          if (!sheet) {
+            console.error("「ES仕訳入力」シートが見つかりません");
+            return;
+          }
+
+          // ヘッダー情報を取得
+          const headerRange = sheet.getRange("B2:B4");
+          headerRange.load("values");
+
+          // 明細情報を取得
+          const detailRange = sheet.getRange("A8:E19");
+          detailRange.load("values");
+
+          await context.sync();
+
+          const journalDateRaw = headerRange.values[0][0];
+          const description = String(headerRange.values[1][0] || "");
+          const createdBy = String(headerRange.values[2][0] || "user1");
+
+          if (!journalDateRaw) {
+            console.error("仕訳日付は必須です");
+            return;
+          }
+
+          const journalDate = toIsoDateString(journalDateRaw);
+
+          // 明細データを抽出
+          const details: any[] = [];
+          let totalDebit = 0;
+          let totalCredit = 0;
+
+          for (const row of detailRange.values) {
+            const lineNumber = Number(row[0]);
+            const accountCode = String(row[1] || "").trim();
+            const debitCredit = String(row[2] || "").trim().toUpperCase();
+            const amount = Number(row[3]) || 0;
+            const lineDescription = String(row[4] || "");
+
+            if (!accountCode || !debitCredit || amount <= 0) continue;
+
+            if (debitCredit !== "D" && debitCredit !== "C") {
+              console.error(`無効な貸借区分: ${debitCredit}（D または C を指定）`);
+              return;
+            }
+
+            details.push({
+              lineNumber: lineNumber || details.length + 1,
+              accountCode: accountCode,
+              debitCredit: debitCredit,
+              amount: amount,
+              description: lineDescription
+            });
+
+            if (debitCredit === "D") {
+              totalDebit += amount;
+            } else {
+              totalCredit += amount;
+            }
+          }
+
+          if (details.length === 0) {
+            console.error("仕訳明細が入力されていません");
+            return;
+          }
+
+          // 貸借チェック
+          if (totalDebit !== totalCredit) {
+            console.error(`貸借が一致しません。借方合計: ${totalDebit}, 貸方合計: ${totalCredit}`);
+            return;
+          }
+
+          const journalData = {
+            journalDate: journalDate,
+            description: description,
+            details: details,
+            createdBy: createdBy
+          };
+
+          console.log("作成する仕訳:", journalData);
+
+          const apiBaseUrl = getApiBaseUrl();
+          const response = await fetch(`${apiBaseUrl}/api/journal-entries`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(journalData)
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            console.log("========================================");
+            console.log(`仕訳を作成しました。ID: ${result.id}`);
+            console.log(`ステータス: ${result.status}`);
+            console.log("========================================");
+
+            // ID を入力欄に設定
+            const idInput = document.getElementById("journal-id") as HTMLInputElement;
+            if (idInput) {
+              idInput.value = result.id;
+            }
+          } else {
+            const errorData = await response.json();
+            console.error(`作成失敗: ${errorData.message || response.statusText}`);
+          }
+        });
+
+      } catch (error) {
+        console.error("エラーが発生しました:", error);
+      }
+    }
+
+    /**
+     * 仕訳を取得して詳細シートに出力
+     */
+    async function getJournalEntry(): Promise<void> {
+      try {
+        const idInput = document.getElementById("journal-id") as HTMLInputElement;
+        const id = idInput?.value?.trim();
+
+        if (!id) {
+          console.error("仕訳IDを入力してください");
+          return;
+        }
+
+        const apiBaseUrl = getApiBaseUrl();
+        console.log(`仕訳を取得中... ID: ${id}`);
+
+        const response = await fetch(`${apiBaseUrl}/api/journal-entries/${id}`);
+
+        if (!response.ok) {
+          if (response.status === 404) {
+            console.error("仕訳が見つかりません");
+          } else {
+            console.error(`API エラー: ${response.status}`);
+          }
+          return;
+        }
+
+        const entry = await response.json();
+        console.log("取得した仕訳:", entry);
+
+        await Excel.run(async (context) => {
+          const sheetName = "ES仕訳詳細";
+          const sheets = context.workbook.worksheets;
+          sheets.load("items/name");
+          await context.sync();
+
+          let sheet: Excel.Worksheet;
+          const existingSheet = sheets.items.find(s => s.name === sheetName);
+          if (existingSheet) {
+            sheet = existingSheet;
+            sheet.getUsedRange().clear();
+          } else {
+            sheet = sheets.add(sheetName);
+          }
+          sheet.activate();
+
+          // ヘッダー情報を出力
+          const headerData = [
+            ["【仕訳エントリ詳細】", ""],
+            ["ID", entry.id],
+            ["バージョン", entry.version],
+            ["仕訳日付", entry.journalDate],
+            ["摘要", entry.description || ""],
+            ["ステータス", entry.status],
+            ["作成者", entry.createdBy],
+            ["作成日時", entry.createdAt],
+            ["承認者", entry.approvedBy || ""],
+            ["承認日時", entry.approvedAt || ""],
+            ["借方合計", entry.totalDebit],
+            ["貸方合計", entry.totalCredit],
+            ["貸借一致", entry.isBalanced ? "○" : "×"]
+          ];
+
+          const headerRange = sheet.getRange(`A1:B${headerData.length}`);
+          headerRange.values = headerData;
+
+          // ヘッダーのスタイル
+          const titleRange = sheet.getRange("A1:B1");
+          titleRange.format.font.bold = true;
+          titleRange.format.fill.color = "#4472C4";
+          titleRange.format.font.color = "#FFFFFF";
+
+          // 明細を出力
+          if (entry.details && entry.details.length > 0) {
+            const detailStartRow = headerData.length + 2;
+            const detailHeaders = ["行番号", "勘定科目コード", "貸借区分", "金額", "摘要"];
+
+            const detailHeaderRange = sheet.getRange(`A${detailStartRow}:E${detailStartRow}`);
+            detailHeaderRange.values = [detailHeaders];
+            detailHeaderRange.format.font.bold = true;
+            detailHeaderRange.format.fill.color = "#D9E2F3";
+
+            const detailData = entry.details.map((d: any) => [
+              d.lineNumber,
+              d.accountCode,
+              d.debitCredit,
+              d.amount,
+              d.description || ""
+            ]);
+
+            const detailRange = sheet.getRange(`A${detailStartRow + 1}:E${detailStartRow + detailData.length}`);
+            detailRange.values = detailData;
+          }
+
+          // 列幅の自動調整
+          sheet.getUsedRange().format.autofitColumns();
+
+          await context.sync();
+          console.log("「ES仕訳詳細」シートに出力しました");
+        });
+
+      } catch (error) {
+        console.error("エラーが発生しました:", error);
+      }
+    }
+
+    /**
+     * 仕訳を承認
+     */
+    async function approveJournalEntry(): Promise<void> {
+      try {
+        const idInput = document.getElementById("journal-id") as HTMLInputElement;
+        const approverInput = document.getElementById("approver-id") as HTMLInputElement;
+
+        const id = idInput?.value?.trim();
+        const approvedBy = approverInput?.value?.trim() || "approver1";
+
+        if (!id) {
+          console.error("仕訳IDを入力してください");
+          return;
+        }
+
+        const apiBaseUrl = getApiBaseUrl();
+        console.log(`仕訳を承認中... ID: ${id}`);
+
+        const response = await fetch(`${apiBaseUrl}/api/journal-entries/${id}/approve`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ approvedBy: approvedBy })
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log("========================================");
+          console.log(`仕訳を承認しました。ID: ${result.id}`);
+          console.log(`ステータス: ${result.status}`);
+          console.log("========================================");
+        } else {
+          const errorData = await response.json();
+          console.error(`承認失敗: ${errorData.message || response.statusText}`);
+        }
+      } catch (error) {
+        console.error("エラーが発生しました:", error);
+      }
+    }
+
+    /**
+     * 仕訳を却下
+     */
+    async function rejectJournalEntry(): Promise<void> {
+      try {
+        const idInput = document.getElementById("journal-id") as HTMLInputElement;
+        const rejectorInput = document.getElementById("approver-id") as HTMLInputElement;
+        const reasonInput = document.getElementById("reason") as HTMLInputElement;
+
+        const id = idInput?.value?.trim();
+        const rejectedBy = rejectorInput?.value?.trim() || "reviewer1";
+        const reason = reasonInput?.value?.trim() || "却下理由";
+
+        if (!id) {
+          console.error("仕訳IDを入力してください");
+          return;
+        }
+
+        const apiBaseUrl = getApiBaseUrl();
+        console.log(`仕訳を却下中... ID: ${id}`);
+
+        const response = await fetch(`${apiBaseUrl}/api/journal-entries/${id}/reject`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ rejectedBy: rejectedBy, reason: reason })
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log("========================================");
+          console.log(`仕訳を却下しました。ID: ${result.id}`);
+          console.log(`ステータス: ${result.status}`);
+          console.log("========================================");
+        } else {
+          const errorData = await response.json();
+          console.error(`却下失敗: ${errorData.message || response.statusText}`);
+        }
+      } catch (error) {
+        console.error("エラーが発生しました:", error);
+      }
+    }
+
+    /**
+     * 仕訳を削除（論理削除）
+     */
+    async function deleteJournalEntry(): Promise<void> {
+      try {
+        const idInput = document.getElementById("journal-id") as HTMLInputElement;
+        const deleterInput = document.getElementById("approver-id") as HTMLInputElement;
+        const reasonInput = document.getElementById("reason") as HTMLInputElement;
+
+        const id = idInput?.value?.trim();
+        const deletedBy = deleterInput?.value?.trim() || "admin1";
+        const reason = reasonInput?.value?.trim() || "削除理由";
+
+        if (!id) {
+          console.error("仕訳IDを入力してください");
+          return;
+        }
+
+        const apiBaseUrl = getApiBaseUrl();
+        console.log(`仕訳を削除中... ID: ${id}`);
+
+        const response = await fetch(`${apiBaseUrl}/api/journal-entries/${id}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ deletedBy: deletedBy, reason: reason })
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log("========================================");
+          console.log(`仕訳を削除しました。ID: ${result.id}`);
+          console.log(`ステータス: ${result.status}`);
+          console.log("========================================");
+        } else {
+          const errorData = await response.json();
+          console.error(`削除失敗: ${errorData.message || response.statusText}`);
+        }
+      } catch (error) {
+        console.error("エラーが発生しました:", error);
+      }
+    }
+
+    /**
+     * イベント履歴を取得
+     */
+    async function getEventHistory(): Promise<void> {
+      try {
+        const idInput = document.getElementById("journal-id") as HTMLInputElement;
+        const id = idInput?.value?.trim();
+
+        if (!id) {
+          console.error("仕訳IDを入力してください");
+          return;
+        }
+
+        const apiBaseUrl = getApiBaseUrl();
+        console.log(`イベント履歴を取得中... ID: ${id}`);
+
+        const response = await fetch(`${apiBaseUrl}/api/journal-entries/${id}/history`);
+
+        if (!response.ok) {
+          console.error(`API エラー: ${response.status}`);
+          return;
+        }
+
+        const events = await response.json();
+        console.log("========================================");
+        console.log(`イベント履歴 (${events.length} 件):`);
+        events.forEach((e: any, i: number) => {
+          console.log(`${i + 1}. ${e.eventType} (v${e.version}) - ${e.occurredAt}`);
+        });
+        console.log("========================================");
+      } catch (error) {
+        console.error("エラーが発生しました:", error);
+      }
+    }
+
+    /**
+     * タイムトラベル（特定時点の状態を取得）
+     */
+    async function timeTravel(): Promise<void> {
+      try {
+        const idInput = document.getElementById("journal-id") as HTMLInputElement;
+        const asOfInput = document.getElementById("as-of") as HTMLInputElement;
+
+        const id = idInput?.value?.trim();
+        const asOf = asOfInput?.value?.trim();
+
+        if (!id) {
+          console.error("仕訳IDを入力してください");
+          return;
+        }
+
+        if (!asOf) {
+          console.error("取得時点を入力してください（例: 2024-01-15T10:30:00Z）");
+          return;
+        }
+
+        const apiBaseUrl = getApiBaseUrl();
+        console.log(`タイムトラベル実行中... ID: ${id}, 時点: ${asOf}`);
+
+        const response = await fetch(`${apiBaseUrl}/api/journal-entries/${id}/at?asOf=${encodeURIComponent(asOf)}`);
+
+        if (!response.ok) {
+          console.error(`API エラー: ${response.status}`);
+          return;
+        }
+
+        const entry = await response.json();
+        console.log("========================================");
+        console.log(`${asOf} 時点の仕訳状態:`);
+        console.log(`  ID: ${entry.id}`);
+        console.log(`  バージョン: ${entry.version}`);
+        console.log(`  ステータス: ${entry.status}`);
+        console.log(`  仕訳日付: ${entry.journalDate}`);
+        console.log(`  借方合計: ${entry.totalDebit}`);
+        console.log(`  貸方合計: ${entry.totalCredit}`);
+        console.log("========================================");
+      } catch (error) {
+        console.error("エラーが発生しました:", error);
+      }
+    }
+
+    // ボタンクリック時の処理
+    document.getElementById("create-entry-sheet")?.addEventListener("click", createJournalEntrySheet);
+    document.getElementById("create-journal")?.addEventListener("click", createJournalEntry);
+    document.getElementById("get-journal")?.addEventListener("click", getJournalEntry);
+    document.getElementById("approve-journal")?.addEventListener("click", approveJournalEntry);
+    document.getElementById("reject-journal")?.addEventListener("click", rejectJournalEntry);
+    document.getElementById("delete-journal")?.addEventListener("click", deleteJournalEntry);
+    document.getElementById("get-history")?.addEventListener("click", getEventHistory);
+    document.getElementById("time-travel")?.addEventListener("click", timeTravel);
+
+    console.log("========================================");
+    console.log("仕訳入力ツール（イベントソーシング版・Scala版）が読み込まれました");
+    console.log("========================================");
+  language: typescript
+template:
+  content: |
+    <section class="ms-font-m">
+      <h2 class="ms-font-xl">仕訳入力ツール（ES版）</h2>
+      <p>イベントソーシングを使用した仕訳管理ツールです。</p>
+
+      <div class="ms-TextField">
+        <label class="ms-Label">API ベース URL</label>
+        <input id="api-url" type="text" class="ms-TextField-field" value="http://localhost:8080" />
+      </div>
+
+      <h3 class="ms-font-l">仕訳作成</h3>
+      <button id="create-entry-sheet" class="ms-Button">
+        <span class="ms-Button-label">入力シート作成</span>
+      </button>
+      <button id="create-journal" class="ms-Button ms-Button--primary">
+        <span class="ms-Button-label">仕訳作成</span>
+      </button>
+
+      <h3 class="ms-font-l">仕訳操作</h3>
+      <div class="ms-TextField">
+        <label class="ms-Label">仕訳ID</label>
+        <input id="journal-id" type="text" class="ms-TextField-field" placeholder="UUID" />
+      </div>
+      <button id="get-journal" class="ms-Button ms-Button--primary">
+        <span class="ms-Button-label">取得</span>
+      </button>
+
+      <div class="ms-TextField">
+        <label class="ms-Label">承認者/操作者ID</label>
+        <input id="approver-id" type="text" class="ms-TextField-field" value="approver1" />
+      </div>
+      <div class="ms-TextField">
+        <label class="ms-Label">理由（却下/削除時）</label>
+        <input id="reason" type="text" class="ms-TextField-field" placeholder="理由を入力" />
+      </div>
+      <div class="button-group">
+        <button id="approve-journal" class="ms-Button ms-Button--success">
+          <span class="ms-Button-label">承認</span>
+        </button>
+        <button id="reject-journal" class="ms-Button ms-Button--warning">
+          <span class="ms-Button-label">却下</span>
+        </button>
+        <button id="delete-journal" class="ms-Button ms-Button--danger">
+          <span class="ms-Button-label">削除</span>
+        </button>
+      </div>
+
+      <h3 class="ms-font-l">履歴・タイムトラベル</h3>
+      <button id="get-history" class="ms-Button">
+        <span class="ms-Button-label">イベント履歴</span>
+      </button>
+      <div class="ms-TextField">
+        <label class="ms-Label">取得時点（ISO 8601形式）</label>
+        <input id="as-of" type="text" class="ms-TextField-field" placeholder="2024-01-15T10:30:00Z" />
+      </div>
+      <button id="time-travel" class="ms-Button">
+        <span class="ms-Button-label">タイムトラベル実行</span>
+      </button>
+    </section>
+  language: html
+style:
+  content: |
+    section {
+      margin: 16px;
+    }
+
+    h2 {
+      margin-bottom: 16px;
+      color: #323130;
+    }
+
+    h3 {
+      margin-top: 24px;
+      margin-bottom: 12px;
+      color: #323130;
+    }
+
+    .ms-TextField {
+      margin-bottom: 12px;
+    }
+
+    .ms-Label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 600;
+      color: #323130;
+    }
+
+    .ms-TextField-field {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #8a8886;
+      border-radius: 2px;
+      font-size: 14px;
+    }
+
+    .ms-TextField-field:focus {
+      border-color: #0078d4;
+      outline: none;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .ms-Button {
+      margin-top: 8px;
+      margin-right: 8px;
+      padding: 8px 16px;
+      border: 1px solid #8a8886;
+      border-radius: 2px;
+      cursor: pointer;
+      font-size: 14px;
+      background-color: #ffffff;
+      color: #323130;
+    }
+
+    .ms-Button:hover {
+      background-color: #f3f2f1;
+    }
+
+    .ms-Button--primary {
+      background-color: #0078d4;
+      border-color: #0078d4;
+      color: white;
+    }
+
+    .ms-Button--primary:hover {
+      background-color: #106ebe;
+    }
+
+    .ms-Button--success {
+      background-color: #107c10;
+      border-color: #107c10;
+      color: white;
+    }
+
+    .ms-Button--success:hover {
+      background-color: #0b5c0b;
+    }
+
+    .ms-Button--warning {
+      background-color: #ffb900;
+      border-color: #ffb900;
+      color: #323130;
+    }
+
+    .ms-Button--warning:hover {
+      background-color: #e6a700;
+    }
+
+    .ms-Button--danger {
+      background-color: #d32f2f;
+      border-color: #d32f2f;
+      color: white;
+    }
+
+    .ms-Button--danger:hover {
+      background-color: #b71c1c;
+    }
+  language: css
+libraries: |
+  https://appsforoffice.microsoft.com/lib/1/hosted/office.js
+  @types/office-js
+
+  office-ui-fabric-js@1.4.0/dist/css/fabric.min.css
+  office-ui-fabric-js@1.4.0/dist/css/fabric.components.min.css
+
+  core-js@2.4.1/client/core.min.js
+  @types/core-js
+
+  jquery@3.1.1
+  @types/jquery@3.3.1
