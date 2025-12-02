@@ -118,4 +118,56 @@ trait JsonFormats extends DefaultJsonProtocol:
   given listJournalEntryEventResponseFormat: RootJsonFormat[List[JournalEntryEventResponse]] =
     listFormat[JournalEntryEventResponse]
 
+  // 財務分析
+  given profitabilityResponseFormat: RootJsonFormat[ProfitabilityResponse] =
+    jsonFormat4(ProfitabilityResponse.apply)
+  given efficiencyResponseFormat: RootJsonFormat[EfficiencyResponse] =
+    jsonFormat2(EfficiencyResponse.apply)
+  given safetyResponseFormat: RootJsonFormat[SafetyResponse] =
+    jsonFormat3(SafetyResponse.apply)
+  given financialAnalysisResponseFormat: RootJsonFormat[FinancialAnalysisResponse] = {
+    given p: RootJsonFormat[ProfitabilityResponse] = profitabilityResponseFormat
+    given e: RootJsonFormat[EfficiencyResponse] = efficiencyResponseFormat
+    given s: RootJsonFormat[SafetyResponse] = safetyResponseFormat
+    jsonFormat4(FinancialAnalysisResponse.apply)
+  }
+  given listFinancialAnalysisResponseFormat: RootJsonFormat[List[FinancialAnalysisResponse]] =
+    listFormat[FinancialAnalysisResponse]
+  given profitabilityChangeResponseFormat: RootJsonFormat[ProfitabilityChangeResponse] =
+    jsonFormat4(ProfitabilityChangeResponse.apply)
+  given efficiencyChangeResponseFormat: RootJsonFormat[EfficiencyChangeResponse] =
+    jsonFormat2(EfficiencyChangeResponse.apply)
+  given safetyChangeResponseFormat: RootJsonFormat[SafetyChangeResponse] =
+    jsonFormat3(SafetyChangeResponse.apply)
+  given ratioChangesResponseFormat: RootJsonFormat[RatioChangesResponse] = {
+    given pc: RootJsonFormat[ProfitabilityChangeResponse] = profitabilityChangeResponseFormat
+    given ec: RootJsonFormat[EfficiencyChangeResponse] = efficiencyChangeResponseFormat
+    given sc: RootJsonFormat[SafetyChangeResponse] = safetyChangeResponseFormat
+    jsonFormat3(RatioChangesResponse.apply)
+  }
+  given financialComparisonResponseFormat: RootJsonFormat[FinancialComparisonResponse] =
+    new RootJsonFormat[FinancialComparisonResponse]:
+      def write(obj: FinancialComparisonResponse): JsValue =
+        val fields = scala.collection.mutable.Map[String, JsValue](
+          "results" -> obj.results.map(financialAnalysisResponseFormat.write).toJson
+        )
+        obj.changes.foreach { c =>
+          fields += ("changes" -> ratioChangesResponseFormat.write(c))
+        }
+        JsObject(fields.toMap)
+
+      def read(value: JsValue): FinancialComparisonResponse =
+        value.asJsObject.getFields("results", "changes") match
+          case Seq(results, changes) =>
+            FinancialComparisonResponse(
+              results.convertTo[List[FinancialAnalysisResponse]],
+              Some(changes.convertTo[RatioChangesResponse])
+            )
+          case Seq(results) =>
+            FinancialComparisonResponse(
+              results.convertTo[List[FinancialAnalysisResponse]],
+              None
+            )
+          case _ => deserializationError("FinancialComparisonResponse expected")
+
 object JsonFormats extends JsonFormats
