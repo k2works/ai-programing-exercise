@@ -72,7 +72,7 @@ run:
 api:
     @echo "API サーバーを起動しています..."
     @echo "Endpoints: http://localhost:8080/api/accounts"
-    sbt "runMain com.example.accounting.infrastructure.http.ApiServer"
+    sbt "runMain com.example.accounting.infrastructure.in.http.ApiServer"
 
 # API テストの実行
 test-api:
@@ -100,3 +100,26 @@ pgadmin:
     @echo "pgAdmin: http://localhost:5050"
     @echo "Email: admin@example.com"
     @echo "Password: admin"
+
+# OpenAPI 仕様を検証
+openapi-validate:
+    @echo "OpenAPI 仕様を検証しています..."
+    @if command -v npx > /dev/null 2>&1; then \
+        npx @redocly/cli lint src/main/resources/openapi.yaml; \
+    else \
+        echo "npx が見つかりません。Node.js をインストールしてください"; \
+    fi
+
+# OpenAPI ドキュメントを表示
+openapi-preview:
+    @echo "Swagger UI: http://localhost:8080/swagger-ui/"
+    @echo "OpenAPI 仕様: src/main/resources/openapi.yaml"
+
+# OpenAPI 仕様から Routes との整合性を確認
+openapi-sync:
+    @echo "OpenAPI 仕様と Routes の整合性を確認しています..."
+    @echo "実装済みエンドポイント:"
+    @grep -h "path\|pathPrefix" src/main/scala/com/example/accounting/infrastructure/in/http/*Routes.scala 2>/dev/null | grep -oE '"[^"]*"' | sort -u || true
+    @echo ""
+    @echo "OpenAPI 定義エンドポイント:"
+    @grep "^  /api" src/main/resources/openapi.yaml | sort -u || true
