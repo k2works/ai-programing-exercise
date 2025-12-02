@@ -4,27 +4,21 @@
 
 ## アーキテクチャ概要
 
-```
-                    ┌─────────────────┐
-                    │   クライアント    │
-                    └────────┬────────┘
-                             │
-                    ┌────────▼────────┐
-                    │   API Gateway   │
-                    │   (Port 8000)   │
-                    └────────┬────────┘
-                             │
-            ┌────────────────┼────────────────┐
-            │                │                │
-   ┌────────▼────────┐  ┌────▼────┐  ┌────────▼────────┐
-   │  財務会計サービス  │◄─┤  ACL   ├──│  管理会計サービス  │
-   │   (Port 8080)   │  │        │  │   (Port 8081)   │
-   └────────┬────────┘  └────────┘  └─────────────────┘
-            │
-   ┌────────▼────────┐
-   │   PostgreSQL    │
-   │   (Port 5432)   │
-   └─────────────────┘
+```mermaid
+flowchart TB
+    Client[クライアント]
+    Gateway[API Gateway<br/>Port 8000]
+    Financial[財務会計サービス<br/>Port 8080]
+    Management[管理会計サービス<br/>Port 8081]
+    ACL{ACL}
+    DB[(PostgreSQL<br/>Port 5432)]
+
+    Client --> Gateway
+    Gateway --> Financial
+    Gateway --> Management
+    Management --> ACL
+    ACL --> Financial
+    Financial --> DB
 ```
 
 ## 技術スタック
