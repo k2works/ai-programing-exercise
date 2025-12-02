@@ -1,0 +1,210 @@
+name: Book Registration Client
+description: DDD書籍管理システムの書籍登録クライアント
+host: EXCEL
+api_set: {}
+script:
+  content: |
+    $("#register-book").on("click", () => tryCatch(registerBook));
+    $("#get-book").on("click", () => tryCatch(getBook));
+
+    async function registerBook() {
+      const isbn = $("#isbn").val() as string;
+      const title = $("#title").val() as string;
+      const priceAmount = parseFloat($("#price").val() as string);
+
+      if (!isbn || !title || !priceAmount) {
+        showError("すべての項目を入力してください");
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:3000/book", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            isbn: isbn,
+            title: title,
+            priceAmount: priceAmount,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          showSuccess(`書籍を登録しました: ${title}`);
+          clearForm();
+        } else {
+          showError(`エラー: ${data.message}`);
+        }
+      } catch (error) {
+        showError(`通信エラー: ${error.message}`);
+      }
+    }
+
+    async function getBook() {
+      const isbn = $("#isbn-get").val() as string;
+
+      if (!isbn) {
+        showError("ISBNを入力してください");
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:3000/book/${isbn}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          showBookInfo(data);
+        } else {
+          const errorData = await response.json();
+          showError(`エラー: ${errorData.message}`);
+        }
+      } catch (error) {
+        showError(`通信エラー: ${error.message}`);
+      }
+    }
+
+    function showSuccess(message: string) {
+      $("#result").text(message).css("color", "green");
+    }
+
+    function showError(message: string) {
+      $("#result").text(message).css("color", "red");
+    }
+
+    function showBookInfo(book: any) {
+      const info = `
+        ISBN: ${book.bookId}
+        タイトル: ${book.title}
+        価格: ¥${book.price}
+        在庫数: ${book.quantityAvailable}
+        ステータス: ${book.status}
+      `;
+      $("#result").text(info).css("color", "blue");
+    }
+
+    function clearForm() {
+      $("#isbn").val("");
+      $("#title").val("");
+      $("#price").val("");
+    }
+
+    async function tryCatch(callback) {
+      try {
+        await callback();
+      } catch (error) {
+        showError(error.message);
+      }
+    }
+  language: typescript
+template:
+  content: |
+    <section class="ms-font-m">
+      <h2 class="ms-font-xl">書籍管理システム</h2>
+      
+      <div class="ms-Grid" style="margin-top: 20px;">
+        <div class="ms-Grid-row">
+          <div class="ms-Grid-col ms-sm12">
+            <h3>書籍を登録</h3>
+            <div class="ms-TextField">
+              <label class="ms-Label">ISBN</label>
+              <input id="isbn" type="text" class="ms-TextField-field" placeholder="9784167158057" />
+            </div>
+            <div class="ms-TextField" style="margin-top: 10px;">
+              <label class="ms-Label">タイトル</label>
+              <input id="title" type="text" class="ms-TextField-field" placeholder="吾輩は猫である" />
+            </div>
+            <div class="ms-TextField" style="margin-top: 10px;">
+              <label class="ms-Label">価格</label>
+              <input id="price" type="number" class="ms-TextField-field" placeholder="770" />
+            </div>
+            <button id="register-book" class="ms-Button" style="margin-top: 15px;">
+              <span class="ms-Button-label">登録</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="ms-Grid-row" style="margin-top: 30px;">
+          <div class="ms-Grid-col ms-sm12">
+            <h3>書籍を取得</h3>
+            <div class="ms-TextField">
+              <label class="ms-Label">ISBN</label>
+              <input id="isbn-get" type="text" class="ms-TextField-field" placeholder="9784167158057" />
+            </div>
+            <button id="get-book" class="ms-Button" style="margin-top: 15px;">
+              <span class="ms-Button-label">取得</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="ms-Grid-row" style="margin-top: 30px;">
+          <div class="ms-Grid-col ms-sm12">
+            <h3>結果</h3>
+            <div id="result" style="padding: 10px; border: 1px solid #ccc; min-height: 100px; white-space: pre-line;">
+              ここに結果が表示されます
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  language: html
+style:
+  content: |
+    section.ms-font-m {
+      padding: 20px;
+    }
+
+    .ms-TextField {
+      margin-bottom: 10px;
+    }
+
+    .ms-TextField-field {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 2px;
+    }
+
+    .ms-Button {
+      background-color: #0078d4;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 2px;
+    }
+
+    .ms-Button:hover {
+      background-color: #106ebe;
+    }
+
+    .ms-Label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+
+    #result {
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+    }
+  language: css
+libraries: |
+  https://appsforoffice.microsoft.com/lib/1/hosted/office.js
+  @types/office-js
+
+  office-ui-fabric-js@1.4.0/dist/css/fabric.min.css
+  office-ui-fabric-js@1.4.0/dist/css/fabric.components.min.css
+
+  core-js@2.4.1/client/core.min.js
+  @types/core-js
+
+  jquery@3.1.1
+  @types/jquery@3.3.1
