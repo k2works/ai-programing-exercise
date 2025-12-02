@@ -5,7 +5,12 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "lint": "eslint src --ext .ts"
+    "lint": "eslint src --ext .ts",
+    "migrate:dev": "prisma migrate dev",
+    "migrate:deploy": "prisma migrate deploy",
+    "migrate:reset": "prisma migrate reset",
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio"
   },
   "keywords": [],
   "author": "",
