@@ -6,6 +6,7 @@ import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport.*
 import spray.json.*
 import com.example.accounting.application.*
+import com.example.accounting.application.port.in.JournalUseCase
 import com.example.accounting.infrastructure.http.dto.*
 import com.example.accounting.infrastructure.http.JsonFormats.*
 
@@ -15,7 +16,7 @@ import java.time.format.DateTimeParseException
 /**
  * 仕訳 API Routes
  */
-class JournalRoutes(service: JournalService):
+class JournalRoutes(service: JournalUseCase):
 
   // 暗黙的なフォーマットのインポート
   import JsonFormats.{

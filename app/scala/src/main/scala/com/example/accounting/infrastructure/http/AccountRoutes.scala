@@ -6,6 +6,7 @@ import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport.*
 import spray.json.*
 import com.example.accounting.application.*
+import com.example.accounting.application.port.in.AccountUseCase
 import com.example.accounting.infrastructure.http.dto.*
 import com.example.accounting.infrastructure.http.JsonFormats.*
 import com.example.accounting.domain.AccountType
@@ -16,7 +17,7 @@ import java.nio.charset.StandardCharsets
 /**
  * 勘定科目 API Routes
  */
-class AccountRoutes(service: AccountService):
+class AccountRoutes(service: AccountUseCase):
 
   // 暗黙的なフォーマットのインポート
   import JsonFormats.{accountRequestFormat, accountResponseFormat, errorResponseFormat, given}

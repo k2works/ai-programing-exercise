@@ -1,6 +1,6 @@
 package com.example.accounting
 
-import com.example.accounting.application.FinancialStatementService
+import com.example.accounting.application.service.FinancialStatementService
 import com.example.accounting.domain.financial.*
 import com.example.db.DatabaseSpec
 import org.scalatest.BeforeAndAfterEach

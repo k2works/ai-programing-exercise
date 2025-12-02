@@ -3,7 +3,7 @@ package com.example.accounting.api
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport.*
-import com.example.accounting.application.FinancialStatementService
+import com.example.accounting.application.service.FinancialStatementService
 import com.example.accounting.infrastructure.http.FinancialStatementRoutes
 import com.example.accounting.infrastructure.http.dto.*
 import com.example.accounting.infrastructure.http.JsonFormats.{*, given}

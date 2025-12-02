@@ -1,5 +1,6 @@
 package com.example.accounting.infrastructure.persistence.journal
 
+import com.example.accounting.application.port.out.{JournalRepository => JournalRepositoryPort}
 import com.example.accounting.domain.journal.*
 import scalikejdbc.*
 
@@ -8,7 +9,7 @@ import java.time.{LocalDate, LocalDateTime}
 /**
  * 仕訳リポジトリ（3層構造）
  */
-class JournalRepository:
+class JournalRepository extends JournalRepositoryPort:
 
   /**
    * 仕訳を登録

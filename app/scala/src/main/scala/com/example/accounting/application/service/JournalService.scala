@@ -1,24 +1,24 @@
-package com.example.accounting.application
+package com.example.accounting.application.service
 
+import com.example.accounting.application.*
+import com.example.accounting.application.port.in.JournalUseCase
+import com.example.accounting.application.port.out.{AccountRepository, JournalRepository}
 import com.example.accounting.domain.journal.*
-import com.example.accounting.infrastructure.persistence.journal.JournalRepository
-import com.example.accounting.infrastructure.persistence.AccountRepository
 import scalikejdbc.*
 
 import java.time.LocalDate
 
 /**
- * 仕訳サービス
+ * 仕訳サービス（JournalUseCase の実装）
  */
 class JournalService(
     journalRepository: JournalRepository,
     accountRepository: AccountRepository,
-):
+) extends JournalUseCase:
 
-  /**
-   * 仕訳伝票番号で取得
-   */
-  def getJournal(journalNo: String): Either[AppError, (Journal, List[JournalDetail], List[JournalDebitCreditDetail])] =
+  override def getJournal(
+      journalNo: String
+  ): Either[AppError, (Journal, List[JournalDetail], List[JournalDebitCreditDetail])] =
     try
       DB.readOnly { implicit session =>
         journalRepository.findByNo(journalNo) match
@@ -33,10 +33,7 @@ class JournalService(
       case e: Exception =>
         Left(DatabaseError("仕訳の取得に失敗しました", Some(e)))
 
-  /**
-   * 日付範囲で仕訳を取得
-   */
-  def getJournalsByDateRange(
+  override def getJournalsByDateRange(
       from: LocalDate,
       to: LocalDate,
   ): Either[AppError, List[(Journal, List[JournalDetail], List[JournalDebitCreditDetail])]] =
@@ -54,10 +51,7 @@ class JournalService(
       case e: Exception =>
         Left(DatabaseError("仕訳の取得に失敗しました", Some(e)))
 
-  /**
-   * 仕訳を作成
-   */
-  def createJournal(
+  override def createJournal(
       journal: Journal,
       details: List[JournalDetail],
       debitCreditDetails: List[JournalDebitCreditDetail],
@@ -95,10 +89,7 @@ class JournalService(
       case e: Exception =>
         Left(DatabaseError("仕訳の作成に失敗しました", Some(e)))
 
-  /**
-   * 仕訳を削除
-   */
-  def deleteJournal(journalNo: String): Either[AppError, Unit] =
+  override def deleteJournal(journalNo: String): Either[AppError, Unit] =
     try
       DB.localTx { implicit session =>
         journalRepository.findByNo(journalNo) match
@@ -112,10 +103,7 @@ class JournalService(
       case e: Exception =>
         Left(DatabaseError("仕訳の削除に失敗しました", Some(e)))
 
-  /**
-   * 貸借平衡を検証
-   */
-  def validateBalance(journalNo: String): Either[AppError, (Boolean, BigDecimal, BigDecimal)] =
+  override def validateBalance(journalNo: String): Either[AppError, (Boolean, BigDecimal, BigDecimal)] =
     try
       DB.readOnly { implicit session =>
         journalRepository.findByNo(journalNo) match
@@ -130,9 +118,6 @@ class JournalService(
       case e: Exception =>
         Left(DatabaseError("貸借平衡の検証に失敗しました", Some(e)))
 
-  /**
-   * 仕訳のバリデーション
-   */
   private def validateJournal(
       journal: Journal,
       details: List[JournalDetail],

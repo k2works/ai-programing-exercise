@@ -1,12 +1,13 @@
 package com.example.accounting.infrastructure.persistence
 
+import com.example.accounting.application.port.out.{AccountRepository => AccountRepositoryPort}
 import com.example.accounting.domain.{Account, AccountType}
 import scalikejdbc.*
 
 /**
  * 勘定科目マスタのリポジトリ
  */
-class AccountRepository:
+class AccountRepository extends AccountRepositoryPort:
 
   private def fromResultSet(rs: WrappedResultSet): Account = Account(
     accountId = Some(rs.int("勘定科目ID")),

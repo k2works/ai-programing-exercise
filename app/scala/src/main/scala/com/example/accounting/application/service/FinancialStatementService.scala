@@ -1,5 +1,6 @@
-package com.example.accounting.application
+package com.example.accounting.application.service
 
+import com.example.accounting.application.port.in.FinancialStatementUseCase
 import com.example.accounting.domain.financial.*
 import scalikejdbc.*
 
@@ -7,20 +8,12 @@ import java.time.LocalDate
 import scala.math.BigDecimal.RoundingMode
 
 /**
- * 財務諸表生成サービス
+ * 財務諸表生成サービス（FinancialStatementUseCase の実装）
  */
-class FinancialStatementService:
+class FinancialStatementService extends FinancialStatementUseCase:
 
-  /**
-   * 貸借対照表を生成
-   *
-   * @param asOfDate 基準日
-   * @param session DB セッション（暗黙的に渡される）
-   * @return 貸借対照表
-   */
-  def generateBalanceSheet(asOfDate: LocalDate)(implicit session: DBSession): BalanceSheet =
+  override def generateBalanceSheet(asOfDate: LocalDate)(implicit session: DBSession): BalanceSheet =
     // 資産・負債・純資産の残高を取得
-    // 勘定科目種別（enum）を使用して分類
     val balances = sql"""
       SELECT
         a."勘定科目コード" as account_code,
@@ -89,19 +82,10 @@ class FinancialStatementService:
       totalLiabilitiesAndEquity = totalLiabilitiesAndEquity,
     )
 
-  /**
-   * 損益計算書を生成
-   *
-   * @param fromDate 開始日
-   * @param toDate 終了日
-   * @param session DB セッション（暗黙的に渡される）
-   * @return 損益計算書
-   */
-  def generateIncomeStatement(fromDate: LocalDate, toDate: LocalDate)(implicit
+  override def generateIncomeStatement(fromDate: LocalDate, toDate: LocalDate)(implicit
       session: DBSession
   ): IncomeStatement =
     // 収益・費用の残高を取得
-    // 勘定科目種別（enum）を使用して分類
     val balances = sql"""
       SELECT
         a."勘定科目コード" as account_code,
@@ -179,14 +163,7 @@ class FinancialStatementService:
       totalExpenses = totalExpenses,
     )
 
-  /**
-   * 財務指標を計算
-   *
-   * @param balanceSheet 貸借対照表
-   * @param incomeStatement 損益計算書
-   * @return 財務指標
-   */
-  def calculateFinancialRatios(
+  override def calculateFinancialRatios(
       balanceSheet: BalanceSheet,
       incomeStatement: IncomeStatement,
   ): FinancialRatios =
@@ -243,13 +220,6 @@ class FinancialStatementService:
       roe = roe,
     )
 
-  /**
-   * 構成比率を計算
-   *
-   * @param items 項目リスト（勘定科目コード、勘定科目名、残高）
-   * @param total 合計額
-   * @return 構成比率が設定された項目リスト
-   */
   private def calculatePercentage(
       items: List[(String, String, BigDecimal)],
       total: BigDecimal,
@@ -267,13 +237,6 @@ class FinancialStatementService:
       )
     }
 
-  /**
-   * 損益計算書用の構成比率を計算（対売上比）
-   *
-   * @param items 項目リスト（勘定科目コード、勘定科目名、金額）
-   * @param totalRevenues 総収益
-   * @return 構成比率が設定された項目リスト
-   */
   private def calculatePercentageForPL(
       items: List[(String, String, BigDecimal)],
       totalRevenues: BigDecimal,

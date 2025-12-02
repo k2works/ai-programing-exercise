@@ -1,18 +1,17 @@
-package com.example.accounting.application
+package com.example.accounting.application.service
 
+import com.example.accounting.application.*
+import com.example.accounting.application.port.in.AccountUseCase
+import com.example.accounting.application.port.out.AccountRepository
 import com.example.accounting.domain.{Account, AccountType}
-import com.example.accounting.infrastructure.persistence.AccountRepository
 import scalikejdbc.*
 
 /**
- * 勘定科目サービス
+ * 勘定科目サービス（AccountUseCase の実装）
  */
-class AccountService(repository: AccountRepository):
+class AccountService(repository: AccountRepository) extends AccountUseCase:
 
-  /**
-   * すべての勘定科目を取得
-   */
-  def getAllAccounts(): Either[AppError, List[Account]] =
+  override def getAllAccounts(): Either[AppError, List[Account]] =
     try
       DB.readOnly { implicit session =>
         Right(repository.findAll())
@@ -21,10 +20,7 @@ class AccountService(repository: AccountRepository):
       case e: Exception =>
         Left(DatabaseError("勘定科目の取得に失敗しました", Some(e)))
 
-  /**
-   * 勘定科目コードで取得
-   */
-  def getAccountByCode(code: String): Either[AppError, Account] =
+  override def getAccountByCode(code: String): Either[AppError, Account] =
     try
       DB.readOnly { implicit session =>
         repository.findByCode(code) match
@@ -35,10 +31,7 @@ class AccountService(repository: AccountRepository):
       case e: Exception =>
         Left(DatabaseError("勘定科目の取得に失敗しました", Some(e)))
 
-  /**
-   * 勘定科目を作成
-   */
-  def createAccount(account: Account): Either[AppError, Account] =
+  override def createAccount(account: Account): Either[AppError, Account] =
     try
       DB.localTx { implicit session =>
         // 重複チェック
@@ -59,10 +52,7 @@ class AccountService(repository: AccountRepository):
       case e: Exception =>
         Left(DatabaseError("勘定科目の作成に失敗しました", Some(e)))
 
-  /**
-   * 勘定科目を更新
-   */
-  def updateAccount(code: String, account: Account): Either[AppError, Account] =
+  override def updateAccount(code: String, account: Account): Either[AppError, Account] =
     try
       DB.localTx { implicit session =>
         // 存在チェック
@@ -83,10 +73,7 @@ class AccountService(repository: AccountRepository):
       case e: Exception =>
         Left(DatabaseError("勘定科目の更新に失敗しました", Some(e)))
 
-  /**
-   * 勘定科目を削除
-   */
-  def deleteAccount(code: String): Either[AppError, Unit] =
+  override def deleteAccount(code: String): Either[AppError, Unit] =
     try
       DB.localTx { implicit session =>
         repository.findByCode(code) match
@@ -100,10 +87,7 @@ class AccountService(repository: AccountRepository):
       case e: Exception =>
         Left(DatabaseError("勘定科目の削除に失敗しました", Some(e)))
 
-  /**
-   * 勘定科目種別で検索
-   */
-  def getAccountsByType(accountType: AccountType): Either[AppError, List[Account]] =
+  override def getAccountsByType(accountType: AccountType): Either[AppError, List[Account]] =
     try
       DB.readOnly { implicit session =>
         Right(repository.findByType(accountType))
@@ -112,9 +96,6 @@ class AccountService(repository: AccountRepository):
       case e: Exception =>
         Left(DatabaseError("勘定科目の検索に失敗しました", Some(e)))
 
-  /**
-   * バリデーション
-   */
   private def validateAccount(account: Account): Either[AppError, Unit] =
     if account.accountCode.isEmpty then Left(ValidationError("勘定科目コードは必須です"))
     else if account.accountName.isEmpty then Left(ValidationError("勘定科目名は必須です"))
