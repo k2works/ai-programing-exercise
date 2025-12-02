@@ -5,7 +5,7 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport.*
 import com.example.accounting.application.AccountService
 import com.example.accounting.domain.AccountType
-import com.example.accounting.infrastructure.AccountRepository
+import com.example.accounting.infrastructure.persistence.AccountRepository
 import com.example.accounting.infrastructure.http.AccountRoutes
 import com.example.accounting.infrastructure.http.dto.*
 import com.example.accounting.infrastructure.http.JsonFormats.{*, given}

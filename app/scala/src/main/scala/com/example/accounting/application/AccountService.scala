@@ -1,7 +1,7 @@
 package com.example.accounting.application
 
 import com.example.accounting.domain.{Account, AccountType}
-import com.example.accounting.infrastructure.AccountRepository
+import com.example.accounting.infrastructure.persistence.AccountRepository
 import scalikejdbc.*
 
 /**

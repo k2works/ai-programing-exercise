@@ -5,8 +5,8 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Directives.*
 import akka.http.scaladsl.server.Route
 import com.example.accounting.application.*
-import com.example.accounting.infrastructure.*
-import com.example.accounting.infrastructure.journal.JournalRepository
+import com.example.accounting.infrastructure.persistence.*
+import com.example.accounting.infrastructure.persistence.journal.JournalRepository
 import scalikejdbc.config.DBs
 
 import scala.concurrent.ExecutionContext

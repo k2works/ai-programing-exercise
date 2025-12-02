@@ -1,8 +1,8 @@
 package com.example.accounting.application
 
 import com.example.accounting.domain.journal.*
-import com.example.accounting.infrastructure.journal.JournalRepository
-import com.example.accounting.infrastructure.AccountRepository
+import com.example.accounting.infrastructure.persistence.journal.JournalRepository
+import com.example.accounting.infrastructure.persistence.AccountRepository
 import scalikejdbc.*
 
 import java.time.LocalDate

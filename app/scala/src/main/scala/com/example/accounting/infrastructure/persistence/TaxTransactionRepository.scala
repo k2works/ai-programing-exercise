@@ -1,4 +1,4 @@
-package com.example.accounting.infrastructure
+package com.example.accounting.infrastructure.persistence
 
 import com.example.accounting.domain.TaxTransaction
 import scalikejdbc.*
