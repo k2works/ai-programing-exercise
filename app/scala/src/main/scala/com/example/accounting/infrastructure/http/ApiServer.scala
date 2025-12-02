@@ -43,12 +43,14 @@ object ApiServer:
       accountRoutes.routes,
       journalRoutes.routes,
       financialStatementRoutes.routes,
+      SwaggerRoutes.routes,
     )
 
     // サーバーの起動
     val bindingFuture = Http().newServerAt("localhost", 8080).bind(routes)
 
     println("財務会計システム API サーバーが起動しました: http://localhost:8080/")
+    println("Swagger UI: http://localhost:8080/swagger-ui/")
     println("終了するには ENTER を押してください...")
     StdIn.readLine()
 

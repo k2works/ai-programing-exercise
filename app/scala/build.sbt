@@ -46,7 +46,10 @@ lazy val root = (project in file("."))
 
       // Logging
       "ch.qos.logback" % "logback-classic" % "1.4.14",
-      "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5"
+      "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5",
+
+      // Swagger UI
+      "org.webjars" % "swagger-ui" % "5.18.2"
     ),
     // WartRemover settings
     wartremoverWarnings ++= Warts.unsafe,

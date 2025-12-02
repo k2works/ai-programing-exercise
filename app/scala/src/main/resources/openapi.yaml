@@ -1,0 +1,811 @@
+openapi: 3.0.3
+info:
+  title: 財務会計システム API
+  description: |
+    Scala で実装された財務会計システムの RESTful API です。
+    勘定科目管理、仕訳処理、財務諸表生成などの機能を提供します。
+  version: 1.0.0
+  contact:
+    name: API Support
+servers:
+  - url: http://localhost:8080
+    description: 開発環境
+
+tags:
+  - name: accounts
+    description: 勘定科目管理
+  - name: journals
+    description: 仕訳管理
+  - name: financial-statements
+    description: 財務諸表
+
+paths:
+  /api/accounts:
+    get:
+      tags:
+        - accounts
+      summary: 全勘定科目取得
+      description: 登録されている全ての勘定科目を取得します
+      operationId: getAllAccounts
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccountResponse'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+        - accounts
+      summary: 勘定科目作成
+      description: 新しい勘定科目を作成します
+      operationId: createAccount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountRequest'
+      responses:
+        '201':
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+        '400':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 重複エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/accounts/{code}:
+    get:
+      tags:
+        - accounts
+      summary: 勘定科目取得
+      description: 指定された勘定科目コードの勘定科目を取得します
+      operationId: getAccountByCode
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 勘定科目コード
+          example: "1110"
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+        '404':
+          description: 見つかりません
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+        - accounts
+      summary: 勘定科目更新
+      description: 指定された勘定科目を更新します
+      operationId: updateAccount
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 勘定科目コード
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+        '400':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 見つかりません
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - accounts
+      summary: 勘定科目削除
+      description: 指定された勘定科目を削除します
+      operationId: deleteAccount
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 勘定科目コード
+      responses:
+        '204':
+          description: 削除成功
+        '404':
+          description: 見つかりません
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/accounts/type/{type}:
+    get:
+      tags:
+        - accounts
+      summary: 勘定科目種別検索
+      description: 指定された勘定科目種別の勘定科目を取得します
+      operationId: getAccountsByType
+      parameters:
+        - name: type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum:
+              - 資産
+              - 負債
+              - 純資産
+              - 収益
+              - 費用
+          description: 勘定科目種別
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccountResponse'
+        '400':
+          description: 無効な勘定科目種別
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/journals:
+    get:
+      tags:
+        - journals
+      summary: 仕訳一覧取得
+      description: 指定された期間の仕訳を取得します
+      operationId: getJournals
+      parameters:
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          description: 開始日（YYYY-MM-DD）
+          example: "2024-01-01"
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          description: 終了日（YYYY-MM-DD）
+          example: "2024-12-31"
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/JournalResponse'
+        '400':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+        - journals
+      summary: 仕訳作成
+      description: 新しい仕訳を作成します
+      operationId: createJournal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JournalRequest'
+      responses:
+        '201':
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JournalResponse'
+        '400':
+          description: バリデーションエラー（貸借不一致など）
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 重複エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/journals/{journalNo}:
+    get:
+      tags:
+        - journals
+      summary: 仕訳取得
+      description: 指定された仕訳番号の仕訳を取得します
+      operationId: getJournal
+      parameters:
+        - name: journalNo
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 仕訳番号
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JournalResponse'
+        '404':
+          description: 見つかりません
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - journals
+      summary: 仕訳削除
+      description: 指定された仕訳を削除します
+      operationId: deleteJournal
+      parameters:
+        - name: journalNo
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 仕訳番号
+      responses:
+        '204':
+          description: 削除成功
+        '404':
+          description: 見つかりません
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/journals/{journalNo}/validate:
+    get:
+      tags:
+        - journals
+      summary: 仕訳貸借検証
+      description: 指定された仕訳の貸借バランスを検証します
+      operationId: validateJournal
+      parameters:
+        - name: journalNo
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 仕訳番号
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JournalValidationResponse'
+        '404':
+          description: 見つかりません
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/financial-statements/balance-sheet:
+    get:
+      tags:
+        - financial-statements
+      summary: 貸借対照表取得
+      description: 指定日時点の貸借対照表を取得します
+      operationId: getBalanceSheet
+      parameters:
+        - name: asOf
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          description: 基準日（YYYY-MM-DD）
+          example: "2024-03-31"
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BalanceSheetResponse'
+        '400':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/financial-statements/income-statement:
+    get:
+      tags:
+        - financial-statements
+      summary: 損益計算書取得
+      description: 指定期間の損益計算書を取得します
+      operationId: getIncomeStatement
+      parameters:
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          description: 開始日（YYYY-MM-DD）
+          example: "2024-01-01"
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          description: 終了日（YYYY-MM-DD）
+          example: "2024-03-31"
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncomeStatementResponse'
+        '400':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/financial-statements/ratios:
+    get:
+      tags:
+        - financial-statements
+      summary: 財務指標取得
+      description: 指定日時点の財務指標を取得します
+      operationId: getFinancialRatios
+      parameters:
+        - name: asOf
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          description: 基準日（YYYY-MM-DD）
+          example: "2024-03-31"
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinancialRatiosResponse'
+        '400':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    AccountRequest:
+      type: object
+      required:
+        - accountCode
+        - accountName
+        - accountType
+        - balance
+        - isSummaryAccount
+        - isAggregationTarget
+      properties:
+        accountCode:
+          type: string
+          description: 勘定科目コード
+          example: "1110"
+        accountName:
+          type: string
+          description: 勘定科目名
+          example: "現金"
+        accountType:
+          type: string
+          enum:
+            - 資産
+            - 負債
+            - 純資産
+            - 収益
+            - 費用
+          description: 勘定科目種別
+        balance:
+          type: number
+          description: 残高
+          example: 0
+        bsplDistinction:
+          type: string
+          description: BS/PL区分
+          example: "B"
+        transactionElement:
+          type: string
+          description: 取引要素
+        expenseDistinction:
+          type: string
+          description: 費用区分
+        isSummaryAccount:
+          type: boolean
+          description: 合計科目フラグ
+        displayOrder:
+          type: integer
+          description: 表示順序
+        isAggregationTarget:
+          type: boolean
+          description: 集計対象フラグ
+        accountKana:
+          type: string
+          description: 勘定科目カナ
+        taxCode:
+          type: string
+          description: 税区分コード
+
+    AccountResponse:
+      type: object
+      properties:
+        accountCode:
+          type: string
+          description: 勘定科目コード
+        accountName:
+          type: string
+          description: 勘定科目名
+        accountType:
+          type: string
+          description: 勘定科目種別
+        balance:
+          type: number
+          description: 残高
+        bsplDistinction:
+          type: string
+          description: BS/PL区分
+        transactionElement:
+          type: string
+          description: 取引要素
+        expenseDistinction:
+          type: string
+          description: 費用区分
+        isSummaryAccount:
+          type: boolean
+          description: 合計科目フラグ
+        displayOrder:
+          type: integer
+          description: 表示順序
+        isAggregationTarget:
+          type: boolean
+          description: 集計対象フラグ
+        accountKana:
+          type: string
+          description: 勘定科目カナ
+        taxCode:
+          type: string
+          description: 税区分コード
+        createdAt:
+          type: string
+          format: date-time
+          description: 作成日時
+
+    JournalRequest:
+      type: object
+      required:
+        - journalNo
+        - journalDate
+        - details
+        - debitCreditDetails
+      properties:
+        journalNo:
+          type: string
+          description: 仕訳番号
+        journalDate:
+          type: string
+          format: date
+          description: 仕訳日付
+        description:
+          type: string
+          description: 摘要
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/JournalDetailRequest'
+        debitCreditDetails:
+          type: array
+          items:
+            $ref: '#/components/schemas/JournalDebitCreditDetailRequest'
+
+    JournalDetailRequest:
+      type: object
+      required:
+        - lineNo
+        - description
+      properties:
+        lineNo:
+          type: integer
+          description: 行番号
+        description:
+          type: string
+          description: 摘要
+
+    JournalDebitCreditDetailRequest:
+      type: object
+      required:
+        - lineNo
+        - accountCode
+        - debitAmount
+        - creditAmount
+      properties:
+        lineNo:
+          type: integer
+          description: 行番号
+        accountCode:
+          type: string
+          description: 勘定科目コード
+        debitAmount:
+          type: number
+          description: 借方金額
+        creditAmount:
+          type: number
+          description: 貸方金額
+
+    JournalResponse:
+      type: object
+      properties:
+        journalNo:
+          type: string
+          description: 仕訳番号
+        journalDate:
+          type: string
+          format: date
+          description: 仕訳日付
+        description:
+          type: string
+          description: 摘要
+        totalDebit:
+          type: number
+          description: 借方合計
+        totalCredit:
+          type: number
+          description: 貸方合計
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/JournalDetailResponse'
+        debitCreditDetails:
+          type: array
+          items:
+            $ref: '#/components/schemas/JournalDebitCreditDetailResponse'
+
+    JournalDetailResponse:
+      type: object
+      properties:
+        lineNo:
+          type: integer
+        description:
+          type: string
+
+    JournalDebitCreditDetailResponse:
+      type: object
+      properties:
+        lineNo:
+          type: integer
+        accountCode:
+          type: string
+        accountName:
+          type: string
+        debitAmount:
+          type: number
+        creditAmount:
+          type: number
+
+    JournalValidationResponse:
+      type: object
+      properties:
+        journalNo:
+          type: string
+          description: 仕訳番号
+        isBalanced:
+          type: boolean
+          description: 貸借一致フラグ
+        totalDebit:
+          type: number
+          description: 借方合計
+        totalCredit:
+          type: number
+          description: 貸方合計
+
+    BalanceSheetResponse:
+      type: object
+      properties:
+        asOfDate:
+          type: string
+          format: date
+          description: 基準日
+        assets:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinancialStatementItem'
+          description: 資産
+        liabilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinancialStatementItem'
+          description: 負債
+        equity:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinancialStatementItem'
+          description: 純資産
+        totalAssets:
+          type: number
+          description: 資産合計
+        totalLiabilities:
+          type: number
+          description: 負債合計
+        totalEquity:
+          type: number
+          description: 純資産合計
+        totalLiabilitiesAndEquity:
+          type: number
+          description: 負債純資産合計
+        isBalanced:
+          type: boolean
+          description: 貸借一致フラグ
+
+    IncomeStatementResponse:
+      type: object
+      properties:
+        fromDate:
+          type: string
+          format: date
+          description: 開始日
+        toDate:
+          type: string
+          format: date
+          description: 終了日
+        revenues:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinancialStatementItem'
+          description: 収益
+        expenses:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinancialStatementItem'
+          description: 費用
+        totalRevenues:
+          type: number
+          description: 収益合計
+        totalExpenses:
+          type: number
+          description: 費用合計
+        operatingIncome:
+          type: number
+          description: 営業利益
+        ordinaryIncome:
+          type: number
+          description: 経常利益
+        netIncome:
+          type: number
+          description: 当期純利益
+
+    FinancialStatementItem:
+      type: object
+      properties:
+        accountCode:
+          type: string
+          description: 勘定科目コード
+        accountName:
+          type: string
+          description: 勘定科目名
+        amount:
+          type: number
+          description: 金額
+        level:
+          type: integer
+          description: 階層レベル
+
+    FinancialRatiosResponse:
+      type: object
+      properties:
+        asOfDate:
+          type: string
+          format: date
+          description: 基準日
+        currentRatio:
+          type: number
+          description: 流動比率（%）
+        quickRatio:
+          type: number
+          description: 当座比率（%）
+        debtToEquityRatio:
+          type: number
+          description: 負債比率（%）
+        equityRatio:
+          type: number
+          description: 自己資本比率（%）
+        returnOnAssets:
+          type: number
+          description: 総資産利益率（ROA）（%）
+        returnOnEquity:
+          type: number
+          description: 自己資本利益率（ROE）（%）
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          description: エラーコード
+          example: "NOT_FOUND"
+        message:
+          type: string
+          description: エラーメッセージ
+          example: "勘定科目が見つかりません"
+        details:
+          type: array
+          items:
+            type: string
+          description: 詳細情報

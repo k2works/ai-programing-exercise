@@ -134,6 +134,15 @@ sbt "runMain com.example.accounting.infrastructure.http.ApiServer"
 
 API サーバーは `http://localhost:8080` で起動します。
 
+### Swagger UI
+
+API ドキュメントは Swagger UI で確認できます。
+
+- **URL**: http://localhost:8080/swagger-ui/
+- **OpenAPI 仕様**: http://localhost:8080/openapi.yaml
+
+Swagger UI では、API の仕様確認やテストリクエストの実行ができます。
+
 ### API エンドポイント
 
 #### 勘定科目 API
@@ -201,6 +210,7 @@ curl "http://localhost:8080/api/financial-statements/income-statement?from=2024-
 - **ScalaTest 3.2.18**: テストフレームワーク
 - **Akka HTTP 10.5.3**: RESTful API フレームワーク
 - **spray-json**: JSON シリアライゼーション
+- **Swagger UI 5.18.2**: API ドキュメント・テスト UI
 
 ## Docker Desktop のセットアップ
 
