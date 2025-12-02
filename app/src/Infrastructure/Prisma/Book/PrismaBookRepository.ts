@@ -1,4 +1,4 @@
-import { $Enums, PrismaClient } from '@prisma/client';
+import { $Enums } from '@prisma/client';
 import { Book } from 'Domain/models/Book/Book';
 import { BookId } from 'Domain/models/Book/BookId/BookId';
 import { IBookRepository } from 'Domain/models/Book/IBookRepository';
@@ -8,10 +8,11 @@ import { Status, StatusEnum } from 'Domain/models/Book/Stock/Status/Status';
 import { Stock } from 'Domain/models/Book/Stock/Stock';
 import { StockId } from 'Domain/models/Book/Stock/StockId/StockId';
 import { Title } from 'Domain/models/Book/Title/Title';
-
-const prisma = new PrismaClient();
+import { PrismaClientManager } from '../PrismaClientManager';
 
 export class PrismaBookRepository implements IBookRepository {
+  constructor(private clientManager: PrismaClientManager) {}
+
   private statusDataMapper(
     status: StatusEnum
   ): 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK' {
@@ -37,6 +38,7 @@ export class PrismaBookRepository implements IBookRepository {
   }
 
   async save(book: Book) {
+    const prisma = this.clientManager.getClient();
     await prisma.book.create({
       data: {
         bookId: book.bookId.value,
@@ -54,6 +56,7 @@ export class PrismaBookRepository implements IBookRepository {
   }
 
   async update(book: Book) {
+    const prisma = this.clientManager.getClient();
     await prisma.book.update({
       where: {
         bookId: book.bookId.value,
@@ -72,6 +75,7 @@ export class PrismaBookRepository implements IBookRepository {
   }
 
   async delete(bookId: BookId) {
+    const prisma = this.clientManager.getClient();
     await prisma.book.delete({
       where: {
         bookId: bookId.value,
@@ -80,6 +84,7 @@ export class PrismaBookRepository implements IBookRepository {
   }
 
   async find(bookId: BookId): Promise<Book | null> {
+    const prisma = this.clientManager.getClient();
     const data = await prisma.book.findUnique({
       where: {
         bookId: bookId.value,
