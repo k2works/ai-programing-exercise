@@ -16,6 +16,8 @@ tags:
     description: 勘定科目管理
   - name: journals
     description: 仕訳管理
+  - name: journal-entries
+    description: 仕訳エントリ管理（イベントソーシング）
   - name: financial-statements
     description: 財務諸表
   - name: audit-logs
@@ -626,6 +628,293 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /api/journal-entries:
+    post:
+      tags:
+        - journal-entries
+      summary: 仕訳エントリ作成
+      description: イベントソーシングで仕訳エントリを作成します
+      operationId: createJournalEntry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JournalEntryCreateRequest'
+      responses:
+        '201':
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JournalEntryResponse'
+        '400':
+          description: バリデーションエラー（貸借不均衡など）
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/journal-entries/{id}:
+    get:
+      tags:
+        - journal-entries
+      summary: 仕訳エントリ取得
+      description: 指定されたIDの仕訳エントリを取得します
+      operationId: getJournalEntry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 仕訳エントリID（集約ID）
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JournalEntryResponse'
+        '404':
+          description: 見つかりません
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - journal-entries
+      summary: 仕訳エントリ削除
+      description: 指定された仕訳エントリを削除（論理削除）します
+      operationId: deleteJournalEntry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 仕訳エントリID（集約ID）
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JournalEntryDeleteRequest'
+      responses:
+        '200':
+          description: 削除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JournalEntryResponse'
+        '400':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 見つかりません
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/journal-entries/{id}/approve:
+    post:
+      tags:
+        - journal-entries
+      summary: 仕訳エントリ承認
+      description: 仕訳エントリを承認します
+      operationId: approveJournalEntry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 仕訳エントリID（集約ID）
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JournalEntryApproveRequest'
+      responses:
+        '200':
+          description: 承認成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JournalEntryResponse'
+        '400':
+          description: バリデーションエラー（既に承認済みなど）
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 見つかりません
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/journal-entries/{id}/reject:
+    post:
+      tags:
+        - journal-entries
+      summary: 仕訳エントリ却下
+      description: 仕訳エントリを却下します
+      operationId: rejectJournalEntry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 仕訳エントリID（集約ID）
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JournalEntryRejectRequest'
+      responses:
+        '200':
+          description: 却下成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JournalEntryResponse'
+        '400':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 見つかりません
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/journal-entries/{id}/history:
+    get:
+      tags:
+        - journal-entries
+      summary: 仕訳エントリ履歴取得
+      description: 仕訳エントリのイベント履歴を取得します
+      operationId: getJournalEntryHistory
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 仕訳エントリID（集約ID）
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/JournalEntryEventResponse'
+        '404':
+          description: 見つかりません
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/journal-entries/{id}/at:
+    get:
+      tags:
+        - journal-entries
+      summary: 特定時点の仕訳エントリ取得
+      description: 指定された時点での仕訳エントリの状態を取得します（イベントソーシングによる時間旅行）
+      operationId: getJournalEntryAt
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 仕訳エントリID（集約ID）
+        - name: asOf
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+          description: 時点（ISO 8601形式）
+          example: "2024-01-15T10:30:00Z"
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JournalEntryResponse'
+        '400':
+          description: バリデーションエラー（日時形式不正など）
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 見つかりません
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
 components:
   schemas:
     AccountRequest:
@@ -1039,3 +1328,190 @@ components:
           items:
             type: string
           description: 詳細情報
+
+    JournalEntryCreateRequest:
+      type: object
+      required:
+        - journalDate
+        - details
+        - createdBy
+      properties:
+        journalDate:
+          type: string
+          format: date
+          description: 仕訳日付
+          example: "2024-01-15"
+        description:
+          type: string
+          description: 摘要
+          example: "売上計上"
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/JournalEntryDetailRequest'
+          description: 仕訳明細
+        createdBy:
+          type: string
+          description: 作成者
+          example: "user1"
+
+    JournalEntryDetailRequest:
+      type: object
+      required:
+        - lineNumber
+        - accountCode
+        - debitCredit
+        - amount
+      properties:
+        lineNumber:
+          type: integer
+          description: 行番号
+          example: 1
+        accountCode:
+          type: string
+          description: 勘定科目コード
+          example: "1000"
+        debitCredit:
+          type: string
+          enum:
+            - D
+            - C
+          description: 借方/貸方区分（D=借方、C=貸方）
+        amount:
+          type: number
+          description: 金額
+          example: 10000
+        description:
+          type: string
+          description: 明細摘要
+          example: "借方明細"
+
+    JournalEntryApproveRequest:
+      type: object
+      required:
+        - approvedBy
+      properties:
+        approvedBy:
+          type: string
+          description: 承認者
+          example: "approver1"
+
+    JournalEntryRejectRequest:
+      type: object
+      required:
+        - rejectedBy
+        - reason
+      properties:
+        rejectedBy:
+          type: string
+          description: 却下者
+          example: "reviewer1"
+        reason:
+          type: string
+          description: 却下理由
+          example: "金額が不正"
+
+    JournalEntryDeleteRequest:
+      type: object
+      required:
+        - deletedBy
+        - reason
+      properties:
+        deletedBy:
+          type: string
+          description: 削除者
+          example: "admin1"
+        reason:
+          type: string
+          description: 削除理由
+          example: "重複仕訳"
+
+    JournalEntryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: 仕訳エントリID（集約ID）
+        version:
+          type: integer
+          description: 集約バージョン
+        journalDate:
+          type: string
+          format: date
+          description: 仕訳日付
+        description:
+          type: string
+          description: 摘要
+        status:
+          type: string
+          enum:
+            - Draft
+            - Approved
+            - Rejected
+            - Deleted
+          description: ステータス
+        createdBy:
+          type: string
+          description: 作成者
+        createdAt:
+          type: string
+          format: date-time
+          description: 作成日時
+        approvedBy:
+          type: string
+          description: 承認者
+        approvedAt:
+          type: string
+          format: date-time
+          description: 承認日時
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/JournalEntryDetailResponse'
+          description: 仕訳明細
+        totalDebit:
+          type: number
+          description: 借方合計
+        totalCredit:
+          type: number
+          description: 貸方合計
+        isBalanced:
+          type: boolean
+          description: 貸借一致フラグ
+
+    JournalEntryDetailResponse:
+      type: object
+      properties:
+        lineNumber:
+          type: integer
+          description: 行番号
+        accountCode:
+          type: string
+          description: 勘定科目コード
+        debitCredit:
+          type: string
+          description: 借方/貸方区分
+        amount:
+          type: number
+          description: 金額
+        description:
+          type: string
+          description: 明細摘要
+
+    JournalEntryEventResponse:
+      type: object
+      properties:
+        eventType:
+          type: string
+          description: イベント種別
+          example: "JournalEntryCreatedEvent"
+        version:
+          type: integer
+          description: イベントバージョン
+        occurredAt:
+          type: string
+          format: date-time
+          description: 発生日時
+        payload:
+          type: object
+          description: イベントペイロード（JSON）
