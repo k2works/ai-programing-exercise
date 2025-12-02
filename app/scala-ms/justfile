@@ -1,0 +1,137 @@
+# Scala Microservices - justfile
+
+# デフォルトレシピ
+default:
+    @just --list
+
+# ============================================
+# ビルドとテスト
+# ============================================
+
+# すべてのプロジェクトをコンパイル
+compile:
+    sbt compile
+
+# すべてのテストを実行
+test:
+    sbt test
+
+# 特定のサービスのテストを実行
+test-financial:
+    sbt "project financialAccountingService" test
+
+test-management:
+    sbt "project managementAccountingService" test
+
+# コードフォーマットチェック
+fmt-check:
+    sbt scalafmtCheck
+
+# コードフォーマット適用
+fmt:
+    sbt scalafmt
+
+# クリーンビルド
+clean:
+    sbt clean
+
+# ============================================
+# ローカル開発
+# ============================================
+
+# 財務会計サービスを起動（ローカル）
+run-financial:
+    sbt "project financialAccountingService" run
+
+# 管理会計サービスを起動（ローカル）
+run-management:
+    sbt "project managementAccountingService" run
+
+# API Gateway を起動（ローカル）
+run-gateway:
+    sbt "project apiGateway" run
+
+# データベースのみ起動
+db-up:
+    docker-compose up -d financial-db management-db
+
+# データベースを停止
+db-down:
+    docker-compose down financial-db management-db
+
+# シードデータを投入
+seed:
+    sbt "project financialAccountingService" "runMain com.example.financial.seed.DatabaseSeeder"
+
+# ============================================
+# Docker
+# ============================================
+
+# すべてのサービスをビルド
+docker-build:
+    docker-compose build
+
+# すべてのサービスを起動
+docker-up:
+    docker-compose up -d
+
+# すべてのサービスを停止
+docker-down:
+    docker-compose down
+
+# ログを表示
+docker-logs:
+    docker-compose logs -f
+
+# 特定のサービスのログを表示
+docker-logs-financial:
+    docker-compose logs -f financial-accounting-service
+
+docker-logs-management:
+    docker-compose logs -f management-accounting-service
+
+docker-logs-gateway:
+    docker-compose logs -f api-gateway
+
+# すべてのサービスを再起動
+docker-restart:
+    docker-compose restart
+
+# クリーンアップ（ボリュームも削除）
+docker-clean:
+    docker-compose down -v --rmi local
+
+# ============================================
+# API テスト
+# ============================================
+
+# ヘルスチェック
+health-check:
+    @echo "=== API Gateway ==="
+    curl -s http://localhost:8000/health || echo "API Gateway not available"
+    @echo "\n=== Financial Accounting Service ==="
+    curl -s http://localhost:8080/api/v1/accounts | head -c 200 || echo "Financial service not available"
+    @echo "\n=== Management Accounting Service ==="
+    curl -s http://localhost:8081/api/v1/financial-analysis/2024 | head -c 200 || echo "Management service not available"
+
+# 勘定科目一覧を取得
+get-accounts:
+    curl -s http://localhost:8080/api/v1/accounts | jq .
+
+# 仕訳一覧を取得
+get-journals year="2024":
+    curl -s "http://localhost:8080/api/v1/journals?fiscalYear={{year}}" | jq .
+
+# 財務分析を実行
+analyze year="2024":
+    curl -s "http://localhost:8081/api/v1/financial-analysis/{{year}}" | jq .
+
+# 複数年度の比較分析
+compare from="2023" to="2024":
+    curl -s "http://localhost:8081/api/v1/financial-analysis/compare?fromYear={{from}}&toYear={{to}}" | jq .
+
+# サンプル勘定科目を作成
+create-sample-account:
+    curl -X POST http://localhost:8080/api/v1/accounts \
+        -H "Content-Type: application/json" \
+        -d '{"accountCode": "9999", "accountName": "テスト科目", "accountType": "asset"}' | jq .

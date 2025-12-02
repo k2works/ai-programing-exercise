@@ -1,0 +1,111 @@
+version: '3.8'
+
+services:
+  # PostgreSQL - 財務会計サービス用
+  financial-db:
+    image: postgres:15
+    container_name: financial-accounting-db
+    environment:
+      POSTGRES_DB: financial_accounting
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - financial_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d financial_accounting"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # PostgreSQL - 管理会計サービス用（将来の拡張用）
+  management-db:
+    image: postgres:15
+    container_name: management-accounting-db
+    environment:
+      POSTGRES_DB: management_accounting
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5433:5432"
+    volumes:
+      - management_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d management_accounting"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 財務会計サービス
+  financial-accounting-service:
+    build:
+      context: .
+      dockerfile: financial-accounting-service/Dockerfile
+    container_name: financial-accounting-service
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:postgresql://financial-db:5432/financial_accounting
+      DB_USER: postgres
+      DB_PASSWORD: password
+      SERVER_PORT: 8080
+    depends_on:
+      financial-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/v1/accounts"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # 管理会計サービス
+  management-accounting-service:
+    build:
+      context: .
+      dockerfile: management-accounting-service/Dockerfile
+    container_name: management-accounting-service
+    ports:
+      - "8081:8081"
+    environment:
+      SERVER_PORT: 8081
+      FINANCIAL_SERVICE_URL: http://financial-accounting-service:8080
+    depends_on:
+      financial-accounting-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/api/v1/financial-analysis/2024"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8000:8000"
+    environment:
+      SERVER_PORT: 8000
+      FINANCIAL_SERVICE_URL: http://financial-accounting-service:8080
+      MANAGEMENT_SERVICE_URL: http://management-accounting-service:8081
+    depends_on:
+      - financial-accounting-service
+      - management-accounting-service
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  financial_data:
+  management_data:
+
+networks:
+  default:
+    name: accounting-network
