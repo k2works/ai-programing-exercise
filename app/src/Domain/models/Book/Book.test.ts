@@ -6,6 +6,7 @@ import { Stock } from './Stock/Stock';
 import { StockId } from './Stock/StockId/StockId';
 import { QuantityAvailable } from './Stock/QuantityAvailable/QuantityAvailable';
 import { Status, StatusEnum } from './Stock/Status/Status';
+import { BOOK_EVENT_NAME } from 'Domain/shared/DomainEvent/Book/BookDomainEventFactory';
 
 jest.mock('nanoid', () => ({
   nanoid: () => 'testIdWithExactLength',
@@ -25,7 +26,7 @@ describe('Book', () => {
   });
 
   describe('create', () => {
-    it('デフォルト値で在庫を作成する', () => {
+    it('デフォルト値で在庫を作成し、ドメインイベントが生成される', () => {
       const book = Book.create(bookId, title, price);
 
       expect(book.bookId.equals(bookId)).toBeTruthy();
@@ -40,6 +41,10 @@ describe('Book', () => {
       expect(
         book.status.equals(new Status(StatusEnum.OutOfStock))
       ).toBeTruthy();
+
+      const domainEvents = book.getDomainEvents();
+      expect(domainEvents).toHaveLength(1);
+      expect(domainEvents[0].eventName).toBe(BOOK_EVENT_NAME.CREATED);
     });
   });
 
