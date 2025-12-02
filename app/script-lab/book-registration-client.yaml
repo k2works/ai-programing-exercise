@@ -49,7 +49,7 @@ script:
     }
 
     async function getBook() {
-      const isbn = $("#isbn-get").val() as string;
+      const isbn = String($("#isbn-get").val() || "");
 
       if (!isbn) {
         showError("ISBNを入力してください");
@@ -189,8 +189,8 @@ script:
 
         for (let i = 1; i < usedRange.rowCount; i++) {
           const row = values[i];
-          const isbn = row[isbnIndex];
-          const title = row[titleIndex];
+          const isbn = String(row[isbnIndex] || "");
+          const title = String(row[titleIndex] || "");
           const priceAmount = parseFloat(row[priceIndex]);
 
           if (!isbn || !title || !priceAmount) {
@@ -261,7 +261,7 @@ script:
         showError(`一括取得を開始します... (${usedRange.rowCount - 1}件)`);
 
         for (let i = 1; i < usedRange.rowCount; i++) {
-          const isbn = values[i][isbnIndex];
+          const isbn = String(values[i][isbnIndex] || "");
 
           if (!isbn) {
             errorCount++;
