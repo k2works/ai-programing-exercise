@@ -1,4 +1,4 @@
-package com.example.accounting.domain
+package com.example.accounting.domain.account
 
 import java.time.LocalDateTime
 

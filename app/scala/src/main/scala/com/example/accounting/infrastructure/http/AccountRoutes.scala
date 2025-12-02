@@ -9,7 +9,7 @@ import com.example.accounting.application.*
 import com.example.accounting.application.port.in.AccountUseCase
 import com.example.accounting.infrastructure.http.dto.*
 import com.example.accounting.infrastructure.http.JsonFormats.*
-import com.example.accounting.domain.AccountType
+import com.example.accounting.domain.account.AccountType
 
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets

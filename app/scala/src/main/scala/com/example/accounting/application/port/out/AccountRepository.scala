@@ -1,6 +1,6 @@
 package com.example.accounting.application.port.out
 
-import com.example.accounting.domain.{Account, AccountType}
+import com.example.accounting.domain.account.{Account, AccountType}
 import scalikejdbc.DBSession
 
 /**

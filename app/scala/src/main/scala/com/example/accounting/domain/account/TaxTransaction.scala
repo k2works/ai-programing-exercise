@@ -1,6 +1,7 @@
-package com.example.accounting.domain
+package com.example.accounting.domain.account
 
 import scalikejdbc.*
+
 import java.time.LocalDateTime
 
 /**

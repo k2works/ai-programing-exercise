@@ -1,7 +1,7 @@
 package com.example.accounting.application.port.in
 
 import com.example.accounting.application.AppError
-import com.example.accounting.domain.{Account, AccountType}
+import com.example.accounting.domain.account.{Account, AccountType}
 
 /**
  * 勘定科目ユースケース（Input Port）

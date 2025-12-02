@@ -1,7 +1,7 @@
-package com.example.accounting.infrastructure.persistence
+package com.example.accounting.infrastructure.persistence.account
 
-import com.example.accounting.application.port.out.{AccountRepository => AccountRepositoryPort}
-import com.example.accounting.domain.{Account, AccountType}
+import com.example.accounting.application.port.out.AccountRepository as AccountRepositoryPort
+import com.example.accounting.domain.account.{Account, AccountType}
 import scalikejdbc.*
 
 /**

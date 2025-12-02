@@ -1,8 +1,8 @@
 package com.example.accounting
 
 import com.example.db.DatabaseSpec
-import com.example.accounting.domain.AccountStructure
-import com.example.accounting.infrastructure.persistence.AccountStructureRepository
+import com.example.accounting.domain.account.AccountStructure
+import com.example.accounting.infrastructure.persistence.account.AccountStructureRepository
 import org.scalatest.BeforeAndAfterEach
 import scalikejdbc.*
 import java.time.LocalDateTime

@@ -3,7 +3,7 @@ package com.example.accounting.application.service
 import com.example.accounting.application.*
 import com.example.accounting.application.port.in.AccountUseCase
 import com.example.accounting.application.port.out.AccountRepository
-import com.example.accounting.domain.{Account, AccountType}
+import com.example.accounting.domain.account.{Account, AccountType}
 import scalikejdbc.*
 
 /**

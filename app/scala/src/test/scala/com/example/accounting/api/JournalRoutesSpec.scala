@@ -4,7 +4,7 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport.*
 import com.example.accounting.application.service.JournalService
-import com.example.accounting.infrastructure.persistence.AccountRepository
+import com.example.accounting.infrastructure.persistence.account.AccountRepository
 import com.example.accounting.infrastructure.persistence.journal.JournalRepository
 import com.example.accounting.infrastructure.http.JournalRoutes
 import com.example.accounting.infrastructure.http.dto.*

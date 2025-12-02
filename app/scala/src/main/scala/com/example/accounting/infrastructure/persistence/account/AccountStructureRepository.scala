@@ -1,6 +1,6 @@
-package com.example.accounting.infrastructure.persistence
+package com.example.accounting.infrastructure.persistence.account
 
-import com.example.accounting.domain.AccountStructure
+import com.example.accounting.domain.account.AccountStructure
 import scalikejdbc.*
 
 /**
