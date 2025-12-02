@@ -21,6 +21,7 @@ class JournalRoutes(service: JournalService):
   import JsonFormats.{
     journalRequestFormat,
     journalResponseFormat,
+    listJournalResponseFormat,
     journalValidationResponseFormat,
     errorResponseFormat,
     given,
@@ -42,7 +43,8 @@ class JournalRoutes(service: JournalService):
                       val responses = journals.map { case (journal, details, dcDetails) =>
                         JournalResponse.fromDomain(journal, details, dcDetails)
                       }
-                      complete(HttpEntity(ContentTypes.`application/json`, responses.toJson.prettyPrint))
+                      val jsonArray = JsArray(responses.map(_.toJson).toVector)
+                      complete(HttpEntity(ContentTypes.`application/json`, jsonArray.prettyPrint))
                     case Left(error) =>
                       complete(StatusCodes.InternalServerError -> ErrorResponse.fromAppError(error))
                 catch
