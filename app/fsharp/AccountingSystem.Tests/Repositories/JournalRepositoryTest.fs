@@ -82,8 +82,6 @@ type JournalRepositoryTest() =
             CounterSubAccountCode = None
             MemoCode = None
             MemoContent = None
-            CreatedAt = DateTime.UtcNow
-            UpdatedAt = DateTime.UtcNow
         }
 
     /// テスト用の仕訳明細を作成
@@ -93,8 +91,6 @@ type JournalRepositoryTest() =
             LineNumber = lineNumber
             Description = description
             Items = items
-            CreatedAt = DateTime.UtcNow
-            UpdatedAt = DateTime.UtcNow
         }
 
     /// テスト用の仕訳を作成
@@ -112,8 +108,6 @@ type JournalRepositoryTest() =
             RedSlipFlag = RedSlipFlag.Normal
             RedBlackVoucherNumber = None
             Lines = lines
-            CreatedAt = DateTime.UtcNow
-            UpdatedAt = DateTime.UtcNow
         }
 
     [<Fact>]

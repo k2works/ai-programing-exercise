@@ -49,10 +49,6 @@ type JournalLineItem = {
     MemoCode: string option
     /// 付箋内容
     MemoContent: string option
-    /// 作成日時
-    CreatedAt: DateTime
-    /// 更新日時
-    UpdatedAt: DateTime
 }
 
 module JournalLineItem =
@@ -79,8 +75,6 @@ module JournalLineItem =
             CounterSubAccountCode = None
             MemoCode = None
             MemoContent = None
-            CreatedAt = DateTime.UtcNow
-            UpdatedAt = DateTime.UtcNow
         }
 
     /// 借方明細を作成（外貨）
@@ -106,8 +100,6 @@ module JournalLineItem =
             CounterSubAccountCode = None
             MemoCode = None
             MemoContent = None
-            CreatedAt = DateTime.UtcNow
-            UpdatedAt = DateTime.UtcNow
         }
 
     /// 貸方明細を作成（日本円）

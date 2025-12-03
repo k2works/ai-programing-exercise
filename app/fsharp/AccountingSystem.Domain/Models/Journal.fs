@@ -34,10 +34,6 @@ type Journal = {
     RedBlackVoucherNumber: int option
     /// 仕訳明細（2層目）
     Lines: JournalLine list
-    /// 作成日時
-    CreatedAt: DateTime
-    /// 更新日時
-    UpdatedAt: DateTime
 }
 
 module Journal =
@@ -56,8 +52,6 @@ module Journal =
             RedSlipFlag = RedSlipFlag.Normal
             RedBlackVoucherNumber = None
             Lines = []
-            CreatedAt = DateTime.UtcNow
-            UpdatedAt = DateTime.UtcNow
         }
 
     /// 仕訳を明細付きで作成

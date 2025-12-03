@@ -65,8 +65,8 @@ module JournalLineItemDao =
             CounterSubAccountCode = item.CounterSubAccountCode |> Option.defaultValue null
             MemoCode = item.MemoCode |> Option.defaultValue null
             MemoContent = item.MemoContent |> Option.defaultValue null
-            CreatedAt = item.CreatedAt
-            UpdatedAt = item.UpdatedAt
+            CreatedAt = DateTime.UtcNow
+            UpdatedAt = DateTime.UtcNow
         }
 
     /// DAOからドメインモデルへ変換
@@ -95,6 +95,4 @@ module JournalLineItemDao =
             CounterSubAccountCode = if isNull dao.CounterSubAccountCode then None else Some dao.CounterSubAccountCode
             MemoCode = if isNull dao.MemoCode then None else Some dao.MemoCode
             MemoContent = if isNull dao.MemoContent then None else Some dao.MemoContent
-            CreatedAt = dao.CreatedAt
-            UpdatedAt = dao.UpdatedAt
         }

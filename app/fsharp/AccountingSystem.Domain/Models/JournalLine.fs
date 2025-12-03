@@ -17,10 +17,6 @@ type JournalLine = {
     Description: string
     /// 仕訳貸借明細（3層目）
     Items: JournalLineItem list
-    /// 作成日時
-    CreatedAt: DateTime
-    /// 更新日時
-    UpdatedAt: DateTime
 }
 
 module JournalLine =
@@ -31,8 +27,6 @@ module JournalLine =
             LineNumber = lineNumber
             Description = description
             Items = []
-            CreatedAt = DateTime.UtcNow
-            UpdatedAt = DateTime.UtcNow
         }
 
     /// 仕訳明細を貸借明細付きで作成

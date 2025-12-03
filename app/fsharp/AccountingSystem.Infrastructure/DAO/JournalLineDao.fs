@@ -23,8 +23,8 @@ module JournalLineDao =
             VoucherNumber = line.VoucherNumber.Number
             LineNumber = int16 line.LineNumber
             Description = line.Description
-            CreatedAt = line.CreatedAt
-            UpdatedAt = line.UpdatedAt
+            CreatedAt = DateTime.UtcNow
+            UpdatedAt = DateTime.UtcNow
         }
 
     /// DAOからドメインモデルへ変換（Itemsは空で返す、後からRepositoryで組み立て）
@@ -34,6 +34,4 @@ module JournalLineDao =
             LineNumber = int dao.LineNumber
             Description = dao.Description
             Items = []
-            CreatedAt = dao.CreatedAt
-            UpdatedAt = dao.UpdatedAt
         }

@@ -42,8 +42,8 @@ module JournalDao =
                 journal.RedBlackVoucherNumber
                 |> Option.map Nullable
                 |> Option.defaultValue (Nullable())
-            CreatedAt = journal.CreatedAt
-            UpdatedAt = journal.UpdatedAt
+            CreatedAt = DateTime.UtcNow
+            UpdatedAt = DateTime.UtcNow
         }
 
     /// DAOからドメインモデルへ変換（Linesは空で返す、後からRepositoryで組み立て）
@@ -69,6 +69,4 @@ module JournalDao =
                 if dao.RedBlackVoucherNumber.HasValue then Some dao.RedBlackVoucherNumber.Value
                 else None
             Lines = []
-            CreatedAt = dao.CreatedAt
-            UpdatedAt = dao.UpdatedAt
         }

@@ -20,10 +20,6 @@ type AutoJournalPattern = {
     Description: string option
     /// 有効フラグ
     IsActive: bool
-    /// 作成日時
-    CreatedAt: DateTime
-    /// 更新日時
-    UpdatedAt: DateTime
 }
 
 /// <summary>
@@ -45,10 +41,6 @@ type AutoJournalPatternItem = {
     AmountExpression: string
     /// 摘要テンプレート
     DescriptionTemplate: string option
-    /// 作成日時
-    CreatedAt: DateTime
-    /// 更新日時
-    UpdatedAt: DateTime
 }
 
 /// <summary>
@@ -106,8 +98,6 @@ module AutoJournalPattern =
             SourceTableName = sourceTableName
             Description = None
             IsActive = true
-            CreatedAt = DateTime.UtcNow
-            UpdatedAt = DateTime.UtcNow
         }
 
     /// エンティティの同一性判定（PatternCode で判定）
@@ -129,8 +119,6 @@ module AutoJournalPatternItem =
             AccountCode = AccountCode.Create(accountCode)
             AmountExpression = amountExpression
             DescriptionTemplate = None
-            CreatedAt = DateTime.UtcNow
-            UpdatedAt = DateTime.UtcNow
         }
 
     /// 貸方明細を作成
