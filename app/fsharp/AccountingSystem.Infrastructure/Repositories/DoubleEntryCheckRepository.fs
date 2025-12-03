@@ -57,29 +57,6 @@ let checkDoubleEntryBookkeepingAsync (connectionString: string) =
     }
 
 /// <summary>
-/// 複式簿記チェックを実行（2層構造仕訳明細テーブル用）
-/// PostgreSQL関数「複式簿記チェック2層」を呼び出し
-/// </summary>
-let checkDoubleEntryBookkeeping2LayerAsync (connectionString: string) =
-    task {
-        use conn = new NpgsqlConnection(connectionString)
-        do! conn.OpenAsync()
-
-        let sql = """SELECT * FROM "複式簿記チェック2層"()"""
-
-        let! results = conn.QueryAsync<InconsistentJournalDao>(sql)
-
-        let inconsistencies =
-            results
-            |> Seq.map toInconsistentJournal
-            |> Seq.toList
-
-        match inconsistencies with
-        | [] -> return Valid
-        | _ -> return Invalid inconsistencies
-    }
-
-/// <summary>
 /// 仕訳残高チェックビューから全仕訳の残高状況を取得
 /// </summary>
 let getAllJournalBalancesAsync (connectionString: string) =

@@ -13,7 +13,6 @@
     <Compile Include="Migrations/Migration_20250121_003_CreateTaxTransactionMaster.fs" />
     <Compile Include="Migrations/Migration_20250121_004_AddTaxCodeToAccount.fs" />
     <Compile Include="Migrations/Migration_20250121_005_CreateAccountStructure.fs" />
-    <Compile Include="Migrations/Migration_20250121_006_CreateJournalEntry.fs" />
     <Compile Include="Migrations/Migration_20250121_007_Create3LayerJournal.fs" />
     <Compile Include="Migrations/Migration_20250121_008_AddJournalConstraints.fs" />
     <Compile Include="Migrations/Migration_20250121_009_CreateAutoJournal.fs" />
@@ -21,16 +20,12 @@
     <Compile Include="DAO/AccountDao.fs" />
     <Compile Include="DAO/TaxTransactionDao.fs" />
     <Compile Include="DAO/AccountStructureDao.fs" />
-    <Compile Include="DAO/JournalEntryDao.fs" />
-    <Compile Include="DAO/JournalDetailDao.fs" />
     <Compile Include="DAO/JournalDao.fs" />
     <Compile Include="DAO/JournalLineDao.fs" />
     <Compile Include="DAO/JournalLineItemDao.fs" />
     <Compile Include="Repositories/AccountStructureRepository.fs" />
     <Compile Include="Repositories/TaxTransactionRepository.fs" />
     <Compile Include="Repositories/AccountRepository.fs" />
-    <Compile Include="Repositories/JournalEntryRepository.fs" />
-    <Compile Include="Repositories/JournalDetailRepository.fs" />
     <Compile Include="Repositories/JournalRepository.fs" />
     <Compile Include="Repositories/JournalLineRepository.fs" />
     <Compile Include="Repositories/JournalLineItemRepository.fs" />

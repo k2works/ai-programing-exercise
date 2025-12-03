@@ -20,8 +20,6 @@
     <Compile Include="Models\Account.fs" />
     <Compile Include="Models\TaxTransaction.fs" />
     <Compile Include="Models\AccountStructure.fs" />
-    <Compile Include="Models\JournalEntry.fs" />
-    <Compile Include="Models\JournalDetail.fs" />
     <Compile Include="Models\Journal.fs" />
     <Compile Include="Models\JournalLine.fs" />
     <Compile Include="Models\JournalLineItem.fs" />
