@@ -1,6 +1,7 @@
 module AccountingSystem.Infrastructure.Repositories.TaxTransactionRepository
 
 open AccountingSystem.Domain.Models
+open AccountingSystem.Infrastructure.DAO
 open Dapper
 open Npgsql
 open System
@@ -20,8 +21,8 @@ let findByCodeAsync (connectionString: string) (taxCode: string) =
             WHERE "課税取引コード" = @TaxCode
         """
 
-        let! results = conn.QueryAsync<TaxTransaction>(sql, {| TaxCode = taxCode |})
-        return results |> Seq.tryHead
+        let! results = conn.QueryAsync<TaxTransactionDao>(sql, {| TaxCode = taxCode |})
+        return results |> Seq.tryHead |> Option.map TaxTransactionDao.toDomain
     }
 
 /// 全ての課税取引を取得
@@ -39,8 +40,8 @@ let findAllAsync (connectionString: string) =
             ORDER BY "課税取引コード"
         """
 
-        let! results = conn.QueryAsync<TaxTransaction>(sql)
-        return results |> Seq.toList
+        let! results = conn.QueryAsync<TaxTransactionDao>(sql)
+        return results |> Seq.map TaxTransactionDao.toDomain |> Seq.toList
     }
 
 /// 動的 SQL による条件検索
@@ -90,6 +91,6 @@ let searchAsync
                 """
                 whereClause
 
-        let! results = conn.QueryAsync<TaxTransaction>(sql, parameters)
-        return results |> Seq.toList
+        let! results = conn.QueryAsync<TaxTransactionDao>(sql, parameters)
+        return results |> Seq.map TaxTransactionDao.toDomain |> Seq.toList
     }

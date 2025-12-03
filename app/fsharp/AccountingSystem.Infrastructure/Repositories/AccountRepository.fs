@@ -1,6 +1,7 @@
 module AccountingSystem.Infrastructure.Repositories.AccountRepository
 
 open AccountingSystem.Domain.Models
+open AccountingSystem.Infrastructure.DAO
 open Dapper
 open Npgsql
 
@@ -45,21 +46,7 @@ let insertAsync (connectionString: string) (account: Account) =
             RETURNING "勘定科目ID"
         """
 
-        let parameters = {|
-            AccountCode = account.AccountCode
-            AccountName = account.AccountName
-            AccountNameKana = account.AccountNameKana |> Option.toObj
-            AccountType = account.AccountType
-            IsSummaryAccount = account.IsSummaryAccount
-            BsplType = account.BsplType |> Option.toObj
-            TransactionElementType = account.TransactionElementType |> Option.toObj
-            ExpenseType = account.ExpenseType |> Option.toObj
-            DisplayOrder = account.DisplayOrder
-            IsAggregationTarget = account.IsAggregationTarget
-            TaxCode = account.TaxCode |> Option.toObj
-            Balance = account.Balance
-        |}
-
+        let parameters = AccountDao.fromDomain account
         let! result = conn.ExecuteScalarAsync<int>(sql, parameters)
         return result
     }
@@ -88,8 +75,8 @@ let findByCodeAsync (connectionString: string) (accountCode: string) =
             WHERE "勘定科目コード" = @AccountCode
         """
 
-        let! results = conn.QueryAsync<Account>(sql, {| AccountCode = accountCode |})
-        return results |> Seq.tryHead
+        let! results = conn.QueryAsync<AccountDao>(sql, {| AccountCode = accountCode |})
+        return results |> Seq.tryHead |> Option.map AccountDao.toDomain
     }
 
 /// 勘定科目IDで検索
@@ -116,8 +103,8 @@ let findByIdAsync (connectionString: string) (accountId: int) =
             WHERE "勘定科目ID" = @AccountId
         """
 
-        let! results = conn.QueryAsync<Account>(sql, {| AccountId = accountId |})
-        return results |> Seq.tryHead
+        let! results = conn.QueryAsync<AccountDao>(sql, {| AccountId = accountId |})
+        return results |> Seq.tryHead |> Option.map AccountDao.toDomain
     }
 
 /// 全ての勘定科目を取得
@@ -144,8 +131,8 @@ let findAllAsync (connectionString: string) =
             ORDER BY "勘定科目コード"
         """
 
-        let! results = conn.QueryAsync<Account>(sql)
-        return results |> Seq.toList
+        let! results = conn.QueryAsync<AccountDao>(sql)
+        return results |> Seq.map AccountDao.toDomain |> Seq.toList
     }
 
 /// 勘定科目種別で検索
@@ -173,8 +160,8 @@ let findByTypeAsync (connectionString: string) (accountType: string) =
             ORDER BY "表示順序", "勘定科目コード"
         """
 
-        let! results = conn.QueryAsync<Account>(sql, {| AccountType = accountType |})
-        return results |> Seq.toList
+        let! results = conn.QueryAsync<AccountDao>(sql, {| AccountType = accountType |})
+        return results |> Seq.map AccountDao.toDomain |> Seq.toList
     }
 
 /// 合計科目を取得
@@ -202,8 +189,8 @@ let findSummaryAccountsAsync (connectionString: string) =
             ORDER BY "表示順序", "勘定科目コード"
         """
 
-        let! results = conn.QueryAsync<Account>(sql)
-        return results |> Seq.toList
+        let! results = conn.QueryAsync<AccountDao>(sql)
+        return results |> Seq.map AccountDao.toDomain |> Seq.toList
     }
 
 /// 明細科目を取得
@@ -231,8 +218,8 @@ let findDetailAccountsAsync (connectionString: string) =
             ORDER BY "表示順序", "勘定科目コード"
         """
 
-        let! results = conn.QueryAsync<Account>(sql)
-        return results |> Seq.toList
+        let! results = conn.QueryAsync<AccountDao>(sql)
+        return results |> Seq.map AccountDao.toDomain |> Seq.toList
     }
 
 /// 勘定科目を更新
@@ -258,21 +245,7 @@ let updateAsync (connectionString: string) (account: Account) =
             WHERE "勘定科目コード" = @AccountCode
         """
 
-        let parameters = {|
-            AccountCode = account.AccountCode
-            AccountName = account.AccountName
-            AccountNameKana = account.AccountNameKana |> Option.toObj
-            AccountType = account.AccountType
-            IsSummaryAccount = account.IsSummaryAccount
-            BsplType = account.BsplType |> Option.toObj
-            TransactionElementType = account.TransactionElementType |> Option.toObj
-            ExpenseType = account.ExpenseType |> Option.toObj
-            DisplayOrder = account.DisplayOrder
-            IsAggregationTarget = account.IsAggregationTarget
-            TaxCode = account.TaxCode |> Option.toObj
-            Balance = account.Balance
-        |}
-
+        let parameters = AccountDao.fromDomain account
         let! rowsAffected = conn.ExecuteAsync(sql, parameters)
         return rowsAffected
     }

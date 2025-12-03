@@ -1,6 +1,7 @@
 module AccountingSystem.Infrastructure.Repositories.AccountStructureRepository
 
 open AccountingSystem.Domain.Models
+open AccountingSystem.Infrastructure.DAO
 open Dapper
 open Npgsql
 
@@ -30,14 +31,7 @@ let insertAsync (connectionString: string) (accountStructure: AccountStructure) 
             )
         """
 
-        let parameters = {|
-            AccountCode = accountStructure.AccountCode
-            AccountPath = accountStructure.AccountPath
-            HierarchyLevel = accountStructure.HierarchyLevel
-            ParentAccountCode = accountStructure.ParentAccountCode |> Option.toObj
-            DisplayOrder = accountStructure.DisplayOrder
-        |}
-
+        let parameters = AccountStructureDao.fromDomain accountStructure
         let! _ = conn.ExecuteAsync(sql, parameters)
         ()
     }
@@ -58,8 +52,8 @@ let findByCodeAsync (connectionString: string) (accountCode: string) =
             WHERE "勘定科目コード" = @AccountCode
         """
 
-        let! results = conn.QueryAsync<AccountStructure>(sql, {| AccountCode = accountCode |})
-        return results |> Seq.tryHead
+        let! results = conn.QueryAsync<AccountStructureDao>(sql, {| AccountCode = accountCode |})
+        return results |> Seq.tryHead |> Option.map AccountStructureDao.toDomain
     }
 
 /// 全ての勘定科目構成を取得
@@ -78,8 +72,8 @@ let findAllAsync (connectionString: string) =
             ORDER BY "勘定科目パス"
         """
 
-        let! results = conn.QueryAsync<AccountStructure>(sql)
-        return results |> Seq.toList
+        let! results = conn.QueryAsync<AccountStructureDao>(sql)
+        return results |> Seq.map AccountStructureDao.toDomain |> Seq.toList
     }
 
 /// 特定科目配下の子孫を取得（チルダ連結検索）
@@ -100,8 +94,8 @@ let findDescendantsAsync (connectionString: string) (accountCode: string) =
             ORDER BY "勘定科目パス"
         """
 
-        let! results = conn.QueryAsync<AccountStructure>(sql, {| AccountCode = accountCode |})
-        return results |> Seq.toList
+        let! results = conn.QueryAsync<AccountStructureDao>(sql, {| AccountCode = accountCode |})
+        return results |> Seq.map AccountStructureDao.toDomain |> Seq.toList
     }
 
 /// 特定階層レベルの科目を取得
@@ -121,8 +115,8 @@ let findByLevelAsync (connectionString: string) (hierarchyLevel: int) =
             ORDER BY "表示順序", "勘定科目コード"
         """
 
-        let! results = conn.QueryAsync<AccountStructure>(sql, {| HierarchyLevel = hierarchyLevel |})
-        return results |> Seq.toList
+        let! results = conn.QueryAsync<AccountStructureDao>(sql, {| HierarchyLevel = hierarchyLevel |})
+        return results |> Seq.map AccountStructureDao.toDomain |> Seq.toList
     }
 
 /// 勘定科目構成を更新
@@ -141,14 +135,7 @@ let updateAsync (connectionString: string) (accountStructure: AccountStructure) 
             WHERE "勘定科目コード" = @AccountCode
         """
 
-        let parameters = {|
-            AccountCode = accountStructure.AccountCode
-            AccountPath = accountStructure.AccountPath
-            HierarchyLevel = accountStructure.HierarchyLevel
-            ParentAccountCode = accountStructure.ParentAccountCode |> Option.toObj
-            DisplayOrder = accountStructure.DisplayOrder
-        |}
-
+        let parameters = AccountStructureDao.fromDomain accountStructure
         let! _ = conn.ExecuteAsync(sql, parameters)
         ()
     }
