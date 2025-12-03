@@ -1,10 +1,8 @@
 module AccountingSystem.Infrastructure.Repositories.AccountStructureRepository
 
-open AccountingSystem.Domain
+open AccountingSystem.Domain.Models
 open Dapper
 open Npgsql
-open System
-open System.Threading.Tasks
 
 /// 勘定科目構成を登録
 let insertAsync (connectionString: string) (accountStructure: AccountStructure) =
@@ -32,16 +30,11 @@ let insertAsync (connectionString: string) (accountStructure: AccountStructure) 
             )
         """
 
-        let parentCode =
-            match accountStructure.ParentAccountCode with
-            | Some code -> box code
-            | None -> box DBNull.Value
-
         let parameters = {|
             AccountCode = accountStructure.AccountCode
             AccountPath = accountStructure.AccountPath
             HierarchyLevel = accountStructure.HierarchyLevel
-            ParentAccountCode = parentCode
+            ParentAccountCode = accountStructure.ParentAccountCode |> Option.toObj
             DisplayOrder = accountStructure.DisplayOrder
         |}
 
@@ -56,32 +49,17 @@ let findByCodeAsync (connectionString: string) (accountCode: string) =
         do! conn.OpenAsync()
 
         let sql = """
-            SELECT "勘定科目コード", "勘定科目パス", "階層レベル", "親科目コード", "表示順序", "作成日時", "更新日時"
+            SELECT "勘定科目コード" AS "AccountCode",
+                   "勘定科目パス" AS "AccountPath",
+                   "階層レベル" AS "HierarchyLevel",
+                   "親科目コード" AS "ParentAccountCode",
+                   "表示順序" AS "DisplayOrder"
             FROM "勘定科目構成マスタ"
             WHERE "勘定科目コード" = @AccountCode
         """
 
-        use cmd = new NpgsqlCommand(sql, conn)
-        cmd.Parameters.AddWithValue("AccountCode", accountCode) |> ignore
-        use! reader = cmd.ExecuteReaderAsync()
-
-        let! hasData = reader.ReadAsync()
-        if hasData then
-            let parentCode =
-                if reader.IsDBNull(reader.GetOrdinal("親科目コード")) then None
-                else Some (reader.GetString(reader.GetOrdinal("親科目コード")))
-
-            return Some {
-                AccountCode = reader.GetString(reader.GetOrdinal("勘定科目コード"))
-                AccountPath = reader.GetString(reader.GetOrdinal("勘定科目パス"))
-                HierarchyLevel = reader.GetInt32(reader.GetOrdinal("階層レベル"))
-                ParentAccountCode = parentCode
-                DisplayOrder = reader.GetInt32(reader.GetOrdinal("表示順序"))
-                CreatedAt = reader.GetDateTime(reader.GetOrdinal("作成日時"))
-                UpdatedAt = reader.GetDateTime(reader.GetOrdinal("更新日時"))
-            }
-        else
-            return None
+        let! results = conn.QueryAsync<AccountStructure>(sql, {| AccountCode = accountCode |})
+        return results |> Seq.tryHead
     }
 
 /// 全ての勘定科目構成を取得
@@ -91,30 +69,16 @@ let findAllAsync (connectionString: string) =
         do! conn.OpenAsync()
 
         let sql = """
-            SELECT "勘定科目コード", "勘定科目パス", "階層レベル", "親科目コード", "表示順序", "作成日時", "更新日時"
+            SELECT "勘定科目コード" AS "AccountCode",
+                   "勘定科目パス" AS "AccountPath",
+                   "階層レベル" AS "HierarchyLevel",
+                   "親科目コード" AS "ParentAccountCode",
+                   "表示順序" AS "DisplayOrder"
             FROM "勘定科目構成マスタ"
             ORDER BY "勘定科目パス"
         """
 
-        use cmd = new NpgsqlCommand(sql, conn)
-        use! reader = cmd.ExecuteReaderAsync()
-
-        let results = ResizeArray<AccountStructure>()
-        while reader.Read() do
-            let parentCode =
-                if reader.IsDBNull(reader.GetOrdinal("親科目コード")) then None
-                else Some (reader.GetString(reader.GetOrdinal("親科目コード")))
-
-            results.Add({
-                AccountCode = reader.GetString(reader.GetOrdinal("勘定科目コード"))
-                AccountPath = reader.GetString(reader.GetOrdinal("勘定科目パス"))
-                HierarchyLevel = reader.GetInt32(reader.GetOrdinal("階層レベル"))
-                ParentAccountCode = parentCode
-                DisplayOrder = reader.GetInt32(reader.GetOrdinal("表示順序"))
-                CreatedAt = reader.GetDateTime(reader.GetOrdinal("作成日時"))
-                UpdatedAt = reader.GetDateTime(reader.GetOrdinal("更新日時"))
-            })
-
+        let! results = conn.QueryAsync<AccountStructure>(sql)
         return results |> Seq.toList
     }
 
@@ -125,33 +89,18 @@ let findDescendantsAsync (connectionString: string) (accountCode: string) =
         do! conn.OpenAsync()
 
         let sql = """
-            SELECT "勘定科目コード", "勘定科目パス", "階層レベル", "親科目コード", "表示順序", "作成日時", "更新日時"
+            SELECT "勘定科目コード" AS "AccountCode",
+                   "勘定科目パス" AS "AccountPath",
+                   "階層レベル" AS "HierarchyLevel",
+                   "親科目コード" AS "ParentAccountCode",
+                   "表示順序" AS "DisplayOrder"
             FROM "勘定科目構成マスタ"
             WHERE "勘定科目パス" LIKE CONCAT('%~', @AccountCode, '~%')
                OR "勘定科目コード" = @AccountCode
             ORDER BY "勘定科目パス"
         """
 
-        use cmd = new NpgsqlCommand(sql, conn)
-        cmd.Parameters.AddWithValue("AccountCode", accountCode) |> ignore
-        use! reader = cmd.ExecuteReaderAsync()
-
-        let results = ResizeArray<AccountStructure>()
-        while reader.Read() do
-            let parentCode =
-                if reader.IsDBNull(reader.GetOrdinal("親科目コード")) then None
-                else Some (reader.GetString(reader.GetOrdinal("親科目コード")))
-
-            results.Add({
-                AccountCode = reader.GetString(reader.GetOrdinal("勘定科目コード"))
-                AccountPath = reader.GetString(reader.GetOrdinal("勘定科目パス"))
-                HierarchyLevel = reader.GetInt32(reader.GetOrdinal("階層レベル"))
-                ParentAccountCode = parentCode
-                DisplayOrder = reader.GetInt32(reader.GetOrdinal("表示順序"))
-                CreatedAt = reader.GetDateTime(reader.GetOrdinal("作成日時"))
-                UpdatedAt = reader.GetDateTime(reader.GetOrdinal("更新日時"))
-            })
-
+        let! results = conn.QueryAsync<AccountStructure>(sql, {| AccountCode = accountCode |})
         return results |> Seq.toList
     }
 
@@ -162,32 +111,17 @@ let findByLevelAsync (connectionString: string) (hierarchyLevel: int) =
         do! conn.OpenAsync()
 
         let sql = """
-            SELECT "勘定科目コード", "勘定科目パス", "階層レベル", "親科目コード", "表示順序", "作成日時", "更新日時"
+            SELECT "勘定科目コード" AS "AccountCode",
+                   "勘定科目パス" AS "AccountPath",
+                   "階層レベル" AS "HierarchyLevel",
+                   "親科目コード" AS "ParentAccountCode",
+                   "表示順序" AS "DisplayOrder"
             FROM "勘定科目構成マスタ"
             WHERE "階層レベル" = @HierarchyLevel
             ORDER BY "表示順序", "勘定科目コード"
         """
 
-        use cmd = new NpgsqlCommand(sql, conn)
-        cmd.Parameters.AddWithValue("HierarchyLevel", hierarchyLevel) |> ignore
-        use! reader = cmd.ExecuteReaderAsync()
-
-        let results = ResizeArray<AccountStructure>()
-        while reader.Read() do
-            let parentCode =
-                if reader.IsDBNull(reader.GetOrdinal("親科目コード")) then None
-                else Some (reader.GetString(reader.GetOrdinal("親科目コード")))
-
-            results.Add({
-                AccountCode = reader.GetString(reader.GetOrdinal("勘定科目コード"))
-                AccountPath = reader.GetString(reader.GetOrdinal("勘定科目パス"))
-                HierarchyLevel = reader.GetInt32(reader.GetOrdinal("階層レベル"))
-                ParentAccountCode = parentCode
-                DisplayOrder = reader.GetInt32(reader.GetOrdinal("表示順序"))
-                CreatedAt = reader.GetDateTime(reader.GetOrdinal("作成日時"))
-                UpdatedAt = reader.GetDateTime(reader.GetOrdinal("更新日時"))
-            })
-
+        let! results = conn.QueryAsync<AccountStructure>(sql, {| HierarchyLevel = hierarchyLevel |})
         return results |> Seq.toList
     }
 
@@ -207,16 +141,11 @@ let updateAsync (connectionString: string) (accountStructure: AccountStructure) 
             WHERE "勘定科目コード" = @AccountCode
         """
 
-        let parentCode =
-            match accountStructure.ParentAccountCode with
-            | Some code -> box code
-            | None -> box DBNull.Value
-
         let parameters = {|
             AccountCode = accountStructure.AccountCode
             AccountPath = accountStructure.AccountPath
             HierarchyLevel = accountStructure.HierarchyLevel
-            ParentAccountCode = parentCode
+            ParentAccountCode = accountStructure.ParentAccountCode |> Option.toObj
             DisplayOrder = accountStructure.DisplayOrder
         |}
 

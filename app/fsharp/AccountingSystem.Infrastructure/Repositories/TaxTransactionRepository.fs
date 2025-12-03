@@ -1,21 +1,9 @@
 module AccountingSystem.Infrastructure.Repositories.TaxTransactionRepository
 
+open AccountingSystem.Domain.Models
 open Dapper
 open Npgsql
 open System
-open System.Threading.Tasks
-
-/// <summary>
-/// 課税取引エンティティレコード
-/// </summary>
-type TaxTransactionEntity = {
-    TaxCode: string
-    TaxName: string
-    TaxRate: decimal
-    Description: string
-    CreatedAt: DateTime
-    UpdatedAt: DateTime
-}
 
 /// 課税取引コードで検索
 let findByCodeAsync (connectionString: string) (taxCode: string) =
@@ -24,31 +12,16 @@ let findByCodeAsync (connectionString: string) (taxCode: string) =
         do! conn.OpenAsync()
 
         let sql = """
-            SELECT "課税取引コード", "課税取引名", "税率", "説明", "作成日時", "更新日時"
+            SELECT "課税取引コード" AS "TaxCode",
+                   "課税取引名" AS "TaxName",
+                   "税率" AS "TaxRate",
+                   "説明" AS "Description"
             FROM "課税取引マスタ"
             WHERE "課税取引コード" = @TaxCode
         """
 
-        use cmd = new NpgsqlCommand(sql, conn)
-        cmd.Parameters.AddWithValue("TaxCode", taxCode) |> ignore
-        use! reader = cmd.ExecuteReaderAsync()
-
-        let! hasData = reader.ReadAsync()
-        if hasData then
-            let description =
-                if reader.IsDBNull(reader.GetOrdinal("説明")) then ""
-                else reader.GetString(reader.GetOrdinal("説明"))
-
-            return Some {
-                TaxCode = reader.GetString(reader.GetOrdinal("課税取引コード"))
-                TaxName = reader.GetString(reader.GetOrdinal("課税取引名"))
-                TaxRate = reader.GetDecimal(reader.GetOrdinal("税率"))
-                Description = description
-                CreatedAt = reader.GetDateTime(reader.GetOrdinal("作成日時"))
-                UpdatedAt = reader.GetDateTime(reader.GetOrdinal("更新日時"))
-            }
-        else
-            return None
+        let! results = conn.QueryAsync<TaxTransaction>(sql, {| TaxCode = taxCode |})
+        return results |> Seq.tryHead
     }
 
 /// 全ての課税取引を取得
@@ -58,29 +31,15 @@ let findAllAsync (connectionString: string) =
         do! conn.OpenAsync()
 
         let sql = """
-            SELECT "課税取引コード", "課税取引名", "税率", "説明", "作成日時", "更新日時"
+            SELECT "課税取引コード" AS "TaxCode",
+                   "課税取引名" AS "TaxName",
+                   "税率" AS "TaxRate",
+                   "説明" AS "Description"
             FROM "課税取引マスタ"
             ORDER BY "課税取引コード"
         """
 
-        use cmd = new NpgsqlCommand(sql, conn)
-        use! reader = cmd.ExecuteReaderAsync()
-
-        let results = ResizeArray<TaxTransactionEntity>()
-        while reader.Read() do
-            let description =
-                if reader.IsDBNull(reader.GetOrdinal("説明")) then ""
-                else reader.GetString(reader.GetOrdinal("説明"))
-
-            results.Add({
-                TaxCode = reader.GetString(reader.GetOrdinal("課税取引コード"))
-                TaxName = reader.GetString(reader.GetOrdinal("課税取引名"))
-                TaxRate = reader.GetDecimal(reader.GetOrdinal("税率"))
-                Description = description
-                CreatedAt = reader.GetDateTime(reader.GetOrdinal("作成日時"))
-                UpdatedAt = reader.GetDateTime(reader.GetOrdinal("更新日時"))
-            })
-
+        let! results = conn.QueryAsync<TaxTransaction>(sql)
         return results |> Seq.toList
     }
 
@@ -121,41 +80,16 @@ let searchAsync
         let sql =
             sprintf
                 """
-                SELECT "課税取引コード", "課税取引名", "税率", "説明", "作成日時", "更新日時"
+                SELECT "課税取引コード" AS "TaxCode",
+                       "課税取引名" AS "TaxName",
+                       "税率" AS "TaxRate",
+                       "説明" AS "Description"
                 FROM "課税取引マスタ"
                 %s
                 ORDER BY "課税取引コード"
                 """
                 whereClause
 
-        use cmd = new NpgsqlCommand(sql, conn)
-
-        match taxName with
-        | Some name when not (String.IsNullOrEmpty name) ->
-            cmd.Parameters.AddWithValue("TaxName", name) |> ignore
-        | _ -> ()
-
-        match minTaxRate with
-        | Some rate ->
-            cmd.Parameters.AddWithValue("MinTaxRate", rate) |> ignore
-        | None -> ()
-
-        use! reader = cmd.ExecuteReaderAsync()
-
-        let results = ResizeArray<TaxTransactionEntity>()
-        while reader.Read() do
-            let description =
-                if reader.IsDBNull(reader.GetOrdinal("説明")) then ""
-                else reader.GetString(reader.GetOrdinal("説明"))
-
-            results.Add({
-                TaxCode = reader.GetString(reader.GetOrdinal("課税取引コード"))
-                TaxName = reader.GetString(reader.GetOrdinal("課税取引名"))
-                TaxRate = reader.GetDecimal(reader.GetOrdinal("税率"))
-                Description = description
-                CreatedAt = reader.GetDateTime(reader.GetOrdinal("作成日時"))
-                UpdatedAt = reader.GetDateTime(reader.GetOrdinal("更新日時"))
-            })
-
+        let! results = conn.QueryAsync<TaxTransaction>(sql, parameters)
         return results |> Seq.toList
     }
