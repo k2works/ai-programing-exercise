@@ -28,7 +28,7 @@ module AccountDao =
     let toDomain (dao: AccountDao) : Account =
         {
             AccountId = if dao.AccountId > 0 then Some dao.AccountId else None
-            AccountCode = dao.AccountCode
+            AccountCode = AccountCode.Create(dao.AccountCode)
             AccountName = dao.AccountName
             AccountNameKana = if isNull dao.AccountNameKana then None else Some dao.AccountNameKana
             AccountType = AccountType.FromString(dao.AccountType)
@@ -39,13 +39,13 @@ module AccountDao =
             DisplayOrder = dao.DisplayOrder
             IsAggregationTarget = dao.IsAggregationTarget
             TaxCode = if isNull dao.TaxCode then None else Some dao.TaxCode
-            Balance = dao.Balance
+            Balance = Money.Create(dao.Balance)
         }
 
     /// ドメインモデルから DAO へ変換（INSERT/UPDATE 用パラメータ）
     let fromDomain (model: Account) =
         {|
-            AccountCode = model.AccountCode
+            AccountCode = model.AccountCode.Code
             AccountName = model.AccountName
             AccountNameKana = model.AccountNameKana |> Option.toObj
             AccountType = model.AccountType.ToDbString()
@@ -56,5 +56,5 @@ module AccountDao =
             DisplayOrder = model.DisplayOrder
             IsAggregationTarget = model.IsAggregationTarget
             TaxCode = model.TaxCode |> Option.toObj
-            Balance = model.Balance
+            Balance = model.Balance.Amount
         |}

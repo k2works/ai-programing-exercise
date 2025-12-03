@@ -36,7 +36,7 @@ type AccountRepositoryTest() =
             do! this.CleanupTestAccountsAsync()
 
             let account = Account.create "TEST001" "テスト勘定科目" AccountType.Asset false
-            let account = { account with Balance = 50000m }
+            let account = { account with Balance = Money.Create(50000m) }
 
             let! accountId = insertAsync this.ConnectionString account
             accountId |> should be (greaterThan 0)
@@ -45,7 +45,7 @@ type AccountRepositoryTest() =
             let! found = findByCodeAsync this.ConnectionString "TEST001"
             found.IsSome |> should equal true
             found.Value.AccountName |> should equal "テスト勘定科目"
-            found.Value.Balance |> should equal 50000m
+            found.Value.Balance.Amount |> should equal 50000m
 
             // クリーンアップ
             let! _ = deleteAsync this.ConnectionString "TEST001"
@@ -58,7 +58,7 @@ type AccountRepositoryTest() =
             do! this.CleanupTestAccountsAsync()
 
             let account = Account.create "TEST002" "検索テスト科目" AccountType.Liability false
-            let account = { account with Balance = 100000m }
+            let account = { account with Balance = Money.Create(100000m) }
 
             let! _ = insertAsync this.ConnectionString account
 
@@ -78,14 +78,14 @@ type AccountRepositoryTest() =
 
             // 資産科目を2件登録
             let account1 = Account.create "TEST003" "テスト資産1" AccountType.Asset false
-            let account1 = { account1 with Balance = 10000m }
-            let account2 = { account1 with AccountCode = "TEST004"; AccountName = "テスト資産2" }
+            let account1 = { account1 with Balance = Money.Create(10000m) }
+            let account2 = { account1 with AccountCode = AccountCode.Create("TEST004"); AccountName = "テスト資産2" }
 
             let! _ = insertAsync this.ConnectionString account1
             let! _ = insertAsync this.ConnectionString account2
 
             let! assets = findByTypeAsync this.ConnectionString "資産"
-            assets |> List.filter (fun a -> a.AccountCode.StartsWith("TEST")) |> List.length |> should equal 2
+            assets |> List.filter (fun a -> a.AccountCode.Code.StartsWith("TEST")) |> List.length |> should equal 2
 
             // クリーンアップ
             let! _ = deleteAsync this.ConnectionString "TEST003"
@@ -103,13 +103,13 @@ type AccountRepositoryTest() =
             let! _ = insertAsync this.ConnectionString account
 
             // 更新
-            let updated = { account with AccountName = "更新後"; Balance = 99999m }
+            let updated = { account with AccountName = "更新後"; Balance = Money.Create(99999m) }
             let! _ = updateAsync this.ConnectionString updated
 
             // 確認
             let! found = findByCodeAsync this.ConnectionString "TEST005"
             found.Value.AccountName |> should equal "更新後"
-            found.Value.Balance |> should equal 99999m
+            found.Value.Balance.Amount |> should equal 99999m
 
             // クリーンアップ
             let! _ = deleteAsync this.ConnectionString "TEST005"
@@ -139,7 +139,7 @@ type AccountRepositoryTest() =
             do! this.CleanupTestAccountsAsync()
 
             let account = Account.create "TEST007" "残高更新テスト" AccountType.Asset false
-            let account = { account with Balance = 1000m }
+            let account = { account with Balance = Money.Create(1000m) }
 
             let! _ = insertAsync this.ConnectionString account
 
@@ -148,7 +148,7 @@ type AccountRepositoryTest() =
 
             // 確認
             let! found = findByCodeAsync this.ConnectionString "TEST007"
-            found.Value.Balance |> should equal 5000m
+            found.Value.Balance.Amount |> should equal 5000m
 
             // クリーンアップ
             let! _ = deleteAsync this.ConnectionString "TEST007"
@@ -213,11 +213,11 @@ type AccountRepositoryTest() =
 
             // 合計科目を取得
             let! summaryAccounts = findSummaryAccountsAsync this.ConnectionString
-            summaryAccounts |> List.exists (fun a -> a.AccountCode = "TEST010") |> should equal true
+            summaryAccounts |> List.exists (fun a -> a.AccountCode.Code = "TEST010") |> should equal true
 
             // 明細科目を取得
             let! detailAccounts = findDetailAccountsAsync this.ConnectionString
-            detailAccounts |> List.exists (fun a -> a.AccountCode = "TEST011") |> should equal true
+            detailAccounts |> List.exists (fun a -> a.AccountCode.Code = "TEST011") |> should equal true
 
             // クリーンアップ
             let! _ = deleteAsync this.ConnectionString "TEST010"

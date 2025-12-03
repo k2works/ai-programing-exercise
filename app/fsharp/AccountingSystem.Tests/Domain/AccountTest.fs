@@ -13,7 +13,7 @@ type AccountTest() =
     [<Fact>]
     member _.``同じ AccountCode を持つ Account は同一エンティティである``() =
         let account1 = Account.create "1000" "現金" AccountType.Asset false
-        let account2 = { account1 with AccountName = "現金及び預金"; Balance = 50000m }
+        let account2 = { account1 with AccountName = "現金及び預金"; Balance = Money.Create(50000m) }
 
         Account.equal account1 account2 |> should equal true
 
@@ -27,7 +27,7 @@ type AccountTest() =
     [<Fact>]
     member _.``同じ AccountCode の Account は同じハッシュコードを持つ``() =
         let account1 = Account.create "1000" "現金" AccountType.Asset false
-        let account2 = { account1 with AccountName = "現金及び預金"; Balance = 50000m }
+        let account2 = { account1 with AccountName = "現金及び預金"; Balance = Money.Create(50000m) }
 
         Account.hashCode account1 |> should equal (Account.hashCode account2)
 
@@ -37,7 +37,7 @@ type AccountTest() =
         let modified = { original with
                             AccountName = "変更後の名前"
                             AccountNameKana = Some "ヘンコウゴノナマエ"
-                            Balance = 999999m
+                            Balance = Money.Create(999999m)
                             BsplType = Some BsplType.BalanceSheet
                             TransactionElementType = Some TransactionElementType.AssetElement }
 

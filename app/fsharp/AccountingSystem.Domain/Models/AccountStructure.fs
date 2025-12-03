@@ -1,13 +1,15 @@
 namespace AccountingSystem.Domain.Models
 
+open AccountingSystem.Domain.Types
+
 /// <summary>
 /// 勘定科目構成エンティティ
 /// </summary>
 type AccountStructure = {
-    AccountCode: string                // 勘定科目コード
+    AccountCode: AccountCode           // 勘定科目コード
     AccountPath: string                // 勘定科目パス（チルダ連結）
     HierarchyLevel: int                // 階層レベル
-    ParentAccountCode: string option   // 親科目コード
+    ParentAccountCode: AccountCode option  // 親科目コード
     DisplayOrder: int                  // 表示順序
 }
 
@@ -18,7 +20,7 @@ module AccountStructure =
     /// </summary>
     let create accountCode accountPath hierarchyLevel displayOrder =
         {
-            AccountCode = accountCode
+            AccountCode = AccountCode.Create(accountCode)
             AccountPath = accountPath
             HierarchyLevel = hierarchyLevel
             ParentAccountCode = None
@@ -29,13 +31,13 @@ module AccountStructure =
     /// エンティティ同一性の判定（AccountCode による識別）
     /// </summary>
     let equal (a: AccountStructure) (b: AccountStructure) =
-        a.AccountCode = b.AccountCode
+        AccountCode.equal a.AccountCode b.AccountCode
 
     /// <summary>
     /// エンティティのハッシュコードを取得
     /// </summary>
     let hashCode (structure: AccountStructure) =
-        structure.AccountCode.GetHashCode()
+        structure.AccountCode.Code.GetHashCode()
 
     /// <summary>
     /// パスから階層レベルを計算
@@ -56,6 +58,6 @@ module AccountStructure =
     /// <summary>
     /// 子孫科目かどうかを判定
     /// </summary>
-    let isDescendantOf (ancestorCode: string) (structure: AccountStructure) =
-        structure.AccountPath.Contains($"~{ancestorCode}~") ||
-        structure.AccountCode = ancestorCode
+    let isDescendantOf (ancestorCode: AccountCode) (structure: AccountStructure) =
+        structure.AccountPath.Contains($"~{ancestorCode.Code}~") ||
+        AccountCode.equal structure.AccountCode ancestorCode

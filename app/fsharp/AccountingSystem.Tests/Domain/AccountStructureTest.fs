@@ -1,6 +1,7 @@
 module AccountingSystem.Tests.Domain.AccountStructureTest
 
 open AccountingSystem.Domain.Models
+open AccountingSystem.Domain.Types
 open Xunit
 open FsUnit.Xunit
 
@@ -36,7 +37,7 @@ type AccountStructureTest() =
         let modified = { original with
                             AccountPath = "~資産~流動資産~1000~"
                             HierarchyLevel = 3
-                            ParentAccountCode = Some "流動資産"
+                            ParentAccountCode = Some (AccountCode.Create("流動資産"))
                             DisplayOrder = 100 }
 
         AccountStructure.equal original modified |> should equal true

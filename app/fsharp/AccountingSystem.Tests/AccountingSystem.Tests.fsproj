@@ -7,6 +7,8 @@
 
   <ItemGroup>
     <Compile Include="DatabaseTestBase.fs" />
+    <Compile Include="Domain/AccountCodeTest.fs" />
+    <Compile Include="Domain/MoneyTest.fs" />
     <Compile Include="Domain/AccountTest.fs" />
     <Compile Include="Domain/TaxTransactionTest.fs" />
     <Compile Include="Domain/AccountStructureTest.fs" />

@@ -1,6 +1,7 @@
 module AccountingSystem.Tests.Repositories.AccountStructureRepositoryTest
 
 open AccountingSystem.Domain.Models
+open AccountingSystem.Domain.Types
 open AccountingSystem.Infrastructure.Repositories.AccountStructureRepository
 open AccountingSystem.Tests.DatabaseTestBase
 open Npgsql
@@ -58,7 +59,7 @@ type AccountStructureRepositoryTest() =
 
             // 階層構造を登録
             let root = {
-                AccountCode = "11"
+                AccountCode = AccountCode.Create("11")
                 AccountPath = "11"
                 HierarchyLevel = 1
                 ParentAccountCode = None
@@ -67,10 +68,10 @@ type AccountStructureRepositoryTest() =
             do! insertAsync this.ConnectionString root
 
             let level2 = {
-                AccountCode = "11000"
+                AccountCode = AccountCode.Create("11000")
                 AccountPath = "11~11000"
                 HierarchyLevel = 2
-                ParentAccountCode = Some "11"
+                ParentAccountCode = Some (AccountCode.Create("11"))
                 DisplayOrder = 1
             }
             do! insertAsync this.ConnectionString level2
@@ -95,12 +96,12 @@ type AccountStructureRepositoryTest() =
 
             // 階層構造を登録
             let structures = [
-                { AccountCode = "11"; AccountPath = "11"; HierarchyLevel = 1; ParentAccountCode = None; DisplayOrder = 1 }
-                { AccountCode = "11000"; AccountPath = "11~11000"; HierarchyLevel = 2; ParentAccountCode = Some "11"; DisplayOrder = 1 }
-                { AccountCode = "11190"; AccountPath = "11~11000~11190"; HierarchyLevel = 3; ParentAccountCode = Some "11000"; DisplayOrder = 1 }
-                { AccountCode = "11110"; AccountPath = "11~11000~11190~11110"; HierarchyLevel = 4; ParentAccountCode = Some "11190"; DisplayOrder = 1 }
-                { AccountCode = "11120"; AccountPath = "11~11000~11190~11120"; HierarchyLevel = 4; ParentAccountCode = Some "11190"; DisplayOrder = 2 }
-                { AccountCode = "11130"; AccountPath = "11~11000~11190~11130"; HierarchyLevel = 4; ParentAccountCode = Some "11190"; DisplayOrder = 3 }
+                { AccountCode = AccountCode.Create("11"); AccountPath = "11"; HierarchyLevel = 1; ParentAccountCode = None; DisplayOrder = 1 }
+                { AccountCode = AccountCode.Create("11000"); AccountPath = "11~11000"; HierarchyLevel = 2; ParentAccountCode = Some (AccountCode.Create("11")); DisplayOrder = 1 }
+                { AccountCode = AccountCode.Create("11190"); AccountPath = "11~11000~11190"; HierarchyLevel = 3; ParentAccountCode = Some (AccountCode.Create("11000")); DisplayOrder = 1 }
+                { AccountCode = AccountCode.Create("11110"); AccountPath = "11~11000~11190~11110"; HierarchyLevel = 4; ParentAccountCode = Some (AccountCode.Create("11190")); DisplayOrder = 1 }
+                { AccountCode = AccountCode.Create("11120"); AccountPath = "11~11000~11190~11120"; HierarchyLevel = 4; ParentAccountCode = Some (AccountCode.Create("11190")); DisplayOrder = 2 }
+                { AccountCode = AccountCode.Create("11130"); AccountPath = "11~11000~11190~11130"; HierarchyLevel = 4; ParentAccountCode = Some (AccountCode.Create("11190")); DisplayOrder = 3 }
             ]
 
             for s in structures do
@@ -109,10 +110,10 @@ type AccountStructureRepositoryTest() =
             // 「現金及び預金」(11190) 配下の子孫を検索
             let! descendants = findDescendantsAsync this.ConnectionString "11190"
             descendants |> List.length |> should equal 4  // 11190, 11110, 11120, 11130
-            descendants |> List.map (fun s -> s.AccountCode) |> should contain "11190"
-            descendants |> List.map (fun s -> s.AccountCode) |> should contain "11110"
-            descendants |> List.map (fun s -> s.AccountCode) |> should contain "11120"
-            descendants |> List.map (fun s -> s.AccountCode) |> should contain "11130"
+            descendants |> List.map (fun s -> s.AccountCode.Code) |> should contain "11190"
+            descendants |> List.map (fun s -> s.AccountCode.Code) |> should contain "11110"
+            descendants |> List.map (fun s -> s.AccountCode.Code) |> should contain "11120"
+            descendants |> List.map (fun s -> s.AccountCode.Code) |> should contain "11130"
         }
 
     [<Fact>]
@@ -123,10 +124,10 @@ type AccountStructureRepositoryTest() =
 
             // 階層構造を登録
             let structures = [
-                { AccountCode = "11"; AccountPath = "11"; HierarchyLevel = 1; ParentAccountCode = None; DisplayOrder = 1 }
-                { AccountCode = "11000"; AccountPath = "11~11000"; HierarchyLevel = 2; ParentAccountCode = Some "11"; DisplayOrder = 1 }
-                { AccountCode = "11190"; AccountPath = "11~11000~11190"; HierarchyLevel = 3; ParentAccountCode = Some "11000"; DisplayOrder = 1 }
-                { AccountCode = "11110"; AccountPath = "11~11000~11190~11110"; HierarchyLevel = 4; ParentAccountCode = Some "11190"; DisplayOrder = 1 }
+                { AccountCode = AccountCode.Create("11"); AccountPath = "11"; HierarchyLevel = 1; ParentAccountCode = None; DisplayOrder = 1 }
+                { AccountCode = AccountCode.Create("11000"); AccountPath = "11~11000"; HierarchyLevel = 2; ParentAccountCode = Some (AccountCode.Create("11")); DisplayOrder = 1 }
+                { AccountCode = AccountCode.Create("11190"); AccountPath = "11~11000~11190"; HierarchyLevel = 3; ParentAccountCode = Some (AccountCode.Create("11000")); DisplayOrder = 1 }
+                { AccountCode = AccountCode.Create("11110"); AccountPath = "11~11000~11190~11110"; HierarchyLevel = 4; ParentAccountCode = Some (AccountCode.Create("11190")); DisplayOrder = 1 }
             ]
 
             for s in structures do
@@ -135,7 +136,7 @@ type AccountStructureRepositoryTest() =
             // 階層レベル4の科目を検索
             let! level4 = findByLevelAsync this.ConnectionString 4
             level4 |> List.length |> should equal 1
-            level4 |> List.head |> fun s -> s.AccountCode |> should equal "11110"
+            level4 |> List.head |> fun s -> s.AccountCode.Code |> should equal "11110"
         }
 
     [<Fact>]
@@ -146,7 +147,7 @@ type AccountStructureRepositoryTest() =
 
             // 登録
             let structure = {
-                AccountCode = "11"
+                AccountCode = AccountCode.Create("11")
                 AccountPath = "11"
                 HierarchyLevel = 1
                 ParentAccountCode = None
@@ -171,7 +172,7 @@ type AccountStructureRepositoryTest() =
 
             // 登録
             let structure = {
-                AccountCode = "11"
+                AccountCode = AccountCode.Create("11")
                 AccountPath = "11"
                 HierarchyLevel = 1
                 ParentAccountCode = None

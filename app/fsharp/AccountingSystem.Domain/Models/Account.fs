@@ -7,7 +7,7 @@ open AccountingSystem.Domain.Types
 /// </summary>
 type Account = {
     AccountId: int option                              // 勘定科目ID
-    AccountCode: string                                // 勘定科目コード
+    AccountCode: AccountCode                           // 勘定科目コード
     AccountName: string                                // 勘定科目名
     AccountNameKana: string option                     // 勘定科目カナ
     AccountType: AccountType                           // 勘定科目種別
@@ -18,7 +18,7 @@ type Account = {
     DisplayOrder: int                                  // 表示順序
     IsAggregationTarget: bool                          // 集計対象
     TaxCode: string option                             // 課税取引コード
-    Balance: decimal                                   // 残高
+    Balance: Money                                     // 残高
 }
 
 /// Account エンティティのファクトリ関数とユーティリティ
@@ -29,7 +29,7 @@ module Account =
     let create accountCode accountName accountType isSummaryAccount =
         {
             AccountId = None
-            AccountCode = accountCode
+            AccountCode = AccountCode.Create(accountCode)
             AccountName = accountName
             AccountNameKana = None
             AccountType = accountType
@@ -40,17 +40,17 @@ module Account =
             DisplayOrder = 0
             IsAggregationTarget = true
             TaxCode = None
-            Balance = 0m
+            Balance = Money.Zero
         }
 
     /// <summary>
     /// エンティティ同一性の判定（AccountCode による識別）
     /// </summary>
     let equal (a: Account) (b: Account) =
-        a.AccountCode = b.AccountCode
+        AccountCode.equal a.AccountCode b.AccountCode
 
     /// <summary>
     /// エンティティのハッシュコードを取得
     /// </summary>
     let hashCode (account: Account) =
-        account.AccountCode.GetHashCode()
+        account.AccountCode.Code.GetHashCode()
