@@ -5,6 +5,7 @@ open AccountingSystem.Domain.Models.Journal
 open AccountingSystem.Domain.Models.JournalLine
 open AccountingSystem.Domain.Models.JournalLineItem
 open AccountingSystem.Domain.Types
+open AccountingSystem.Domain.Types.Measure
 open AccountingSystem.Infrastructure.Repositories.JournalRepository
 open AccountingSystem.Tests.DatabaseTestBase
 open Npgsql
@@ -14,6 +15,7 @@ open FsUnit.Xunit
 /// <summary>
 /// 仕訳リポジトリ（集約ルート）の統合テスト
 /// 3層構造（Journal → JournalLine → JournalLineItem）の永続化をテスト
+/// 金額は日本円（円）単位で管理
 /// </summary>
 type JournalRepositoryTest() =
     inherit DatabaseTestBase()
@@ -57,20 +59,19 @@ type JournalRepositoryTest() =
             ()
         }
 
-    /// テスト用の仕訳貸借明細を作成
-    member private _.CreateTestLineItem(voucherNumber: string, lineNumber: int, debitCreditType: DebitCreditType, accountCode: string, amount: decimal) =
+    /// テスト用の仕訳貸借明細を作成（金額は円単位）
+    member private _.CreateTestLineItem(voucherNumber: string, lineNumber: int, debitCreditType: DebitCreditType, accountCode: string, amount: decimal<円>) =
         {
             VoucherNumber = VoucherNumber.Create(voucherNumber)
             LineNumber = lineNumber
             DebitCreditType = debitCreditType
-            CurrencyCode = CurrencyCode.Create("JPY")
             ExchangeRate = 1.0m
             DepartmentCode = None
             ProjectCode = None
             AccountCode = AccountCode.Create(accountCode)
             SubAccountCode = None
-            Amount = Money.Create(amount)
-            BaseAmount = Money.Create(amount)
+            Amount = CurrencyAmount.CreateJPY円(amount)
+            BaseAmount = Money.Create円(amount)
             TaxCategory = None
             TaxRate = None
             TaxCalculationType = None
@@ -121,9 +122,9 @@ type JournalRepositoryTest() =
             do! this.SetupTestAccountsAsync()
             do! this.CleanupTestDataAsync()
 
-            // 貸借明細（借方：現金、貸方：売上）
-            let debitItem = this.CreateTestLineItem("TEST0001", 1, Debit, "11100", 10000m)
-            let creditItem = this.CreateTestLineItem("TEST0001", 1, Credit, "41100", 10000m)
+            // 貸借明細（借方：現金 10,000円、貸方：売上 10,000円）
+            let debitItem = this.CreateTestLineItem("TEST0001", 1, Debit, "11100", 10000m<円>)
+            let creditItem = this.CreateTestLineItem("TEST0001", 1, Credit, "41100", 10000m<円>)
 
             // 明細
             let line = this.CreateTestLine("TEST0001", 1, "テスト取引", [debitItem; creditItem])
@@ -145,9 +146,9 @@ type JournalRepositoryTest() =
             do! this.SetupTestAccountsAsync()
             do! this.CleanupTestDataAsync()
 
-            // テストデータ作成
-            let debitItem = this.CreateTestLineItem("TEST0002", 1, Debit, "11100", 50000m)
-            let creditItem = this.CreateTestLineItem("TEST0002", 1, Credit, "21100", 50000m)
+            // テストデータ作成（借方：現金 50,000円、貸方：買掛金 50,000円）
+            let debitItem = this.CreateTestLineItem("TEST0002", 1, Debit, "11100", 50000m<円>)
+            let creditItem = this.CreateTestLineItem("TEST0002", 1, Credit, "21100", 50000m<円>)
             let line = this.CreateTestLine("TEST0002", 1, "検索テスト取引", [debitItem; creditItem])
             let journal = this.CreateTestJournal("TEST0002", [line])
 
@@ -180,14 +181,14 @@ type JournalRepositoryTest() =
             do! this.SetupTestAccountsAsync()
             do! this.CleanupTestDataAsync()
 
-            // 明細1：現金/売上
-            let debitItem1 = this.CreateTestLineItem("TEST0003", 1, Debit, "11100", 10000m)
-            let creditItem1 = this.CreateTestLineItem("TEST0003", 1, Credit, "41100", 10000m)
+            // 明細1：現金 10,000円 / 売上 10,000円
+            let debitItem1 = this.CreateTestLineItem("TEST0003", 1, Debit, "11100", 10000m<円>)
+            let creditItem1 = this.CreateTestLineItem("TEST0003", 1, Credit, "41100", 10000m<円>)
             let line1 = this.CreateTestLine("TEST0003", 1, "売上取引1", [debitItem1; creditItem1])
 
-            // 明細2：現金/売上
-            let debitItem2 = this.CreateTestLineItem("TEST0003", 2, Debit, "11100", 20000m)
-            let creditItem2 = this.CreateTestLineItem("TEST0003", 2, Credit, "41100", 20000m)
+            // 明細2：現金 20,000円 / 売上 20,000円
+            let debitItem2 = this.CreateTestLineItem("TEST0003", 2, Debit, "11100", 20000m<円>)
+            let creditItem2 = this.CreateTestLineItem("TEST0003", 2, Credit, "41100", 20000m<円>)
             let line2 = this.CreateTestLine("TEST0003", 2, "売上取引2", [debitItem2; creditItem2])
 
             let journal = this.CreateTestJournal("TEST0003", [line1; line2])
@@ -213,14 +214,14 @@ type JournalRepositoryTest() =
             do! this.SetupTestAccountsAsync()
             do! this.CleanupTestDataAsync()
 
-            // テストデータ（異なる起票日）
-            let item1 = this.CreateTestLineItem("TEST0004", 1, Debit, "11100", 1000m)
-            let item2 = this.CreateTestLineItem("TEST0004", 1, Credit, "41100", 1000m)
+            // テストデータ（異なる起票日）1,000円と2,000円
+            let item1 = this.CreateTestLineItem("TEST0004", 1, Debit, "11100", 1000m<円>)
+            let item2 = this.CreateTestLineItem("TEST0004", 1, Credit, "41100", 1000m<円>)
             let line = this.CreateTestLine("TEST0004", 1, "日付テスト", [item1; item2])
             let journal1 = { this.CreateTestJournal("TEST0004", [line]) with PostingDate = DateTime(2024, 1, 15) }
 
-            let item3 = this.CreateTestLineItem("TEST0005", 1, Debit, "11100", 2000m)
-            let item4 = this.CreateTestLineItem("TEST0005", 1, Credit, "41100", 2000m)
+            let item3 = this.CreateTestLineItem("TEST0005", 1, Debit, "11100", 2000m<円>)
+            let item4 = this.CreateTestLineItem("TEST0005", 1, Credit, "41100", 2000m<円>)
             let line2 = this.CreateTestLine("TEST0005", 1, "日付テスト2", [item3; item4])
             let journal2 = { this.CreateTestJournal("TEST0005", [line2]) with PostingDate = DateTime(2024, 2, 20) }
 
@@ -242,8 +243,9 @@ type JournalRepositoryTest() =
             do! this.SetupTestAccountsAsync()
             do! this.CleanupTestDataAsync()
 
-            let item1 = this.CreateTestLineItem("TEST0006", 1, Debit, "11100", 5000m)
-            let item2 = this.CreateTestLineItem("TEST0006", 1, Credit, "41100", 5000m)
+            // 5,000円の仕訳
+            let item1 = this.CreateTestLineItem("TEST0006", 1, Debit, "11100", 5000m<円>)
+            let item2 = this.CreateTestLineItem("TEST0006", 1, Credit, "41100", 5000m<円>)
             let line = this.CreateTestLine("TEST0006", 1, "更新テスト", [item1; item2])
             let journal = this.CreateTestJournal("TEST0006", [line])
 
@@ -271,8 +273,8 @@ type JournalRepositoryTest() =
             do! this.SetupTestAccountsAsync()
             do! this.CleanupTestDataAsync()
 
-            let item1 = this.CreateTestLineItem("TEST0007", 1, Debit, "11100", 3000m)
-            let item2 = this.CreateTestLineItem("TEST0007", 1, Credit, "41100", 3000m)
+            let item1 = this.CreateTestLineItem("TEST0007", 1, Debit, "11100", 3000m<円>)
+            let item2 = this.CreateTestLineItem("TEST0007", 1, Credit, "41100", 3000m<円>)
             let line = this.CreateTestLine("TEST0007", 1, "削除テスト", [item1; item2])
             let journal = this.CreateTestJournal("TEST0007", [line])
 
@@ -293,8 +295,8 @@ type JournalRepositoryTest() =
             do! this.SetupTestAccountsAsync()
             do! this.CleanupTestDataAsync()
 
-            let item1 = this.CreateTestLineItem("TEST0008", 1, Debit, "11100", 100000m)
-            let item2 = this.CreateTestLineItem("TEST0008", 1, Credit, "41100", 100000m)
+            let item1 = this.CreateTestLineItem("TEST0008", 1, Debit, "11100", 100000m<円>)
+            let item2 = this.CreateTestLineItem("TEST0008", 1, Credit, "41100", 100000m<円>)
             let line = this.CreateTestLine("TEST0008", 1, "決算振替", [item1; item2])
             let journal = { this.CreateTestJournal("TEST0008", [line]) with
                               SettlementFlag = SettlementFlag.Settlement }
@@ -315,8 +317,8 @@ type JournalRepositoryTest() =
             do! this.SetupTestAccountsAsync()
             do! this.CleanupTestDataAsync()
 
-            let item1 = this.CreateTestLineItem("TEST0009", 1, Debit, "11100", 5000m)
-            let item2 = this.CreateTestLineItem("TEST0009", 1, Credit, "41100", 5000m)
+            let item1 = this.CreateTestLineItem("TEST0009", 1, Debit, "11100", 5000m<円>)
+            let item2 = this.CreateTestLineItem("TEST0009", 1, Credit, "41100", 5000m<円>)
             let line = this.CreateTestLine("TEST0009", 1, "赤伝票テスト", [item1; item2])
             let journal = { this.CreateTestJournal("TEST0009", [line]) with
                               RedSlipFlag = RedSlipFlag.RedSlip
@@ -339,8 +341,8 @@ type JournalRepositoryTest() =
             do! this.SetupTestAccountsAsync()
             do! this.CleanupTestDataAsync()
 
-            let debitItem = this.CreateTestLineItem("TEST0010", 1, Debit, "11100", 25000m)
-            let creditItem = this.CreateTestLineItem("TEST0010", 1, Credit, "41100", 25000m)
+            let debitItem = this.CreateTestLineItem("TEST0010", 1, Debit, "11100", 25000m<円>)
+            let creditItem = this.CreateTestLineItem("TEST0010", 1, Credit, "41100", 25000m<円>)
             let line = this.CreateTestLine("TEST0010", 1, "バランステスト", [debitItem; creditItem])
             let journal = this.CreateTestJournal("TEST0010", [line])
 

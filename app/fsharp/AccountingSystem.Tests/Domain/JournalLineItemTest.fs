@@ -19,7 +19,8 @@ type JournalLineItemTest() =
         item.DebitCreditType |> should equal Debit
         item.AccountCode.Code |> should equal "1100"
         item.Amount.Amount |> should equal 110000m
-        item.CurrencyCode.Code |> should equal "JPY"
+        item.Amount.Currency.Code |> should equal "JPY"
+        item.BaseAmount.Amount |> should equal 110000m
         item.ExchangeRate |> should equal 1.0m
         JournalLineItem.isDebit item |> should equal true
         JournalLineItem.isCredit item |> should equal false
@@ -39,7 +40,7 @@ type JournalLineItemTest() =
     [<Fact>]
     member _.``同じ VoucherNumber, LineNumber, DebitCreditType を持つ JournalLineItem は同一エンティティである``() =
         let item1 = JournalLineItem.createDebit "JN240001" 1 "1100" (Money.Create(110000m)) "現金入金"
-        let item2 = { item1 with Amount = Money.Create(200000m) }
+        let item2 = { item1 with Amount = CurrencyAmount.CreateJPY(200000m); BaseAmount = Money.Create(200000m) }
 
         JournalLineItem.equal item1 item2 |> should equal true
 
