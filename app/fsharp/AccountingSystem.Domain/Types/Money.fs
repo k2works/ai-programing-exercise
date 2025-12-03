@@ -1,28 +1,41 @@
 namespace AccountingSystem.Domain.Types
 
 open System
+open AccountingSystem.Domain.Types.Measure
 
 /// <summary>
-/// 金額を表す値オブジェクト
+/// 金額を表す値オブジェクト（日本円単位）
+/// F# の単位型（Units of Measure）を使用して型安全性を確保
 /// </summary>
 [<Struct>]
 type Money =
-    private { Value: decimal }
+    private { Value: decimal<円> }
 
     /// <summary>
-    /// 金額の値を取得
+    /// 金額の値を取得（decimal として）
     /// </summary>
-    member this.Amount = this.Value
+    member this.Amount = removeUnit this.Value
+
+    /// <summary>
+    /// 金額の値を取得（単位付き）
+    /// </summary>
+    member this.Amount円 = this.Value
 
     /// <summary>
     /// ゼロ金額
     /// </summary>
-    static member Zero = { Value = 0m }
+    static member Zero = { Value = zero円 }
 
     /// <summary>
     /// 金額を作成（負の値も許可）
     /// </summary>
     static member Create(amount: decimal) =
+        { Value = yen amount }
+
+    /// <summary>
+    /// 金額を作成（単位付き）
+    /// </summary>
+    static member Create円(amount: decimal<円>) =
         { Value = amount }
 
     /// <summary>
@@ -31,7 +44,7 @@ type Money =
     static member CreatePositive(amount: decimal) =
         if amount < 0m then
             invalidArg "amount" "金額は0以上である必要があります"
-        { Value = amount }
+        { Value = yen amount }
 
     /// <summary>
     /// 加算
@@ -63,22 +76,22 @@ type Money =
     /// 絶対値を取得
     /// </summary>
     member this.Abs() =
-        { Value = Math.Abs(this.Value) }
+        { Value = yen (Math.Abs(removeUnit this.Value)) }
 
     /// <summary>
     /// 負の金額かどうか
     /// </summary>
-    member this.IsNegative = this.Value < 0m
+    member this.IsNegative = this.Value < zero円
 
     /// <summary>
     /// 正の金額かどうか
     /// </summary>
-    member this.IsPositive = this.Value > 0m
+    member this.IsPositive = this.Value > zero円
 
     /// <summary>
     /// ゼロかどうか
     /// </summary>
-    member this.IsZero = this.Value = 0m
+    member this.IsZero = this.Value = zero円
 
     /// <summary>
     /// 符号を反転
@@ -90,19 +103,19 @@ type Money =
     /// 指定した小数点以下桁数に丸める
     /// </summary>
     member this.Round(decimals: int) =
-        { Value = Math.Round(this.Value, decimals, MidpointRounding.AwayFromZero) }
+        { Value = yen (Math.Round(removeUnit this.Value, decimals, MidpointRounding.AwayFromZero)) }
 
     /// <summary>
     /// 文字列表現
     /// </summary>
     override this.ToString() =
-        this.Value.ToString("N0")
+        (removeUnit this.Value).ToString("N0")
 
     /// <summary>
     /// 通貨形式の文字列表現
     /// </summary>
     member this.ToFormattedString() =
-        String.Format("¥{0:N0}", this.Value)
+        format円 this.Value
 
 /// Money モジュール
 module Money =
