@@ -94,6 +94,7 @@ lazy val financialAccountingService = (project in file("financial-accounting-ser
     libraryDependencies ++= http4sDeps ++ tapirDeps ++ circeDeps ++ dbDeps ++ testContainerDeps ++ Seq(
       "org.typelevel" %% "cats-effect" % "3.5.4"
     ),
+    Compile / mainClass := Some("com.example.financial.Main"),
     Docker / packageName := "financial-accounting-service",
     Docker / version := version.value,
     dockerBaseImage := "eclipse-temurin:21-jre",
@@ -111,6 +112,7 @@ lazy val managementAccountingService = (project in file("management-accounting-s
     libraryDependencies ++= http4sDeps ++ tapirDeps ++ circeDeps ++ dbDeps ++ testContainerDeps ++ Seq(
       "org.typelevel" %% "cats-effect" % "3.5.4"
     ),
+    Compile / mainClass := Some("com.example.management.Main"),
     Docker / packageName := "management-accounting-service",
     Docker / version := version.value,
     dockerBaseImage := "eclipse-temurin:21-jre",
@@ -128,6 +130,7 @@ lazy val apiGateway = (project in file("api-gateway"))
     libraryDependencies ++= http4sDeps ++ circeDeps ++ Seq(
       "org.typelevel" %% "cats-effect" % "3.5.4"
     ),
+    Compile / mainClass := Some("com.example.gateway.Main"),
     Docker / packageName := "api-gateway",
     Docker / version := version.value,
     dockerBaseImage := "eclipse-temurin:21-jre",
