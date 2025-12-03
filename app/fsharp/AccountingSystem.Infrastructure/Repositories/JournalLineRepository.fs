@@ -13,7 +13,7 @@ let insertAsync (connectionString: string) (line: JournalLine) =
         do! conn.OpenAsync()
 
         let sql = """
-            INSERT INTO "仕訳明細V2" (
+            INSERT INTO "仕訳明細" (
                 "仕訳伝票番号",
                 "仕訳行番号",
                 "行摘要",
@@ -40,7 +40,7 @@ let insertBatchAsync (connectionString: string) (lines: JournalLine list) =
         do! conn.OpenAsync()
 
         let sql = """
-            INSERT INTO "仕訳明細V2" (
+            INSERT INTO "仕訳明細" (
                 "仕訳伝票番号",
                 "仕訳行番号",
                 "行摘要",
@@ -72,7 +72,7 @@ let findByVoucherNumberAsync (connectionString: string) (voucherNumber: string) 
                    "行摘要" AS "Description",
                    "作成日時" AS "CreatedAt",
                    "更新日時" AS "UpdatedAt"
-            FROM "仕訳明細V2"
+            FROM "仕訳明細"
             WHERE "仕訳伝票番号" = @VoucherNumber
             ORDER BY "仕訳行番号"
         """
@@ -88,7 +88,7 @@ let deleteByVoucherNumberAsync (connectionString: string) (voucherNumber: string
         do! conn.OpenAsync()
 
         let sql = """
-            DELETE FROM "仕訳明細V2"
+            DELETE FROM "仕訳明細"
             WHERE "仕訳伝票番号" = @VoucherNumber
         """
 

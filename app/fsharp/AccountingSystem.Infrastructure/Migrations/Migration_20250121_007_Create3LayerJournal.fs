@@ -29,7 +29,7 @@ type Migration_20250121_007_Create3LayerJournal() =
         |> ignore
 
         // 仕訳明細テーブル（2層目）
-        this.Create.Table("仕訳明細V2")
+        this.Create.Table("仕訳明細")
             .WithColumn("仕訳伝票番号").AsString(10).NotNullable().PrimaryKey()
             .WithColumn("仕訳行番号").AsInt16().NotNullable().PrimaryKey()
             .WithColumn("行摘要").AsString(1000).NotNullable()
@@ -65,15 +65,15 @@ type Migration_20250121_007_Create3LayerJournal() =
         |> ignore
 
         // 外部キー制約
-        this.Create.ForeignKey("fk_仕訳明細V2_仕訳")
-            .FromTable("仕訳明細V2").ForeignColumn("仕訳伝票番号")
+        this.Create.ForeignKey("fk_仕訳明細_仕訳")
+            .FromTable("仕訳明細").ForeignColumn("仕訳伝票番号")
             .ToTable("仕訳").PrimaryColumn("仕訳伝票番号")
             .OnDeleteOrUpdate(System.Data.Rule.Cascade)
         |> ignore
 
-        this.Create.ForeignKey("fk_仕訳貸借明細_仕訳明細V2")
+        this.Create.ForeignKey("fk_仕訳貸借明細_仕訳明細")
             .FromTable("仕訳貸借明細").ForeignColumns("仕訳伝票番号", "仕訳行番号")
-            .ToTable("仕訳明細V2").PrimaryColumns("仕訳伝票番号", "仕訳行番号")
+            .ToTable("仕訳明細").PrimaryColumns("仕訳伝票番号", "仕訳行番号")
             .OnDeleteOrUpdate(System.Data.Rule.Cascade)
         |> ignore
 
@@ -115,8 +115,8 @@ type Migration_20250121_007_Create3LayerJournal() =
 
     override this.Down() =
         this.Delete.ForeignKey("fk_仕訳貸借明細_勘定科目").OnTable("仕訳貸借明細") |> ignore
-        this.Delete.ForeignKey("fk_仕訳貸借明細_仕訳明細V2").OnTable("仕訳貸借明細") |> ignore
-        this.Delete.ForeignKey("fk_仕訳明細V2_仕訳").OnTable("仕訳明細V2") |> ignore
+        this.Delete.ForeignKey("fk_仕訳貸借明細_仕訳明細").OnTable("仕訳貸借明細") |> ignore
+        this.Delete.ForeignKey("fk_仕訳明細_仕訳").OnTable("仕訳明細") |> ignore
         this.Delete.Table("仕訳貸借明細") |> ignore
-        this.Delete.Table("仕訳明細V2") |> ignore
+        this.Delete.Table("仕訳明細") |> ignore
         this.Delete.Table("仕訳") |> ignore
