@@ -1,6 +1,7 @@
 module AccountingSystem.Tests.Repositories.AccountRepositoryTest
 
 open AccountingSystem.Domain.Models
+open AccountingSystem.Domain.Types
 open AccountingSystem.Infrastructure.Repositories.AccountRepository
 open AccountingSystem.Tests.DatabaseTestBase
 open Npgsql
@@ -34,7 +35,7 @@ type AccountRepositoryTest() =
         task {
             do! this.CleanupTestAccountsAsync()
 
-            let account = Account.create "TEST001" "テスト勘定科目" "資産" false
+            let account = Account.create "TEST001" "テスト勘定科目" AccountType.Asset false
             let account = { account with Balance = 50000m }
 
             let! accountId = insertAsync this.ConnectionString account
@@ -56,14 +57,14 @@ type AccountRepositoryTest() =
         task {
             do! this.CleanupTestAccountsAsync()
 
-            let account = Account.create "TEST002" "検索テスト科目" "負債" false
+            let account = Account.create "TEST002" "検索テスト科目" AccountType.Liability false
             let account = { account with Balance = 100000m }
 
             let! _ = insertAsync this.ConnectionString account
 
             let! found = findByCodeAsync this.ConnectionString "TEST002"
             found.IsSome |> should equal true
-            found.Value.AccountType |> should equal "負債"
+            found.Value.AccountType |> should equal AccountType.Liability
 
             // クリーンアップ
             let! _ = deleteAsync this.ConnectionString "TEST002"
@@ -76,7 +77,7 @@ type AccountRepositoryTest() =
             do! this.CleanupTestAccountsAsync()
 
             // 資産科目を2件登録
-            let account1 = Account.create "TEST003" "テスト資産1" "資産" false
+            let account1 = Account.create "TEST003" "テスト資産1" AccountType.Asset false
             let account1 = { account1 with Balance = 10000m }
             let account2 = { account1 with AccountCode = "TEST004"; AccountName = "テスト資産2" }
 
@@ -97,7 +98,7 @@ type AccountRepositoryTest() =
         task {
             do! this.CleanupTestAccountsAsync()
 
-            let account = Account.create "TEST005" "更新前" "費用" false
+            let account = Account.create "TEST005" "更新前" AccountType.Expense false
 
             let! _ = insertAsync this.ConnectionString account
 
@@ -120,7 +121,7 @@ type AccountRepositoryTest() =
         task {
             do! this.CleanupTestAccountsAsync()
 
-            let account = Account.create "TEST006" "削除テスト" "収益" false
+            let account = Account.create "TEST006" "削除テスト" AccountType.Revenue false
 
             let! _ = insertAsync this.ConnectionString account
 
@@ -137,7 +138,7 @@ type AccountRepositoryTest() =
         task {
             do! this.CleanupTestAccountsAsync()
 
-            let account = Account.create "TEST007" "残高更新テスト" "資産" false
+            let account = Account.create "TEST007" "残高更新テスト" AccountType.Asset false
             let account = { account with Balance = 1000m }
 
             let! _ = insertAsync this.ConnectionString account
@@ -159,7 +160,7 @@ type AccountRepositoryTest() =
         task {
             do! this.CleanupTestAccountsAsync()
 
-            let account = Account.create "TEST008" "カナテスト科目" "資産" false
+            let account = Account.create "TEST008" "カナテスト科目" AccountType.Asset false
             let account = { account with AccountNameKana = Some "カナテストカモク" }
 
             let! _ = insertAsync this.ConnectionString account
@@ -178,19 +179,19 @@ type AccountRepositoryTest() =
         task {
             do! this.CleanupTestAccountsAsync()
 
-            let account = Account.create "TEST009" "区分テスト科目" "資産" false
-            // BSPL区分は 'B' または 'P' (1文字)
-            // 取引要素区分は '1'-'5' (1文字)
+            let account = Account.create "TEST009" "区分テスト科目" AccountType.Asset false
+            // BSPL区分は BalanceSheet または ProfitAndLoss
+            // 取引要素区分は AssetElement/LiabilityElement/EquityElement/RevenueElement/ExpenseElement
             let account = { account with
-                              BsplType = Some "B"
-                              TransactionElementType = Some "1" }
+                              BsplType = Some BsplType.BalanceSheet
+                              TransactionElementType = Some TransactionElementType.AssetElement }
 
             let! _ = insertAsync this.ConnectionString account
 
             let! found = findByCodeAsync this.ConnectionString "TEST009"
             found.IsSome |> should equal true
-            found.Value.BsplType |> should equal (Some "B")
-            found.Value.TransactionElementType |> should equal (Some "1")
+            found.Value.BsplType |> should equal (Some BsplType.BalanceSheet)
+            found.Value.TransactionElementType |> should equal (Some TransactionElementType.AssetElement)
 
             // クリーンアップ
             let! _ = deleteAsync this.ConnectionString "TEST009"
@@ -203,11 +204,11 @@ type AccountRepositoryTest() =
             do! this.CleanupTestAccountsAsync()
 
             // 合計科目を登録
-            let summaryAccount = Account.create "TEST010" "合計科目テスト" "資産" true
+            let summaryAccount = Account.create "TEST010" "合計科目テスト" AccountType.Asset true
             let! _ = insertAsync this.ConnectionString summaryAccount
 
             // 明細科目を登録
-            let detailAccount = Account.create "TEST011" "明細科目テスト" "資産" false
+            let detailAccount = Account.create "TEST011" "明細科目テスト" AccountType.Asset false
             let! _ = insertAsync this.ConnectionString detailAccount
 
             // 合計科目を取得
