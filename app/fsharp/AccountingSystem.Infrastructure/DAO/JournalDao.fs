@@ -46,7 +46,7 @@ module JournalDao =
             UpdatedAt = journal.UpdatedAt
         }
 
-    /// DAOからドメインモデルへ変換
+    /// DAOからドメインモデルへ変換（Linesは空で返す、後からRepositoryで組み立て）
     let toDomain (dao: JournalDao) : Journal =
         {
             VoucherNumber = VoucherNumber.Create(dao.VoucherNumber)
@@ -68,6 +68,7 @@ module JournalDao =
             RedBlackVoucherNumber =
                 if dao.RedBlackVoucherNumber.HasValue then Some dao.RedBlackVoucherNumber.Value
                 else None
+            Lines = []
             CreatedAt = dao.CreatedAt
             UpdatedAt = dao.UpdatedAt
         }

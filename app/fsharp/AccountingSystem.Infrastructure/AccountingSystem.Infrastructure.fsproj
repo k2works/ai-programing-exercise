@@ -27,8 +27,6 @@
     <Compile Include="Repositories/TaxTransactionRepository.fs" />
     <Compile Include="Repositories/AccountRepository.fs" />
     <Compile Include="Repositories/JournalRepository.fs" />
-    <Compile Include="Repositories/JournalLineRepository.fs" />
-    <Compile Include="Repositories/JournalLineItemRepository.fs" />
     <Compile Include="Repositories/DoubleEntryCheckRepository.fs" />
     <Compile Include="MigrationRunner.fs" />
     <Compile Include="Program.fs" />

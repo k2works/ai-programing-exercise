@@ -27,12 +27,13 @@ module JournalLineDao =
             UpdatedAt = line.UpdatedAt
         }
 
-    /// DAOからドメインモデルへ変換
+    /// DAOからドメインモデルへ変換（Itemsは空で返す、後からRepositoryで組み立て）
     let toDomain (dao: JournalLineDao) : JournalLine =
         {
             VoucherNumber = VoucherNumber.Create(dao.VoucherNumber)
             LineNumber = int dao.LineNumber
             Description = dao.Description
+            Items = []
             CreatedAt = dao.CreatedAt
             UpdatedAt = dao.UpdatedAt
         }
