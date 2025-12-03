@@ -8,6 +8,11 @@
 
   <ItemGroup>
     <Compile Include="Migrations/Migration_20250106_001_InitialSetup.fs" />
+    <Compile Include="Migrations/Migration_20250121_001_CreateAccountMaster.fs" />
+    <Compile Include="Migrations/Migration_20250121_002_AddAccountFields.fs" />
+    <Compile Include="Migrations/Migration_20250121_003_CreateTaxTransactionMaster.fs" />
+    <Compile Include="Migrations/Migration_20250121_004_AddTaxCodeToAccount.fs" />
+    <Compile Include="Migrations/Migration_20250121_005_CreateAccountStructure.fs" />
     <Compile Include="MigrationRunner.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

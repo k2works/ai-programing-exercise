@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="AccountTypes.fs" />
     <Compile Include="Library.fs" />
   </ItemGroup>
 
