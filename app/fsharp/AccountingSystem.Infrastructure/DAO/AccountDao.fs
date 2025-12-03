@@ -1,6 +1,7 @@
 namespace AccountingSystem.Infrastructure.DAO
 
 open AccountingSystem.Domain.Models
+open AccountingSystem.Domain.Types
 
 /// <summary>
 /// 勘定科目 DAO（Dapper マッピング用）
@@ -30,10 +31,10 @@ module AccountDao =
             AccountCode = dao.AccountCode
             AccountName = dao.AccountName
             AccountNameKana = if isNull dao.AccountNameKana then None else Some dao.AccountNameKana
-            AccountType = dao.AccountType
+            AccountType = AccountType.FromString(dao.AccountType)
             IsSummaryAccount = dao.IsSummaryAccount
-            BsplType = if isNull dao.BsplType then None else Some dao.BsplType
-            TransactionElementType = if isNull dao.TransactionElementType then None else Some dao.TransactionElementType
+            BsplType = BsplType.FromCode(dao.BsplType)
+            TransactionElementType = TransactionElementType.FromCode(dao.TransactionElementType)
             ExpenseType = if isNull dao.ExpenseType then None else Some dao.ExpenseType
             DisplayOrder = dao.DisplayOrder
             IsAggregationTarget = dao.IsAggregationTarget
@@ -47,10 +48,10 @@ module AccountDao =
             AccountCode = model.AccountCode
             AccountName = model.AccountName
             AccountNameKana = model.AccountNameKana |> Option.toObj
-            AccountType = model.AccountType
+            AccountType = model.AccountType.ToDbString()
             IsSummaryAccount = model.IsSummaryAccount
-            BsplType = model.BsplType |> Option.toObj
-            TransactionElementType = model.TransactionElementType |> Option.toObj
+            BsplType = model.BsplType |> Option.map (fun x -> x.ToCode()) |> Option.toObj
+            TransactionElementType = model.TransactionElementType |> Option.map (fun x -> x.ToCode()) |> Option.toObj
             ExpenseType = model.ExpenseType |> Option.toObj
             DisplayOrder = model.DisplayOrder
             IsAggregationTarget = model.IsAggregationTarget
