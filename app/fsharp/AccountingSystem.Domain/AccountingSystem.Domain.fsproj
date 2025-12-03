@@ -6,7 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="AccountTypes.fs" />
+    <Compile Include="Types\AccountType.fs" />
+    <Compile Include="Types\BsplType.fs" />
+    <Compile Include="Types\DebitCreditType.fs" />
+    <Compile Include="Types\TransactionElementType.fs" />
+    <Compile Include="Models\Account.fs" />
+    <Compile Include="Models\TaxTransaction.fs" />
+    <Compile Include="Models\AccountStructure.fs" />
     <Compile Include="Library.fs" />
   </ItemGroup>
 
