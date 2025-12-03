@@ -19,8 +19,8 @@ FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
-# Install curl for health checks
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+# Install curl and unzip for health checks and extraction
+RUN apt-get update && apt-get install -y curl unzip && rm -rf /var/lib/apt/lists/*
 
 # Copy the built application
 COPY --from=builder /app/management-accounting-service/target/universal/*.zip /app/
