@@ -21,8 +21,11 @@ type Account = {
     Balance: decimal                                   // 残高
 }
 
-/// Account エンティティのファクトリ関数
+/// Account エンティティのファクトリ関数とユーティリティ
 module Account =
+    /// <summary>
+    /// 新規 Account エンティティを作成
+    /// </summary>
     let create accountCode accountName accountType isSummaryAccount =
         {
             AccountId = None
@@ -39,3 +42,15 @@ module Account =
             TaxCode = None
             Balance = 0m
         }
+
+    /// <summary>
+    /// エンティティ同一性の判定（AccountCode による識別）
+    /// </summary>
+    let equal (a: Account) (b: Account) =
+        a.AccountCode = b.AccountCode
+
+    /// <summary>
+    /// エンティティのハッシュコードを取得
+    /// </summary>
+    let hashCode (account: Account) =
+        account.AccountCode.GetHashCode()

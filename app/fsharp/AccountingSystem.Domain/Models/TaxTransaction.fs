@@ -10,8 +10,11 @@ type TaxTransaction = {
     Description: string option         // 説明
 }
 
-/// TaxTransaction エンティティのファクトリ関数
+/// TaxTransaction エンティティのファクトリ関数とユーティリティ
 module TaxTransaction =
+    /// <summary>
+    /// 新規 TaxTransaction エンティティを作成
+    /// </summary>
     let create taxCode taxName taxRate =
         {
             TaxCode = taxCode
@@ -19,3 +22,15 @@ module TaxTransaction =
             TaxRate = taxRate
             Description = None
         }
+
+    /// <summary>
+    /// エンティティ同一性の判定（TaxCode による識別）
+    /// </summary>
+    let equal (a: TaxTransaction) (b: TaxTransaction) =
+        a.TaxCode = b.TaxCode
+
+    /// <summary>
+    /// エンティティのハッシュコードを取得
+    /// </summary>
+    let hashCode (taxTransaction: TaxTransaction) =
+        taxTransaction.TaxCode.GetHashCode()

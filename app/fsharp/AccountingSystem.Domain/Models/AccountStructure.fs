@@ -13,6 +13,9 @@ type AccountStructure = {
 
 /// AccountStructure エンティティのファクトリ関数とユーティリティ
 module AccountStructure =
+    /// <summary>
+    /// 新規 AccountStructure エンティティを作成
+    /// </summary>
     let create accountCode accountPath hierarchyLevel displayOrder =
         {
             AccountCode = accountCode
@@ -21,6 +24,18 @@ module AccountStructure =
             ParentAccountCode = None
             DisplayOrder = displayOrder
         }
+
+    /// <summary>
+    /// エンティティ同一性の判定（AccountCode による識別）
+    /// </summary>
+    let equal (a: AccountStructure) (b: AccountStructure) =
+        a.AccountCode = b.AccountCode
+
+    /// <summary>
+    /// エンティティのハッシュコードを取得
+    /// </summary>
+    let hashCode (structure: AccountStructure) =
+        structure.AccountCode.GetHashCode()
 
     /// <summary>
     /// パスから階層レベルを計算
