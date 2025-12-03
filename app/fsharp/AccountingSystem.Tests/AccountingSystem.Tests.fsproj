@@ -17,9 +17,6 @@
     <Compile Include="Domain/JournalLineItemTest.fs" />
     <Compile Include="Domain/AutoJournalPatternTest.fs" />
     <Compile Include="Domain/DoubleEntryBookkeepingServiceTest.fs" />
-    <Compile Include="AccountTest.fs" />
-    <Compile Include="TaxTransactionTest.fs" />
-    <Compile Include="AccountStructureTest.fs" />
     <Compile Include="Repositories/AccountStructureRepositoryTest.fs" />
     <Compile Include="Repositories/TaxTransactionRepositoryTest.fs" />
     <Compile Include="Repositories/AccountRepositoryTest.fs" />
