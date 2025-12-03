@@ -1,6 +1,8 @@
 module AccountingSystem.Tests.DatabaseTestBase
 
+open System
 open System.Threading.Tasks
+open DotNet.Testcontainers.Builders
 open Testcontainers.PostgreSql
 open AccountingSystem.Infrastructure.MigrationRunner
 open Xunit
@@ -20,6 +22,14 @@ type DatabaseTestBase() =
     /// </summary>
     member this.InitializeAsync() =
         task {
+            // Docker ホストの設定（Windows Docker Desktop 用）
+            let dockerHost =
+                match Environment.GetEnvironmentVariable("DOCKER_HOST") with
+                | null | "" -> "npipe://./pipe/docker_engine"
+                | host -> host
+
+            Environment.SetEnvironmentVariable("DOCKER_HOST", dockerHost)
+
             // PostgreSQLコンテナの設定と起動
             container <-
                 PostgreSqlBuilder()
