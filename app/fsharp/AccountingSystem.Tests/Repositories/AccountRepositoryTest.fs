@@ -1,5 +1,6 @@
 module AccountingSystem.Tests.Repositories.AccountRepositoryTest
 
+open AccountingSystem.Domain.Models
 open AccountingSystem.Infrastructure.Repositories.AccountRepository
 open AccountingSystem.Tests.DatabaseTestBase
 open Npgsql
@@ -33,7 +34,7 @@ type AccountRepositoryTest() =
         task {
             do! this.CleanupTestAccountsAsync()
 
-            let account = AccountEntity.create "TEST001" "テスト勘定科目" "資産" false
+            let account = Account.create "TEST001" "テスト勘定科目" "資産" false
             let account = { account with Balance = 50000m }
 
             let! accountId = insertAsync this.ConnectionString account
@@ -55,7 +56,7 @@ type AccountRepositoryTest() =
         task {
             do! this.CleanupTestAccountsAsync()
 
-            let account = AccountEntity.create "TEST002" "検索テスト科目" "負債" false
+            let account = Account.create "TEST002" "検索テスト科目" "負債" false
             let account = { account with Balance = 100000m }
 
             let! _ = insertAsync this.ConnectionString account
@@ -75,7 +76,7 @@ type AccountRepositoryTest() =
             do! this.CleanupTestAccountsAsync()
 
             // 資産科目を2件登録
-            let account1 = AccountEntity.create "TEST003" "テスト資産1" "資産" false
+            let account1 = Account.create "TEST003" "テスト資産1" "資産" false
             let account1 = { account1 with Balance = 10000m }
             let account2 = { account1 with AccountCode = "TEST004"; AccountName = "テスト資産2" }
 
@@ -96,7 +97,7 @@ type AccountRepositoryTest() =
         task {
             do! this.CleanupTestAccountsAsync()
 
-            let account = AccountEntity.create "TEST005" "更新前" "費用" false
+            let account = Account.create "TEST005" "更新前" "費用" false
 
             let! _ = insertAsync this.ConnectionString account
 
@@ -119,7 +120,7 @@ type AccountRepositoryTest() =
         task {
             do! this.CleanupTestAccountsAsync()
 
-            let account = AccountEntity.create "TEST006" "削除テスト" "収益" false
+            let account = Account.create "TEST006" "削除テスト" "収益" false
 
             let! _ = insertAsync this.ConnectionString account
 
@@ -136,7 +137,7 @@ type AccountRepositoryTest() =
         task {
             do! this.CleanupTestAccountsAsync()
 
-            let account = AccountEntity.create "TEST007" "残高更新テスト" "資産" false
+            let account = Account.create "TEST007" "残高更新テスト" "資産" false
             let account = { account with Balance = 1000m }
 
             let! _ = insertAsync this.ConnectionString account
@@ -158,7 +159,7 @@ type AccountRepositoryTest() =
         task {
             do! this.CleanupTestAccountsAsync()
 
-            let account = AccountEntity.create "TEST008" "カナテスト科目" "資産" false
+            let account = Account.create "TEST008" "カナテスト科目" "資産" false
             let account = { account with AccountNameKana = Some "カナテストカモク" }
 
             let! _ = insertAsync this.ConnectionString account
@@ -177,7 +178,7 @@ type AccountRepositoryTest() =
         task {
             do! this.CleanupTestAccountsAsync()
 
-            let account = AccountEntity.create "TEST009" "区分テスト科目" "資産" false
+            let account = Account.create "TEST009" "区分テスト科目" "資産" false
             // BSPL区分は 'B' または 'P' (1文字)
             // 取引要素区分は '1'-'5' (1文字)
             let account = { account with
@@ -202,11 +203,11 @@ type AccountRepositoryTest() =
             do! this.CleanupTestAccountsAsync()
 
             // 合計科目を登録
-            let summaryAccount = AccountEntity.create "TEST010" "合計科目テスト" "資産" true
+            let summaryAccount = Account.create "TEST010" "合計科目テスト" "資産" true
             let! _ = insertAsync this.ConnectionString summaryAccount
 
             // 明細科目を登録
-            let detailAccount = AccountEntity.create "TEST011" "明細科目テスト" "資産" false
+            let detailAccount = Account.create "TEST011" "明細科目テスト" "資産" false
             let! _ = insertAsync this.ConnectionString detailAccount
 
             // 合計科目を取得

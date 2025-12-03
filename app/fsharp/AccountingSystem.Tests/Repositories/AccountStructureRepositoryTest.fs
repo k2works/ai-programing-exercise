@@ -1,12 +1,11 @@
 module AccountingSystem.Tests.Repositories.AccountStructureRepositoryTest
 
-open AccountingSystem.Domain
+open AccountingSystem.Domain.Models
 open AccountingSystem.Infrastructure.Repositories.AccountStructureRepository
 open AccountingSystem.Tests.DatabaseTestBase
 open Npgsql
 open Xunit
 open FsUnit.Xunit
-open System
 
 /// <summary>
 /// 勘定科目構成マスタ - Dapper 統合テスト
@@ -64,8 +63,6 @@ type AccountStructureRepositoryTest() =
                 HierarchyLevel = 1
                 ParentAccountCode = None
                 DisplayOrder = 1
-                CreatedAt = DateTime.Now
-                UpdatedAt = DateTime.Now
             }
             do! insertAsync this.ConnectionString root
 
@@ -75,8 +72,6 @@ type AccountStructureRepositoryTest() =
                 HierarchyLevel = 2
                 ParentAccountCode = Some "11"
                 DisplayOrder = 1
-                CreatedAt = DateTime.Now
-                UpdatedAt = DateTime.Now
             }
             do! insertAsync this.ConnectionString level2
 
@@ -100,12 +95,12 @@ type AccountStructureRepositoryTest() =
 
             // 階層構造を登録
             let structures = [
-                { AccountCode = "11"; AccountPath = "11"; HierarchyLevel = 1; ParentAccountCode = None; DisplayOrder = 1; CreatedAt = DateTime.Now; UpdatedAt = DateTime.Now }
-                { AccountCode = "11000"; AccountPath = "11~11000"; HierarchyLevel = 2; ParentAccountCode = Some "11"; DisplayOrder = 1; CreatedAt = DateTime.Now; UpdatedAt = DateTime.Now }
-                { AccountCode = "11190"; AccountPath = "11~11000~11190"; HierarchyLevel = 3; ParentAccountCode = Some "11000"; DisplayOrder = 1; CreatedAt = DateTime.Now; UpdatedAt = DateTime.Now }
-                { AccountCode = "11110"; AccountPath = "11~11000~11190~11110"; HierarchyLevel = 4; ParentAccountCode = Some "11190"; DisplayOrder = 1; CreatedAt = DateTime.Now; UpdatedAt = DateTime.Now }
-                { AccountCode = "11120"; AccountPath = "11~11000~11190~11120"; HierarchyLevel = 4; ParentAccountCode = Some "11190"; DisplayOrder = 2; CreatedAt = DateTime.Now; UpdatedAt = DateTime.Now }
-                { AccountCode = "11130"; AccountPath = "11~11000~11190~11130"; HierarchyLevel = 4; ParentAccountCode = Some "11190"; DisplayOrder = 3; CreatedAt = DateTime.Now; UpdatedAt = DateTime.Now }
+                { AccountCode = "11"; AccountPath = "11"; HierarchyLevel = 1; ParentAccountCode = None; DisplayOrder = 1 }
+                { AccountCode = "11000"; AccountPath = "11~11000"; HierarchyLevel = 2; ParentAccountCode = Some "11"; DisplayOrder = 1 }
+                { AccountCode = "11190"; AccountPath = "11~11000~11190"; HierarchyLevel = 3; ParentAccountCode = Some "11000"; DisplayOrder = 1 }
+                { AccountCode = "11110"; AccountPath = "11~11000~11190~11110"; HierarchyLevel = 4; ParentAccountCode = Some "11190"; DisplayOrder = 1 }
+                { AccountCode = "11120"; AccountPath = "11~11000~11190~11120"; HierarchyLevel = 4; ParentAccountCode = Some "11190"; DisplayOrder = 2 }
+                { AccountCode = "11130"; AccountPath = "11~11000~11190~11130"; HierarchyLevel = 4; ParentAccountCode = Some "11190"; DisplayOrder = 3 }
             ]
 
             for s in structures do
@@ -128,10 +123,10 @@ type AccountStructureRepositoryTest() =
 
             // 階層構造を登録
             let structures = [
-                { AccountCode = "11"; AccountPath = "11"; HierarchyLevel = 1; ParentAccountCode = None; DisplayOrder = 1; CreatedAt = DateTime.Now; UpdatedAt = DateTime.Now }
-                { AccountCode = "11000"; AccountPath = "11~11000"; HierarchyLevel = 2; ParentAccountCode = Some "11"; DisplayOrder = 1; CreatedAt = DateTime.Now; UpdatedAt = DateTime.Now }
-                { AccountCode = "11190"; AccountPath = "11~11000~11190"; HierarchyLevel = 3; ParentAccountCode = Some "11000"; DisplayOrder = 1; CreatedAt = DateTime.Now; UpdatedAt = DateTime.Now }
-                { AccountCode = "11110"; AccountPath = "11~11000~11190~11110"; HierarchyLevel = 4; ParentAccountCode = Some "11190"; DisplayOrder = 1; CreatedAt = DateTime.Now; UpdatedAt = DateTime.Now }
+                { AccountCode = "11"; AccountPath = "11"; HierarchyLevel = 1; ParentAccountCode = None; DisplayOrder = 1 }
+                { AccountCode = "11000"; AccountPath = "11~11000"; HierarchyLevel = 2; ParentAccountCode = Some "11"; DisplayOrder = 1 }
+                { AccountCode = "11190"; AccountPath = "11~11000~11190"; HierarchyLevel = 3; ParentAccountCode = Some "11000"; DisplayOrder = 1 }
+                { AccountCode = "11110"; AccountPath = "11~11000~11190~11110"; HierarchyLevel = 4; ParentAccountCode = Some "11190"; DisplayOrder = 1 }
             ]
 
             for s in structures do
@@ -156,8 +151,6 @@ type AccountStructureRepositoryTest() =
                 HierarchyLevel = 1
                 ParentAccountCode = None
                 DisplayOrder = 1
-                CreatedAt = DateTime.Now
-                UpdatedAt = DateTime.Now
             }
             do! insertAsync this.ConnectionString structure
 
@@ -183,8 +176,6 @@ type AccountStructureRepositoryTest() =
                 HierarchyLevel = 1
                 ParentAccountCode = None
                 DisplayOrder = 1
-                CreatedAt = DateTime.Now
-                UpdatedAt = DateTime.Now
             }
             do! insertAsync this.ConnectionString structure
 
