@@ -6,6 +6,7 @@ open AccountingSystem.Domain.Types
 /// <summary>
 /// 仕訳貸借明細エンティティ（3層構造の3層目）
 /// 借方・貸方の詳細情報を管理
+/// Amount は取引通貨建て、BaseAmount は基軸通貨（日本円）建て
 /// </summary>
 type JournalLineItem = {
     /// 仕訳伝票番号
@@ -14,9 +15,7 @@ type JournalLineItem = {
     LineNumber: int
     /// 仕訳行貸借区分（D: 借方、C: 貸方）
     DebitCreditType: DebitCreditType
-    /// 通貨コード
-    CurrencyCode: CurrencyCode
-    /// 為替レート
+    /// 為替レート（取引通貨→日本円）
     ExchangeRate: decimal
     /// 部門コード
     DepartmentCode: string option
@@ -26,9 +25,9 @@ type JournalLineItem = {
     AccountCode: AccountCode
     /// 補助科目コード
     SubAccountCode: string option
-    /// 仕訳金額
-    Amount: Money
-    /// 基軸換算仕訳金額
+    /// 仕訳金額（取引通貨建て）
+    Amount: CurrencyAmount
+    /// 基軸換算仕訳金額（日本円建て）
     BaseAmount: Money
     /// 消費税区分
     TaxCategory: string option
@@ -57,19 +56,18 @@ type JournalLineItem = {
 }
 
 module JournalLineItem =
-    /// 借方明細を作成
-    let createDebit voucherNumber lineNumber accountCode amount description =
+    /// 借方明細を作成（日本円）
+    let createDebit voucherNumber lineNumber accountCode (amount: Money) description =
         {
             VoucherNumber = VoucherNumber.Create(voucherNumber)
             LineNumber = lineNumber
             DebitCreditType = Debit
-            CurrencyCode = CurrencyCode.JPY
             ExchangeRate = 1.0m
             DepartmentCode = None
             ProjectCode = None
             AccountCode = AccountCode.Create(accountCode)
             SubAccountCode = None
-            Amount = amount
+            Amount = CurrencyAmount.CreateJPY(amount.Amount)
             BaseAmount = amount
             TaxCategory = None
             TaxRate = None
@@ -85,10 +83,46 @@ module JournalLineItem =
             UpdatedAt = DateTime.UtcNow
         }
 
-    /// 貸方明細を作成
-    let createCredit voucherNumber lineNumber accountCode amount description =
+    /// 借方明細を作成（外貨）
+    let createDebitForeign voucherNumber lineNumber accountCode (amount: CurrencyAmount) (baseAmount: Money) exchangeRate description =
+        {
+            VoucherNumber = VoucherNumber.Create(voucherNumber)
+            LineNumber = lineNumber
+            DebitCreditType = Debit
+            ExchangeRate = exchangeRate
+            DepartmentCode = None
+            ProjectCode = None
+            AccountCode = AccountCode.Create(accountCode)
+            SubAccountCode = None
+            Amount = amount
+            BaseAmount = baseAmount
+            TaxCategory = None
+            TaxRate = None
+            TaxCalculationType = None
+            DueDate = None
+            IsCashFlow = false
+            SegmentCode = None
+            CounterAccountCode = None
+            CounterSubAccountCode = None
+            MemoCode = None
+            MemoContent = None
+            CreatedAt = DateTime.UtcNow
+            UpdatedAt = DateTime.UtcNow
+        }
+
+    /// 貸方明細を作成（日本円）
+    let createCredit voucherNumber lineNumber accountCode (amount: Money) description =
         { createDebit voucherNumber lineNumber accountCode amount description with
             DebitCreditType = Credit }
+
+    /// 貸方明細を作成（外貨）
+    let createCreditForeign voucherNumber lineNumber accountCode (amount: CurrencyAmount) (baseAmount: Money) exchangeRate description =
+        { createDebitForeign voucherNumber lineNumber accountCode amount baseAmount exchangeRate description with
+            DebitCreditType = Credit }
+
+    /// 通貨コードを取得
+    let currencyCode (item: JournalLineItem) =
+        item.Amount.Currency
 
     /// エンティティの同一性判定（VoucherNumber + LineNumber + DebitCreditType で判定）
     let equal (a: JournalLineItem) (b: JournalLineItem) =
@@ -108,21 +142,21 @@ module JournalLineItem =
     let isCredit (item: JournalLineItem) =
         item.DebitCreditType = Credit
 
-    /// 借方合計を計算
+    /// 借方合計を計算（基軸通貨=日本円建て）
     let sumDebit (items: JournalLineItem list) =
         items
         |> List.filter isDebit
-        |> List.map (fun i -> i.Amount)
+        |> List.map (fun i -> i.BaseAmount)
         |> List.fold (+) Money.Zero
 
-    /// 貸方合計を計算
+    /// 貸方合計を計算（基軸通貨=日本円建て）
     let sumCredit (items: JournalLineItem list) =
         items
         |> List.filter isCredit
-        |> List.map (fun i -> i.Amount)
+        |> List.map (fun i -> i.BaseAmount)
         |> List.fold (+) Money.Zero
 
-    /// 貸借バランスを検証（複式簿記の原理）
+    /// 貸借バランスを検証（複式簿記の原理、基軸通貨=日本円建てで検証）
     let validateBalance (items: JournalLineItem list) =
         let debitTotal = sumDebit items
         let creditTotal = sumCredit items

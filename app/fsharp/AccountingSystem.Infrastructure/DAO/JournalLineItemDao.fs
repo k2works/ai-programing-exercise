@@ -41,7 +41,7 @@ module JournalLineItemDao =
             VoucherNumber = item.VoucherNumber.Number
             LineNumber = int16 item.LineNumber
             DebitCreditType = item.DebitCreditType.ToCode()
-            CurrencyCode = item.CurrencyCode.Code
+            CurrencyCode = item.Amount.Currency.Code
             ExchangeRate = item.ExchangeRate
             DepartmentCode = item.DepartmentCode |> Option.defaultValue null
             ProjectCode = item.ProjectCode |> Option.defaultValue null
@@ -71,19 +71,19 @@ module JournalLineItemDao =
 
     /// DAOからドメインモデルへ変換
     let toDomain (dao: JournalLineItemDao) : JournalLineItem =
+        let currencyCode = CurrencyCode.Create(dao.CurrencyCode)
         {
             VoucherNumber = VoucherNumber.Create(dao.VoucherNumber)
             LineNumber = int dao.LineNumber
             DebitCreditType =
                 DebitCreditType.FromCode(dao.DebitCreditType)
                 |> Option.defaultValue Debit
-            CurrencyCode = CurrencyCode.Create(dao.CurrencyCode)
             ExchangeRate = dao.ExchangeRate
             DepartmentCode = if isNull dao.DepartmentCode then None else Some dao.DepartmentCode
             ProjectCode = if isNull dao.ProjectCode then None else Some dao.ProjectCode
             AccountCode = AccountCode.Create(dao.AccountCode)
             SubAccountCode = if isNull dao.SubAccountCode then None else Some dao.SubAccountCode
-            Amount = Money.Create(dao.Amount)
+            Amount = CurrencyAmount.Create(currencyCode, dao.Amount)
             BaseAmount = Money.Create(dao.BaseAmount)
             TaxCategory = if isNull dao.TaxCategory then None else Some dao.TaxCategory
             TaxRate = if dao.TaxRate.HasValue then Some (int dao.TaxRate.Value) else None
