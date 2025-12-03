@@ -6,17 +6,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Types\Measure.fs" />
     <Compile Include="Types\AccountCode.fs" />
     <Compile Include="Types\AccountType.fs" />
     <Compile Include="Types\BsplType.fs" />
     <Compile Include="Types\DebitCreditType.fs" />
     <Compile Include="Types\TransactionElementType.fs" />
     <Compile Include="Types\Money.fs" />
+    <Compile Include="Types\CurrencyCode.fs" />
+    <Compile Include="Types\CurrencyAmount.fs" />
     <Compile Include="Types\VoucherNumber.fs" />
     <Compile Include="Types\SettlementFlag.fs" />
     <Compile Include="Types\RedSlipFlag.fs" />
     <Compile Include="Types\VoucherType.fs" />
-    <Compile Include="Types\CurrencyCode.fs" />
     <Compile Include="Models\Account.fs" />
     <Compile Include="Models\TaxTransaction.fs" />
     <Compile Include="Models\AccountStructure.fs" />
