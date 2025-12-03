@@ -1,0 +1,571 @@
+name: 仕訳入力ツール (Scala Microservices)
+description: Scala マイクロサービス版 API を使用した仕訳の一覧取得、入力、登録ツール
+host: EXCEL
+api_set: {}
+script:
+  content: |
+    /**
+     * 仕訳入力ツール - Scala マイクロサービス版 API クライアント
+     *
+     * このスクリプトは仕訳の一覧取得、入力シート作成、登録を行います。
+     * API Gateway 経由でマイクロサービスにアクセスします。
+     */
+
+    /**
+     * API ベース URL を入力フィールドから取得
+     */
+    function getApiBaseUrl(): string {
+      const urlInput = document.getElementById("api-url") as HTMLInputElement;
+      return urlInput?.value || "http://localhost:8000";
+    }
+
+    /**
+     * Excel のシリアル値または日付文字列を ISO 形式（YYYY-MM-DD）に変換
+     */
+    function toIsoDateString(value: any): string {
+      if (!value) return "";
+
+      // 既に文字列形式の場合
+      if (typeof value === "string") {
+        // YYYY-MM-DD 形式ならそのまま返す
+        if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+          return value;
+        }
+        // YYYY/MM/DD 形式の場合は変換
+        if (/^\d{4}\/\d{2}\/\d{2}$/.test(value)) {
+          return value.replace(/\//g, "-");
+        }
+        // その他の文字列は Date として解析を試みる
+        const parsed = new Date(value);
+        if (!isNaN(parsed.getTime())) {
+          return parsed.toISOString().split("T")[0];
+        }
+        return value;
+      }
+
+      // 数値（Excel シリアル値）の場合
+      if (typeof value === "number") {
+        const excelEpoch = new Date(1899, 11, 30);
+        const date = new Date(excelEpoch.getTime() + value * 24 * 60 * 60 * 1000);
+        return date.toISOString().split("T")[0];
+      }
+
+      return String(value);
+    }
+
+    /**
+     * 仕訳一覧を取得してシートに出力
+     */
+    async function fetchJournals(): Promise<void> {
+      try {
+        const apiBaseUrl = getApiBaseUrl();
+        const fiscalYearInput = document.getElementById("fiscal-year") as HTMLInputElement;
+        const fiscalYear = parseInt(fiscalYearInput?.value, 10) || new Date().getFullYear();
+
+        console.log(`仕訳一覧を取得中... (API: ${apiBaseUrl}, 年度: ${fiscalYear})`);
+
+        const response = await fetch(`${apiBaseUrl}/api/v1/journals?fiscalYear=${fiscalYear}`);
+
+        if (!response.ok) {
+          throw new Error(`API エラー: ${response.status} ${response.statusText}`);
+        }
+
+        const journals = await response.json();
+        console.log(`${journals.length} 件の仕訳を取得しました`);
+
+        await Excel.run(async (context) => {
+          const sheetName = `仕訳一覧_${fiscalYear}`;
+          const sheets = context.workbook.worksheets;
+          sheets.load("items/name");
+          await context.sync();
+
+          let sheet: Excel.Worksheet;
+          const existingSheet = sheets.items.find(s => s.name === sheetName);
+          if (existingSheet) {
+            sheet = existingSheet;
+            sheet.getUsedRange().clear();
+          } else {
+            sheet = sheets.add(sheetName);
+          }
+          sheet.activate();
+
+          // ヘッダーを出力
+          const headers = ["仕訳ID", "仕訳日付", "決算期", "摘要"];
+          const headerRange = sheet.getRange("A1:D1");
+          headerRange.values = [headers];
+          headerRange.format.font.bold = true;
+          headerRange.format.fill.color = "#4472C4";
+          headerRange.format.font.color = "#FFFFFF";
+
+          // データを出力
+          if (journals.length > 0) {
+            const dataRows = journals.map((j: any) => [
+              j.journalId,
+              j.journalDate,
+              j.fiscalYear,
+              j.description || ""
+            ]);
+
+            const dataRange = sheet.getRange(`A2:D${journals.length + 1}`);
+            dataRange.values = dataRows;
+          }
+
+          sheet.getUsedRange().format.autofitColumns();
+          await context.sync();
+          console.log(`「${sheetName}」シートへの出力が完了しました`);
+        });
+
+      } catch (error) {
+        console.error("エラーが発生しました:", error);
+      }
+    }
+
+    /**
+     * 仕訳入力用シートを作成
+     */
+    async function createJournalEntrySheet(): Promise<void> {
+      await Excel.run(async (context) => {
+        const sheetName = "仕訳入力";
+        const sheets = context.workbook.worksheets;
+        sheets.load("items/name");
+        await context.sync();
+
+        let sheet: Excel.Worksheet;
+        const existingSheet = sheets.items.find(s => s.name === sheetName);
+        if (existingSheet) {
+          sheet = existingSheet;
+          sheet.getUsedRange().clear();
+        } else {
+          sheet = sheets.add(sheetName);
+        }
+        sheet.activate();
+
+        // 仕訳ヘッダー情報のセクション
+        const headerSection = sheet.getRange("A1:B1");
+        headerSection.values = [["【仕訳ヘッダー】", ""]];
+        headerSection.format.font.bold = true;
+        headerSection.format.fill.color = "#70AD47";
+        headerSection.format.font.color = "#FFFFFF";
+
+        const headerLabels = sheet.getRange("A2:A4");
+        headerLabels.values = [["仕訳日付"], ["決算期"], ["摘要"]];
+        headerLabels.format.font.bold = true;
+
+        const headerValues = sheet.getRange("B2:B4");
+        headerValues.values = [
+          [new Date().toISOString().split("T")[0]],
+          [new Date().getFullYear()],
+          [""]
+        ];
+
+        // 仕訳明細のセクション
+        const detailSection = sheet.getRange("A6:E6");
+        detailSection.values = [["【仕訳明細】", "", "", "", ""]];
+        detailSection.format.font.bold = true;
+        detailSection.format.fill.color = "#4472C4";
+        detailSection.format.font.color = "#FFFFFF";
+        detailSection.merge();
+
+        const detailHeaders = ["勘定科目コード", "勘定科目名", "借方金額", "貸方金額", "摘要"];
+        const detailHeaderRange = sheet.getRange("A7:E7");
+        detailHeaderRange.values = [detailHeaders];
+        detailHeaderRange.format.font.bold = true;
+        detailHeaderRange.format.fill.color = "#D9E2F3";
+
+        // 入力例を出力
+        const exampleRows = sheet.getRange("A8:E9");
+        exampleRows.values = [
+          ["111", "現金預金", "10000", "0", "売上入金"],
+          ["41", "売上高", "0", "10000", "商品売上"]
+        ];
+        exampleRows.format.font.italic = true;
+        exampleRows.format.font.color = "#808080";
+
+        // 勘定科目コードのコメント
+        const codeCell = sheet.getRange("A7");
+        codeCell.note = "勘定科目コードを入力してください（例: 111=現金預金, 41=売上高）";
+
+        // 貸借合計の表示
+        const totalSection = sheet.getRange("A20:E20");
+        totalSection.values = [["", "合計", "=SUM(C8:C19)", "=SUM(D8:D19)", ""]];
+        totalSection.format.font.bold = true;
+        totalSection.format.fill.color = "#FFF2CC";
+
+        // 貸借チェック
+        const checkSection = sheet.getRange("A21:E21");
+        checkSection.values = [["", "貸借差額", "=C20-D20", "", "※0であること"]];
+
+        sheet.getUsedRange().format.autofitColumns();
+        await context.sync();
+
+        console.log("「仕訳入力」シートを作成しました");
+        console.log("1. 仕訳ヘッダー（日付、決算期、摘要）を入力");
+        console.log("2. 仕訳明細（勘定科目、金額）を入力");
+        console.log("3. 貸借が一致していることを確認（差額が0）");
+        console.log("4. 「仕訳登録」ボタンをクリック");
+      });
+    }
+
+    /**
+     * 仕訳入力シートから仕訳を登録
+     */
+    async function registerJournal(): Promise<void> {
+      try {
+        await Excel.run(async (context) => {
+          const sheetName = "仕訳入力";
+          const sheets = context.workbook.worksheets;
+          sheets.load("items/name");
+          await context.sync();
+
+          const sheet = sheets.items.find(s => s.name === sheetName);
+          if (!sheet) {
+            console.error("「仕訳入力」シートが見つかりません。先に「入力シート作成」を実行してください。");
+            return;
+          }
+
+          // ヘッダー情報を取得
+          const headerRange = sheet.getRange("B2:B4");
+          headerRange.load("values");
+
+          // 明細情報を取得（8行目から19行目まで）
+          const detailRange = sheet.getRange("A8:E19");
+          detailRange.load("values");
+
+          await context.sync();
+
+          const journalDateRaw = headerRange.values[0][0];
+          const fiscalYear = headerRange.values[1][0];
+          const description = headerRange.values[2][0];
+
+          if (!journalDateRaw || !fiscalYear) {
+            console.error("仕訳日付と決算期は必須です");
+            return;
+          }
+
+          const journalDate = toIsoDateString(journalDateRaw);
+          console.log(`日付変換: ${journalDateRaw} -> ${journalDate}`);
+
+          // 明細データを抽出（空行を除く）
+          const rawEntries = detailRange.values
+            .filter((row: any[]) => row[0] && (Number(row[2]) > 0 || Number(row[3]) > 0));
+
+          if (rawEntries.length === 0) {
+            console.error("仕訳明細が入力されていません");
+            return;
+          }
+
+          // 貸借チェック
+          let totalDebit = 0;
+          let totalCredit = 0;
+          rawEntries.forEach((row: any[]) => {
+            totalDebit += Number(row[2]) || 0;
+            totalCredit += Number(row[3]) || 0;
+          });
+
+          if (totalDebit !== totalCredit) {
+            console.error(`貸借が一致しません。借方合計: ${totalDebit}, 貸方合計: ${totalCredit}`);
+            return;
+          }
+
+          // Scala マイクロサービス版 API のリクエスト形式に変換
+          const entries: any[] = [];
+
+          rawEntries.forEach((row: any[]) => {
+            const accountCode = String(row[0]);
+            const debitAmount = Number(row[2]) || 0;
+            const creditAmount = Number(row[3]) || 0;
+            const lineDescription = String(row[4] || "");
+
+            entries.push({
+              accountCode: accountCode,
+              debitAmount: debitAmount,
+              creditAmount: creditAmount,
+              description: lineDescription
+            });
+          });
+
+          const journalData = {
+            journalDate: journalDate,
+            description: String(description || ""),
+            fiscalYear: Number(fiscalYear),
+            entries: entries
+          };
+
+          console.log("登録する仕訳:", JSON.stringify(journalData, null, 2));
+
+          const apiBaseUrl = getApiBaseUrl();
+          const response = await fetch(`${apiBaseUrl}/api/v1/journals`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(journalData)
+          });
+
+          if (response.ok || response.status === 201) {
+            const result = await response.json();
+            console.log("========================================");
+            console.log(`仕訳を登録しました。仕訳ID: ${result.journalId}`);
+            console.log("========================================");
+
+            // 入力シートをクリア
+            const clearRange = sheet.getRange("B2:B4");
+            clearRange.values = [
+              [new Date().toISOString().split("T")[0]],
+              [new Date().getFullYear()],
+              [""]
+            ];
+
+            const detailClearRange = sheet.getRange("A8:E19");
+            detailClearRange.clear();
+
+            await context.sync();
+            console.log("入力シートをクリアしました");
+          } else {
+            let errorMessage = response.statusText;
+            try {
+              const errorData = await response.json();
+              errorMessage = errorData.message || errorData.code || response.statusText;
+            } catch {}
+            console.error(`登録失敗: ${errorMessage}`);
+          }
+        });
+
+      } catch (error) {
+        console.error("エラーが発生しました:", error);
+      }
+    }
+
+    /**
+     * 財務分析を取得
+     */
+    async function fetchFinancialAnalysis(): Promise<void> {
+      try {
+        const apiBaseUrl = getApiBaseUrl();
+        const fiscalYearInput = document.getElementById("fiscal-year") as HTMLInputElement;
+        const fiscalYear = parseInt(fiscalYearInput?.value, 10) || new Date().getFullYear();
+
+        console.log(`財務分析を取得中... (API: ${apiBaseUrl}, 年度: ${fiscalYear})`);
+
+        const response = await fetch(`${apiBaseUrl}/api/v1/financial-analysis/${fiscalYear}`);
+
+        if (!response.ok) {
+          throw new Error(`API エラー: ${response.status} ${response.statusText}`);
+        }
+
+        const analysis = await response.json();
+        console.log("財務分析結果:", JSON.stringify(analysis, null, 2));
+
+        await Excel.run(async (context) => {
+          const sheetName = `財務分析_${fiscalYear}`;
+          const sheets = context.workbook.worksheets;
+          sheets.load("items/name");
+          await context.sync();
+
+          let sheet: Excel.Worksheet;
+          const existingSheet = sheets.items.find(s => s.name === sheetName);
+          if (existingSheet) {
+            sheet = existingSheet;
+            sheet.getUsedRange().clear();
+          } else {
+            sheet = sheets.add(sheetName);
+          }
+          sheet.activate();
+
+          // タイトル
+          const titleRange = sheet.getRange("A1:B1");
+          titleRange.values = [[`財務分析 ${fiscalYear}年度`, ""]];
+          titleRange.format.font.bold = true;
+          titleRange.format.font.size = 14;
+          titleRange.merge();
+
+          // 収益性指標
+          const profitabilityHeader = sheet.getRange("A3:B3");
+          profitabilityHeader.values = [["【収益性指標】", ""]];
+          profitabilityHeader.format.font.bold = true;
+          profitabilityHeader.format.fill.color = "#4472C4";
+          profitabilityHeader.format.font.color = "#FFFFFF";
+
+          const profitability = analysis.ratios?.profitability || {};
+          const profitabilityData = sheet.getRange("A4:B6");
+          profitabilityData.values = [
+            ["売上高営業利益率", `${((profitability.operatingMargin || 0) * 100).toFixed(2)}%`],
+            ["売上高経常利益率", `${((profitability.ordinaryIncomeMargin || 0) * 100).toFixed(2)}%`],
+            ["売上高純利益率", `${((profitability.netProfitMargin || 0) * 100).toFixed(2)}%`]
+          ];
+
+          // 効率性指標
+          const efficiencyHeader = sheet.getRange("A8:B8");
+          efficiencyHeader.values = [["【効率性指標】", ""]];
+          efficiencyHeader.format.font.bold = true;
+          efficiencyHeader.format.fill.color = "#70AD47";
+          efficiencyHeader.format.font.color = "#FFFFFF";
+
+          const efficiency = analysis.ratios?.efficiency || {};
+          const efficiencyData = sheet.getRange("A9:B10");
+          efficiencyData.values = [
+            ["総資産回転率", `${(efficiency.totalAssetTurnover || 0).toFixed(2)}回`],
+            ["固定資産回転率", `${(efficiency.fixedAssetTurnover || 0).toFixed(2)}回`]
+          ];
+
+          // 安全性指標
+          const safetyHeader = sheet.getRange("A12:B12");
+          safetyHeader.values = [["【安全性指標】", ""]];
+          safetyHeader.format.font.bold = true;
+          safetyHeader.format.fill.color = "#ED7D31";
+          safetyHeader.format.font.color = "#FFFFFF";
+
+          const safety = analysis.ratios?.safety || {};
+          const safetyData = sheet.getRange("A13:B15");
+          safetyData.values = [
+            ["流動比率", `${((safety.currentRatio || 0) * 100).toFixed(2)}%`],
+            ["自己資本比率", `${((safety.equityRatio || 0) * 100).toFixed(2)}%`],
+            ["負債比率", `${((safety.debtRatio || 0) * 100).toFixed(2)}%`]
+          ];
+
+          sheet.getUsedRange().format.autofitColumns();
+          await context.sync();
+          console.log(`「${sheetName}」シートへの出力が完了しました`);
+        });
+
+      } catch (error) {
+        console.error("エラーが発生しました:", error);
+      }
+    }
+
+    // ボタンクリック時の処理
+    document.getElementById("fetch-journals")?.addEventListener("click", fetchJournals);
+    document.getElementById("create-entry-sheet")?.addEventListener("click", createJournalEntrySheet);
+    document.getElementById("register-journal")?.addEventListener("click", registerJournal);
+    document.getElementById("fetch-analysis")?.addEventListener("click", fetchFinancialAnalysis);
+
+    console.log("========================================");
+    console.log("仕訳入力ツール (Scala Microservices) が読み込まれました");
+    console.log("========================================");
+  language: typescript
+template:
+  content: |
+    <section class="ms-font-m">
+      <h2 class="ms-font-xl">仕訳入力ツール</h2>
+      <p>Scala マイクロサービス版 API を使用した仕訳管理ツール</p>
+
+      <div class="ms-TextField">
+        <label class="ms-Label">API Gateway URL</label>
+        <input id="api-url" type="text" class="ms-TextField-field" value="http://localhost:8000" />
+      </div>
+
+      <h3 class="ms-font-l">仕訳一覧</h3>
+      <div class="ms-TextField">
+        <label class="ms-Label">決算期（年度）</label>
+        <input id="fiscal-year" type="number" class="ms-TextField-field" value="2024" />
+      </div>
+      <button id="fetch-journals" class="ms-Button ms-Button--primary">
+        <span class="ms-Button-label">仕訳一覧を取得</span>
+      </button>
+
+      <h3 class="ms-font-l">仕訳入力</h3>
+      <p class="ms-font-s">1. 「入力シート作成」でシートを作成</p>
+      <p class="ms-font-s">2. ヘッダーと明細を入力</p>
+      <p class="ms-font-s">3. 貸借一致を確認後「仕訳登録」</p>
+      <button id="create-entry-sheet" class="ms-Button">
+        <span class="ms-Button-label">入力シート作成</span>
+      </button>
+      <button id="register-journal" class="ms-Button ms-Button--primary">
+        <span class="ms-Button-label">仕訳登録</span>
+      </button>
+
+      <h3 class="ms-font-l">財務分析</h3>
+      <p class="ms-font-s">管理会計サービスから財務分析を取得</p>
+      <button id="fetch-analysis" class="ms-Button ms-Button--primary">
+        <span class="ms-Button-label">財務分析を取得</span>
+      </button>
+    </section>
+  language: html
+style:
+  content: |
+    section {
+      margin: 16px;
+    }
+
+    h2 {
+      margin-bottom: 16px;
+      color: #323130;
+    }
+
+    h3 {
+      margin-top: 24px;
+      margin-bottom: 12px;
+      color: #323130;
+    }
+
+    p {
+      margin: 4px 0;
+    }
+
+    .ms-font-s {
+      font-size: 12px;
+      color: #605e5c;
+    }
+
+    .ms-TextField {
+      margin-bottom: 12px;
+    }
+
+    .ms-Label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 600;
+      color: #323130;
+    }
+
+    .ms-TextField-field {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #8a8886;
+      border-radius: 2px;
+      font-size: 14px;
+    }
+
+    .ms-TextField-field:focus {
+      border-color: #0078d4;
+      outline: none;
+    }
+
+    .ms-Button {
+      margin-top: 8px;
+      margin-right: 8px;
+      padding: 8px 16px;
+      border: 1px solid #8a8886;
+      border-radius: 2px;
+      cursor: pointer;
+      font-size: 14px;
+      background-color: #ffffff;
+      color: #323130;
+    }
+
+    .ms-Button:hover {
+      background-color: #f3f2f1;
+    }
+
+    .ms-Button--primary {
+      background-color: #0078d4;
+      border-color: #0078d4;
+      color: white;
+    }
+
+    .ms-Button--primary:hover {
+      background-color: #106ebe;
+    }
+  language: css
+libraries: |
+  https://appsforoffice.microsoft.com/lib/1/hosted/office.js
+  @types/office-js
+
+  office-ui-fabric-js@1.4.0/dist/css/fabric.min.css
+  office-ui-fabric-js@1.4.0/dist/css/fabric.components.min.css
+
+  core-js@2.4.1/client/core.min.js
+  @types/core-js
+
+  jquery@3.1.1
+  @types/jquery@3.3.1
