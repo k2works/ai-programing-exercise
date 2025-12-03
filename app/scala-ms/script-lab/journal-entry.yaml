@@ -175,15 +175,15 @@ script:
         // 入力例を出力
         const exampleRows = sheet.getRange("A8:E9");
         exampleRows.values = [
-          ["111", "現金預金", "10000", "0", "売上入金"],
-          ["41", "売上高", "0", "10000", "商品売上"]
+          ["1120", "普通預金", "10000", "0", "売上入金"],
+          ["4100", "売上高", "0", "10000", "商品売上"]
         ];
         exampleRows.format.font.italic = true;
         exampleRows.format.font.color = "#808080";
 
         // 勘定科目コードのコメント
         const codeCell = sheet.getRange("A7");
-        codeCell.note = "勘定科目コードを入力してください（例: 111=現金預金, 41=売上高）";
+        codeCell.note = "勘定科目コードを入力してください（例: 1120=普通預金, 4100=売上高, 5110=仕入高）";
 
         // 貸借合計の表示
         const totalSection = sheet.getRange("A20:E20");
