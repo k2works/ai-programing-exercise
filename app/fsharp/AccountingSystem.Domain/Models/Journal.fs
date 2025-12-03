@@ -2,10 +2,12 @@ module AccountingSystem.Domain.Models.Journal
 
 open System
 open AccountingSystem.Domain.Types
+open AccountingSystem.Domain.Models.JournalLineItem
+open AccountingSystem.Domain.Models.JournalLine
 
 /// <summary>
-/// 仕訳エンティティ（3層構造のヘッダー）
-/// 伝票全体の属性を管理
+/// 仕訳エンティティ（3層構造のヘッダー・集約ルート）
+/// 伝票全体の属性と明細を管理
 /// </summary>
 type Journal = {
     /// 仕訳伝票番号（エンティティID）
@@ -30,6 +32,8 @@ type Journal = {
     RedSlipFlag: RedSlipFlag
     /// 赤黒伝票番号（対応する赤伝票/黒伝票の番号）
     RedBlackVoucherNumber: int option
+    /// 仕訳明細（2層目）
+    Lines: JournalLine list
     /// 作成日時
     CreatedAt: DateTime
     /// 更新日時
@@ -51,9 +55,14 @@ module Journal =
             DepartmentCode = None
             RedSlipFlag = RedSlipFlag.Normal
             RedBlackVoucherNumber = None
+            Lines = []
             CreatedAt = DateTime.UtcNow
             UpdatedAt = DateTime.UtcNow
         }
+
+    /// 仕訳を明細付きで作成
+    let createWithLines voucherNumber postingDate entryDate voucherType lines =
+        { create voucherNumber postingDate entryDate voucherType with Lines = lines }
 
     /// 決算仕訳を作成
     let createSettlement voucherNumber postingDate entryDate =
@@ -85,3 +94,19 @@ module Journal =
         match journal.SettlementFlag with
         | SettlementFlag.Settlement -> true
         | SettlementFlag.Normal -> false
+
+    /// 全明細の貸借明細を取得
+    let getAllItems (journal: Journal) =
+        journal.Lines |> List.collect (fun line -> line.Items)
+
+    /// 借方合計を計算
+    let sumDebit (journal: Journal) =
+        getAllItems journal |> JournalLineItem.sumDebit
+
+    /// 貸方合計を計算
+    let sumCredit (journal: Journal) =
+        getAllItems journal |> JournalLineItem.sumCredit
+
+    /// 貸借バランスを検証（複式簿記の原理）
+    let validateBalance (journal: Journal) =
+        getAllItems journal |> JournalLineItem.validateBalance
