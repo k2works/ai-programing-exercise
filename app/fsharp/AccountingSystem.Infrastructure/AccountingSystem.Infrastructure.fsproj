@@ -13,6 +13,9 @@
     <Compile Include="Migrations/Migration_20250121_003_CreateTaxTransactionMaster.fs" />
     <Compile Include="Migrations/Migration_20250121_004_AddTaxCodeToAccount.fs" />
     <Compile Include="Migrations/Migration_20250121_005_CreateAccountStructure.fs" />
+    <Compile Include="DAO/AccountDao.fs" />
+    <Compile Include="DAO/TaxTransactionDao.fs" />
+    <Compile Include="DAO/AccountStructureDao.fs" />
     <Compile Include="Repositories/AccountStructureRepository.fs" />
     <Compile Include="Repositories/TaxTransactionRepository.fs" />
     <Compile Include="Repositories/AccountRepository.fs" />
