@@ -1,0 +1,147 @@
+{
+  "ignoreFiles": [
+    "**/obj/**/*.fs",
+    "**/bin/**/*.fs",
+    "**/.ionide/**/*.fs"
+  ],
+  "global": {
+    "numIndentationSpaces": 4
+  },
+  "hints": {
+    "enabled": true
+  },
+  "typography": {
+    "enabled": true,
+    "indentation": {
+      "enabled": true
+    },
+    "maxCharactersOnLine": {
+      "enabled": false
+    },
+    "trailingWhitespaceOnLine": {
+      "enabled": true,
+      "numberOfSpacesAllowed": 0
+    },
+    "maxLinesInFunction": {
+      "enabled": false
+    },
+    "trailingNewLineInFile": {
+      "enabled": true
+    }
+  },
+  "formatting": {
+    "enabled": true,
+    "typedItemSpacing": {
+      "enabled": true,
+      "config": {
+        "typeDefinitionSpacing": "SpaceAfter"
+      }
+    },
+    "unionDefinitionIndentation": {
+      "enabled": true
+    },
+    "moduleDeclSpacing": {
+      "enabled": true
+    },
+    "classMemberSpacing": {
+      "enabled": true
+    }
+  },
+  "conventions": {
+    "enabled": true,
+    "naming": {
+      "enabled": true,
+      "interfaceNames": {
+        "enabled": true,
+        "config": {
+          "naming": "PascalCase",
+          "prefix": "I"
+        }
+      },
+      "typeNames": {
+        "enabled": true,
+        "config": {
+          "naming": "PascalCase"
+        }
+      },
+      "recordFieldNames": {
+        "enabled": true,
+        "config": {
+          "naming": "PascalCase"
+        }
+      },
+      "enumCasesNames": {
+        "enabled": true,
+        "config": {
+          "naming": "PascalCase"
+        }
+      },
+      "moduleNames": {
+        "enabled": true,
+        "config": {
+          "naming": "PascalCase"
+        }
+      },
+      "literalNames": {
+        "enabled": true,
+        "config": {
+          "naming": "PascalCase"
+        }
+      },
+      "namespaceNames": {
+        "enabled": true,
+        "config": {
+          "naming": "PascalCase"
+        }
+      },
+      "memberNames": {
+        "enabled": true,
+        "config": {
+          "naming": "PascalCase"
+        }
+      },
+      "parameterNames": {
+        "enabled": true,
+        "config": {
+          "naming": "camelCase"
+        }
+      },
+      "measureTypeNames": {
+        "enabled": true,
+        "config": {
+          "naming": "PascalCase"
+        }
+      },
+      "activePatternNames": {
+        "enabled": true,
+        "config": {
+          "naming": "PascalCase"
+        }
+      },
+      "publicValuesNames": {
+        "enabled": true,
+        "config": {
+          "naming": "camelCase"
+        }
+      },
+      "nonPublicValuesNames": {
+        "enabled": true,
+        "config": {
+          "naming": "camelCase"
+        }
+      }
+    },
+    "raiseWithTooManyArguments": {
+      "enabled": true
+    },
+    "sourceLength": {
+      "enabled": false
+    },
+    "numberOfItems": {
+      "enabled": false
+    },
+    "redundantNewKeyword": {
+      "enabled": true
+    }
+  }
+}
