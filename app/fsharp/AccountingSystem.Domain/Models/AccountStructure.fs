@@ -3,7 +3,6 @@ namespace AccountingSystem.Domain.Models
 /// <summary>
 /// 勘定科目構成エンティティ
 /// </summary>
-[<CLIMutable>]
 type AccountStructure = {
     AccountCode: string                // 勘定科目コード
     AccountPath: string                // 勘定科目パス（チルダ連結）

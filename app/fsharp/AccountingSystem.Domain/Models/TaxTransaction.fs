@@ -3,7 +3,6 @@ namespace AccountingSystem.Domain.Models
 /// <summary>
 /// 課税取引エンティティ
 /// </summary>
-[<CLIMutable>]
 type TaxTransaction = {
     TaxCode: string                    // 課税取引コード
     TaxName: string                    // 課税取引名

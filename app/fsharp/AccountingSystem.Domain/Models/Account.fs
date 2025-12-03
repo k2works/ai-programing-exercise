@@ -2,9 +2,7 @@ namespace AccountingSystem.Domain.Models
 
 /// <summary>
 /// 勘定科目エンティティ
-/// データベースの日本語カラム名と英語プロパティ名をマッピング
 /// </summary>
-[<CLIMutable>]
 type Account = {
     AccountId: int option              // 勘定科目ID
     AccountCode: string                // 勘定科目コード
