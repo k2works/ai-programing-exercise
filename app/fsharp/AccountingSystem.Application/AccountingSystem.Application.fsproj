@@ -6,11 +6,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Exceptions/ApplicationExceptions.fs" />
+    <Compile Include="Repositories/IAccountRepository.fs" />
+    <Compile Include="Repositories/IJournalRepository.fs" />
     <Compile Include="Repositories/IBalanceRepository.fs" />
     <Compile Include="Repositories/IAutoJournalRepository.fs" />
     <Compile Include="Repositories/IFinancialStatementRepository.fs" />
-    <Compile Include="Services/BalanceService.fs" />
+    <Compile Include="Services/IAccountService.fs" />
+    <Compile Include="Services/AccountService.fs" />
+    <Compile Include="Services/IJournalService.fs" />
+    <Compile Include="Services/JournalService.fs" />
+    <Compile Include="Services/IFinancialStatementService.fs" />
     <Compile Include="Services/FinancialStatementService.fs" />
+    <Compile Include="Services/BalanceService.fs" />
     <Compile Include="Services/AutoJournalService.fs" />
   </ItemGroup>
 
