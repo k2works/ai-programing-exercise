@@ -9,6 +9,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "AccountingSystem.Infrastruc
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "AccountingSystem.Tests", "AccountingSystem.Tests\AccountingSystem.Tests.fsproj", "{EE4379B5-C9B8-4649-B4DA-4F2484D5D9DC}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "AccountingSystem.Application", "AccountingSystem.Application\AccountingSystem.Application.fsproj", "{17206E23-A243-483B-BA1B-3C64CCA2A071}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,18 @@ Global
 		{EE4379B5-C9B8-4649-B4DA-4F2484D5D9DC}.Release|x64.Build.0 = Release|Any CPU
 		{EE4379B5-C9B8-4649-B4DA-4F2484D5D9DC}.Release|x86.ActiveCfg = Release|Any CPU
 		{EE4379B5-C9B8-4649-B4DA-4F2484D5D9DC}.Release|x86.Build.0 = Release|Any CPU
+		{17206E23-A243-483B-BA1B-3C64CCA2A071}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17206E23-A243-483B-BA1B-3C64CCA2A071}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17206E23-A243-483B-BA1B-3C64CCA2A071}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{17206E23-A243-483B-BA1B-3C64CCA2A071}.Debug|x64.Build.0 = Debug|Any CPU
+		{17206E23-A243-483B-BA1B-3C64CCA2A071}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{17206E23-A243-483B-BA1B-3C64CCA2A071}.Debug|x86.Build.0 = Debug|Any CPU
+		{17206E23-A243-483B-BA1B-3C64CCA2A071}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17206E23-A243-483B-BA1B-3C64CCA2A071}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17206E23-A243-483B-BA1B-3C64CCA2A071}.Release|x64.ActiveCfg = Release|Any CPU
+		{17206E23-A243-483B-BA1B-3C64CCA2A071}.Release|x64.Build.0 = Release|Any CPU
+		{17206E23-A243-483B-BA1B-3C64CCA2A071}.Release|x86.ActiveCfg = Release|Any CPU
+		{17206E23-A243-483B-BA1B-3C64CCA2A071}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
