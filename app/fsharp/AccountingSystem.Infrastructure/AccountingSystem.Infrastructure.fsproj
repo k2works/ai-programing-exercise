@@ -17,6 +17,9 @@
     <Compile Include="Migrations/Migration_20250121_008_AddJournalConstraints.fs" />
     <Compile Include="Migrations/Migration_20250121_009_CreateAutoJournal.fs" />
     <Compile Include="Migrations/Migration_20250121_010_CreateDoubleEntryCheck.fs" />
+    <Compile Include="Migrations/Migration_20250121_013_CreateDailyAccountBalance.fs" />
+    <Compile Include="Migrations/Migration_20250121_014_CreateMonthlyAccountBalance.fs" />
+    <Compile Include="Migrations/Migration_20250121_015_CreateLedgerViews.fs" />
     <Compile Include="DAO/AccountDao.fs" />
     <Compile Include="DAO/TaxTransactionDao.fs" />
     <Compile Include="DAO/AccountStructureDao.fs" />
@@ -28,6 +31,7 @@
     <Compile Include="Repositories/AccountRepository.fs" />
     <Compile Include="Repositories/JournalRepository.fs" />
     <Compile Include="Repositories/DoubleEntryCheckRepository.fs" />
+    <Compile Include="Repositories/BalanceRepository.fs" />
     <Compile Include="MigrationRunner.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
@@ -44,6 +48,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AccountingSystem.Domain\AccountingSystem.Domain.fsproj" />
+    <ProjectReference Include="..\AccountingSystem.Application\AccountingSystem.Application.fsproj" />
   </ItemGroup>
 
   <ItemGroup>
