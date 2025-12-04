@@ -1,4 +1,4 @@
-namespace AccountingSystem.Tests.Repositories
+module AccountingSystem.Tests.Repositories.BalanceRepositoryTest
 
 open System
 open Xunit
@@ -6,13 +6,17 @@ open FsUnit.Xunit
 open Npgsql
 open AccountingSystem.Tests.DatabaseTestBase
 open AccountingSystem.Application.Repositories
-open AccountingSystem.Infrastructure.Repositories
+open AccountingSystem.Infrastructure.Repositories.BalanceRepository
 
 /// <summary>
 /// BalanceRepository のテスト
 /// </summary>
 type BalanceRepositoryTest() =
     inherit DatabaseTestBase()
+
+    /// リポジトリを取得
+    member private this.CreateRepository() : IBalanceRepository =
+        BalanceRepositoryAdapter(this.ConnectionString)
 
     /// テスト用の勘定科目をセットアップ
     member private this.SetupTestAccountsAsync() =
@@ -52,11 +56,6 @@ type BalanceRepositoryTest() =
             ()
         }
 
-    member private this.CreateRepository() =
-        let conn = new NpgsqlConnection(this.ConnectionString)
-        conn.Open()
-        (conn, BalanceRepository(conn) :> IBalanceRepository)
-
     [<Fact>]
     member this.``UpdateDailyBalanceAsync で日次残高レコードを登録できる``() =
         task {
@@ -65,11 +64,7 @@ type BalanceRepositoryTest() =
             let accountCode = "1020"  // 普通預金
 
             do! this.CleanupAsync()
-
-            use conn = new NpgsqlConnection(this.ConnectionString)
-            do! conn.OpenAsync()
-
-            let repository = BalanceRepository(conn) :> IBalanceRepository
+            let repository = this.CreateRepository()
 
             // When: 日次残高を登録
             let param: DailyBalanceUpdateParams = {
@@ -85,6 +80,9 @@ type BalanceRepositoryTest() =
             do! repository.UpdateDailyBalanceAsync(param)
 
             // Then: データが正しく登録されている
+            use conn = new NpgsqlConnection(this.ConnectionString)
+            do! conn.OpenAsync()
+
             use selectCmd = new NpgsqlCommand("""
                 SELECT * FROM "日次勘定科目残高"
                 WHERE "起票日" = @EntryDate
@@ -109,11 +107,7 @@ type BalanceRepositoryTest() =
             let accountCode = "1020"
 
             do! this.CleanupAsync()
-
-            use conn = new NpgsqlConnection(this.ConnectionString)
-            do! conn.OpenAsync()
-
-            let repository = BalanceRepository(conn) :> IBalanceRepository
+            let repository = this.CreateRepository()
 
             // When: 1回目の登録
             let param1: DailyBalanceUpdateParams = {
@@ -142,6 +136,9 @@ type BalanceRepositoryTest() =
             do! repository.UpdateDailyBalanceAsync(param2)
 
             // Then: 金額が加算されている
+            use conn = new NpgsqlConnection(this.ConnectionString)
+            do! conn.OpenAsync()
+
             use selectCmd = new NpgsqlCommand("""
                 SELECT "借方金額", "貸方金額" FROM "日次勘定科目残高"
                 WHERE "起票日" = @EntryDate
@@ -166,11 +163,7 @@ type BalanceRepositoryTest() =
             let accountCode = "4010"  // 売上高
 
             do! this.CleanupAsync()
-
-            use conn = new NpgsqlConnection(this.ConnectionString)
-            do! conn.OpenAsync()
-
-            let repository = BalanceRepository(conn) :> IBalanceRepository
+            let repository = this.CreateRepository()
 
             // When: 部門001と部門002の残高を登録
             let param1: DailyBalanceUpdateParams = {
@@ -198,6 +191,9 @@ type BalanceRepositoryTest() =
             do! repository.UpdateDailyBalanceAsync(param2)
 
             // Then: 部門別に集計できる
+            use conn = new NpgsqlConnection(this.ConnectionString)
+            do! conn.OpenAsync()
+
             use selectCmd = new NpgsqlCommand("""
                 SELECT "部門コード", SUM("貸方金額") as 売上合計
                 FROM "日次勘定科目残高"
@@ -228,11 +224,7 @@ type BalanceRepositoryTest() =
             let accountCode = "4010"  // 売上高
 
             do! this.CleanupAsync()
-
-            use conn = new NpgsqlConnection(this.ConnectionString)
-            do! conn.OpenAsync()
-
-            let repository = BalanceRepository(conn) :> IBalanceRepository
+            let repository = this.CreateRepository()
 
             // When: プロジェクトP001とP002の残高を登録
             let param1: DailyBalanceUpdateParams = {
@@ -260,6 +252,9 @@ type BalanceRepositoryTest() =
             do! repository.UpdateDailyBalanceAsync(param2)
 
             // Then: プロジェクト別に集計できる
+            use conn = new NpgsqlConnection(this.ConnectionString)
+            do! conn.OpenAsync()
+
             use selectCmd = new NpgsqlCommand("""
                 SELECT "プロジェクトコード", SUM("貸方金額") as 売上合計
                 FROM "日次勘定科目残高"
@@ -290,11 +285,7 @@ type BalanceRepositoryTest() =
             let accountCode = "1130"  // 売掛金
 
             do! this.CleanupAsync()
-
-            use conn = new NpgsqlConnection(this.ConnectionString)
-            do! conn.OpenAsync()
-
-            let repository = BalanceRepository(conn) :> IBalanceRepository
+            let repository = this.CreateRepository()
 
             // When: 得意先A001とA002の残高を登録
             let param1: DailyBalanceUpdateParams = {
@@ -322,6 +313,9 @@ type BalanceRepositoryTest() =
             do! repository.UpdateDailyBalanceAsync(param2)
 
             // Then: 補助科目別に集計できる
+            use conn = new NpgsqlConnection(this.ConnectionString)
+            do! conn.OpenAsync()
+
             use selectCmd = new NpgsqlCommand("""
                 SELECT "補助科目コード", SUM("借方金額") as 売掛金合計
                 FROM "日次勘定科目残高"
@@ -352,11 +346,7 @@ type BalanceRepositoryTest() =
             let accountCode = "5010"  // 売上原価
 
             do! this.CleanupAsync()
-
-            use conn = new NpgsqlConnection(this.ConnectionString)
-            do! conn.OpenAsync()
-
-            let repository = BalanceRepository(conn) :> IBalanceRepository
+            let repository = this.CreateRepository()
 
             // When: 通常仕訳（決算仕訳フラグ=0）の残高を登録
             let param1: DailyBalanceUpdateParams = {
@@ -385,6 +375,9 @@ type BalanceRepositoryTest() =
             do! repository.UpdateDailyBalanceAsync(param2)
 
             // Then: 決算仕訳フラグで分けて集計できる
+            use conn = new NpgsqlConnection(this.ConnectionString)
+            do! conn.OpenAsync()
+
             use selectCmd = new NpgsqlCommand("""
                 SELECT "決算仕訳フラグ", SUM("借方金額") as 借方合計, SUM("貸方金額") as 貸方合計
                 FROM "日次勘定科目残高"

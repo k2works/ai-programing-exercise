@@ -7,7 +7,7 @@ open Npgsql
 open AccountingSystem.Domain.Models.AutoJournalPattern
 open AccountingSystem.Domain.Types
 open AccountingSystem.Application.Repositories
-open AccountingSystem.Infrastructure.Repositories
+open AccountingSystem.Infrastructure.Repositories.AutoJournalRepository
 open AccountingSystem.Tests.DatabaseTestBase
 
 /// <summary>
@@ -16,6 +16,10 @@ open AccountingSystem.Tests.DatabaseTestBase
 /// </summary>
 type AutoJournalRepositoryTest() =
     inherit DatabaseTestBase()
+
+    /// リポジトリを取得
+    member private this.CreateRepository() : IAutoJournalRepository =
+        AutoJournalRepositoryAdapter(this.ConnectionString)
 
     /// テストデータをクリーンアップ
     member private this.CleanupTestDataAsync() =
@@ -60,10 +64,8 @@ type AutoJournalRepositoryTest() =
         task {
             // Given
             do! this.CleanupTestDataAsync()
-            use conn = new NpgsqlConnection(this.ConnectionString)
-            do! conn.OpenAsync()
+            let repository = this.CreateRepository()
 
-            let repository = AutoJournalRepository(conn) :> IAutoJournalRepository
             let pattern = this.CreateTestPattern("TEST001", "テストパターン", true)
 
             // When
@@ -81,10 +83,8 @@ type AutoJournalRepositoryTest() =
         task {
             // Given
             do! this.CleanupTestDataAsync()
-            use conn = new NpgsqlConnection(this.ConnectionString)
-            do! conn.OpenAsync()
+            let repository = this.CreateRepository()
 
-            let repository = AutoJournalRepository(conn) :> IAutoJournalRepository
             let pattern = this.CreateTestPattern("TEST001", "テストパターン", true)
             let! saved = repository.SavePatternAsync(pattern)
 
@@ -103,10 +103,8 @@ type AutoJournalRepositoryTest() =
         task {
             // Given
             do! this.CleanupTestDataAsync()
-            use conn = new NpgsqlConnection(this.ConnectionString)
-            do! conn.OpenAsync()
+            let repository = this.CreateRepository()
 
-            let repository = AutoJournalRepository(conn) :> IAutoJournalRepository
             let pattern = this.CreateTestPattern("TEST001", "テストパターン", true)
             let! _ = repository.SavePatternAsync(pattern)
 
@@ -124,10 +122,7 @@ type AutoJournalRepositoryTest() =
         task {
             // Given
             do! this.CleanupTestDataAsync()
-            use conn = new NpgsqlConnection(this.ConnectionString)
-            do! conn.OpenAsync()
-
-            let repository = AutoJournalRepository(conn) :> IAutoJournalRepository
+            let repository = this.CreateRepository()
 
             // When
             let! result = repository.GetPatternByCodeAsync("NOTEXIST")
@@ -141,10 +136,8 @@ type AutoJournalRepositoryTest() =
         task {
             // Given
             do! this.CleanupTestDataAsync()
-            use conn = new NpgsqlConnection(this.ConnectionString)
-            do! conn.OpenAsync()
+            let repository = this.CreateRepository()
 
-            let repository = AutoJournalRepository(conn) :> IAutoJournalRepository
             let! _ = repository.SavePatternAsync(this.CreateTestPattern("ACTIVE1", "有効1", true))
             let! _ = repository.SavePatternAsync(this.CreateTestPattern("INACTIVE1", "無効1", false))
             let! _ = repository.SavePatternAsync(this.CreateTestPattern("ACTIVE2", "有効2", true))
@@ -163,10 +156,8 @@ type AutoJournalRepositoryTest() =
         task {
             // Given
             do! this.CleanupTestDataAsync()
-            use conn = new NpgsqlConnection(this.ConnectionString)
-            do! conn.OpenAsync()
+            let repository = this.CreateRepository()
 
-            let repository = AutoJournalRepository(conn) :> IAutoJournalRepository
             let! _ = repository.SavePatternAsync(this.CreateTestPattern("TEST1", "テスト1", true))
             let! _ = repository.SavePatternAsync(this.CreateTestPattern("TEST2", "テスト2", false))
 
@@ -183,10 +174,8 @@ type AutoJournalRepositoryTest() =
         task {
             // Given
             do! this.CleanupTestDataAsync()
-            use conn = new NpgsqlConnection(this.ConnectionString)
-            do! conn.OpenAsync()
+            let repository = this.CreateRepository()
 
-            let repository = AutoJournalRepository(conn) :> IAutoJournalRepository
             let! pattern = repository.SavePatternAsync(this.CreateTestPattern("TEST001", "テスト", true))
 
             let items = [
@@ -211,10 +200,8 @@ type AutoJournalRepositoryTest() =
         task {
             // Given
             do! this.CleanupTestDataAsync()
-            use conn = new NpgsqlConnection(this.ConnectionString)
-            do! conn.OpenAsync()
+            let repository = this.CreateRepository()
 
-            let repository = AutoJournalRepository(conn) :> IAutoJournalRepository
             let! pattern = repository.SavePatternAsync(this.CreateTestPattern("TEST001", "テスト", true))
 
             // 初回の明細保存
@@ -241,10 +228,8 @@ type AutoJournalRepositoryTest() =
         task {
             // Given
             do! this.CleanupTestDataAsync()
-            use conn = new NpgsqlConnection(this.ConnectionString)
-            do! conn.OpenAsync()
+            let repository = this.CreateRepository()
 
-            let repository = AutoJournalRepository(conn) :> IAutoJournalRepository
             let! pattern = repository.SavePatternAsync(this.CreateTestPattern("TEST001", "テスト", true))
 
             let item1: AutoJournalPatternItem = {
@@ -282,10 +267,8 @@ type AutoJournalRepositoryTest() =
         task {
             // Given
             do! this.CleanupTestDataAsync()
-            use conn = new NpgsqlConnection(this.ConnectionString)
-            do! conn.OpenAsync()
+            let repository = this.CreateRepository()
 
-            let repository = AutoJournalRepository(conn) :> IAutoJournalRepository
             let! pattern = repository.SavePatternAsync(this.CreateTestPattern("TEST001", "テスト", true))
 
             let log = AutoJournalLog.createSuccess pattern.Id 100 100
@@ -306,10 +289,8 @@ type AutoJournalRepositoryTest() =
         task {
             // Given
             do! this.CleanupTestDataAsync()
-            use conn = new NpgsqlConnection(this.ConnectionString)
-            do! conn.OpenAsync()
+            let repository = this.CreateRepository()
 
-            let repository = AutoJournalRepository(conn) :> IAutoJournalRepository
             let! pattern = repository.SavePatternAsync(this.CreateTestPattern("TEST001", "テスト", true))
 
             let log = AutoJournalLog.createFailure pattern.Id 50 "処理エラー" "詳細なエラー内容"
@@ -328,10 +309,8 @@ type AutoJournalRepositoryTest() =
         task {
             // Given
             do! this.CleanupTestDataAsync()
-            use conn = new NpgsqlConnection(this.ConnectionString)
-            do! conn.OpenAsync()
+            let repository = this.CreateRepository()
 
-            let repository = AutoJournalRepository(conn) :> IAutoJournalRepository
             let! pattern = repository.SavePatternAsync(this.CreateTestPattern("TEST001", "テスト", true))
 
             // 3件のログを保存
@@ -351,10 +330,8 @@ type AutoJournalRepositoryTest() =
         task {
             // Given
             do! this.CleanupTestDataAsync()
-            use conn = new NpgsqlConnection(this.ConnectionString)
-            do! conn.OpenAsync()
+            let repository = this.CreateRepository()
 
-            let repository = AutoJournalRepository(conn) :> IAutoJournalRepository
             let! pattern = repository.SavePatternAsync(this.CreateTestPattern("TEST001", "テスト", true))
 
             // 異なる処理件数でログを保存（挿入順で時刻が異なる）
