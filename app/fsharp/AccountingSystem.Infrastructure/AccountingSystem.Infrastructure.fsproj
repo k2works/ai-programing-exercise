@@ -27,6 +27,7 @@
     <Compile Include="DAO/JournalLineDao.fs" />
     <Compile Include="DAO/JournalLineItemDao.fs" />
     <Compile Include="DAO/AutoJournalDao.fs" />
+    <Compile Include="DAO/FinancialStatementDao.fs" />
     <Compile Include="Repositories/AccountStructureRepository.fs" />
     <Compile Include="Repositories/TaxTransactionRepository.fs" />
     <Compile Include="Repositories/AccountRepository.fs" />
@@ -34,6 +35,7 @@
     <Compile Include="Repositories/DoubleEntryCheckRepository.fs" />
     <Compile Include="Repositories/BalanceRepository.fs" />
     <Compile Include="Repositories/AutoJournalRepository.fs" />
+    <Compile Include="Repositories/FinancialStatementRepository.fs" />
     <Compile Include="MigrationRunner.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
