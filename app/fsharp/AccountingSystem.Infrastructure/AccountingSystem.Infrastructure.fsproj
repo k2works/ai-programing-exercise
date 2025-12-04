@@ -26,6 +26,7 @@
     <Compile Include="DAO/JournalDao.fs" />
     <Compile Include="DAO/JournalLineDao.fs" />
     <Compile Include="DAO/JournalLineItemDao.fs" />
+    <Compile Include="DAO/AutoJournalDao.fs" />
     <Compile Include="Repositories/AccountStructureRepository.fs" />
     <Compile Include="Repositories/TaxTransactionRepository.fs" />
     <Compile Include="Repositories/AccountRepository.fs" />
