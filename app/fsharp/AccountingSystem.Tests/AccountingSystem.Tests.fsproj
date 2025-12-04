@@ -21,6 +21,8 @@
     <Compile Include="Repositories/TaxTransactionRepositoryTest.fs" />
     <Compile Include="Repositories/AccountRepositoryTest.fs" />
     <Compile Include="Repositories/JournalRepositoryTest.fs" />
+    <Compile Include="Repositories/BalanceRepositoryTest.fs" />
+    <Compile Include="Application/BalanceServiceTest.fs" />
     <Compile Include="IntegrationTests/DatabaseConnectionTests.fs" />
   </ItemGroup>
 
@@ -37,6 +39,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AccountingSystem.Domain\AccountingSystem.Domain.fsproj" />
+    <ProjectReference Include="..\AccountingSystem.Application\AccountingSystem.Application.fsproj" />
     <ProjectReference Include="..\AccountingSystem.Infrastructure\AccountingSystem.Infrastructure.fsproj" />
   </ItemGroup>
 
