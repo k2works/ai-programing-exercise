@@ -36,6 +36,10 @@
     <Compile Include="Repositories/BalanceRepository.fs" />
     <Compile Include="Repositories/AutoJournalRepository.fs" />
     <Compile Include="Repositories/FinancialStatementRepository.fs" />
+    <Compile Include="Adapters/AccountRepositoryAdapter.fs" />
+    <Compile Include="Adapters/JournalRepositoryAdapter.fs" />
+    <Compile Include="Adapters/BalanceRepositoryAdapter.fs" />
+    <Compile Include="Adapters/AutoJournalRepositoryAdapter.fs" />
     <Compile Include="MigrationRunner.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

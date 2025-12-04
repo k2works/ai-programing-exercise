@@ -197,29 +197,3 @@ let getLogsByPatternIdAsync (connectionString: string) (patternId: int64) (limit
         return results |> Seq.map AutoJournalLogDao.toDomain |> Seq.toList
     }
 
-/// <summary>
-/// IAutoJournalRepository インターフェースのアダプター実装
-/// module 関数をインターフェース経由で利用可能にする
-/// </summary>
-type AutoJournalRepositoryAdapter(connectionString: string) =
-    interface IAutoJournalRepository with
-        member _.GetPatternsAsync(query) =
-            getPatternsAsync connectionString query
-
-        member _.GetPatternByCodeAsync(patternCode) =
-            getPatternByCodeAsync connectionString patternCode
-
-        member _.GetPatternItemsAsync(patternId) =
-            getPatternItemsAsync connectionString patternId
-
-        member _.SavePatternAsync(pattern) =
-            savePatternAsync connectionString pattern
-
-        member _.SavePatternItemsAsync patternId items =
-            savePatternItemsAsync connectionString patternId items
-
-        member _.SaveLogAsync(log) =
-            saveLogAsync connectionString log
-
-        member _.GetLogsByPatternIdAsync patternId limit =
-            getLogsByPatternIdAsync connectionString patternId limit
