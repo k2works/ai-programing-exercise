@@ -1,4 +1,4 @@
-module AccountingSystem.Tests.IntegrationTests.DatabaseConnectionTests
+module AccountingSystem.Tests.Integration.DatabaseConnectionTests
 
 open Xunit
 open FsUnit.Xunit

@@ -28,7 +28,7 @@
     <Compile Include="Application/FinancialStatementServiceTest.fs" />
     <Compile Include="Repositories/FinancialStatementRepositoryTest.fs" />
     <Compile Include="Domain/FinancialRatiosTest.fs" />
-    <Compile Include="IntegrationTests/DatabaseConnectionTests.fs" />
+    <Compile Include="Integration/DatabaseConnectionTests.fs" />
   </ItemGroup>
 
   <ItemGroup>
