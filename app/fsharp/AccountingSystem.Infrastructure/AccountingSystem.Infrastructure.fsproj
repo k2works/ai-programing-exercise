@@ -32,6 +32,7 @@
     <Compile Include="Repositories/JournalRepository.fs" />
     <Compile Include="Repositories/DoubleEntryCheckRepository.fs" />
     <Compile Include="Repositories/BalanceRepository.fs" />
+    <Compile Include="Repositories/AutoJournalRepository.fs" />
     <Compile Include="MigrationRunner.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
