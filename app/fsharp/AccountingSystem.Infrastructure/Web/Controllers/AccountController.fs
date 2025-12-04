@@ -3,7 +3,7 @@ namespace AccountingSystem.Infrastructure.Web.Controllers
 open System.Threading.Tasks
 open Microsoft.AspNetCore.Http
 open Microsoft.AspNetCore.Mvc
-open AccountingSystem.Application.Services
+open AccountingSystem.Application.Port.In
 open AccountingSystem.Infrastructure.Web.Dtos
 
 /// <summary>
@@ -12,7 +12,7 @@ open AccountingSystem.Infrastructure.Web.Dtos
 [<ApiController>]
 [<Route("api/v1/accounts")>]
 [<Tags("勘定科目API")>]
-type AccountController(accountService: IAccountService) =
+type AccountController(accountService: IAccountUseCase) =
     inherit ControllerBase()
 
     /// <summary>

@@ -1,12 +1,12 @@
-namespace AccountingSystem.Application.Services
+namespace AccountingSystem.Application.Port.In
 
 open System.Threading.Tasks
 open AccountingSystem.Domain.Models
 
 /// <summary>
-/// 勘定科目サービスインターフェース
+/// 勘定科目ユースケースインターフェース
 /// </summary>
-type IAccountService =
+type IAccountUseCase =
     /// <summary>
     /// すべての勘定科目を取得
     /// </summary>

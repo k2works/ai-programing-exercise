@@ -3,7 +3,7 @@ namespace AccountingSystem.Application.Services
 open System
 open System.Threading.Tasks
 open AccountingSystem.Domain.Models.AutoJournalPattern
-open AccountingSystem.Application.Repositories
+open AccountingSystem.Application.Port.Out
 
 /// <summary>
 /// 自動仕訳サービスのエラー

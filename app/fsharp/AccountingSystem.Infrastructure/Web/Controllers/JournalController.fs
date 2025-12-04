@@ -4,7 +4,7 @@ open System
 open System.Threading.Tasks
 open Microsoft.AspNetCore.Http
 open Microsoft.AspNetCore.Mvc
-open AccountingSystem.Application.Services
+open AccountingSystem.Application.Port.In
 open AccountingSystem.Infrastructure.Web.Dtos
 
 /// <summary>
@@ -13,7 +13,7 @@ open AccountingSystem.Infrastructure.Web.Dtos
 [<ApiController>]
 [<Route("api/v1/journals")>]
 [<Tags("仕訳API")>]
-type JournalController(journalService: IJournalService) =
+type JournalController(journalService: IJournalUseCase) =
     inherit ControllerBase()
 
     /// <summary>

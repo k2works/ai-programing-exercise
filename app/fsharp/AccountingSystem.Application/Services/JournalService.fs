@@ -3,7 +3,8 @@ namespace AccountingSystem.Application.Services
 open System
 open System.Threading.Tasks
 open AccountingSystem.Application.Exceptions
-open AccountingSystem.Application.Repositories
+open AccountingSystem.Application.Port.In
+open AccountingSystem.Application.Port.Out
 open AccountingSystem.Domain.Models.Journal
 open AccountingSystem.Domain.Types
 
@@ -39,7 +40,7 @@ type JournalService(journalRepository: IJournalRepository) =
             // 3. 貸借一致の検証
             validateDoubleEntry journal
 
-    interface IJournalService with
+    interface IJournalUseCase with
 
         member _.GetJournalByVoucherNumberAsync(voucherNumber: int) : Task<Journal> =
             task {

@@ -1,13 +1,13 @@
-namespace AccountingSystem.Application.Services
+namespace AccountingSystem.Application.Port.In
 
 open System
 open System.Threading.Tasks
 open AccountingSystem.Domain.Models.Journal
 
 /// <summary>
-/// 仕訳サービスインターフェース
+/// 仕訳ユースケースインターフェース
 /// </summary>
-type IJournalService =
+type IJournalUseCase =
     /// <summary>
     /// 伝票番号で仕訳を取得
     /// </summary>

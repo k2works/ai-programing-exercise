@@ -13,7 +13,7 @@ open DotNet.Testcontainers.Builders
 open Testcontainers.PostgreSql
 open AccountingSystem.Api
 open AccountingSystem.Infrastructure.Web.Dtos
-open AccountingSystem.Application.Repositories
+open AccountingSystem.Application.Port.Out
 open AccountingSystem.Infrastructure.Adapters
 open AccountingSystem.Infrastructure.MigrationRunner
 open Npgsql

@@ -1,13 +1,14 @@
-namespace AccountingSystem.Application.Services
+namespace AccountingSystem.Application.Port.Out
 
 open System
 open System.Threading.Tasks
 open AccountingSystem.Domain.Models
 
 /// <summary>
-/// 財務諸表サービスインターフェース
+/// 財務諸表リポジトリインターフェース
+/// Infrastructure 層で実装される
 /// </summary>
-type IFinancialStatementService =
+type IFinancialStatementRepository =
     /// <summary>
     /// 貸借対照表を生成する
     /// </summary>
@@ -22,12 +23,3 @@ type IFinancialStatementService =
     /// <param name="toDate">終了日</param>
     /// <returns>損益計算書</returns>
     abstract member GenerateIncomeStatementAsync: fromDate:DateTime * toDate:DateTime -> Task<IncomeStatement>
-
-    /// <summary>
-    /// 財務指標を計算する
-    /// </summary>
-    /// <param name="asOfDate">貸借対照表の基準日</param>
-    /// <param name="fromDate">損益計算書の開始日</param>
-    /// <param name="toDate">損益計算書の終了日</param>
-    /// <returns>財務指標</returns>
-    abstract member CalculateFinancialRatiosAsync: asOfDate:DateTime * fromDate:DateTime * toDate:DateTime -> Task<FinancialRatios>

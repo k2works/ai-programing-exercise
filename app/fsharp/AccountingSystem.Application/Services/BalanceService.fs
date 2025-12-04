@@ -2,7 +2,7 @@ namespace AccountingSystem.Application.Services
 
 open System
 open System.Threading.Tasks
-open AccountingSystem.Application.Repositories
+open AccountingSystem.Application.Port.Out
 
 /// <summary>
 /// 残高管理アプリケーションサービス

@@ -3,7 +3,8 @@ namespace AccountingSystem.Application.Services
 open System
 open System.Threading.Tasks
 open AccountingSystem.Domain.Models
-open AccountingSystem.Application.Repositories
+open AccountingSystem.Application.Port.In
+open AccountingSystem.Application.Port.Out
 
 /// <summary>
 /// 財務諸表アプリケーションサービス
@@ -12,7 +13,7 @@ open AccountingSystem.Application.Repositories
 /// </summary>
 type FinancialStatementService(repository: IFinancialStatementRepository) =
 
-    interface IFinancialStatementService with
+    interface IFinancialStatementUseCase with
 
         /// <summary>
         /// 貸借対照表を生成する

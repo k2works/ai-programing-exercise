@@ -4,7 +4,7 @@ open System
 open System.Threading.Tasks
 open Xunit
 open FsUnit.Xunit
-open AccountingSystem.Application.Repositories
+open AccountingSystem.Application.Port.Out
 open AccountingSystem.Application.Services
 
 /// <summary>

@@ -9,10 +9,11 @@ open Microsoft.Extensions.DependencyInjection
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.Configuration
 open Microsoft.OpenApi.Models
-open AccountingSystem.Application.Repositories
+open AccountingSystem.Application.Port.In
+open AccountingSystem.Application.Port.Out
 open AccountingSystem.Application.Services
 open AccountingSystem.Infrastructure.Adapters
-open AccountingSystem.Infrastructure.Repositories.FinancialStatementRepository
+open AccountingSystem.Infrastructure.Persistence.Repositories.FinancialStatementRepository
 open AccountingSystem.Infrastructure.Web.Controllers
 open AccountingSystem.Api.Middleware
 
@@ -73,9 +74,9 @@ module Program =
         )
 
         // Application Services の登録
-        builder.Services.AddScoped<IAccountService, AccountService>()
-        builder.Services.AddScoped<IJournalService, JournalService>()
-        builder.Services.AddScoped<IFinancialStatementService, FinancialStatementService>()
+        builder.Services.AddScoped<IAccountUseCase, AccountService>()
+        builder.Services.AddScoped<IJournalUseCase, JournalService>()
+        builder.Services.AddScoped<IFinancialStatementUseCase, FinancialStatementService>()
 
         // グローバル例外ハンドラーの登録
         builder.Services.AddExceptionHandler<GlobalExceptionHandler>()

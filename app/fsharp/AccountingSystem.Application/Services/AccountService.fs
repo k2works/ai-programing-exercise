@@ -3,7 +3,8 @@ namespace AccountingSystem.Application.Services
 open System
 open System.Threading.Tasks
 open AccountingSystem.Application.Exceptions
-open AccountingSystem.Application.Repositories
+open AccountingSystem.Application.Port.In
+open AccountingSystem.Application.Port.Out
 open AccountingSystem.Domain.Models
 open AccountingSystem.Domain.Types
 
@@ -26,7 +27,7 @@ type AccountService(accountRepository: IAccountRepository) =
         else
             Ok ()
 
-    interface IAccountService with
+    interface IAccountUseCase with
 
         member _.GetAllAccountsAsync() : Task<Account list> =
             accountRepository.FindAllAsync()

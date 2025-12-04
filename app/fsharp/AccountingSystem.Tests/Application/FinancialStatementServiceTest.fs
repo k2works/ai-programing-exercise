@@ -5,7 +5,8 @@ open System.Threading.Tasks
 open Xunit
 open FsUnit.Xunit
 open AccountingSystem.Domain.Models
-open AccountingSystem.Application.Repositories
+open AccountingSystem.Application.Port.In
+open AccountingSystem.Application.Port.Out
 open AccountingSystem.Application.Services
 
 /// <summary>
@@ -72,7 +73,7 @@ type FinancialStatementServiceTest() =
             let balanceSheet = this.CreateBalanceSheet()
             let incomeStatement = this.CreateIncomeStatement()
             let repository = MockFinancialStatementRepository(balanceSheet, incomeStatement)
-            let service = FinancialStatementService(repository) :> IFinancialStatementService
+            let service = FinancialStatementService(repository) :> IFinancialStatementUseCase
             let asOfDate = DateTime(2024, 1, 31)
 
             // When
@@ -92,7 +93,7 @@ type FinancialStatementServiceTest() =
             let balanceSheet = this.CreateBalanceSheet()
             let incomeStatement = this.CreateIncomeStatement()
             let repository = MockFinancialStatementRepository(balanceSheet, incomeStatement)
-            let service = FinancialStatementService(repository) :> IFinancialStatementService
+            let service = FinancialStatementService(repository) :> IFinancialStatementUseCase
             let fromDate = DateTime(2024, 1, 1)
             let toDate = DateTime(2024, 1, 31)
 
@@ -114,7 +115,7 @@ type FinancialStatementServiceTest() =
             let balanceSheet = this.CreateBalanceSheet()
             let incomeStatement = this.CreateIncomeStatement()
             let repository = MockFinancialStatementRepository(balanceSheet, incomeStatement)
-            let service = FinancialStatementService(repository) :> IFinancialStatementService
+            let service = FinancialStatementService(repository) :> IFinancialStatementUseCase
             let asOfDate = DateTime(2024, 1, 31)
             let fromDate = DateTime(2024, 1, 1)
             let toDate = DateTime(2024, 1, 31)

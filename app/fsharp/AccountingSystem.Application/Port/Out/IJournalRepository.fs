@@ -1,4 +1,4 @@
-namespace AccountingSystem.Application.Repositories
+namespace AccountingSystem.Application.Port.Out
 
 open System
 open System.Threading.Tasks

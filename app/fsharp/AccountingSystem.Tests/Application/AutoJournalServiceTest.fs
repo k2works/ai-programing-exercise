@@ -6,7 +6,7 @@ open Xunit
 open FsUnit.Xunit
 open AccountingSystem.Domain.Models.AutoJournalPattern
 open AccountingSystem.Domain.Types
-open AccountingSystem.Application.Repositories
+open AccountingSystem.Application.Port.Out
 open AccountingSystem.Application.Services
 
 /// <summary>
