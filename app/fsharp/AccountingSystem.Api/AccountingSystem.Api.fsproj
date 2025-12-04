@@ -7,14 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Dtos/ErrorResponse.fs" />
-    <Compile Include="Dtos/AccountDto.fs" />
-    <Compile Include="Dtos/JournalDto.fs" />
-    <Compile Include="Dtos/FinancialStatementDto.fs" />
     <Compile Include="Middleware/GlobalExceptionHandler.fs" />
-    <Compile Include="Controllers/AccountController.fs" />
-    <Compile Include="Controllers/JournalController.fs" />
-    <Compile Include="Controllers/FinancialStatementController.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 

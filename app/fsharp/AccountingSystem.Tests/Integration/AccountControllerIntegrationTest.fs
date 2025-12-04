@@ -12,7 +12,7 @@ open Microsoft.Extensions.DependencyInjection
 open DotNet.Testcontainers.Builders
 open Testcontainers.PostgreSql
 open AccountingSystem.Api
-open AccountingSystem.Api.Dtos
+open AccountingSystem.Infrastructure.Web.Dtos
 open AccountingSystem.Application.Repositories
 open AccountingSystem.Infrastructure.Adapters
 open AccountingSystem.Infrastructure.MigrationRunner

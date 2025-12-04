@@ -7,7 +7,7 @@ open Microsoft.AspNetCore.Diagnostics
 open Microsoft.AspNetCore.Http
 open Microsoft.Extensions.Logging
 open AccountingSystem.Application.Exceptions
-open AccountingSystem.Api.Dtos
+open AccountingSystem.Infrastructure.Web.Dtos
 
 /// <summary>
 /// グローバル例外ハンドラー

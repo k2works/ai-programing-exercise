@@ -1,4 +1,4 @@
-namespace AccountingSystem.Api.Dtos
+namespace AccountingSystem.Infrastructure.Web.Dtos
 
 open System
 open System.ComponentModel.DataAnnotations

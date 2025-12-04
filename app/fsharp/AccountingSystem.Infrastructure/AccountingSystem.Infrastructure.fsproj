@@ -40,6 +40,13 @@
     <Compile Include="Adapters/JournalRepositoryAdapter.fs" />
     <Compile Include="Adapters/BalanceRepositoryAdapter.fs" />
     <Compile Include="Adapters/AutoJournalRepositoryAdapter.fs" />
+    <Compile Include="Web/Dtos/ErrorResponse.fs" />
+    <Compile Include="Web/Dtos/AccountDto.fs" />
+    <Compile Include="Web/Dtos/JournalDto.fs" />
+    <Compile Include="Web/Dtos/FinancialStatementDto.fs" />
+    <Compile Include="Web/Controllers/AccountController.fs" />
+    <Compile Include="Web/Controllers/JournalController.fs" />
+    <Compile Include="Web/Controllers/FinancialStatementController.fs" />
     <Compile Include="MigrationRunner.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
@@ -52,6 +59,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
     <PackageReference Include="MySql.Data" Version="9.1.0" />
     <PackageReference Include="Npgsql" Version="9.0.2" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
   <ItemGroup>

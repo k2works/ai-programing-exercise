@@ -13,6 +13,7 @@ open AccountingSystem.Application.Repositories
 open AccountingSystem.Application.Services
 open AccountingSystem.Infrastructure.Adapters
 open AccountingSystem.Infrastructure.Repositories.FinancialStatementRepository
+open AccountingSystem.Infrastructure.Web.Controllers
 open AccountingSystem.Api.Middleware
 
 /// WebApplicationFactory 用のマーカー型
@@ -26,7 +27,11 @@ module Program =
         let builder = WebApplication.CreateBuilder(args)
 
         // Add services to the container.
-        builder.Services.AddControllers()
+        // コントローラーが Infrastructure アセンブリに移動したため、明示的にアセンブリを登録
+        builder.Services
+            .AddControllers()
+            .AddApplicationPart(typeof<AccountController>.Assembly)
+        |> ignore
 
         // Swagger/OpenAPI の設定
         builder.Services.AddEndpointsApiExplorer()

@@ -1,10 +1,10 @@
-namespace AccountingSystem.Api.Controllers
+namespace AccountingSystem.Infrastructure.Web.Controllers
 
 open System.Threading.Tasks
 open Microsoft.AspNetCore.Http
 open Microsoft.AspNetCore.Mvc
 open AccountingSystem.Application.Services
-open AccountingSystem.Api.Dtos
+open AccountingSystem.Infrastructure.Web.Dtos
 
 /// <summary>
 /// 勘定科目 REST API コントローラー（Input Adapter）
