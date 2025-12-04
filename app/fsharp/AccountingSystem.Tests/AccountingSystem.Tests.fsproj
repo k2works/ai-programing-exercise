@@ -22,7 +22,9 @@
     <Compile Include="Repositories/AccountRepositoryTest.fs" />
     <Compile Include="Repositories/JournalRepositoryTest.fs" />
     <Compile Include="Repositories/BalanceRepositoryTest.fs" />
+    <Compile Include="Repositories/AutoJournalRepositoryTest.fs" />
     <Compile Include="Application/BalanceServiceTest.fs" />
+    <Compile Include="Application/AutoJournalServiceTest.fs" />
     <Compile Include="IntegrationTests/DatabaseConnectionTests.fs" />
   </ItemGroup>
 
