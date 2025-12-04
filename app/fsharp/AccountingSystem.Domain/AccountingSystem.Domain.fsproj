@@ -26,6 +26,9 @@
     <Compile Include="Models\JournalLine.fs" />
     <Compile Include="Models\Journal.fs" />
     <Compile Include="Models\AutoJournalPattern.fs" />
+    <Compile Include="Models\BalanceSheet.fs" />
+    <Compile Include="Models\IncomeStatement.fs" />
+    <Compile Include="Models\FinancialRatios.fs" />
     <Compile Include="Services\DoubleEntryBookkeepingService.fs" />
     <Compile Include="Library.fs" />
   </ItemGroup>
