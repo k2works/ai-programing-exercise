@@ -7,7 +7,9 @@
 
   <ItemGroup>
     <Compile Include="Repositories/IBalanceRepository.fs" />
+    <Compile Include="Repositories/IAutoJournalRepository.fs" />
     <Compile Include="Services/BalanceService.fs" />
+    <Compile Include="Services/AutoJournalService.fs" />
   </ItemGroup>
 
   <ItemGroup>
