@@ -2,7 +2,7 @@ module AccountingSystem.Tests.Repositories.AccountStructureRepositoryTest
 
 open AccountingSystem.Domain.Models
 open AccountingSystem.Domain.Types
-open AccountingSystem.Infrastructure.Repositories.AccountStructureRepository
+open AccountingSystem.Infrastructure.Persistence.Repositories.AccountStructureRepository
 open AccountingSystem.Tests.DatabaseTestBase
 open Npgsql
 open Xunit

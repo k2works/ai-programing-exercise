@@ -1,11 +1,11 @@
-module AccountingSystem.Infrastructure.Repositories.AutoJournalRepository
+module AccountingSystem.Infrastructure.Persistence.Repositories.AutoJournalRepository
 
 open System
 open Dapper
 open Npgsql
 open AccountingSystem.Domain.Models.AutoJournalPattern
-open AccountingSystem.Application.Repositories
-open AccountingSystem.Infrastructure.DAO
+open AccountingSystem.Application.Port.Out
+open AccountingSystem.Infrastructure.Persistence.DAO
 
 /// クエリ条件に基づいてパターン一覧を取得
 let getPatternsAsync (connectionString: string) (query: AutoJournalPatternQuery) =

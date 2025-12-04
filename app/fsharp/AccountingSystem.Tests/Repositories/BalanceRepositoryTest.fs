@@ -5,7 +5,7 @@ open Xunit
 open FsUnit.Xunit
 open Npgsql
 open AccountingSystem.Tests.DatabaseTestBase
-open AccountingSystem.Application.Repositories
+open AccountingSystem.Application.Port.Out
 open AccountingSystem.Infrastructure.Adapters
 
 /// <summary>

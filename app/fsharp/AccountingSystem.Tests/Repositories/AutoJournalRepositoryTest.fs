@@ -6,7 +6,7 @@ open FsUnit.Xunit
 open Npgsql
 open AccountingSystem.Domain.Models.AutoJournalPattern
 open AccountingSystem.Domain.Types
-open AccountingSystem.Application.Repositories
+open AccountingSystem.Application.Port.Out
 open AccountingSystem.Infrastructure.Adapters
 open AccountingSystem.Tests.DatabaseTestBase
 

@@ -1,7 +1,7 @@
 module AccountingSystem.Tests.Repositories.TaxTransactionRepositoryTest
 
 open AccountingSystem.Domain.Models
-open AccountingSystem.Infrastructure.Repositories.TaxTransactionRepository
+open AccountingSystem.Infrastructure.Persistence.Repositories.TaxTransactionRepository
 open AccountingSystem.Tests.DatabaseTestBase
 open Xunit
 open FsUnit.Xunit

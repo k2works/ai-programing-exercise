@@ -1,9 +1,9 @@
 namespace AccountingSystem.Infrastructure.Adapters
 
 open System.Threading.Tasks
-open AccountingSystem.Application.Repositories
+open AccountingSystem.Application.Port.Out
 open AccountingSystem.Domain.Models
-open AccountingSystem.Infrastructure.Repositories
+open AccountingSystem.Infrastructure.Persistence.Repositories
 
 /// <summary>
 /// 勘定科目リポジトリアダプター（Output Adapter）

@@ -1,7 +1,7 @@
-module AccountingSystem.Infrastructure.Repositories.AccountStructureRepository
+module AccountingSystem.Infrastructure.Persistence.Repositories.AccountStructureRepository
 
 open AccountingSystem.Domain.Models
-open AccountingSystem.Infrastructure.DAO
+open AccountingSystem.Infrastructure.Persistence.DAO
 open Dapper
 open Npgsql
 

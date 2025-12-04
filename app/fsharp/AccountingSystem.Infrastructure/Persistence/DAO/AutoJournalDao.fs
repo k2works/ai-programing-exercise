@@ -1,4 +1,4 @@
-namespace AccountingSystem.Infrastructure.DAO
+namespace AccountingSystem.Infrastructure.Persistence.DAO
 
 open System
 open AccountingSystem.Domain.Models.AutoJournalPattern

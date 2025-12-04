@@ -6,8 +6,8 @@ open FsUnit.Xunit
 open Npgsql
 open AccountingSystem.Tests.DatabaseTestBase
 open AccountingSystem.Domain.Models
-open AccountingSystem.Application.Repositories
-open AccountingSystem.Infrastructure.Repositories.FinancialStatementRepository
+open AccountingSystem.Application.Port.Out
+open AccountingSystem.Infrastructure.Persistence.Repositories.FinancialStatementRepository
 
 /// <summary>
 /// FinancialStatementRepository（財務諸表リポジトリ）のテスト

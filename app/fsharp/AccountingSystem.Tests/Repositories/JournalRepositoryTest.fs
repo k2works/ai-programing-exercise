@@ -6,7 +6,7 @@ open AccountingSystem.Domain.Models.JournalLine
 open AccountingSystem.Domain.Models.JournalLineItem
 open AccountingSystem.Domain.Types
 open AccountingSystem.Domain.Types.Measure
-open AccountingSystem.Infrastructure.Repositories.JournalRepository
+open AccountingSystem.Infrastructure.Persistence.Repositories.JournalRepository
 open AccountingSystem.Tests.DatabaseTestBase
 open Npgsql
 open Xunit

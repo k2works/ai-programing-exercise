@@ -1,11 +1,11 @@
-module AccountingSystem.Infrastructure.Repositories.FinancialStatementRepository
+module AccountingSystem.Infrastructure.Persistence.Repositories.FinancialStatementRepository
 
 open System
 open Dapper
 open Npgsql
 open AccountingSystem.Domain.Models
-open AccountingSystem.Application.Repositories
-open AccountingSystem.Infrastructure.DAO
+open AccountingSystem.Application.Port.Out
+open AccountingSystem.Infrastructure.Persistence.DAO
 
 /// 貸借対照表を生成
 let generateBalanceSheetAsync (connectionString: string) (asOfDate: DateTime) =

@@ -1,4 +1,4 @@
-namespace AccountingSystem.Infrastructure.DAO
+namespace AccountingSystem.Infrastructure.Persistence.DAO
 
 open AccountingSystem.Domain.Models
 open AccountingSystem.Domain.Types

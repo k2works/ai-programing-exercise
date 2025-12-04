@@ -1,7 +1,7 @@
 namespace AccountingSystem.Infrastructure.Adapters
 
-open AccountingSystem.Application.Repositories
-open AccountingSystem.Infrastructure.Repositories
+open AccountingSystem.Application.Port.Out
+open AccountingSystem.Infrastructure.Persistence.Repositories
 
 /// <summary>
 /// IBalanceRepository インターフェースのアダプター実装

@@ -1,9 +1,9 @@
-module AccountingSystem.Infrastructure.Repositories.BalanceRepository
+module AccountingSystem.Infrastructure.Persistence.Repositories.BalanceRepository
 
 open System
 open Dapper
 open Npgsql
-open AccountingSystem.Application.Repositories
+open AccountingSystem.Application.Port.Out
 
 /// 日次残高を更新（UPSERT）
 let updateDailyBalanceAsync (connectionString: string) (param: DailyBalanceUpdateParams) =

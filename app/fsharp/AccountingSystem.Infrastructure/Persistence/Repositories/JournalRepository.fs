@@ -1,4 +1,4 @@
-module AccountingSystem.Infrastructure.Repositories.JournalRepository
+module AccountingSystem.Infrastructure.Persistence.Repositories.JournalRepository
 
 open System
 open AccountingSystem.Domain.Models.Journal

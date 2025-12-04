@@ -1,4 +1,4 @@
-module AccountingSystem.Infrastructure.Repositories.DoubleEntryCheckRepository
+module AccountingSystem.Infrastructure.Persistence.Repositories.DoubleEntryCheckRepository
 
 open AccountingSystem.Domain.Services.DoubleEntryBookkeepingService
 open Dapper
