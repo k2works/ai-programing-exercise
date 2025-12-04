@@ -72,7 +72,7 @@ type FinancialStatementServiceTest() =
             let balanceSheet = this.CreateBalanceSheet()
             let incomeStatement = this.CreateIncomeStatement()
             let repository = MockFinancialStatementRepository(balanceSheet, incomeStatement)
-            let service = FinancialStatementService(repository)
+            let service = FinancialStatementService(repository) :> IFinancialStatementService
             let asOfDate = DateTime(2024, 1, 31)
 
             // When
@@ -92,7 +92,7 @@ type FinancialStatementServiceTest() =
             let balanceSheet = this.CreateBalanceSheet()
             let incomeStatement = this.CreateIncomeStatement()
             let repository = MockFinancialStatementRepository(balanceSheet, incomeStatement)
-            let service = FinancialStatementService(repository)
+            let service = FinancialStatementService(repository) :> IFinancialStatementService
             let fromDate = DateTime(2024, 1, 1)
             let toDate = DateTime(2024, 1, 31)
 
@@ -114,7 +114,7 @@ type FinancialStatementServiceTest() =
             let balanceSheet = this.CreateBalanceSheet()
             let incomeStatement = this.CreateIncomeStatement()
             let repository = MockFinancialStatementRepository(balanceSheet, incomeStatement)
-            let service = FinancialStatementService(repository)
+            let service = FinancialStatementService(repository) :> IFinancialStatementService
             let asOfDate = DateTime(2024, 1, 31)
             let fromDate = DateTime(2024, 1, 1)
             let toDate = DateTime(2024, 1, 31)

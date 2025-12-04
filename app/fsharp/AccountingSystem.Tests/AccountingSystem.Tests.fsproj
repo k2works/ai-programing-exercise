@@ -29,6 +29,7 @@
     <Compile Include="Repositories/FinancialStatementRepositoryTest.fs" />
     <Compile Include="Domain/FinancialRatiosTest.fs" />
     <Compile Include="Integration/DatabaseConnectionTests.fs" />
+    <Compile Include="Integration/AccountControllerIntegrationTest.fs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -40,12 +41,14 @@
     <PackageReference Include="Testcontainers.PostgreSql" Version="4.1.0" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\AccountingSystem.Domain\AccountingSystem.Domain.fsproj" />
     <ProjectReference Include="..\AccountingSystem.Application\AccountingSystem.Application.fsproj" />
     <ProjectReference Include="..\AccountingSystem.Infrastructure\AccountingSystem.Infrastructure.fsproj" />
+    <ProjectReference Include="..\AccountingSystem.Api\AccountingSystem.Api.fsproj" />
   </ItemGroup>
 
   <ItemGroup>

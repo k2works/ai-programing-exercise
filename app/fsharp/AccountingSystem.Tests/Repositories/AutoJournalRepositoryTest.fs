@@ -7,7 +7,7 @@ open Npgsql
 open AccountingSystem.Domain.Models.AutoJournalPattern
 open AccountingSystem.Domain.Types
 open AccountingSystem.Application.Repositories
-open AccountingSystem.Infrastructure.Repositories.AutoJournalRepository
+open AccountingSystem.Infrastructure.Adapters
 open AccountingSystem.Tests.DatabaseTestBase
 
 /// <summary>

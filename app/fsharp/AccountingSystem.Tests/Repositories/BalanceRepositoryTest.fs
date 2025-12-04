@@ -6,7 +6,7 @@ open FsUnit.Xunit
 open Npgsql
 open AccountingSystem.Tests.DatabaseTestBase
 open AccountingSystem.Application.Repositories
-open AccountingSystem.Infrastructure.Repositories.BalanceRepository
+open AccountingSystem.Infrastructure.Adapters
 
 /// <summary>
 /// BalanceRepository のテスト
