@@ -195,6 +195,30 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// アプリケーション起動時にマイグレーションを自動実行
+{
+    var configuration = app.Services.GetRequiredService<IConfiguration>();
+    var databaseType = configuration["DatabaseType"] ?? "PostgreSQL";
+    var connectionString = configuration.GetConnectionString("DefaultConnection");
+
+    if (!string.IsNullOrEmpty(connectionString))
+    {
+        try
+        {
+            var logger = app.Services.GetRequiredService<ILogger<Program>>();
+            logger.LogInformation("データベースマイグレーション開始: {DatabaseType}", databaseType);
+            MigrationRunner.MigrateDatabase(connectionString, databaseType);
+            logger.LogInformation("マイグレーション完了");
+        }
+        catch (Exception ex)
+        {
+            var logger = app.Services.GetRequiredService<ILogger<Program>>();
+            logger.LogError(ex, "マイグレーション実行中にエラーが発生しました");
+            throw;
+        }
+    }
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
