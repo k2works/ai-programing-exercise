@@ -20,6 +20,9 @@
     <Compile Include="Types\RedSlipFlag.fs" />
     <Compile Include="Types\VoucherType.fs" />
     <Compile Include="Types\AuditAction.fs" />
+    <Compile Include="Types\JournalEntryStatus.fs" />
+    <Compile Include="Events\JournalEntryEvent.fs" />
+    <Compile Include="Aggregates\JournalEntryAggregate.fs" />
     <Compile Include="Models\Account.fs" />
     <Compile Include="Models\TaxTransaction.fs" />
     <Compile Include="Models\AccountStructure.fs" />
