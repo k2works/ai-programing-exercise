@@ -12,14 +12,17 @@
     <Compile Include="Port/Out/IBalanceRepository.fs" />
     <Compile Include="Port/Out/IAutoJournalRepository.fs" />
     <Compile Include="Port/Out/IFinancialStatementRepository.fs" />
+    <Compile Include="Port/Out/IAuditLogRepository.fs" />
     <Compile Include="Port/In/IAccountUseCase.fs" />
     <Compile Include="Port/In/IJournalUseCase.fs" />
     <Compile Include="Port/In/IFinancialStatementUseCase.fs" />
+    <Compile Include="Port/In/IAuditLogUseCase.fs" />
     <Compile Include="Services/AccountService.fs" />
     <Compile Include="Services/JournalService.fs" />
     <Compile Include="Services/FinancialStatementService.fs" />
     <Compile Include="Services/BalanceService.fs" />
     <Compile Include="Services/AutoJournalService.fs" />
+    <Compile Include="Services/AuditLogService.fs" />
   </ItemGroup>
 
   <ItemGroup>
