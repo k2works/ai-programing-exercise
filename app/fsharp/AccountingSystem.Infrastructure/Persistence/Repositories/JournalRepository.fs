@@ -231,13 +231,14 @@ let findByVoucherNumberAsync (connectionString: string) (voucherNumber: string) 
             return Some { journal with Lines = lines }
     }
 
-/// 起票日範囲で検索（ヘッダーのみ、明細なし）
+/// 起票日範囲で検索（明細も含めて取得）
 let findByDateRangeAsync (connectionString: string) (fromDate: DateTime) (toDate: DateTime) =
     task {
         use conn = new NpgsqlConnection(connectionString)
         do! conn.OpenAsync()
 
-        let sql = """
+        // 1. 仕訳ヘッダーを取得
+        let journalSql = """
             SELECT "仕訳伝票番号" AS "VoucherNumber",
                    "起票日" AS "PostingDate",
                    "入力日" AS "EntryDate",
@@ -255,9 +256,84 @@ let findByDateRangeAsync (connectionString: string) (fromDate: DateTime) (toDate
             WHERE "起票日" BETWEEN @FromDate AND @ToDate
             ORDER BY "起票日", "仕訳伝票番号"
         """
+        let! journalResults = conn.QueryAsync<JournalDao.JournalDao>(journalSql, {| FromDate = fromDate; ToDate = toDate |})
+        let journals = journalResults |> Seq.toList
 
-        let! results = conn.QueryAsync<JournalDao.JournalDao>(sql, {| FromDate = fromDate; ToDate = toDate |})
-        return results |> Seq.map JournalDao.JournalDao.toDomain |> Seq.toList
+        if journals.IsEmpty then
+            return []
+        else
+            // 対象の伝票番号リストを取得
+            let voucherNumbers = journals |> List.map (fun j -> j.VoucherNumber)
+
+            // 2. 仕訳明細を一括取得
+            let lineSql = """
+                SELECT "仕訳伝票番号" AS "VoucherNumber",
+                       "仕訳行番号" AS "LineNumber",
+                       "行摘要" AS "Description",
+                       "作成日時" AS "CreatedAt",
+                       "更新日時" AS "UpdatedAt"
+                FROM "仕訳明細"
+                WHERE "仕訳伝票番号" = ANY(@VoucherNumbers)
+                ORDER BY "仕訳伝票番号", "仕訳行番号"
+            """
+            let! lineResults = conn.QueryAsync<JournalLineDao.JournalLineDao>(lineSql, {| VoucherNumbers = voucherNumbers |> List.toArray |})
+
+            // 3. 仕訳貸借明細を一括取得
+            let itemSql = """
+                SELECT "仕訳伝票番号" AS "VoucherNumber",
+                       "仕訳行番号" AS "LineNumber",
+                       "仕訳行貸借区分" AS "DebitCreditType",
+                       "通貨コード" AS "CurrencyCode",
+                       "為替レート" AS "ExchangeRate",
+                       "部門コード" AS "DepartmentCode",
+                       "プロジェクトコード" AS "ProjectCode",
+                       "勘定科目コード" AS "AccountCode",
+                       "補助科目コード" AS "SubAccountCode",
+                       "仕訳金額" AS "Amount",
+                       "基軸換算仕訳金額" AS "BaseAmount",
+                       "消費税区分" AS "TaxCategory",
+                       "消費税率" AS "TaxRate",
+                       "消費税計算区分" AS "TaxCalculationType",
+                       "期日" AS "DueDate",
+                       "資金繰フラグ" AS "CashFlowFlag",
+                       "セグメントコード" AS "SegmentCode",
+                       "相手勘定科目コード" AS "CounterAccountCode",
+                       "相手補助科目コード" AS "CounterSubAccountCode",
+                       "付箋コード" AS "MemoCode",
+                       "付箋内容" AS "MemoContent",
+                       "作成日時" AS "CreatedAt",
+                       "更新日時" AS "UpdatedAt"
+                FROM "仕訳貸借明細"
+                WHERE "仕訳伝票番号" = ANY(@VoucherNumbers)
+                ORDER BY "仕訳伝票番号", "仕訳行番号", "仕訳行貸借区分"
+            """
+            let! itemResults = conn.QueryAsync<JournalLineItemDao.JournalLineItemDao>(itemSql, {| VoucherNumbers = voucherNumbers |> List.toArray |})
+
+            // アイテムを (伝票番号, 行番号) でグループ化
+            let itemsByVoucherAndLine =
+                itemResults
+                |> Seq.map JournalLineItemDao.JournalLineItemDao.toDomain
+                |> Seq.groupBy (fun item -> (item.VoucherNumber.Number, item.LineNumber))
+                |> Map.ofSeq
+
+            // 明細を伝票番号でグループ化
+            let linesByVoucher =
+                lineResults
+                |> Seq.map (fun lineDao ->
+                    let baseLine = JournalLineDao.JournalLineDao.toDomain lineDao
+                    let key = (baseLine.VoucherNumber.Number, baseLine.LineNumber)
+                    let items = itemsByVoucherAndLine |> Map.tryFind key |> Option.defaultValue Seq.empty |> Seq.toList
+                    (lineDao.VoucherNumber, { baseLine with Items = items }))
+                |> Seq.groupBy fst
+                |> Seq.map (fun (vn, lines) -> (vn, lines |> Seq.map snd |> Seq.toList))
+                |> Map.ofSeq
+
+            // 集約を組み立て
+            return journals
+                |> List.map (fun jDao ->
+                    let journal = JournalDao.JournalDao.toDomain jDao
+                    let lines = linesByVoucher |> Map.tryFind jDao.VoucherNumber |> Option.defaultValue []
+                    { journal with Lines = lines })
     }
 
 /// 仕訳を更新（ヘッダーのみ）
