@@ -30,6 +30,17 @@ module Program =
     let main args =
         let builder = WebApplication.CreateBuilder(args)
 
+        // CORS の設定
+        builder.Services.AddCors(fun options ->
+            options.AddPolicy("AllowAll", fun policy ->
+                policy
+                    .AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                |> ignore
+            )
+        ) |> ignore
+
         // Add services to the container.
         // コントローラーが Infrastructure アセンブリに移動したため、明示的にアセンブリを登録
         builder.Services
@@ -109,6 +120,7 @@ module Program =
         builder.Services.AddScoped<IAccountUseCase, AccountService>()
         builder.Services.AddScoped<IJournalUseCase, JournalService>()
         builder.Services.AddScoped<IFinancialStatementUseCase, FinancialStatementService>()
+        builder.Services.AddScoped<IFinancialAnalysisUseCase, FinancialAnalysisService>()
         builder.Services.AddScoped<IAuditLogUseCase, AuditLogService>()
         builder.Services.AddScoped<IJournalEntryEventSourcingUseCase, JournalEntryEventSourcingService>()
 
@@ -186,6 +198,9 @@ module Program =
 
         // 例外ハンドリングミドルウェア
         app.UseExceptionHandler()
+
+        // CORS ミドルウェア
+        app.UseCors("AllowAll") |> ignore
 
         // Configure the HTTP request pipeline.
         if app.Environment.IsDevelopment() then

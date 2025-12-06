@@ -4,6 +4,8 @@
     <TargetFramework>net9.0</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
+    <!-- OpenAPI 仕様の出力先 -->
+    <OpenApiOutputDir>$(MSBuildProjectDirectory)\..\script-lab</OpenApiOutputDir>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,5 +32,17 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <!-- OpenAPI 仕様生成タスク -->
+  <Target Name="GenerateOpenApi" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
+    <Message Text="OpenAPI 仕様を生成中..." Importance="high" />
+    <Exec Command="swagger tofile --output &quot;$(OpenApiOutputDir)\openapi.yaml&quot; --yaml &quot;$(OutputPath)$(AssemblyName).dll&quot; v1"
+          IgnoreExitCode="true"
+          ContinueOnError="true" />
+    <Exec Command="swagger tofile --output &quot;$(OpenApiOutputDir)\openapi.json&quot; &quot;$(OutputPath)$(AssemblyName).dll&quot; v1"
+          IgnoreExitCode="true"
+          ContinueOnError="true" />
+    <Message Text="OpenAPI 仕様を $(OpenApiOutputDir) に生成しました" Importance="high" />
+  </Target>
 
 </Project>
