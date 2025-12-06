@@ -22,6 +22,7 @@
     <Compile Include="Domain/AutoJournalPatternTest.fs" />
     <Compile Include="Domain/DoubleEntryBookkeepingServiceTest.fs" />
     <Compile Include="Domain\FinancialRatiosTest.fs" />
+    <Compile Include="Domain/FinancialAnalysisTest.fs" />
     <Compile Include="Domain/AuditLogTest.fs" />
     <Compile Include="Domain/JournalEntryAggregateTest.fs" />
     <Compile Include="Repositories/AccountStructureRepositoryTest.fs" />
@@ -37,6 +38,7 @@
     <Compile Include="Application/BalanceServiceTest.fs" />
     <Compile Include="Application/AutoJournalServiceTest.fs" />
     <Compile Include="Application/FinancialStatementServiceTest.fs" />
+    <Compile Include="Application/FinancialAnalysisServiceTest.fs" />
     <Compile Include="Application/AccountServiceTest.fs" />
     <Compile Include="Application/JournalServiceTest.fs" />
     <Compile Include="Application/AuditLogServiceTest.fs" />
@@ -54,6 +56,8 @@
     <Compile Include="Integration/JournalEntryEventSourcingWithEventsControllerIntegrationTest.fs" />
     <Compile Include="Integration/JournalEntryReadModelHandlerIntegrationTest.fs" />
     <Compile Include="Integration/AuditLogEventHandlerIntegrationTest.fs" />
+    <Compile Include="Integration/DatabaseSeederIntegrationTest.fs" />
+    <Compile Include="Integration/FinancialAnalysisControllerIntegrationTest.fs" />
   </ItemGroup>
 
   <ItemGroup>
