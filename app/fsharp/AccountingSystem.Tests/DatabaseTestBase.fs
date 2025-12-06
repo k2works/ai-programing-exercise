@@ -1,10 +1,8 @@
 module AccountingSystem.Tests.DatabaseTestBase
 
-open System
 open System.Threading.Tasks
-open DotNet.Testcontainers.Builders
 open Testcontainers.PostgreSql
-open AccountingSystem.Infrastructure.MigrationRunner
+open AccountingSystem.Tests.PostgresContainerHelper
 open Xunit
 
 /// <summary>
@@ -22,32 +20,9 @@ type DatabaseTestBase() =
     /// </summary>
     member this.InitializeAsync() =
         task {
-            // Docker ホストの設定（Windows Docker Desktop 用）
-            let dockerHost =
-                match Environment.GetEnvironmentVariable("DOCKER_HOST") with
-                | null | "" -> "npipe://./pipe/docker_engine"
-                | host -> host
-
-            Environment.SetEnvironmentVariable("DOCKER_HOST", dockerHost)
-
-            // PostgreSQLコンテナの設定と起動
-            container <-
-                PostgreSqlBuilder()
-                    .WithImage("postgres:16-alpine")
-                    .WithDatabase("test_db")
-                    .WithUsername("test")
-                    .WithPassword("test")
-                    .Build()
-
-            do! container.StartAsync()
-
-            // 接続文字列の取得
-            connectionString <- container.GetConnectionString()
-
-            // マイグレーションの実行
-            migrateDatabase connectionString "PostgreSQL"
-
-            return ()
+            let! (c, cs) = initializePostgresContainerAsync ()
+            container <- c
+            connectionString <- cs
         } :> Task
 
     /// <summary>
@@ -58,7 +33,6 @@ type DatabaseTestBase() =
         task {
             if container <> null then
                 do! container.DisposeAsync().AsTask()
-            return ()
         } :> Task
 
     /// <summary>
