@@ -1,6 +1,7 @@
 namespace AccountingSystem.Application.EventHandlers
 
 open System
+open System.Text.Json
 open System.Threading.Tasks
 open AccountingSystem.Domain.Types
 open AccountingSystem.Domain.Models
@@ -13,6 +14,15 @@ open AccountingSystem.Application.Port.Out
 /// イベントを受信して監査ログを記録する
 /// </summary>
 type AuditLogEventHandler(auditLogRepository: IAuditLogRepository) =
+
+    /// JSON シリアライズオプション
+    let jsonOptions = JsonSerializerOptions(
+        WriteIndented = false,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    )
+
+    /// オブジェクトを JSON 文字列に変換
+    let toJson obj = JsonSerializer.Serialize(obj, jsonOptions)
 
     interface IJournalEntryEventHandler with
         /// <summary>
@@ -30,32 +40,45 @@ type AuditLogEventHandler(auditLogRepository: IAuditLogRepository) =
                     let auditLog =
                         match event with
                         | JournalEntryCreated data ->
+                            let changesJson = toJson {|
+                                action = "create"
+                                description = data.Description
+                                entryDate = data.EntryDate.ToString("yyyy-MM-dd")
+                                lineItemCount = data.LineItems.Length
+                            |}
                             AuditLog.create
                                 "JournalEntry"
                                 data.JournalEntryId
                                 data.UserId
                                 data.UserId
-                                $"仕訳作成: {data.Description}"
+                                changesJson
                                 None
 
                         | JournalEntryApproved data ->
+                            let oldValuesJson = toJson {| status = "Draft" |}
+                            let newValuesJson = toJson {|
+                                status = "Approved"
+                                approvedBy = data.ApprovedBy
+                                approvalComment = data.ApprovalComment
+                            |}
                             AuditLog.createForUpdate
                                 "JournalEntry"
                                 data.JournalEntryId
                                 data.UserId
                                 data.UserId
-                                "Draft"
-                                $"Approved: {data.ApprovalComment}"
+                                oldValuesJson
+                                newValuesJson
                                 None
 
                         | JournalEntryDeleted data ->
+                            let oldValuesJson = toJson {| status = "Deleted" |}
                             AuditLog.createForDelete
                                 "JournalEntry"
                                 data.JournalEntryId
                                 data.UserId
                                 data.UserId
-                                ""
-                                (Some $"仕訳削除: {data.Reason}")
+                                oldValuesJson
+                                (Some data.Reason)
                                 None
 
                     let! _ = auditLogRepository.InsertAsync auditLog
