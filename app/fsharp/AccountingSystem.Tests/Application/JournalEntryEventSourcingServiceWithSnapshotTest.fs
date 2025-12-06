@@ -6,116 +6,226 @@ open AccountingSystem.Domain.Types
 open AccountingSystem.Domain.Events
 open AccountingSystem.Domain.Aggregates
 open AccountingSystem.Application.Port.In
+open AccountingSystem.Application.Port.Out
 open AccountingSystem.Application.Services
-open AccountingSystem.Infrastructure.Persistence.Repositories
-open AccountingSystem.Infrastructure.Adapters
-open AccountingSystem.Tests.DatabaseTestBase
-open Npgsql
 open Xunit
 open FsUnit.Xunit
 
 /// <summary>
-/// JournalEntryEventSourcingServiceWithSnapshot 統合テスト
+/// モック IEventStoreRepository
+/// インメモリでイベントを管理
+/// </summary>
+type MockEventStoreRepository() =
+    let mutable eventStore = Map.empty<string, (JournalEntryEvent * int) list>
+    let mutable versionStore = Map.empty<string, int>
+
+    member _.Reset() =
+        eventStore <- Map.empty
+        versionStore <- Map.empty
+
+    member _.GetStoredEvents(aggregateId: string) =
+        eventStore
+        |> Map.tryFind aggregateId
+        |> Option.defaultValue []
+        |> List.map fst
+
+    interface IEventStoreRepository with
+        member _.SaveAsync
+            (aggregateId: string)
+            (_aggregateType: string)
+            (events: JournalEntryEvent list)
+            (expectedVersion: int)
+            (_userId: string)
+            (_correlationId: string option)
+            : Task<Result<unit, string>> =
+            task {
+                let currentVersion = versionStore |> Map.tryFind aggregateId |> Option.defaultValue 0
+                if currentVersion <> expectedVersion then
+                    return Error $"バージョン競合: 期待={expectedVersion}, 現在={currentVersion}"
+                else
+                    let existingEvents = eventStore |> Map.tryFind aggregateId |> Option.defaultValue []
+                    let newEvents = events |> List.mapi (fun i e -> (e, currentVersion + i + 1))
+                    eventStore <- eventStore |> Map.add aggregateId (existingEvents @ newEvents)
+                    versionStore <- versionStore |> Map.add aggregateId (currentVersion + events.Length)
+                    return Ok ()
+            }
+
+        member _.GetEventsAsync (aggregateId: string) : Task<JournalEntryEvent list> =
+            task {
+                return eventStore
+                    |> Map.tryFind aggregateId
+                    |> Option.defaultValue []
+                    |> List.map fst
+            }
+
+        member _.GetEventsUntilAsync (aggregateId: string) (pointInTime: DateTime) : Task<JournalEntryEvent list> =
+            task {
+                return eventStore
+                    |> Map.tryFind aggregateId
+                    |> Option.defaultValue []
+                    |> List.map fst
+                    |> List.filter (fun e ->
+                        let occurredAt = JournalEntryEvent.getOccurredAt e
+                        occurredAt <= pointInTime)
+            }
+
+        member _.GetCurrentVersionAsync (aggregateId: string) : Task<int> =
+            task {
+                return versionStore |> Map.tryFind aggregateId |> Option.defaultValue 0
+            }
+
+        member _.GetAggregateIdsAsync (_aggregateType: string) : Task<string list> =
+            task {
+                return eventStore |> Map.toList |> List.map fst
+            }
+
+        member _.GetEventsSinceVersionAsync (aggregateId: string) (sinceVersion: int) : Task<JournalEntryEvent list> =
+            task {
+                return eventStore
+                    |> Map.tryFind aggregateId
+                    |> Option.defaultValue []
+                    |> List.filter (fun (_, v) -> v > sinceVersion)
+                    |> List.map fst
+            }
+
+/// <summary>
+/// モック ISnapshotRepository
+/// インメモリでスナップショットを管理
+/// </summary>
+type MockSnapshotRepository() =
+    let mutable snapshots = Map.empty<string, JournalEntryAggregate>
+
+    member _.Reset() =
+        snapshots <- Map.empty
+
+    member _.GetStoredSnapshot(aggregateId: string) =
+        snapshots |> Map.tryFind aggregateId
+
+    member _.HasSnapshot(aggregateId: string) =
+        snapshots |> Map.containsKey aggregateId
+
+    interface ISnapshotRepository with
+        member _.SaveSnapshotAsync
+            (aggregateId: string)
+            (_aggregateType: string)
+            (aggregate: JournalEntryAggregate)
+            : Task<Result<unit, string>> =
+            task {
+                snapshots <- snapshots |> Map.add aggregateId aggregate
+                return Ok ()
+            }
+
+        member _.GetSnapshotAsync
+            (aggregateId: string)
+            (_aggregateType: string)
+            : Task<JournalEntryAggregate option> =
+            task {
+                return snapshots |> Map.tryFind aggregateId
+            }
+
+        member _.DeleteSnapshotAsync
+            (aggregateId: string)
+            (_aggregateType: string)
+            : Task<unit> =
+            task {
+                snapshots <- snapshots |> Map.remove aggregateId
+            }
+
+        member _.GetSnapshotVersionAsync
+            (aggregateId: string)
+            (_aggregateType: string)
+            : Task<int> =
+            task {
+                return snapshots
+                    |> Map.tryFind aggregateId
+                    |> Option.map (fun a -> a.Version)
+                    |> Option.defaultValue 0
+            }
+
+/// <summary>
+/// JournalEntryEventSourcingServiceWithSnapshot 単体テスト
+/// モックリポジトリを使用
 /// </summary>
 type JournalEntryEventSourcingServiceWithSnapshotTest() =
-    inherit DatabaseTestBase()
 
-    /// テスト用の仕訳明細を作成
     let createTestLineItems () : JournalEntryLineItem list =
         [
             { AccountCode = "1000"; DebitCredit = DebitCreditType.Debit; Amount = 10000m }
             { AccountCode = "2000"; DebitCredit = DebitCreditType.Credit; Amount = 10000m }
         ]
 
-    /// テストデータをクリーンアップ
-    member private this.CleanupTestDataAsync() =
-        task {
-            use conn = new NpgsqlConnection(this.ConnectionString)
-            do! conn.OpenAsync()
-
-            use cmd = new NpgsqlCommand("""
-                DELETE FROM event_store WHERE aggregate_id LIKE 'SNAP-SVC-TEST%';
-                DELETE FROM snapshot_store WHERE aggregate_id LIKE 'SNAP-SVC-TEST%';
-            """, conn)
-            let! _ = cmd.ExecuteNonQueryAsync()
-            ()
-        }
-
-    /// サービスを作成
-    member private this.CreateService(?snapshotInterval: int) =
-        let eventStoreAdapter = EventStoreRepositoryAdapter(this.ConnectionString)
-        let snapshotAdapter = SnapshotRepositoryAdapter(this.ConnectionString)
+    let createService (eventStore: MockEventStoreRepository) (snapshotStore: MockSnapshotRepository) (snapshotInterval: int option) =
         match snapshotInterval with
-        | Some interval -> JournalEntryEventSourcingServiceWithSnapshot(eventStoreAdapter, snapshotAdapter, interval)
-        | None -> JournalEntryEventSourcingServiceWithSnapshot(eventStoreAdapter, snapshotAdapter)
+        | Some interval -> JournalEntryEventSourcingServiceWithSnapshot(eventStore, snapshotStore, interval)
+        | None -> JournalEntryEventSourcingServiceWithSnapshot(eventStore, snapshotStore)
 
     [<Fact>]
-    member this.``仕訳を作成できる``() =
+    member _.``仕訳を作成できる``() =
         task {
-            do! this.CleanupTestDataAsync()
-
-            let service = this.CreateService() :> IJournalEntryEventSourcingUseCase
+            let eventStore = MockEventStoreRepository()
+            let snapshotStore = MockSnapshotRepository()
+            let service = createService eventStore snapshotStore None :> IJournalEntryEventSourcingUseCase
 
             let! result = service.CreateJournalEntryAsync
-                            "SNAP-SVC-TEST001"
+                            "TEST001"
                             (DateTime(2024, 1, 15))
-                            "スナップショットテスト仕訳"
+                            "テスト仕訳"
                             (createTestLineItems ())
                             "user1"
 
             match result with
             | Ok aggregate ->
-                aggregate.Id |> should equal "SNAP-SVC-TEST001"
-                aggregate.Description |> should equal "スナップショットテスト仕訳"
+                aggregate.Id |> should equal "TEST001"
+                aggregate.Description |> should equal "テスト仕訳"
                 aggregate.Version |> should equal 1
                 aggregate.Status |> should equal JournalEntryStatus.Draft
             | Error msg ->
                 failwith $"Create failed: {msg}"
 
-            do! this.CleanupTestDataAsync()
+            // イベントが保存されているか確認
+            let storedEvents = eventStore.GetStoredEvents "TEST001"
+            storedEvents |> should haveLength 1
         }
 
     [<Fact>]
-    member this.``仕訳を取得できる``() =
+    member _.``仕訳を取得できる``() =
         task {
-            do! this.CleanupTestDataAsync()
-
-            let service = this.CreateService() :> IJournalEntryEventSourcingUseCase
+            let eventStore = MockEventStoreRepository()
+            let snapshotStore = MockSnapshotRepository()
+            let service = createService eventStore snapshotStore None :> IJournalEntryEventSourcingUseCase
 
             let! _ = service.CreateJournalEntryAsync
-                        "SNAP-SVC-TEST002"
+                        "TEST002"
                         (DateTime(2024, 1, 15))
                         "取得テスト仕訳"
                         (createTestLineItems ())
                         "user1"
 
-            let! aggregateOpt = service.GetJournalEntryAsync "SNAP-SVC-TEST002"
+            let! aggregateOpt = service.GetJournalEntryAsync "TEST002"
 
             match aggregateOpt with
             | Some aggregate ->
-                aggregate.Id |> should equal "SNAP-SVC-TEST002"
+                aggregate.Id |> should equal "TEST002"
                 aggregate.Description |> should equal "取得テスト仕訳"
             | None ->
                 failwith "Expected aggregate but got None"
-
-            do! this.CleanupTestDataAsync()
         }
 
     [<Fact>]
-    member this.``仕訳を承認できる``() =
+    member _.``仕訳を承認できる``() =
         task {
-            do! this.CleanupTestDataAsync()
-
-            let service = this.CreateService() :> IJournalEntryEventSourcingUseCase
+            let eventStore = MockEventStoreRepository()
+            let snapshotStore = MockSnapshotRepository()
+            let service = createService eventStore snapshotStore None :> IJournalEntryEventSourcingUseCase
 
             let! _ = service.CreateJournalEntryAsync
-                        "SNAP-SVC-TEST003"
+                        "TEST003"
                         (DateTime(2024, 1, 15))
                         "承認テスト仕訳"
                         (createTestLineItems ())
                         "user1"
 
-            let! result = service.ApproveJournalEntryAsync "SNAP-SVC-TEST003" "manager" "承認します"
+            let! result = service.ApproveJournalEntryAsync "TEST003" "manager" "承認します"
 
             match result with
             | Ok aggregate ->
@@ -124,24 +234,26 @@ type JournalEntryEventSourcingServiceWithSnapshotTest() =
             | Error msg ->
                 failwith $"Approve failed: {msg}"
 
-            do! this.CleanupTestDataAsync()
+            // イベントが2つ保存されているか確認
+            let storedEvents = eventStore.GetStoredEvents "TEST003"
+            storedEvents |> should haveLength 2
         }
 
     [<Fact>]
-    member this.``仕訳を削除できる``() =
+    member _.``仕訳を削除できる``() =
         task {
-            do! this.CleanupTestDataAsync()
-
-            let service = this.CreateService() :> IJournalEntryEventSourcingUseCase
+            let eventStore = MockEventStoreRepository()
+            let snapshotStore = MockSnapshotRepository()
+            let service = createService eventStore snapshotStore None :> IJournalEntryEventSourcingUseCase
 
             let! _ = service.CreateJournalEntryAsync
-                        "SNAP-SVC-TEST004"
+                        "TEST004"
                         (DateTime(2024, 1, 15))
                         "削除テスト仕訳"
                         (createTestLineItems ())
                         "user1"
 
-            let! result = service.DeleteJournalEntryAsync "SNAP-SVC-TEST004" "入力ミス" "user1"
+            let! result = service.DeleteJournalEntryAsync "TEST004" "入力ミス" "user1"
 
             match result with
             | Ok aggregate ->
@@ -149,68 +261,64 @@ type JournalEntryEventSourcingServiceWithSnapshotTest() =
                 aggregate.Version |> should equal 2
             | Error msg ->
                 failwith $"Delete failed: {msg}"
-
-            do! this.CleanupTestDataAsync()
         }
 
     [<Fact>]
-    member this.``スナップショットが自動的に作成される``() =
+    member _.``スナップショットが自動的に作成される``() =
         task {
-            do! this.CleanupTestDataAsync()
-
+            let eventStore = MockEventStoreRepository()
+            let snapshotStore = MockSnapshotRepository()
             // スナップショット間隔を 2 に設定
-            let serviceWithSnapshot = this.CreateService(2)
+            let serviceWithSnapshot = createService eventStore snapshotStore (Some 2)
             let service = serviceWithSnapshot :> IJournalEntryEventSourcingUseCase
 
             // 作成（Version = 1）
             let! _ = service.CreateJournalEntryAsync
-                        "SNAP-SVC-TEST005"
+                        "TEST005"
                         (DateTime(2024, 1, 15))
                         "スナップショット作成テスト"
                         (createTestLineItems ())
                         "user1"
 
+            // この時点ではスナップショットなし
+            snapshotStore.HasSnapshot "TEST005" |> should equal false
+
             // 承認（Version = 2）→ スナップショットが作成されるはず
-            let! _ = service.ApproveJournalEntryAsync "SNAP-SVC-TEST005" "manager" "承認"
+            let! _ = service.ApproveJournalEntryAsync "TEST005" "manager" "承認"
 
             // スナップショットが作成されたか確認
-            use conn = new NpgsqlConnection(this.ConnectionString)
-            do! conn.OpenAsync()
-            let snapshotRepo = SnapshotRepository(conn)
+            snapshotStore.HasSnapshot "TEST005" |> should equal true
 
-            let! snapshotOpt = snapshotRepo.GetSnapshotAsync "SNAP-SVC-TEST005" "JournalEntry"
-
-            match snapshotOpt with
-            | Some snapshot ->
-                snapshot.Version |> should equal 2
-                snapshot.Status |> should equal JournalEntryStatus.Approved
+            let snapshot = snapshotStore.GetStoredSnapshot "TEST005"
+            match snapshot with
+            | Some s ->
+                s.Version |> should equal 2
+                s.Status |> should equal JournalEntryStatus.Approved
             | None ->
                 failwith "Expected snapshot to be created"
-
-            do! this.CleanupTestDataAsync()
         }
 
     [<Fact>]
-    member this.``スナップショットからの復元が正しく動作する``() =
+    member _.``スナップショットからの復元が正しく動作する``() =
         task {
-            do! this.CleanupTestDataAsync()
-
+            let eventStore = MockEventStoreRepository()
+            let snapshotStore = MockSnapshotRepository()
             // スナップショット間隔を 2 に設定
-            let service = this.CreateService(2) :> IJournalEntryEventSourcingUseCase
+            let service = createService eventStore snapshotStore (Some 2) :> IJournalEntryEventSourcingUseCase
 
             // 作成（Version = 1）
             let! _ = service.CreateJournalEntryAsync
-                        "SNAP-SVC-TEST006"
+                        "TEST006"
                         (DateTime(2024, 1, 15))
                         "復元テスト仕訳"
                         (createTestLineItems ())
                         "user1"
 
             // 承認（Version = 2）→ スナップショット作成
-            let! _ = service.ApproveJournalEntryAsync "SNAP-SVC-TEST006" "manager" "承認"
+            let! _ = service.ApproveJournalEntryAsync "TEST006" "manager" "承認"
 
             // 再度取得（スナップショットから復元されるはず）
-            let! aggregateOpt = service.GetJournalEntryAsync "SNAP-SVC-TEST006"
+            let! aggregateOpt = service.GetJournalEntryAsync "TEST006"
 
             match aggregateOpt with
             | Some aggregate ->
@@ -219,31 +327,29 @@ type JournalEntryEventSourcingServiceWithSnapshotTest() =
                 aggregate.Description |> should equal "復元テスト仕訳"
             | None ->
                 failwith "Expected aggregate but got None"
-
-            do! this.CleanupTestDataAsync()
         }
 
     [<Fact>]
-    member this.``スナップショット後のイベントも正しく適用される``() =
+    member _.``スナップショット後のイベントも正しく適用される``() =
         task {
-            do! this.CleanupTestDataAsync()
-
+            let eventStore = MockEventStoreRepository()
+            let snapshotStore = MockSnapshotRepository()
             // スナップショット間隔を 2 に設定
-            let service = this.CreateService(2) :> IJournalEntryEventSourcingUseCase
+            let service = createService eventStore snapshotStore (Some 2) :> IJournalEntryEventSourcingUseCase
 
             // 作成（Version = 1）
             let! _ = service.CreateJournalEntryAsync
-                        "SNAP-SVC-TEST007"
+                        "TEST007"
                         (DateTime(2024, 1, 15))
                         "追加イベントテスト"
                         (createTestLineItems ())
                         "user1"
 
             // 承認（Version = 2）→ スナップショット作成
-            let! _ = service.ApproveJournalEntryAsync "SNAP-SVC-TEST007" "manager" "承認"
+            let! _ = service.ApproveJournalEntryAsync "TEST007" "manager" "承認"
 
             // 削除（Version = 3）→ スナップショット後のイベント
-            let! deleteResult = service.DeleteJournalEntryAsync "SNAP-SVC-TEST007" "取消" "user1"
+            let! deleteResult = service.DeleteJournalEntryAsync "TEST007" "取消" "user1"
 
             match deleteResult with
             | Ok aggregate ->
@@ -254,7 +360,7 @@ type JournalEntryEventSourcingServiceWithSnapshotTest() =
                 failwith $"Delete failed: {msg}"
 
             // 再度取得してスナップショット + 追加イベントから正しく復元されるか確認
-            let! aggregateOpt = service.GetJournalEntryAsync "SNAP-SVC-TEST007"
+            let! aggregateOpt = service.GetJournalEntryAsync "TEST007"
 
             match aggregateOpt with
             | Some aggregate ->
@@ -262,97 +368,85 @@ type JournalEntryEventSourcingServiceWithSnapshotTest() =
                 aggregate.Deleted |> should equal true
             | None ->
                 failwith "Expected aggregate but got None"
-
-            do! this.CleanupTestDataAsync()
         }
 
     [<Fact>]
-    member this.``削除時にスナップショットも削除される``() =
+    member _.``削除時にスナップショットも削除される``() =
         task {
-            do! this.CleanupTestDataAsync()
-
+            let eventStore = MockEventStoreRepository()
+            let snapshotStore = MockSnapshotRepository()
             // スナップショット間隔を 2 に設定
-            let service = this.CreateService(2) :> IJournalEntryEventSourcingUseCase
+            let service = createService eventStore snapshotStore (Some 2) :> IJournalEntryEventSourcingUseCase
 
             // 作成（Version = 1）
             let! _ = service.CreateJournalEntryAsync
-                        "SNAP-SVC-TEST008"
+                        "TEST008"
                         (DateTime(2024, 1, 15))
                         "スナップショット削除テスト"
                         (createTestLineItems ())
                         "user1"
 
             // 承認（Version = 2）→ スナップショット作成
-            let! _ = service.ApproveJournalEntryAsync "SNAP-SVC-TEST008" "manager" "承認"
+            let! _ = service.ApproveJournalEntryAsync "TEST008" "manager" "承認"
 
             // スナップショットが作成されたか確認
-            use conn = new NpgsqlConnection(this.ConnectionString)
-            do! conn.OpenAsync()
-            let snapshotRepo = SnapshotRepository(conn)
-
-            let! snapshotBefore = snapshotRepo.GetSnapshotAsync "SNAP-SVC-TEST008" "JournalEntry"
-            snapshotBefore |> should not' (equal None)
+            snapshotStore.HasSnapshot "TEST008" |> should equal true
 
             // 削除
-            let! _ = service.DeleteJournalEntryAsync "SNAP-SVC-TEST008" "取消" "user1"
+            let! _ = service.DeleteJournalEntryAsync "TEST008" "取消" "user1"
 
             // スナップショットが削除されたか確認
-            let! snapshotAfter = snapshotRepo.GetSnapshotAsync "SNAP-SVC-TEST008" "JournalEntry"
-            snapshotAfter |> should equal None
-
-            do! this.CleanupTestDataAsync()
+            snapshotStore.HasSnapshot "TEST008" |> should equal false
         }
 
     [<Fact>]
-    member this.``手動スナップショット作成が動作する``() =
+    member _.``手動スナップショット作成が動作する``() =
         task {
-            do! this.CleanupTestDataAsync()
-
-            let serviceWithSnapshot = this.CreateService(100) // 高い間隔で自動作成を防ぐ
+            let eventStore = MockEventStoreRepository()
+            let snapshotStore = MockSnapshotRepository()
+            let serviceWithSnapshot = createService eventStore snapshotStore (Some 100) // 高い間隔で自動作成を防ぐ
             let service = serviceWithSnapshot :> IJournalEntryEventSourcingUseCase
 
             // 作成
             let! _ = service.CreateJournalEntryAsync
-                        "SNAP-SVC-TEST009"
+                        "TEST009"
                         (DateTime(2024, 1, 15))
                         "手動スナップショットテスト"
                         (createTestLineItems ())
                         "user1"
 
+            // この時点ではスナップショットなし
+            snapshotStore.HasSnapshot "TEST009" |> should equal false
+
             // 手動でスナップショットを作成
-            let! result = serviceWithSnapshot.CreateSnapshotAsync "SNAP-SVC-TEST009"
+            let! result = serviceWithSnapshot.CreateSnapshotAsync "TEST009"
 
             match result with
             | Ok () -> ()
             | Error msg -> failwith $"Manual snapshot creation failed: {msg}"
 
             // スナップショットが作成されたか確認
-            use conn = new NpgsqlConnection(this.ConnectionString)
-            do! conn.OpenAsync()
-            let snapshotRepo = SnapshotRepository(conn)
+            snapshotStore.HasSnapshot "TEST009" |> should equal true
 
-            let! snapshotOpt = snapshotRepo.GetSnapshotAsync "SNAP-SVC-TEST009" "JournalEntry"
-
-            match snapshotOpt with
-            | Some snapshot ->
-                snapshot.Version |> should equal 1
+            let snapshot = snapshotStore.GetStoredSnapshot "TEST009"
+            match snapshot with
+            | Some s ->
+                s.Version |> should equal 1
             | None ->
                 failwith "Expected snapshot to be created manually"
-
-            do! this.CleanupTestDataAsync()
         }
 
     [<Fact>]
-    member this.``すべての仕訳を取得できる``() =
+    member _.``すべての仕訳を取得できる``() =
         task {
-            do! this.CleanupTestDataAsync()
-
-            let service = this.CreateService() :> IJournalEntryEventSourcingUseCase
+            let eventStore = MockEventStoreRepository()
+            let snapshotStore = MockSnapshotRepository()
+            let service = createService eventStore snapshotStore None :> IJournalEntryEventSourcingUseCase
 
             // 複数の仕訳を作成
             for i in 1..3 do
                 let! _ = service.CreateJournalEntryAsync
-                            $"SNAP-SVC-TEST010-{i}"
+                            $"TEST010-{i}"
                             (DateTime(2024, 1, 15))
                             $"一覧テスト{i}"
                             (createTestLineItems ())
@@ -361,34 +455,95 @@ type JournalEntryEventSourcingServiceWithSnapshotTest() =
 
             let! aggregates = service.GetAllJournalEntriesAsync()
 
-            let testAggregates = aggregates |> List.filter (fun a -> a.Id.StartsWith("SNAP-SVC-TEST010"))
-            testAggregates |> should haveLength 3
-
-            do! this.CleanupTestDataAsync()
+            aggregates |> should haveLength 3
         }
 
     [<Fact>]
-    member this.``削除済みの仕訳は一覧に含まれない``() =
+    member _.``削除済みの仕訳は一覧に含まれない``() =
         task {
-            do! this.CleanupTestDataAsync()
-
-            let service = this.CreateService() :> IJournalEntryEventSourcingUseCase
+            let eventStore = MockEventStoreRepository()
+            let snapshotStore = MockSnapshotRepository()
+            let service = createService eventStore snapshotStore None :> IJournalEntryEventSourcingUseCase
 
             // 仕訳を作成
             let! _ = service.CreateJournalEntryAsync
-                        "SNAP-SVC-TEST011"
+                        "TEST011"
                         (DateTime(2024, 1, 15))
                         "削除除外テスト"
                         (createTestLineItems ())
                         "user1"
 
             // 削除
-            let! _ = service.DeleteJournalEntryAsync "SNAP-SVC-TEST011" "テスト削除" "user1"
+            let! _ = service.DeleteJournalEntryAsync "TEST011" "テスト削除" "user1"
 
             let! aggregates = service.GetAllJournalEntriesAsync()
 
-            let testAggregates = aggregates |> List.filter (fun a -> a.Id = "SNAP-SVC-TEST011")
+            let testAggregates = aggregates |> List.filter (fun a -> a.Id = "TEST011")
             testAggregates |> should haveLength 0
+        }
 
-            do! this.CleanupTestDataAsync()
+    [<Fact>]
+    member _.``存在しない仕訳を取得するとNoneが返る``() =
+        task {
+            let eventStore = MockEventStoreRepository()
+            let snapshotStore = MockSnapshotRepository()
+            let service = createService eventStore snapshotStore None :> IJournalEntryEventSourcingUseCase
+
+            let! aggregateOpt = service.GetJournalEntryAsync "NON_EXISTENT"
+
+            aggregateOpt |> should equal None
+        }
+
+    [<Fact>]
+    member _.``存在しない仕訳を承認するとエラーが返る``() =
+        task {
+            let eventStore = MockEventStoreRepository()
+            let snapshotStore = MockSnapshotRepository()
+            let service = createService eventStore snapshotStore None :> IJournalEntryEventSourcingUseCase
+
+            let! result = service.ApproveJournalEntryAsync "NON_EXISTENT" "manager" "承認"
+
+            match result with
+            | Ok _ -> failwith "Expected error but got Ok"
+            | Error msg -> msg |> should equal "仕訳が見つかりません"
+        }
+
+    [<Fact>]
+    member _.``存在しない仕訳を削除するとエラーが返る``() =
+        task {
+            let eventStore = MockEventStoreRepository()
+            let snapshotStore = MockSnapshotRepository()
+            let service = createService eventStore snapshotStore None :> IJournalEntryEventSourcingUseCase
+
+            let! result = service.DeleteJournalEntryAsync "NON_EXISTENT" "理由" "user1"
+
+            match result with
+            | Ok _ -> failwith "Expected error but got Ok"
+            | Error msg -> msg |> should equal "仕訳が見つかりません"
+        }
+
+    [<Fact>]
+    member _.``既に承認済みの仕訳を再承認するとエラーが返る``() =
+        task {
+            let eventStore = MockEventStoreRepository()
+            let snapshotStore = MockSnapshotRepository()
+            let service = createService eventStore snapshotStore None :> IJournalEntryEventSourcingUseCase
+
+            // 仕訳を作成
+            let! _ = service.CreateJournalEntryAsync
+                        "TEST012"
+                        (DateTime(2024, 1, 15))
+                        "再承認テスト"
+                        (createTestLineItems ())
+                        "user1"
+
+            // 承認
+            let! _ = service.ApproveJournalEntryAsync "TEST012" "manager" "承認"
+
+            // 再度承認しようとするとエラー
+            let! result = service.ApproveJournalEntryAsync "TEST012" "manager2" "再承認"
+
+            match result with
+            | Ok _ -> failwith "Expected error but got Ok"
+            | Error msg -> msg |> should haveSubstring "承認"
         }
