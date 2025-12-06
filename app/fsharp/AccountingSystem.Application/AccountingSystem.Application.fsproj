@@ -20,6 +20,7 @@
     <Compile Include="Port/In/IAccountUseCase.fs" />
     <Compile Include="Port/In/IJournalUseCase.fs" />
     <Compile Include="Port/In/IFinancialStatementUseCase.fs" />
+    <Compile Include="Port/In/IFinancialAnalysisUseCase.fs" />
     <Compile Include="Port/In/IAuditLogUseCase.fs" />
     <Compile Include="Port/In/IJournalEntryEventSourcingUseCase.fs" />
     <Compile Include="Port/In/IEventHandler.fs" />
@@ -36,6 +37,7 @@
     <Compile Include="Services/JournalEntryQueryService.fs" />
     <Compile Include="Services/EventDispatcher.fs" />
     <Compile Include="Services/JournalEntryEventSourcingServiceWithEvents.fs" />
+    <Compile Include="Services/FinancialAnalysisService.fs" />
   </ItemGroup>
 
   <ItemGroup>
