@@ -5,6 +5,8 @@ open System.Threading
 open System.Threading.Tasks
 open Xunit
 open FsUnit.Xunit
+open Microsoft.Extensions.DependencyInjection
+open Microsoft.Extensions.Logging.Abstractions
 open AccountingSystem.Domain.Types
 open AccountingSystem.Domain.Events
 open AccountingSystem.Application.Port.In
@@ -15,6 +17,23 @@ open AccountingSystem.Infrastructure.Messaging
 open AccountingSystem.Tests.DatabaseIntegrationTestBase
 
 /// <summary>
+/// テスト用 IServiceScopeFactory を作成するヘルパー
+/// </summary>
+module private TestServiceScopeFactory =
+    let create (handlers: IJournalEntryEventHandler list) : IServiceScopeFactory =
+        let services = ServiceCollection()
+        handlers |> List.iter (fun h -> services.AddSingleton<IJournalEntryEventHandler>(h) |> ignore)
+        let serviceProvider = services.BuildServiceProvider()
+
+        { new IServiceScopeFactory with
+            member _.CreateScope() =
+                { new IServiceScope with
+                    member _.ServiceProvider = serviceProvider
+                    member _.Dispose() = ()
+                }
+        }
+
+/// <summary>
 /// JournalEntryReadModelHandler 統合テスト
 /// RabbitMQ + PostgreSQL を使用した E2E テスト
 /// </summary>
@@ -22,6 +41,11 @@ type JournalEntryReadModelHandlerIntegrationTest() =
     inherit DatabaseIntegrationTestBase()
 
     let mutable rabbitMqConfig: RabbitMqConfig = RabbitMqConfig.defaultConfig
+
+    let createSubscriber config handlers =
+        let scopeFactory = TestServiceScopeFactory.create handlers
+        let logger = NullLogger<RabbitMqEventSubscriber>.Instance
+        new RabbitMqEventSubscriber(config, scopeFactory, logger)
 
     override this.InitializeAsync() =
         task {
@@ -173,7 +197,7 @@ type JournalEntryReadModelHandlerIntegrationTest() =
             let handler = JournalEntryReadModelHandler(readModelRepository)
 
             use publisher = new RabbitMqEventPublisher(rabbitMqConfig)
-            use subscriber = new RabbitMqEventSubscriber(rabbitMqConfig, [ handler ])
+            use subscriber = createSubscriber rabbitMqConfig [ handler ]
 
             do! subscriber.StartAsync(CancellationToken.None)
             do! Task.Delay(500)
@@ -204,7 +228,7 @@ type JournalEntryReadModelHandlerIntegrationTest() =
             model.Id |> should equal "RM-TEST-004"
             model.Description |> should equal "RabbitMQ経由テスト"
 
-            do! subscriber.StopAsync()
+            do! subscriber.StopAsync(CancellationToken.None)
         }
 
     [<Fact>]
@@ -216,7 +240,7 @@ type JournalEntryReadModelHandlerIntegrationTest() =
             let handler = JournalEntryReadModelHandler(readModelRepository)
 
             use publisher = new RabbitMqEventPublisher(rabbitMqConfig)
-            use subscriber = new RabbitMqEventSubscriber(rabbitMqConfig, [ handler ])
+            use subscriber = createSubscriber rabbitMqConfig [ handler ]
 
             do! subscriber.StartAsync(CancellationToken.None)
             do! Task.Delay(500)
@@ -256,5 +280,5 @@ type JournalEntryReadModelHandlerIntegrationTest() =
             model.Status |> should equal "Approved"
             model.ApprovedBy |> should equal (Some "supervisor")
 
-            do! subscriber.StopAsync()
+            do! subscriber.StopAsync(CancellationToken.None)
         }

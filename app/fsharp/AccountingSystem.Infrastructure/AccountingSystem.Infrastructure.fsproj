@@ -60,7 +60,6 @@
     <Compile Include="Adapters/JournalEntryReadModelRepositoryAdapter.fs" />
     <Compile Include="Messaging/RabbitMqEventPublisher.fs" />
     <Compile Include="Messaging/RabbitMqEventSubscriber.fs" />
-    <Compile Include="Messaging/RabbitMqEventSubscriberBackgroundService.fs" />
     <Compile Include="Web/Dtos/ErrorResponse.fs" />
     <Compile Include="Web/Dtos/AccountDto.fs" />
     <Compile Include="Web/Dtos/JournalDto.fs" />

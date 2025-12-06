@@ -5,6 +5,8 @@ open System.Threading
 open System.Threading.Tasks
 open Xunit
 open FsUnit.Xunit
+open Microsoft.Extensions.DependencyInjection
+open Microsoft.Extensions.Logging.Abstractions
 open AccountingSystem.Domain.Types
 open AccountingSystem.Domain.Events
 open AccountingSystem.Application.Port.In
@@ -15,6 +17,23 @@ open AccountingSystem.Infrastructure.Messaging
 open AccountingSystem.Tests.DatabaseIntegrationTestBase
 
 /// <summary>
+/// テスト用 IServiceScopeFactory を作成するヘルパー
+/// </summary>
+module private TestServiceScopeFactory =
+    let create (handlers: IJournalEntryEventHandler list) : IServiceScopeFactory =
+        let services = ServiceCollection()
+        handlers |> List.iter (fun h -> services.AddSingleton<IJournalEntryEventHandler>(h) |> ignore)
+        let serviceProvider = services.BuildServiceProvider()
+
+        { new IServiceScopeFactory with
+            member _.CreateScope() =
+                { new IServiceScope with
+                    member _.ServiceProvider = serviceProvider
+                    member _.Dispose() = ()
+                }
+        }
+
+/// <summary>
 /// AuditLogEventHandler 統合テスト
 /// RabbitMQ + PostgreSQL を使用した E2E テスト
 /// </summary>
@@ -22,6 +41,11 @@ type AuditLogEventHandlerIntegrationTest() =
     inherit DatabaseIntegrationTestBase()
 
     let mutable rabbitMqConfig: RabbitMqConfig = RabbitMqConfig.defaultConfig
+
+    let createSubscriber config handlers =
+        let scopeFactory = TestServiceScopeFactory.create handlers
+        let logger = NullLogger<RabbitMqEventSubscriber>.Instance
+        new RabbitMqEventSubscriber(config, scopeFactory, logger)
 
     override this.InitializeAsync() =
         task {
@@ -142,7 +166,7 @@ type AuditLogEventHandlerIntegrationTest() =
             let handler = AuditLogEventHandler(auditLogRepository)
 
             use publisher = new RabbitMqEventPublisher(rabbitMqConfig)
-            use subscriber = new RabbitMqEventSubscriber(rabbitMqConfig, [ handler ])
+            use subscriber = createSubscriber rabbitMqConfig [ handler ]
 
             do! subscriber.StartAsync(CancellationToken.None)
             do! Task.Delay(500)
@@ -173,7 +197,7 @@ type AuditLogEventHandlerIntegrationTest() =
             log.EntityId |> should equal "AL-TEST-004"
             log.UserId |> should equal "user2"
 
-            do! subscriber.StopAsync()
+            do! subscriber.StopAsync(CancellationToken.None)
         }
 
     [<Fact>]
@@ -184,11 +208,11 @@ type AuditLogEventHandlerIntegrationTest() =
             let auditLogRepository = AuditLogRepositoryAdapter(this.ConnectionString) :> IAuditLogRepository
             let readModelRepository = JournalEntryReadModelRepositoryAdapter(this.ConnectionString) :> IJournalEntryReadModelRepository
 
-            let auditLogHandler = AuditLogEventHandler(auditLogRepository)
-            let readModelHandler = JournalEntryReadModelHandler(readModelRepository)
+            let auditLogHandler = AuditLogEventHandler(auditLogRepository) :> IJournalEntryEventHandler
+            let readModelHandler = JournalEntryReadModelHandler(readModelRepository) :> IJournalEntryEventHandler
 
             use publisher = new RabbitMqEventPublisher(rabbitMqConfig)
-            use subscriber = new RabbitMqEventSubscriber(rabbitMqConfig, [ auditLogHandler; readModelHandler ])
+            use subscriber = createSubscriber rabbitMqConfig [ auditLogHandler; readModelHandler ]
 
             do! subscriber.StartAsync(CancellationToken.None)
             do! Task.Delay(500)
@@ -220,7 +244,7 @@ type AuditLogEventHandlerIntegrationTest() =
             readModel.IsSome |> should equal true
             readModel.Value.Description |> should equal "複数ハンドラーテスト"
 
-            do! subscriber.StopAsync()
+            do! subscriber.StopAsync(CancellationToken.None)
         }
 
     [<Fact>]

@@ -162,11 +162,11 @@ module Program =
             )
             |> ignore
 
-            // RabbitMQ イベントサブスクライバー BackgroundService を登録
-            builder.Services.AddHostedService<RabbitMqEventSubscriberBackgroundService>(fun sp ->
+            // RabbitMQ イベントサブスクライバーを登録
+            builder.Services.AddHostedService<RabbitMqEventSubscriber>(fun sp ->
                 let scopeFactory = sp.GetRequiredService<IServiceScopeFactory>()
-                let logger = sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<RabbitMqEventSubscriberBackgroundService>>()
-                new RabbitMqEventSubscriberBackgroundService(rabbitMqConfig, scopeFactory, logger)
+                let logger = sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<RabbitMqEventSubscriber>>()
+                new RabbitMqEventSubscriber(rabbitMqConfig, scopeFactory, logger)
             )
             |> ignore
         else

@@ -5,6 +5,9 @@ open System.Text
 open System.Text.Json
 open System.Threading
 open System.Threading.Tasks
+open Microsoft.Extensions.DependencyInjection
+open Microsoft.Extensions.Hosting
+open Microsoft.Extensions.Logging
 open RabbitMQ.Client
 open RabbitMQ.Client.Events
 open AccountingSystem.Domain.Events
@@ -13,15 +16,20 @@ open AccountingSystem.Application.Port.In
 
 /// <summary>
 /// RabbitMQ イベントサブスクライバー
-/// RabbitMQ からイベントを受信してハンドラーに配信する
+/// アプリケーション起動時に RabbitMQ からイベントを購読し、
+/// Scoped なハンドラーを使用して処理する
 /// </summary>
-type RabbitMqEventSubscriber(config: RabbitMqConfig, handlers: IJournalEntryEventHandler seq) =
+type RabbitMqEventSubscriber
+    (
+        config: RabbitMqConfig,
+        serviceScopeFactory: IServiceScopeFactory,
+        logger: ILogger<RabbitMqEventSubscriber>
+    ) =
+    inherit BackgroundService()
+
     let mutable connection: IConnection option = None
     let mutable channel: IChannel option = None
     let mutable consumerTag: string option = None
-    let handlerList = handlers |> Seq.toList
-    let lockObj = obj()
-
     let queueName = "accounting.journal-entry.events"
 
     /// <summary>
@@ -45,6 +53,8 @@ type RabbitMqEventSubscriber(config: RabbitMqConfig, handlers: IJournalEntryEven
                     Password = config.Password,
                     VirtualHost = config.VirtualHost
                 )
+
+                logger.LogInformation("RabbitMQ に接続中: {Host}:{Port}", config.HostName, config.Port)
 
                 let! newConnection = factory.CreateConnectionAsync()
                 let! newChannel = newConnection.CreateChannelAsync()
@@ -79,6 +89,8 @@ type RabbitMqEventSubscriber(config: RabbitMqConfig, handlers: IJournalEntryEven
 
                 connection <- Some newConnection
                 channel <- Some newChannel
+
+                logger.LogInformation("RabbitMQ 接続完了。キュー '{Queue}' を購読中", queueName)
 
                 return newChannel
         }
@@ -139,28 +151,34 @@ type RabbitMqEventSubscriber(config: RabbitMqConfig, handlers: IJournalEntryEven
             | _ -> None
         with
         | ex ->
-            printfn $"イベントデシリアライズエラー: {ex.Message}"
+            logger.LogError(ex, "イベントデシリアライズエラー")
             None
 
     /// <summary>
-    /// イベントをハンドラーに配信
+    /// イベントをハンドラーに配信（Scoped サービスを使用）
     /// </summary>
     let dispatchEventAsync (event: JournalEntryEvent) : Task<bool> =
         task {
+            use scope = serviceScopeFactory.CreateScope()
+            let handlers = scope.ServiceProvider.GetServices<IJournalEntryEventHandler>()
             let eventType = JournalEntryEvent.getEventType event
-            let targetHandlers =
-                handlerList
-                |> List.filter (fun h -> h.EventTypes |> List.contains eventType)
 
             let mutable allSuccess = true
 
-            for handler in targetHandlers do
-                let! result = handler.HandleAsync(event)
-                match result with
-                | Ok () -> ()
-                | Error msg ->
-                    printfn $"ハンドラーエラー: {msg}"
-                    allSuccess <- false
+            for handler in handlers do
+                if handler.EventTypes |> List.contains eventType then
+                    try
+                        let! result = handler.HandleAsync(event)
+                        match result with
+                        | Ok () ->
+                            logger.LogDebug("ハンドラー処理成功: {EventType}", eventType)
+                        | Error msg ->
+                            logger.LogWarning("ハンドラーエラー: {Error}", msg)
+                            allSuccess <- false
+                    with
+                    | ex ->
+                        logger.LogError(ex, "ハンドラー例外: {EventType}", eventType)
+                        allSuccess <- false
 
             return allSuccess
         }
@@ -173,64 +191,94 @@ type RabbitMqEventSubscriber(config: RabbitMqConfig, handlers: IJournalEntryEven
             try
                 match deserializeEvent args.Body with
                 | Some event ->
+                    logger.LogInformation(
+                        "イベント受信: {EventType}, ID: {JournalEntryId}",
+                        JournalEntryEvent.getEventType event,
+                        JournalEntryEvent.getAggregateId event
+                    )
+
                     let! success = dispatchEventAsync event
                     if success then
                         // 成功時は ACK
                         do! ch.BasicAckAsync(args.DeliveryTag, multiple = false)
+                        logger.LogDebug("メッセージ ACK 完了")
                     else
                         // 失敗時は NACK（再キュー）
                         do! ch.BasicNackAsync(args.DeliveryTag, multiple = false, requeue = true)
+                        logger.LogWarning("メッセージ NACK（再キュー）")
                 | None ->
                     // デシリアライズ失敗時は ACK（再処理しても無駄）
                     do! ch.BasicAckAsync(args.DeliveryTag, multiple = false)
+                    logger.LogWarning("不明なメッセージ形式のため ACK")
             with
             | ex ->
-                printfn $"メッセージ処理エラー: {ex.Message}"
+                logger.LogError(ex, "メッセージ処理エラー")
                 do! ch.BasicNackAsync(args.DeliveryTag, multiple = false, requeue = true)
         }
 
-    /// <summary>
-    /// サブスクリプションを開始
-    /// </summary>
-    member _.StartAsync(cancellationToken: CancellationToken) : Task<unit> =
+    override _.ExecuteAsync(stoppingToken: CancellationToken) : Task =
         task {
-            let! ch = connectAsync ()
+            logger.LogInformation("RabbitMQ イベントサブスクライバー開始")
 
-            let consumer = AsyncEventingBasicConsumer(ch)
+            try
+                let! ch = connectAsync ()
 
-            consumer.add_ReceivedAsync(
-                AsyncEventHandler<BasicDeliverEventArgs>(fun _ args ->
-                    handleMessageAsync ch args
+                let consumer = AsyncEventingBasicConsumer(ch)
+
+                consumer.add_ReceivedAsync(
+                    AsyncEventHandler<BasicDeliverEventArgs>(fun _ args ->
+                        handleMessageAsync ch args
+                    )
                 )
-            )
 
-            let! tag = ch.BasicConsumeAsync(
-                queue = queueName,
-                autoAck = false,
-                consumer = consumer
-            )
+                let! tag = ch.BasicConsumeAsync(
+                    queue = queueName,
+                    autoAck = false,
+                    consumer = consumer
+                )
 
-            consumerTag <- Some tag
+                consumerTag <- Some tag
+                logger.LogInformation("RabbitMQ コンシューマー開始: {ConsumerTag}", tag)
+
+                // キャンセルされるまで待機
+                while not stoppingToken.IsCancellationRequested do
+                    do! Task.Delay(1000, stoppingToken)
+            with
+            | :? OperationCanceledException ->
+                logger.LogInformation("RabbitMQ イベントサブスクライバー停止要求")
+            | ex ->
+                logger.LogError(ex, "RabbitMQ イベントサブスクライバーエラー")
         }
 
     /// <summary>
-    /// サブスクリプションを停止
+    /// クリーンアップ処理
     /// </summary>
-    member _.StopAsync() : Task<unit> =
+    member private _.CleanupAsync() : Task =
         task {
+            logger.LogInformation("RabbitMQ イベントサブスクライバー停止中...")
+
             match channel, consumerTag with
             | Some ch, Some tag when ch.IsOpen ->
-                do! ch.BasicCancelAsync(tag)
-                consumerTag <- None
+                try
+                    do! ch.BasicCancelAsync(tag)
+                    consumerTag <- None
+                    logger.LogInformation("コンシューマーキャンセル完了")
+                with
+                | ex -> logger.LogWarning(ex, "コンシューマーキャンセルエラー")
             | _ -> ()
-        }
 
-    interface IDisposable with
-        member _.Dispose() =
+            // 接続をクリーンアップ
             channel |> Option.iter (fun ch ->
                 try ch.Dispose() with _ -> ())
             connection |> Option.iter (fun conn ->
                 try conn.Dispose() with _ -> ())
             channel <- None
             connection <- None
-            consumerTag <- None
+        }
+
+    override this.Dispose() =
+        channel |> Option.iter (fun ch ->
+            try ch.Dispose() with _ -> ())
+        connection |> Option.iter (fun conn ->
+            try conn.Dispose() with _ -> ())
+        base.Dispose()
