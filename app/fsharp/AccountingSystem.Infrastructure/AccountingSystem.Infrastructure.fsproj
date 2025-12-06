@@ -55,6 +55,9 @@
     <Compile Include="Adapters/AuditLogRepositoryAdapter.fs" />
     <Compile Include="Adapters/EventStoreRepositoryAdapter.fs" />
     <Compile Include="Adapters/SnapshotRepositoryAdapter.fs" />
+    <Compile Include="Adapters/JournalEntryReadModelRepositoryAdapter.fs" />
+    <Compile Include="Messaging/RabbitMqEventPublisher.fs" />
+    <Compile Include="Messaging/RabbitMqEventSubscriber.fs" />
     <Compile Include="Web/Dtos/ErrorResponse.fs" />
     <Compile Include="Web/Dtos/AccountDto.fs" />
     <Compile Include="Web/Dtos/JournalDto.fs" />
@@ -67,6 +70,7 @@
     <Compile Include="Web/Controllers/AuditLogController.fs" />
     <Compile Include="Web/Controllers/JournalEntryEventSourcingController.fs" />
     <Compile Include="Web/Controllers/JournalEntryEventSourcingWithSnapshotController.fs" />
+    <Compile Include="Web/Controllers/JournalEntryEventSourcingWithEventsController.fs" />
     <Compile Include="MigrationRunner.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
@@ -80,6 +84,7 @@
     <PackageReference Include="MySql.Data" Version="9.1.0" />
     <PackageReference Include="Npgsql" Version="9.0.2" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="RabbitMQ.Client" Version="7.2.0" />
   </ItemGroup>
 
   <ItemGroup>

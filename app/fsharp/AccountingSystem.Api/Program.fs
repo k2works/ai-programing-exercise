@@ -12,7 +12,9 @@ open Microsoft.OpenApi.Models
 open AccountingSystem.Application.Port.In
 open AccountingSystem.Application.Port.Out
 open AccountingSystem.Application.Services
+open AccountingSystem.Application.EventHandlers
 open AccountingSystem.Infrastructure.Adapters
+open AccountingSystem.Infrastructure.Messaging
 open AccountingSystem.Infrastructure.Persistence.Repositories.FinancialStatementRepository
 open AccountingSystem.Infrastructure.Web.Controllers
 open AccountingSystem.Api.Middleware
@@ -60,6 +62,19 @@ module Program =
             |> Option.ofObj
             |> Option.defaultValue "Host=localhost;Port=5432;Database=accounting_system;Username=postgres;Password=postgres"
 
+        // RabbitMQ 設定を取得
+        let rabbitMqSection = builder.Configuration.GetSection("RabbitMQ")
+        let rabbitMqEnabled =
+            rabbitMqSection.GetValue<bool>("Enabled", false)
+        let rabbitMqConfig : RabbitMqConfig = {
+            HostName = rabbitMqSection.GetValue<string>("HostName", "localhost")
+            Port = rabbitMqSection.GetValue<int>("Port", 5672)
+            UserName = rabbitMqSection.GetValue<string>("UserName", "guest")
+            Password = rabbitMqSection.GetValue<string>("Password", "guest")
+            VirtualHost = rabbitMqSection.GetValue<string>("VirtualHost", "/")
+            ExchangeName = rabbitMqSection.GetValue<string>("ExchangeName", "accounting.events")
+        }
+
         // Repository の登録（Output Adapters）
         builder.Services.AddScoped<IAccountRepository>(fun _ ->
             AccountRepositoryAdapter(connectionString) :> IAccountRepository
@@ -85,6 +100,10 @@ module Program =
             SnapshotRepositoryAdapter(connectionString) :> ISnapshotRepository
         )
 
+        builder.Services.AddScoped<IJournalEntryReadModelRepository>(fun _ ->
+            JournalEntryReadModelRepositoryAdapter(connectionString) :> IJournalEntryReadModelRepository
+        )
+
         // Application Services の登録
         builder.Services.AddScoped<IAccountUseCase, AccountService>()
         builder.Services.AddScoped<IJournalUseCase, JournalService>()
@@ -97,6 +116,50 @@ module Program =
             let eventStoreRepo = sp.GetRequiredService<IEventStoreRepository>()
             let snapshotRepo = sp.GetRequiredService<ISnapshotRepository>()
             JournalEntryEventSourcingServiceWithSnapshot(eventStoreRepo, snapshotRepo, 10)
+        )
+
+        // イベントハンドラーの登録
+        builder.Services.AddScoped<IJournalEntryEventHandler>(fun sp ->
+            let readModelRepo = sp.GetRequiredService<IJournalEntryReadModelRepository>()
+            JournalEntryReadModelHandler(readModelRepo)
+        )
+        |> ignore
+
+        builder.Services.AddScoped<IJournalEntryEventHandler>(fun sp ->
+            let auditLogRepo = sp.GetRequiredService<IAuditLogRepository>()
+            AuditLogEventHandler(auditLogRepo)
+        )
+        |> ignore
+
+        // イベントディスパッチャー（ローカル用）の登録
+        builder.Services.AddScoped<EventDispatcher>(fun sp ->
+            let handlers = sp.GetServices<IJournalEntryEventHandler>()
+            EventDispatcher(handlers)
+        )
+
+        // イベントパブリッシャー（IEventPublisher）の登録
+        // RabbitMQ が有効な場合は RabbitMqEventPublisher、無効な場合は EventDispatcher を使用
+        if rabbitMqEnabled then
+            builder.Services.AddSingleton<RabbitMqEventPublisher>(fun _ ->
+                new RabbitMqEventPublisher(rabbitMqConfig)
+            )
+            |> ignore
+            builder.Services.AddScoped<IEventPublisher>(fun sp ->
+                sp.GetRequiredService<RabbitMqEventPublisher>() :> IEventPublisher
+            )
+            |> ignore
+        else
+            builder.Services.AddScoped<IEventPublisher>(fun sp ->
+                sp.GetRequiredService<EventDispatcher>() :> IEventPublisher
+            )
+            |> ignore
+
+        // イベント発行付きイベントソーシングサービスの登録
+        builder.Services.AddScoped<JournalEntryEventSourcingServiceWithEvents>(fun sp ->
+            let eventStoreRepo = sp.GetRequiredService<IEventStoreRepository>()
+            let snapshotRepo = sp.GetRequiredService<ISnapshotRepository>()
+            let eventPublisher = sp.GetRequiredService<IEventPublisher>()
+            JournalEntryEventSourcingServiceWithEvents(eventStoreRepo, snapshotRepo, eventPublisher, 10)
         )
 
         // グローバル例外ハンドラーの登録
