@@ -77,11 +77,27 @@ module Program =
             AuditLogRepositoryAdapter(connectionString) :> IAuditLogRepository
         )
 
+        builder.Services.AddScoped<IEventStoreRepository>(fun _ ->
+            EventStoreRepositoryAdapter(connectionString) :> IEventStoreRepository
+        )
+
+        builder.Services.AddScoped<ISnapshotRepository>(fun _ ->
+            SnapshotRepositoryAdapter(connectionString) :> ISnapshotRepository
+        )
+
         // Application Services の登録
         builder.Services.AddScoped<IAccountUseCase, AccountService>()
         builder.Services.AddScoped<IJournalUseCase, JournalService>()
         builder.Services.AddScoped<IFinancialStatementUseCase, FinancialStatementService>()
         builder.Services.AddScoped<IAuditLogUseCase, AuditLogService>()
+        builder.Services.AddScoped<IJournalEntryEventSourcingUseCase, JournalEntryEventSourcingService>()
+
+        // スナップショット最適化版サービスの登録
+        builder.Services.AddScoped<JournalEntryEventSourcingServiceWithSnapshot>(fun sp ->
+            let eventStoreRepo = sp.GetRequiredService<IEventStoreRepository>()
+            let snapshotRepo = sp.GetRequiredService<ISnapshotRepository>()
+            JournalEntryEventSourcingServiceWithSnapshot(eventStoreRepo, snapshotRepo, 10)
+        )
 
         // グローバル例外ハンドラーの登録
         builder.Services.AddExceptionHandler<GlobalExceptionHandler>()
