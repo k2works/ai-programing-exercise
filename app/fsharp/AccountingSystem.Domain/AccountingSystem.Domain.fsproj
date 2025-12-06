@@ -33,6 +33,7 @@
     <Compile Include="Models\BalanceSheet.fs" />
     <Compile Include="Models\IncomeStatement.fs" />
     <Compile Include="Models\FinancialRatios.fs" />
+    <Compile Include="Models\FinancialAnalysis.fs" />
     <Compile Include="Models\AuditLog.fs" />
     <Compile Include="Services\DoubleEntryBookkeepingService.fs" />
     <Compile Include="Library.fs" />
