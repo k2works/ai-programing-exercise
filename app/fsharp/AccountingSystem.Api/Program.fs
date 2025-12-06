@@ -73,10 +73,15 @@ module Program =
             FinancialStatementRepositoryAdapter(connectionString) :> IFinancialStatementRepository
         )
 
+        builder.Services.AddScoped<IAuditLogRepository>(fun _ ->
+            AuditLogRepositoryAdapter(connectionString) :> IAuditLogRepository
+        )
+
         // Application Services の登録
         builder.Services.AddScoped<IAccountUseCase, AccountService>()
         builder.Services.AddScoped<IJournalUseCase, JournalService>()
         builder.Services.AddScoped<IFinancialStatementUseCase, FinancialStatementService>()
+        builder.Services.AddScoped<IAuditLogUseCase, AuditLogService>()
 
         // グローバル例外ハンドラーの登録
         builder.Services.AddExceptionHandler<GlobalExceptionHandler>()

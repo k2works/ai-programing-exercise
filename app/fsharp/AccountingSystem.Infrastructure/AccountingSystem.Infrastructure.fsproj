@@ -20,6 +20,7 @@
     <Compile Include="Migrations/Migration_20250121_013_CreateDailyAccountBalance.fs" />
     <Compile Include="Migrations/Migration_20250121_014_CreateMonthlyAccountBalance.fs" />
     <Compile Include="Migrations/Migration_20250121_015_CreateLedgerViews.fs" />
+    <Compile Include="Migrations/Migration_20250121_016_CreateAuditLogTable.fs" />
     <Compile Include="Persistence/DAO/AccountDao.fs" />
     <Compile Include="Persistence/DAO/TaxTransactionDao.fs" />
     <Compile Include="Persistence/DAO/AccountStructureDao.fs" />
@@ -28,6 +29,7 @@
     <Compile Include="Persistence/DAO/JournalLineItemDao.fs" />
     <Compile Include="Persistence/DAO/AutoJournalDao.fs" />
     <Compile Include="Persistence/DAO/FinancialStatementDao.fs" />
+    <Compile Include="Persistence/DAO/AuditLogDao.fs" />
     <Compile Include="Persistence/Repositories/AccountStructureRepository.fs" />
     <Compile Include="Persistence/Repositories/TaxTransactionRepository.fs" />
     <Compile Include="Persistence/Repositories/AccountRepository.fs" />
@@ -36,17 +38,21 @@
     <Compile Include="Persistence/Repositories/BalanceRepository.fs" />
     <Compile Include="Persistence/Repositories/AutoJournalRepository.fs" />
     <Compile Include="Persistence/Repositories/FinancialStatementRepository.fs" />
+    <Compile Include="Persistence/Repositories/AuditLogRepository.fs" />
     <Compile Include="Adapters/AccountRepositoryAdapter.fs" />
     <Compile Include="Adapters/JournalRepositoryAdapter.fs" />
     <Compile Include="Adapters/BalanceRepositoryAdapter.fs" />
     <Compile Include="Adapters/AutoJournalRepositoryAdapter.fs" />
+    <Compile Include="Adapters/AuditLogRepositoryAdapter.fs" />
     <Compile Include="Web/Dtos/ErrorResponse.fs" />
     <Compile Include="Web/Dtos/AccountDto.fs" />
     <Compile Include="Web/Dtos/JournalDto.fs" />
     <Compile Include="Web/Dtos/FinancialStatementDto.fs" />
+    <Compile Include="Web/Dtos/AuditLogDto.fs" />
     <Compile Include="Web/Controllers/AccountController.fs" />
     <Compile Include="Web/Controllers/JournalController.fs" />
     <Compile Include="Web/Controllers/FinancialStatementController.fs" />
+    <Compile Include="Web/Controllers/AuditLogController.fs" />
     <Compile Include="MigrationRunner.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
