@@ -48,6 +48,8 @@
     <Compile Include="Persistence/Repositories/EventStoreRepository.fs" />
     <Compile Include="Persistence/Repositories/JournalEntryReadModelRepository.fs" />
     <Compile Include="Persistence/Repositories/SnapshotRepository.fs" />
+    <Compile Include="Seed/AccountingSeedData.fs" />
+    <Compile Include="Seed/DatabaseSeeder.fs" />
     <Compile Include="Adapters/AccountRepositoryAdapter.fs" />
     <Compile Include="Adapters/JournalRepositoryAdapter.fs" />
     <Compile Include="Adapters/BalanceRepositoryAdapter.fs" />
@@ -63,11 +65,13 @@
     <Compile Include="Web/Dtos/AccountDto.fs" />
     <Compile Include="Web/Dtos/JournalDto.fs" />
     <Compile Include="Web/Dtos/FinancialStatementDto.fs" />
+    <Compile Include="Web/Dtos/FinancialAnalysisDto.fs" />
     <Compile Include="Web/Dtos/AuditLogDto.fs" />
     <Compile Include="Web/Dtos/JournalEntryEventSourcingDto.fs" />
     <Compile Include="Web/Controllers/AccountController.fs" />
     <Compile Include="Web/Controllers/JournalController.fs" />
     <Compile Include="Web/Controllers/FinancialStatementController.fs" />
+    <Compile Include="Web/Controllers/FinancialAnalysisController.fs" />
     <Compile Include="Web/Controllers/AuditLogController.fs" />
     <Compile Include="Web/Controllers/JournalEntryEventSourcingController.fs" />
     <Compile Include="Web/Controllers/JournalEntryEventSourcingWithSnapshotController.fs" />

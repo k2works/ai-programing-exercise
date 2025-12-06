@@ -17,6 +17,7 @@ open AccountingSystem.Infrastructure.Adapters
 open AccountingSystem.Infrastructure.Messaging
 open AccountingSystem.Infrastructure.Persistence.Repositories.FinancialStatementRepository
 open AccountingSystem.Infrastructure.Web.Controllers
+open AccountingSystem.Infrastructure.Seed
 open AccountingSystem.Api.Middleware
 
 /// WebApplicationFactory 用のマーカー型
@@ -173,6 +174,13 @@ module Program =
         // グローバル例外ハンドラーの登録
         builder.Services.AddExceptionHandler<GlobalExceptionHandler>()
         builder.Services.AddProblemDetails()
+
+        // DatabaseSeeder の登録（IHostedService として起動時に Seed を実行）
+        builder.Services.AddHostedService<DatabaseSeeder>(fun sp ->
+            let logger = sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<DatabaseSeeder>>()
+            DatabaseSeeder(connectionString, logger)
+        )
+        |> ignore
 
         let app = builder.Build()
 
