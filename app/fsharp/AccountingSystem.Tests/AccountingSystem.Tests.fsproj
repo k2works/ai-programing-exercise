@@ -37,6 +37,8 @@
     <Compile Include="Application/JournalServiceTest.fs" />
     <Compile Include="Application/AuditLogServiceTest.fs" />
     <Compile Include="Application/JournalEntryEventSourcingServiceWithSnapshotTest.fs" />
+    <Compile Include="Application/EventDispatcherTest.fs" />
+    <Compile Include="Infrastructure/RabbitMqEventPublisherTest.fs" />
     <Compile Include="Integration/DatabaseConnectionTests.fs" />
     <Compile Include="Integration/AccountControllerIntegrationTest.fs" />
     <Compile Include="Integration/JournalControllerIntegrationTest.fs" />
@@ -44,6 +46,7 @@
     <Compile Include="Integration/AuditLogControllerIntegrationTest.fs" />
     <Compile Include="Integration/JournalEntryEventSourcingControllerIntegrationTest.fs" />
     <Compile Include="Integration/JournalEntryEventSourcingWithSnapshotControllerIntegrationTest.fs" />
+    <Compile Include="Integration/JournalEntryEventSourcingWithEventsControllerIntegrationTest.fs" />
   </ItemGroup>
 
   <ItemGroup>
