@@ -7,37 +7,75 @@ open System.Net.Http.Json
 open System.Threading.Tasks
 open Xunit
 open FsUnit.Xunit
-open Microsoft.AspNetCore.Mvc.Testing
 open Microsoft.Extensions.DependencyInjection
-open Testcontainers.PostgreSql
-open AccountingSystem.Api
 open AccountingSystem.Infrastructure.Web.Dtos
 open AccountingSystem.Infrastructure.Web.Controllers
 open AccountingSystem.Application.Port.Out
 open AccountingSystem.Application.Services
 open AccountingSystem.Infrastructure.Adapters
-open AccountingSystem.Infrastructure.MigrationRunner
+open AccountingSystem.Tests.PostgresWebTestBase
 open Npgsql
 open Dapper
 
 /// <summary>
 /// 仕訳イベントソーシング（スナップショット最適化版）API 統合テスト
 /// Testcontainers + WebApplicationFactory を使用した E2E テスト
+/// PostgresWebTestBase を継承してコンテナとWebファクトリを管理
 /// </summary>
 type JournalEntryEventSourcingWithSnapshotControllerIntegrationTest() =
-    let mutable container: PostgreSqlContainer = null
-    let mutable connectionString: string = null
-    let mutable factory: WebApplicationFactory<Program> = null
-    let mutable client: HttpClient = null
+    inherit PostgresWebTestBase()
 
     let basePath = "/api/v1/journal-entries-with-snapshot"
 
     /// <summary>
+    /// サブクラスで DI 設定をカスタマイズ
+    /// </summary>
+    override _.ConfigureServices(services: IServiceCollection, connStr: string) =
+        // 既存の IEventStoreRepository を削除して新しいものに置き換え
+        let eventStoreDescriptor =
+            services
+            |> Seq.tryFind (fun d -> d.ServiceType = typeof<IEventStoreRepository>)
+        match eventStoreDescriptor with
+        | Some d -> services.Remove(d) |> ignore
+        | None -> ()
+
+        services.AddScoped<IEventStoreRepository>(fun _ ->
+            EventStoreRepositoryAdapter(connStr) :> IEventStoreRepository
+        ) |> ignore
+
+        // 既存の ISnapshotRepository を削除して新しいものに置き換え
+        let snapshotDescriptor =
+            services
+            |> Seq.tryFind (fun d -> d.ServiceType = typeof<ISnapshotRepository>)
+        match snapshotDescriptor with
+        | Some d -> services.Remove(d) |> ignore
+        | None -> ()
+
+        services.AddScoped<ISnapshotRepository>(fun _ ->
+            SnapshotRepositoryAdapter(connStr) :> ISnapshotRepository
+        ) |> ignore
+
+        // 既存の JournalEntryEventSourcingServiceWithSnapshot を削除して新しいものに置き換え
+        let serviceDescriptor =
+            services
+            |> Seq.tryFind (fun d -> d.ServiceType = typeof<JournalEntryEventSourcingServiceWithSnapshot>)
+        match serviceDescriptor with
+        | Some d -> services.Remove(d) |> ignore
+        | None -> ()
+
+        // スナップショット間隔を 2 に設定（テスト用）
+        services.AddScoped<JournalEntryEventSourcingServiceWithSnapshot>(fun sp ->
+            let eventStoreRepo = sp.GetRequiredService<IEventStoreRepository>()
+            let snapshotRepo = sp.GetRequiredService<ISnapshotRepository>()
+            JournalEntryEventSourcingServiceWithSnapshot(eventStoreRepo, snapshotRepo, 2)
+        ) |> ignore
+
+    /// <summary>
     /// テスト用データのクリーンアップ
     /// </summary>
-    let cleanupTestData (connStr: string) =
+    member this.CleanupTestDataAsync() =
         task {
-            use connection = new NpgsqlConnection(connStr)
+            use connection = new NpgsqlConnection(this.ConnectionString)
             do! connection.OpenAsync()
 
             let sql = """
@@ -49,98 +87,11 @@ type JournalEntryEventSourcingWithSnapshotControllerIntegrationTest() =
             return ()
         }
 
-    interface IAsyncLifetime with
-        member _.InitializeAsync() : Task =
-            task {
-                // Docker ホストの設定（Windows Docker Desktop 用）
-                let dockerHost =
-                    match Environment.GetEnvironmentVariable("DOCKER_HOST") with
-                    | null | "" -> "npipe://./pipe/docker_engine"
-                    | host -> host
-
-                Environment.SetEnvironmentVariable("DOCKER_HOST", dockerHost)
-
-                // PostgreSQL コンテナの設定と起動
-                container <-
-                    PostgreSqlBuilder()
-                        .WithImage("postgres:16-alpine")
-                        .WithDatabase("test_db")
-                        .WithUsername("test")
-                        .WithPassword("test")
-                        .Build()
-
-                do! container.StartAsync()
-
-                // 接続文字列の取得
-                connectionString <- container.GetConnectionString()
-
-                // マイグレーションの実行
-                migrateDatabase connectionString "PostgreSQL"
-
-                // WebApplicationFactory で API サーバーを起動
-                factory <-
-                    (new WebApplicationFactory<Program>())
-                        .WithWebHostBuilder(fun builder ->
-                            builder.ConfigureServices(fun services ->
-                                // 既存の IEventStoreRepository を削除して新しいものに置き換え
-                                let eventStoreDescriptor =
-                                    services
-                                    |> Seq.tryFind (fun d -> d.ServiceType = typeof<IEventStoreRepository>)
-                                match eventStoreDescriptor with
-                                | Some d -> services.Remove(d) |> ignore
-                                | None -> ()
-
-                                services.AddScoped<IEventStoreRepository>(fun _ ->
-                                    EventStoreRepositoryAdapter(connectionString) :> IEventStoreRepository
-                                ) |> ignore
-
-                                // 既存の ISnapshotRepository を削除して新しいものに置き換え
-                                let snapshotDescriptor =
-                                    services
-                                    |> Seq.tryFind (fun d -> d.ServiceType = typeof<ISnapshotRepository>)
-                                match snapshotDescriptor with
-                                | Some d -> services.Remove(d) |> ignore
-                                | None -> ()
-
-                                services.AddScoped<ISnapshotRepository>(fun _ ->
-                                    SnapshotRepositoryAdapter(connectionString) :> ISnapshotRepository
-                                ) |> ignore
-
-                                // 既存の JournalEntryEventSourcingServiceWithSnapshot を削除して新しいものに置き換え
-                                let serviceDescriptor =
-                                    services
-                                    |> Seq.tryFind (fun d -> d.ServiceType = typeof<JournalEntryEventSourcingServiceWithSnapshot>)
-                                match serviceDescriptor with
-                                | Some d -> services.Remove(d) |> ignore
-                                | None -> ()
-
-                                // スナップショット間隔を 2 に設定（テスト用）
-                                services.AddScoped<JournalEntryEventSourcingServiceWithSnapshot>(fun sp ->
-                                    let eventStoreRepo = sp.GetRequiredService<IEventStoreRepository>()
-                                    let snapshotRepo = sp.GetRequiredService<ISnapshotRepository>()
-                                    JournalEntryEventSourcingServiceWithSnapshot(eventStoreRepo, snapshotRepo, 2)
-                                ) |> ignore
-                            ) |> ignore
-                        )
-
-                client <- factory.CreateClient()
-            }
-
-        member _.DisposeAsync() : Task =
-            task {
-                if client <> null then
-                    client.Dispose()
-                if factory <> null then
-                    factory.Dispose()
-                if container <> null then
-                    do! container.DisposeAsync().AsTask()
-            }
-
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``新しい仕訳を作成できる``() : Task =
+    member this.``新しい仕訳を作成できる``() : Task =
         task {
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
 
             // Arrange
             let request : CreateJournalEntryRequest = {
@@ -154,7 +105,7 @@ type JournalEntryEventSourcingWithSnapshotControllerIntegrationTest() =
             }
 
             // Act
-            let! response = client.PostAsJsonAsync(basePath, request)
+            let! response = this.Client.PostAsJsonAsync(basePath, request)
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.Created
@@ -167,14 +118,14 @@ type JournalEntryEventSourcingWithSnapshotControllerIntegrationTest() =
             created.Status |> should equal "Draft"
             created.Version |> should equal 1
 
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
         }
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``仕訳を取得できる``() : Task =
+    member this.``仕訳を取得できる``() : Task =
         task {
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
 
             // Arrange - 先に仕訳を作成
             let createRequest : CreateJournalEntryRequest = {
@@ -187,11 +138,11 @@ type JournalEntryEventSourcingWithSnapshotControllerIntegrationTest() =
                 |]
             }
 
-            let! createResponse = client.PostAsJsonAsync(basePath, createRequest)
+            let! createResponse = this.Client.PostAsJsonAsync(basePath, createRequest)
             createResponse.StatusCode |> should equal HttpStatusCode.Created
 
             // Act
-            let! response = client.GetAsync($"{basePath}/SNAP-TEST-J-002")
+            let! response = this.Client.GetAsync($"{basePath}/SNAP-TEST-J-002")
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.OK
@@ -202,15 +153,15 @@ type JournalEntryEventSourcingWithSnapshotControllerIntegrationTest() =
             entry.Id |> should equal "SNAP-TEST-J-002"
             entry.Description |> should equal "取得テスト仕訳"
 
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
         }
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``存在しない仕訳を取得すると404が返る``() : Task =
+    member this.``存在しない仕訳を取得すると404が返る``() : Task =
         task {
             // Act
-            let! response = client.GetAsync($"{basePath}/NONEXISTENT")
+            let! response = this.Client.GetAsync($"{basePath}/NONEXISTENT")
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.NotFound
@@ -218,9 +169,9 @@ type JournalEntryEventSourcingWithSnapshotControllerIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``仕訳を承認できる``() : Task =
+    member this.``仕訳を承認できる``() : Task =
         task {
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
 
             // Arrange - 先に仕訳を作成
             let createRequest : CreateJournalEntryRequest = {
@@ -233,7 +184,7 @@ type JournalEntryEventSourcingWithSnapshotControllerIntegrationTest() =
                 |]
             }
 
-            let! createResponse = client.PostAsJsonAsync(basePath, createRequest)
+            let! createResponse = this.Client.PostAsJsonAsync(basePath, createRequest)
             createResponse.StatusCode |> should equal HttpStatusCode.Created
 
             // Act
@@ -242,7 +193,7 @@ type JournalEntryEventSourcingWithSnapshotControllerIntegrationTest() =
                 ApprovalComment = "承認します"
             }
 
-            let! response = client.PostAsJsonAsync($"{basePath}/SNAP-TEST-J-003/approve", approveRequest)
+            let! response = this.Client.PostAsJsonAsync($"{basePath}/SNAP-TEST-J-003/approve", approveRequest)
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.OK
@@ -253,14 +204,14 @@ type JournalEntryEventSourcingWithSnapshotControllerIntegrationTest() =
             approved.Status |> should equal "Approved"
             approved.Version |> should equal 2
 
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
         }
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``仕訳を削除できる``() : Task =
+    member this.``仕訳を削除できる``() : Task =
         task {
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
 
             // Arrange - 先に仕訳を作成
             let createRequest : CreateJournalEntryRequest = {
@@ -273,7 +224,7 @@ type JournalEntryEventSourcingWithSnapshotControllerIntegrationTest() =
                 |]
             }
 
-            let! createResponse = client.PostAsJsonAsync(basePath, createRequest)
+            let! createResponse = this.Client.PostAsJsonAsync(basePath, createRequest)
             createResponse.StatusCode |> should equal HttpStatusCode.Created
 
             // Act
@@ -284,23 +235,23 @@ type JournalEntryEventSourcingWithSnapshotControllerIntegrationTest() =
             let request = new HttpRequestMessage(HttpMethod.Delete, $"{basePath}/SNAP-TEST-J-004")
             request.Content <- JsonContent.Create(deleteRequest)
 
-            let! response = client.SendAsync(request)
+            let! response = this.Client.SendAsync(request)
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.NoContent
 
             // 削除後に取得すると 404 になる
-            let! getResponse = client.GetAsync($"{basePath}/SNAP-TEST-J-004")
+            let! getResponse = this.Client.GetAsync($"{basePath}/SNAP-TEST-J-004")
             getResponse.StatusCode |> should equal HttpStatusCode.NotFound
 
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
         }
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``スナップショットが自動的に作成される``() : Task =
+    member this.``スナップショットが自動的に作成される``() : Task =
         task {
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
 
             // Arrange - 仕訳を作成（Version = 1）
             let createRequest : CreateJournalEntryRequest = {
@@ -313,7 +264,7 @@ type JournalEntryEventSourcingWithSnapshotControllerIntegrationTest() =
                 |]
             }
 
-            let! createResponse = client.PostAsJsonAsync(basePath, createRequest)
+            let! createResponse = this.Client.PostAsJsonAsync(basePath, createRequest)
             createResponse.StatusCode |> should equal HttpStatusCode.Created
 
             // Act - 承認（Version = 2）→ スナップショット間隔が 2 なので作成されるはず
@@ -322,11 +273,11 @@ type JournalEntryEventSourcingWithSnapshotControllerIntegrationTest() =
                 ApprovalComment = "承認"
             }
 
-            let! approveResponse = client.PostAsJsonAsync($"{basePath}/SNAP-TEST-J-005/approve", approveRequest)
+            let! approveResponse = this.Client.PostAsJsonAsync($"{basePath}/SNAP-TEST-J-005/approve", approveRequest)
             approveResponse.StatusCode |> should equal HttpStatusCode.OK
 
             // Assert - スナップショットが作成されたか確認
-            use connection = new NpgsqlConnection(connectionString)
+            use connection = new NpgsqlConnection(this.ConnectionString)
             do! connection.OpenAsync()
 
             let sql = """
@@ -337,14 +288,14 @@ type JournalEntryEventSourcingWithSnapshotControllerIntegrationTest() =
             let! count = connection.ExecuteScalarAsync<int>(sql)
             count |> should equal 1
 
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
         }
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``手動でスナップショットを作成できる``() : Task =
+    member this.``手動でスナップショットを作成できる``() : Task =
         task {
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
 
             // Arrange - 仕訳を作成
             let createRequest : CreateJournalEntryRequest = {
@@ -357,11 +308,11 @@ type JournalEntryEventSourcingWithSnapshotControllerIntegrationTest() =
                 |]
             }
 
-            let! createResponse = client.PostAsJsonAsync(basePath, createRequest)
+            let! createResponse = this.Client.PostAsJsonAsync(basePath, createRequest)
             createResponse.StatusCode |> should equal HttpStatusCode.Created
 
             // Act - 手動でスナップショットを作成
-            let! response = client.PostAsync($"{basePath}/SNAP-TEST-J-006/snapshot", null)
+            let! response = this.Client.PostAsync($"{basePath}/SNAP-TEST-J-006/snapshot", null)
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.OK
@@ -370,7 +321,7 @@ type JournalEntryEventSourcingWithSnapshotControllerIntegrationTest() =
             result.Success |> should equal true
 
             // スナップショットが作成されたか確認
-            use connection = new NpgsqlConnection(connectionString)
+            use connection = new NpgsqlConnection(this.ConnectionString)
             do! connection.OpenAsync()
 
             let sql = """
@@ -381,14 +332,14 @@ type JournalEntryEventSourcingWithSnapshotControllerIntegrationTest() =
             let! count = connection.ExecuteScalarAsync<int>(sql)
             count |> should equal 1
 
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
         }
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``スナップショットを削除できる``() : Task =
+    member this.``スナップショットを削除できる``() : Task =
         task {
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
 
             // Arrange - 仕訳を作成してスナップショットを作成
             let createRequest : CreateJournalEntryRequest = {
@@ -401,21 +352,21 @@ type JournalEntryEventSourcingWithSnapshotControllerIntegrationTest() =
                 |]
             }
 
-            let! createResponse = client.PostAsJsonAsync(basePath, createRequest)
+            let! createResponse = this.Client.PostAsJsonAsync(basePath, createRequest)
             createResponse.StatusCode |> should equal HttpStatusCode.Created
 
             // 手動でスナップショットを作成
-            let! snapshotResponse = client.PostAsync($"{basePath}/SNAP-TEST-J-007/snapshot", null)
+            let! snapshotResponse = this.Client.PostAsync($"{basePath}/SNAP-TEST-J-007/snapshot", null)
             snapshotResponse.StatusCode |> should equal HttpStatusCode.OK
 
             // Act - スナップショットを削除
-            let! response = client.DeleteAsync($"{basePath}/SNAP-TEST-J-007/snapshot")
+            let! response = this.Client.DeleteAsync($"{basePath}/SNAP-TEST-J-007/snapshot")
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.NoContent
 
             // スナップショットが削除されたか確認
-            use connection = new NpgsqlConnection(connectionString)
+            use connection = new NpgsqlConnection(this.ConnectionString)
             do! connection.OpenAsync()
 
             let sql = """
@@ -426,14 +377,14 @@ type JournalEntryEventSourcingWithSnapshotControllerIntegrationTest() =
             let! count = connection.ExecuteScalarAsync<int>(sql)
             count |> should equal 0
 
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
         }
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``スナップショットから復元して正しく動作する``() : Task =
+    member this.``スナップショットから復元して正しく動作する``() : Task =
         task {
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
 
             // Arrange - 仕訳を作成（Version = 1）
             let createRequest : CreateJournalEntryRequest = {
@@ -446,7 +397,7 @@ type JournalEntryEventSourcingWithSnapshotControllerIntegrationTest() =
                 |]
             }
 
-            let! createResponse = client.PostAsJsonAsync(basePath, createRequest)
+            let! createResponse = this.Client.PostAsJsonAsync(basePath, createRequest)
             createResponse.StatusCode |> should equal HttpStatusCode.Created
 
             // 承認（Version = 2）→ スナップショット作成
@@ -455,11 +406,11 @@ type JournalEntryEventSourcingWithSnapshotControllerIntegrationTest() =
                 ApprovalComment = "承認"
             }
 
-            let! approveResponse = client.PostAsJsonAsync($"{basePath}/SNAP-TEST-J-008/approve", approveRequest)
+            let! approveResponse = this.Client.PostAsJsonAsync($"{basePath}/SNAP-TEST-J-008/approve", approveRequest)
             approveResponse.StatusCode |> should equal HttpStatusCode.OK
 
             // Act - 仕訳を取得（スナップショットから復元されるはず）
-            let! response = client.GetAsync($"{basePath}/SNAP-TEST-J-008")
+            let! response = this.Client.GetAsync($"{basePath}/SNAP-TEST-J-008")
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.OK
@@ -469,14 +420,14 @@ type JournalEntryEventSourcingWithSnapshotControllerIntegrationTest() =
             entry.Status |> should equal "Approved"
             entry.Description |> should equal "スナップショット復元テスト"
 
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
         }
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``すべての仕訳を取得できる``() : Task =
+    member this.``すべての仕訳を取得できる``() : Task =
         task {
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
 
             // Arrange - 複数の仕訳を作成
             for i in 1..3 do
@@ -489,11 +440,11 @@ type JournalEntryEventSourcingWithSnapshotControllerIntegrationTest() =
                         { AccountCode = "2000"; DebitCredit = "C"; Amount = decimal (i * 1000) }
                     |]
                 }
-                let! _ = client.PostAsJsonAsync(basePath, createRequest)
+                let! _ = this.Client.PostAsJsonAsync(basePath, createRequest)
                 ()
 
             // Act
-            let! response = client.GetAsync(basePath)
+            let! response = this.Client.GetAsync(basePath)
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.OK
@@ -503,15 +454,15 @@ type JournalEntryEventSourcingWithSnapshotControllerIntegrationTest() =
             entries |> should not' (be null)
             entries.Length |> should be (greaterThanOrEqualTo 3)
 
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
         }
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``存在しない仕訳のスナップショットを作成すると404が返る``() : Task =
+    member this.``存在しない仕訳のスナップショットを作成すると404が返る``() : Task =
         task {
             // Act
-            let! response = client.PostAsync($"{basePath}/NONEXISTENT/snapshot", null)
+            let! response = this.Client.PostAsync($"{basePath}/NONEXISTENT/snapshot", null)
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.NotFound

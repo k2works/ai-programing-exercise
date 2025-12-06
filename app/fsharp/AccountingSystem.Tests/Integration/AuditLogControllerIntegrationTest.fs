@@ -1,40 +1,60 @@
 module AccountingSystem.Tests.Integration.AuditLogControllerIntegrationTest
 
-open System
 open System.Net
-open System.Net.Http
 open System.Net.Http.Json
 open System.Threading.Tasks
 open Xunit
 open FsUnit.Xunit
-open Microsoft.AspNetCore.Mvc.Testing
 open Microsoft.Extensions.DependencyInjection
-open DotNet.Testcontainers.Builders
-open Testcontainers.PostgreSql
-open AccountingSystem.Api
 open AccountingSystem.Infrastructure.Web.Dtos
 open AccountingSystem.Application.Port.In
 open AccountingSystem.Application.Port.Out
 open AccountingSystem.Application.Services
 open AccountingSystem.Infrastructure.Adapters
-open AccountingSystem.Infrastructure.MigrationRunner
+open AccountingSystem.Tests.PostgresWebTestBase
 open Npgsql
 open Dapper
 
 /// <summary>
 /// 監査ログ API 統合テスト
 /// Testcontainers + WebApplicationFactory を使用した E2E テスト
+/// PostgresWebTestBase を継承してコンテナとWebファクトリを管理
 /// </summary>
 type AuditLogControllerIntegrationTest() =
-    let mutable container: PostgreSqlContainer = null
-    let mutable connectionString: string = null
-    let mutable factory: WebApplicationFactory<Program> = null
-    let mutable client: HttpClient = null
+    inherit PostgresWebTestBase()
 
     /// <summary>
-    /// テスト用の監査ログデータを挿入
+    /// サブクラスで DI 設定をカスタマイズ
     /// </summary>
-    let insertTestData (connStr: string) =
+    override _.ConfigureServices(services: IServiceCollection, connStr: string) =
+        // 既存の IAuditLogRepository を削除して新しいものに置き換え
+        let repoDescriptor =
+            services
+            |> Seq.tryFind (fun d -> d.ServiceType = typeof<IAuditLogRepository>)
+        match repoDescriptor with
+        | Some d -> services.Remove(d) |> ignore
+        | None -> ()
+
+        // 既存の IAuditLogUseCase を削除して新しいものに置き換え
+        let useCaseDescriptor =
+            services
+            |> Seq.tryFind (fun d -> d.ServiceType = typeof<IAuditLogUseCase>)
+        match useCaseDescriptor with
+        | Some d -> services.Remove(d) |> ignore
+        | None -> ()
+
+        // 接続文字列を使用して Repository を登録
+        services.AddScoped<IAuditLogRepository>(fun _ ->
+            AuditLogRepositoryAdapter(connStr) :> IAuditLogRepository
+        ) |> ignore
+
+        // UseCase を登録
+        services.AddScoped<IAuditLogUseCase, AuditLogService>() |> ignore
+
+    /// <summary>
+    /// テストデータのセットアップ
+    /// </summary>
+    override _.SetupTestDataAsync(connStr: string) =
         task {
             use connection = new NpgsqlConnection(connStr)
             do! connection.OpenAsync()
@@ -65,87 +85,12 @@ type AuditLogControllerIntegrationTest() =
             return ()
         }
 
-    interface IAsyncLifetime with
-        member _.InitializeAsync() : Task =
-            task {
-                // Docker ホストの設定（Windows Docker Desktop 用）
-                let dockerHost =
-                    match Environment.GetEnvironmentVariable("DOCKER_HOST") with
-                    | null | "" -> "npipe://./pipe/docker_engine"
-                    | host -> host
-
-                Environment.SetEnvironmentVariable("DOCKER_HOST", dockerHost)
-
-                // PostgreSQLコンテナの設定と起動
-                container <-
-                    PostgreSqlBuilder()
-                        .WithImage("postgres:16-alpine")
-                        .WithDatabase("test_db")
-                        .WithUsername("test")
-                        .WithPassword("test")
-                        .Build()
-
-                do! container.StartAsync()
-
-                // 接続文字列の取得
-                connectionString <- container.GetConnectionString()
-
-                // マイグレーションの実行
-                migrateDatabase connectionString "PostgreSQL"
-
-                // テストデータを挿入
-                do! insertTestData connectionString
-
-                // WebApplicationFactory で API サーバーを起動
-                factory <-
-                    (new WebApplicationFactory<Program>())
-                        .WithWebHostBuilder(fun builder ->
-                            builder.ConfigureServices(fun services ->
-                                // 既存の IAuditLogRepository を削除して新しいものに置き換え
-                                let repoDescriptor =
-                                    services
-                                    |> Seq.tryFind (fun d -> d.ServiceType = typeof<IAuditLogRepository>)
-                                match repoDescriptor with
-                                | Some d -> services.Remove(d) |> ignore
-                                | None -> ()
-
-                                // 既存の IAuditLogUseCase を削除して新しいものに置き換え
-                                let useCaseDescriptor =
-                                    services
-                                    |> Seq.tryFind (fun d -> d.ServiceType = typeof<IAuditLogUseCase>)
-                                match useCaseDescriptor with
-                                | Some d -> services.Remove(d) |> ignore
-                                | None -> ()
-
-                                // 接続文字列を使用して Repository を登録
-                                services.AddScoped<IAuditLogRepository>(fun _ ->
-                                    AuditLogRepositoryAdapter(connectionString) :> IAuditLogRepository
-                                ) |> ignore
-
-                                // UseCase を登録
-                                services.AddScoped<IAuditLogUseCase, AuditLogService>() |> ignore
-                            ) |> ignore
-                        )
-
-                client <- factory.CreateClient()
-            }
-
-        member _.DisposeAsync() : Task =
-            task {
-                if client <> null then
-                    client.Dispose()
-                if factory <> null then
-                    factory.Dispose()
-                if container <> null then
-                    do! container.DisposeAsync().AsTask()
-            }
-
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``エンティティ別の監査ログを取得できる``() : Task =
+    member this.``エンティティ別の監査ログを取得できる``() : Task =
         task {
             // Arrange & Act
-            let! response = client.GetAsync("/api/v1/audit-logs/entity/Account/TEST001")
+            let! response = this.Client.GetAsync("/api/v1/audit-logs/entity/Account/TEST001")
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.OK
@@ -160,7 +105,7 @@ type AuditLogControllerIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``ユーザー別の監査ログを期間指定で取得できる``() : Task =
+    member this.``ユーザー別の監査ログを期間指定で取得できる``() : Task =
         task {
             // Arrange
             let userId = "user1"
@@ -168,7 +113,7 @@ type AuditLogControllerIntegrationTest() =
             let endDate = "2024-01-31T23:59:59"
 
             // Act
-            let! response = client.GetAsync($"/api/v1/audit-logs/user/{userId}?startDate={startDate}&endDate={endDate}")
+            let! response = this.Client.GetAsync($"/api/v1/audit-logs/user/{userId}?startDate={startDate}&endDate={endDate}")
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.OK
@@ -183,14 +128,14 @@ type AuditLogControllerIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``期間内のすべての監査ログを取得できる``() : Task =
+    member this.``期間内のすべての監査ログを取得できる``() : Task =
         task {
             // Arrange
             let startDate = "2024-01-15T00:00:00"
             let endDate = "2024-01-17T23:59:59"
 
             // Act
-            let! response = client.GetAsync($"/api/v1/audit-logs?startDate={startDate}&endDate={endDate}")
+            let! response = this.Client.GetAsync($"/api/v1/audit-logs?startDate={startDate}&endDate={endDate}")
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.OK
@@ -203,7 +148,7 @@ type AuditLogControllerIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``アクション種別で監査ログを検索できる``() : Task =
+    member this.``アクション種別で監査ログを検索できる``() : Task =
         task {
             // Arrange
             let action = "CREATE"
@@ -211,7 +156,7 @@ type AuditLogControllerIntegrationTest() =
             let endDate = "2024-01-31T23:59:59"
 
             // Act
-            let! response = client.GetAsync($"/api/v1/audit-logs/action/{action}?startDate={startDate}&endDate={endDate}")
+            let! response = this.Client.GetAsync($"/api/v1/audit-logs/action/{action}?startDate={startDate}&endDate={endDate}")
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.OK
@@ -226,7 +171,7 @@ type AuditLogControllerIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``DELETE操作の監査ログを検索できる``() : Task =
+    member this.``DELETE操作の監査ログを検索できる``() : Task =
         task {
             // Arrange
             let action = "DELETE"
@@ -234,7 +179,7 @@ type AuditLogControllerIntegrationTest() =
             let endDate = "2024-01-31T23:59:59"
 
             // Act
-            let! response = client.GetAsync($"/api/v1/audit-logs/action/{action}?startDate={startDate}&endDate={endDate}")
+            let! response = this.Client.GetAsync($"/api/v1/audit-logs/action/{action}?startDate={startDate}&endDate={endDate}")
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.OK
@@ -249,7 +194,7 @@ type AuditLogControllerIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``監査ログを記録できる``() : Task =
+    member this.``監査ログを記録できる``() : Task =
         task {
             // Arrange
             let request : CreateAuditLogRequest = {
@@ -266,7 +211,7 @@ type AuditLogControllerIntegrationTest() =
             }
 
             // Act
-            let! response = client.PostAsJsonAsync("/api/v1/audit-logs", request)
+            let! response = this.Client.PostAsJsonAsync("/api/v1/audit-logs", request)
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.Created
@@ -282,7 +227,7 @@ type AuditLogControllerIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``無効なアクション種別で400が返る``() : Task =
+    member this.``無効なアクション種別で400が返る``() : Task =
         task {
             // Arrange
             let request : CreateAuditLogRequest = {
@@ -299,7 +244,7 @@ type AuditLogControllerIntegrationTest() =
             }
 
             // Act
-            let! response = client.PostAsJsonAsync("/api/v1/audit-logs", request)
+            let! response = this.Client.PostAsJsonAsync("/api/v1/audit-logs", request)
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.BadRequest
@@ -307,10 +252,10 @@ type AuditLogControllerIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``存在しないエンティティの監査ログは空配列を返す``() : Task =
+    member this.``存在しないエンティティの監査ログは空配列を返す``() : Task =
         task {
             // Arrange & Act
-            let! response = client.GetAsync("/api/v1/audit-logs/entity/Account/NONEXISTENT")
+            let! response = this.Client.GetAsync("/api/v1/audit-logs/entity/Account/NONEXISTENT")
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.OK
@@ -323,10 +268,10 @@ type AuditLogControllerIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``監査ログのサマリーが正しく生成される``() : Task =
+    member this.``監査ログのサマリーが正しく生成される``() : Task =
         task {
             // Arrange & Act
-            let! response = client.GetAsync("/api/v1/audit-logs/entity/Account/TEST001")
+            let! response = this.Client.GetAsync("/api/v1/audit-logs/entity/Account/TEST001")
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.OK
@@ -341,7 +286,7 @@ type AuditLogControllerIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``UPDATE操作の監査ログにOldValuesとNewValuesが含まれる``() : Task =
+    member this.``UPDATE操作の監査ログにOldValuesとNewValuesが含まれる``() : Task =
         task {
             // Arrange - UPDATE操作のログを検索
             let action = "UPDATE"
@@ -349,7 +294,7 @@ type AuditLogControllerIntegrationTest() =
             let endDate = "2024-01-31T23:59:59"
 
             // Act
-            let! response = client.GetAsync($"/api/v1/audit-logs/action/{action}?startDate={startDate}&endDate={endDate}")
+            let! response = this.Client.GetAsync($"/api/v1/audit-logs/action/{action}?startDate={startDate}&endDate={endDate}")
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.OK

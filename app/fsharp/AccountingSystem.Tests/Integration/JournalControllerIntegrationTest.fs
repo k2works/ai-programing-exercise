@@ -2,36 +2,58 @@ module AccountingSystem.Tests.Integration.JournalControllerIntegrationTest
 
 open System
 open System.Net
-open System.Net.Http
 open System.Net.Http.Json
 open System.Threading.Tasks
 open Xunit
 open FsUnit.Xunit
-open Microsoft.AspNetCore.Mvc.Testing
 open Microsoft.Extensions.DependencyInjection
-open Testcontainers.PostgreSql
-open AccountingSystem.Api
 open AccountingSystem.Infrastructure.Web.Dtos
 open AccountingSystem.Application.Port.Out
 open AccountingSystem.Infrastructure.Adapters
-open AccountingSystem.Infrastructure.MigrationRunner
+open AccountingSystem.Tests.PostgresWebTestBase
 open Npgsql
 open Dapper
 
 /// <summary>
 /// 仕訳 API 統合テスト
 /// Testcontainers + WebApplicationFactory を使用した E2E テスト
+/// PostgresWebTestBase を継承してコンテナとWebファクトリを管理
 /// </summary>
 type JournalControllerIntegrationTest() =
-    let mutable container: PostgreSqlContainer = null
-    let mutable connectionString: string = null
-    let mutable factory: WebApplicationFactory<Program> = null
-    let mutable client: HttpClient = null
+    inherit PostgresWebTestBase()
 
     /// <summary>
-    /// テスト用の初期データを挿入
+    /// サブクラスで DI 設定をカスタマイズ
     /// </summary>
-    let insertTestData (connStr: string) =
+    override _.ConfigureServices(services: IServiceCollection, connStr: string) =
+        // 既存の IJournalRepository を削除して新しいものに置き換え
+        let descriptor =
+            services
+            |> Seq.tryFind (fun d -> d.ServiceType = typeof<IJournalRepository>)
+        match descriptor with
+        | Some d -> services.Remove(d) |> ignore
+        | None -> ()
+
+        services.AddScoped<IJournalRepository>(fun _ ->
+            JournalRepositoryAdapter(connStr) :> IJournalRepository
+        ) |> ignore
+
+        // IAccountRepository も置き換え（仕訳作成時に必要）
+        let accountDescriptor =
+            services
+            |> Seq.tryFind (fun d -> d.ServiceType = typeof<IAccountRepository>)
+        match accountDescriptor with
+        | Some d -> services.Remove(d) |> ignore
+        | None -> ()
+
+        services.AddScoped<IAccountRepository>(fun _ ->
+            AccountRepositoryAdapter(connStr) :> IAccountRepository
+        ) |> ignore
+
+    /// <summary>
+    /// テストデータのセットアップ
+    /// </summary>
+    override _.SetupTestDataAsync(connStr: string) =
         task {
             use connection = new NpgsqlConnection(connStr)
             do! connection.OpenAsync()
@@ -137,90 +159,15 @@ type JournalControllerIntegrationTest() =
             return ()
         }
 
-    interface IAsyncLifetime with
-        member _.InitializeAsync() : Task =
-            task {
-                // Docker ホストの設定（Windows Docker Desktop 用）
-                let dockerHost =
-                    match Environment.GetEnvironmentVariable("DOCKER_HOST") with
-                    | null | "" -> "npipe://./pipe/docker_engine"
-                    | host -> host
-
-                Environment.SetEnvironmentVariable("DOCKER_HOST", dockerHost)
-
-                // PostgreSQLコンテナの設定と起動
-                container <-
-                    PostgreSqlBuilder()
-                        .WithImage("postgres:16-alpine")
-                        .WithDatabase("test_db")
-                        .WithUsername("test")
-                        .WithPassword("test")
-                        .Build()
-
-                do! container.StartAsync()
-
-                // 接続文字列の取得
-                connectionString <- container.GetConnectionString()
-
-                // マイグレーションの実行
-                migrateDatabase connectionString "PostgreSQL"
-
-                // テストデータを挿入
-                do! insertTestData connectionString
-
-                // WebApplicationFactory で API サーバーを起動
-                factory <-
-                    (new WebApplicationFactory<Program>())
-                        .WithWebHostBuilder(fun builder ->
-                            builder.ConfigureServices(fun services ->
-                                // 既存の IJournalRepository を削除して新しいものに置き換え
-                                let descriptor =
-                                    services
-                                    |> Seq.tryFind (fun d -> d.ServiceType = typeof<IJournalRepository>)
-                                match descriptor with
-                                | Some d -> services.Remove(d) |> ignore
-                                | None -> ()
-
-                                services.AddScoped<IJournalRepository>(fun _ ->
-                                    JournalRepositoryAdapter(connectionString) :> IJournalRepository
-                                ) |> ignore
-
-                                // IAccountRepository も置き換え（仕訳作成時に必要）
-                                let accountDescriptor =
-                                    services
-                                    |> Seq.tryFind (fun d -> d.ServiceType = typeof<IAccountRepository>)
-                                match accountDescriptor with
-                                | Some d -> services.Remove(d) |> ignore
-                                | None -> ()
-
-                                services.AddScoped<IAccountRepository>(fun _ ->
-                                    AccountRepositoryAdapter(connectionString) :> IAccountRepository
-                                ) |> ignore
-                            ) |> ignore
-                        )
-
-                client <- factory.CreateClient()
-            }
-
-        member _.DisposeAsync() : Task =
-            task {
-                if client <> null then
-                    client.Dispose()
-                if factory <> null then
-                    factory.Dispose()
-                if container <> null then
-                    do! container.DisposeAsync().AsTask()
-            }
-
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``伝票番号で仕訳を取得できる``() : Task =
+    member this.``伝票番号で仕訳を取得できる``() : Task =
         task {
             // Arrange
             let voucherNumber = 1001
 
             // Act
-            let! response = client.GetAsync($"/api/v1/journals/{voucherNumber}")
+            let! response = this.Client.GetAsync($"/api/v1/journals/{voucherNumber}")
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.OK
@@ -234,13 +181,13 @@ type JournalControllerIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``存在しない伝票番号で404が返る``() : Task =
+    member this.``存在しない伝票番号で404が返る``() : Task =
         task {
             // Arrange
             let voucherNumber = 9999
 
             // Act
-            let! response = client.GetAsync($"/api/v1/journals/{voucherNumber}")
+            let! response = this.Client.GetAsync($"/api/v1/journals/{voucherNumber}")
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.NotFound
@@ -248,14 +195,14 @@ type JournalControllerIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``日付範囲で仕訳を取得できる``() : Task =
+    member this.``日付範囲で仕訳を取得できる``() : Task =
         task {
             // Arrange
             let fromDate = "2024-01-01"
             let toDate = "2024-01-31"
 
             // Act
-            let! response = client.GetAsync($"/api/v1/journals?fromDate={fromDate}&toDate={toDate}")
+            let! response = this.Client.GetAsync($"/api/v1/journals?fromDate={fromDate}&toDate={toDate}")
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.OK
@@ -268,14 +215,14 @@ type JournalControllerIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``該当する仕訳がない日付範囲で空リストが返る``() : Task =
+    member this.``該当する仕訳がない日付範囲で空リストが返る``() : Task =
         task {
             // Arrange
             let fromDate = "2025-01-01"
             let toDate = "2025-01-31"
 
             // Act
-            let! response = client.GetAsync($"/api/v1/journals?fromDate={fromDate}&toDate={toDate}")
+            let! response = this.Client.GetAsync($"/api/v1/journals?fromDate={fromDate}&toDate={toDate}")
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.OK
@@ -288,7 +235,7 @@ type JournalControllerIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``新しい仕訳を作成できる``() : Task =
+    member this.``新しい仕訳を作成できる``() : Task =
         task {
             // Arrange
             let request : JournalRequest = {
@@ -354,7 +301,7 @@ type JournalControllerIntegrationTest() =
             }
 
             // Act
-            let! response = client.PostAsJsonAsync("/api/v1/journals", request)
+            let! response = this.Client.PostAsJsonAsync("/api/v1/journals", request)
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.Created
@@ -369,20 +316,20 @@ type JournalControllerIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``仕訳を削除できる``() : Task =
+    member this.``仕訳を削除できる``() : Task =
         task {
             // Arrange - 最初に削除対象が存在することを確認
             let voucherNumber = 1002
-            let! getResponse = client.GetAsync($"/api/v1/journals/{voucherNumber}")
+            let! getResponse = this.Client.GetAsync($"/api/v1/journals/{voucherNumber}")
             getResponse.StatusCode |> should equal HttpStatusCode.OK
 
             // Act
-            let! deleteResponse = client.DeleteAsync($"/api/v1/journals/{voucherNumber}")
+            let! deleteResponse = this.Client.DeleteAsync($"/api/v1/journals/{voucherNumber}")
 
             // Assert
             deleteResponse.StatusCode |> should equal HttpStatusCode.NoContent
 
             // 削除後に取得を試みると 404 になることを確認
-            let! afterDeleteResponse = client.GetAsync($"/api/v1/journals/{voucherNumber}")
+            let! afterDeleteResponse = this.Client.GetAsync($"/api/v1/journals/{voucherNumber}")
             afterDeleteResponse.StatusCode |> should equal HttpStatusCode.NotFound
         }

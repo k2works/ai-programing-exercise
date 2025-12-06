@@ -5,9 +5,6 @@ open System.Threading
 open System.Threading.Tasks
 open Xunit
 open FsUnit.Xunit
-open DotNet.Testcontainers.Builders
-open Testcontainers.PostgreSql
-open Testcontainers.RabbitMq
 open AccountingSystem.Domain.Types
 open AccountingSystem.Domain.Events
 open AccountingSystem.Application.Port.In
@@ -15,85 +12,29 @@ open AccountingSystem.Application.Port.Out
 open AccountingSystem.Application.EventHandlers
 open AccountingSystem.Infrastructure.Adapters
 open AccountingSystem.Infrastructure.Messaging
-open AccountingSystem.Infrastructure.MigrationRunner
+open AccountingSystem.Tests.DatabaseIntegrationTestBase
 
 /// <summary>
 /// JournalEntryReadModelHandler 統合テスト
 /// RabbitMQ + PostgreSQL を使用した E2E テスト
 /// </summary>
 type JournalEntryReadModelHandlerIntegrationTest() =
-    let mutable postgresContainer: PostgreSqlContainer = null
-    let mutable rabbitMqContainer: RabbitMqContainer = null
-    let mutable connectionString: string = null
+    inherit DatabaseIntegrationTestBase()
+
     let mutable rabbitMqConfig: RabbitMqConfig = RabbitMqConfig.defaultConfig
 
-    interface IAsyncLifetime with
-        member _.InitializeAsync() : Task =
-            task {
-                // Docker ホストの設定（Windows Docker Desktop 用）
-                let dockerHost =
-                    match Environment.GetEnvironmentVariable("DOCKER_HOST") with
-                    | null | "" -> "npipe://./pipe/docker_engine"
-                    | host -> host
-
-                Environment.SetEnvironmentVariable("DOCKER_HOST", dockerHost)
-
-                // PostgreSQL コンテナの設定と起動
-                postgresContainer <-
-                    PostgreSqlBuilder()
-                        .WithImage("postgres:16-alpine")
-                        .WithDatabase("test_db")
-                        .WithUsername("test")
-                        .WithPassword("test")
-                        .Build()
-
-                // RabbitMQ コンテナの設定と起動
-                rabbitMqContainer <-
-                    RabbitMqBuilder()
-                        .WithImage("rabbitmq:3-management-alpine")
-                        .WithUsername("guest")
-                        .WithPassword("guest")
-                        .Build()
-
-                // 並行で起動
-                do! Task.WhenAll(
-                    postgresContainer.StartAsync(),
-                    rabbitMqContainer.StartAsync()
-                )
-
-                // 接続情報の取得
-                connectionString <- postgresContainer.GetConnectionString()
-
-                let rabbitMqHost = rabbitMqContainer.Hostname
-                let rabbitMqPort = rabbitMqContainer.GetMappedPublicPort(5672)
-
-                rabbitMqConfig <- {
-                    HostName = rabbitMqHost
-                    Port = int rabbitMqPort
-                    UserName = "guest"
-                    Password = "guest"
-                    VirtualHost = "/"
-                    ExchangeName = "accounting.events.readmodel.test"
-                }
-
-                // マイグレーションの実行
-                migrateDatabase connectionString "PostgreSQL"
-            }
-
-        member _.DisposeAsync() : Task =
-            task {
-                if rabbitMqContainer <> null then
-                    do! rabbitMqContainer.DisposeAsync().AsTask()
-                if postgresContainer <> null then
-                    do! postgresContainer.DisposeAsync().AsTask()
-            }
+    override this.InitializeAsync() =
+        task {
+            do! this.InitializeCoreAsync()
+            rabbitMqConfig <- this.GetRabbitMqConfigWithExchange("accounting.events.readmodel.test")
+        } :> Task
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``JournalEntryCreated イベントで Read Model が作成される``() : Task =
+    member this.``JournalEntryCreated イベントで Read Model が作成される``() : Task =
         task {
             // Arrange
-            let readModelRepository = JournalEntryReadModelRepositoryAdapter(connectionString) :> IJournalEntryReadModelRepository
+            let readModelRepository = JournalEntryReadModelRepositoryAdapter(this.ConnectionString) :> IJournalEntryReadModelRepository
             let handler = JournalEntryReadModelHandler(readModelRepository)
 
             let event = JournalEntryCreated {
@@ -132,10 +73,10 @@ type JournalEntryReadModelHandlerIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``JournalEntryApproved イベントで Read Model ステータスが更新される``() : Task =
+    member this.``JournalEntryApproved イベントで Read Model ステータスが更新される``() : Task =
         task {
             // Arrange
-            let readModelRepository = JournalEntryReadModelRepositoryAdapter(connectionString) :> IJournalEntryReadModelRepository
+            let readModelRepository = JournalEntryReadModelRepositoryAdapter(this.ConnectionString) :> IJournalEntryReadModelRepository
             let handler = JournalEntryReadModelHandler(readModelRepository)
 
             // 先に仕訳を作成
@@ -180,10 +121,10 @@ type JournalEntryReadModelHandlerIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``JournalEntryDeleted イベントで Read Model が削除済みになる``() : Task =
+    member this.``JournalEntryDeleted イベントで Read Model が削除済みになる``() : Task =
         task {
             // Arrange
-            let readModelRepository = JournalEntryReadModelRepositoryAdapter(connectionString) :> IJournalEntryReadModelRepository
+            let readModelRepository = JournalEntryReadModelRepositoryAdapter(this.ConnectionString) :> IJournalEntryReadModelRepository
             let handler = JournalEntryReadModelHandler(readModelRepository)
 
             // 先に仕訳を作成
@@ -225,10 +166,10 @@ type JournalEntryReadModelHandlerIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``RabbitMQ 経由でイベントを受信して Read Model が作成される``() : Task =
+    member this.``RabbitMQ 経由でイベントを受信して Read Model が作成される``() : Task =
         task {
             // Arrange
-            let readModelRepository = JournalEntryReadModelRepositoryAdapter(connectionString) :> IJournalEntryReadModelRepository
+            let readModelRepository = JournalEntryReadModelRepositoryAdapter(this.ConnectionString) :> IJournalEntryReadModelRepository
             let handler = JournalEntryReadModelHandler(readModelRepository)
 
             use publisher = new RabbitMqEventPublisher(rabbitMqConfig)
@@ -268,10 +209,10 @@ type JournalEntryReadModelHandlerIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``RabbitMQ 経由で複数イベントを順次処理できる``() : Task =
+    member this.``RabbitMQ 経由で複数イベントを順次処理できる``() : Task =
         task {
             // Arrange
-            let readModelRepository = JournalEntryReadModelRepositoryAdapter(connectionString) :> IJournalEntryReadModelRepository
+            let readModelRepository = JournalEntryReadModelRepositoryAdapter(this.ConnectionString) :> IJournalEntryReadModelRepository
             let handler = JournalEntryReadModelHandler(readModelRepository)
 
             use publisher = new RabbitMqEventPublisher(rabbitMqConfig)

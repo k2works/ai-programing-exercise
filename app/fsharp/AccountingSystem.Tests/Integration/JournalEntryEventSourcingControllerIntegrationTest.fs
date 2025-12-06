@@ -7,33 +7,44 @@ open System.Net.Http.Json
 open System.Threading.Tasks
 open Xunit
 open FsUnit.Xunit
-open Microsoft.AspNetCore.Mvc.Testing
 open Microsoft.Extensions.DependencyInjection
-open Testcontainers.PostgreSql
-open AccountingSystem.Api
 open AccountingSystem.Infrastructure.Web.Dtos
 open AccountingSystem.Application.Port.Out
 open AccountingSystem.Infrastructure.Adapters
-open AccountingSystem.Infrastructure.MigrationRunner
+open AccountingSystem.Tests.PostgresWebTestBase
 open Npgsql
 open Dapper
 
 /// <summary>
 /// 仕訳イベントソーシング API 統合テスト
 /// Testcontainers + WebApplicationFactory を使用した E2E テスト
+/// PostgresWebTestBase を継承してコンテナとWebファクトリを管理
 /// </summary>
 type JournalEntryEventSourcingControllerIntegrationTest() =
-    let mutable container: PostgreSqlContainer = null
-    let mutable connectionString: string = null
-    let mutable factory: WebApplicationFactory<Program> = null
-    let mutable client: HttpClient = null
+    inherit PostgresWebTestBase()
+
+    /// <summary>
+    /// サブクラスで DI 設定をカスタマイズ
+    /// </summary>
+    override _.ConfigureServices(services: IServiceCollection, connStr: string) =
+        // 既存の IEventStoreRepository を削除して新しいものに置き換え
+        let descriptor =
+            services
+            |> Seq.tryFind (fun d -> d.ServiceType = typeof<IEventStoreRepository>)
+        match descriptor with
+        | Some d -> services.Remove(d) |> ignore
+        | None -> ()
+
+        services.AddScoped<IEventStoreRepository>(fun _ ->
+            EventStoreRepositoryAdapter(connStr) :> IEventStoreRepository
+        ) |> ignore
 
     /// <summary>
     /// テスト用データのクリーンアップ
     /// </summary>
-    let cleanupTestData (connStr: string) =
+    member this.CleanupTestDataAsync() =
         task {
-            use connection = new NpgsqlConnection(connStr)
+            use connection = new NpgsqlConnection(this.ConnectionString)
             do! connection.OpenAsync()
 
             let sql = """
@@ -44,71 +55,11 @@ type JournalEntryEventSourcingControllerIntegrationTest() =
             return ()
         }
 
-    interface IAsyncLifetime with
-        member _.InitializeAsync() : Task =
-            task {
-                // Docker ホストの設定（Windows Docker Desktop 用）
-                let dockerHost =
-                    match Environment.GetEnvironmentVariable("DOCKER_HOST") with
-                    | null | "" -> "npipe://./pipe/docker_engine"
-                    | host -> host
-
-                Environment.SetEnvironmentVariable("DOCKER_HOST", dockerHost)
-
-                // PostgreSQL コンテナの設定と起動
-                container <-
-                    PostgreSqlBuilder()
-                        .WithImage("postgres:16-alpine")
-                        .WithDatabase("test_db")
-                        .WithUsername("test")
-                        .WithPassword("test")
-                        .Build()
-
-                do! container.StartAsync()
-
-                // 接続文字列の取得
-                connectionString <- container.GetConnectionString()
-
-                // マイグレーションの実行
-                migrateDatabase connectionString "PostgreSQL"
-
-                // WebApplicationFactory で API サーバーを起動
-                factory <-
-                    (new WebApplicationFactory<Program>())
-                        .WithWebHostBuilder(fun builder ->
-                            builder.ConfigureServices(fun services ->
-                                // 既存の IEventStoreRepository を削除して新しいものに置き換え
-                                let descriptor =
-                                    services
-                                    |> Seq.tryFind (fun d -> d.ServiceType = typeof<IEventStoreRepository>)
-                                match descriptor with
-                                | Some d -> services.Remove(d) |> ignore
-                                | None -> ()
-
-                                services.AddScoped<IEventStoreRepository>(fun _ ->
-                                    EventStoreRepositoryAdapter(connectionString) :> IEventStoreRepository
-                                ) |> ignore
-                            ) |> ignore
-                        )
-
-                client <- factory.CreateClient()
-            }
-
-        member _.DisposeAsync() : Task =
-            task {
-                if client <> null then
-                    client.Dispose()
-                if factory <> null then
-                    factory.Dispose()
-                if container <> null then
-                    do! container.DisposeAsync().AsTask()
-            }
-
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``新しい仕訳を作成できる``() : Task =
+    member this.``新しい仕訳を作成できる``() : Task =
         task {
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
 
             // Arrange
             let request : CreateJournalEntryRequest = {
@@ -122,7 +73,7 @@ type JournalEntryEventSourcingControllerIntegrationTest() =
             }
 
             // Act
-            let! response = client.PostAsJsonAsync("/api/v1/journal-entries", request)
+            let! response = this.Client.PostAsJsonAsync("/api/v1/journal-entries", request)
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.Created
@@ -136,14 +87,14 @@ type JournalEntryEventSourcingControllerIntegrationTest() =
             created.TotalDebit |> should equal 10000m
             created.TotalCredit |> should equal 10000m
 
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
         }
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``仕訳を取得できる``() : Task =
+    member this.``仕訳を取得できる``() : Task =
         task {
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
 
             // Arrange - 先に仕訳を作成
             let createRequest : CreateJournalEntryRequest = {
@@ -156,11 +107,11 @@ type JournalEntryEventSourcingControllerIntegrationTest() =
                 |]
             }
 
-            let! createResponse = client.PostAsJsonAsync("/api/v1/journal-entries", createRequest)
+            let! createResponse = this.Client.PostAsJsonAsync("/api/v1/journal-entries", createRequest)
             createResponse.StatusCode |> should equal HttpStatusCode.Created
 
             // Act
-            let! response = client.GetAsync("/api/v1/journal-entries/TEST-J-002")
+            let! response = this.Client.GetAsync("/api/v1/journal-entries/TEST-J-002")
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.OK
@@ -171,15 +122,15 @@ type JournalEntryEventSourcingControllerIntegrationTest() =
             entry.Id |> should equal "TEST-J-002"
             entry.Description |> should equal "取得テスト仕訳"
 
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
         }
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``存在しない仕訳を取得すると404が返る``() : Task =
+    member this.``存在しない仕訳を取得すると404が返る``() : Task =
         task {
             // Act
-            let! response = client.GetAsync("/api/v1/journal-entries/NONEXISTENT")
+            let! response = this.Client.GetAsync("/api/v1/journal-entries/NONEXISTENT")
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.NotFound
@@ -187,9 +138,9 @@ type JournalEntryEventSourcingControllerIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``仕訳を承認できる``() : Task =
+    member this.``仕訳を承認できる``() : Task =
         task {
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
 
             // Arrange - 先に仕訳を作成
             let createRequest : CreateJournalEntryRequest = {
@@ -202,7 +153,7 @@ type JournalEntryEventSourcingControllerIntegrationTest() =
                 |]
             }
 
-            let! createResponse = client.PostAsJsonAsync("/api/v1/journal-entries", createRequest)
+            let! createResponse = this.Client.PostAsJsonAsync("/api/v1/journal-entries", createRequest)
             createResponse.StatusCode |> should equal HttpStatusCode.Created
 
             // Act
@@ -211,7 +162,7 @@ type JournalEntryEventSourcingControllerIntegrationTest() =
                 ApprovalComment = "承認します"
             }
 
-            let! response = client.PostAsJsonAsync("/api/v1/journal-entries/TEST-J-003/approve", approveRequest)
+            let! response = this.Client.PostAsJsonAsync("/api/v1/journal-entries/TEST-J-003/approve", approveRequest)
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.OK
@@ -222,14 +173,14 @@ type JournalEntryEventSourcingControllerIntegrationTest() =
             approved.Status |> should equal "Approved"
             approved.Version |> should equal 2
 
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
         }
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``承認済み仕訳を再度承認するとエラーになる``() : Task =
+    member this.``承認済み仕訳を再度承認するとエラーになる``() : Task =
         task {
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
 
             // Arrange - 先に仕訳を作成して承認
             let createRequest : CreateJournalEntryRequest = {
@@ -242,14 +193,14 @@ type JournalEntryEventSourcingControllerIntegrationTest() =
                 |]
             }
 
-            let! _ = client.PostAsJsonAsync("/api/v1/journal-entries", createRequest)
+            let! _ = this.Client.PostAsJsonAsync("/api/v1/journal-entries", createRequest)
 
             let approveRequest : ApproveJournalEntryRequest = {
                 ApprovedBy = "manager"
                 ApprovalComment = "承認1回目"
             }
 
-            let! _ = client.PostAsJsonAsync("/api/v1/journal-entries/TEST-J-004/approve", approveRequest)
+            let! _ = this.Client.PostAsJsonAsync("/api/v1/journal-entries/TEST-J-004/approve", approveRequest)
 
             // Act - 2回目の承認
             let approveRequest2 : ApproveJournalEntryRequest = {
@@ -257,19 +208,19 @@ type JournalEntryEventSourcingControllerIntegrationTest() =
                 ApprovalComment = "承認2回目"
             }
 
-            let! response = client.PostAsJsonAsync("/api/v1/journal-entries/TEST-J-004/approve", approveRequest2)
+            let! response = this.Client.PostAsJsonAsync("/api/v1/journal-entries/TEST-J-004/approve", approveRequest2)
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.UnprocessableEntity
 
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
         }
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``仕訳を削除できる``() : Task =
+    member this.``仕訳を削除できる``() : Task =
         task {
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
 
             // Arrange - 先に仕訳を作成
             let createRequest : CreateJournalEntryRequest = {
@@ -282,7 +233,7 @@ type JournalEntryEventSourcingControllerIntegrationTest() =
                 |]
             }
 
-            let! createResponse = client.PostAsJsonAsync("/api/v1/journal-entries", createRequest)
+            let! createResponse = this.Client.PostAsJsonAsync("/api/v1/journal-entries", createRequest)
             createResponse.StatusCode |> should equal HttpStatusCode.Created
 
             // Act
@@ -293,23 +244,23 @@ type JournalEntryEventSourcingControllerIntegrationTest() =
             let request = new HttpRequestMessage(HttpMethod.Delete, "/api/v1/journal-entries/TEST-J-005")
             request.Content <- JsonContent.Create(deleteRequest)
 
-            let! response = client.SendAsync(request)
+            let! response = this.Client.SendAsync(request)
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.NoContent
 
             // 削除後に取得すると 404 になる
-            let! getResponse = client.GetAsync("/api/v1/journal-entries/TEST-J-005")
+            let! getResponse = this.Client.GetAsync("/api/v1/journal-entries/TEST-J-005")
             getResponse.StatusCode |> should equal HttpStatusCode.NotFound
 
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
         }
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``すべての仕訳を取得できる``() : Task =
+    member this.``すべての仕訳を取得できる``() : Task =
         task {
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
 
             // Arrange - 複数の仕訳を作成
             for i in 1..3 do
@@ -322,11 +273,11 @@ type JournalEntryEventSourcingControllerIntegrationTest() =
                         { AccountCode = "2000"; DebitCredit = "C"; Amount = decimal (i * 1000) }
                     |]
                 }
-                let! _ = client.PostAsJsonAsync("/api/v1/journal-entries", createRequest)
+                let! _ = this.Client.PostAsJsonAsync("/api/v1/journal-entries", createRequest)
                 ()
 
             // Act
-            let! response = client.GetAsync("/api/v1/journal-entries")
+            let! response = this.Client.GetAsync("/api/v1/journal-entries")
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.OK
@@ -336,14 +287,14 @@ type JournalEntryEventSourcingControllerIntegrationTest() =
             entries |> should not' (be null)
             entries.Length |> should be (greaterThanOrEqualTo 3)
 
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
         }
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``貸借不一致の仕訳を作成するとエラーになる``() : Task =
+    member this.``貸借不一致の仕訳を作成するとエラーになる``() : Task =
         task {
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
 
             // Arrange
             let request : CreateJournalEntryRequest = {
@@ -357,19 +308,19 @@ type JournalEntryEventSourcingControllerIntegrationTest() =
             }
 
             // Act
-            let! response = client.PostAsJsonAsync("/api/v1/journal-entries", request)
+            let! response = this.Client.PostAsJsonAsync("/api/v1/journal-entries", request)
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.UnprocessableEntity
 
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
         }
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``イベントソーシングで仕訳の履歴が保持される``() : Task =
+    member this.``イベントソーシングで仕訳の履歴が保持される``() : Task =
         task {
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
 
             // Arrange - 仕訳を作成して承認
             let createRequest : CreateJournalEntryRequest = {
@@ -382,7 +333,7 @@ type JournalEntryEventSourcingControllerIntegrationTest() =
                 |]
             }
 
-            let! createResponse = client.PostAsJsonAsync("/api/v1/journal-entries", createRequest)
+            let! createResponse = this.Client.PostAsJsonAsync("/api/v1/journal-entries", createRequest)
             createResponse.StatusCode |> should equal HttpStatusCode.Created
 
             let! created = createResponse.Content.ReadFromJsonAsync<JournalEntryResponse>()
@@ -394,12 +345,12 @@ type JournalEntryEventSourcingControllerIntegrationTest() =
                 ApprovalComment = "承認"
             }
 
-            let! approveResponse = client.PostAsJsonAsync("/api/v1/journal-entries/TEST-J-HISTORY/approve", approveRequest)
+            let! approveResponse = this.Client.PostAsJsonAsync("/api/v1/journal-entries/TEST-J-HISTORY/approve", approveRequest)
             approveResponse.StatusCode |> should equal HttpStatusCode.OK
 
             let! approved = approveResponse.Content.ReadFromJsonAsync<JournalEntryResponse>()
             approved.Version |> should equal 2
             approved.Status |> should equal "Approved"
 
-            do! cleanupTestData connectionString
+            do! this.CleanupTestDataAsync()
         }

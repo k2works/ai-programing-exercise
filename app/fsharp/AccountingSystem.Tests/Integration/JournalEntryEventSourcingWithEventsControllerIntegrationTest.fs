@@ -20,7 +20,7 @@ open AccountingSystem.Application.Port.Out
 open AccountingSystem.Application.Services
 open AccountingSystem.Application.EventHandlers
 open AccountingSystem.Infrastructure.Adapters
-open AccountingSystem.Infrastructure.MigrationRunner
+open AccountingSystem.Tests.PostgresContainerHelper
 open Npgsql
 open Dapper
 
@@ -84,29 +84,13 @@ type JournalEntryEventSourcingWithEventsControllerIntegrationTest() =
     interface IAsyncLifetime with
         member _.InitializeAsync() : Task =
             task {
-                // Docker ホストの設定（Windows Docker Desktop 用）
-                let dockerHost =
-                    match Environment.GetEnvironmentVariable("DOCKER_HOST") with
-                    | null | "" -> "npipe://./pipe/docker_engine"
-                    | host -> host
-
-                Environment.SetEnvironmentVariable("DOCKER_HOST", dockerHost)
-
-                // PostgreSQL コンテナの設定と起動
-                postgresContainer <-
-                    PostgreSqlBuilder()
-                        .WithImage("postgres:16-alpine")
-                        .WithDatabase("test_db")
-                        .WithUsername("test")
-                        .WithPassword("test")
-                        .Build()
-
-                do! postgresContainer.StartAsync()
-
-                // 接続文字列の取得
-                connectionString <- postgresContainer.GetConnectionString()
+                // PostgreSQL コンテナの初期化
+                let! (c, cs) = initializePostgresContainerAsync ()
+                postgresContainer <- c
+                connectionString <- cs
 
                 // RabbitMQ コンテナの設定と起動
+                configureDockerHost ()
                 rabbitMqContainer <-
                     RabbitMqBuilder()
                         .WithImage("rabbitmq:3-management-alpine")
@@ -129,9 +113,6 @@ type JournalEntryEventSourcingWithEventsControllerIntegrationTest() =
                     VirtualHost = "/"
                     ExchangeName = "accounting.events.test"
                 }
-
-                // マイグレーションの実行
-                migrateDatabase connectionString "PostgreSQL"
 
                 // WebApplicationFactory で API サーバーを起動
                 factory <-

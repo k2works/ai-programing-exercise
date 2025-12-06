@@ -1,38 +1,47 @@
 module AccountingSystem.Tests.Integration.FinancialStatementControllerIntegrationTest
 
-open System
 open System.Net
-open System.Net.Http
 open System.Net.Http.Json
 open System.Threading.Tasks
 open Xunit
 open FsUnit.Xunit
-open Microsoft.AspNetCore.Mvc.Testing
 open Microsoft.Extensions.DependencyInjection
-open Testcontainers.PostgreSql
-open AccountingSystem.Api
 open AccountingSystem.Infrastructure.Web.Dtos
 open AccountingSystem.Application.Port.Out
 open AccountingSystem.Infrastructure.Adapters
 open AccountingSystem.Infrastructure.Persistence.Repositories.FinancialStatementRepository
-open AccountingSystem.Infrastructure.MigrationRunner
+open AccountingSystem.Tests.PostgresWebTestBase
 open Npgsql
 open Dapper
 
 /// <summary>
 /// 財務諸表 API 統合テスト
 /// Testcontainers + WebApplicationFactory を使用した E2E テスト
+/// PostgresWebTestBase を継承してコンテナとWebファクトリを管理
 /// </summary>
 type FinancialStatementControllerIntegrationTest() =
-    let mutable container: PostgreSqlContainer = null
-    let mutable connectionString: string = null
-    let mutable factory: WebApplicationFactory<Program> = null
-    let mutable client: HttpClient = null
+    inherit PostgresWebTestBase()
 
     /// <summary>
-    /// テスト用の初期データを挿入
+    /// サブクラスで DI 設定をカスタマイズ
     /// </summary>
-    let insertTestData (connStr: string) =
+    override _.ConfigureServices(services: IServiceCollection, connStr: string) =
+        // 既存の IFinancialStatementRepository を削除して新しいものに置き換え
+        let descriptor =
+            services
+            |> Seq.tryFind (fun d -> d.ServiceType = typeof<IFinancialStatementRepository>)
+        match descriptor with
+        | Some d -> services.Remove(d) |> ignore
+        | None -> ()
+
+        services.AddScoped<IFinancialStatementRepository>(fun _ ->
+            FinancialStatementRepositoryAdapter(connStr) :> IFinancialStatementRepository
+        ) |> ignore
+
+    /// <summary>
+    /// テストデータのセットアップ
+    /// </summary>
+    override _.SetupTestDataAsync(connStr: string) =
         task {
             use connection = new NpgsqlConnection(connStr)
             do! connection.OpenAsync()
@@ -100,78 +109,15 @@ type FinancialStatementControllerIntegrationTest() =
             return ()
         }
 
-    interface IAsyncLifetime with
-        member _.InitializeAsync() : Task =
-            task {
-                // Docker ホストの設定（Windows Docker Desktop 用）
-                let dockerHost =
-                    match Environment.GetEnvironmentVariable("DOCKER_HOST") with
-                    | null | "" -> "npipe://./pipe/docker_engine"
-                    | host -> host
-
-                Environment.SetEnvironmentVariable("DOCKER_HOST", dockerHost)
-
-                // PostgreSQLコンテナの設定と起動
-                container <-
-                    PostgreSqlBuilder()
-                        .WithImage("postgres:16-alpine")
-                        .WithDatabase("test_db")
-                        .WithUsername("test")
-                        .WithPassword("test")
-                        .Build()
-
-                do! container.StartAsync()
-
-                // 接続文字列の取得
-                connectionString <- container.GetConnectionString()
-
-                // マイグレーションの実行
-                migrateDatabase connectionString "PostgreSQL"
-
-                // テストデータを挿入
-                do! insertTestData connectionString
-
-                // WebApplicationFactory で API サーバーを起動
-                factory <-
-                    (new WebApplicationFactory<Program>())
-                        .WithWebHostBuilder(fun builder ->
-                            builder.ConfigureServices(fun services ->
-                                // 既存の IFinancialStatementRepository を削除して新しいものに置き換え
-                                let descriptor =
-                                    services
-                                    |> Seq.tryFind (fun d -> d.ServiceType = typeof<IFinancialStatementRepository>)
-                                match descriptor with
-                                | Some d -> services.Remove(d) |> ignore
-                                | None -> ()
-
-                                services.AddScoped<IFinancialStatementRepository>(fun _ ->
-                                    FinancialStatementRepositoryAdapter(connectionString) :> IFinancialStatementRepository
-                                ) |> ignore
-                            ) |> ignore
-                        )
-
-                client <- factory.CreateClient()
-            }
-
-        member _.DisposeAsync() : Task =
-            task {
-                if client <> null then
-                    client.Dispose()
-                if factory <> null then
-                    factory.Dispose()
-                if container <> null then
-                    do! container.DisposeAsync().AsTask()
-            }
-
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``貸借対照表を取得できる``() : Task =
+    member this.``貸借対照表を取得できる``() : Task =
         task {
             // Arrange
             let asOfDate = "2024-01-31"
 
             // Act
-            let! response = client.GetAsync($"/api/v1/financial-statements/balance-sheet?asOfDate={asOfDate}")
+            let! response = this.Client.GetAsync($"/api/v1/financial-statements/balance-sheet?asOfDate={asOfDate}")
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.OK
@@ -187,13 +133,13 @@ type FinancialStatementControllerIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``貸借対照表の資産項目を取得できる``() : Task =
+    member this.``貸借対照表の資産項目を取得できる``() : Task =
         task {
             // Arrange
             let asOfDate = "2024-01-31"
 
             // Act
-            let! response = client.GetAsync($"/api/v1/financial-statements/balance-sheet?asOfDate={asOfDate}")
+            let! response = this.Client.GetAsync($"/api/v1/financial-statements/balance-sheet?asOfDate={asOfDate}")
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.OK
@@ -207,14 +153,14 @@ type FinancialStatementControllerIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``損益計算書を取得できる``() : Task =
+    member this.``損益計算書を取得できる``() : Task =
         task {
             // Arrange
             let fromDate = "2024-01-01"
             let toDate = "2024-01-31"
 
             // Act
-            let! response = client.GetAsync($"/api/v1/financial-statements/income-statement?fromDate={fromDate}&toDate={toDate}")
+            let! response = this.Client.GetAsync($"/api/v1/financial-statements/income-statement?fromDate={fromDate}&toDate={toDate}")
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.OK
@@ -229,14 +175,14 @@ type FinancialStatementControllerIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``損益計算書の利益項目を取得できる``() : Task =
+    member this.``損益計算書の利益項目を取得できる``() : Task =
         task {
             // Arrange
             let fromDate = "2024-01-01"
             let toDate = "2024-01-31"
 
             // Act
-            let! response = client.GetAsync($"/api/v1/financial-statements/income-statement?fromDate={fromDate}&toDate={toDate}")
+            let! response = this.Client.GetAsync($"/api/v1/financial-statements/income-statement?fromDate={fromDate}&toDate={toDate}")
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.OK
@@ -251,7 +197,7 @@ type FinancialStatementControllerIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``財務指標を取得できる``() : Task =
+    member this.``財務指標を取得できる``() : Task =
         task {
             // Arrange
             let asOfDate = "2024-01-31"
@@ -259,7 +205,7 @@ type FinancialStatementControllerIntegrationTest() =
             let toDate = "2024-01-31"
 
             // Act
-            let! response = client.GetAsync($"/api/v1/financial-statements/ratios?asOfDate={asOfDate}&fromDate={fromDate}&toDate={toDate}")
+            let! response = this.Client.GetAsync($"/api/v1/financial-statements/ratios?asOfDate={asOfDate}&fromDate={fromDate}&toDate={toDate}")
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.OK
@@ -279,7 +225,7 @@ type FinancialStatementControllerIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``財務指標のROA・ROEを取得できる``() : Task =
+    member this.``財務指標のROA・ROEを取得できる``() : Task =
         task {
             // Arrange
             let asOfDate = "2024-01-31"
@@ -287,7 +233,7 @@ type FinancialStatementControllerIntegrationTest() =
             let toDate = "2024-01-31"
 
             // Act
-            let! response = client.GetAsync($"/api/v1/financial-statements/ratios?asOfDate={asOfDate}&fromDate={fromDate}&toDate={toDate}")
+            let! response = this.Client.GetAsync($"/api/v1/financial-statements/ratios?asOfDate={asOfDate}&fromDate={fromDate}&toDate={toDate}")
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.OK
@@ -302,13 +248,13 @@ type FinancialStatementControllerIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``該当データがない日付で空の貸借対照表が返る``() : Task =
+    member this.``該当データがない日付で空の貸借対照表が返る``() : Task =
         task {
             // Arrange - テストデータより前の日付
             let asOfDate = "2023-01-01"
 
             // Act
-            let! response = client.GetAsync($"/api/v1/financial-statements/balance-sheet?asOfDate={asOfDate}")
+            let! response = this.Client.GetAsync($"/api/v1/financial-statements/balance-sheet?asOfDate={asOfDate}")
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.OK
@@ -323,14 +269,14 @@ type FinancialStatementControllerIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``該当データがない日付範囲で空の損益計算書が返る``() : Task =
+    member this.``該当データがない日付範囲で空の損益計算書が返る``() : Task =
         task {
             // Arrange - テストデータより前の日付範囲
             let fromDate = "2023-01-01"
             let toDate = "2023-01-31"
 
             // Act
-            let! response = client.GetAsync($"/api/v1/financial-statements/income-statement?fromDate={fromDate}&toDate={toDate}")
+            let! response = this.Client.GetAsync($"/api/v1/financial-statements/income-statement?fromDate={fromDate}&toDate={toDate}")
 
             // Assert
             response.StatusCode |> should equal HttpStatusCode.OK
