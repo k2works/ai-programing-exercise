@@ -19,6 +19,7 @@
     <Compile Include="Domain/DoubleEntryBookkeepingServiceTest.fs" />
     <Compile Include="Domain\FinancialRatiosTest.fs" />
     <Compile Include="Domain/AuditLogTest.fs" />
+    <Compile Include="Domain/JournalEntryAggregateTest.fs" />
     <Compile Include="Repositories/AccountStructureRepositoryTest.fs" />
     <Compile Include="Repositories/TaxTransactionRepositoryTest.fs" />
     <Compile Include="Repositories/AccountRepositoryTest.fs" />
@@ -27,17 +28,22 @@
     <Compile Include="Repositories/AutoJournalRepositoryTest.fs" />
     <Compile Include="Repositories\FinancialStatementRepositoryTest.fs" />
     <Compile Include="Repositories/AuditLogRepositoryTest.fs" />
+    <Compile Include="Repositories/EventStoreRepositoryTest.fs" />
+    <Compile Include="Repositories/SnapshotRepositoryTest.fs" />
     <Compile Include="Application/BalanceServiceTest.fs" />
     <Compile Include="Application/AutoJournalServiceTest.fs" />
     <Compile Include="Application/FinancialStatementServiceTest.fs" />
     <Compile Include="Application/AccountServiceTest.fs" />
     <Compile Include="Application/JournalServiceTest.fs" />
     <Compile Include="Application/AuditLogServiceTest.fs" />
+    <Compile Include="Application/JournalEntryEventSourcingServiceWithSnapshotTest.fs" />
     <Compile Include="Integration/DatabaseConnectionTests.fs" />
     <Compile Include="Integration/AccountControllerIntegrationTest.fs" />
     <Compile Include="Integration/JournalControllerIntegrationTest.fs" />
     <Compile Include="Integration/FinancialStatementControllerIntegrationTest.fs" />
     <Compile Include="Integration/AuditLogControllerIntegrationTest.fs" />
+    <Compile Include="Integration/JournalEntryEventSourcingControllerIntegrationTest.fs" />
+    <Compile Include="Integration/JournalEntryEventSourcingWithSnapshotControllerIntegrationTest.fs" />
   </ItemGroup>
 
   <ItemGroup>
