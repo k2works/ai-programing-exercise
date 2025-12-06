@@ -6,7 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="PostgresContainerHelper.fs" />
     <Compile Include="DatabaseTestBase.fs" />
+    <Compile Include="DatabaseIntegrationTestBase.fs" />
+    <Compile Include="PostgresWebTestBase.fs" />
+    <Compile Include="RabbitMqTestBase.fs" />
     <Compile Include="Domain/AccountCodeTest.fs" />
     <Compile Include="Domain/MoneyTest.fs" />
     <Compile Include="Domain/AccountTest.fs" />
@@ -39,8 +43,8 @@
     <Compile Include="Application/JournalEntryEventSourcingServiceWithSnapshotTest.fs" />
     <Compile Include="Application/EventDispatcherTest.fs" />
     <Compile Include="Infrastructure/RabbitMqEventPublisherTest.fs" />
-    <Compile Include="Infrastructure/RabbitMqEventSubscriberIntegrationTest.fs" />
     <Compile Include="Integration/DatabaseConnectionTests.fs" />
+    <Compile Include="Integration/RabbitMqEventSubscriberIntegrationTest.fs" />
     <Compile Include="Integration/AccountControllerIntegrationTest.fs" />
     <Compile Include="Integration/JournalControllerIntegrationTest.fs" />
     <Compile Include="Integration/FinancialStatementControllerIntegrationTest.fs" />

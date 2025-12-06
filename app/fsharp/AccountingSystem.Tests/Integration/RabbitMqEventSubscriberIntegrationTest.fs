@@ -1,16 +1,16 @@
-module AccountingSystem.Tests.Infrastructure.RabbitMqEventSubscriberIntegrationTest
+module AccountingSystem.Tests.Integration.RabbitMqEventSubscriberIntegrationTest
 
 open System
 open System.Threading
 open System.Threading.Tasks
 open Xunit
 open FsUnit.Xunit
-open Testcontainers.RabbitMq
 open AccountingSystem.Domain.Types
 open AccountingSystem.Domain.Events
 open AccountingSystem.Application.Port.In
 open AccountingSystem.Application.Port.Out
 open AccountingSystem.Infrastructure.Messaging
+open AccountingSystem.Tests.RabbitMqTestBase
 
 /// <summary>
 /// テスト用のモックイベントハンドラー
@@ -39,60 +39,19 @@ type MockEventHandler() =
 /// <summary>
 /// RabbitMQ イベントサブスクライバー統合テスト
 /// Testcontainers を使用した E2E テスト
+/// RabbitMqTestBase を継承してコンテナのライフサイクルを管理
 /// </summary>
 type RabbitMqEventSubscriberIntegrationTest() =
-    let mutable container: RabbitMqContainer = null
-    let mutable config: RabbitMqConfig = RabbitMqConfig.defaultConfig
-
-    interface IAsyncLifetime with
-        member _.InitializeAsync() : Task =
-            task {
-                // Docker ホストの設定（Windows Docker Desktop 用）
-                let dockerHost =
-                    match Environment.GetEnvironmentVariable("DOCKER_HOST") with
-                    | null | "" -> "npipe://./pipe/docker_engine"
-                    | host -> host
-
-                Environment.SetEnvironmentVariable("DOCKER_HOST", dockerHost)
-
-                // RabbitMQ コンテナの設定と起動
-                container <-
-                    RabbitMqBuilder()
-                        .WithImage("rabbitmq:3-management-alpine")
-                        .WithUsername("guest")
-                        .WithPassword("guest")
-                        .Build()
-
-                do! container.StartAsync()
-
-                // RabbitMQ 接続情報の取得
-                let rabbitMqHost = container.Hostname
-                let rabbitMqPort = container.GetMappedPublicPort(5672)
-
-                config <- {
-                    HostName = rabbitMqHost
-                    Port = int rabbitMqPort
-                    UserName = "guest"
-                    Password = "guest"
-                    VirtualHost = "/"
-                    ExchangeName = "accounting.events.test"
-                }
-            }
-
-        member _.DisposeAsync() : Task =
-            task {
-                if container <> null then
-                    do! container.DisposeAsync().AsTask()
-            }
+    inherit RabbitMqTestBase()
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``パブリッシュされたイベントをサブスクライブできる``() : Task =
+    member this.``パブリッシュされたイベントをサブスクライブできる``() : Task =
         task {
             // Arrange
             let mockHandler = MockEventHandler()
-            use publisher = new RabbitMqEventPublisher(config)
-            use subscriber = new RabbitMqEventSubscriber(config, [ mockHandler ])
+            use publisher = new RabbitMqEventPublisher(this.Config)
+            use subscriber = new RabbitMqEventSubscriber(this.Config, [ mockHandler ])
 
             // サブスクライバーを開始
             do! subscriber.StartAsync(CancellationToken.None)
@@ -136,12 +95,12 @@ type RabbitMqEventSubscriberIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``複数のイベントをサブスクライブできる``() : Task =
+    member this.``複数のイベントをサブスクライブできる``() : Task =
         task {
             // Arrange
             let mockHandler = MockEventHandler()
-            use publisher = new RabbitMqEventPublisher(config)
-            use subscriber = new RabbitMqEventSubscriber(config, [ mockHandler ])
+            use publisher = new RabbitMqEventPublisher(this.Config)
+            use subscriber = new RabbitMqEventSubscriber(this.Config, [ mockHandler ])
 
             do! subscriber.StartAsync(CancellationToken.None)
             do! Task.Delay(500)
@@ -182,12 +141,12 @@ type RabbitMqEventSubscriberIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``JournalEntryApproved イベントをサブスクライブできる``() : Task =
+    member this.``JournalEntryApproved イベントをサブスクライブできる``() : Task =
         task {
             // Arrange
             let mockHandler = MockEventHandler()
-            use publisher = new RabbitMqEventPublisher(config)
-            use subscriber = new RabbitMqEventSubscriber(config, [ mockHandler ])
+            use publisher = new RabbitMqEventPublisher(this.Config)
+            use subscriber = new RabbitMqEventSubscriber(this.Config, [ mockHandler ])
 
             do! subscriber.StartAsync(CancellationToken.None)
             do! Task.Delay(500)
@@ -223,12 +182,12 @@ type RabbitMqEventSubscriberIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``JournalEntryDeleted イベントをサブスクライブできる``() : Task =
+    member this.``JournalEntryDeleted イベントをサブスクライブできる``() : Task =
         task {
             // Arrange
             let mockHandler = MockEventHandler()
-            use publisher = new RabbitMqEventPublisher(config)
-            use subscriber = new RabbitMqEventSubscriber(config, [ mockHandler ])
+            use publisher = new RabbitMqEventPublisher(this.Config)
+            use subscriber = new RabbitMqEventSubscriber(this.Config, [ mockHandler ])
 
             do! subscriber.StartAsync(CancellationToken.None)
             do! Task.Delay(500)
@@ -262,13 +221,13 @@ type RabbitMqEventSubscriberIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``複数のハンドラーにイベントを配信できる``() : Task =
+    member this.``複数のハンドラーにイベントを配信できる``() : Task =
         task {
             // Arrange
             let mockHandler1 = MockEventHandler()
             let mockHandler2 = MockEventHandler()
-            use publisher = new RabbitMqEventPublisher(config)
-            use subscriber = new RabbitMqEventSubscriber(config, [ mockHandler1; mockHandler2 ])
+            use publisher = new RabbitMqEventPublisher(this.Config)
+            use subscriber = new RabbitMqEventSubscriber(this.Config, [ mockHandler1; mockHandler2 ])
 
             do! subscriber.StartAsync(CancellationToken.None)
             do! Task.Delay(500)
@@ -303,12 +262,12 @@ type RabbitMqEventSubscriberIntegrationTest() =
 
     [<Fact>]
     [<Trait("Category", "Integration")>]
-    member _.``サブスクライバーを停止後は新しいイベントを受信しない``() : Task =
+    member this.``サブスクライバーを停止後は新しいイベントを受信しない``() : Task =
         task {
             // Arrange
             let mockHandler = MockEventHandler()
-            use publisher = new RabbitMqEventPublisher(config)
-            use subscriber = new RabbitMqEventSubscriber(config, [ mockHandler ])
+            use publisher = new RabbitMqEventPublisher(this.Config)
+            use subscriber = new RabbitMqEventSubscriber(this.Config, [ mockHandler ])
 
             do! subscriber.StartAsync(CancellationToken.None)
             do! Task.Delay(500)
