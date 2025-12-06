@@ -1,4 +1,4 @@
-module AccountingSystem.Tests.Repositories.AccountStructureRepositoryTest
+module AccountingSystem.Tests.Infrastructure.AccountStructureRepositoryTest
 
 open AccountingSystem.Domain.Models
 open AccountingSystem.Domain.Types

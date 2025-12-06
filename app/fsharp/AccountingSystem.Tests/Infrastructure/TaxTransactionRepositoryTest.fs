@@ -1,4 +1,4 @@
-module AccountingSystem.Tests.Repositories.TaxTransactionRepositoryTest
+module AccountingSystem.Tests.Infrastructure.TaxTransactionRepositoryTest
 
 open AccountingSystem.Domain.Models
 open AccountingSystem.Infrastructure.Persistence.Repositories.TaxTransactionRepository

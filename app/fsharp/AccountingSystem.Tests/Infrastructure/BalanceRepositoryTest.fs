@@ -1,4 +1,4 @@
-module AccountingSystem.Tests.Repositories.BalanceRepositoryTest
+module AccountingSystem.Tests.Infrastructure.BalanceRepositoryTest
 
 open System
 open Xunit

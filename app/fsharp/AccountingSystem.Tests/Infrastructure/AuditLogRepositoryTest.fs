@@ -1,4 +1,4 @@
-module AccountingSystem.Tests.Repositories.AuditLogRepositoryTest
+module AccountingSystem.Tests.Infrastructure.AuditLogRepositoryTest
 
 open System
 open AccountingSystem.Domain.Types

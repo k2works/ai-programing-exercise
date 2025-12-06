@@ -1,4 +1,4 @@
-module AccountingSystem.Tests.Repositories.EventStoreRepositoryTest
+module AccountingSystem.Tests.Infrastructure.EventStoreRepositoryTest
 
 open System
 open System.Threading.Tasks

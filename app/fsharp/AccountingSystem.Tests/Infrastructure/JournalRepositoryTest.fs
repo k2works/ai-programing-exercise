@@ -1,4 +1,4 @@
-module AccountingSystem.Tests.Repositories.JournalRepositoryTest
+module AccountingSystem.Tests.Infrastructure.JournalRepositoryTest
 
 open System
 open AccountingSystem.Domain.Models.Journal

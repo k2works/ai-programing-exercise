@@ -1,4 +1,4 @@
-module AccountingSystem.Tests.Repositories.AutoJournalRepositoryTest
+module AccountingSystem.Tests.Infrastructure.AutoJournalRepositoryTest
 
 open System
 open Xunit

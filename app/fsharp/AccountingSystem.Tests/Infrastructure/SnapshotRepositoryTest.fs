@@ -1,4 +1,4 @@
-module AccountingSystem.Tests.Repositories.SnapshotRepositoryTest
+module AccountingSystem.Tests.Infrastructure.SnapshotRepositoryTest
 
 open System
 open System.Threading.Tasks
