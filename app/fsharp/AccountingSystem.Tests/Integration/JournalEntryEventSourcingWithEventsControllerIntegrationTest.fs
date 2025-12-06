@@ -10,7 +10,9 @@ open FsUnit.Xunit
 open Microsoft.AspNetCore.Mvc.Testing
 open Microsoft.Extensions.DependencyInjection
 open Testcontainers.PostgreSql
+open Testcontainers.RabbitMq
 open AccountingSystem.Api
+open AccountingSystem.Infrastructure.Messaging
 open AccountingSystem.Infrastructure.Web.Dtos
 open AccountingSystem.Infrastructure.Web.Controllers
 open AccountingSystem.Application.Port.In
@@ -23,17 +25,41 @@ open Npgsql
 open Dapper
 
 /// <summary>
+/// RabbitMQ + EventDispatcher のコンポジットパブリッシャー
+/// RabbitMQ へのパブリッシュと同時に同期的に EventDispatcher でも処理
+/// </summary>
+type CompositeEventPublisher(rabbitMqPublisher: RabbitMqEventPublisher, eventDispatcher: EventDispatcher) =
+    interface IEventPublisher with
+        member _.PublishAsync(event) =
+            task {
+                // RabbitMQ へパブリッシュ（非同期）
+                do! (rabbitMqPublisher :> IEventPublisher).PublishAsync(event)
+                // EventDispatcher で同期的に処理（テスト用）
+                do! (eventDispatcher :> IEventPublisher).PublishAsync(event)
+            }
+        member _.PublishManyAsync(events) =
+            task {
+                // RabbitMQ へパブリッシュ（非同期）
+                do! (rabbitMqPublisher :> IEventPublisher).PublishManyAsync(events)
+                // EventDispatcher で同期的に処理（テスト用）
+                do! (eventDispatcher :> IEventPublisher).PublishManyAsync(events)
+            }
+
+/// <summary>
 /// 仕訳イベントソーシング（イベント発行版）API 統合テスト
 /// Testcontainers + WebApplicationFactory を使用した E2E テスト
 /// イベント発行により Read Model と監査ログが自動更新されることを検証
 /// </summary>
 type JournalEntryEventSourcingWithEventsControllerIntegrationTest() =
-    let mutable container: PostgreSqlContainer = null
+    let mutable postgresContainer: PostgreSqlContainer = null
+    let mutable rabbitMqContainer: RabbitMqContainer = null
     let mutable connectionString: string = null
+    let mutable rabbitMqConnectionString: string = null
     let mutable factory: WebApplicationFactory<Program> = null
     let mutable client: HttpClient = null
 
     let basePath = "/api/v1/journal-entries-with-events"
+    let mutable rabbitMqConfig: RabbitMqConfig option = None
 
     /// <summary>
     /// テスト用データのクリーンアップ
@@ -67,7 +93,7 @@ type JournalEntryEventSourcingWithEventsControllerIntegrationTest() =
                 Environment.SetEnvironmentVariable("DOCKER_HOST", dockerHost)
 
                 // PostgreSQL コンテナの設定と起動
-                container <-
+                postgresContainer <-
                     PostgreSqlBuilder()
                         .WithImage("postgres:16-alpine")
                         .WithDatabase("test_db")
@@ -75,10 +101,34 @@ type JournalEntryEventSourcingWithEventsControllerIntegrationTest() =
                         .WithPassword("test")
                         .Build()
 
-                do! container.StartAsync()
+                do! postgresContainer.StartAsync()
 
                 // 接続文字列の取得
-                connectionString <- container.GetConnectionString()
+                connectionString <- postgresContainer.GetConnectionString()
+
+                // RabbitMQ コンテナの設定と起動
+                rabbitMqContainer <-
+                    RabbitMqBuilder()
+                        .WithImage("rabbitmq:3-management-alpine")
+                        .WithUsername("guest")
+                        .WithPassword("guest")
+                        .Build()
+
+                do! rabbitMqContainer.StartAsync()
+
+                // RabbitMQ 接続情報の取得
+                rabbitMqConnectionString <- rabbitMqContainer.GetConnectionString()
+                let rabbitMqHost = rabbitMqContainer.Hostname
+                let rabbitMqPort = rabbitMqContainer.GetMappedPublicPort(5672)
+
+                rabbitMqConfig <- Some {
+                    HostName = rabbitMqHost
+                    Port = int rabbitMqPort
+                    UserName = "guest"
+                    Password = "guest"
+                    VirtualHost = "/"
+                    ExchangeName = "accounting.events.test"
+                }
 
                 // マイグレーションの実行
                 migrateDatabase connectionString "PostgreSQL"
@@ -168,6 +218,12 @@ type JournalEntryEventSourcingWithEventsControllerIntegrationTest() =
                                     EventDispatcher(handlers)
                                 ) |> ignore
 
+                                // RabbitMqEventPublisher の登録
+                                let config = rabbitMqConfig.Value
+                                services.AddSingleton<RabbitMqEventPublisher>(fun _ ->
+                                    new RabbitMqEventPublisher(config)
+                                ) |> ignore
+
                                 // 既存の IEventPublisher を削除
                                 let publisherDescriptor =
                                     services
@@ -176,8 +232,11 @@ type JournalEntryEventSourcingWithEventsControllerIntegrationTest() =
                                 | Some d -> services.Remove(d) |> ignore
                                 | None -> ()
 
+                                // CompositeEventPublisher を使用（RabbitMQ + EventDispatcher）
                                 services.AddScoped<IEventPublisher>(fun sp ->
-                                    sp.GetRequiredService<EventDispatcher>() :> IEventPublisher
+                                    let rabbitMqPublisher = sp.GetRequiredService<RabbitMqEventPublisher>()
+                                    let eventDispatcher = sp.GetRequiredService<EventDispatcher>()
+                                    CompositeEventPublisher(rabbitMqPublisher, eventDispatcher) :> IEventPublisher
                                 ) |> ignore
 
                                 // 既存の JournalEntryEventSourcingServiceWithEvents を削除して新しいものに置き換え
@@ -207,8 +266,10 @@ type JournalEntryEventSourcingWithEventsControllerIntegrationTest() =
                     client.Dispose()
                 if factory <> null then
                     factory.Dispose()
-                if container <> null then
-                    do! container.DisposeAsync().AsTask()
+                if rabbitMqContainer <> null then
+                    do! rabbitMqContainer.DisposeAsync().AsTask()
+                if postgresContainer <> null then
+                    do! postgresContainer.DisposeAsync().AsTask()
             }
 
     [<Fact>]

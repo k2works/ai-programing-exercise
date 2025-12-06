@@ -39,6 +39,7 @@
     <Compile Include="Application/JournalEntryEventSourcingServiceWithSnapshotTest.fs" />
     <Compile Include="Application/EventDispatcherTest.fs" />
     <Compile Include="Infrastructure/RabbitMqEventPublisherTest.fs" />
+    <Compile Include="Infrastructure/RabbitMqEventSubscriberIntegrationTest.fs" />
     <Compile Include="Integration/DatabaseConnectionTests.fs" />
     <Compile Include="Integration/AccountControllerIntegrationTest.fs" />
     <Compile Include="Integration/JournalControllerIntegrationTest.fs" />
@@ -47,6 +48,8 @@
     <Compile Include="Integration/JournalEntryEventSourcingControllerIntegrationTest.fs" />
     <Compile Include="Integration/JournalEntryEventSourcingWithSnapshotControllerIntegrationTest.fs" />
     <Compile Include="Integration/JournalEntryEventSourcingWithEventsControllerIntegrationTest.fs" />
+    <Compile Include="Integration/JournalEntryReadModelHandlerIntegrationTest.fs" />
+    <Compile Include="Integration/AuditLogEventHandlerIntegrationTest.fs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -56,6 +59,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="Testcontainers.MySql" Version="4.1.0" />
     <PackageReference Include="Testcontainers.PostgreSql" Version="4.1.0" />
+    <PackageReference Include="Testcontainers.RabbitMq" Version="4.1.0" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.0" />
