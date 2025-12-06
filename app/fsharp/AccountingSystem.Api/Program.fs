@@ -148,6 +148,14 @@ module Program =
                 sp.GetRequiredService<RabbitMqEventPublisher>() :> IEventPublisher
             )
             |> ignore
+
+            // RabbitMQ イベントサブスクライバー BackgroundService を登録
+            builder.Services.AddHostedService<RabbitMqEventSubscriberBackgroundService>(fun sp ->
+                let scopeFactory = sp.GetRequiredService<IServiceScopeFactory>()
+                let logger = sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<RabbitMqEventSubscriberBackgroundService>>()
+                new RabbitMqEventSubscriberBackgroundService(rabbitMqConfig, scopeFactory, logger)
+            )
+            |> ignore
         else
             builder.Services.AddScoped<IEventPublisher>(fun sp ->
                 sp.GetRequiredService<EventDispatcher>() :> IEventPublisher
