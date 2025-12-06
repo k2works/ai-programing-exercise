@@ -276,6 +276,11 @@ type RabbitMqEventSubscriber
             connection <- None
         }
 
+    override this.StopAsync(cancellationToken: CancellationToken) : Task =
+        let cleanup = this.CleanupAsync()
+        let baseStop = base.StopAsync(cancellationToken)
+        Task.WhenAll(cleanup, baseStop)
+
     override this.Dispose() =
         channel |> Option.iter (fun ch ->
             try ch.Dispose() with _ -> ())
