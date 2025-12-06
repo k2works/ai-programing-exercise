@@ -231,6 +231,111 @@ type JournalRepositoryTest() =
             do! this.CleanupTestDataAsync()
         }
 
+    /// <summary>
+    /// 【重要】起票日範囲で検索した仕訳に明細と貸借明細が含まれることを検証
+    /// このテストは findByDateRangeAsync が集約全体（Lines と Items）を返すことを保証する
+    /// </summary>
+    [<Fact>]
+    member this.``起票日範囲で検索した仕訳には明細と貸借明細が含まれる``() =
+        task {
+            do! this.SetupTestAccountsAsync()
+            do! this.CleanupTestDataAsync()
+
+            // 2つの明細行を持つ仕訳を作成
+            let debitItem1 = this.CreateTestLineItem("TEST0011", 1, Debit, "11100", 10000m<円>)
+            let creditItem1 = this.CreateTestLineItem("TEST0011", 1, Credit, "41100", 10000m<円>)
+            let line1 = this.CreateTestLine("TEST0011", 1, "売上取引A", [debitItem1; creditItem1])
+
+            let debitItem2 = this.CreateTestLineItem("TEST0011", 2, Debit, "11100", 20000m<円>)
+            let creditItem2 = this.CreateTestLineItem("TEST0011", 2, Credit, "41100", 20000m<円>)
+            let line2 = this.CreateTestLine("TEST0011", 2, "売上取引B", [debitItem2; creditItem2])
+
+            let journal = { this.CreateTestJournal("TEST0011", [line1; line2]) with PostingDate = DateTime(2024, 3, 15) }
+
+            let! _ = insertAsync this.ConnectionString journal
+
+            // 日付範囲で検索
+            let! marchJournals = findByDateRangeAsync this.ConnectionString (DateTime(2024, 3, 1)) (DateTime(2024, 3, 31))
+
+            // 仕訳が取得できることを確認
+            let foundJournal = marchJournals |> List.tryFind (fun j -> j.VoucherNumber.Number = "TEST0011")
+            foundJournal.IsSome |> should equal true
+
+            // 【重要】明細行（Lines）が含まれていることを検証
+            let journalWithLines = foundJournal.Value
+            journalWithLines.Lines |> List.length |> should equal 2
+
+            // 【重要】各明細行に貸借明細（Items）が含まれていることを検証
+            let line1Found = journalWithLines.Lines |> List.find (fun l -> l.LineNumber = 1)
+            line1Found.Items |> List.length |> should equal 2
+            line1Found.Description |> should equal "売上取引A"
+
+            let line2Found = journalWithLines.Lines |> List.find (fun l -> l.LineNumber = 2)
+            line2Found.Items |> List.length |> should equal 2
+            line2Found.Description |> should equal "売上取引B"
+
+            // 貸借明細の内容を検証
+            let debitItems = line1Found.Items |> List.filter (fun i -> i.DebitCreditType = Debit)
+            let creditItems = line1Found.Items |> List.filter (fun i -> i.DebitCreditType = Credit)
+            debitItems |> List.length |> should equal 1
+            creditItems |> List.length |> should equal 1
+
+            // 金額を検証
+            Journal.sumDebit journalWithLines |> should equal (Money.Create(30000m))
+            Journal.sumCredit journalWithLines |> should equal (Money.Create(30000m))
+            Journal.validateBalance journalWithLines |> should equal true
+
+            // クリーンアップ
+            do! this.CleanupTestDataAsync()
+        }
+
+    /// <summary>
+    /// 複数の仕訳を日付範囲で検索した場合、全ての仕訳に明細が含まれることを検証
+    /// </summary>
+    [<Fact>]
+    member this.``複数仕訳を日付範囲で検索した場合も全ての仕訳に明細が含まれる``() =
+        task {
+            do! this.SetupTestAccountsAsync()
+            do! this.CleanupTestDataAsync()
+
+            // 仕訳1
+            let item1a = this.CreateTestLineItem("TEST0012", 1, Debit, "11100", 5000m<円>)
+            let item1b = this.CreateTestLineItem("TEST0012", 1, Credit, "41100", 5000m<円>)
+            let line1 = this.CreateTestLine("TEST0012", 1, "取引1", [item1a; item1b])
+            let journal1 = { this.CreateTestJournal("TEST0012", [line1]) with PostingDate = DateTime(2024, 4, 10) }
+
+            // 仕訳2
+            let item2a = this.CreateTestLineItem("TEST0013", 1, Debit, "11100", 8000m<円>)
+            let item2b = this.CreateTestLineItem("TEST0013", 1, Credit, "41100", 8000m<円>)
+            let line2 = this.CreateTestLine("TEST0013", 1, "取引2", [item2a; item2b])
+            let journal2 = { this.CreateTestJournal("TEST0013", [line2]) with PostingDate = DateTime(2024, 4, 20) }
+
+            // 仕訳3
+            let item3a = this.CreateTestLineItem("TEST0014", 1, Debit, "11100", 12000m<円>)
+            let item3b = this.CreateTestLineItem("TEST0014", 1, Credit, "41100", 12000m<円>)
+            let line3 = this.CreateTestLine("TEST0014", 1, "取引3", [item3a; item3b])
+            let journal3 = { this.CreateTestJournal("TEST0014", [line3]) with PostingDate = DateTime(2024, 4, 25) }
+
+            let! _ = insertAsync this.ConnectionString journal1
+            let! _ = insertAsync this.ConnectionString journal2
+            let! _ = insertAsync this.ConnectionString journal3
+
+            // 4月の仕訳を検索
+            let! aprilJournals = findByDateRangeAsync this.ConnectionString (DateTime(2024, 4, 1)) (DateTime(2024, 4, 30))
+
+            // 3つの仕訳が取得できること
+            let testJournals = aprilJournals |> List.filter (fun j -> j.VoucherNumber.Number.StartsWith("TEST001"))
+            testJournals |> List.length |> should equal 3
+
+            // 【重要】全ての仕訳に明細が含まれていることを検証
+            for journal in testJournals do
+                journal.Lines |> List.length |> should greaterThan 0
+                journal.Lines |> List.forall (fun l -> l.Items |> List.length > 0) |> should equal true
+
+            // クリーンアップ
+            do! this.CleanupTestDataAsync()
+        }
+
     [<Fact>]
     member this.``仕訳ヘッダーを更新できる``() =
         task {
