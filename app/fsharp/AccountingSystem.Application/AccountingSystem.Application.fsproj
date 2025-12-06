@@ -16,11 +16,15 @@
     <Compile Include="Port/Out/IEventStoreRepository.fs" />
     <Compile Include="Port/Out/IJournalEntryReadModelRepository.fs" />
     <Compile Include="Port/Out/ISnapshotRepository.fs" />
+    <Compile Include="Port/Out/IEventPublisher.fs" />
     <Compile Include="Port/In/IAccountUseCase.fs" />
     <Compile Include="Port/In/IJournalUseCase.fs" />
     <Compile Include="Port/In/IFinancialStatementUseCase.fs" />
     <Compile Include="Port/In/IAuditLogUseCase.fs" />
     <Compile Include="Port/In/IJournalEntryEventSourcingUseCase.fs" />
+    <Compile Include="Port/In/IEventHandler.fs" />
+    <Compile Include="EventHandlers/JournalEntryReadModelHandler.fs" />
+    <Compile Include="EventHandlers/AuditLogEventHandler.fs" />
     <Compile Include="Services/AccountService.fs" />
     <Compile Include="Services/JournalService.fs" />
     <Compile Include="Services/FinancialStatementService.fs" />
@@ -30,6 +34,8 @@
     <Compile Include="Services/JournalEntryEventSourcingService.fs" />
     <Compile Include="Services/JournalEntryEventSourcingServiceWithSnapshot.fs" />
     <Compile Include="Services/JournalEntryQueryService.fs" />
+    <Compile Include="Services/EventDispatcher.fs" />
+    <Compile Include="Services/JournalEntryEventSourcingServiceWithEvents.fs" />
   </ItemGroup>
 
   <ItemGroup>
