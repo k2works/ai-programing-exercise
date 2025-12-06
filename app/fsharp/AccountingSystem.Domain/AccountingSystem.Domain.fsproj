@@ -19,6 +19,7 @@
     <Compile Include="Types\SettlementFlag.fs" />
     <Compile Include="Types\RedSlipFlag.fs" />
     <Compile Include="Types\VoucherType.fs" />
+    <Compile Include="Types\AuditAction.fs" />
     <Compile Include="Models\Account.fs" />
     <Compile Include="Models\TaxTransaction.fs" />
     <Compile Include="Models\AccountStructure.fs" />
@@ -29,6 +30,7 @@
     <Compile Include="Models\BalanceSheet.fs" />
     <Compile Include="Models\IncomeStatement.fs" />
     <Compile Include="Models\FinancialRatios.fs" />
+    <Compile Include="Models\AuditLog.fs" />
     <Compile Include="Services\DoubleEntryBookkeepingService.fs" />
     <Compile Include="Library.fs" />
   </ItemGroup>
