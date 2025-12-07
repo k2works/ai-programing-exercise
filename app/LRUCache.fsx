@@ -1,5 +1,3 @@
-module LRUCache
-
 /// LRUキャッシュの型（リストで管理：先頭が古い、末尾が新しい）
 type LRUCache<'K, 'V when 'K : equality> = {
     Capacity: int
