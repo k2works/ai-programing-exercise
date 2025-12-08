@@ -7,6 +7,7 @@ COPY ["src/FinancialAccounting.Api/FinancialAccounting.Api.fsproj", "src/Financi
 COPY ["src/FinancialAccounting.Domain/FinancialAccounting.Domain.fsproj", "src/FinancialAccounting.Domain/"]
 COPY ["src/FinancialAccounting.Application/FinancialAccounting.Application.fsproj", "src/FinancialAccounting.Application/"]
 COPY ["src/FinancialAccounting.Infrastructure/FinancialAccounting.Infrastructure.fsproj", "src/FinancialAccounting.Infrastructure/"]
+COPY ["src/Shared.Contracts/Shared.Contracts.fsproj", "src/Shared.Contracts/"]
 RUN dotnet restore "src/FinancialAccounting.Api/FinancialAccounting.Api.fsproj"
 
 # ソースコードをコピーしてビルド
