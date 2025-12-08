@@ -83,6 +83,15 @@ module Program =
             .AddApplicationPart(typeof<JournalController>.Assembly)
         |> ignore
 
+        // CORS 設定（開発環境用）
+        builder.Services.AddCors(fun options ->
+            options.AddDefaultPolicy(fun policy ->
+                policy.AllowAnyOrigin()
+                      .AllowAnyMethod()
+                      .AllowAnyHeader() |> ignore
+            )
+        ) |> ignore
+
         builder.Services.AddEndpointsApiExplorer()
         builder.Services.AddSwaggerGen()
 
@@ -95,6 +104,9 @@ module Program =
         if app.Environment.IsDevelopment() then
             app.UseSwagger() |> ignore
             app.UseSwaggerUI() |> ignore
+
+        // CORS ミドルウェアを有効化
+        app.UseCors() |> ignore
 
         app.UseAuthorization()
         app.MapControllers()
