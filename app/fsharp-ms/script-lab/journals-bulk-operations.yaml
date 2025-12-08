@@ -1,0 +1,601 @@
+name: 仕訳一括操作（fsharp-ms）
+description: Financial Accounting Microservice API を使用して仕訳の一括取得・登録を行うScript Lab スニペット
+host: EXCEL
+api_set: {}
+script:
+  content: |
+    // =====================================================
+    // Financial Accounting Microservice - 仕訳一括操作
+    // =====================================================
+    // このスクリプトは Excel から F# マイクロサービス API を呼び出し、
+    // 仕訳データの一括取得・登録を行います。
+    //
+    // API エンドポイント:
+    // - GET  /api/journals?fiscalYear={year} - 仕訳一覧取得
+    // - POST /api/journals - 仕訳登録
+    // - GET  /api/accounts - 勘定科目一覧取得
+    // =====================================================
+
+    // =====================================================
+    // 型定義
+    // =====================================================
+
+    interface JournalEntry {
+      accountCode: string;
+      debitAmount: number;
+      creditAmount: number;
+      description: string;
+    }
+
+    interface JournalRequest {
+      journalDate: string;
+      description: string;
+      fiscalYear: number;
+      entries: JournalEntry[];
+    }
+
+    interface JournalEntryResponse {
+      accountCode: string;
+      debitAmount: number;
+      creditAmount: number;
+      description: string;
+    }
+
+    interface JournalResponse {
+      journalId: number;
+      journalDate: string;
+      description: string;
+      fiscalYear: number;
+      entries: JournalEntryResponse[];
+    }
+
+    interface AccountResponse {
+      accountId: number;
+      accountCode: string;
+      accountName: string;
+      accountType: string;
+      bsPlType: string;
+      transactionElementType: string;
+      balance: number;
+    }
+
+    // =====================================================
+    // ユーティリティ関数
+    // =====================================================
+
+    function getApiBaseUrl(): string {
+      const urlInput = document.getElementById('api-url') as HTMLInputElement;
+      return urlInput?.value || 'http://localhost:5115';
+    }
+
+    function showStatus(message: string, isError: boolean = false): void {
+      const statusDiv = document.getElementById('status');
+      if (statusDiv) {
+        statusDiv.textContent = message;
+        statusDiv.className = isError ? 'status-error' : 'status-success';
+      }
+      appendLog(isError ? `[ERROR] ${message}` : message);
+    }
+
+    function appendLog(message: string): void {
+      const logArea = document.getElementById('log-area');
+      if (logArea) {
+        const timestamp = new Date().toLocaleTimeString('ja-JP');
+        const logEntry = document.createElement('div');
+        logEntry.className = 'log-entry';
+        logEntry.textContent = `[${timestamp}] ${message}`;
+        logArea.appendChild(logEntry);
+        logArea.scrollTop = logArea.scrollHeight;
+      }
+    }
+
+    function clearLog(): void {
+      const logArea = document.getElementById('log-area');
+      if (logArea) {
+        logArea.innerHTML = '';
+      }
+    }
+
+    // Excel シリアル値を ISO 日付文字列に変換
+    function excelDateToISOString(excelDate: any): string {
+      if (!excelDate) return new Date().toISOString();
+
+      // 既に文字列の場合
+      if (typeof excelDate === 'string') {
+        const parsed = Date.parse(excelDate);
+        if (!isNaN(parsed)) {
+          return new Date(parsed).toISOString();
+        }
+        return new Date().toISOString();
+      }
+
+      // 数値（Excel シリアル値）の場合
+      if (typeof excelDate === 'number') {
+        // Excel の日付シリアル値を JavaScript Date に変換
+        // Excel は 1900/1/1 を 1 とするが、1900/2/29 のバグがあるため -2
+        const excelEpoch = new Date(1899, 11, 30);
+        const jsDate = new Date(excelEpoch.getTime() + excelDate * 24 * 60 * 60 * 1000);
+        return jsDate.toISOString();
+      }
+
+      return new Date().toISOString();
+    }
+
+    // =====================================================
+    // API クライアント
+    // =====================================================
+
+    async function fetchJournals(fiscalYear: number): Promise<JournalResponse[]> {
+      const baseUrl = getApiBaseUrl();
+      appendLog(`API URL: ${baseUrl}/api/journals?fiscalYear=${fiscalYear}`);
+
+      const response = await fetch(`${baseUrl}/api/journals?fiscalYear=${fiscalYear}`);
+      if (!response.ok) {
+        throw new Error(`仕訳取得エラー: ${response.status} ${response.statusText}`);
+      }
+      return response.json();
+    }
+
+    async function createJournal(journal: JournalRequest): Promise<JournalResponse> {
+      const baseUrl = getApiBaseUrl();
+      const response = await fetch(`${baseUrl}/api/journals`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(journal)
+      });
+      if (!response.ok) {
+        const errorBody = await response.text();
+        throw new Error(`仕訳登録エラー: ${response.status} ${errorBody}`);
+      }
+      return response.json();
+    }
+
+    async function fetchAccounts(): Promise<AccountResponse[]> {
+      const baseUrl = getApiBaseUrl();
+      appendLog(`API URL: ${baseUrl}/api/accounts`);
+
+      const response = await fetch(`${baseUrl}/api/accounts`);
+      if (!response.ok) {
+        throw new Error(`勘定科目取得エラー: ${response.status} ${response.statusText}`);
+      }
+      return response.json();
+    }
+
+    // =====================================================
+    // Excel 操作関数
+    // =====================================================
+
+    async function loadJournalsToSheet() {
+      const fiscalYearInput = document.getElementById('fiscal-year') as HTMLInputElement;
+      const fiscalYear = parseInt(fiscalYearInput?.value) || new Date().getFullYear();
+
+      try {
+        showStatus(`会計年度 ${fiscalYear} の仕訳を取得中...`);
+
+        await Excel.run(async (context) => {
+          const sheet = context.workbook.worksheets.getActiveWorksheet();
+
+          // 既存データをクリア
+          const usedRange = sheet.getUsedRange();
+          usedRange.clear();
+
+          // ヘッダー設定
+          const headers = [
+            ["仕訳ID", "仕訳日付", "説明", "会計年度", "勘定科目", "借方金額", "貸方金額", "摘要"]
+          ];
+          const headerRange = sheet.getRange("A1:H1");
+          headerRange.values = headers;
+          headerRange.format.font.bold = true;
+          headerRange.format.fill.color = "#4472C4";
+          headerRange.format.font.color = "white";
+
+          await context.sync();
+
+          // API からデータ取得
+          const journals = await fetchJournals(fiscalYear);
+          appendLog(`${journals.length} 件の仕訳を取得しました`);
+
+          // データを行に展開（仕訳明細ごとに1行）
+          const rows: any[][] = [];
+          for (const journal of journals) {
+            for (const entry of journal.entries) {
+              rows.push([
+                journal.journalId,
+                journal.journalDate.substring(0, 10),
+                journal.description,
+                journal.fiscalYear,
+                entry.accountCode,
+                entry.debitAmount,
+                entry.creditAmount,
+                entry.description
+              ]);
+            }
+          }
+
+          if (rows.length > 0) {
+            const dataRange = sheet.getRange(`A2:H${rows.length + 1}`);
+            dataRange.values = rows;
+
+            // 数値列のフォーマット
+            const debitRange = sheet.getRange(`F2:F${rows.length + 1}`);
+            const creditRange = sheet.getRange(`G2:G${rows.length + 1}`);
+            debitRange.numberFormat = [["#,##0"]];
+            creditRange.numberFormat = [["#,##0"]];
+          }
+
+          // 列幅自動調整
+          sheet.getUsedRange().format.autofitColumns();
+
+          await context.sync();
+          showStatus(`${journals.length} 件の仕訳（${rows.length} 行）をシートに展開しました`);
+        });
+      } catch (error) {
+        showStatus(`エラー: ${error.message}`, true);
+      }
+    }
+
+    async function loadAccountsToSheet() {
+      try {
+        showStatus("勘定科目を取得中...");
+
+        await Excel.run(async (context) => {
+          const sheet = context.workbook.worksheets.getActiveWorksheet();
+
+          // 既存データをクリア
+          const usedRange = sheet.getUsedRange();
+          usedRange.clear();
+
+          // ヘッダー設定
+          const headers = [
+            ["勘定科目ID", "勘定科目コード", "勘定科目名", "種別", "B/S・P/L", "借方/貸方", "残高"]
+          ];
+          const headerRange = sheet.getRange("A1:G1");
+          headerRange.values = headers;
+          headerRange.format.font.bold = true;
+          headerRange.format.fill.color = "#70AD47";
+          headerRange.format.font.color = "white";
+
+          await context.sync();
+
+          // API からデータ取得
+          const accounts = await fetchAccounts();
+          appendLog(`${accounts.length} 件の勘定科目を取得しました`);
+
+          // データを行に展開
+          const rows: any[][] = accounts.map((account) => [
+            account.accountId,
+            account.accountCode,
+            account.accountName,
+            account.accountType,
+            account.bsPlType,
+            account.transactionElementType,
+            account.balance
+          ]);
+
+          if (rows.length > 0) {
+            const dataRange = sheet.getRange(`A2:G${rows.length + 1}`);
+            dataRange.values = rows;
+
+            // 残高列のフォーマット
+            const balanceRange = sheet.getRange(`G2:G${rows.length + 1}`);
+            balanceRange.numberFormat = [["#,##0"]];
+          }
+
+          // 列幅自動調整
+          sheet.getUsedRange().format.autofitColumns();
+
+          await context.sync();
+          showStatus(`${accounts.length} 件の勘定科目をシートに展開しました`);
+        });
+      } catch (error) {
+        showStatus(`エラー: ${error.message}`, true);
+      }
+    }
+
+    async function registerJournalsFromSheet() {
+      try {
+        showStatus("仕訳を登録中...");
+
+        await Excel.run(async (context) => {
+          const sheet = context.workbook.worksheets.getActiveWorksheet();
+          const usedRange = sheet.getUsedRange();
+          usedRange.load("values, rowCount, columnCount");
+          await context.sync();
+
+          const data = usedRange.values;
+          const columnCount = data[0]?.length || 0;
+          appendLog(`読み取り行数: ${data.length}, 列数: ${columnCount}`);
+
+          if (data.length < 2) {
+            showStatus("登録するデータがありません", true);
+            return;
+          }
+
+          // デバッグ: 最初の数行を出力
+          for (let i = 0; i < Math.min(3, data.length); i++) {
+            appendLog(`行${i}: ${JSON.stringify(data[i])}`);
+          }
+
+          // ヘッダー行を検出してカラムインデックスを特定
+          const headers = data[0].map((h: any) => h?.toString().trim() || "");
+          appendLog(`ヘッダー: ${JSON.stringify(headers)}`);
+
+          // カラムインデックスを特定（7列フォーマットと8列フォーマットの両方に対応）
+          let dateIdx = headers.indexOf("仕訳日付");
+          let descIdx = headers.indexOf("説明");
+          let fyIdx = headers.indexOf("会計年度");
+          let acctIdx = headers.indexOf("勘定科目コード");
+          let debitIdx = headers.indexOf("借方金額");
+          let creditIdx = headers.indexOf("貸方金額");
+          let entryDescIdx = headers.indexOf("摘要");
+
+          // 8列フォーマット（仕訳取得時）の場合
+          if (acctIdx === -1) {
+            acctIdx = headers.indexOf("勘定科目");
+          }
+
+          appendLog(`列インデックス: date=${dateIdx}, desc=${descIdx}, fy=${fyIdx}, acct=${acctIdx}, debit=${debitIdx}, credit=${creditIdx}`);
+
+          // 必須カラムがない場合はデフォルトの位置を使用
+          if (acctIdx === -1) {
+            // 7列フォーマット: 仕訳日付, 説明, 会計年度, 勘定科目コード, 借方金額, 貸方金額, 摘要
+            dateIdx = 0;
+            descIdx = 1;
+            fyIdx = 2;
+            acctIdx = 3;
+            debitIdx = 4;
+            creditIdx = 5;
+            entryDescIdx = 6;
+            appendLog("ヘッダーが見つからないため、デフォルトの列位置を使用");
+          }
+
+          const journalMap = new Map<string, JournalRequest>();
+
+          for (let i = 1; i < data.length; i++) {
+            const row = data[i];
+            const journalDate = excelDateToISOString(row[dateIdx]);
+            const description = row[descIdx]?.toString() || "";
+            const fiscalYear = parseInt(row[fyIdx]?.toString() || "0");
+            const accountCode = row[acctIdx]?.toString() || "";
+            const debitAmount = parseFloat(row[debitIdx]?.toString() || "0");
+            const creditAmount = parseFloat(row[creditIdx]?.toString() || "0");
+            const entryDescription = entryDescIdx >= 0 ? (row[entryDescIdx]?.toString() || "") : "";
+
+            appendLog(`処理中 行${i}: accountCode=${accountCode}, debit=${debitAmount}, credit=${creditAmount}`);
+
+            if (!accountCode) {
+              appendLog(`行${i}: 勘定科目コードが空のためスキップ`);
+              continue;
+            }
+
+            // 仕訳キー（同じ日付・説明・年度は同一仕訳）
+            const dateStr = journalDate.substring(0, 10);
+            const key = `${dateStr}|${description}|${fiscalYear}`;
+
+            if (!journalMap.has(key)) {
+              journalMap.set(key, {
+                journalDate,
+                description,
+                fiscalYear,
+                entries: []
+              });
+            }
+
+            journalMap.get(key)!.entries.push({
+              accountCode,
+              debitAmount,
+              creditAmount,
+              description: entryDescription
+            });
+          }
+
+          // 仕訳を登録
+          appendLog(`登録する仕訳数: ${journalMap.size}`);
+
+          let successCount = 0;
+          let errorCount = 0;
+
+          // Map を配列に変換してループ
+          const journalEntries = Array.from(journalMap.entries());
+          appendLog(`配列に変換: ${journalEntries.length} 件`);
+
+          for (let j = 0; j < journalEntries.length; j++) {
+            const [key, journal] = journalEntries[j];
+            appendLog(`登録開始: ${key}, entries=${journal.entries.length}`);
+            try {
+              const result = await createJournal(journal);
+              appendLog(`仕訳ID ${result.journalId} を登録: ${journal.description}`);
+              successCount++;
+            } catch (error) {
+              appendLog(`登録エラー: ${key} - ${error.message}`);
+              errorCount++;
+            }
+          }
+
+          showStatus(`登録完了: 成功 ${successCount} 件, 失敗 ${errorCount} 件`);
+        });
+      } catch (error) {
+        showStatus(`エラー: ${error.message}`, true);
+      }
+    }
+
+    async function prepareInputSheet() {
+      try {
+        await Excel.run(async (context) => {
+          const sheet = context.workbook.worksheets.getActiveWorksheet();
+
+          // 既存データをクリア
+          const usedRange = sheet.getUsedRange();
+          usedRange.clear();
+
+          // ヘッダー設定（登録用フォーマット）
+          const headers = [
+            ["仕訳日付", "説明", "会計年度", "勘定科目コード", "借方金額", "貸方金額", "摘要"]
+          ];
+          const headerRange = sheet.getRange("A1:G1");
+          headerRange.values = headers;
+          headerRange.format.font.bold = true;
+          headerRange.format.fill.color = "#ED7D31";
+          headerRange.format.font.color = "white";
+
+          // サンプルデータ
+          const today = new Date();
+          const fiscalYear = today.getFullYear();
+          const dateStr = today.toISOString().substring(0, 10);
+
+          const sampleData = [
+            [dateStr, "売上計上", fiscalYear, "1110", 10000, 0, "現金"],
+            [dateStr, "売上計上", fiscalYear, "4110", 0, 10000, "売上高"]
+          ];
+
+          const dataRange = sheet.getRange(`A2:G${sampleData.length + 1}`);
+          dataRange.values = sampleData;
+
+          // 数値列のフォーマット
+          const debitRange = sheet.getRange(`E2:E${sampleData.length + 1}`);
+          const creditRange = sheet.getRange(`F2:F${sampleData.length + 1}`);
+          debitRange.numberFormat = [["#,##0"]];
+          creditRange.numberFormat = [["#,##0"]];
+
+          // 列幅自動調整
+          sheet.getUsedRange().format.autofitColumns();
+
+          await context.sync();
+          showStatus("入力シートを準備しました。データを入力して「仕訳登録」を押してください。");
+        });
+      } catch (error) {
+        showStatus(`エラー: ${error.message}`, true);
+      }
+    }
+
+    // =====================================================
+    // イベントリスナー登録
+    // =====================================================
+
+    document.getElementById('btn-load-journals')?.addEventListener('click', loadJournalsToSheet);
+    document.getElementById('btn-load-accounts')?.addEventListener('click', loadAccountsToSheet);
+    document.getElementById('btn-register')?.addEventListener('click', registerJournalsFromSheet);
+    document.getElementById('btn-prepare')?.addEventListener('click', prepareInputSheet);
+    document.getElementById('btn-clear-log')?.addEventListener('click', clearLog);
+
+    appendLog('仕訳一括操作が読み込まれました');
+  language: typescript
+template:
+  content: |
+    <section class="ms-font-m">
+      <h2 class="ms-font-xl">仕訳一括操作</h2>
+      <p class="description">Financial Accounting Microservice API を使用</p>
+
+      <div class="ms-TextField">
+        <label class="ms-Label">API ベース URL</label>
+        <input id="api-url" type="text" class="ms-TextField-field" value="http://localhost:5115" />
+      </div>
+
+      <div id="status" class="status"></div>
+
+      <hr />
+
+      <div class="button-section fetch-section">
+        <h3>データ取得</h3>
+        <div class="ms-TextField">
+          <label class="ms-Label">会計年度</label>
+          <input id="fiscal-year" type="number" class="ms-TextField-field" value="2024" />
+        </div>
+        <div class="button-row">
+          <button id="btn-load-journals" class="ms-Button ms-Button--primary">
+            <span class="ms-Button-label">仕訳取得</span>
+          </button>
+          <button id="btn-load-accounts" class="ms-Button">
+            <span class="ms-Button-label">勘定科目取得</span>
+          </button>
+        </div>
+        <p class="hint">指定した会計年度の仕訳、または全勘定科目を取得してシートに出力</p>
+      </div>
+
+      <hr />
+
+      <div class="button-section operation-section">
+        <h3>データ登録</h3>
+        <div class="button-row">
+          <button id="btn-prepare" class="ms-Button">
+            <span class="ms-Button-label">入力シート準備</span>
+          </button>
+          <button id="btn-register" class="ms-Button ms-Button--primary">
+            <span class="ms-Button-label">仕訳登録</span>
+          </button>
+        </div>
+        <p class="hint">シート上のデータを仕訳として API に登録</p>
+      </div>
+
+      <hr />
+
+      <div class="help-section">
+        <h4>使い方</h4>
+        <ol>
+          <li><strong>仕訳取得</strong>: 会計年度を指定してシートにデータ表示</li>
+          <li><strong>勘定科目取得</strong>: 登録済みの勘定科目一覧を取得</li>
+          <li><strong>入力シート準備</strong>: 新規入力用のシートを作成</li>
+          <li><strong>仕訳登録</strong>: シートの内容を API に送信して登録</li>
+        </ol>
+        <h4>登録用データ形式</h4>
+        <p>仕訳日付, 説明, 会計年度, 勘定科目コード, 借方金額, 貸方金額, 摘要</p>
+        <p>同じ日付・説明・年度の行は1つの仕訳としてまとめられます。</p>
+      </div>
+
+      <hr />
+
+      <div class="log-section">
+        <div class="log-header">
+          <h4>ログ</h4>
+          <button id="btn-clear-log" class="ms-Button ms-Button--small">
+            <span class="ms-Button-label">クリア</span>
+          </button>
+        </div>
+        <div id="log-area" class="log-area"></div>
+      </div>
+    </section>
+  language: html
+style:
+  content: |
+    section { margin: 16px; }
+    h2 { margin-bottom: 8px; color: #323130; }
+    h3 { margin: 0 0 8px 0; font-size: 16px; color: #323130; }
+    h4 { margin: 8px 0 4px 0; font-size: 14px; color: #605e5c; }
+    .description { color: #605e5c; margin-bottom: 16px; }
+    hr { margin: 16px 0; border: none; border-top: 1px solid #edebe9; }
+    .ms-TextField { margin-bottom: 8px; }
+    .ms-Label { display: block; margin-bottom: 4px; font-weight: 600; color: #323130; }
+    .ms-TextField-field { width: 100%; padding: 8px; border: 1px solid #8a8886; border-radius: 2px; font-size: 14px; box-sizing: border-box; }
+    .ms-TextField-field:focus { border-color: #0078d4; outline: none; }
+    .button-section { margin-bottom: 8px; padding: 12px; border-radius: 4px; }
+    .fetch-section { background: #e8f4fd; }
+    .operation-section { background: #e8f5e9; }
+    .button-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+    .ms-Button { padding: 8px 16px; border: 1px solid #8a8886; border-radius: 2px; cursor: pointer; font-size: 14px; background: white; }
+    .ms-Button--primary { background-color: #0078d4; color: white; border-color: #0078d4; }
+    .ms-Button--primary:hover { background-color: #106ebe; }
+    .ms-Button--danger { background-color: #d13438; color: white; border-color: #d13438; }
+    .ms-Button--danger:hover { background-color: #a4262c; }
+    .hint { font-size: 12px; color: #605e5c; margin: 0 0 8px 0; }
+    .status { padding: 8px 12px; margin: 8px 0; border-radius: 4px; font-size: 14px; min-height: 20px; }
+    .status-success { background: #dff6dd; color: #107c10; }
+    .status-error { background: #fde7e9; color: #a80000; }
+    .help-section { background: #f3f2f1; padding: 12px; border-radius: 4px; font-size: 12px; color: #605e5c; }
+    .help-section ol { margin: 0 0 8px 0; padding-left: 20px; }
+    .help-section li { margin-bottom: 4px; }
+    .help-section p { margin: 4px 0; }
+    .log-section { margin-top: 8px; }
+    .log-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .log-header h4 { margin: 0; font-size: 14px; color: #605e5c; }
+    .ms-Button--small { padding: 4px 8px; font-size: 12px; }
+    .log-area { background: #1e1e1e; color: #d4d4d4; font-family: 'Consolas', 'Monaco', monospace; font-size: 11px; padding: 8px; border-radius: 4px; max-height: 150px; overflow-y: auto; min-height: 60px; }
+    .log-entry { margin-bottom: 2px; word-break: break-all; }
+    .log-entry:last-child { margin-bottom: 0; }
+  language: css
+libraries: |
+  https://appsforoffice.microsoft.com/lib/1/hosted/office.js
+  @types/office-js
+  core-js@2.4.1/client/core.min.js
+  @types/core-js

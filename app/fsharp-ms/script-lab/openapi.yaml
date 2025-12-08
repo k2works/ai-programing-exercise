@@ -1,0 +1,571 @@
+openapi: 3.0.1
+info:
+  title: 'FinancialAccounting.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null'
+  version: '1.0'
+paths:
+  /api/accounts:
+    post:
+      tags:
+        - Account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/AccountRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/AccountRequestDto'
+      responses:
+        '201':
+          description: Created
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/AccountResponseDto'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponseDto'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponseDto'
+        '400':
+          description: Bad Request
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+    get:
+      tags:
+        - Account
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccountResponseDto'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccountResponseDto'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccountResponseDto'
+  '/api/accounts/{id}':
+    get:
+      tags:
+        - Account
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/AccountResponseDto'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponseDto'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponseDto'
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+    put:
+      tags:
+        - Account
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountUpdateRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/AccountUpdateRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/AccountUpdateRequestDto'
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/AccountResponseDto'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponseDto'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponseDto'
+        '400':
+          description: Bad Request
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+    delete:
+      tags:
+        - Account
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: No Content
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  '/api/accounts/code/{code}':
+    get:
+      tags:
+        - Account
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/AccountResponseDto'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponseDto'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponseDto'
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  '/api/accounts/type/{accountType}':
+    get:
+      tags:
+        - Account
+      parameters:
+        - name: accountType
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccountResponseDto'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccountResponseDto'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccountResponseDto'
+        '400':
+          description: Bad Request
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/journals:
+    post:
+      tags:
+        - Journal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JournalRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/JournalRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/JournalRequestDto'
+      responses:
+        '201':
+          description: Created
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/JournalResponseDto'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JournalResponseDto'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/JournalResponseDto'
+        '400':
+          description: Bad Request
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+    get:
+      tags:
+        - Journal
+      parameters:
+        - name: fiscalYear
+          in: query
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/JournalResponseDto'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/JournalResponseDto'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/JournalResponseDto'
+  '/api/journals/{id}':
+    get:
+      tags:
+        - Journal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/JournalResponseDto'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JournalResponseDto'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/JournalResponseDto'
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /:
+    get:
+      tags:
+        - main@103-8
+      responses:
+        '200':
+          description: OK
+components:
+  schemas:
+    AccountRequestDto:
+      type: object
+      properties:
+        accountCode:
+          type: string
+          nullable: true
+        accountName:
+          type: string
+          nullable: true
+        accountNameKana:
+          type: string
+          nullable: true
+        accountType:
+          type: string
+          nullable: true
+        isSummaryAccount:
+          type: boolean
+        bsPlType:
+          type: string
+          nullable: true
+        transactionElementType:
+          type: string
+          nullable: true
+        expenseType:
+          type: string
+          nullable: true
+        displayOrder:
+          type: integer
+          format: int32
+        isAggregationTarget:
+          type: boolean
+        taxCode:
+          type: string
+          nullable: true
+      additionalProperties: false
+    AccountResponseDto:
+      type: object
+      properties:
+        accountId:
+          type: integer
+          format: int32
+        accountCode:
+          type: string
+          nullable: true
+        accountName:
+          type: string
+          nullable: true
+        accountNameKana:
+          type: string
+          nullable: true
+        accountType:
+          type: string
+          nullable: true
+        isSummaryAccount:
+          type: boolean
+        bsPlType:
+          type: string
+          nullable: true
+        transactionElementType:
+          type: string
+          nullable: true
+        expenseType:
+          type: string
+          nullable: true
+        displayOrder:
+          type: integer
+          format: int32
+        isAggregationTarget:
+          type: boolean
+        taxCode:
+          type: string
+          nullable: true
+        balance:
+          type: number
+          format: double
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      additionalProperties: false
+    AccountUpdateRequestDto:
+      type: object
+      properties:
+        accountName:
+          type: string
+          nullable: true
+        accountNameKana:
+          type: string
+          nullable: true
+        isSummaryAccount:
+          type: boolean
+        expenseType:
+          type: string
+          nullable: true
+        displayOrder:
+          type: integer
+          format: int32
+        isAggregationTarget:
+          type: boolean
+        taxCode:
+          type: string
+          nullable: true
+      additionalProperties: false
+    JournalEntryRequestDto:
+      type: object
+      properties:
+        accountCode:
+          type: string
+          nullable: true
+        debitAmount:
+          type: number
+          format: double
+        creditAmount:
+          type: number
+          format: double
+        description:
+          type: string
+          nullable: true
+      additionalProperties: false
+    JournalEntryResponseDto:
+      type: object
+      properties:
+        accountCode:
+          type: string
+          nullable: true
+        debitAmount:
+          type: number
+          format: double
+        creditAmount:
+          type: number
+          format: double
+        description:
+          type: string
+          nullable: true
+      additionalProperties: false
+    JournalRequestDto:
+      type: object
+      properties:
+        journalDate:
+          type: string
+          format: date-time
+        description:
+          type: string
+          nullable: true
+        fiscalYear:
+          type: integer
+          format: int32
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/JournalEntryRequestDto'
+          nullable: true
+      additionalProperties: false
+    JournalResponseDto:
+      type: object
+      properties:
+        journalId:
+          type: integer
+          format: int32
+        journalDate:
+          type: string
+          format: date-time
+        description:
+          type: string
+          nullable: true
+        fiscalYear:
+          type: integer
+          format: int32
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/JournalEntryResponseDto'
+          nullable: true
+      additionalProperties: false
+    ProblemDetails:
+      type: object
+      properties:
+        type:
+          type: string
+          nullable: true
+        title:
+          type: string
+          nullable: true
+        status:
+          type: integer
+          format: int32
+          nullable: true
+        detail:
+          type: string
+          nullable: true
+        instance:
+          type: string
+          nullable: true
+      additionalProperties: { }
