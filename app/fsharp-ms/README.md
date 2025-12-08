@@ -90,6 +90,14 @@ docker-compose up -d
 | 管理会計 API | http://localhost:5004 |
 | RabbitMQ 管理画面 | http://localhost:15673 |
 
+### 認証情報
+
+| サービス | データベース | ユーザー | パスワード |
+|---------|-------------|----------|-----------|
+| PostgreSQL (財務会計) | financial_accounting | postgres | postgres |
+| PostgreSQL (管理会計) | management_accounting | postgres | postgres |
+| RabbitMQ | - | guest | guest |
+
 ### ローカル開発
 
 データベースとメッセージングのみ Docker で起動:
