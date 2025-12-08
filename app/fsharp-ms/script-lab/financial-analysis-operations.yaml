@@ -88,6 +88,30 @@ script:
       }
     }
 
+    // シートを取得または作成するヘルパー関数
+    async function getOrCreateSheet(context: Excel.RequestContext, sheetName: string): Promise<Excel.Worksheet> {
+      const sheets = context.workbook.worksheets;
+      sheets.load("items/name");
+      await context.sync();
+
+      let sheet: Excel.Worksheet | null = null;
+      for (const ws of sheets.items) {
+        if (ws.name === sheetName) {
+          sheet = ws;
+          break;
+        }
+      }
+
+      if (!sheet) {
+        sheet = sheets.add(sheetName);
+        appendLog(`シート「${sheetName}」を作成しました`);
+      }
+
+      sheet.activate();
+      await context.sync();
+      return sheet;
+    }
+
     // =====================================================
     // API クライアント
     // =====================================================
@@ -217,7 +241,8 @@ script:
 
     async function displayAnalysisResult(result: FinancialAnalysisResultResponse) {
       await Excel.run(async (context) => {
-        const sheet = context.workbook.worksheets.getActiveWorksheet();
+        // 「財務分析」シートを取得または作成
+        const sheet = await getOrCreateSheet(context, "財務分析");
         appendLog('シート取得完了');
 
         // 既存データをクリア（getUsedRangeOrNullObject を使用）
@@ -356,7 +381,8 @@ script:
 
     async function displayMultiYearComparison(results: FinancialAnalysisResultResponse[]) {
       await Excel.run(async (context) => {
-        const sheet = context.workbook.worksheets.getActiveWorksheet();
+        // 「年度比較」シートを取得または作成
+        const sheet = await getOrCreateSheet(context, "年度比較");
         appendLog('複数年比較シート取得完了');
 
         // 既存データをクリア（getUsedRangeOrNullObject を使用）

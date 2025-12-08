@@ -96,6 +96,30 @@ script:
       }
     }
 
+    // シートを取得または作成するヘルパー関数
+    async function getOrCreateSheet(context: Excel.RequestContext, sheetName: string): Promise<Excel.Worksheet> {
+      const sheets = context.workbook.worksheets;
+      sheets.load("items/name");
+      await context.sync();
+
+      let sheet: Excel.Worksheet | null = null;
+      for (const ws of sheets.items) {
+        if (ws.name === sheetName) {
+          sheet = ws;
+          break;
+        }
+      }
+
+      if (!sheet) {
+        sheet = sheets.add(sheetName);
+        appendLog(`シート「${sheetName}」を作成しました`);
+      }
+
+      sheet.activate();
+      await context.sync();
+      return sheet;
+    }
+
     // Excel シリアル値を ISO 日付文字列に変換
     function excelDateToISOString(excelDate: any): string {
       if (!excelDate) return new Date().toISOString();
@@ -175,11 +199,16 @@ script:
         showStatus(`会計年度 ${fiscalYear} の仕訳を取得中...`);
 
         await Excel.run(async (context) => {
-          const sheet = context.workbook.worksheets.getActiveWorksheet();
+          // 「仕訳一覧」シートを取得または作成
+          const sheet = await getOrCreateSheet(context, "仕訳一覧");
 
           // 既存データをクリア
-          const usedRange = sheet.getUsedRange();
-          usedRange.clear();
+          const usedRange = sheet.getUsedRangeOrNullObject();
+          await context.sync();
+          if (!usedRange.isNullObject) {
+            usedRange.clear();
+            await context.sync();
+          }
 
           // ヘッダー設定
           const headers = [
@@ -219,17 +248,24 @@ script:
             dataRange.values = rows;
 
             // 数値列のフォーマット
+            const numberFormats = rows.map(() => ["#,##0"]);
             const debitRange = sheet.getRange(`F2:F${rows.length + 1}`);
             const creditRange = sheet.getRange(`G2:G${rows.length + 1}`);
-            debitRange.numberFormat = [["#,##0"]];
-            creditRange.numberFormat = [["#,##0"]];
+            debitRange.numberFormat = numberFormats;
+            creditRange.numberFormat = numberFormats;
           }
 
-          // 列幅自動調整
-          sheet.getUsedRange().format.autofitColumns();
-
           await context.sync();
-          showStatus(`${journals.length} 件の仕訳（${rows.length} 行）をシートに展開しました`);
+
+          // 列幅自動調整
+          const finalRange = sheet.getUsedRangeOrNullObject();
+          await context.sync();
+          if (!finalRange.isNullObject) {
+            finalRange.format.autofitColumns();
+            await context.sync();
+          }
+
+          showStatus(`${journals.length} 件の仕訳（${rows.length} 行）を「仕訳一覧」シートに展開しました`);
         });
       } catch (error) {
         showStatus(`エラー: ${error.message}`, true);
@@ -241,11 +277,16 @@ script:
         showStatus("勘定科目を取得中...");
 
         await Excel.run(async (context) => {
-          const sheet = context.workbook.worksheets.getActiveWorksheet();
+          // 「勘定科目」シートを取得または作成
+          const sheet = await getOrCreateSheet(context, "勘定科目");
 
           // 既存データをクリア
-          const usedRange = sheet.getUsedRange();
-          usedRange.clear();
+          const usedRange = sheet.getUsedRangeOrNullObject();
+          await context.sync();
+          if (!usedRange.isNullObject) {
+            usedRange.clear();
+            await context.sync();
+          }
 
           // ヘッダー設定
           const headers = [
@@ -279,15 +320,22 @@ script:
             dataRange.values = rows;
 
             // 残高列のフォーマット
+            const numberFormats = rows.map(() => ["#,##0"]);
             const balanceRange = sheet.getRange(`G2:G${rows.length + 1}`);
-            balanceRange.numberFormat = [["#,##0"]];
+            balanceRange.numberFormat = numberFormats;
           }
 
-          // 列幅自動調整
-          sheet.getUsedRange().format.autofitColumns();
-
           await context.sync();
-          showStatus(`${accounts.length} 件の勘定科目をシートに展開しました`);
+
+          // 列幅自動調整
+          const finalRange = sheet.getUsedRangeOrNullObject();
+          await context.sync();
+          if (!finalRange.isNullObject) {
+            finalRange.format.autofitColumns();
+            await context.sync();
+          }
+
+          showStatus(`${accounts.length} 件の勘定科目を「勘定科目」シートに展開しました`);
         });
       } catch (error) {
         showStatus(`エラー: ${error.message}`, true);
@@ -299,8 +347,16 @@ script:
         showStatus("仕訳を登録中...");
 
         await Excel.run(async (context) => {
-          const sheet = context.workbook.worksheets.getActiveWorksheet();
-          const usedRange = sheet.getUsedRange();
+          // 「仕訳入力」シートから読み取り
+          const sheet = await getOrCreateSheet(context, "仕訳入力");
+          const usedRange = sheet.getUsedRangeOrNullObject();
+          await context.sync();
+
+          if (usedRange.isNullObject) {
+            showStatus("仕訳入力シートにデータがありません", true);
+            return;
+          }
+
           usedRange.load("values, rowCount, columnCount");
           await context.sync();
 
@@ -424,11 +480,16 @@ script:
     async function prepareInputSheet() {
       try {
         await Excel.run(async (context) => {
-          const sheet = context.workbook.worksheets.getActiveWorksheet();
+          // 「仕訳入力」シートを取得または作成
+          const sheet = await getOrCreateSheet(context, "仕訳入力");
 
           // 既存データをクリア
-          const usedRange = sheet.getUsedRange();
-          usedRange.clear();
+          const usedRange = sheet.getUsedRangeOrNullObject();
+          await context.sync();
+          if (!usedRange.isNullObject) {
+            usedRange.clear();
+            await context.sync();
+          }
 
           // ヘッダー設定（登録用フォーマット）
           const headers = [
@@ -454,16 +515,23 @@ script:
           dataRange.values = sampleData;
 
           // 数値列のフォーマット
+          const numberFormats = sampleData.map(() => ["#,##0"]);
           const debitRange = sheet.getRange(`E2:E${sampleData.length + 1}`);
           const creditRange = sheet.getRange(`F2:F${sampleData.length + 1}`);
-          debitRange.numberFormat = [["#,##0"]];
-          creditRange.numberFormat = [["#,##0"]];
-
-          // 列幅自動調整
-          sheet.getUsedRange().format.autofitColumns();
+          debitRange.numberFormat = numberFormats;
+          creditRange.numberFormat = numberFormats;
 
           await context.sync();
-          showStatus("入力シートを準備しました。データを入力して「仕訳登録」を押してください。");
+
+          // 列幅自動調整
+          const finalRange = sheet.getUsedRangeOrNullObject();
+          await context.sync();
+          if (!finalRange.isNullObject) {
+            finalRange.format.autofitColumns();
+            await context.sync();
+          }
+
+          showStatus("「仕訳入力」シートを準備しました。データを入力して「仕訳登録」を押してください。");
         });
       } catch (error) {
         showStatus(`エラー: ${error.message}`, true);
