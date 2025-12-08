@@ -1,7 +1,7 @@
 namespace FinancialAccounting.Application.UseCases
 
 open System.Threading.Tasks
-open FinancialAccounting.Domain.Entities
+open FinancialAccounting.Domain.Models
 open FinancialAccounting.Application.Ports.In
 open FinancialAccounting.Application.Ports.Out
 

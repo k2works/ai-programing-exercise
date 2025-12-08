@@ -1,7 +1,7 @@
 namespace FinancialAccounting.Application.Ports.In
 
 open System.Threading.Tasks
-open FinancialAccounting.Domain.Entities
+open FinancialAccounting.Domain.Models
 
 /// <summary>
 /// 勘定科目作成リクエスト

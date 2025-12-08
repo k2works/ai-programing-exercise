@@ -1,7 +1,7 @@
 namespace FinancialAccounting.Infrastructure.Web.Dtos
 
 open System
-open FinancialAccounting.Domain.Entities
+open FinancialAccounting.Domain.Models
 open FinancialAccounting.Application.Ports.In
 
 /// <summary>

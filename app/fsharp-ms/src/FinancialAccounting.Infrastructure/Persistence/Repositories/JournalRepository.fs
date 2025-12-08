@@ -5,7 +5,7 @@ open System.Data
 open System.Threading.Tasks
 open Dapper
 open Npgsql
-open FinancialAccounting.Domain.Entities
+open FinancialAccounting.Domain.Models
 open FinancialAccounting.Application.Ports.Out
 
 /// <summary>

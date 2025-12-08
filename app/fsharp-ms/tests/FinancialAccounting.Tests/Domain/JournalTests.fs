@@ -2,7 +2,7 @@ namespace FinancialAccounting.Tests.Domain
 
 open System
 open Xunit
-open FinancialAccounting.Domain.Entities
+open FinancialAccounting.Domain.Models
 
 module JournalTests =
 

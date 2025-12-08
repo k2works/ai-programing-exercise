@@ -1,7 +1,7 @@
 namespace FinancialAccounting.Application.Ports.Out
 
 open System.Threading.Tasks
-open FinancialAccounting.Domain.Entities
+open FinancialAccounting.Domain.Models
 
 /// <summary>
 /// 仕訳リポジトリのポート（出力ポート）

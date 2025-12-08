@@ -1,7 +1,7 @@
 namespace FinancialAccounting.Tests.Domain
 
 open Xunit
-open FinancialAccounting.Domain.Entities
+open FinancialAccounting.Domain.Models
 
 module AccountTests =
 

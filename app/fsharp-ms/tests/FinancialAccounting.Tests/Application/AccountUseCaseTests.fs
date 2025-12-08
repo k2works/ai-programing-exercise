@@ -3,7 +3,7 @@ namespace FinancialAccounting.Tests.Application
 open System
 open System.Threading.Tasks
 open Xunit
-open FinancialAccounting.Domain.Entities
+open FinancialAccounting.Domain.Models
 open FinancialAccounting.Application.Ports.In
 open FinancialAccounting.Application.Ports.Out
 open FinancialAccounting.Application.UseCases

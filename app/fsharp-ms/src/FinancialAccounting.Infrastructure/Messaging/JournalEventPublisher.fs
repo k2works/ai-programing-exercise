@@ -3,7 +3,7 @@ namespace FinancialAccounting.Infrastructure.Messaging
 open System
 open System.Threading.Tasks
 open MassTransit
-open FinancialAccounting.Domain.Entities
+open FinancialAccounting.Domain.Models
 open FinancialAccounting.Application.Ports.Out
 open Shared.Contracts.Events
 
