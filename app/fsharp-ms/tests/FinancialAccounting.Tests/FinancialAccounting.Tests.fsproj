@@ -6,11 +6,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Domain\AccountTests.fs" />
     <Compile Include="Domain\JournalTests.fs" />
+    <Compile Include="Application\AccountUseCaseTests.fs" />
     <Compile Include="Application\JournalUseCaseTests.fs" />
     <Compile Include="Infrastructure\PostgresTestFixture.fs" />
     <Compile Include="Infrastructure\JournalRepositoryTests.fs" />
+    <Compile Include="Infrastructure\AccountRepositoryTests.fs" />
     <Compile Include="Integration\JournalApiIntegrationTests.fs" />
+    <Compile Include="Integration\AccountApiIntegrationTests.fs" />
   </ItemGroup>
 
   <ItemGroup>
