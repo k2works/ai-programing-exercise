@@ -65,7 +65,7 @@ script:
 
     function getApiBaseUrl(): string {
       const urlInput = document.getElementById('api-url') as HTMLInputElement;
-      return urlInput?.value || 'http://localhost:5115';
+      return urlInput?.value || 'http://localhost:5000';
     }
 
     function showStatus(message: string, isError: boolean = false): void {
@@ -558,7 +558,7 @@ template:
 
       <div class="ms-TextField">
         <label class="ms-Label">API ベース URL</label>
-        <input id="api-url" type="text" class="ms-TextField-field" value="http://localhost:5115" />
+        <input id="api-url" type="text" class="ms-TextField-field" value="http://localhost:5000" />
       </div>
 
       <div id="status" class="status"></div>
