@@ -6,6 +6,7 @@ open System.Net.Http
 open System.Net.Http.Json
 open System.Threading.Tasks
 open Microsoft.AspNetCore.Mvc.Testing
+open Microsoft.Extensions.DependencyInjection
 open Testcontainers.PostgreSql
 open Testcontainers.RabbitMq
 open Xunit
@@ -78,12 +79,28 @@ type MultiServiceIntegrationTests() =
                 )
                 financialClient <- financialFactory.CreateClient()
 
+                // 財務会計サービスの URL を取得
+                let financialServiceUrl = financialFactory.Server.BaseAddress.ToString().TrimEnd('/')
+
                 // 管理会計 API サーバーを起動
                 let managementConnectionString = postgresManagement.GetConnectionString()
+
                 managementFactory <- new WebApplicationFactory<ManagementAccounting.Api.IApiMarker>()
                 managementFactory <- managementFactory.WithWebHostBuilder(fun builder ->
                     builder.UseSetting("ConnectionStrings:ManagementAccounting", managementConnectionString) |> ignore
+                    // 財務会計サービスの URL を設定
+                    builder.UseSetting("FinancialAccountingService:BaseUrl", financialServiceUrl) |> ignore
                     // RabbitMQ:Host を設定しないことでインメモリモードになる
+
+                    // 財務会計サービスへの HttpClient を設定
+                    builder.ConfigureServices(fun services ->
+                        // HttpClient を財務会計 TestServer 向けに構成
+                        services.AddHttpClient<ManagementAccounting.Infrastructure.Adapters.External.FinancialAccountingClient>(fun client ->
+                            client.BaseAddress <- financialFactory.Server.BaseAddress
+                        ).ConfigurePrimaryHttpMessageHandler(fun () ->
+                            financialFactory.Server.CreateHandler()
+                        ) |> ignore
+                    ) |> ignore
                 )
                 managementClient <- managementFactory.CreateClient()
             }
