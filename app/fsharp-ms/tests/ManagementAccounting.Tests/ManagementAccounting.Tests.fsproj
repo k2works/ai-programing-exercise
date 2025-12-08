@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Domain\FinancialRatiosTests.fs" />
+    <Compile Include="Application\FinancialAnalysisUseCaseTests.fs" />
+    <Compile Include="Infrastructure\PostgresTestFixture.fs" />
+    <Compile Include="Infrastructure\FinancialAnalysisCacheRepositoryTests.fs" />
+    <Compile Include="Integration\FinancialAnalysisApiIntegrationTests.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="Testcontainers.PostgreSql" Version="4.3.0" />
+    <PackageReference Include="WireMock.Net" Version="1.6.9" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ManagementAccounting.Domain\ManagementAccounting.Domain.fsproj" />
+    <ProjectReference Include="..\..\src\ManagementAccounting.Application\ManagementAccounting.Application.fsproj" />
+    <ProjectReference Include="..\..\src\ManagementAccounting.Infrastructure\ManagementAccounting.Infrastructure.fsproj" />
+    <ProjectReference Include="..\..\src\ManagementAccounting.Api\ManagementAccounting.Api.fsproj" />
+  </ItemGroup>
+
+</Project>
