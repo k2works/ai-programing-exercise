@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  # ===========================================
+  # PostgreSQL データベース
+  # ===========================================
+
+  # 財務会計サービス用 PostgreSQL
+  financial-db:
+    image: postgres:16-alpine
+    container_name: fsharp-financial-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: financial_accounting
+    ports:
+      - "5434:5432"
+    volumes:
+      - fsharp-financial-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - fsharp-accounting-network
+
+  # ===========================================
+  # RabbitMQ メッセージブローカー
+  # ===========================================
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: fsharp-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5673:5672"   # AMQP
+      - "15673:15672" # Management UI
+    volumes:
+      - fsharp-rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - fsharp-accounting-network
+
+  # ===========================================
+  # アプリケーションサービス
+  # ===========================================
+
+  # 財務会計サービス
+  financial-accounting-service:
+    build:
+      context: .
+      dockerfile: src/FinancialAccounting.Api/Dockerfile
+    container_name: fsharp-financial-accounting-service
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__FinancialAccounting: "Host=financial-db;Database=financial_accounting;Username=postgres;Password=postgres"
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Username: guest
+      RabbitMQ__Password: guest
+    ports:
+      - "5003:8080"
+    depends_on:
+      financial-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - fsharp-accounting-network
+
+# ===========================================
+# ボリューム
+# ===========================================
+volumes:
+  fsharp-financial-db-data:
+  fsharp-rabbitmq-data:
+
+# ===========================================
+# ネットワーク
+# ===========================================
+networks:
+  fsharp-accounting-network:
+    driver: bridge
