@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Ports\Out\IJournalRepository.fs" />
+    <Compile Include="Ports\In\IJournalUseCase.fs" />
+    <Compile Include="UseCases\JournalUseCase.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FinancialAccounting.Domain\FinancialAccounting.Domain.fsproj" />
+  </ItemGroup>
+
+</Project>
