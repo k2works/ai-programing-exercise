@@ -4,8 +4,10 @@ open System
 open System.Reflection
 open Microsoft.Extensions.DependencyInjection
 open FluentMigrator.Runner
+open MassTransit
 open FinancialAccounting.Application.Ports.Out
 open FinancialAccounting.Infrastructure.Persistence.Repositories
+open FinancialAccounting.Infrastructure.Messaging
 
 /// <summary>
 /// Infrastructure 層の DI 設定
@@ -33,6 +35,16 @@ module DependencyInjection =
     let addRepositories (services: IServiceCollection) (connectionString: string) =
         services.AddScoped<IJournalRepository>(fun _ ->
             JournalRepository(connectionString) :> IJournalRepository)
+        |> ignore
+        services
+
+    /// <summary>
+    /// イベントパブリッシャーを登録
+    /// </summary>
+    let addEventPublishers (services: IServiceCollection) =
+        services.AddScoped<IJournalEventPublisher>(fun sp ->
+            let publishEndpoint = sp.GetRequiredService<IPublishEndpoint>()
+            JournalEventPublisher(publishEndpoint) :> IJournalEventPublisher)
         |> ignore
         services
 

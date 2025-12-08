@@ -4,15 +4,8 @@ open System
 open System.Threading.Tasks
 open MassTransit
 open FinancialAccounting.Domain.Entities
+open FinancialAccounting.Application.Ports.Out
 open Shared.Contracts.Events
-
-/// <summary>
-/// 仕訳イベントの発行者インターフェース
-/// </summary>
-type IJournalEventPublisher =
-    abstract member PublishJournalCreatedAsync: Journal -> Task
-    abstract member PublishJournalUpdatedAsync: Journal -> Task
-    abstract member PublishJournalDeletedAsync: int * int -> Task
 
 /// <summary>
 /// MassTransit を使用した仕訳イベントの発行者

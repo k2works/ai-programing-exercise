@@ -12,6 +12,7 @@ open FinancialAccounting.Application.Ports.Out
 open FinancialAccounting.Application.UseCases
 open FinancialAccounting.Infrastructure.Persistence.Repositories
 open FinancialAccounting.Infrastructure.Messaging
+open FinancialAccounting.Infrastructure.DependencyInjection
 open FinancialAccounting.Infrastructure.MigrationRunner
 open FinancialAccounting.Infrastructure.Web.Controllers
 
@@ -67,7 +68,8 @@ module Program =
 
         builder.Services.AddScoped<IJournalUseCase>(fun sp ->
             let repository = sp.GetRequiredService<IJournalRepository>()
-            JournalUseCase(repository) :> IJournalUseCase)
+            let eventPublisher = sp.GetRequiredService<IJournalEventPublisher>()
+            JournalUseCase(repository, eventPublisher) :> IJournalUseCase)
 
         // DI 設定 - Account
         builder.Services.AddScoped<IAccountRepository>(fun _ ->

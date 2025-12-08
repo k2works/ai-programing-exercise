@@ -38,6 +38,34 @@ type MockJournalRepository() =
                     |> List.filter (fun j -> j.FiscalYear = fiscalYear)
             }
 
+/// <summary>
+/// モックイベントパブリッシャー
+/// </summary>
+type MockJournalEventPublisher() =
+    let mutable createdEvents: Journal list = []
+    let mutable updatedEvents: Journal list = []
+    let mutable deletedEvents: (int * int) list = []
+
+    member _.CreatedEvents = createdEvents
+    member _.UpdatedEvents = updatedEvents
+    member _.DeletedEvents = deletedEvents
+
+    interface IJournalEventPublisher with
+        member _.PublishJournalCreatedAsync(journal: Journal) =
+            task {
+                createdEvents <- journal :: createdEvents
+            }
+
+        member _.PublishJournalUpdatedAsync(journal: Journal) =
+            task {
+                updatedEvents <- journal :: updatedEvents
+            }
+
+        member _.PublishJournalDeletedAsync(journalId: int, fiscalYear: int) =
+            task {
+                deletedEvents <- (journalId, fiscalYear) :: deletedEvents
+            }
+
 module JournalUseCaseTests =
 
     [<Fact>]
@@ -45,7 +73,8 @@ module JournalUseCaseTests =
         task {
             // Arrange
             let repository = MockJournalRepository()
-            let useCase = JournalUseCase(repository) :> IJournalUseCase
+            let eventPublisher = MockJournalEventPublisher()
+            let useCase = JournalUseCase(repository, eventPublisher) :> IJournalUseCase
 
             let request: CreateJournalRequest = {
                 JournalDate = DateTime(2024, 1, 15)
@@ -76,7 +105,8 @@ module JournalUseCaseTests =
         task {
             // Arrange
             let repository = MockJournalRepository()
-            let useCase = JournalUseCase(repository) :> IJournalUseCase
+            let eventPublisher = MockJournalEventPublisher()
+            let useCase = JournalUseCase(repository, eventPublisher) :> IJournalUseCase
 
             let request: CreateJournalRequest = {
                 JournalDate = DateTime(2024, 1, 15)
@@ -102,7 +132,8 @@ module JournalUseCaseTests =
         task {
             // Arrange
             let repository = MockJournalRepository()
-            let useCase = JournalUseCase(repository) :> IJournalUseCase
+            let eventPublisher = MockJournalEventPublisher()
+            let useCase = JournalUseCase(repository, eventPublisher) :> IJournalUseCase
 
             let request: CreateJournalRequest = {
                 JournalDate = DateTime(2024, 1, 15)
@@ -125,7 +156,8 @@ module JournalUseCaseTests =
         task {
             // Arrange
             let repository = MockJournalRepository()
-            let useCase = JournalUseCase(repository) :> IJournalUseCase
+            let eventPublisher = MockJournalEventPublisher()
+            let useCase = JournalUseCase(repository, eventPublisher) :> IJournalUseCase
 
             let request: CreateJournalRequest = {
                 JournalDate = DateTime(2024, 1, 15)
@@ -152,7 +184,8 @@ module JournalUseCaseTests =
         task {
             // Arrange
             let repository = MockJournalRepository()
-            let useCase = JournalUseCase(repository) :> IJournalUseCase
+            let eventPublisher = MockJournalEventPublisher()
+            let useCase = JournalUseCase(repository, eventPublisher) :> IJournalUseCase
 
             let request1: CreateJournalRequest = {
                 JournalDate = DateTime(2024, 4, 1)

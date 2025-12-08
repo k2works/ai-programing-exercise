@@ -8,7 +8,7 @@ open FinancialAccounting.Application.Ports.Out
 /// <summary>
 /// 仕訳ユースケースの実装
 /// </summary>
-type JournalUseCase(repository: IJournalRepository) =
+type JournalUseCase(repository: IJournalRepository, eventPublisher: IJournalEventPublisher) =
 
     /// <summary>
     /// リクエストからドメインエンティティに変換
@@ -49,6 +49,10 @@ type JournalUseCase(repository: IJournalRepository) =
                         return Error msg
                     | Ok () ->
                         let! saved = repository.SaveAsync(journal)
+
+                        // 仕訳作成イベントを発行
+                        do! eventPublisher.PublishJournalCreatedAsync(saved)
+
                         return Ok saved
             }
 
