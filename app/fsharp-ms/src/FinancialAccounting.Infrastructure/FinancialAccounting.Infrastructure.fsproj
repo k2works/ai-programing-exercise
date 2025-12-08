@@ -10,6 +10,7 @@
     <Compile Include="Persistence\Migrations\V001_CreateJournalTables.fs" />
     <Compile Include="Persistence\Repositories\JournalRepository.fs" />
     <Compile Include="Persistence\Repositories\AccountRepository.fs" />
+    <Compile Include="Messaging\JournalEventPublisher.fs" />
     <Compile Include="Web\Dtos\JournalDto.fs" />
     <Compile Include="Web\Dtos\AccountDto.fs" />
     <Compile Include="Web\Controllers\JournalController.fs" />
@@ -24,6 +25,7 @@
     <PackageReference Include="FluentMigrator" Version="6.2.0" />
     <PackageReference Include="FluentMigrator.Runner" Version="6.2.0" />
     <PackageReference Include="FluentMigrator.Runner.Postgres" Version="6.2.0" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="8.2.5" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
@@ -32,6 +34,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FinancialAccounting.Application\FinancialAccounting.Application.fsproj" />
+    <ProjectReference Include="..\Shared.Contracts\Shared.Contracts.fsproj" />
   </ItemGroup>
 
 

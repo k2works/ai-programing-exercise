@@ -1,14 +1,17 @@
 namespace FinancialAccounting.Api
 #nowarn "20"
 
+open System
 open Microsoft.AspNetCore.Builder
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.Configuration
+open MassTransit
 open FinancialAccounting.Application.Ports.In
 open FinancialAccounting.Application.Ports.Out
 open FinancialAccounting.Application.UseCases
 open FinancialAccounting.Infrastructure.Persistence.Repositories
+open FinancialAccounting.Infrastructure.Messaging
 open FinancialAccounting.Infrastructure.MigrationRunner
 open FinancialAccounting.Infrastructure.Web.Controllers
 
@@ -25,6 +28,38 @@ module Program =
         // 接続文字列を取得
         let connectionString =
             builder.Configuration.GetConnectionString("FinancialAccounting")
+
+        // RabbitMQ 設定を取得
+        let rabbitMqHost = builder.Configuration.["RabbitMQ:Host"]
+
+        // MassTransit 設定（RabbitMQ が設定されている場合のみ使用、そうでなければインメモリ）
+        builder.Services.AddMassTransit(fun (x: IBusRegistrationConfigurator) ->
+            match rabbitMqHost with
+            | null | "" ->
+                // テスト環境: インメモリトランスポート使用
+                x.UsingInMemory(fun (context: IBusRegistrationContext) (cfg: IInMemoryBusFactoryConfigurator) ->
+                    cfg.ConfigureEndpoints(context)
+                )
+            | host ->
+                // 本番環境: RabbitMQ 使用
+                let rabbitMqUsername =
+                    match builder.Configuration.["RabbitMQ:Username"] with
+                    | null -> "guest"
+                    | username -> username
+                let rabbitMqPassword =
+                    match builder.Configuration.["RabbitMQ:Password"] with
+                    | null -> "guest"
+                    | password -> password
+                x.UsingRabbitMq(fun (context: IBusRegistrationContext) (cfg: IRabbitMqBusFactoryConfigurator) ->
+                    cfg.Host(host, fun (h: IRabbitMqHostConfigurator) ->
+                        h.Username(rabbitMqUsername)
+                        h.Password(rabbitMqPassword)
+                    )
+                )
+        ) |> ignore
+
+        // DI 設定 - EventPublisher
+        builder.Services.AddScoped<IJournalEventPublisher, JournalEventPublisher>()
 
         // DI 設定 - Journal
         builder.Services.AddScoped<IJournalRepository>(fun _ ->
@@ -52,7 +87,7 @@ module Program =
         let app = builder.Build()
 
         // マイグレーション実行
-        if not (System.String.IsNullOrEmpty(connectionString)) then
+        if not (String.IsNullOrEmpty(connectionString)) then
             migrateDatabase connectionString
 
         if app.Environment.IsDevelopment() then
@@ -63,7 +98,7 @@ module Program =
         app.MapControllers()
 
         // ルートパスを Swagger UI にリダイレクト
-        app.MapGet("/", System.Func<Microsoft.AspNetCore.Http.IResult>(fun () ->
+        app.MapGet("/", Func<Microsoft.AspNetCore.Http.IResult>(fun () ->
             Microsoft.AspNetCore.Http.Results.Redirect("/swagger"))) |> ignore
 
         app.Run()
