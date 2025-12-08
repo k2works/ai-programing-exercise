@@ -1,0 +1,616 @@
+name: 財務分析操作（fsharp-ms）
+description: Management Accounting Microservice API を使用して財務分析の実行・キャッシュ操作を行うScript Lab スニペット
+host: EXCEL
+api_set: {}
+script:
+  content: |
+    // =====================================================
+    // Management Accounting Microservice - 財務分析操作
+    // =====================================================
+    // このスクリプトは Excel から F# マイクロサービス API を呼び出し、
+    // 財務分析の実行とキャッシュ操作を行います。
+    //
+    // API エンドポイント:
+    // - POST /api/financial-analysis - 財務分析実行
+    // - GET  /api/financial-analysis/{fiscalYear}?useCache=bool - 財務分析実行（年度指定）
+    // - GET  /api/financial-analysis/{fiscalYear}/cached - キャッシュ取得
+    // - DELETE /api/financial-analysis/{fiscalYear}/cache - キャッシュ無効化
+    // =====================================================
+
+    // =====================================================
+    // 型定義
+    // =====================================================
+
+    interface FinancialDataResponse {
+      fiscalYear: number;
+      sales: number;
+      operatingProfit: number;
+      totalAssets: number;
+      tangibleFixedAssets: number;
+      currentAssets: number;
+      currentLiabilities: number;
+      quickAssets: number;
+      equity: number;
+    }
+
+    interface FinancialRatiosResponse {
+      operatingProfitMargin: number;
+      totalAssetTurnover: number;
+      fixedAssetTurnover: number;
+      currentRatio: number;
+      quickRatio: number;
+      equityRatio: number;
+      returnOnAssets: number;
+      returnOnEquity: number;
+    }
+
+    interface FinancialAnalysisResultResponse {
+      fiscalYear: number;
+      data: FinancialDataResponse;
+      ratios: FinancialRatiosResponse;
+      analyzedAt: string;
+    }
+
+    // =====================================================
+    // ユーティリティ関数
+    // =====================================================
+
+    function getApiBaseUrl(): string {
+      const urlInput = document.getElementById('api-url') as HTMLInputElement;
+      return urlInput?.value || 'http://localhost:5116';
+    }
+
+    function showStatus(message: string, isError: boolean = false): void {
+      const statusDiv = document.getElementById('status');
+      if (statusDiv) {
+        statusDiv.textContent = message;
+        statusDiv.className = isError ? 'status-error' : 'status-success';
+      }
+      appendLog(isError ? `[ERROR] ${message}` : message);
+    }
+
+    function appendLog(message: string): void {
+      const logArea = document.getElementById('log-area');
+      if (logArea) {
+        const timestamp = new Date().toLocaleTimeString('ja-JP');
+        const logEntry = document.createElement('div');
+        logEntry.className = 'log-entry';
+        logEntry.textContent = `[${timestamp}] ${message}`;
+        logArea.appendChild(logEntry);
+        logArea.scrollTop = logArea.scrollHeight;
+      }
+    }
+
+    function clearLog(): void {
+      const logArea = document.getElementById('log-area');
+      if (logArea) {
+        logArea.innerHTML = '';
+      }
+    }
+
+    // =====================================================
+    // API クライアント
+    // =====================================================
+
+    async function analyzeFinancialData(fiscalYear: number, useCache: boolean): Promise<FinancialAnalysisResultResponse> {
+      const baseUrl = getApiBaseUrl();
+      const url = `${baseUrl}/api/financial-analysis/${fiscalYear}?useCache=${useCache}`;
+      appendLog(`API URL: ${url}`);
+
+      try {
+        const response = await fetch(url);
+        appendLog(`Response status: ${response.status}`);
+
+        if (!response.ok) {
+          const errorBody = await response.text();
+          throw new Error(`財務分析エラー: ${response.status} ${errorBody}`);
+        }
+
+        const jsonData = await response.json();
+        appendLog(`API response received: fiscalYear=${jsonData.fiscalYear}`);
+        return jsonData;
+      } catch (fetchError) {
+        appendLog(`Fetch error: ${fetchError.name} - ${fetchError.message}`);
+        throw fetchError;
+      }
+    }
+
+    async function getCachedAnalysis(fiscalYear: number): Promise<FinancialAnalysisResultResponse | null> {
+      const baseUrl = getApiBaseUrl();
+      const url = `${baseUrl}/api/financial-analysis/${fiscalYear}/cached`;
+      appendLog(`API URL: ${url}`);
+
+      const response = await fetch(url);
+      if (response.status === 404) {
+        return null;
+      }
+      if (!response.ok) {
+        const errorBody = await response.text();
+        throw new Error(`キャッシュ取得エラー: ${response.status} ${errorBody}`);
+      }
+      return response.json();
+    }
+
+    async function invalidateCache(fiscalYear: number): Promise<boolean> {
+      const baseUrl = getApiBaseUrl();
+      const url = `${baseUrl}/api/financial-analysis/${fiscalYear}/cache`;
+      appendLog(`API URL: DELETE ${url}`);
+
+      const response = await fetch(url, { method: 'DELETE' });
+      if (response.status === 404) {
+        return false;
+      }
+      if (!response.ok) {
+        const errorBody = await response.text();
+        throw new Error(`キャッシュ無効化エラー: ${response.status} ${errorBody}`);
+      }
+      return true;
+    }
+
+    // =====================================================
+    // Excel 操作関数
+    // =====================================================
+
+    async function executeAnalysisAndDisplay() {
+      const fiscalYearInput = document.getElementById('fiscal-year') as HTMLInputElement;
+      const useCacheCheckbox = document.getElementById('use-cache') as HTMLInputElement;
+      const fiscalYear = parseInt(fiscalYearInput?.value) || new Date().getFullYear();
+      const useCache = useCacheCheckbox?.checked ?? true;
+
+      try {
+        showStatus(`会計年度 ${fiscalYear} の財務分析を実行中... (キャッシュ使用: ${useCache})`);
+
+        appendLog('API呼び出し開始...');
+        const result = await analyzeFinancialData(fiscalYear, useCache);
+        appendLog('API呼び出し完了、Excel書き込み開始...');
+
+        await displayAnalysisResult(result);
+        appendLog('Excel書き込み完了');
+
+        showStatus(`会計年度 ${fiscalYear} の財務分析が完了しました（分析日時: ${new Date(result.analyzedAt).toLocaleString('ja-JP')}）`);
+      } catch (error) {
+        appendLog(`Error type: ${error.name}`);
+        appendLog(`Error stack: ${error.stack?.substring(0, 200) || 'no stack'}`);
+        showStatus(`エラー: ${error.message}`, true);
+      }
+    }
+
+    async function getCachedAnalysisAndDisplay() {
+      const fiscalYearInput = document.getElementById('fiscal-year') as HTMLInputElement;
+      const fiscalYear = parseInt(fiscalYearInput?.value) || new Date().getFullYear();
+
+      try {
+        showStatus(`会計年度 ${fiscalYear} のキャッシュを取得中...`);
+
+        const result = await getCachedAnalysis(fiscalYear);
+
+        if (result === null) {
+          showStatus(`会計年度 ${fiscalYear} のキャッシュが見つかりません`, true);
+          return;
+        }
+
+        await displayAnalysisResult(result);
+        showStatus(`会計年度 ${fiscalYear} のキャッシュを取得しました（キャッシュ日時: ${new Date(result.analyzedAt).toLocaleString('ja-JP')}）`);
+      } catch (error) {
+        showStatus(`エラー: ${error.message}`, true);
+      }
+    }
+
+    async function invalidateCacheAndShow() {
+      const fiscalYearInput = document.getElementById('fiscal-year') as HTMLInputElement;
+      const fiscalYear = parseInt(fiscalYearInput?.value) || new Date().getFullYear();
+
+      try {
+        showStatus(`会計年度 ${fiscalYear} のキャッシュを無効化中...`);
+
+        const deleted = await invalidateCache(fiscalYear);
+
+        if (deleted) {
+          showStatus(`会計年度 ${fiscalYear} のキャッシュを無効化しました`);
+        } else {
+          showStatus(`会計年度 ${fiscalYear} のキャッシュが見つかりません`, true);
+        }
+      } catch (error) {
+        showStatus(`エラー: ${error.message}`, true);
+      }
+    }
+
+    async function displayAnalysisResult(result: FinancialAnalysisResultResponse) {
+      await Excel.run(async (context) => {
+        const sheet = context.workbook.worksheets.getActiveWorksheet();
+        appendLog('シート取得完了');
+
+        // 既存データをクリア（getUsedRangeOrNullObject を使用）
+        const usedRange = sheet.getUsedRangeOrNullObject();
+        await context.sync();
+        if (!usedRange.isNullObject) {
+          usedRange.clear();
+          await context.sync();
+          appendLog('既存データクリア完了');
+        }
+
+        // データ行を定義
+        const dataRows = [
+          ["売上高", result.data.sales],
+          ["営業利益", result.data.operatingProfit],
+          ["総資産", result.data.totalAssets],
+          ["有形固定資産", result.data.tangibleFixedAssets],
+          ["流動資産", result.data.currentAssets],
+          ["流動負債", result.data.currentLiabilities],
+          ["当座資産", result.data.quickAssets],
+          ["自己資本", result.data.equity]
+        ];
+
+        const ratioRows = [
+          ["売上高営業利益率", `${(result.ratios.operatingProfitMargin * 100).toFixed(2)}%`],
+          ["総資産回転率", `${result.ratios.totalAssetTurnover.toFixed(2)}回`],
+          ["固定資産回転率", `${result.ratios.fixedAssetTurnover.toFixed(2)}回`],
+          ["流動比率", `${(result.ratios.currentRatio * 100).toFixed(2)}%`],
+          ["当座比率", `${(result.ratios.quickRatio * 100).toFixed(2)}%`],
+          ["自己資本比率", `${(result.ratios.equityRatio * 100).toFixed(2)}%`],
+          ["総資産利益率（ROA）", `${(result.ratios.returnOnAssets * 100).toFixed(2)}%`],
+          ["自己資本利益率（ROE）", `${(result.ratios.returnOnEquity * 100).toFixed(2)}%`]
+        ];
+
+        // タイトル（merge を使わずにシンプルに）
+        const titleCell = sheet.getRange("A1");
+        titleCell.values = [[`財務分析レポート - 会計年度 ${result.fiscalYear}`]];
+        titleCell.format.font.bold = true;
+        titleCell.format.font.size = 16;
+        titleCell.format.fill.color = "#2E75B6";
+        titleCell.format.font.color = "white";
+
+        // 分析日時
+        const dateCell = sheet.getRange("A2");
+        dateCell.values = [[`分析日時: ${new Date(result.analyzedAt).toLocaleString('ja-JP')}`]];
+        dateCell.format.font.italic = true;
+        dateCell.format.font.color = "#666666";
+
+        await context.sync();
+        appendLog('タイトル書き込み完了');
+
+        // 財務データセクション
+        const dataHeaderRange = sheet.getRange("A4:B4");
+        dataHeaderRange.values = [["財務データ", "金額"]];
+        dataHeaderRange.format.font.bold = true;
+        dataHeaderRange.format.fill.color = "#4472C4";
+        dataHeaderRange.format.font.color = "white";
+
+        const dataRange = sheet.getRange(`A5:B${5 + dataRows.length - 1}`);
+        dataRange.values = dataRows;
+
+        await context.sync();
+        appendLog('財務データ書き込み完了');
+
+        // 金額列のフォーマット（各行に対して個別に設定）
+        const numberFormats = dataRows.map(() => ["#,##0"]);
+        const amountRange = sheet.getRange(`B5:B${5 + dataRows.length - 1}`);
+        amountRange.numberFormat = numberFormats;
+
+        await context.sync();
+        appendLog('金額フォーマット完了');
+
+        // 財務比率セクション
+        const ratioStartRow = 5 + dataRows.length + 1;
+        const ratioHeaderRange = sheet.getRange(`A${ratioStartRow}:B${ratioStartRow}`);
+        ratioHeaderRange.values = [["財務比率", "値"]];
+        ratioHeaderRange.format.font.bold = true;
+        ratioHeaderRange.format.fill.color = "#70AD47";
+        ratioHeaderRange.format.font.color = "white";
+
+        const ratioDataStartRow = ratioStartRow + 1;
+        const ratioRange = sheet.getRange(`A${ratioDataStartRow}:B${ratioDataStartRow + ratioRows.length - 1}`);
+        ratioRange.values = ratioRows;
+
+        await context.sync();
+        appendLog('財務比率書き込み完了');
+
+        // 列幅自動調整
+        const finalUsedRange = sheet.getUsedRangeOrNullObject();
+        await context.sync();
+        if (!finalUsedRange.isNullObject) {
+          finalUsedRange.format.autofitColumns();
+          await context.sync();
+        }
+
+        appendLog('財務分析結果をシートに表示しました');
+      });
+    }
+
+    async function analyzeMultipleYears() {
+      const startYearInput = document.getElementById('start-year') as HTMLInputElement;
+      const endYearInput = document.getElementById('end-year') as HTMLInputElement;
+      const startYear = parseInt(startYearInput?.value) || 2020;
+      const endYear = parseInt(endYearInput?.value) || new Date().getFullYear();
+
+      if (startYear > endYear) {
+        showStatus('開始年度は終了年度以下にしてください', true);
+        return;
+      }
+
+      try {
+        showStatus(`会計年度 ${startYear} - ${endYear} の財務分析を実行中...`);
+
+        const results: FinancialAnalysisResultResponse[] = [];
+        for (let year = startYear; year <= endYear; year++) {
+          try {
+            appendLog(`会計年度 ${year} を分析中...`);
+            const result = await analyzeFinancialData(year, false);
+            results.push(result);
+          } catch (error) {
+            appendLog(`会計年度 ${year}: エラー - ${error.message}`);
+          }
+        }
+
+        if (results.length === 0) {
+          showStatus('分析結果がありません', true);
+          return;
+        }
+
+        await displayMultiYearComparison(results);
+        showStatus(`${results.length} 年分の財務分析比較を表示しました`);
+      } catch (error) {
+        showStatus(`エラー: ${error.message}`, true);
+      }
+    }
+
+    async function displayMultiYearComparison(results: FinancialAnalysisResultResponse[]) {
+      await Excel.run(async (context) => {
+        const sheet = context.workbook.worksheets.getActiveWorksheet();
+        appendLog('複数年比較シート取得完了');
+
+        // 既存データをクリア（getUsedRangeOrNullObject を使用）
+        const usedRange = sheet.getUsedRangeOrNullObject();
+        await context.sync();
+        if (!usedRange.isNullObject) {
+          usedRange.clear();
+          await context.sync();
+        }
+
+        // 年度を昇順でソート
+        results.sort((a, b) => a.fiscalYear - b.fiscalYear);
+
+        // 列数を計算（A列 + 年度数）
+        const colCount = results.length + 1;
+        const getColLetter = (idx: number) => String.fromCharCode(65 + idx);
+        const lastCol = getColLetter(results.length);
+
+        // タイトル（merge を使わずにシンプルに）
+        const titleCell = sheet.getRange("A1");
+        titleCell.values = [[`財務分析 年度比較レポート（${results[0].fiscalYear} - ${results[results.length - 1].fiscalYear}）`]];
+        titleCell.format.font.bold = true;
+        titleCell.format.font.size = 16;
+        titleCell.format.fill.color = "#2E75B6";
+        titleCell.format.font.color = "white";
+
+        await context.sync();
+
+        // ヘッダー行（年度）
+        const headerRow = ["項目", ...results.map(r => `${r.fiscalYear}年度`)];
+        const headerRange = sheet.getRange(`A3:${lastCol}3`);
+        headerRange.values = [headerRow];
+        headerRange.format.font.bold = true;
+        headerRange.format.fill.color = "#4472C4";
+        headerRange.format.font.color = "white";
+
+        await context.sync();
+
+        // 財務データ行
+        const dataItems = [
+          { label: "売上高", key: "sales" },
+          { label: "営業利益", key: "operatingProfit" },
+          { label: "総資産", key: "totalAssets" },
+          { label: "自己資本", key: "equity" }
+        ];
+
+        const ratioItems = [
+          { label: "売上高営業利益率 (%)", key: "operatingProfitMargin", isPercent: true },
+          { label: "総資産回転率 (回)", key: "totalAssetTurnover", isPercent: false },
+          { label: "流動比率 (%)", key: "currentRatio", isPercent: true },
+          { label: "自己資本比率 (%)", key: "equityRatio", isPercent: true },
+          { label: "ROA (%)", key: "returnOnAssets", isPercent: true },
+          { label: "ROE (%)", key: "returnOnEquity", isPercent: true }
+        ];
+
+        let currentRow = 4;
+
+        // 財務データセクション
+        for (const item of dataItems) {
+          const row = [item.label, ...results.map(r => r.data[item.key])];
+          const rowRange = sheet.getRange(`A${currentRow}:${lastCol}${currentRow}`);
+          rowRange.values = [row];
+          currentRow++;
+        }
+
+        await context.sync();
+
+        // 空行
+        currentRow++;
+
+        // 財務比率セクションヘッダー
+        const ratioHeaderRange = sheet.getRange(`A${currentRow}:${lastCol}${currentRow}`);
+        ratioHeaderRange.values = [["【財務比率】", ...Array(results.length).fill("")]];
+        ratioHeaderRange.format.font.bold = true;
+        ratioHeaderRange.format.fill.color = "#70AD47";
+        ratioHeaderRange.format.font.color = "white";
+        currentRow++;
+
+        await context.sync();
+
+        // 財務比率データ
+        for (const item of ratioItems) {
+          const multiplier = item.isPercent ? 100 : 1;
+          const row = [item.label, ...results.map(r => (r.ratios[item.key] * multiplier).toFixed(2))];
+          const rowRange = sheet.getRange(`A${currentRow}:${lastCol}${currentRow}`);
+          rowRange.values = [row];
+          currentRow++;
+        }
+
+        await context.sync();
+
+        // 列幅自動調整
+        const finalUsedRange = sheet.getUsedRangeOrNullObject();
+        await context.sync();
+        if (!finalUsedRange.isNullObject) {
+          finalUsedRange.format.autofitColumns();
+          await context.sync();
+        }
+
+        appendLog('年度比較表をシートに表示しました');
+      });
+    }
+
+    // =====================================================
+    // イベントリスナー登録
+    // =====================================================
+
+    document.getElementById('btn-analyze')?.addEventListener('click', executeAnalysisAndDisplay);
+    document.getElementById('btn-get-cache')?.addEventListener('click', getCachedAnalysisAndDisplay);
+    document.getElementById('btn-invalidate')?.addEventListener('click', invalidateCacheAndShow);
+    document.getElementById('btn-compare')?.addEventListener('click', analyzeMultipleYears);
+    document.getElementById('btn-clear-log')?.addEventListener('click', clearLog);
+
+    appendLog('財務分析操作が読み込まれました');
+  language: typescript
+template:
+  content: |
+    <section class="ms-font-m">
+      <h2 class="ms-font-xl">財務分析操作</h2>
+      <p class="description">Management Accounting Microservice API を使用</p>
+
+      <div class="ms-TextField">
+        <label class="ms-Label">API ベース URL</label>
+        <input id="api-url" type="text" class="ms-TextField-field" value="http://localhost:5000" />
+      </div>
+
+      <div id="status" class="status"></div>
+
+      <hr />
+
+      <div class="button-section analysis-section">
+        <h3>財務分析実行</h3>
+        <div class="ms-TextField">
+          <label class="ms-Label">会計年度</label>
+          <input id="fiscal-year" type="number" class="ms-TextField-field" value="2024" />
+        </div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="use-cache" checked />
+          <label for="use-cache">キャッシュを使用</label>
+        </div>
+        <div class="button-row">
+          <button id="btn-analyze" class="ms-Button ms-Button--primary">
+            <span class="ms-Button-label">分析実行</span>
+          </button>
+          <button id="btn-get-cache" class="ms-Button">
+            <span class="ms-Button-label">キャッシュ取得</span>
+          </button>
+          <button id="btn-invalidate" class="ms-Button ms-Button--danger">
+            <span class="ms-Button-label">キャッシュ無効化</span>
+          </button>
+        </div>
+        <p class="hint">指定した会計年度の財務分析を実行し、結果をシートに表示</p>
+      </div>
+
+      <hr />
+
+      <div class="button-section compare-section">
+        <h3>年度比較</h3>
+        <div class="year-range">
+          <div class="ms-TextField">
+            <label class="ms-Label">開始年度</label>
+            <input id="start-year" type="number" class="ms-TextField-field" value="2020" />
+          </div>
+          <span class="range-separator">〜</span>
+          <div class="ms-TextField">
+            <label class="ms-Label">終了年度</label>
+            <input id="end-year" type="number" class="ms-TextField-field" value="2024" />
+          </div>
+        </div>
+        <div class="button-row">
+          <button id="btn-compare" class="ms-Button ms-Button--primary">
+            <span class="ms-Button-label">年度比較分析</span>
+          </button>
+        </div>
+        <p class="hint">複数年度の財務分析を実行し、比較表を作成</p>
+      </div>
+
+      <hr />
+
+      <div class="help-section">
+        <h4>使い方</h4>
+        <ol>
+          <li><strong>分析実行</strong>: 指定した会計年度の財務分析を実行（キャッシュ有無選択可）</li>
+          <li><strong>キャッシュ取得</strong>: 既にキャッシュされている分析結果を取得</li>
+          <li><strong>キャッシュ無効化</strong>: 指定年度のキャッシュを削除</li>
+          <li><strong>年度比較分析</strong>: 複数年度の財務指標を比較表形式で表示</li>
+        </ol>
+        <h4>財務比率の説明</h4>
+        <ul>
+          <li><strong>売上高営業利益率</strong>: 本業の収益性</li>
+          <li><strong>総資産回転率</strong>: 資産の効率的な活用度</li>
+          <li><strong>流動比率・当座比率</strong>: 短期的な支払能力</li>
+          <li><strong>自己資本比率</strong>: 財務の安定性</li>
+          <li><strong>ROA・ROE</strong>: 資産・資本の収益性</li>
+        </ul>
+      </div>
+
+      <hr />
+
+      <div class="log-section">
+        <div class="log-header">
+          <h4>ログ</h4>
+          <button id="btn-clear-log" class="ms-Button ms-Button--small">
+            <span class="ms-Button-label">クリア</span>
+          </button>
+        </div>
+        <div id="log-area" class="log-area"></div>
+      </div>
+    </section>
+  language: html
+style:
+  content: |
+    section { margin: 16px; }
+    h2 { margin-bottom: 8px; color: #323130; }
+    h3 { margin: 0 0 8px 0; font-size: 16px; color: #323130; }
+    h4 { margin: 8px 0 4px 0; font-size: 14px; color: #605e5c; }
+    .description { color: #605e5c; margin-bottom: 16px; }
+    hr { margin: 16px 0; border: none; border-top: 1px solid #edebe9; }
+    .ms-TextField { margin-bottom: 8px; }
+    .ms-Label { display: block; margin-bottom: 4px; font-weight: 600; color: #323130; }
+    .ms-TextField-field { width: 100%; padding: 8px; border: 1px solid #8a8886; border-radius: 2px; font-size: 14px; box-sizing: border-box; }
+    .ms-TextField-field:focus { border-color: #0078d4; outline: none; }
+    .button-section { margin-bottom: 8px; padding: 12px; border-radius: 4px; }
+    .analysis-section { background: #e8f4fd; }
+    .compare-section { background: #fff3e0; }
+    .button-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .checkbox-row input[type="checkbox"] { width: 16px; height: 16px; }
+    .checkbox-row label { font-size: 14px; color: #323130; }
+    .year-range { display: flex; align-items: flex-end; gap: 8px; margin-bottom: 8px; }
+    .year-range .ms-TextField { flex: 1; }
+    .range-separator { padding-bottom: 12px; color: #605e5c; }
+    .ms-Button { padding: 8px 16px; border: 1px solid #8a8886; border-radius: 2px; cursor: pointer; font-size: 14px; background: white; }
+    .ms-Button--primary { background-color: #0078d4; color: white; border-color: #0078d4; }
+    .ms-Button--primary:hover { background-color: #106ebe; }
+    .ms-Button--danger { background-color: #d13438; color: white; border-color: #d13438; }
+    .ms-Button--danger:hover { background-color: #a4262c; }
+    .hint { font-size: 12px; color: #605e5c; margin: 0 0 8px 0; }
+    .status { padding: 8px 12px; margin: 8px 0; border-radius: 4px; font-size: 14px; min-height: 20px; }
+    .status-success { background: #dff6dd; color: #107c10; }
+    .status-error { background: #fde7e9; color: #a80000; }
+    .help-section { background: #f3f2f1; padding: 12px; border-radius: 4px; font-size: 12px; color: #605e5c; }
+    .help-section ol, .help-section ul { margin: 0 0 8px 0; padding-left: 20px; }
+    .help-section li { margin-bottom: 4px; }
+    .log-section { margin-top: 8px; }
+    .log-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .log-header h4 { margin: 0; font-size: 14px; color: #605e5c; }
+    .ms-Button--small { padding: 4px 8px; font-size: 12px; }
+    .log-area { background: #1e1e1e; color: #d4d4d4; font-family: 'Consolas', 'Monaco', monospace; font-size: 11px; padding: 8px; border-radius: 4px; max-height: 150px; overflow-y: auto; min-height: 60px; }
+    .log-entry { margin-bottom: 2px; word-break: break-all; }
+    .log-entry:last-child { margin-bottom: 0; }
+  language: css
+libraries: |
+  https://appsforoffice.microsoft.com/lib/1/hosted/office.js
+  @types/office-js
+  core-js@2.4.1/client/core.min.js
+  @types/core-js
