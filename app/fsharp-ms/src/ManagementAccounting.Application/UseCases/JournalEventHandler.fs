@@ -1,18 +1,57 @@
 namespace ManagementAccounting.Application.UseCases
 
+open System
 open System.Threading.Tasks
 open Microsoft.Extensions.Logging
 open Shared.Contracts.Events
+open ManagementAccounting.Domain.Models
 open ManagementAccounting.Application.Ports.In
 open ManagementAccounting.Application.Ports.Out
 
 /// <summary>
 /// 仕訳イベントハンドラ実装
-/// 財務会計サービスからのイベントを処理し、キャッシュを無効化する
+/// 財務会計サービスからのイベントを処理し、キャッシュを更新する
 /// </summary>
 type JournalEventHandler(
     cacheRepository: IFinancialAnalysisCacheRepository,
+    financialDataPort: IFinancialDataPort,
     logger: ILogger<JournalEventHandler>) =
+
+    /// キャッシュを再構築する共通処理
+    let rebuildCacheAsync (fiscalYear: int) =
+        task {
+            try
+                // 財務会計サービスからデータを取得
+                let! data = financialDataPort.FetchFinancialDataByFiscalYearAsync(fiscalYear)
+
+                // 財務比率を計算
+                let ratios = FinancialRatios.calculate data
+
+                let now = DateTime.UtcNow
+
+                // キャッシュに保存
+                let cache = {
+                    Id = None
+                    FiscalYear = fiscalYear
+                    Data = data
+                    Ratios = ratios
+                    CachedAt = now
+                }
+                let! _ = cacheRepository.SaveAsync(cache)
+
+                logger.LogInformation(
+                    "会計年度 {FiscalYear} のキャッシュを再構築しました",
+                    fiscalYear
+                )
+            with
+            | ex ->
+                logger.LogWarning(
+                    ex,
+                    "会計年度 {FiscalYear} のキャッシュ再構築に失敗しました: {Message}",
+                    fiscalYear,
+                    ex.Message
+                )
+        }
 
     interface IJournalEventHandler with
         member _.HandleJournalCreatedAsync(event: JournalCreatedEvent) : Task<unit> =
@@ -31,11 +70,9 @@ type JournalEventHandler(
                         "会計年度 {FiscalYear} のキャッシュを無効化しました",
                         event.FiscalYear
                     )
-                else
-                    logger.LogDebug(
-                        "会計年度 {FiscalYear} のキャッシュは存在しませんでした",
-                        event.FiscalYear
-                    )
+
+                // キャッシュを再構築
+                do! rebuildCacheAsync event.FiscalYear
             }
 
         member _.HandleJournalUpdatedAsync(event: JournalUpdatedEvent) : Task<unit> =
@@ -54,11 +91,9 @@ type JournalEventHandler(
                         "会計年度 {FiscalYear} のキャッシュを無効化しました",
                         event.FiscalYear
                     )
-                else
-                    logger.LogDebug(
-                        "会計年度 {FiscalYear} のキャッシュは存在しませんでした",
-                        event.FiscalYear
-                    )
+
+                // キャッシュを再構築
+                do! rebuildCacheAsync event.FiscalYear
             }
 
         member _.HandleJournalDeletedAsync(event: JournalDeletedEvent) : Task<unit> =
@@ -76,9 +111,7 @@ type JournalEventHandler(
                         "会計年度 {FiscalYear} のキャッシュを無効化しました",
                         event.FiscalYear
                     )
-                else
-                    logger.LogDebug(
-                        "会計年度 {FiscalYear} のキャッシュは存在しませんでした",
-                        event.FiscalYear
-                    )
+
+                // キャッシュを再構築
+                do! rebuildCacheAsync event.FiscalYear
             }

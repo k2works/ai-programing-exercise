@@ -50,12 +50,13 @@ module JournalEventHandlerTests =
         }
 
     [<Fact>]
-    let ``仕訳作成イベントでキャッシュが無効化される`` () =
+    let ``仕訳作成イベントでキャッシュが再構築される`` () =
         task {
             // Arrange
             let cacheRepo = MockCacheRepository()
+            let financialDataPort = MockFinancialDataPort()
             let logger = MockLogger<JournalEventHandler>()
-            let handler = JournalEventHandler(cacheRepo, logger) :> IJournalEventHandler
+            let handler = JournalEventHandler(cacheRepo, financialDataPort, logger) :> IJournalEventHandler
 
             // キャッシュを事前に作成
             let! _ = (cacheRepo :> IFinancialAnalysisCacheRepository).SaveAsync(createTestCache 2024)
@@ -72,18 +73,19 @@ module JournalEventHandlerTests =
             // Act
             do! handler.HandleJournalCreatedAsync(event)
 
-            // Assert
+            // Assert - キャッシュが再構築されていること
             let! cached = (cacheRepo :> IFinancialAnalysisCacheRepository).GetByFiscalYearAsync(2024)
-            Assert.True(cached.IsNone)
+            Assert.True(cached.IsSome)
         }
 
     [<Fact>]
-    let ``仕訳更新イベントでキャッシュが無効化される`` () =
+    let ``仕訳更新イベントでキャッシュが再構築される`` () =
         task {
             // Arrange
             let cacheRepo = MockCacheRepository()
+            let financialDataPort = MockFinancialDataPort()
             let logger = MockLogger<JournalEventHandler>()
-            let handler = JournalEventHandler(cacheRepo, logger) :> IJournalEventHandler
+            let handler = JournalEventHandler(cacheRepo, financialDataPort, logger) :> IJournalEventHandler
 
             // キャッシュを事前に作成
             let! _ = (cacheRepo :> IFinancialAnalysisCacheRepository).SaveAsync(createTestCache 2024)
@@ -103,18 +105,19 @@ module JournalEventHandlerTests =
             // Act
             do! handler.HandleJournalUpdatedAsync(event)
 
-            // Assert
+            // Assert - キャッシュが再構築されていること
             let! cached = (cacheRepo :> IFinancialAnalysisCacheRepository).GetByFiscalYearAsync(2024)
-            Assert.True(cached.IsNone)
+            Assert.True(cached.IsSome)
         }
 
     [<Fact>]
-    let ``仕訳削除イベントでキャッシュが無効化される`` () =
+    let ``仕訳削除イベントでキャッシュが再構築される`` () =
         task {
             // Arrange
             let cacheRepo = MockCacheRepository()
+            let financialDataPort = MockFinancialDataPort()
             let logger = MockLogger<JournalEventHandler>()
-            let handler = JournalEventHandler(cacheRepo, logger) :> IJournalEventHandler
+            let handler = JournalEventHandler(cacheRepo, financialDataPort, logger) :> IJournalEventHandler
 
             // キャッシュを事前に作成
             let! _ = (cacheRepo :> IFinancialAnalysisCacheRepository).SaveAsync(createTestCache 2024)
@@ -128,18 +131,19 @@ module JournalEventHandlerTests =
             // Act
             do! handler.HandleJournalDeletedAsync(event)
 
-            // Assert
+            // Assert - キャッシュが再構築されていること
             let! cached = (cacheRepo :> IFinancialAnalysisCacheRepository).GetByFiscalYearAsync(2024)
-            Assert.True(cached.IsNone)
+            Assert.True(cached.IsSome)
         }
 
     [<Fact>]
-    let ``キャッシュがない場合でもエラーにならない`` () =
+    let ``キャッシュがない場合でもキャッシュが構築される`` () =
         task {
             // Arrange
             let cacheRepo = MockCacheRepository()
+            let financialDataPort = MockFinancialDataPort()
             let logger = MockLogger<JournalEventHandler>()
-            let handler = JournalEventHandler(cacheRepo, logger) :> IJournalEventHandler
+            let handler = JournalEventHandler(cacheRepo, financialDataPort, logger) :> IJournalEventHandler
 
             // キャッシュなし
 
@@ -152,8 +156,12 @@ module JournalEventHandlerTests =
                 CreatedAt = DateTime.UtcNow
             }
 
-            // Act & Assert - 例外が発生しないこと
+            // Act
             do! handler.HandleJournalCreatedAsync(event)
+
+            // Assert - キャッシュが構築されていること
+            let! cached = (cacheRepo :> IFinancialAnalysisCacheRepository).GetByFiscalYearAsync(2024)
+            Assert.True(cached.IsSome)
         }
 
     [<Fact>]
@@ -161,8 +169,9 @@ module JournalEventHandlerTests =
         task {
             // Arrange
             let cacheRepo = MockCacheRepository()
+            let financialDataPort = MockFinancialDataPort()
             let logger = MockLogger<JournalEventHandler>()
-            let handler = JournalEventHandler(cacheRepo, logger) :> IJournalEventHandler
+            let handler = JournalEventHandler(cacheRepo, financialDataPort, logger) :> IJournalEventHandler
 
             // 複数の会計年度のキャッシュを作成
             let! _ = (cacheRepo :> IFinancialAnalysisCacheRepository).SaveAsync(createTestCache 2023)
@@ -185,5 +194,5 @@ module JournalEventHandlerTests =
             let! cache2024 = (cacheRepo :> IFinancialAnalysisCacheRepository).GetByFiscalYearAsync(2024)
 
             Assert.True(cache2023.IsSome) // 2023 は残っている
-            Assert.True(cache2024.IsNone) // 2024 は削除された
+            Assert.True(cache2024.IsSome) // 2024 は再構築されている
         }
