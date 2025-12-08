@@ -1,10 +1,10 @@
-namespace FinancialAccounting.Api.Controllers
+namespace FinancialAccounting.Infrastructure.Web.Controllers
 
 open System.Threading.Tasks
 open Microsoft.AspNetCore.Http
 open Microsoft.AspNetCore.Mvc
 open FinancialAccounting.Application.Ports.In
-open FinancialAccounting.Api.Dtos
+open FinancialAccounting.Infrastructure.Web.Dtos
 
 /// <summary>
 /// 仕訳 REST API コントローラー

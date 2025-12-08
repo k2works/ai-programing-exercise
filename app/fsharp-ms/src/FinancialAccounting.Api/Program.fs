@@ -10,6 +10,12 @@ open FinancialAccounting.Application.Ports.Out
 open FinancialAccounting.Application.UseCases
 open FinancialAccounting.Infrastructure.Persistence.Repositories
 open FinancialAccounting.Infrastructure.MigrationRunner
+open FinancialAccounting.Infrastructure.Web.Controllers
+
+/// <summary>
+/// WebApplicationFactory 用のマーカー型
+/// </summary>
+type IApiMarker = interface end
 
 module Program =
     [<EntryPoint>]
@@ -29,6 +35,9 @@ module Program =
             JournalUseCase(repository) :> IJournalUseCase)
 
         builder.Services.AddControllers()
+            .AddApplicationPart(typeof<JournalController>.Assembly)
+        |> ignore
+
         builder.Services.AddEndpointsApiExplorer()
         builder.Services.AddSwaggerGen()
 

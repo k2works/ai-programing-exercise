@@ -9,6 +9,8 @@
   <ItemGroup>
     <Compile Include="Persistence\Migrations\V001_CreateJournalTables.fs" />
     <Compile Include="Persistence\Repositories\JournalRepository.fs" />
+    <Compile Include="Web\Dtos\JournalDto.fs" />
+    <Compile Include="Web\Controllers\JournalController.fs" />
     <Compile Include="DependencyInjection.fs" />
     <Compile Include="MigrationRunner.fs" />
     <Compile Include="Program.fs" />
@@ -19,6 +21,7 @@
     <PackageReference Include="FluentMigrator" Version="6.2.0" />
     <PackageReference Include="FluentMigrator.Runner" Version="6.2.0" />
     <PackageReference Include="FluentMigrator.Runner.Postgres" Version="6.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
     <PackageReference Include="Npgsql" Version="8.0.6" />

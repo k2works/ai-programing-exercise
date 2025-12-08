@@ -1,4 +1,4 @@
-namespace FinancialAccounting.Api.Dtos
+namespace FinancialAccounting.Infrastructure.Web.Dtos
 
 open System
 open FinancialAccounting.Domain.Entities

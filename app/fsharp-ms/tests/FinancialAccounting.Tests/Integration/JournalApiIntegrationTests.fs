@@ -41,7 +41,7 @@ type ErrorResponseDto = {
 /// </summary>
 type JournalApiIntegrationTests() =
     let mutable postgres: PostgreSqlContainer = null
-    let mutable factory: WebApplicationFactory<FinancialAccounting.Api.Controllers.JournalController> = null
+    let mutable factory: WebApplicationFactory<FinancialAccounting.Api.IApiMarker> = null
     let mutable client: HttpClient = null
 
     interface IAsyncLifetime with
@@ -62,7 +62,7 @@ type JournalApiIntegrationTests() =
 
                 // WebApplicationFactory で API サーバーを起動
                 let connectionString = postgres.GetConnectionString()
-                factory <- new WebApplicationFactory<FinancialAccounting.Api.Controllers.JournalController>()
+                factory <- new WebApplicationFactory<FinancialAccounting.Api.IApiMarker>()
                 factory <- factory.WithWebHostBuilder(fun builder ->
                     builder.UseSetting("ConnectionStrings:FinancialAccounting", connectionString) |> ignore
                 )
