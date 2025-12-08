@@ -103,6 +103,9 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__ManagementAccounting: "Host=management-db;Database=management_accounting;Username=postgres;Password=postgres"
       FinancialAccountingService__BaseUrl: "http://financial-accounting-service:8080"
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Username: guest
+      RabbitMQ__Password: guest
     ports:
       - "5004:8080"
     depends_on:
@@ -110,6 +113,8 @@ services:
         condition: service_healthy
       financial-accounting-service:
         condition: service_started
+      rabbitmq:
+        condition: service_healthy
     networks:
       - fsharp-accounting-network
 

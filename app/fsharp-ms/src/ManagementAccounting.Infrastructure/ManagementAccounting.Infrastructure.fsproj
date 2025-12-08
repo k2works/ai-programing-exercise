@@ -10,6 +10,7 @@
     <Compile Include="MigrationRunner.fs" />
     <Compile Include="Adapters\External\FinancialAccountingClient.fs" />
     <Compile Include="Persistence\Repositories\FinancialAnalysisCacheRepository.fs" />
+    <Compile Include="Messaging\JournalEventConsumers.fs" />
     <Compile Include="Web\Dtos\FinancialAnalysisDto.fs" />
     <Compile Include="Web\Controllers\FinancialAnalysisController.fs" />
   </ItemGroup>
@@ -19,6 +20,7 @@
     <PackageReference Include="FluentMigrator" Version="6.2.0" />
     <PackageReference Include="FluentMigrator.Runner" Version="6.2.0" />
     <PackageReference Include="FluentMigrator.Runner.Postgres" Version="6.2.0" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="8.2.5" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
     <PackageReference Include="Npgsql" Version="9.0.2" />
@@ -27,6 +29,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ManagementAccounting.Application\ManagementAccounting.Application.fsproj" />
+    <ProjectReference Include="..\Shared.Contracts\Shared.Contracts.fsproj" />
   </ItemGroup>
 
 </Project>

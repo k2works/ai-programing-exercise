@@ -8,6 +8,7 @@
   <ItemGroup>
     <Compile Include="Domain\FinancialRatiosTests.fs" />
     <Compile Include="Application\FinancialAnalysisUseCaseTests.fs" />
+    <Compile Include="Application\JournalEventHandlerTests.fs" />
     <Compile Include="Infrastructure\PostgresTestFixture.fs" />
     <Compile Include="Infrastructure\FinancialAnalysisCacheRepositoryTests.fs" />
     <Compile Include="Integration\FinancialAnalysisApiIntegrationTests.fs" />
