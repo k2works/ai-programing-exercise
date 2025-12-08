@@ -7,8 +7,11 @@
 
   <ItemGroup>
     <Compile Include="Ports\Out\IJournalRepository.fs" />
+    <Compile Include="Ports\Out\IAccountRepository.fs" />
     <Compile Include="Ports\In\IJournalUseCase.fs" />
+    <Compile Include="Ports\In\IAccountUseCase.fs" />
     <Compile Include="UseCases\JournalUseCase.fs" />
+    <Compile Include="UseCases\AccountUseCase.fs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -26,13 +26,21 @@ module Program =
         let connectionString =
             builder.Configuration.GetConnectionString("FinancialAccounting")
 
-        // DI 設定
+        // DI 設定 - Journal
         builder.Services.AddScoped<IJournalRepository>(fun _ ->
             JournalRepository(connectionString) :> IJournalRepository)
 
         builder.Services.AddScoped<IJournalUseCase>(fun sp ->
             let repository = sp.GetRequiredService<IJournalRepository>()
             JournalUseCase(repository) :> IJournalUseCase)
+
+        // DI 設定 - Account
+        builder.Services.AddScoped<IAccountRepository>(fun _ ->
+            AccountRepository(connectionString) :> IAccountRepository)
+
+        builder.Services.AddScoped<IAccountUseCase>(fun sp ->
+            let repository = sp.GetRequiredService<IAccountRepository>()
+            AccountUseCase(repository) :> IAccountUseCase)
 
         builder.Services.AddControllers()
             .AddApplicationPart(typeof<JournalController>.Assembly)
@@ -53,6 +61,10 @@ module Program =
 
         app.UseAuthorization()
         app.MapControllers()
+
+        // ルートパスを Swagger UI にリダイレクト
+        app.MapGet("/", System.Func<Microsoft.AspNetCore.Http.IResult>(fun () ->
+            Microsoft.AspNetCore.Http.Results.Redirect("/swagger"))) |> ignore
 
         app.Run()
         0

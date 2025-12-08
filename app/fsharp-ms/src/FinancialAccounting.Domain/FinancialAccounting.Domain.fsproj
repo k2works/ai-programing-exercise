@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Entities\Account.fs" />
     <Compile Include="Entities\Journal.fs" />
   </ItemGroup>
 
