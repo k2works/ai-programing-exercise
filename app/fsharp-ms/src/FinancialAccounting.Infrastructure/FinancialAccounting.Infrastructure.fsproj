@@ -34,10 +34,5 @@
     <ProjectReference Include="..\FinancialAccounting.Application\FinancialAccounting.Application.fsproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
 
 </Project>
