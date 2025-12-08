@@ -124,6 +124,65 @@ Swagger UI: `http://localhost:5212/swagger`
 | J | 赤伝フラグ |
 | K | 赤黒伝票番号 |
 
+### 仕訳イベントソーシング API ツール
+
+イベントソーシングパターンに基づく仕訳の CRUD 操作、承認、タイムトラベル、スナップショット管理を行います。
+
+#### 基本版 (`journal-entry-event-sourcing.yaml`)
+
+基本的なイベントソーシング API クライアントです。
+
+**機能**:
+- 全仕訳取得: すべての仕訳を Excel シートに出力
+- 単一仕訳取得: 仕訳 ID を指定して詳細を取得
+- タイムトラベル: 特定時点の仕訳状態を取得
+- 仕訳作成: Excel シートから仕訳を登録
+- 仕訳承認: 仕訳を承認済み状態に更新
+- 仕訳削除: 論理削除を実行
+
+**出力シート**: 仕訳一覧(ES)、仕訳詳細(ES)、タイムトラベル(ES)、仕訳入力(ES)
+
+#### イベント発行版 (`journal-entry-event-sourcing-with-events.yaml`)
+
+イベント保存後に Read Model 更新と監査ログ記録を自動実行するバージョンです。
+
+**機能**:
+- 基本版のすべての機能
+- スナップショット作成: 集約の現在状態を保存
+- スナップショット削除: 保存されたスナップショットを削除
+
+**出力シート**: 仕訳一覧(イベント版)、仕訳詳細(イベント版)、タイムトラベル(イベント版)、仕訳入力(イベント版)
+
+#### スナップショット最適化版 (`journal-entry-event-sourcing-with-snapshot.yaml`)
+
+スナップショットを活用した高速な集約復元を実現するバージョンです。
+
+**機能**:
+- 基本版のすべての機能
+- スナップショット作成: 集約の現在状態を保存
+- スナップショット削除: 保存されたスナップショットを削除
+
+**出力シート**: 仕訳一覧(SS版)、仕訳詳細(SS版)、タイムトラベル(SS版)、仕訳入力(SS版)
+
+**使用方法（共通）**:
+1. YAML をインポート
+2. API ベース URL を設定（デフォルト: `http://localhost:5000`）
+3. 「全仕訳取得」で仕訳一覧を取得
+4. 「入力シート準備」で新規仕訳用シートを作成
+5. シートにデータを入力後「仕訳登録」で API に登録
+6. 実行ログエリアで処理状況を確認
+
+**Excel シートのフォーマット（仕訳入力）**:
+
+| 列 | 項目 |
+|----|------|
+| A | 仕訳ID (UUID) |
+| B | 仕訳日 |
+| C | 摘要 |
+| D | 勘定科目コード |
+| E | 借方/貸方 (D/C) |
+| F | 金額 |
+
 ## トラブルシューティング
 
 ### CORS エラーが発生する場合
@@ -188,7 +247,7 @@ open http://localhost:5212/swagger
 | GET | `/api/v1/financial-statements/income-statement` | 損益計算書 |
 | GET | `/api/v1/financial-statements/ratios` | 財務比率 |
 
-### イベントソーシング API
+### イベントソーシング API（基本版）
 
 | メソッド | パス | 説明 |
 |---------|------|------|
@@ -196,14 +255,44 @@ open http://localhost:5212/swagger
 | GET | `/api/v1/journal-entries/{id}` | 仕訳取得 |
 | POST | `/api/v1/journal-entries` | 仕訳作成 |
 | POST | `/api/v1/journal-entries/{id}/approve` | 仕訳承認 |
+| DELETE | `/api/v1/journal-entries/{id}` | 仕訳削除 |
 | GET | `/api/v1/journal-entries/{id}/at` | タイムトラベル |
+
+### イベントソーシング API（イベント発行版）
+
+| メソッド | パス | 説明 |
+|---------|------|------|
+| GET | `/api/v1/journal-entries-with-events` | 仕訳一覧 |
+| GET | `/api/v1/journal-entries-with-events/{id}` | 仕訳取得 |
+| POST | `/api/v1/journal-entries-with-events` | 仕訳作成（Read Model 更新 + 監査ログ記録） |
+| POST | `/api/v1/journal-entries-with-events/{id}/approve` | 仕訳承認（Read Model 更新 + 監査ログ記録） |
+| DELETE | `/api/v1/journal-entries-with-events/{id}` | 仕訳削除（Read Model 更新 + 監査ログ記録） |
+| GET | `/api/v1/journal-entries-with-events/{id}/at` | タイムトラベル |
+| POST | `/api/v1/journal-entries-with-events/{id}/snapshot` | スナップショット作成 |
+| DELETE | `/api/v1/journal-entries-with-events/{id}/snapshot` | スナップショット削除 |
+
+### イベントソーシング API（スナップショット最適化版）
+
+| メソッド | パス | 説明 |
+|---------|------|------|
+| GET | `/api/v1/journal-entries-with-snapshot` | 仕訳一覧 |
+| GET | `/api/v1/journal-entries-with-snapshot/{id}` | 仕訳取得（スナップショット活用） |
+| POST | `/api/v1/journal-entries-with-snapshot` | 仕訳作成 |
+| POST | `/api/v1/journal-entries-with-snapshot/{id}/approve` | 仕訳承認 |
+| DELETE | `/api/v1/journal-entries-with-snapshot/{id}` | 仕訳削除 |
+| GET | `/api/v1/journal-entries-with-snapshot/{id}/at` | タイムトラベル |
+| POST | `/api/v1/journal-entries-with-snapshot/{id}/snapshot` | スナップショット作成 |
+| DELETE | `/api/v1/journal-entries-with-snapshot/{id}/snapshot` | スナップショット削除 |
 
 ## ファイル構成
 
 ```
 script-lab/
-├── README.md                      # このファイル
-├── financial-analysis.yaml        # 財務分析ツール
-├── accounts-bulk-operations.yaml  # 勘定科目一括操作ツール
-└── journals-bulk-operations.yaml  # 仕訳一括操作ツール
+├── README.md                                        # このファイル
+├── financial-analysis.yaml                          # 財務分析ツール
+├── accounts-bulk-operations.yaml                    # 勘定科目一括操作ツール
+├── journals-bulk-operations.yaml                    # 仕訳一括操作ツール
+├── journal-entry-event-sourcing.yaml                # イベントソーシング API（基本版）
+├── journal-entry-event-sourcing-with-events.yaml    # イベントソーシング API（イベント発行版）
+└── journal-entry-event-sourcing-with-snapshot.yaml  # イベントソーシング API（スナップショット最適化版）
 ```
