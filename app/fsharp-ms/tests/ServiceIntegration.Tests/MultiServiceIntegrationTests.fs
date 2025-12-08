@@ -1,4 +1,4 @@
-namespace Integration.Tests
+namespace ServiceIntegration.Tests
 
 open System
 open System.Net
