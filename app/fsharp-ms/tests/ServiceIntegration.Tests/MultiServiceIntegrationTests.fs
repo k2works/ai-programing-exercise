@@ -10,6 +10,7 @@ open Testcontainers.PostgreSql
 open Testcontainers.RabbitMq
 open Xunit
 open FinancialAccounting.Infrastructure.Web.Dtos
+open ManagementAccounting.Infrastructure.Web.Dtos
 
 /// <summary>
 /// Docker ホストを設定（Windows Docker Desktop 用）
@@ -235,4 +236,73 @@ type MultiServiceIntegrationTests() =
             Assert.NotNull(journals)
             Assert.True(journals.Length >= 2, $"Expected at least 2 journals, got {journals.Length}")
             Assert.All(journals, fun j -> Assert.Equal(fiscalYear, j.FiscalYear))
+        }
+
+    [<Fact>]
+    member _.``管理会計サービスで財務分析を実行しキャッシュが生成されること``() =
+        task {
+            // Arrange - 財務会計サービスで仕訳を作成
+            let fiscalYear = 2026
+            let request = {|
+                JournalDate = DateTime(2026, 4, 1)
+                Description = "Journal for cache test"
+                FiscalYear = fiscalYear
+                Entries = [|
+                    {| AccountCode = "1110"; DebitAmount = 500000m; CreditAmount = 0m; Description = "Cash" |}
+                    {| AccountCode = "4110"; DebitAmount = 0m; CreditAmount = 500000m; Description = "Sales" |}
+                |]
+            |}
+            let! _ = financialClient.PostAsJsonAsync("/api/journals", request)
+
+            // Act - 管理会計サービスで財務分析を実行（キャッシュ使用なし）
+            let! analysisResponse = managementClient.GetAsync($"/api/financial-analysis/{fiscalYear}?useCache=false")
+
+            // Assert - 分析が成功すること
+            Assert.Equal(HttpStatusCode.OK, analysisResponse.StatusCode)
+
+            let! analysis = analysisResponse.Content.ReadFromJsonAsync<FinancialAnalysisResultResponseDto>()
+            Assert.NotNull(analysis)
+            Assert.Equal(fiscalYear, analysis.FiscalYear)
+
+            // Act - キャッシュされた結果を取得
+            let! cachedResponse = managementClient.GetAsync($"/api/financial-analysis/{fiscalYear}/cached")
+
+            // Assert - キャッシュが存在すること
+            Assert.Equal(HttpStatusCode.OK, cachedResponse.StatusCode)
+
+            let! cached = cachedResponse.Content.ReadFromJsonAsync<FinancialAnalysisResultResponseDto>()
+            Assert.NotNull(cached)
+            Assert.Equal(fiscalYear, cached.FiscalYear)
+        }
+
+    [<Fact>]
+    member _.``管理会計サービスでキャッシュを無効化できること``() =
+        task {
+            // Arrange - 財務分析を実行してキャッシュを作成
+            let fiscalYear = 2027
+            let request = {|
+                JournalDate = DateTime(2027, 4, 1)
+                Description = "Journal for cache invalidation test"
+                FiscalYear = fiscalYear
+                Entries = [|
+                    {| AccountCode = "1110"; DebitAmount = 300000m; CreditAmount = 0m; Description = "Cash" |}
+                    {| AccountCode = "4110"; DebitAmount = 0m; CreditAmount = 300000m; Description = "Sales" |}
+                |]
+            |}
+            let! _ = financialClient.PostAsJsonAsync("/api/journals", request)
+            let! _ = managementClient.GetAsync($"/api/financial-analysis/{fiscalYear}?useCache=false")
+
+            // キャッシュが存在することを確認
+            let! cachedResponse = managementClient.GetAsync($"/api/financial-analysis/{fiscalYear}/cached")
+            Assert.Equal(HttpStatusCode.OK, cachedResponse.StatusCode)
+
+            // Act - キャッシュを無効化
+            let! deleteResponse = managementClient.DeleteAsync($"/api/financial-analysis/{fiscalYear}/cache")
+
+            // Assert - キャッシュが削除されること
+            Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode)
+
+            // キャッシュが存在しないことを確認
+            let! notFoundResponse = managementClient.GetAsync($"/api/financial-analysis/{fiscalYear}/cached")
+            Assert.Equal(HttpStatusCode.NotFound, notFoundResponse.StatusCode)
         }

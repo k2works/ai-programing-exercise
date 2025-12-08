@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\FinancialAccounting.Api\FinancialAccounting.Api.fsproj" />
     <ProjectReference Include="..\..\src\ManagementAccounting.Api\ManagementAccounting.Api.fsproj" />
+    <ProjectReference Include="..\..\src\ManagementAccounting.Infrastructure\ManagementAccounting.Infrastructure.fsproj" />
     <ProjectReference Include="..\..\src\Shared.Contracts\Shared.Contracts.fsproj" />
   </ItemGroup>
 
