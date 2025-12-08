@@ -76,11 +76,12 @@ type AccountApiIntegrationTests() =
     [<Fact>]
     member _.``勘定科目を作成できる``() =
         task {
-            // Arrange
+            // Arrange - シードデータと重複しないコードを使用
+            let uniqueCode = $"TEST{DateTime.UtcNow.Ticks % 10000L}"
             let request = {|
-                AccountCode = "1110"
-                AccountName = "Cash"
-                AccountNameKana = "げんきん"
+                AccountCode = uniqueCode
+                AccountName = "Test Cash Account"
+                AccountNameKana = "テストげんきん"
                 AccountType = "Asset"
                 IsSummaryAccount = false
                 BsPlType = "B"
@@ -100,17 +101,18 @@ type AccountApiIntegrationTests() =
             let! account = response.Content.ReadFromJsonAsync<AccountResponseDto>()
             Assert.NotNull(account)
             Assert.True(account.AccountId > 0)
-            Assert.Equal("1110", account.AccountCode)
-            Assert.Equal("Cash", account.AccountName)
+            Assert.Equal(uniqueCode, account.AccountCode)
+            Assert.Equal("Test Cash Account", account.AccountName)
         }
 
     [<Fact>]
     member _.``IDで勘定科目を取得できる``() =
         task {
-            // Arrange
+            // Arrange - シードデータと重複しないコードを使用
+            let uniqueCode = $"AR{DateTime.UtcNow.Ticks % 10000L}"
             let createRequest = {|
-                AccountCode = "1120"
-                AccountName = "Accounts Receivable"
+                AccountCode = uniqueCode
+                AccountName = "Test Accounts Receivable"
                 AccountNameKana = ""
                 AccountType = "Asset"
                 IsSummaryAccount = false
@@ -130,16 +132,17 @@ type AccountApiIntegrationTests() =
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode)
             let! account = response.Content.ReadFromJsonAsync<AccountResponseDto>()
-            Assert.Equal("1120", account.AccountCode)
+            Assert.Equal(uniqueCode, account.AccountCode)
         }
 
     [<Fact>]
     member _.``勘定科目コードで勘定科目を取得できる``() =
         task {
-            // Arrange
+            // Arrange - シードデータと重複しないコードを使用
+            let uniqueCode = $"INV{DateTime.UtcNow.Ticks % 10000L}"
             let createRequest = {|
-                AccountCode = "1130"
-                AccountName = "Inventory"
+                AccountCode = uniqueCode
+                AccountName = "Test Inventory"
                 AccountNameKana = ""
                 AccountType = "Asset"
                 IsSummaryAccount = false
@@ -153,33 +156,18 @@ type AccountApiIntegrationTests() =
             let! _ = client.PostAsJsonAsync("/api/accounts", createRequest)
 
             // Act
-            let! response = client.GetAsync("/api/accounts/code/1130")
+            let! response = client.GetAsync($"/api/accounts/code/{uniqueCode}")
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode)
             let! account = response.Content.ReadFromJsonAsync<AccountResponseDto>()
-            Assert.Equal("Inventory", account.AccountName)
+            Assert.Equal("Test Inventory", account.AccountName)
         }
 
     [<Fact>]
     member _.``全ての勘定科目を取得できる``() =
         task {
-            // Arrange
-            let! _ = client.PostAsJsonAsync("/api/accounts", {|
-                AccountCode = "2110"
-                AccountName = "Accounts Payable"
-                AccountNameKana = ""
-                AccountType = "Liability"
-                IsSummaryAccount = false
-                BsPlType = "B"
-                TransactionElementType = "Credit"
-                ExpenseType = ""
-                DisplayOrder = 0
-                IsAggregationTarget = true
-                TaxCode = ""
-            |})
-
-            // Act
+            // Act - シードデータがあるので作成不要
             let! response = client.GetAsync("/api/accounts")
 
             // Assert
@@ -191,36 +179,23 @@ type AccountApiIntegrationTests() =
     [<Fact>]
     member _.``勘定科目種別で勘定科目を取得できる``() =
         task {
-            // Arrange
-            let! _ = client.PostAsJsonAsync("/api/accounts", {|
-                AccountCode = "4110"
-                AccountName = "Sales Revenue"
-                AccountNameKana = ""
-                AccountType = "Revenue"
-                IsSummaryAccount = false
-                BsPlType = "P"
-                TransactionElementType = "Credit"
-                ExpenseType = ""
-                DisplayOrder = 0
-                IsAggregationTarget = true
-                TaxCode = ""
-            |})
-
-            // Act
+            // Act - シードデータに「Revenue」科目があるのでそれを取得
             let! response = client.GetAsync("/api/accounts/type/Revenue")
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode)
             let! accounts = response.Content.ReadFromJsonAsync<AccountResponseDto[]>()
+            Assert.NotEmpty(accounts)
             Assert.All(accounts, fun a -> Assert.Equal("Revenue", a.AccountType))
         }
 
     [<Fact>]
     member _.``勘定科目を更新できる``() =
         task {
-            // Arrange
+            // Arrange - シードデータと重複しないコードを使用
+            let uniqueCode = $"UPD{DateTime.UtcNow.Ticks % 10000L}"
             let createRequest = {|
-                AccountCode = "1140"
+                AccountCode = uniqueCode
                 AccountName = "Before Update"
                 AccountNameKana = ""
                 AccountType = "Asset"
@@ -237,7 +212,7 @@ type AccountApiIntegrationTests() =
 
             let updateRequest = {|
                 AccountName = "After Update"
-                AccountNameKana = "updated"
+                AccountNameKana = "アップデート"
                 IsSummaryAccount = true
                 ExpenseType = ""
                 DisplayOrder = 100
@@ -258,9 +233,10 @@ type AccountApiIntegrationTests() =
     [<Fact>]
     member _.``勘定科目を削除できる``() =
         task {
-            // Arrange
+            // Arrange - シードデータと重複しないコードを使用
+            let uniqueCode = $"DEL{DateTime.UtcNow.Ticks % 10000L}"
             let createRequest = {|
-                AccountCode = "1150"
+                AccountCode = uniqueCode
                 AccountName = "To Delete"
                 AccountNameKana = ""
                 AccountType = "Asset"

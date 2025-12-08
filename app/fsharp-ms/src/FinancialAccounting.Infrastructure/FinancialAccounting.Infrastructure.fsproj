@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <Compile Include="Persistence\Migrations\V001_CreateJournalTables.fs" />
+    <Compile Include="Persistence\Migrations\V002_SeedFinancialAccountingData.fs" />
     <Compile Include="Persistence\Repositories\JournalRepository.fs" />
     <Compile Include="Persistence\Repositories\AccountRepository.fs" />
     <Compile Include="Messaging\JournalEventPublisher.fs" />
