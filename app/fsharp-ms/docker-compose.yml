@@ -113,6 +113,26 @@ services:
     networks:
       - fsharp-accounting-network
 
+  # ===========================================
+  # API Gateway
+  # ===========================================
+  api-gateway:
+    build:
+      context: .
+      dockerfile: src/ApiGateway/Dockerfile
+    container_name: fsharp-api-gateway
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+    ports:
+      - "5000:8080"
+    depends_on:
+      financial-accounting-service:
+        condition: service_started
+      management-accounting-service:
+        condition: service_started
+    networks:
+      - fsharp-accounting-network
+
 # ===========================================
 # ボリューム
 # ===========================================

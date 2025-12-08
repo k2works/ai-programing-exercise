@@ -1,0 +1,43 @@
+{
+  "Routes": [
+    {
+      "DownstreamPathTemplate": "/api/accounts/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "financial-accounting-service",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/api/accounts/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/journals/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "financial-accounting-service",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/api/journals/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/financial-analysis/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "management-accounting-service",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/api/financial-analysis/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post" ]
+    }
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "http://api-gateway:8080"
+  }
+}
