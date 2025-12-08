@@ -9,6 +9,7 @@ open Microsoft.AspNetCore.Mvc.Testing
 open Testcontainers.PostgreSql
 open Testcontainers.RabbitMq
 open Xunit
+open FinancialAccounting.Infrastructure.Web.Dtos
 
 /// <summary>
 /// Docker ホストを設定（Windows Docker Desktop 用）
@@ -20,35 +21,6 @@ module DockerHostConfig =
             | null | "" -> "npipe://./pipe/docker_engine"
             | host -> host
         Environment.SetEnvironmentVariable("DOCKER_HOST", dockerHost)
-
-/// <summary>
-/// 仕訳レスポンス DTO
-/// </summary>
-[<CLIMutable>]
-type JournalResponseDto = {
-    JournalId: int
-    JournalDate: DateTime
-    Description: string
-    FiscalYear: int
-    Entries: JournalEntryResponseDto[]
-}
-and [<CLIMutable>] JournalEntryResponseDto = {
-    AccountCode: string
-    DebitAmount: decimal
-    CreditAmount: decimal
-    Description: string
-}
-
-/// <summary>
-/// 財務分析レスポンス DTO
-/// </summary>
-[<CLIMutable>]
-type FinancialAnalysisResponseDto = {
-    FiscalYear: int
-    TotalRevenue: decimal
-    TotalExpense: decimal
-    NetProfit: decimal
-}
 
 /// <summary>
 /// TestContainers によるマルチサービスインテグレーションテスト
