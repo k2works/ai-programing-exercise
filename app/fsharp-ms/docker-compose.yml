@@ -73,12 +73,53 @@ services:
     networks:
       - fsharp-accounting-network
 
+  # 管理会計サービス用 PostgreSQL
+  management-db:
+    image: postgres:16-alpine
+    container_name: fsharp-management-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: management_accounting
+    ports:
+      - "5435:5432"
+    volumes:
+      - fsharp-management-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - fsharp-accounting-network
+
+  # 管理会計サービス
+  management-accounting-service:
+    build:
+      context: .
+      dockerfile: src/ManagementAccounting.Api/Dockerfile
+    container_name: fsharp-management-accounting-service
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__ManagementAccounting: "Host=management-db;Database=management_accounting;Username=postgres;Password=postgres"
+      FinancialAccountingService__BaseUrl: "http://financial-accounting-service:8080"
+    ports:
+      - "5004:8080"
+    depends_on:
+      management-db:
+        condition: service_healthy
+      financial-accounting-service:
+        condition: service_started
+    networks:
+      - fsharp-accounting-network
+
 # ===========================================
 # ボリューム
 # ===========================================
 volumes:
   fsharp-financial-db-data:
   fsharp-rabbitmq-data:
+  fsharp-management-db-data:
 
 # ===========================================
 # ネットワーク
