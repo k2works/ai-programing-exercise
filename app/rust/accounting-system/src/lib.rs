@@ -280,4 +280,35 @@ mod tests {
         let row = result.unwrap();
         assert_eq!(row.get::<String, _>("貸借区分"), "D");
     }
+
+    #[tokio::test]
+    async fn test_aggregation_type_field() {
+        let db = TestDatabase::new().await;
+
+        // 集計区分を設定して勘定科目を挿入
+        let result = sqlx::query(
+            r#"
+            INSERT INTO "勘定科目マスタ"
+            ("勘定科目コード", "勘定科目名", "勘定科目種別", "BSPL区分", "貸借区分", "集計区分", "残高")
+            VALUES ($1, $2, $3::account_type, $4, $5, $6, $7)
+            RETURNING "勘定科目コード", "集計区分"
+            "#
+        )
+        .bind("1000")
+        .bind("現金")
+        .bind("資産")
+        .bind("B")
+        .bind("D")
+        .bind("D")  // 明細科目
+        .bind(Decimal::from_str("0").unwrap())
+        .fetch_one(&db.pool)
+        .await;
+
+        if let Err(e) = &result {
+            eprintln!("Error: {:?}", e);
+        }
+        assert!(result.is_ok());
+        let row = result.unwrap();
+        assert_eq!(row.get::<String, _>("集計区分"), "D");
+    }
 }
