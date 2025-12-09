@@ -1,0 +1,75 @@
+# Justfile for Rust Accounting System
+
+# デフォルトレシピ（just コマンドのみで実行）
+default:
+    @just --list
+
+# テスト実行
+test:
+    cargo test
+
+# テスト実行（詳細表示）
+test-verbose:
+    cargo test -- --nocapture
+
+# ビルド
+build:
+    cargo build
+
+# リリースビルド
+build-release:
+    cargo build --release
+
+# フォーマットチェック
+fmt-check:
+    cargo fmt -- --check
+
+# フォーマット適用
+fmt:
+    cargo fmt
+
+# リンターチェック
+lint:
+    cargo clippy -- -D warnings
+
+# 開発用データベース起動
+db-up:
+    docker compose up -d
+
+# データベース停止
+db-down:
+    docker compose down
+
+# データベースリセット（データ削除）
+db-reset:
+    docker compose down -v
+    docker compose up -d
+
+# マイグレーション実行
+migrate:
+    sqlx migrate run
+
+# マイグレーション作成
+migrate-create name:
+    sqlx migrate add {{name}}
+
+# 開発サーバー起動（ウォッチモード）
+dev:
+    cargo watch -x run
+
+# テストウォッチモード
+test-watch:
+    cargo watch -x test
+
+# クリーンビルド
+clean:
+    cargo clean
+
+# すべてのチェックを実行（CI用）
+ci: fmt-check lint test
+
+# 開発環境セットアップ
+setup:
+    docker compose up -d
+    sqlx migrate run
+    cargo test
