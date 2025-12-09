@@ -311,4 +311,55 @@ mod tests {
         let row = result.unwrap();
         assert_eq!(row.get::<String, _>("集計区分"), "D");
     }
+
+    // 制約テスト
+    #[tokio::test]
+    async fn test_bspl_constraint_invalid_value() {
+        let db = TestDatabase::new().await;
+
+        // 不正な BSPL区分値を挿入しようとする
+        let result = sqlx::query(
+            r#"
+            INSERT INTO "勘定科目マスタ" ("勘定科目コード", "勘定科目名", "勘定科目種別", "BSPL区分", "残高")
+            VALUES ($1, $2, $3::account_type, $4, $5)
+            "#
+        )
+        .bind("1000")
+        .bind("現金")
+        .bind("資産")
+        .bind("X")  // 不正な値
+        .bind(Decimal::from_str("0").unwrap())
+        .execute(&db.pool)
+        .await;
+
+        // CHECK制約違反でエラーになることを期待
+        assert!(result.is_err());
+        let err_msg = result.unwrap_err().to_string();
+        assert!(err_msg.contains("check_bspl_distinction") || err_msg.contains("check constraint"));
+    }
+
+    #[tokio::test]
+    async fn test_bspl_consistency_constraint() {
+        let db = TestDatabase::new().await;
+
+        // 資産科目にPL区分を設定しようとする（不整合）
+        let result = sqlx::query(
+            r#"
+            INSERT INTO "勘定科目マスタ" ("勘定科目コード", "勘定科目名", "勘定科目種別", "BSPL区分", "残高")
+            VALUES ($1, $2, $3::account_type, $4, $5)
+            "#
+        )
+        .bind("1000")
+        .bind("現金")
+        .bind("資産")
+        .bind("P")  // 資産科目なのにPL区分（不整合）
+        .bind(Decimal::from_str("0").unwrap())
+        .execute(&db.pool)
+        .await;
+
+        // CHECK制約違反でエラーになることを期待
+        assert!(result.is_err());
+        let err_msg = result.unwrap_err().to_string();
+        assert!(err_msg.contains("check_bspl_consistency") || err_msg.contains("check constraint"));
+    }
 }
