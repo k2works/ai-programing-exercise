@@ -221,4 +221,33 @@ mod tests {
 
         row.get::<i32, _>("勘定科目ID")
     }
+
+    // リファクタリングテスト
+    #[tokio::test]
+    async fn test_bspl_type_field() {
+        let db = TestDatabase::new().await;
+
+        // BSPL区分を設定して勘定科目を挿入
+        let result = sqlx::query(
+            r#"
+            INSERT INTO "勘定科目マスタ" ("勘定科目コード", "勘定科目名", "勘定科目種別", "BSPL区分", "残高")
+            VALUES ($1, $2, $3::account_type, $4, $5)
+            RETURNING "勘定科目コード", "BSPL区分"
+            "#
+        )
+        .bind("1000")
+        .bind("現金")
+        .bind("資産")
+        .bind("B")  // 貸借対照表
+        .bind(Decimal::from_str("0").unwrap())
+        .fetch_one(&db.pool)
+        .await;
+
+        if let Err(e) = &result {
+            eprintln!("Error: {:?}", e);
+        }
+        assert!(result.is_ok());
+        let row = result.unwrap();
+        assert_eq!(row.get::<String, _>("BSPL区分"), "B");
+    }
 }
