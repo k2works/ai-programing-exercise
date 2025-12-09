@@ -1,6 +1,5 @@
 use crate::common::TestDatabase;
 use chrono::NaiveDate;
-use rust_decimal_macros::dec;
 
 /// テスト用勘定科目を登録するヘルパー関数
 async fn insert_test_accounts(db: &TestDatabase) {
