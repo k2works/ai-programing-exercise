@@ -1,5 +1,5 @@
 [package]
-name = "financial-accounting-system"
+name = "accounting-system"
 version = "0.1.0"
 edition = "2021"
 

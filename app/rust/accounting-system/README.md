@@ -1,6 +1,6 @@
-# 財務会計システム - Rust + SQLx + Testcontainers
+# 会計システム - Rust + SQLx + Testcontainers
 
-TDD でデータベース設計を進める財務会計システムの実装プロジェクトです。
+TDD でデータベース設計を進める会計システムの実装プロジェクトです。
 
 ## 技術スタック
 
@@ -97,7 +97,7 @@ docker-compose exec postgres psql -U postgres -d financial_accounting
 ## プロジェクト構成
 
 ```
-financial-accounting-system/
+accounting-system/
 ├── Cargo.toml              # プロジェクト設定と依存関係
 ├── .env                    # 環境変数（データベース接続情報）
 ├── .env.example            # 環境変数のサンプル
