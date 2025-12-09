@@ -362,4 +362,96 @@ mod tests {
         let err_msg = result.unwrap_err().to_string();
         assert!(err_msg.contains("check_bspl_consistency") || err_msg.contains("check constraint"));
     }
+
+    // 課税取引コードテスト
+    #[tokio::test]
+    async fn test_add_tax_code_to_account() {
+        let db = TestDatabase::new().await;
+
+        // 課税取引コード付きの勘定科目を挿入
+        let result = sqlx::query(
+            r#"
+            INSERT INTO "勘定科目マスタ"
+            ("勘定科目コード", "勘定科目名", "勘定科目種別", "課税取引コード", "残高")
+            VALUES ($1, $2, $3::account_type, $4, $5)
+            RETURNING "勘定科目コード", "課税取引コード"
+            "#
+        )
+        .bind("5000")
+        .bind("売上高")
+        .bind("収益")
+        .bind("01")  // 課税取引コード（課税売上）
+        .bind(Decimal::from_str("0").unwrap())
+        .fetch_one(&db.pool)
+        .await;
+
+        assert!(result.is_ok());
+        let row = result.unwrap();
+        assert_eq!(row.get::<String, _>("勘定科目コード"), "5000");
+        assert_eq!(row.get::<Option<String>, _>("課税取引コード"), Some("01".to_string()));
+    }
+
+    #[tokio::test]
+    async fn test_account_without_tax_code() {
+        let db = TestDatabase::new().await;
+
+        // 課税取引コードなしの勘定科目を挿入（固定資産など）
+        let result = sqlx::query(
+            r#"
+            INSERT INTO "勘定科目マスタ"
+            ("勘定科目コード", "勘定科目名", "勘定科目種別", "残高")
+            VALUES ($1, $2, $3::account_type, $4)
+            RETURNING "勘定科目コード", "課税取引コード"
+            "#
+        )
+        .bind("1500")
+        .bind("建物")
+        .bind("資産")
+        .bind(Decimal::from_str("0").unwrap())
+        .fetch_one(&db.pool)
+        .await;
+
+        assert!(result.is_ok());
+        let row = result.unwrap();
+        assert_eq!(row.get::<String, _>("勘定科目コード"), "1500");
+        assert_eq!(row.get::<Option<String>, _>("課税取引コード"), None);
+    }
+
+    #[tokio::test]
+    async fn test_query_accounts_by_tax_code() {
+        let db = TestDatabase::new().await;
+
+        // 複数の勘定科目を挿入
+        sqlx::query(
+            r#"
+            INSERT INTO "勘定科目マスタ" ("勘定科目コード", "勘定科目名", "勘定科目種別", "課税取引コード", "残高")
+            VALUES
+                ('5000', '売上高', '収益'::account_type, '01', 0),
+                ('5100', 'サービス売上', '収益'::account_type, '01', 0),
+                ('5200', '輸出売上', '収益'::account_type, '02', 0),
+                ('5300', '非課税売上', '収益'::account_type, NULL, 0)
+            "#
+        )
+        .execute(&db.pool)
+        .await
+        .expect("Failed to insert test data");
+
+        // 課税取引コード '01' の勘定科目を検索
+        let rows = sqlx::query(
+            r#"
+            SELECT "勘定科目コード", "勘定科目名", "課税取引コード"
+            FROM "勘定科目マスタ"
+            WHERE "課税取引コード" = $1
+            ORDER BY "勘定科目コード"
+            "#
+        )
+        .bind("01")
+        .fetch_all(&db.pool)
+        .await
+        .expect("Failed to query accounts");
+
+        assert_eq!(rows.len(), 2);
+        assert_eq!(rows[0].get::<String, _>("勘定科目コード"), "5000");
+        assert_eq!(rows[1].get::<String, _>("勘定科目コード"), "5100");
+    }
 }
