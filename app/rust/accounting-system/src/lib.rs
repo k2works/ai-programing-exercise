@@ -531,4 +531,94 @@ mod tests {
         assert_eq!(rows[1].get::<String, _>("勘定科目コード"), "11190");
         assert_eq!(rows[2].get::<String, _>("勘定科目コード"), "11110");
     }
+
+    // 課税取引マスタテスト
+    #[tokio::test]
+    async fn test_tax_transaction_initial_data() {
+        let db = TestDatabase::new().await;
+
+        // 初期データが投入されているか確認
+        let rows = sqlx::query(
+            r#"
+            SELECT "課税取引コード", "課税取引名", "税率"
+            FROM "課税取引マスタ"
+            ORDER BY "課税取引コード"
+            "#
+        )
+        .fetch_all(&db.pool)
+        .await
+        .expect("Failed to query tax transactions");
+
+        assert_eq!(rows.len(), 4);
+        assert_eq!(rows[0].get::<String, _>("課税取引コード"), "01");
+        assert_eq!(rows[0].get::<String, _>("課税取引名"), "課税");
+        assert_eq!(rows[0].get::<Decimal, _>("税率"), Decimal::from_str("0.10").unwrap());
+    }
+
+    #[tokio::test]
+    async fn test_tax_rate_constraint() {
+        let db = TestDatabase::new().await;
+
+        // 不正な税率を挿入しようとする（1を超える）
+        let result = sqlx::query(
+            r#"
+            INSERT INTO "課税取引マスタ" ("課税取引コード", "課税取引名", "税率")
+            VALUES ($1, $2, $3)
+            "#
+        )
+        .bind("99")
+        .bind("無効税率")
+        .bind(Decimal::from_str("1.5").unwrap())
+        .execute(&db.pool)
+        .await;
+
+        // CHECK制約違反でエラーになることを期待
+        assert!(result.is_err());
+        let err_msg = result.unwrap_err().to_string();
+        assert!(err_msg.contains("check_tax_rate") || err_msg.contains("check constraint"));
+    }
+
+    #[tokio::test]
+    async fn test_account_tax_code_foreign_key() {
+        let db = TestDatabase::new().await;
+
+        // 課税取引コード付きの勘定科目を挿入（外部キー制約があるので参照整合性チェック）
+        let result = sqlx::query(
+            r#"
+            INSERT INTO "勘定科目マスタ"
+            ("勘定科目コード", "勘定科目名", "勘定科目種別", "課税取引コード", "残高")
+            VALUES ($1, $2, $3::account_type, $4, $5)
+            "#
+        )
+        .bind("5000")
+        .bind("売上高")
+        .bind("収益")
+        .bind("01")  // 存在する課税取引コード
+        .bind(Decimal::from_str("0").unwrap())
+        .execute(&db.pool)
+        .await;
+
+        assert!(result.is_ok());
+
+        // 存在しない課税取引コードで挿入を試みる
+        let invalid_result = sqlx::query(
+            r#"
+            INSERT INTO "勘定科目マスタ"
+            ("勘定科目コード", "勘定科目名", "勘定科目種別", "課税取引コード", "残高")
+            VALUES ($1, $2, $3::account_type, $4, $5)
+            "#
+        )
+        .bind("5100")
+        .bind("その他売上")
+        .bind("収益")
+        .bind("99")  // 存在しない課税取引コード
+        .bind(Decimal::from_str("0").unwrap())
+        .execute(&db.pool)
+        .await;
+
+        // 外部キー制約違反でエラーになることを期待
+        assert!(invalid_result.is_err());
+        let err_msg = invalid_result.unwrap_err().to_string();
+        assert!(err_msg.contains("foreign key") || err_msg.contains("fk_account_tax_code"));
+    }
 }
