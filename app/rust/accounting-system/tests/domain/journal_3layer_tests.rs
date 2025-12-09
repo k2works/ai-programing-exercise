@@ -32,7 +32,9 @@ async fn test_journal_3layer_simple_entry() {
     let journal_date = NaiveDate::from_ymd_opt(2025, 1, 1).unwrap();
     let input_date = NaiveDate::from_ymd_opt(2025, 1, 1).unwrap();
 
-    // When: 仕訳を登録
+    // When: 仕訳を登録（トランザクション内で実行）
+    let mut tx = db.pool.begin().await.unwrap();
+
     // 1. 仕訳ヘッダー
     sqlx::query(
         r#"
@@ -45,7 +47,7 @@ async fn test_journal_3layer_simple_entry() {
     .bind(journal_no)
     .bind(journal_date)
     .bind(input_date)
-    .execute(&db.pool)
+    .execute(&mut *tx)
     .await
     .unwrap();
 
@@ -58,7 +60,7 @@ async fn test_journal_3layer_simple_entry() {
         "#,
     )
     .bind(journal_no)
-    .execute(&db.pool)
+    .execute(&mut *tx)
     .await
     .unwrap();
 
@@ -73,7 +75,7 @@ async fn test_journal_3layer_simple_entry() {
         "#,
     )
     .bind(journal_no)
-    .execute(&db.pool)
+    .execute(&mut *tx)
     .await
     .unwrap();
 
@@ -87,9 +89,11 @@ async fn test_journal_3layer_simple_entry() {
         "#,
     )
     .bind(journal_no)
-    .execute(&db.pool)
+    .execute(&mut *tx)
     .await
     .unwrap();
+
+    tx.commit().await.unwrap();
 
     // Then: データが正しく登録されていることを確認
     // 1. 仕訳が登録されている
@@ -152,7 +156,9 @@ async fn test_journal_3layer_compound_entry() {
     let journal_no = "JE-20250102-001";
     let journal_date = NaiveDate::from_ymd_opt(2025, 1, 2).unwrap();
 
-    // When: 仕訳を登録
+    // When: 仕訳を登録（トランザクション内で実行）
+    let mut tx = db.pool.begin().await.unwrap();
+
     // 1. 仕訳ヘッダー（単振フラグ = 0: 複合仕訳）
     sqlx::query(
         r#"
@@ -164,7 +170,7 @@ async fn test_journal_3layer_compound_entry() {
     )
     .bind(journal_no)
     .bind(journal_date)
-    .execute(&db.pool)
+    .execute(&mut *tx)
     .await
     .unwrap();
 
@@ -177,7 +183,7 @@ async fn test_journal_3layer_compound_entry() {
         "#,
     )
     .bind(journal_no)
-    .execute(&db.pool)
+    .execute(&mut *tx)
     .await
     .unwrap();
 
@@ -189,7 +195,7 @@ async fn test_journal_3layer_compound_entry() {
         "#,
     )
     .bind(journal_no)
-    .execute(&db.pool)
+    .execute(&mut *tx)
     .await
     .unwrap();
 
@@ -205,7 +211,7 @@ async fn test_journal_3layer_compound_entry() {
         "#,
     )
     .bind(journal_no)
-    .execute(&db.pool)
+    .execute(&mut *tx)
     .await
     .unwrap();
 
@@ -220,7 +226,7 @@ async fn test_journal_3layer_compound_entry() {
         "#,
     )
     .bind(journal_no)
-    .execute(&db.pool)
+    .execute(&mut *tx)
     .await
     .unwrap();
 
@@ -235,7 +241,7 @@ async fn test_journal_3layer_compound_entry() {
         "#,
     )
     .bind(journal_no)
-    .execute(&db.pool)
+    .execute(&mut *tx)
     .await
     .unwrap();
 
@@ -250,9 +256,11 @@ async fn test_journal_3layer_compound_entry() {
         "#,
     )
     .bind(journal_no)
-    .execute(&db.pool)
+    .execute(&mut *tx)
     .await
     .unwrap();
+
+    tx.commit().await.unwrap();
 
     // Then: データが正しく登録されていることを確認
     // 1. 仕訳明細が2件登録されている
@@ -314,6 +322,9 @@ async fn test_journal_cascade_delete() {
     let journal_no = "JE-20250103-001";
     let journal_date = NaiveDate::from_ymd_opt(2025, 1, 3).unwrap();
 
+    // トランザクション内で仕訳を登録
+    let mut tx = db.pool.begin().await.unwrap();
+
     sqlx::query(
         r#"
         INSERT INTO "仕訳" (
@@ -324,7 +335,7 @@ async fn test_journal_cascade_delete() {
     )
     .bind(journal_no)
     .bind(journal_date)
-    .execute(&db.pool)
+    .execute(&mut *tx)
     .await
     .unwrap();
 
@@ -336,23 +347,41 @@ async fn test_journal_cascade_delete() {
         "#,
     )
     .bind(journal_no)
-    .execute(&db.pool)
+    .execute(&mut *tx)
     .await
     .unwrap();
 
+    // 借方
     sqlx::query(
         r#"
         INSERT INTO "仕訳貸借明細" (
             "仕訳伝票番号", "仕訳行番号", "仕訳行貸借区分",
             "通貨コード", "為替レート", "勘定科目コード",
             "仕訳金額", "基軸換算仕訳金額", "資金繰フラグ"
-        ) VALUES ($1, 1, 'D', 'JPY', 1.0000, '1010', 10000.00, 10000.00, 0)
+        ) VALUES ($1, 1, 'D', 'JPY', 1.0000, '5110', 10000.00, 10000.00, 0)
         "#,
     )
     .bind(journal_no)
-    .execute(&db.pool)
+    .execute(&mut *tx)
     .await
     .unwrap();
+
+    // 貸方（借方と一致させる）
+    sqlx::query(
+        r#"
+        INSERT INTO "仕訳貸借明細" (
+            "仕訳伝票番号", "仕訳行番号", "仕訳行貸借区分",
+            "通貨コード", "為替レート", "勘定科目コード",
+            "仕訳金額", "基軸換算仕訳金額", "資金繰フラグ"
+        ) VALUES ($1, 1, 'C', 'JPY', 1.0000, '1010', 10000.00, 10000.00, 0)
+        "#,
+    )
+    .bind(journal_no)
+    .execute(&mut *tx)
+    .await
+    .unwrap();
+
+    tx.commit().await.unwrap();
 
     // When: 仕訳を削除
     sqlx::query(r#"DELETE FROM "仕訳" WHERE "仕訳伝票番号" = $1"#)

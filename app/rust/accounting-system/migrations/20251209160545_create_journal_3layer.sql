@@ -1,7 +1,3 @@
--- 古い2層構造のテーブルを削除（2.1節で作成したテーブル）
-DROP TABLE IF EXISTS "仕訳明細" CASCADE;
-DROP TABLE IF EXISTS "仕訳エントリ" CASCADE;
-
 -- 1. 仕訳テーブル（ヘッダー）
 CREATE TABLE "仕訳" (
     "仕訳伝票番号" VARCHAR(20) PRIMARY KEY,
