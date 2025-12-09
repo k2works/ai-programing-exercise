@@ -1,0 +1,37 @@
+[package]
+name = "financial-accounting-system"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# データベース接続とクエリ実行
+sqlx = { version = "0.7", features = ["runtime-tokio-native-tls", "postgres", "uuid", "chrono", "migrate", "rust_decimal"] }
+# 非同期ランタイム
+tokio = { version = "1", features = ["full"] }
+# 日付と時刻
+chrono = { version = "0.4", features = ["serde"] }
+# UUID生成
+uuid = { version = "1.0", features = ["v4", "serde"] }
+# 10進数（金額計算用）
+rust_decimal = { version = "1.33", features = ["serde"] }
+# エラーハンドリング
+anyhow = "1.0"
+thiserror = "1.0"
+# 環境変数
+dotenv = "0.15"
+# シリアライズ
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[dev-dependencies]
+# テストフレームワーク（Rust標準）
+testcontainers = "0.15"
+testcontainers-modules = { version = "0.3", features = ["postgres"] }
+
+[profile.dev]
+opt-level = 0
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
