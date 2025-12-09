@@ -454,4 +454,81 @@ mod tests {
         assert_eq!(rows[0].get::<String, _>("勘定科目コード"), "5000");
         assert_eq!(rows[1].get::<String, _>("勘定科目コード"), "5100");
     }
+
+    // 勘定科目構成マスタテスト
+    #[tokio::test]
+    async fn test_create_account_structure() {
+        let db = TestDatabase::new().await;
+
+        // まず勘定科目を登録
+        insert_account(&db.pool, "11", "資産の部", "資産", "0").await;
+
+        // 勘定科目構成を登録
+        let result = sqlx::query(
+            r#"
+            INSERT INTO "勘定科目構成マスタ"
+            ("勘定科目コード", "勘定科目パス", "階層レベル", "親科目コード", "表示順序")
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING "勘定科目コード", "勘定科目パス", "階層レベル"
+            "#
+        )
+        .bind("11")
+        .bind("11")
+        .bind(1)
+        .bind(None::<String>)
+        .bind(0)
+        .fetch_one(&db.pool)
+        .await;
+
+        assert!(result.is_ok());
+        let row = result.unwrap();
+        assert_eq!(row.get::<String, _>("勘定科目コード"), "11");
+        assert_eq!(row.get::<String, _>("勘定科目パス"), "11");
+        assert_eq!(row.get::<i32, _>("階層レベル"), 1);
+    }
+
+    #[tokio::test]
+    async fn test_create_hierarchical_accounts() {
+        let db = TestDatabase::new().await;
+
+        // 階層構造の勘定科目を登録
+        insert_account(&db.pool, "11", "資産の部", "資産", "0").await;
+        insert_account(&db.pool, "11000", "流動資産", "資産", "0").await;
+        insert_account(&db.pool, "11190", "現金及び預金", "資産", "0").await;
+        insert_account(&db.pool, "11110", "現金", "資産", "50000").await;
+
+        // 勘定科目構成を登録
+        sqlx::query(
+            r#"
+            INSERT INTO "勘定科目構成マスタ"
+            ("勘定科目コード", "勘定科目パス", "階層レベル", "親科目コード", "表示順序")
+            VALUES
+                ('11', '11', 1, NULL, 0),
+                ('11000', '11~11000', 2, '11', 1),
+                ('11190', '11~11000~11190', 3, '11000', 1),
+                ('11110', '11~11000~11190~11110', 4, '11190', 1)
+            "#
+        )
+        .execute(&db.pool)
+        .await
+        .expect("Failed to insert account structures");
+
+        // 特定パスで検索
+        let rows = sqlx::query(
+            r#"
+            SELECT "勘定科目コード", "勘定科目パス", "階層レベル"
+            FROM "勘定科目構成マスタ"
+            WHERE "勘定科目パス" LIKE '11~11000%'
+            ORDER BY "勘定科目パス"
+            "#
+        )
+        .fetch_all(&db.pool)
+        .await
+        .expect("Failed to query");
+
+        assert_eq!(rows.len(), 3); // 11000, 11190, 11110
+        assert_eq!(rows[0].get::<String, _>("勘定科目コード"), "11000");
+        assert_eq!(rows[1].get::<String, _>("勘定科目コード"), "11190");
+        assert_eq!(rows[2].get::<String, _>("勘定科目コード"), "11110");
+    }
 }
