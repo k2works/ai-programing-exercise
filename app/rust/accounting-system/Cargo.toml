@@ -27,6 +27,7 @@ serde_json = "1.0"
 # テストフレームワーク（Rust標準）
 testcontainers = "0.15"
 testcontainers-modules = { version = "0.3", features = ["postgres"] }
+rust_decimal_macros = "1.33"
 
 [profile.dev]
 opt-level = 0
