@@ -11,12 +11,12 @@ pub async fn create_pool(database_url: &str) -> Result<PgPool, sqlx::Error> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use sqlx::Row;
     use rust_decimal::Decimal;
+    use sqlx::Row;
     use std::str::FromStr;
     use testcontainers::clients;
-    use testcontainers_modules::postgres::Postgres;
     use testcontainers::Container;
+    use testcontainers_modules::postgres::Postgres;
 
     /// テスト用データベースヘルパー
     pub struct TestDatabase {
@@ -34,10 +34,8 @@ mod tests {
             let port = postgres.get_host_port_ipv4(5432);
 
             // データベース接続URLを構築
-            let database_url = format!(
-                "postgresql://postgres:postgres@localhost:{}/postgres",
-                port
-            );
+            let database_url =
+                format!("postgresql://postgres:postgres@localhost:{}/postgres", port);
 
             // データベース接続プールを作成
             let pool = PgPool::connect(&database_url)
@@ -81,7 +79,7 @@ mod tests {
             INSERT INTO "勘定科目マスタ" ("勘定科目コード", "勘定科目名", "勘定科目種別", "残高")
             VALUES ($1, $2, $3::account_type, $4)
             RETURNING "勘定科目ID", "勘定科目コード", "勘定科目名", "勘定科目種別"::TEXT, "残高"
-            "#
+            "#,
         )
         .bind("1000")
         .bind("現金")
@@ -117,7 +115,7 @@ mod tests {
             SELECT "勘定科目コード", "勘定科目名", "勘定科目種別", "残高"
             FROM "勘定科目マスタ"
             ORDER BY "勘定科目コード"
-            "#
+            "#,
         )
         .fetch_all(&db.pool)
         .await
@@ -143,7 +141,7 @@ mod tests {
             SELECT "勘定科目コード", "勘定科目名", "勘定科目種別"::TEXT
             FROM "勘定科目マスタ"
             WHERE "勘定科目コード" = $1
-            "#
+            "#,
         )
         .bind("1000")
         .fetch_one(&db.pool)
@@ -168,7 +166,7 @@ mod tests {
             UPDATE "勘定科目マスタ"
             SET "勘定科目名" = $1, "残高" = $2, "更新日時" = CURRENT_TIMESTAMP
             WHERE "勘定科目ID" = $3
-            "#
+            "#,
         )
         .bind("現金及び預金")
         .bind(Decimal::from_str("75000.00").unwrap())
@@ -185,7 +183,7 @@ mod tests {
             SELECT "勘定科目名", "残高"
             FROM "勘定科目マスタ"
             WHERE "勘定科目ID" = $1
-            "#
+            "#,
         )
         .bind(account_id)
         .fetch_one(&db.pool)
@@ -212,7 +210,7 @@ mod tests {
             INSERT INTO "勘定科目マスタ" ("勘定科目コード", "勘定科目名", "勘定科目種別", "残高")
             VALUES ($1, $2, $3::account_type, $4)
             RETURNING "勘定科目ID"
-            "#
+            "#,
         )
         .bind(code)
         .bind(name)
@@ -265,13 +263,13 @@ mod tests {
             ("勘定科目コード", "勘定科目名", "勘定科目種別", "BSPL区分", "貸借区分", "残高")
             VALUES ($1, $2, $3::account_type, $4, $5, $6)
             RETURNING "勘定科目コード", "貸借区分"
-            "#
+            "#,
         )
         .bind("1000")
         .bind("現金")
         .bind("資産")
         .bind("B")
-        .bind("D")  // 借方
+        .bind("D") // 借方
         .bind(Decimal::from_str("0").unwrap())
         .fetch_one(&db.pool)
         .await;
@@ -378,12 +376,12 @@ mod tests {
             ("勘定科目コード", "勘定科目名", "勘定科目種別", "課税取引コード", "残高")
             VALUES ($1, $2, $3::account_type, $4, $5)
             RETURNING "勘定科目コード", "課税取引コード"
-            "#
+            "#,
         )
         .bind("5000")
         .bind("売上高")
         .bind("収益")
-        .bind("01")  // 課税取引コード（課税売上）
+        .bind("01") // 課税取引コード（課税売上）
         .bind(Decimal::from_str("0").unwrap())
         .fetch_one(&db.pool)
         .await;
@@ -391,7 +389,10 @@ mod tests {
         assert!(result.is_ok());
         let row = result.unwrap();
         assert_eq!(row.get::<String, _>("勘定科目コード"), "5000");
-        assert_eq!(row.get::<Option<String>, _>("課税取引コード"), Some("01".to_string()));
+        assert_eq!(
+            row.get::<Option<String>, _>("課税取引コード"),
+            Some("01".to_string())
+        );
     }
 
     #[tokio::test]
@@ -405,7 +406,7 @@ mod tests {
             ("勘定科目コード", "勘定科目名", "勘定科目種別", "残高")
             VALUES ($1, $2, $3::account_type, $4)
             RETURNING "勘定科目コード", "課税取引コード"
-            "#
+            "#,
         )
         .bind("1500")
         .bind("建物")
@@ -446,7 +447,7 @@ mod tests {
             FROM "勘定科目マスタ"
             WHERE "課税取引コード" = $1
             ORDER BY "勘定科目コード"
-            "#
+            "#,
         )
         .bind("01")
         .fetch_all(&db.pool)
@@ -473,7 +474,7 @@ mod tests {
             ("勘定科目コード", "勘定科目パス", "階層レベル", "親科目コード", "表示順序")
             VALUES ($1, $2, $3, $4, $5)
             RETURNING "勘定科目コード", "勘定科目パス", "階層レベル"
-            "#
+            "#,
         )
         .bind("11")
         .bind("11")
@@ -510,7 +511,7 @@ mod tests {
                 ('11000', '11~11000', 2, '11', 1),
                 ('11190', '11~11000~11190', 3, '11000', 1),
                 ('11110', '11~11000~11190~11110', 4, '11190', 1)
-            "#
+            "#,
         )
         .execute(&db.pool)
         .await
@@ -523,7 +524,7 @@ mod tests {
             FROM "勘定科目構成マスタ"
             WHERE "勘定科目パス" LIKE '11~11000%'
             ORDER BY "勘定科目パス"
-            "#
+            "#,
         )
         .fetch_all(&db.pool)
         .await
@@ -546,7 +547,7 @@ mod tests {
             SELECT "課税取引コード", "課税取引名", "税率"
             FROM "課税取引マスタ"
             ORDER BY "課税取引コード"
-            "#
+            "#,
         )
         .fetch_all(&db.pool)
         .await
@@ -555,7 +556,10 @@ mod tests {
         assert_eq!(rows.len(), 4);
         assert_eq!(rows[0].get::<String, _>("課税取引コード"), "01");
         assert_eq!(rows[0].get::<String, _>("課税取引名"), "課税");
-        assert_eq!(rows[0].get::<Decimal, _>("税率"), Decimal::from_str("0.10").unwrap());
+        assert_eq!(
+            rows[0].get::<Decimal, _>("税率"),
+            Decimal::from_str("0.10").unwrap()
+        );
     }
 
     #[tokio::test]
@@ -567,7 +571,7 @@ mod tests {
             r#"
             INSERT INTO "課税取引マスタ" ("課税取引コード", "課税取引名", "税率")
             VALUES ($1, $2, $3)
-            "#
+            "#,
         )
         .bind("99")
         .bind("無効税率")
@@ -591,12 +595,12 @@ mod tests {
             INSERT INTO "勘定科目マスタ"
             ("勘定科目コード", "勘定科目名", "勘定科目種別", "課税取引コード", "残高")
             VALUES ($1, $2, $3::account_type, $4, $5)
-            "#
+            "#,
         )
         .bind("5000")
         .bind("売上高")
         .bind("収益")
-        .bind("01")  // 存在する課税取引コード
+        .bind("01") // 存在する課税取引コード
         .bind(Decimal::from_str("0").unwrap())
         .execute(&db.pool)
         .await;
@@ -609,12 +613,12 @@ mod tests {
             INSERT INTO "勘定科目マスタ"
             ("勘定科目コード", "勘定科目名", "勘定科目種別", "課税取引コード", "残高")
             VALUES ($1, $2, $3::account_type, $4, $5)
-            "#
+            "#,
         )
         .bind("5100")
         .bind("その他売上")
         .bind("収益")
-        .bind("99")  // 存在しない課税取引コード
+        .bind("99") // 存在しない課税取引コード
         .bind(Decimal::from_str("0").unwrap())
         .execute(&db.pool)
         .await;
@@ -634,7 +638,12 @@ mod tests {
     async fn test_account_repository_insert() {
         let db = TestDatabase::new().await;
 
-        let mut new_account = Account::new("1000".to_string(), "現金".to_string(), "資産".to_string(), false);
+        let mut new_account = Account::new(
+            "1000".to_string(),
+            "現金".to_string(),
+            "資産".to_string(),
+            false,
+        );
         new_account.balance = dec!(100000.00);
 
         let account_id = account::insert(&db.pool, &new_account).await.unwrap();
@@ -652,15 +661,39 @@ mod tests {
     async fn test_account_repository_find_all() {
         let db = TestDatabase::new().await;
 
-        account::insert(&db.pool, &Account::new("1000".to_string(), "現金".to_string(), "資産".to_string(), false))
-            .await
-            .unwrap();
-        account::insert(&db.pool, &Account::new("2000".to_string(), "買掛金".to_string(), "負債".to_string(), false))
-            .await
-            .unwrap();
-        account::insert(&db.pool, &Account::new("3000".to_string(), "資本金".to_string(), "純資産".to_string(), false))
-            .await
-            .unwrap();
+        account::insert(
+            &db.pool,
+            &Account::new(
+                "1000".to_string(),
+                "現金".to_string(),
+                "資産".to_string(),
+                false,
+            ),
+        )
+        .await
+        .unwrap();
+        account::insert(
+            &db.pool,
+            &Account::new(
+                "2000".to_string(),
+                "買掛金".to_string(),
+                "負債".to_string(),
+                false,
+            ),
+        )
+        .await
+        .unwrap();
+        account::insert(
+            &db.pool,
+            &Account::new(
+                "3000".to_string(),
+                "資本金".to_string(),
+                "純資産".to_string(),
+                false,
+            ),
+        )
+        .await
+        .unwrap();
 
         let all = account::find_all(&db.pool).await.unwrap();
         assert_eq!(all.len(), 3);
@@ -673,15 +706,39 @@ mod tests {
     async fn test_account_repository_find_by_type() {
         let db = TestDatabase::new().await;
 
-        account::insert(&db.pool, &Account::new("1000".to_string(), "現金".to_string(), "資産".to_string(), false))
-            .await
-            .unwrap();
-        account::insert(&db.pool, &Account::new("1100".to_string(), "普通預金".to_string(), "資産".to_string(), false))
-            .await
-            .unwrap();
-        account::insert(&db.pool, &Account::new("2000".to_string(), "買掛金".to_string(), "負債".to_string(), false))
-            .await
-            .unwrap();
+        account::insert(
+            &db.pool,
+            &Account::new(
+                "1000".to_string(),
+                "現金".to_string(),
+                "資産".to_string(),
+                false,
+            ),
+        )
+        .await
+        .unwrap();
+        account::insert(
+            &db.pool,
+            &Account::new(
+                "1100".to_string(),
+                "普通預金".to_string(),
+                "資産".to_string(),
+                false,
+            ),
+        )
+        .await
+        .unwrap();
+        account::insert(
+            &db.pool,
+            &Account::new(
+                "2000".to_string(),
+                "買掛金".to_string(),
+                "負債".to_string(),
+                false,
+            ),
+        )
+        .await
+        .unwrap();
 
         let assets = account::find_by_type(&db.pool, "資産").await.unwrap();
         assert_eq!(assets.len(), 2);
@@ -694,20 +751,52 @@ mod tests {
         let db = TestDatabase::new().await;
 
         // 合計科目
-        account::insert(&db.pool, &Account::new("11".to_string(), "資産の部".to_string(), "資産".to_string(), true))
-            .await
-            .unwrap();
-        account::insert(&db.pool, &Account::new("11000".to_string(), "流動資産".to_string(), "資産".to_string(), true))
-            .await
-            .unwrap();
+        account::insert(
+            &db.pool,
+            &Account::new(
+                "11".to_string(),
+                "資産の部".to_string(),
+                "資産".to_string(),
+                true,
+            ),
+        )
+        .await
+        .unwrap();
+        account::insert(
+            &db.pool,
+            &Account::new(
+                "11000".to_string(),
+                "流動資産".to_string(),
+                "資産".to_string(),
+                true,
+            ),
+        )
+        .await
+        .unwrap();
 
         // 明細科目
-        account::insert(&db.pool, &Account::new("11110".to_string(), "現金".to_string(), "資産".to_string(), false))
-            .await
-            .unwrap();
-        account::insert(&db.pool, &Account::new("11120".to_string(), "普通預金".to_string(), "資産".to_string(), false))
-            .await
-            .unwrap();
+        account::insert(
+            &db.pool,
+            &Account::new(
+                "11110".to_string(),
+                "現金".to_string(),
+                "資産".to_string(),
+                false,
+            ),
+        )
+        .await
+        .unwrap();
+        account::insert(
+            &db.pool,
+            &Account::new(
+                "11120".to_string(),
+                "普通預金".to_string(),
+                "資産".to_string(),
+                false,
+            ),
+        )
+        .await
+        .unwrap();
 
         // 合計科目のみ取得
         let summary_accounts = account::find_summary_accounts(&db.pool).await.unwrap();
@@ -724,7 +813,12 @@ mod tests {
     async fn test_account_repository_update_balance() {
         let db = TestDatabase::new().await;
 
-        let mut account_data = Account::new("1000".to_string(), "現金".to_string(), "資産".to_string(), false);
+        let mut account_data = Account::new(
+            "1000".to_string(),
+            "現金".to_string(),
+            "資産".to_string(),
+            false,
+        );
         account_data.balance = dec!(50000.00);
         account::insert(&db.pool, &account_data).await.unwrap();
 
@@ -744,9 +838,17 @@ mod tests {
     async fn test_account_repository_delete() {
         let db = TestDatabase::new().await;
 
-        account::insert(&db.pool, &Account::new("1000".to_string(), "現金".to_string(), "資産".to_string(), false))
-            .await
-            .unwrap();
+        account::insert(
+            &db.pool,
+            &Account::new(
+                "1000".to_string(),
+                "現金".to_string(),
+                "資産".to_string(),
+                false,
+            ),
+        )
+        .await
+        .unwrap();
 
         account::delete(&db.pool, "1000").await.unwrap();
 
