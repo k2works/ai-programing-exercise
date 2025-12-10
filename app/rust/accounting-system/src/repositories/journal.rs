@@ -105,7 +105,10 @@ impl<'a> JournalRepository<'a> {
     }
 
     /// 仕訳を検索（伝票番号）
-    pub async fn find_by_journal_no(&self, journal_no: &str) -> Result<Option<Journal>, sqlx::Error> {
+    pub async fn find_by_journal_no(
+        &self,
+        journal_no: &str,
+    ) -> Result<Option<Journal>, sqlx::Error> {
         // 1. 仕訳ヘッダーを取得
         let journal_row = sqlx::query!(
             r#"

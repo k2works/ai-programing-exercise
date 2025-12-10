@@ -97,33 +97,30 @@ async fn test_journal_3layer_simple_entry() {
 
     // Then: データが正しく登録されていることを確認
     // 1. 仕訳が登録されている
-    let journal_count: i64 = sqlx::query_scalar(
-        r#"SELECT COUNT(*) FROM "仕訳" WHERE "仕訳伝票番号" = $1"#,
-    )
-    .bind(journal_no)
-    .fetch_one(&db.pool)
-    .await
-    .unwrap();
+    let journal_count: i64 =
+        sqlx::query_scalar(r#"SELECT COUNT(*) FROM "仕訳" WHERE "仕訳伝票番号" = $1"#)
+            .bind(journal_no)
+            .fetch_one(&db.pool)
+            .await
+            .unwrap();
     assert_eq!(journal_count, 1);
 
     // 2. 仕訳明細が登録されている
-    let detail_count: i64 = sqlx::query_scalar(
-        r#"SELECT COUNT(*) FROM "仕訳明細" WHERE "仕訳伝票番号" = $1"#,
-    )
-    .bind(journal_no)
-    .fetch_one(&db.pool)
-    .await
-    .unwrap();
+    let detail_count: i64 =
+        sqlx::query_scalar(r#"SELECT COUNT(*) FROM "仕訳明細" WHERE "仕訳伝票番号" = $1"#)
+            .bind(journal_no)
+            .fetch_one(&db.pool)
+            .await
+            .unwrap();
     assert_eq!(detail_count, 1);
 
     // 3. 仕訳貸借明細が2件（借方・貸方）登録されている
-    let item_count: i64 = sqlx::query_scalar(
-        r#"SELECT COUNT(*) FROM "仕訳貸借明細" WHERE "仕訳伝票番号" = $1"#,
-    )
-    .bind(journal_no)
-    .fetch_one(&db.pool)
-    .await
-    .unwrap();
+    let item_count: i64 =
+        sqlx::query_scalar(r#"SELECT COUNT(*) FROM "仕訳貸借明細" WHERE "仕訳伝票番号" = $1"#)
+            .bind(journal_no)
+            .fetch_one(&db.pool)
+            .await
+            .unwrap();
     assert_eq!(item_count, 2);
 
     // 4. 借方・貸方の合計が一致する（複式簿記の原理）
@@ -264,23 +261,21 @@ async fn test_journal_3layer_compound_entry() {
 
     // Then: データが正しく登録されていることを確認
     // 1. 仕訳明細が2件登録されている
-    let detail_count: i64 = sqlx::query_scalar(
-        r#"SELECT COUNT(*) FROM "仕訳明細" WHERE "仕訳伝票番号" = $1"#,
-    )
-    .bind(journal_no)
-    .fetch_one(&db.pool)
-    .await
-    .unwrap();
+    let detail_count: i64 =
+        sqlx::query_scalar(r#"SELECT COUNT(*) FROM "仕訳明細" WHERE "仕訳伝票番号" = $1"#)
+            .bind(journal_no)
+            .fetch_one(&db.pool)
+            .await
+            .unwrap();
     assert_eq!(detail_count, 2);
 
     // 2. 仕訳貸借明細が4件登録されている
-    let item_count: i64 = sqlx::query_scalar(
-        r#"SELECT COUNT(*) FROM "仕訳貸借明細" WHERE "仕訳伝票番号" = $1"#,
-    )
-    .bind(journal_no)
-    .fetch_one(&db.pool)
-    .await
-    .unwrap();
+    let item_count: i64 =
+        sqlx::query_scalar(r#"SELECT COUNT(*) FROM "仕訳貸借明細" WHERE "仕訳伝票番号" = $1"#)
+            .bind(journal_no)
+            .fetch_one(&db.pool)
+            .await
+            .unwrap();
     assert_eq!(item_count, 4);
 
     // 3. 借方・貸方の合計が一致する
@@ -303,13 +298,12 @@ async fn test_journal_3layer_compound_entry() {
     assert_eq!(debit_total, dec!(100000.00));
 
     // 4. 単振フラグが0（複合仕訳）になっている
-    let tanpu_flag: i32 = sqlx::query_scalar(
-        r#"SELECT "単振フラグ" FROM "仕訳" WHERE "仕訳伝票番号" = $1"#,
-    )
-    .bind(journal_no)
-    .fetch_one(&db.pool)
-    .await
-    .unwrap();
+    let tanpu_flag: i32 =
+        sqlx::query_scalar(r#"SELECT "単振フラグ" FROM "仕訳" WHERE "仕訳伝票番号" = $1"#)
+            .bind(journal_no)
+            .fetch_one(&db.pool)
+            .await
+            .unwrap();
     assert_eq!(tanpu_flag, 0);
 }
 
@@ -391,21 +385,19 @@ async fn test_journal_cascade_delete() {
         .unwrap();
 
     // Then: 明細と貸借明細も自動削除される（CASCADE）
-    let detail_count: i64 = sqlx::query_scalar(
-        r#"SELECT COUNT(*) FROM "仕訳明細" WHERE "仕訳伝票番号" = $1"#,
-    )
-    .bind(journal_no)
-    .fetch_one(&db.pool)
-    .await
-    .unwrap();
+    let detail_count: i64 =
+        sqlx::query_scalar(r#"SELECT COUNT(*) FROM "仕訳明細" WHERE "仕訳伝票番号" = $1"#)
+            .bind(journal_no)
+            .fetch_one(&db.pool)
+            .await
+            .unwrap();
     assert_eq!(detail_count, 0);
 
-    let item_count: i64 = sqlx::query_scalar(
-        r#"SELECT COUNT(*) FROM "仕訳貸借明細" WHERE "仕訳伝票番号" = $1"#,
-    )
-    .bind(journal_no)
-    .fetch_one(&db.pool)
-    .await
-    .unwrap();
+    let item_count: i64 =
+        sqlx::query_scalar(r#"SELECT COUNT(*) FROM "仕訳貸借明細" WHERE "仕訳伝票番号" = $1"#)
+            .bind(journal_no)
+            .fetch_one(&db.pool)
+            .await
+            .unwrap();
     assert_eq!(item_count, 0);
 }

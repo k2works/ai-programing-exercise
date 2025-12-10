@@ -94,13 +94,12 @@ async fn test_journal_balance_valid() {
     assert!(result.is_ok());
 
     // データが正しく登録されていることを確認
-    let count: i64 = sqlx::query_scalar(
-        r#"SELECT COUNT(*) FROM "仕訳貸借明細" WHERE "仕訳伝票番号" = $1"#,
-    )
-    .bind(journal_no)
-    .fetch_one(&db.pool)
-    .await
-    .unwrap();
+    let count: i64 =
+        sqlx::query_scalar(r#"SELECT COUNT(*) FROM "仕訳貸借明細" WHERE "仕訳伝票番号" = $1"#)
+            .bind(journal_no)
+            .fetch_one(&db.pool)
+            .await
+            .unwrap();
     assert_eq!(count, 2);
 }
 

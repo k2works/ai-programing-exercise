@@ -116,7 +116,10 @@ async fn test_aggregation_type_field() {
     .unwrap();
 
     assert_eq!(row.get::<String, _>("勘定科目コード"), "11");
-    assert_eq!(row.get::<Option<String>, _>("集計区分"), Some("H".to_string()));
+    assert_eq!(
+        row.get::<Option<String>, _>("集計区分"),
+        Some("H".to_string())
+    );
 }
 
 #[tokio::test]

@@ -107,8 +107,7 @@ async fn test_update_account() {
     let db = TestDatabase::new().await;
 
     // 1. テストデータを登録
-    let account_id =
-        insert_account(&db.pool, "1000", "現金", "資産", "50000.00").await;
+    let account_id = insert_account(&db.pool, "1000", "現金", "資産", "50000.00").await;
 
     // 2. 勘定科目を更新
     sqlx::query(

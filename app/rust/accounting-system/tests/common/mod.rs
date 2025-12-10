@@ -19,8 +19,7 @@ impl TestDatabase {
         let postgres = docker.run(Postgres::default());
         let port = postgres.get_host_port_ipv4(5432);
 
-        let database_url =
-            format!("postgresql://postgres:postgres@localhost:{}/postgres", port);
+        let database_url = format!("postgresql://postgres:postgres@localhost:{}/postgres", port);
 
         let pool = PgPool::connect(&database_url)
             .await

@@ -40,11 +40,7 @@ async fn test_journal_repository_save_and_find() {
         1,
     );
 
-    let mut detail = JournalDetail::new(
-        "JE-REPO-001".to_string(),
-        1,
-        "商品販売".to_string(),
-    );
+    let mut detail = JournalDetail::new("JE-REPO-001".to_string(), 1, "商品販売".to_string());
 
     detail.add_item(JournalDebitCreditItem::new(
         "JE-REPO-001".to_string(),
@@ -100,11 +96,7 @@ async fn test_journal_repository_find_by_date_range() {
             1,
         );
 
-        let mut detail = JournalDetail::new(
-            format!("JE-DATE-{:03}", i),
-            1,
-            format!("テスト{}", i),
-        );
+        let mut detail = JournalDetail::new(format!("JE-DATE-{:03}", i), 1, format!("テスト{}", i));
 
         detail.add_item(JournalDebitCreditItem::new(
             format!("JE-DATE-{:03}", i),
@@ -157,11 +149,7 @@ async fn test_journal_repository_delete() {
         1,
     );
 
-    let mut detail = JournalDetail::new(
-        "JE-DELETE-001".to_string(),
-        1,
-        "削除テスト".to_string(),
-    );
+    let mut detail = JournalDetail::new("JE-DELETE-001".to_string(), 1, "削除テスト".to_string());
 
     detail.add_item(JournalDebitCreditItem::new(
         "JE-DELETE-001".to_string(),
@@ -208,11 +196,7 @@ async fn test_journal_repository_compound_entry() {
     );
 
     // 行1: 現金（借方）と売上（貸方）
-    let mut detail1 = JournalDetail::new(
-        "JE-COMPOUND-001".to_string(),
-        1,
-        "現金売上".to_string(),
-    );
+    let mut detail1 = JournalDetail::new("JE-COMPOUND-001".to_string(), 1, "現金売上".to_string());
 
     detail1.add_item(JournalDebitCreditItem::new(
         "JE-COMPOUND-001".to_string(),
@@ -233,11 +217,7 @@ async fn test_journal_repository_compound_entry() {
     journal.add_detail(detail1);
 
     // 行2: 仕入（借方）と現金（貸方）
-    let mut detail2 = JournalDetail::new(
-        "JE-COMPOUND-001".to_string(),
-        2,
-        "商品仕入".to_string(),
-    );
+    let mut detail2 = JournalDetail::new("JE-COMPOUND-001".to_string(), 2, "商品仕入".to_string());
 
     detail2.add_item(JournalDebitCreditItem::new(
         "JE-COMPOUND-001".to_string(),

@@ -28,6 +28,7 @@ impl BalanceService {
     /// * `settlement_flag` - 決算仕訳フラグ（None の場合は 0）
     /// * `debit_amount` - 借方金額
     /// * `credit_amount` - 貸方金額
+    #[allow(clippy::too_many_arguments)]
     pub async fn update_daily_balance(
         &self,
         entry_date: NaiveDate,
@@ -137,6 +138,7 @@ impl BalanceService {
     /// * `settlement_flag` - 決算仕訳フラグ
     /// * `debit_amount` - 借方金額
     /// * `credit_amount` - 貸方金額
+    #[allow(clippy::too_many_arguments)]
     pub async fn update_daily_balance_in_tx(
         tx: &mut Transaction<'_, Postgres>,
         entry_date: NaiveDate,

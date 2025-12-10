@@ -24,13 +24,12 @@ async fn test_auto_journal_management_crud() {
     .unwrap();
 
     // Then: データが正しく登録されている
-    let count: i64 = sqlx::query_scalar(
-        r#"SELECT COUNT(*) FROM "自動仕訳管理" WHERE "source_table_name" = $1"#,
-    )
-    .bind(source_table)
-    .fetch_one(&db.pool)
-    .await
-    .unwrap();
+    let count: i64 =
+        sqlx::query_scalar(r#"SELECT COUNT(*) FROM "自動仕訳管理" WHERE "source_table_name" = $1"#)
+            .bind(source_table)
+            .fetch_one(&db.pool)
+            .await
+            .unwrap();
     assert_eq!(count, 1);
 
     // When: 最終処理日時を更新
@@ -161,13 +160,12 @@ async fn test_auto_journal_execution_log() {
     .unwrap();
 
     // Then: ログが登録されている
-    let log_count: i64 = sqlx::query_scalar(
-        r#"SELECT COUNT(*) FROM "自動仕訳実行ログ" WHERE "pattern_id" = $1"#,
-    )
-    .bind(pattern_id)
-    .fetch_one(&db.pool)
-    .await
-    .unwrap();
+    let log_count: i64 =
+        sqlx::query_scalar(r#"SELECT COUNT(*) FROM "自動仕訳実行ログ" WHERE "pattern_id" = $1"#)
+            .bind(pattern_id)
+            .fetch_one(&db.pool)
+            .await
+            .unwrap();
     assert_eq!(log_count, 1);
 
     // When: 失敗ログを登録
@@ -189,13 +187,12 @@ async fn test_auto_journal_execution_log() {
     .unwrap();
 
     // Then: ログが2件になっている
-    let log_count: i64 = sqlx::query_scalar(
-        r#"SELECT COUNT(*) FROM "自動仕訳実行ログ" WHERE "pattern_id" = $1"#,
-    )
-    .bind(pattern_id)
-    .fetch_one(&db.pool)
-    .await
-    .unwrap();
+    let log_count: i64 =
+        sqlx::query_scalar(r#"SELECT COUNT(*) FROM "自動仕訳実行ログ" WHERE "pattern_id" = $1"#)
+            .bind(pattern_id)
+            .fetch_one(&db.pool)
+            .await
+            .unwrap();
     assert_eq!(log_count, 2);
 
     // Then: エラーログが取得できる
@@ -278,13 +275,12 @@ async fn test_auto_journal_pattern_cascade_delete() {
     assert_eq!(item_count, 0);
 
     // Then: 実行ログも自動削除される（CASCADE）
-    let log_count: i64 = sqlx::query_scalar(
-        r#"SELECT COUNT(*) FROM "自動仕訳実行ログ" WHERE "pattern_id" = $1"#,
-    )
-    .bind(pattern_id)
-    .fetch_one(&db.pool)
-    .await
-    .unwrap();
+    let log_count: i64 =
+        sqlx::query_scalar(r#"SELECT COUNT(*) FROM "自動仕訳実行ログ" WHERE "pattern_id" = $1"#)
+            .bind(pattern_id)
+            .fetch_one(&db.pool)
+            .await
+            .unwrap();
     assert_eq!(log_count, 0);
 }
 
