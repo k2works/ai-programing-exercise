@@ -4,6 +4,14 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+# Webフレームワーク
+axum = "0.7"
+tower = { version = "0.4", features = ["util"] }
+tower-http = { version = "0.5", features = ["trace", "cors"] }
+
+# 非同期トレイト
+async-trait = "0.1"
+
 # データベース接続とクエリ実行
 sqlx = { version = "0.7", features = ["runtime-tokio-native-tls", "postgres", "uuid", "chrono", "migrate", "rust_decimal"] }
 # 非同期ランタイム
@@ -22,6 +30,17 @@ dotenv = "0.15"
 # シリアライズ
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+
+# ログ
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+# バリデーション
+validator = { version = "0.16", features = ["derive"] }
+
+# OpenAPI / Swagger
+utoipa = { version = "4", features = ["axum_extras", "chrono"] }
+utoipa-swagger-ui = { version = "6", features = ["axum"] }
 
 [dev-dependencies]
 # テストフレームワーク（Rust標準）
