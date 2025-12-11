@@ -2,10 +2,11 @@ use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
+use utoipa::ToSchema;
 
 /// 勘定科目エンティティ
 /// データベースの日本語カラム名と英語プロパティ名をマッピング
-#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow, ToSchema)]
 pub struct Account {
     #[sqlx(rename = "勘定科目ID")]
     pub account_id: Option<i32>,
