@@ -1,12 +1,6 @@
 mod common;
 
-use axum::{
-    body::Body,
-    extract::Request,
-    http::StatusCode,
-    routing::get,
-    Router,
-};
+use axum::{body::Body, extract::Request, http::StatusCode, routing::get, Router};
 use serde_json::json;
 use std::sync::Arc;
 use tower::util::ServiceExt;
@@ -20,7 +14,10 @@ use common::TestDatabase;
 
 fn create_test_app(repository: Arc<dyn AuditLogRepository>) -> Router {
     Router::new()
-        .route("/api/v1/audit-logs", get(audit_log_handler::get_all_audit_logs))
+        .route(
+            "/api/v1/audit-logs",
+            get(audit_log_handler::get_all_audit_logs),
+        )
         .route(
             "/api/v1/audit-logs/entity/:entity_type/:entity_id",
             get(audit_log_handler::get_entity_audit_logs),
@@ -32,7 +29,13 @@ fn create_test_app(repository: Arc<dyn AuditLogRepository>) -> Router {
         .with_state(repository)
 }
 
-async fn insert_test_audit_log(db: &TestDatabase, entity_type: &str, entity_id: &str, action: AuditAction, user_id: &str) {
+async fn insert_test_audit_log(
+    db: &TestDatabase,
+    entity_type: &str,
+    entity_id: &str,
+    action: AuditAction,
+    user_id: &str,
+) {
     let log = AuditLog {
         id: None,
         entity_type: entity_type.to_string(),
@@ -41,9 +44,24 @@ async fn insert_test_audit_log(db: &TestDatabase, entity_type: &str, entity_id: 
         user_id: user_id.to_string(),
         user_name: "Test User".to_string(),
         timestamp: chrono::Utc::now(),
-        old_values: Some([("field1".to_string(), json!("old_value"))].iter().cloned().collect()),
-        new_values: Some([("field1".to_string(), json!("new_value"))].iter().cloned().collect()),
-        changes: Some([("field1".to_string(), json!("new_value"))].iter().cloned().collect()),
+        old_values: Some(
+            [("field1".to_string(), json!("old_value"))]
+                .iter()
+                .cloned()
+                .collect(),
+        ),
+        new_values: Some(
+            [("field1".to_string(), json!("new_value"))]
+                .iter()
+                .cloned()
+                .collect(),
+        ),
+        changes: Some(
+            [("field1".to_string(), json!("new_value"))]
+                .iter()
+                .cloned()
+                .collect(),
+        ),
         reason: Some("Test reason".to_string()),
         ip_address: Some("127.0.0.1".to_string()),
         user_agent: Some("Test Agent".to_string()),
@@ -182,7 +200,14 @@ async fn test_pagination() {
 
     // 複数のテストデータを挿入
     for i in 1..=5 {
-        insert_test_audit_log(&db, "Account", &format!("100{}", i), AuditAction::Create, "user1").await;
+        insert_test_audit_log(
+            &db,
+            "Account",
+            &format!("100{}", i),
+            AuditAction::Create,
+            "user1",
+        )
+        .await;
     }
 
     let repository = Arc::new(AuditLogRepositoryImpl::new(db.pool.clone()));

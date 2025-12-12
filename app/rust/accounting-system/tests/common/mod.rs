@@ -48,9 +48,8 @@ impl TestRabbitMQ {
     pub fn new() -> Self {
         let docker = Box::leak(Box::new(clients::Cli::default()));
 
-        let rabbitmq = docker.run(
-            GenericImage::new("rabbitmq", "3.12-alpine").with_exposed_port(5672),
-        );
+        let rabbitmq =
+            docker.run(GenericImage::new("rabbitmq", "3.12-alpine").with_exposed_port(5672));
 
         let port = rabbitmq.get_host_port_ipv4(5672);
         let url = format!("amqp://guest:guest@localhost:{}", port);

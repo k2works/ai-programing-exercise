@@ -45,13 +45,11 @@ fn create_test_app(use_case: Arc<dyn AccountUseCase>) -> Router {
     Router::new()
         .route(
             "/api/v1/accounts",
-            axum::routing::get(account_handler::get_accounts)
-                .post(account_handler::create_account),
+            axum::routing::get(account_handler::get_accounts).post(account_handler::create_account),
         )
         .route(
             "/api/v1/accounts/:code",
-            axum::routing::get(account_handler::get_account)
-                .put(account_handler::update_account),
+            axum::routing::get(account_handler::get_account).put(account_handler::update_account),
         )
         .with_state(use_case)
 }
@@ -297,9 +295,7 @@ async fn test_create_duplicate_account() {
         .uri("/api/v1/accounts")
         .method("POST")
         .header("content-type", "application/json")
-        .body(Body::from(
-            serde_json::to_vec(&duplicate_account).unwrap(),
-        ))
+        .body(Body::from(serde_json::to_vec(&duplicate_account).unwrap()))
         .unwrap();
 
     let response = app.oneshot(request).await.unwrap();

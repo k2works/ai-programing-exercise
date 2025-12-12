@@ -23,8 +23,7 @@ fn create_test_app(use_case: Arc<dyn JournalUseCase>) -> Router {
     Router::new()
         .route(
             "/api/v1/journals",
-            axum::routing::get(journal_handler::get_journals)
-                .post(journal_handler::create_journal),
+            axum::routing::get(journal_handler::get_journals).post(journal_handler::create_journal),
         )
         .route(
             "/api/v1/journals/:journal_no",
@@ -499,9 +498,7 @@ async fn test_create_journal_with_unbalanced_amounts() {
         .uri("/api/v1/journals")
         .method("POST")
         .header("content-type", "application/json")
-        .body(Body::from(
-            serde_json::to_vec(&unbalanced_journal).unwrap(),
-        ))
+        .body(Body::from(serde_json::to_vec(&unbalanced_journal).unwrap()))
         .unwrap();
 
     let response = app.oneshot(request).await.unwrap();

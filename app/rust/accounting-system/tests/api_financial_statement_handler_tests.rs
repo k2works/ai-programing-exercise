@@ -286,9 +286,30 @@ async fn test_get_financial_ratios() {
     // 売上高総利益率 = 40.00%
     // 売上高営業利益率 = 20.00%
     // 売上高純利益率 = 20.00%
-    assert!(ratios["current_ratio"].as_str().unwrap().parse::<f64>().unwrap() > 0.0);
-    assert!(ratios["equity_ratio"].as_str().unwrap().parse::<f64>().unwrap() > 0.0);
-    assert!(ratios["gross_profit_margin"].as_str().unwrap().parse::<f64>().unwrap() > 0.0);
+    assert!(
+        ratios["current_ratio"]
+            .as_str()
+            .unwrap()
+            .parse::<f64>()
+            .unwrap()
+            > 0.0
+    );
+    assert!(
+        ratios["equity_ratio"]
+            .as_str()
+            .unwrap()
+            .parse::<f64>()
+            .unwrap()
+            > 0.0
+    );
+    assert!(
+        ratios["gross_profit_margin"]
+            .as_str()
+            .unwrap()
+            .parse::<f64>()
+            .unwrap()
+            > 0.0
+    );
 }
 
 #[tokio::test]

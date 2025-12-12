@@ -36,11 +36,7 @@ pub enum EventStoreError {
 /// イベントバージョン管理
 pub trait EventVersioning {
     fn version(&self) -> i32;
-    fn migrate_from(
-        &self,
-        old_version: i32,
-        data: Value,
-    ) -> Result<Value, EventMigrationError>;
+    fn migrate_from(&self, old_version: i32, data: Value) -> Result<Value, EventMigrationError>;
 }
 
 #[derive(Debug, thiserror::Error)]

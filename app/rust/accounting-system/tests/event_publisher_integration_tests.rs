@@ -5,10 +5,7 @@ use common::TestRabbitMQ;
 use serde::{Deserialize, Serialize};
 
 /// RabbitMQ パブリッシャーの作成をリトライする
-async fn retry_create_publisher(
-    url: &str,
-    exchange_name: String,
-) -> RabbitMQEventPublisher {
+async fn retry_create_publisher(url: &str, exchange_name: String) -> RabbitMQEventPublisher {
     let max_retries = 15;
     let retry_delay = std::time::Duration::from_secs(3);
 
@@ -17,9 +14,15 @@ async fn retry_create_publisher(
             Ok(publisher) => return publisher,
             Err(e) => {
                 if attempt == max_retries {
-                    panic!("Failed to create publisher after {} attempts: {:?}", max_retries, e);
+                    panic!(
+                        "Failed to create publisher after {} attempts: {:?}",
+                        max_retries, e
+                    );
                 }
-                eprintln!("Attempt {}/{} failed: {:?}, retrying...", attempt, max_retries, e);
+                eprintln!(
+                    "Attempt {}/{} failed: {:?}, retrying...",
+                    attempt, max_retries, e
+                );
                 tokio::time::sleep(retry_delay).await;
             }
         }

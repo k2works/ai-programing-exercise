@@ -70,12 +70,7 @@ impl AuditLog {
         // 変更された項目のみを changes に記録
         let changes: HashMap<String, JsonValue> = new_values
             .iter()
-            .filter(|(k, v)| {
-                old_values
-                    .get(*k)
-                    .map(|old_v| old_v != *v)
-                    .unwrap_or(true)
-            })
+            .filter(|(k, v)| old_values.get(*k).map(|old_v| old_v != *v).unwrap_or(true))
             .map(|(k, v)| (k.clone(), v.clone()))
             .collect();
 

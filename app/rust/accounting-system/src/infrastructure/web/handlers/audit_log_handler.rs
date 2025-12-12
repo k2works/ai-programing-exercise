@@ -42,7 +42,12 @@ pub async fn get_entity_audit_logs(
     Query(pagination): Query<PaginationQuery>,
 ) -> Result<Json<Vec<AuditLogResponse>>, (StatusCode, String)> {
     let logs = repository
-        .find_by_entity(&entity_type, &entity_id, pagination.limit, pagination.offset)
+        .find_by_entity(
+            &entity_type,
+            &entity_id,
+            pagination.limit,
+            pagination.offset,
+        )
         .await
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 

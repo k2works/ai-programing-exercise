@@ -261,7 +261,10 @@ impl JournalReadModelRepository {
 
 /// Decimal を i64 に変換（金額を整数で扱う）
 pub fn decimal_to_i64(decimal: Decimal) -> i64 {
-    (decimal * Decimal::from(100)).to_string().parse().unwrap_or(0)
+    (decimal * Decimal::from(100))
+        .to_string()
+        .parse()
+        .unwrap_or(0)
 }
 
 /// i64 を Decimal に変換
