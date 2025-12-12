@@ -1,11 +1,12 @@
 use chrono::NaiveDate;
 use rust_decimal::Decimal;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 use crate::domain::events::journal_events::*;
 
 /// 仕訳ステータス
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum JournalStatus {
     /// 下書き
     Draft,
@@ -16,7 +17,7 @@ pub enum JournalStatus {
 }
 
 /// 仕訳明細
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct JournalEntry {
     /// 明細ID
     pub entry_id: i64,
@@ -31,7 +32,7 @@ pub struct JournalEntry {
 }
 
 /// 仕訳集約（イベントソーシング版）
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct JournalAggregate {
     /// 仕訳ID
     pub journal_id: String,
