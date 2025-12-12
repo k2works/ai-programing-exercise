@@ -1,5 +1,6 @@
 mod common;
 
+use async_trait::async_trait;
 use axum::{
     body::Body,
     http::{Request, StatusCode},
@@ -9,12 +10,35 @@ use serde_json::json;
 use std::sync::Arc;
 use tower::util::ServiceExt;
 
+use accounting_system::application::event_handlers::audit_log_handler::AuditLogEventHandler;
 use accounting_system::application::ports::input::account_usecase::AccountUseCase;
+use accounting_system::application::ports::output::audit_log_repository::AuditLogRepository;
 use accounting_system::application::services::account_service::AccountService;
+use accounting_system::domain::audit::audit_action::AuditAction;
+use accounting_system::domain::events::account_events::{AccountCreatedEvent, AccountUpdatedEvent};
+use accounting_system::domain::events::EventHandler;
 use accounting_system::infrastructure::persistence::repositories::account_repository_impl::AccountRepositoryImpl;
+use accounting_system::infrastructure::persistence::repositories::audit_log_repository_impl::AuditLogRepositoryImpl;
 use accounting_system::infrastructure::web::handlers::account_handler;
 
 use common::TestDatabase;
+
+// テスト用のモックイベントハンドラー
+struct MockEventHandler;
+
+#[async_trait]
+impl EventHandler<AccountCreatedEvent> for MockEventHandler {
+    async fn handle(&self, _event: AccountCreatedEvent) -> Result<(), Box<dyn std::error::Error>> {
+        Ok(())
+    }
+}
+
+#[async_trait]
+impl EventHandler<AccountUpdatedEvent> for MockEventHandler {
+    async fn handle(&self, _event: AccountUpdatedEvent) -> Result<(), Box<dyn std::error::Error>> {
+        Ok(())
+    }
+}
 
 /// テスト用のアプリケーションルーターを作成
 fn create_test_app(use_case: Arc<dyn AccountUseCase>) -> Router {
@@ -26,7 +50,8 @@ fn create_test_app(use_case: Arc<dyn AccountUseCase>) -> Router {
         )
         .route(
             "/api/v1/accounts/:code",
-            axum::routing::get(account_handler::get_account),
+            axum::routing::get(account_handler::get_account)
+                .put(account_handler::update_account),
         )
         .with_state(use_case)
 }
@@ -43,7 +68,8 @@ async fn test_get_all_accounts() {
 
     // DIコンテナを構築
     let repository = Arc::new(AccountRepositoryImpl::new(db.pool.clone()));
-    let service = AccountService::new(repository);
+    let event_handler = Arc::new(MockEventHandler);
+    let service = AccountService::new(repository, event_handler);
     let use_case: Arc<dyn AccountUseCase> = Arc::new(service);
 
     let app = create_test_app(use_case);
@@ -93,7 +119,8 @@ async fn test_get_account_by_code() {
     common::insert_account(&db.pool, "1110", "現金", "資産", "100000").await;
 
     let repository = Arc::new(AccountRepositoryImpl::new(db.pool.clone()));
-    let service = AccountService::new(repository);
+    let event_handler = Arc::new(MockEventHandler);
+    let service = AccountService::new(repository, event_handler);
     let use_case: Arc<dyn AccountUseCase> = Arc::new(service);
 
     let app = create_test_app(use_case);
@@ -126,7 +153,8 @@ async fn test_get_account_not_found() {
     let db = TestDatabase::new().await;
 
     let repository = Arc::new(AccountRepositoryImpl::new(db.pool.clone()));
-    let service = AccountService::new(repository);
+    let event_handler = Arc::new(MockEventHandler);
+    let service = AccountService::new(repository, event_handler);
     let use_case: Arc<dyn AccountUseCase> = Arc::new(service);
 
     let app = create_test_app(use_case);
@@ -149,7 +177,8 @@ async fn test_create_account() {
     let db = TestDatabase::new().await;
 
     let repository = Arc::new(AccountRepositoryImpl::new(db.pool.clone()));
-    let service = AccountService::new(repository);
+    let event_handler = Arc::new(MockEventHandler);
+    let service = AccountService::new(repository, event_handler);
     let use_case: Arc<dyn AccountUseCase> = Arc::new(service);
 
     let app = create_test_app(use_case);
@@ -208,7 +237,8 @@ async fn test_create_account_with_empty_code() {
     let db = TestDatabase::new().await;
 
     let repository = Arc::new(AccountRepositoryImpl::new(db.pool.clone()));
-    let service = AccountService::new(repository);
+    let event_handler = Arc::new(MockEventHandler);
+    let service = AccountService::new(repository, event_handler);
     let use_case: Arc<dyn AccountUseCase> = Arc::new(service);
 
     let app = create_test_app(use_case);
@@ -242,7 +272,8 @@ async fn test_create_duplicate_account() {
     common::insert_account(&db.pool, "1110", "現金", "資産", "0").await;
 
     let repository = Arc::new(AccountRepositoryImpl::new(db.pool.clone()));
-    let service = AccountService::new(repository);
+    let event_handler = Arc::new(MockEventHandler);
+    let service = AccountService::new(repository, event_handler);
     let use_case: Arc<dyn AccountUseCase> = Arc::new(service);
 
     let app = create_test_app(use_case);
@@ -275,4 +306,149 @@ async fn test_create_duplicate_account() {
 
     // Then: ステータスコードが400（重複エラー）
     assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+}
+
+#[tokio::test]
+async fn test_create_account_with_audit_log() {
+    // Given: テストデータベースと実際のイベントハンドラー
+    let db = TestDatabase::new().await;
+
+    let repository = Arc::new(AccountRepositoryImpl::new(db.pool.clone()));
+    let audit_log_repository = Arc::new(AuditLogRepositoryImpl::new(db.pool.clone()));
+    let audit_log_repo: Arc<dyn AuditLogRepository> = audit_log_repository.clone();
+    let event_handler = Arc::new(AuditLogEventHandler::new(audit_log_repo));
+    let service = AccountService::new(repository, event_handler);
+    let use_case: Arc<dyn AccountUseCase> = Arc::new(service);
+
+    let app = create_test_app(use_case);
+
+    // When: 勘定科目を作成
+    let new_account = json!({
+        "account_code": "1110",
+        "account_name": "現金",
+        "account_name_kana": "ゲンキン",
+        "account_type": "資産",
+        "is_summary_account": false,
+        "bspl_type": "B",
+        "transaction_element_type": "D",
+        "expense_type": null,
+        "display_order": 1,
+        "is_aggregation_target": true,
+        "tax_code": null
+    });
+
+    let request = Request::builder()
+        .uri("/api/v1/accounts")
+        .method("POST")
+        .header("content-type", "application/json")
+        .body(Body::from(serde_json::to_vec(&new_account).unwrap()))
+        .unwrap();
+
+    let response = app.oneshot(request).await.unwrap();
+    assert_eq!(response.status(), StatusCode::CREATED);
+
+    // Then: 監査ログが作成されていることを確認
+    let audit_logs = audit_log_repository
+        .find_by_entity("Account", "1110", 10, 0)
+        .await
+        .unwrap();
+
+    assert_eq!(audit_logs.len(), 1);
+    let log = &audit_logs[0];
+    assert_eq!(log.entity_type, "Account");
+    assert_eq!(log.entity_id, "1110");
+    assert_eq!(log.action, AuditAction::Create);
+    assert_eq!(log.user_id, "system");
+    assert_eq!(log.user_name, "System User");
+    assert_eq!(log.ip_address, Some("127.0.0.1".to_string()));
+
+    // new_values に勘定科目情報が含まれていることを確認
+    assert!(log.new_values.is_some());
+    let new_values = log.new_values.as_ref().unwrap();
+    assert_eq!(new_values.get("account_code").unwrap(), "1110");
+    assert_eq!(new_values.get("account_name").unwrap(), "現金");
+}
+
+#[tokio::test]
+async fn test_update_account_with_audit_log() {
+    // Given: テストデータベースと実際のイベントハンドラー、既存の勘定科目
+    let db = TestDatabase::new().await;
+
+    // 既存の勘定科目を挿入
+    common::insert_account(&db.pool, "1110", "現金", "資産", "0").await;
+
+    let repository = Arc::new(AccountRepositoryImpl::new(db.pool.clone()));
+    let audit_log_repository = Arc::new(AuditLogRepositoryImpl::new(db.pool.clone()));
+    let audit_log_repo: Arc<dyn AuditLogRepository> = audit_log_repository.clone();
+    let event_handler = Arc::new(AuditLogEventHandler::new(audit_log_repo));
+    let service = AccountService::new(repository, event_handler);
+    let use_case: Arc<dyn AccountUseCase> = Arc::new(service);
+
+    let app = create_test_app(use_case);
+
+    // When: 勘定科目を更新
+    let updated_account = json!({
+        "account_code": "1110",
+        "account_name": "現金及び預金",
+        "account_name_kana": "ゲンキンオヨビヨキン",
+        "account_type": "資産",
+        "is_summary_account": false,
+        "bspl_type": "B",
+        "transaction_element_type": "D",
+        "expense_type": null,
+        "display_order": 1,
+        "is_aggregation_target": true,
+        "tax_code": null
+    });
+
+    let request = Request::builder()
+        .uri("/api/v1/accounts/1110")
+        .method("PUT")
+        .header("content-type", "application/json")
+        .body(Body::from(serde_json::to_vec(&updated_account).unwrap()))
+        .unwrap();
+
+    let response = app.oneshot(request).await.unwrap();
+    let status = response.status();
+
+    // デバッグ用: エラー時にボディを表示
+    if status != StatusCode::OK {
+        let body = axum::body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        let error_msg = String::from_utf8_lossy(&body);
+        panic!("Expected status 200, got {}. Body: {}", status, error_msg);
+    }
+
+    assert_eq!(status, StatusCode::OK);
+
+    // Then: 監査ログが作成されていることを確認
+    let audit_logs = audit_log_repository
+        .find_by_entity("Account", "1110", 10, 0)
+        .await
+        .unwrap();
+
+    assert_eq!(audit_logs.len(), 1);
+    let log = &audit_logs[0];
+    assert_eq!(log.entity_type, "Account");
+    assert_eq!(log.entity_id, "1110");
+    assert_eq!(log.action, AuditAction::Update);
+    assert_eq!(log.user_id, "system");
+    assert_eq!(log.user_name, "System User");
+    assert_eq!(log.ip_address, Some("127.0.0.1".to_string()));
+
+    // old_values と new_values の両方が存在することを確認
+    assert!(log.old_values.is_some());
+    assert!(log.new_values.is_some());
+
+    let old_values = log.old_values.as_ref().unwrap();
+    let new_values = log.new_values.as_ref().unwrap();
+
+    // 変更前の値を確認
+    assert_eq!(old_values.get("account_code").unwrap(), "1110");
+    assert_eq!(old_values.get("account_name").unwrap(), "現金");
+
+    // 変更後の値を確認
+    assert_eq!(new_values.get("account_code").unwrap(), "1110");
+    assert_eq!(new_values.get("account_name").unwrap(), "現金及び預金");
 }
