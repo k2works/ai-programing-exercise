@@ -77,10 +77,60 @@ pub async fn create_account(
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
     let account = request.into();
 
+    // TODO: 実際の環境では認証ミドルウェアからユーザー情報を取得
+    let user_id = "system".to_string();
+    let user_name = "System User".to_string();
+    let ip_address = Some("127.0.0.1".to_string());
+
     let created = use_case
-        .create_account(account)
+        .create_account(account, user_id, user_name, ip_address)
         .await
         .map_err(|e| (StatusCode::BAD_REQUEST, e.to_string()))?;
 
     Ok((StatusCode::CREATED, Json(AccountResponse::from(created))))
+}
+
+/// 勘定科目を更新
+#[utoipa::path(
+    put,
+    path = "/api/v1/accounts/{code}",
+    request_body = AccountRequest,
+    responses(
+        (status = 200, description = "勘定科目の更新に成功", body = AccountResponse),
+        (status = 400, description = "リクエストが不正です"),
+        (status = 404, description = "勘定科目が見つかりません"),
+        (status = 500, description = "内部サーバーエラー")
+    ),
+    params(
+        ("code" = String, Path, description = "勘定科目コード")
+    ),
+    tag = "勘定科目"
+)]
+pub async fn update_account(
+    State(use_case): State<Arc<dyn AccountUseCase>>,
+    Path(code): Path<String>,
+    Json(request): Json<AccountRequest>,
+) -> Result<impl IntoResponse, (StatusCode, String)> {
+    let mut account: crate::domain::account::Account = request.into();
+
+    // パスパラメータの code を使用
+    account.account_code = code;
+
+    // TODO: 実際の環境では認証ミドルウェアからユーザー情報を取得
+    let user_id = "system".to_string();
+    let user_name = "System User".to_string();
+    let ip_address = Some("127.0.0.1".to_string());
+
+    let updated = use_case
+        .update_account(account, user_id, user_name, ip_address)
+        .await
+        .map_err(|e| {
+            if e.to_string().contains("not found") {
+                (StatusCode::NOT_FOUND, e.to_string())
+            } else {
+                (StatusCode::BAD_REQUEST, e.to_string())
+            }
+        })?;
+
+    Ok((StatusCode::OK, Json(AccountResponse::from(updated))))
 }

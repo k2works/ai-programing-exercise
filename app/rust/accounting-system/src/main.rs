@@ -29,6 +29,7 @@ use accounting_system::infrastructure::web::handlers::{
         account_handler::get_accounts,
         account_handler::get_account,
         account_handler::create_account,
+        account_handler::update_account,
         journal_handler::get_journals,
         journal_handler::get_journal,
         journal_handler::create_journal,
@@ -87,9 +88,15 @@ async fn main() {
         .expect("Failed to connect to database");
 
     // 依存性の組み立て（Dependency Injection）
+    // Audit Log API
+    let audit_log_repository = Arc::new(AuditLogRepositoryImpl::new(pool.clone()));
+
     // Account API
     let repository = Arc::new(AccountRepositoryImpl::new(pool.clone()));
-    let account_service = AccountService::new(repository);
+    let audit_event_handler = Arc::new(accounting_system::application::event_handlers::audit_log_handler::AuditLogEventHandler::new(
+        audit_log_repository.clone() as Arc<dyn accounting_system::application::ports::output::audit_log_repository::AuditLogRepository>
+    ));
+    let account_service = AccountService::new(repository, audit_event_handler);
     let account_usecase: Arc<dyn AccountUseCase> = Arc::new(account_service);
 
     // Journal API
@@ -101,9 +108,8 @@ async fn main() {
     let financial_service = FinancialStatementService::new(pool.clone());
     let financial_usecase: Arc<dyn FinancialStatementUseCase> = Arc::new(financial_service);
 
-    // Audit Log API
-    let audit_log_repository = Arc::new(AuditLogRepositoryImpl::new(pool.clone()));
-    let audit_log_repo: Arc<dyn AuditLogRepository> = audit_log_repository;
+    // Audit Log API - use the repository created earlier
+    let audit_log_repo: Arc<dyn AuditLogRepository> = audit_log_repository.clone();
 
     // ルーティング
     // Account API のルーター
@@ -112,7 +118,10 @@ async fn main() {
             "/api/v1/accounts",
             get(account_handler::get_accounts).post(account_handler::create_account),
         )
-        .route("/api/v1/accounts/:code", get(account_handler::get_account))
+        .route(
+            "/api/v1/accounts/:code",
+            get(account_handler::get_account).put(account_handler::update_account),
+        )
         .with_state(account_usecase);
 
     // Journal API のルーター

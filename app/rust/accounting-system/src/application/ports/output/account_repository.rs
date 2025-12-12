@@ -13,4 +13,7 @@ pub trait AccountRepository: Send + Sync {
 
     /// 勘定科目を作成
     async fn create(&self, account: Account) -> Result<Account, Box<dyn std::error::Error>>;
+
+    /// 勘定科目を更新
+    async fn update(&self, account: Account) -> Result<Account, Box<dyn std::error::Error>>;
 }
