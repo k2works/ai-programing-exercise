@@ -14,6 +14,20 @@ pub trait AccountUseCase: Send + Sync {
     ) -> Result<Option<Account>, Box<dyn std::error::Error>>;
 
     /// 勘定科目を作成
-    async fn create_account(&self, account: Account)
-        -> Result<Account, Box<dyn std::error::Error>>;
+    async fn create_account(
+        &self,
+        account: Account,
+        user_id: String,
+        user_name: String,
+        ip_address: Option<String>,
+    ) -> Result<Account, Box<dyn std::error::Error>>;
+
+    /// 勘定科目を更新
+    async fn update_account(
+        &self,
+        account: Account,
+        user_id: String,
+        user_name: String,
+        ip_address: Option<String>,
+    ) -> Result<Account, Box<dyn std::error::Error>>;
 }
