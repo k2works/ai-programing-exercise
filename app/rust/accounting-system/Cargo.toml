@@ -42,6 +42,9 @@ validator = { version = "0.16", features = ["derive"] }
 utoipa = { version = "4", features = ["axum_extras", "chrono"] }
 utoipa-swagger-ui = { version = "6", features = ["axum"] }
 
+# メッセージブローカー（RabbitMQ）
+lapin = "2.3"
+
 [dev-dependencies]
 # テストフレームワーク（Rust標準）
 testcontainers = "0.15"
