@@ -11,14 +11,16 @@ use accounting_system::application::ports::input::journal_usecase::JournalUseCas
 use accounting_system::application::services::account_service::AccountService;
 use accounting_system::application::services::financial_statement_service::FinancialStatementService;
 use accounting_system::application::services::journal_service::JournalService;
+use accounting_system::application::ports::output::audit_log_repository::AuditLogRepository;
 use accounting_system::infrastructure::persistence::repositories::account_repository_impl::AccountRepositoryImpl;
+use accounting_system::infrastructure::persistence::repositories::audit_log_repository_impl::AuditLogRepositoryImpl;
 use accounting_system::infrastructure::persistence::repositories::journal_repository_impl::JournalRepositoryImpl;
 use accounting_system::infrastructure::web::dtos::{
-    AccountRequest, AccountResponse, BalanceSheetResponse, ErrorResponse, FinancialRatiosResponse,
-    IncomeStatementResponse, JournalRequest, JournalResponse,
+    AccountRequest, AccountResponse, AuditLogResponse, BalanceSheetResponse, ErrorResponse,
+    FinancialRatiosResponse, IncomeStatementResponse, JournalRequest, JournalResponse,
 };
 use accounting_system::infrastructure::web::handlers::{
-    account_handler, financial_statement_handler, journal_handler,
+    account_handler, audit_log_handler, financial_statement_handler, journal_handler,
 };
 
 #[derive(OpenApi)]
@@ -33,6 +35,9 @@ use accounting_system::infrastructure::web::handlers::{
         financial_statement_handler::get_balance_sheet,
         financial_statement_handler::get_income_statement,
         financial_statement_handler::get_financial_ratios,
+        audit_log_handler::get_all_audit_logs,
+        audit_log_handler::get_entity_audit_logs,
+        audit_log_handler::get_user_audit_logs,
     ),
     components(
         schemas(
@@ -40,6 +45,7 @@ use accounting_system::infrastructure::web::handlers::{
             AccountResponse,
             JournalRequest,
             JournalResponse,
+            AuditLogResponse,
             ErrorResponse,
             BalanceSheetResponse,
             IncomeStatementResponse,
@@ -52,7 +58,8 @@ use accounting_system::infrastructure::web::handlers::{
     tags(
         (name = "勘定科目", description = "勘定科目マスタの管理"),
         (name = "仕訳", description = "仕訳の管理"),
-        (name = "財務諸表", description = "財務諸表の生成と取得")
+        (name = "財務諸表", description = "財務諸表の生成と取得"),
+        (name = "監査ログ", description = "監査ログの取得と追跡")
     ),
     info(
         title = "会計システム API",
@@ -94,6 +101,10 @@ async fn main() {
     let financial_service = FinancialStatementService::new(pool.clone());
     let financial_usecase: Arc<dyn FinancialStatementUseCase> = Arc::new(financial_service);
 
+    // Audit Log API
+    let audit_log_repository = Arc::new(AuditLogRepositoryImpl::new(pool.clone()));
+    let audit_log_repo: Arc<dyn AuditLogRepository> = audit_log_repository;
+
     // ルーティング
     // Account API のルーター
     let account_router = Router::new()
@@ -132,10 +143,27 @@ async fn main() {
         )
         .with_state(financial_usecase);
 
+    // Audit Log API のルーター
+    let audit_log_router = Router::new()
+        .route(
+            "/api/v1/audit-logs",
+            get(audit_log_handler::get_all_audit_logs),
+        )
+        .route(
+            "/api/v1/audit-logs/entity/:entity_type/:entity_id",
+            get(audit_log_handler::get_entity_audit_logs),
+        )
+        .route(
+            "/api/v1/audit-logs/user/:user_id",
+            get(audit_log_handler::get_user_audit_logs),
+        )
+        .with_state(audit_log_repo);
+
     // ルーターを結合
     let app = account_router
         .merge(journal_router)
         .merge(financial_router)
+        .merge(audit_log_router)
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .layer(TraceLayer::new_for_http());
 
