@@ -1,4 +1,5 @@
 pub mod account_events;
+pub mod journal_events;
 
 use async_trait::async_trait;
 use std::fmt::Debug;

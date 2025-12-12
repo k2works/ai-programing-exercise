@@ -1,4 +1,5 @@
 pub mod account;
+pub mod aggregates;
 pub mod audit;
 pub mod balance;
 pub mod events;
