@@ -97,7 +97,22 @@ ai-programing-exercise/
 
 ### 配置
 
-ドキュメントはGitHub Pagesを通じて公開することができます。リポジトリの設定でGitHub Pagesを有効にし、`/site`ディレクトリを公開ソースとして設定してください。
+#### GitHub Pages セットアップ
+
+1. **GitHub リポジトリの Settings を開く**
+    - リポジトリページで `Settings` タブをクリック
+
+2. **Pages 設定を開く**
+    - 左サイドバーの `Pages` をクリック
+
+3. **Source を設定**
+    - `Source` で `Deploy from a branch` を選択
+    - `Branch` で `gh-pages` を選択し、フォルダは `/ (root)` を選択
+    - `Save` をクリック
+
+4. **初回デプロイ**
+    - main ブランチにプッシュすると GitHub Actions が自動実行
+    - Actions タブでデプロイ状況を確認
 
 **[⬆ back to top](#構成)**
 
@@ -179,103 +194,56 @@ ai-programing-exercise/
 
 #### GitHub Container Registry
 
-このプロジェクトでは、GitHub Container Registry（GHCR）を使用してコンテナイメージを管理しています。
+このプロジェクトでは、GitHub Container Registry（GHCR）を使用して開発コンテナイメージを管理しています。
 
 ##### 自動ビルド・プッシュ
 
-タグをプッシュすると、GitHub Actionsが自動的にコンテナイメージをビルドし、GHCRにプッシュします。
+タグをプッシュすると、GitHub Actions が自動的にコンテナイメージをビルドし、GHCR にプッシュします。
 
 ```bash
 # タグを作成してプッシュ
-git tag 0.0.x
-git push origin 0.0.x
+git tag 0.0.1
+git push origin 0.0.1
 ```
 
 ##### イメージの取得・実行
 
-GHCRからイメージを取得して実行するには：
+GHCR からイメージを取得して実行するには：
 
 ```bash
 # イメージをプル
-docker pull ghcr.io/k2works/ai-programing-exercise/core:0.0.x
+docker pull ghcr.io/k2works/grokkingfp-excersice:latest
 
+# または特定バージョン
+docker pull ghcr.io/k2works/grokkingfp-excersice:0.0.1
+
+# コンテナを実行
+docker run -it -v $(pwd):/srv ghcr.io/k2works/grokkingfp-excersice:latest
 ```
 
 認証が必要な場合は、以下のコマンドでログインします：
 
 ```bash
-# GitHub Personal Access Tokenでログイン
+# GitHub Personal Access Token でログイン
 echo $GITHUB_TOKEN | docker login ghcr.io -u <username> --password-stdin
 ```
 
 ##### 権限設定
 
-- リポジトリの設定で「Actions」の権限を適切に設定する必要があります
-- `GITHUB_TOKEN`に`packages: write`権限が付与されています
+- リポジトリの Settings → Actions → General で `Read and write permissions` を設定
+- `GITHUB_TOKEN` に `packages: write` 権限が付与されています
 
-##### イメージの管理
+##### Dev Container の使用
 
-- プライベートリポジトリの場合、イメージもプライベートになります
-- パッケージの可視性はリポジトリ設定から変更可能です
-- 古いイメージは手動で削除する必要があります
+VS Code で Dev Container を使用する場合：
+
+1. VS Code で「Dev Containers: Reopen in Container」を実行
+2. または「Dev Containers: Rebuild and Reopen in Container」で再ビルド
 
 **[⬆ back to top](#構成)**
 
 ### 開発
 
-#### 開発環境の利用
-
-1. 開発コンテナを起動
-   ```
-   docker build -t ai-programming-dev .
-   docker run -it -v $(pwd):/srv ai-programming-dev bash
-   ```
-
-2. 各言語環境を利用
-   - Java: `java -version`
-   - Scala: `scala -version`
-   - Kotlin: `kotlin -version`
-   - Node.js: `node -v`
-   - Clojure: `clojure -version`
-   - Ruby: `ruby -v`
-   - Python: `python3 --version`
-   - uv: `uv --version`
-   - PHP: `php -v`
-   - Composer: `composer --version`
-   - Haskell: `ghc --version`
-   - Go: `go version`
-   - Rust: `rustc --version`
-   - .NET: `dotnet --version`
-   - C: `gcc --version`
-   - C++: `g++ --version` または `clang++ --version`
-   - Erlang: `erl -version`
-   - Elixir: `elixir --version`
-   - Prolog: `swipl --version`
-
-#### ドキュメント作成
-
-- PlantUMLやMermaidを使用して図表を作成可能
-- Markdownで記述し、MkDocsでプレビュー
-
 **[⬆ back to top](#構成)**
 
 ## 参照
-
-- [MkDocs 公式サイト](https://www.mkdocs.org/)
-- [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/)
-- [PlantUML](https://plantuml.com/)
-- [Mermaid](https://mermaid-js.github.io/mermaid/)
-- [SDKMAN](https://sdkman.io/)
-- [Scala](https://www.scala-lang.org/)
-- [Kotlin](https://kotlinlang.org/)
-- [Clojure](https://clojure.org/)
-- [rbenv](https://github.com/rbenv/rbenv)
-- [NVM](https://github.com/nvm-sh/nvm)
-- [uv](https://github.com/astral-sh/uv)
-- [Haskell](https://www.haskell.org/)
-- [GHCup](https://www.haskell.org/ghcup/)
-- [Rust](https://www.rust-lang.org/)
-- [rustup](https://rustup.rs/)
-- [Erlang](https://www.erlang.org/)
-- [Elixir](https://elixir-lang.org/)
-- [Prolog](https://www.swi-prolog.org/)
