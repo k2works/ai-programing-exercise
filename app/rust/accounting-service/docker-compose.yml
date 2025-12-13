@@ -1,0 +1,98 @@
+services:
+  # 財務会計データベース
+  postgres-financial:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: financial_accounting
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - financial-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 管理会計データベース（キャッシュ用・将来的に使用）
+  postgres-management:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: management_accounting
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - management-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # RabbitMQ（イベント駆動用）
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 財務会計サービス
+  financial-accounting:
+    build:
+      context: .
+      dockerfile: financial_accounting/Dockerfile
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres-financial/financial_accounting
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      RUST_LOG: info
+    depends_on:
+      postgres-financial:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+
+  # 管理会計サービス
+  management-accounting:
+    build:
+      context: .
+      dockerfile: management_accounting/Dockerfile
+    environment:
+      FINANCIAL_SERVICE_URL: http://financial-accounting:8080
+      RUST_LOG: info
+    depends_on:
+      - financial-accounting
+    ports:
+      - "8081:8081"
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api_gateway/Dockerfile
+    environment:
+      FINANCIAL_SERVICE_URL: http://financial-accounting:8080
+      MANAGEMENT_SERVICE_URL: http://management-accounting:8081
+      RUST_LOG: info
+    depends_on:
+      - financial-accounting
+      - management-accounting
+    ports:
+      - "8090:8090"
+
+volumes:
+  financial-db-data:
+  management-db-data:

@@ -1,0 +1,38 @@
+# ビルド成果物
+target/
+**/target/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+
+# テストデータ
+*.db
+*.sqlite
+
+# ログ
+*.log
+
+# 環境変数
+.env
+.env.local
+
+# ドキュメント
+README.md
+docs/
+
+# CI/CD
+.github/
+
+# その他
+justfile
