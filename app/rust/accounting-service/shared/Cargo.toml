@@ -1,0 +1,28 @@
+[package]
+name = "shared"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# エラーハンドリング
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+
+# シリアライズ
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# 日付と時刻
+chrono = { workspace = true }
+
+# 10進数（金額計算用）
+rust_decimal = { workspace = true }
+
+# UUID
+uuid = { workspace = true }
+
+# データベース（エラー変換用）
+sqlx = { workspace = true }
+
+# HTTPクライアント（エラー変換用）
+reqwest = { workspace = true }
