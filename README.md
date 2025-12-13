@@ -2,12 +2,12 @@
 
 ## 概要
 
-AIプログラミングの実践的な学習と開発のためのプロジェクトです。複数のプログラミング言語（Java、Scala、Kotlin、Node.js、Ruby、Python、PHP、Go、Rust、.NET、C、C++、Erlang、Elixir、Prolog）をサポートする開発環境と、MkDocsを使用したドキュメント管理システムを提供します。
+AIプログラミングの実践的な学習と開発のためのプロジェクトです。Claude Code および Gemini CLI を使用した AI 駆動開発環境と、MkDocs を使用したドキュメント管理システムを提供します。
 
 ### 目的
 
 - AIプログラミングの実践的な学習環境の提供
-- 複数言語（Java、Scala、Kotlin、Node.js、Ruby、Python、PHP、Go、Rust、.NET、C、C++、Erlang、Elixir、Prolog）での開発サポート
+- AI 駆動開発（Claude Code、Gemini CLI）のサポート
 - ドキュメント駆動開発の促進
 - プログラミング学習リソースの集約
 
@@ -54,26 +54,10 @@ AIプログラミングの実践的な学習と開発のためのプロジェク
 
 - **ベースOS**: Ubuntu 22.04
 - **言語環境**:
-  - Java 21.0.2 (via SDKMAN)
-  - Maven 3.9.4 / Gradle 8.10.2
-  - Scala 3.4.0 (via SDKMAN)
-  - Kotlin 2.0.0 (via SDKMAN)
-  - Clojure 1.12.1 (via 公式インストーラー)
   - Node.js 22 (via NVM)
-  - Ruby 3.4.4 (via rbenv)
-  - Python 3.12 (システムパッケージ)
-  - uv (最新バージョン、Pythonパッケージマネージャー)
-  - PHP 8.1 (via Ondrej PPA)
-  - Composer (PHPパッケージマネージャー)
-  - Haskell 9.4.8 (via GHCup)
-  - Go 1.22.0 (via 公式バイナリ)
-  - Rust stable (via rustup)
-  - .NET 8.0 (via Microsoft パッケージリポジトリ)
-  - C言語 (C11標準, GCC)
-  - C++ (C++20標準, G++, Clang)
-  - Erlang 26.2.1 (via Erlang Solutions)
-  - Elixir 1.16.1 (via Erlang Solutions)
-  - Prolog (SWI-Prolog 9.0.4)
+- **AI開発ツール**:
+  - Claude Code (@anthropic-ai/claude-code)
+  - Gemini CLI (@google/gemini-cli)
 - **ドキュメント環境**:
   - MkDocs (Python 3.11ベース)
   - Material for MkDocsテーマ
@@ -83,14 +67,30 @@ AIプログラミングの実践的な学習と開発のためのプロジェク
 
 ```
 ai-programing-exercise/
-├── Dockerfile              # 開発環境のDockerfile
-├── README.md               # このファイル
-├── docker-compose.yml      # Docker Compose設定
+├── .claude/                # Claude Code設定
+├── .devcontainer/          # Dev Container設定
+├── .github/                # GitHub Actions設定
+├── app/                    # アプリケーションコード
+├── db/                     # データベース関連
 ├── docs/                   # ドキュメントディレクトリ
-│   ├── Dockerfile          # MkDocs用Dockerfile
+│   ├── adr/                # アーキテクチャ決定記録
 │   ├── assets/             # CSS/JSアセット
+│   ├── design/             # 設計ドキュメント
+│   ├── development/        # 開発ガイド
+│   ├── operation/          # 運用ドキュメント
+│   ├── reference/          # リファレンス
+│   ├── requirements/       # 要件定義
+│   ├── template/           # テンプレート
+│   ├── Dockerfile          # MkDocs用Dockerfile
 │   └── index.md            # メインドキュメントページ
-└── mkdocs.yml              # MkDocs設定ファイル
+├── scripts/                # ユーティリティスクリプト
+├── CLAUDE.md               # Claude Code用プロジェクト設定
+├── Dockerfile              # 開発環境のDockerfile
+├── docker-compose.yml      # Docker Compose設定
+├── gulpfile.js             # Gulpタスク定義
+├── mkdocs.yml              # MkDocs設定ファイル
+├── package.json            # Node.js依存関係
+└── README.md               # このファイル
 ```
 
 **[⬆ back to top](#構成)**
@@ -212,13 +212,13 @@ GHCR からイメージを取得して実行するには：
 
 ```bash
 # イメージをプル
-docker pull ghcr.io/k2works/grokkingfp-excersice:latest
+docker pull ghcr.io/k2works/ai-programing-exercise:latest
 
 # または特定バージョン
-docker pull ghcr.io/k2works/grokkingfp-excersice:0.0.1
+docker pull ghcr.io/k2works/ai-programing-exercise:0.0.1
 
 # コンテナを実行
-docker run -it -v $(pwd):/srv ghcr.io/k2works/grokkingfp-excersice:latest
+docker run -it -v $(pwd):/srv ghcr.io/k2works/ai-programing-exercise:latest
 ```
 
 認証が必要な場合は、以下のコマンドでログインします：
