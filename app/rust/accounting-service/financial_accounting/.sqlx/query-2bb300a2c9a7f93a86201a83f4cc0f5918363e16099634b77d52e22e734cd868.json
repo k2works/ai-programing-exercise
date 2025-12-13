@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        DELETE FROM \"勘定科目マスタ\"\n        WHERE \"勘定科目コード\" = $1\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "2bb300a2c9a7f93a86201a83f4cc0f5918363e16099634b77d52e22e734cd868"
+}

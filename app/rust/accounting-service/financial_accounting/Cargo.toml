@@ -1,0 +1,68 @@
+[package]
+name = "financial_accounting"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# 共有クレート
+shared = { path = "../shared" }
+
+# Webフレームワーク
+axum = { workspace = true }
+tower = { workspace = true }
+tower-http = { workspace = true }
+
+# 非同期トレイト
+async-trait = { workspace = true }
+
+# データベース接続とクエリ実行
+sqlx = { workspace = true }
+
+# 非同期ランタイム
+tokio = { workspace = true }
+
+# 日付と時刻
+chrono = { workspace = true }
+
+# UUID生成
+uuid = { workspace = true }
+
+# 10進数（金額計算用）
+rust_decimal = { workspace = true }
+
+# エラーハンドリング
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+
+# 環境変数
+dotenv = { workspace = true }
+
+# シリアライズ
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# ログ
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+# バリデーション
+validator = { workspace = true }
+
+# OpenAPI / Swagger
+utoipa = { workspace = true }
+utoipa-swagger-ui = { workspace = true }
+
+# メッセージブローカー（RabbitMQ）
+lapin = { workspace = true }
+
+# CLI（コマンドラインインターフェース）
+clap = { version = "4", features = ["derive"] }
+
+# HTTPクライアント
+reqwest = { workspace = true }
+
+[dev-dependencies]
+# テストフレームワーク（Rust標準）
+testcontainers = "0.15"
+testcontainers-modules = { version = "0.3", features = ["postgres"] }
+rust_decimal_macros = "1.33"

@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM \"仕訳\" WHERE \"仕訳伝票番号\" = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "fadad212409483af3d8ec6cb115bdbd92404c2af6aada6349afd6ef426f0c197"
+}

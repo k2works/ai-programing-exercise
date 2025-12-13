@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO \"勘定科目マスタ\" (\n            \"勘定科目コード\",\n            \"勘定科目名\",\n            \"勘定科目カナ\",\n            \"勘定科目種別\",\n            \"合計科目\",\n            \"BSPL区分\",\n            \"取引要素区分\",\n            \"費用区分\",\n            \"表示順序\",\n            \"集計対象\",\n            \"課税取引コード\",\n            \"残高\"\n        ) VALUES (\n            $1, $2, $3, $4::account_type, $5, $6, $7, $8, $9, $10, $11, $12\n        )\n        RETURNING \"勘定科目ID\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "勘定科目ID",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        {
+          "Custom": {
+            "name": "account_type",
+            "kind": {
+              "Enum": [
+                "資産",
+                "負債",
+                "純資産",
+                "収益",
+                "費用"
+              ]
+            }
+          }
+        },
+        "Bool",
+        "Bpchar",
+        "Varchar",
+        "Varchar",
+        "Int4",
+        "Bool",
+        "Varchar",
+        "Numeric"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "8697570acd4e67c9b009334c6ca517081ff8d2232842236708625b508d1e7f78"
+}

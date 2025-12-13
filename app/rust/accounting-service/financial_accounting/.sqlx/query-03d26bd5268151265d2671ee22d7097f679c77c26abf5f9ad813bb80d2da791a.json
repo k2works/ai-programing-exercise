@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM snapshots WHERE aggregate_type = $1 AND aggregate_id = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "03d26bd5268151265d2671ee22d7097f679c77c26abf5f9ad813bb80d2da791a"
+}

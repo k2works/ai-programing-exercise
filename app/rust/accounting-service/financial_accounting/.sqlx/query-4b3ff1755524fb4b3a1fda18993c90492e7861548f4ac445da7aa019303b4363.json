@@ -1,0 +1,89 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT\n                journal_id,\n                journal_date,\n                description,\n                fiscal_year,\n                status,\n                total_debit,\n                total_credit,\n                entry_count,\n                approved_by,\n                approved_at,\n                created_at,\n                updated_at\n            FROM journal_read_model\n            WHERE journal_date BETWEEN $1 AND $2\n            ORDER BY journal_date DESC\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "journal_id",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 1,
+        "name": "journal_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 2,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "fiscal_year",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "status",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "total_debit",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 6,
+        "name": "total_credit",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 7,
+        "name": "entry_count",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 8,
+        "name": "approved_by",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 9,
+        "name": "approved_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 11,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Date",
+        "Date"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "4b3ff1755524fb4b3a1fda18993c90492e7861548f4ac445da7aa019303b4363"
+}

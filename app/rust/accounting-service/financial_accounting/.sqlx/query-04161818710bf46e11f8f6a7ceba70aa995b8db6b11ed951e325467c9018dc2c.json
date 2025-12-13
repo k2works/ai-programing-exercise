@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO journal_read_model (\n                journal_id, journal_date, description, fiscal_year,\n                status, total_debit, total_credit, entry_count,\n                approved_by, approved_at, created_at, updated_at\n            )\n            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)\n            ON CONFLICT (journal_id)\n            DO UPDATE SET\n                journal_date = EXCLUDED.journal_date,\n                description = EXCLUDED.description,\n                fiscal_year = EXCLUDED.fiscal_year,\n                status = EXCLUDED.status,\n                total_debit = EXCLUDED.total_debit,\n                total_credit = EXCLUDED.total_credit,\n                entry_count = EXCLUDED.entry_count,\n                approved_by = EXCLUDED.approved_by,\n                approved_at = EXCLUDED.approved_at,\n                updated_at = EXCLUDED.updated_at\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Date",
+        "Text",
+        "Int4",
+        "Varchar",
+        "Int8",
+        "Int8",
+        "Int4",
+        "Varchar",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "04161818710bf46e11f8f6a7ceba70aa995b8db6b11ed951e325467c9018dc2c"
+}

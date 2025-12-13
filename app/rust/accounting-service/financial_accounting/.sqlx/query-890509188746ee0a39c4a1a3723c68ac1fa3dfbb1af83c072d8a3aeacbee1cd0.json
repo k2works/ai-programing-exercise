@@ -1,0 +1,70 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT\n                entry_id,\n                journal_id,\n                account_code,\n                account_name,\n                debit_amount,\n                credit_amount,\n                description,\n                line_number,\n                created_at\n            FROM journal_entry_read_model\n            WHERE journal_id = $1\n            ORDER BY line_number ASC\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "entry_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "journal_id",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "account_code",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "account_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "debit_amount",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 5,
+        "name": "credit_amount",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 6,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "line_number",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 8,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "890509188746ee0a39c4a1a3723c68ac1fa3dfbb1af83c072d8a3aeacbee1cd0"
+}

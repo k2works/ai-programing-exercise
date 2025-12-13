@@ -1,0 +1,143 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                SELECT\n                    \"仕訳伝票番号\", \"仕訳行番号\", \"仕訳行貸借区分\",\n                    \"通貨コード\", \"為替レート\", \"部門コード\", \"プロジェクトコード\",\n                    \"勘定科目コード\", \"補助科目コード\", \"仕訳金額\", \"基軸換算仕訳金額\",\n                    \"消費税区分\", \"消費税率\", \"消費税計算区分\", \"期日\", \"資金繰フラグ\",\n                    \"セグメントコード\", \"相手勘定科目コード\", \"相手補助科目コード\",\n                    \"付箋コード\", \"付箋内容\"\n                FROM \"仕訳貸借明細\"\n                WHERE \"仕訳伝票番号\" = $1 AND \"仕訳行番号\" = $2\n                ORDER BY \"仕訳行貸借区分\"\n                ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "仕訳伝票番号",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 1,
+        "name": "仕訳行番号",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "仕訳行貸借区分",
+        "type_info": "Bpchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "通貨コード",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "為替レート",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 5,
+        "name": "部門コード",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "プロジェクトコード",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "勘定科目コード",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "補助科目コード",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 9,
+        "name": "仕訳金額",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 10,
+        "name": "基軸換算仕訳金額",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 11,
+        "name": "消費税区分",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 12,
+        "name": "消費税率",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 13,
+        "name": "消費税計算区分",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 14,
+        "name": "期日",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 15,
+        "name": "資金繰フラグ",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 16,
+        "name": "セグメントコード",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 17,
+        "name": "相手勘定科目コード",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 18,
+        "name": "相手補助科目コード",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 19,
+        "name": "付箋コード",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 20,
+        "name": "付箋内容",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "15e97252d059c4f869719ce46986ed8272b82f0cf8dedc7d869fc190aabb9f93"
+}

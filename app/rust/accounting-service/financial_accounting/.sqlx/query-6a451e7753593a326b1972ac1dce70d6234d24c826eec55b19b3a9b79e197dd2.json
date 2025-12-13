@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            DELETE FROM journal_entry_read_model\n            WHERE entry_id = $1\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "6a451e7753593a326b1972ac1dce70d6234d24c826eec55b19b3a9b79e197dd2"
+}

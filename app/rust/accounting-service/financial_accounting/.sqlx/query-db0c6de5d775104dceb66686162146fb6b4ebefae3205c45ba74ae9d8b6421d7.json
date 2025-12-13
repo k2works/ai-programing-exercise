@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE \"勘定科目マスタ\"\n        SET \"残高\" = $1,\n            \"更新日時\" = CURRENT_TIMESTAMP\n        WHERE \"勘定科目コード\" = $2\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Numeric",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "db0c6de5d775104dceb66686162146fb6b4ebefae3205c45ba74ae9d8b6421d7"
+}

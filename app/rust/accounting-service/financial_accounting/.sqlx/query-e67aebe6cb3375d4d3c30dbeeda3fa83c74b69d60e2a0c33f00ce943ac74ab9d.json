@@ -1,0 +1,27 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO event_store (\n                aggregate_type, aggregate_id, event_type,\n                event_data, user_id, correlation_id\n            )\n            VALUES ($1, $2, $3, $4, $5, $6)\n            RETURNING sequence_number\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "sequence_number",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Jsonb",
+        "Varchar",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "e67aebe6cb3375d4d3c30dbeeda3fa83c74b69d60e2a0c33f00ce943ac74ab9d"
+}

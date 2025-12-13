@@ -1,0 +1,83 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT\n                \"仕訳伝票番号\", \"起票日\", \"入力日\", \"決算仕訳フラグ\", \"単振フラグ\",\n                \"仕訳伝票区分\", \"定期計上フラグ\", \"社員コード\", \"部門コード\", \"赤伝フラグ\", \"赤黒伝票番号\"\n            FROM \"仕訳\"\n            WHERE \"起票日\" BETWEEN $1 AND $2\n            ORDER BY \"起票日\", \"仕訳伝票番号\"\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "仕訳伝票番号",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 1,
+        "name": "起票日",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 2,
+        "name": "入力日",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 3,
+        "name": "決算仕訳フラグ",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "単振フラグ",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 5,
+        "name": "仕訳伝票区分",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 6,
+        "name": "定期計上フラグ",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 7,
+        "name": "社員コード",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "部門コード",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 9,
+        "name": "赤伝フラグ",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 10,
+        "name": "赤黒伝票番号",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Date",
+        "Date"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      true
+    ]
+  },
+  "hash": "6ae2a3363e3c121f084df1b9e8c0e53adf164fd191b94196985c12ec62227db1"
+}

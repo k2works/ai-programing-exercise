@@ -1,0 +1,38 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE \"勘定科目マスタ\"\n        SET \"勘定科目名\" = $1,\n            \"勘定科目カナ\" = $2,\n            \"勘定科目種別\" = $3::account_type,\n            \"合計科目\" = $4,\n            \"BSPL区分\" = $5,\n            \"取引要素区分\" = $6,\n            \"費用区分\" = $7,\n            \"表示順序\" = $8,\n            \"集計対象\" = $9,\n            \"課税取引コード\" = $10,\n            \"残高\" = $11,\n            \"更新日時\" = CURRENT_TIMESTAMP\n        WHERE \"勘定科目コード\" = $12\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        {
+          "Custom": {
+            "name": "account_type",
+            "kind": {
+              "Enum": [
+                "資産",
+                "負債",
+                "純資産",
+                "収益",
+                "費用"
+              ]
+            }
+          }
+        },
+        "Bool",
+        "Bpchar",
+        "Varchar",
+        "Varchar",
+        "Int4",
+        "Bool",
+        "Varchar",
+        "Numeric",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e7c0576405f69785c63b1cd379cb35dd3935a6b2ce9e1385f61c40613c4bb63f"
+}
