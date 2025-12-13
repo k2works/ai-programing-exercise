@@ -1,0 +1,30 @@
+[package]
+name = "api_gateway"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Webフレームワーク
+axum = { workspace = true }
+tower = { workspace = true }
+tower-http = { workspace = true }
+
+# 非同期ランタイム
+tokio = { workspace = true }
+
+# HTTPクライアント
+hyper = { workspace = true }
+hyper-util = { workspace = true }
+http-body-util = { workspace = true }
+reqwest = { workspace = true }
+
+# ログ
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+# 環境変数
+dotenv = { workspace = true }
+
+# シリアライズ
+serde = { workspace = true }
+serde_json = { workspace = true }
