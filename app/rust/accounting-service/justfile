@@ -1,0 +1,231 @@
+# Justfile for accounting-service
+# マイクロサービスアーキテクチャの財務会計システム
+
+# デフォルトレシピ（justコマンドのみで実行される）
+default:
+    @just --list
+
+# =============================================================================
+# ビルド関連
+# =============================================================================
+
+# ワークスペース全体をビルド
+build:
+    cargo build --release
+
+# 財務会計サービスをビルド
+build-financial:
+    cargo build -p financial_accounting --release
+
+# 管理会計サービスをビルド
+build-management:
+    cargo build -p management_accounting --release
+
+# API Gatewayをビルド
+build-gateway:
+    cargo build -p api_gateway --release
+
+# 共有クレートをビルド
+build-shared:
+    cargo build -p shared --release
+
+# =============================================================================
+# チェック・テスト関連
+# =============================================================================
+
+# 全クレートのチェック
+check:
+    cargo check
+
+# 全テスト実行
+test:
+    cargo test
+
+# 財務会計サービスのテスト
+test-financial:
+    cargo test -p financial_accounting
+
+# 管理会計サービスのテスト
+test-management:
+    cargo test -p management_accounting
+
+# Clippyによる静的解析
+clippy:
+    cargo clippy --all-targets --all-features -- -D warnings
+
+# コードフォーマット
+fmt:
+    cargo fmt --all
+
+# コードフォーマットチェック
+fmt-check:
+    cargo fmt --all -- --check
+
+# =============================================================================
+# Docker Compose関連
+# =============================================================================
+
+# Docker Composeでサービスを起動（ビルド含む）
+up:
+    docker-compose up --build
+
+# Docker Composeでサービスをバックグラウンド起動
+up-d:
+    docker-compose up -d --build
+
+# Docker Composeでサービスを停止
+down:
+    docker-compose down
+
+# Docker Composeでサービスを停止（ボリューム削除）
+down-v:
+    docker-compose down -v
+
+# Docker Composeのログを確認
+logs:
+    docker-compose logs -f
+
+# 財務会計サービスのログを確認
+logs-financial:
+    docker-compose logs -f financial-accounting
+
+# 管理会計サービスのログを確認
+logs-management:
+    docker-compose logs -f management-accounting
+
+# API Gatewayのログを確認
+logs-gateway:
+    docker-compose logs -f api-gateway
+
+# =============================================================================
+# ローカル開発用
+# =============================================================================
+
+# PostgreSQLとRabbitMQのみ起動
+dev-db:
+    docker-compose up -d postgres-financial postgres-management rabbitmq
+
+# 財務会計サービスをローカル起動
+dev-financial:
+    #!/usr/bin/env bash
+    cd financial_accounting
+    DATABASE_URL=postgres://postgres:postgres@localhost/financial_accounting \
+    RABBITMQ_URL=amqp://guest:guest@localhost:5672 \
+    RUST_LOG=info \
+    cargo run
+
+# 管理会計サービスをローカル起動
+dev-management:
+    #!/usr/bin/env bash
+    cd management_accounting
+    FINANCIAL_SERVICE_URL=http://localhost:8080 \
+    RUST_LOG=info \
+    cargo run
+
+# API Gatewayをローカル起動
+dev-gateway:
+    #!/usr/bin/env bash
+    cd api_gateway
+    FINANCIAL_SERVICE_URL=http://localhost:8080 \
+    MANAGEMENT_SERVICE_URL=http://localhost:8081 \
+    RUST_LOG=info \
+    cargo run
+
+# =============================================================================
+# データベース関連
+# =============================================================================
+
+# データベースマイグレーション実行
+migrate:
+    #!/usr/bin/env bash
+    cd financial_accounting
+    DATABASE_URL=postgres://postgres:postgres@localhost/financial_accounting \
+    sqlx migrate run
+
+# Seedデータ投入
+seed:
+    #!/usr/bin/env bash
+    cd financial_accounting
+    DATABASE_URL=postgres://postgres:postgres@localhost/financial_accounting \
+    cargo run --bin seed
+
+# 日次残高集計
+aggregate:
+    #!/usr/bin/env bash
+    cd financial_accounting
+    DATABASE_URL=postgres://postgres:postgres@localhost/financial_accounting \
+    cargo run --bin aggregate_balances
+
+# Seedデータ検証
+verify-seed:
+    #!/usr/bin/env bash
+    cd financial_accounting
+    DATABASE_URL=postgres://postgres:postgres@localhost/financial_accounting \
+    cargo run --bin verify_seed
+
+# =============================================================================
+# API テスト
+# =============================================================================
+
+# ヘルスチェック（財務会計）
+health-financial:
+    curl http://localhost:8080/health
+
+# ヘルスチェック（管理会計）
+health-management:
+    curl http://localhost:8081/health
+
+# ヘルスチェック（API Gateway）
+health-gateway:
+    curl http://localhost:8090/health
+
+# 財務分析APIテスト（2023年度）
+test-analysis:
+    curl http://localhost:8090/api/v1/analysis/2023 | jq
+
+# 期間比較APIテスト
+test-comparison:
+    curl "http://localhost:8090/api/v1/comparison?current_year=2023&previous_year=2022" | jq
+
+# =============================================================================
+# クリーンアップ
+# =============================================================================
+
+# ビルド成果物を削除
+clean:
+    cargo clean
+
+# Docker環境を完全にクリーンアップ
+clean-docker:
+    docker-compose down -v
+    docker system prune -f
+
+# すべてをクリーンアップ
+clean-all: clean clean-docker
+
+# =============================================================================
+# その他
+# =============================================================================
+
+# 依存関係の更新チェック
+outdated:
+    cargo outdated
+
+# セキュリティ監査
+audit:
+    cargo audit
+
+# ドキュメント生成
+doc:
+    cargo doc --no-deps --open
+
+# ワークスペースの統計情報
+stats:
+    @echo "=== ワークスペース統計 ==="
+    @echo "総クレート数: $(ls -d */ | wc -l | xargs)"
+    @echo ""
+    @echo "=== コード行数 ==="
+    @find . -name "*.rs" -not -path "*/target/*" | xargs wc -l | tail -1
+    @echo ""
+    @echo "=== テスト数 ==="
+    @cargo test --workspace -- --list 2>&1 | grep -E "test$" | wc -l | xargs echo "テスト関数:"
