@@ -1,4 +1,4 @@
-use chrono::NaiveDate;
+use chrono::{Datelike, NaiveDate};
 use rust_decimal::prelude::Zero;
 use rust_decimal::Decimal;
 use sqlx::PgPool;
@@ -6,6 +6,7 @@ use sqlx::PgPool;
 use crate::domain::financial::balance_sheet::{BalanceSheet, BalanceSheetItem};
 use crate::domain::financial::financial_ratios::FinancialRatios;
 use crate::domain::financial::income_statement::{IncomeStatement, IncomeStatementItem};
+use crate::domain::financial::period_comparison::{PeriodComparisonReport, VarianceAnalysis};
 
 /// 財務諸表生成サービス
 pub struct FinancialStatementService {
@@ -342,5 +343,113 @@ impl FinancialStatementService {
                 IncomeStatementItem { percentage, ..item }
             })
             .collect()
+    }
+
+    /// 期間比較分析を実行
+    ///
+    /// # Arguments
+    ///
+    /// * `current_period` - 当期の期末日
+    /// * `previous_period` - 前期の期末日
+    pub async fn compare_periods(
+        &self,
+        current_period: NaiveDate,
+        previous_period: NaiveDate,
+    ) -> Result<PeriodComparisonReport, Box<dyn std::error::Error>> {
+        // 当期の財務諸表
+        let current_bs = self.generate_balance_sheet(current_period).await?;
+        let current_pl = self
+            .generate_income_statement(
+                NaiveDate::from_ymd_opt(current_period.year(), 4, 1).unwrap(),
+                current_period,
+            )
+            .await?;
+        let current_ratios = self.calculate_financial_ratios(&current_bs, &current_pl);
+
+        // 前期の財務諸表
+        let previous_bs = self.generate_balance_sheet(previous_period).await?;
+        let previous_pl = self
+            .generate_income_statement(
+                NaiveDate::from_ymd_opt(previous_period.year(), 4, 1).unwrap(),
+                previous_period,
+            )
+            .await?;
+        let previous_ratios = self.calculate_financial_ratios(&previous_bs, &previous_pl);
+
+        // 増減分析
+        let variance_analysis = self.calculate_variance(&current_bs, &previous_bs, &current_pl, &previous_pl);
+
+        Ok(PeriodComparisonReport {
+            current_period,
+            previous_period,
+            current_bs,
+            previous_bs,
+            current_pl,
+            previous_pl,
+            current_ratios,
+            previous_ratios,
+            variance_analysis,
+        })
+    }
+
+    /// 増減分析を計算
+    ///
+    /// # Arguments
+    ///
+    /// * `current_bs` - 当期貸借対照表
+    /// * `previous_bs` - 前期貸借対照表
+    /// * `current_pl` - 当期損益計算書
+    /// * `previous_pl` - 前期損益計算書
+    fn calculate_variance(
+        &self,
+        current_bs: &BalanceSheet,
+        previous_bs: &BalanceSheet,
+        current_pl: &IncomeStatement,
+        previous_pl: &IncomeStatement,
+    ) -> VarianceAnalysis {
+        // 売上高の増減
+        let sales_variance = current_pl.total_sales - previous_pl.total_sales;
+        let sales_variance_ratio = if previous_pl.total_sales > Decimal::zero() {
+            ((sales_variance / previous_pl.total_sales) * Decimal::from(100)).round_dp(2)
+        } else {
+            Decimal::zero()
+        };
+
+        // 営業利益の増減
+        let operating_profit_variance =
+            current_pl.operating_income - previous_pl.operating_income;
+        let operating_profit_variance_ratio = if previous_pl.operating_income > Decimal::zero() {
+            ((operating_profit_variance / previous_pl.operating_income) * Decimal::from(100))
+                .round_dp(2)
+        } else {
+            Decimal::zero()
+        };
+
+        // 総資産の増減
+        let total_assets_variance = current_bs.total_assets - previous_bs.total_assets;
+        let total_assets_variance_ratio = if previous_bs.total_assets > Decimal::zero() {
+            ((total_assets_variance / previous_bs.total_assets) * Decimal::from(100)).round_dp(2)
+        } else {
+            Decimal::zero()
+        };
+
+        // 純資産の増減
+        let total_equity_variance = current_bs.total_equity - previous_bs.total_equity;
+        let total_equity_variance_ratio = if previous_bs.total_equity > Decimal::zero() {
+            ((total_equity_variance / previous_bs.total_equity) * Decimal::from(100)).round_dp(2)
+        } else {
+            Decimal::zero()
+        };
+
+        VarianceAnalysis {
+            sales_variance,
+            sales_variance_ratio,
+            operating_profit_variance,
+            operating_profit_variance_ratio,
+            total_assets_variance,
+            total_assets_variance_ratio,
+            total_equity_variance,
+            total_equity_variance_ratio,
+        }
     }
 }

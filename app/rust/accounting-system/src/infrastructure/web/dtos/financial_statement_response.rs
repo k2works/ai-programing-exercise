@@ -1,6 +1,6 @@
 use chrono::NaiveDate;
 use rust_decimal::Decimal;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
 use crate::domain::financial::balance_sheet::{BalanceSheet, BalanceSheetItem};
@@ -8,7 +8,7 @@ use crate::domain::financial::financial_ratios::FinancialRatios;
 use crate::domain::financial::income_statement::{IncomeStatement, IncomeStatementItem};
 
 /// 貸借対照表レスポンス
-#[derive(Debug, Serialize, ToSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct BalanceSheetResponse {
     pub as_of_date: NaiveDate,
     pub assets: Vec<BalanceSheetItemResponse>,
@@ -19,7 +19,7 @@ pub struct BalanceSheetResponse {
     pub total_equity: Decimal,
 }
 
-#[derive(Debug, Serialize, ToSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct BalanceSheetItemResponse {
     pub account_code: String,
     pub account_name: String,
@@ -63,7 +63,7 @@ impl From<BalanceSheetItem> for BalanceSheetItemResponse {
 }
 
 /// 損益計算書レスポンス
-#[derive(Debug, Serialize, ToSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct IncomeStatementResponse {
     pub start_date: NaiveDate,
     pub end_date: NaiveDate,
@@ -80,7 +80,7 @@ pub struct IncomeStatementResponse {
     pub net_income: Decimal,
 }
 
-#[derive(Debug, Serialize, ToSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct IncomeStatementItemResponse {
     pub account_code: String,
     pub account_name: String,
@@ -128,7 +128,7 @@ impl From<IncomeStatementItem> for IncomeStatementItemResponse {
 }
 
 /// 財務指標レスポンス
-#[derive(Debug, Serialize, ToSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct FinancialRatiosResponse {
     pub current_ratio: Decimal,
     pub equity_ratio: Decimal,

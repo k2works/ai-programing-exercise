@@ -10,6 +10,7 @@ use accounting_system::application::ports::input::financial_statement_usecase::F
 use accounting_system::application::ports::input::journal_usecase::JournalUseCase;
 use accounting_system::application::ports::output::audit_log_repository::AuditLogRepository;
 use accounting_system::application::services::account_service::AccountService;
+use accounting_system::application::financial::financial_statement_service::FinancialStatementService as FinancialStatementServiceFull;
 use accounting_system::application::services::financial_statement_service::FinancialStatementService;
 use accounting_system::application::services::journal_service::JournalService;
 use accounting_system::infrastructure::persistence::repositories::account_repository_impl::AccountRepositoryImpl;
@@ -105,6 +106,7 @@ async fn main() {
     let journal_usecase: Arc<dyn JournalUseCase> = Arc::new(journal_service);
 
     // Financial Statement API
+    let financial_service_for_comparison = Arc::new(FinancialStatementServiceFull::new(pool.clone()));
     let financial_service = FinancialStatementService::new(pool.clone());
     let financial_usecase: Arc<dyn FinancialStatementUseCase> = Arc::new(financial_service);
 
@@ -150,7 +152,12 @@ async fn main() {
             "/api/v1/financial/ratios",
             get(financial_statement_handler::get_financial_ratios),
         )
-        .with_state(financial_usecase);
+        .with_state(financial_usecase)
+        .route(
+            "/api/v1/financial/comparison",
+            get(financial_statement_handler::compare_periods),
+        )
+        .with_state(financial_service_for_comparison);
 
     // Audit Log API のルーター
     let audit_log_router = Router::new()

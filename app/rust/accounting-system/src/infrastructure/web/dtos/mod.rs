@@ -5,6 +5,7 @@ mod error_response;
 mod financial_statement_response;
 mod journal_request;
 mod journal_response;
+mod period_comparison_response;
 
 pub use account_request::AccountRequest;
 pub use account_response::AccountResponse;
@@ -15,3 +16,4 @@ pub use financial_statement_response::{
 };
 pub use journal_request::JournalRequest;
 pub use journal_response::JournalResponse;
+pub use period_comparison_response::{PeriodComparisonResponse, VarianceAnalysisResponse};

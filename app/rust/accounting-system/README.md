@@ -144,6 +144,19 @@ Swagger UI では以下のことができます：
 - `GET /api/v1/financial/balance-sheet?as_of_date=YYYY-MM-DD` - 貸借対照表の取得
 - `GET /api/v1/financial/income-statement?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD` - 損益計算書の取得
 - `GET /api/v1/financial/ratios?as_of_date=YYYY-MM-DD&period_start=YYYY-MM-DD&period_end=YYYY-MM-DD` - 財務指標の取得
+- `GET /api/v1/financial/comparison?current_period=YYYY-MM-DD&previous_period=YYYY-MM-DD` - 期間比較分析の取得
+
+#### 仕訳 API
+
+- `GET /api/v1/journals` - 全仕訳の取得
+- `GET /api/v1/journals/:journal_no` - 特定の仕訳を取得
+- `POST /api/v1/journals` - 仕訳の作成
+
+#### 監査ログ API
+
+- `GET /api/v1/audit-logs` - 全監査ログの取得
+- `GET /api/v1/audit-logs/entity/:entity_id` - エンティティ別監査ログの取得
+- `GET /api/v1/audit-logs/user/:user_id` - ユーザー別監査ログの取得
 
 ### API の使用例
 
@@ -175,7 +188,77 @@ curl http://localhost:3000/api/v1/accounts | jq '.'
 
 # 貸借対照表を取得
 curl "http://localhost:3000/api/v1/financial/balance-sheet?as_of_date=2024-12-31" | jq '.'
+
+# 期間比較分析を取得
+curl "http://localhost:3000/api/v1/financial/comparison?current_period=2022-03-31&previous_period=2021-03-31" | jq '.'
 ```
+
+## CLI クライアント
+
+Rust で実装された CLI クライアントを使用して、財務分析 API を簡単に呼び出すことができます。
+
+### CLI クライアントの使用方法
+
+```bash
+# ヘルプを表示
+cargo run --bin cli_client -- --help
+
+# 貸借対照表を取得
+cargo run --bin cli_client -- balance-sheet --date 2022-03-31
+
+# 損益計算書を取得
+cargo run --bin cli_client -- income-statement --start-date 2021-04-01 --end-date 2022-03-31
+
+# 期間比較分析を取得
+cargo run --bin cli_client -- comparison --current 2022-03-31 --previous 2021-03-31
+```
+
+### CLI クライアントの出力例
+
+```json
+{
+  "as_of_date": "2022-03-31",
+  "assets": [
+    {
+      "account_code": "1101",
+      "account_name": "売掛金",
+      "balance": "10344013.00"
+    }
+  ],
+  "total_assets": "14273690.00",
+  "total_liabilities": "5402403.00"
+}
+```
+
+## データ管理
+
+### Seed スクリプト
+
+実践的なテストデータ（D 社の財務データ）を生成するための Seed スクリプトを提供しています。
+
+```bash
+# 勘定科目マスタと仕訳データを投入
+cargo run --bin seed
+
+# 日次勘定科目残高を集計
+cargo run --bin aggregate_balances
+
+# 勘定科目マスタの BSPL 区分を更新
+cargo run --bin update_account_fields
+
+# Seed データを検証
+cargo run --bin verify_seed
+
+# 日次勘定科目残高をチェック
+cargo run --bin check_daily_balance
+```
+
+### Seed データの内容
+
+- **勘定科目マスタ**: 31 件の勘定科目（資産・負債・純資産・収益・費用）
+- **令和 3 年度仕訳**: 売上高、売上原価、販管費、法人税等の仕訳
+- **令和 4 年度仕訳**: 前期との比較分析用の仕訳データ
+- **日次勘定科目残高**: 仕訳から自動集計された残高データ
 
 ## データベース管理
 
@@ -230,24 +313,34 @@ accounting-system/
 ├── src/
 │   ├── main.rs                    # API サーバーのエントリーポイント
 │   ├── lib.rs                     # ライブラリのエントリーポイント
+│   ├── bin/                       # バイナリ（実行可能ファイル）
+│   │   ├── cli_client.rs          # CLI クライアント
+│   │   ├── seed.rs                # Seed スクリプト
+│   │   ├── aggregate_balances.rs  # 残高集計スクリプト
+│   │   ├── update_account_fields.rs # 勘定科目マスタ更新スクリプト
+│   │   ├── verify_seed.rs         # Seed データ検証スクリプト
+│   │   └── check_daily_balance.rs # 日次残高チェックスクリプト
 │   ├── application/               # Application 層
 │   │   ├── ports/                 # Ports（入力・出力ポート）
 │   │   │   ├── input/             # Input Ports（ユースケース）
 │   │   │   └── output/            # Output Ports（リポジトリ）
 │   │   ├── services/              # Application Services
 │   │   ├── balance/               # 残高管理サービス
-│   │   └── financial/             # 財務諸表サービス
+│   │   ├── financial/             # 財務諸表サービス
+│   │   └── event_handlers/        # イベントハンドラ
 │   ├── domain/                    # Domain 層
 │   │   ├── account.rs             # 勘定科目エンティティ
 │   │   ├── journal.rs             # 仕訳エンティティ
 │   │   ├── balance/               # 残高ドメインモデル
-│   │   └── financial/             # 財務諸表ドメインモデル
+│   │   ├── financial/             # 財務諸表ドメインモデル
+│   │   └── events/                # ドメインイベント
 │   ├── infrastructure/            # Infrastructure 層
 │   │   ├── web/                   # Web インターフェース（Input Adapters）
 │   │   │   ├── handlers/          # HTTP ハンドラ
 │   │   │   └── dtos/              # DTOs
-│   │   └── persistence/           # データ永続化（Output Adapters）
-│   │       └── repositories/      # リポジトリ実装
+│   │   ├── persistence/           # データ永続化（Output Adapters）
+│   │   │   └── repositories/      # リポジトリ実装
+│   │   └── messaging/             # メッセージング（RabbitMQ）
 │   └── repositories/              # 既存のリポジトリ
 ├── tests/                         # 統合テスト
 └── README.md                      # このファイル
@@ -326,6 +419,25 @@ accounting-system/
   - 勘定科目 API
   - 財務諸表 API
   - RESTful エンドポイント
+
+- ✅ **第6章**: 監査ログ機能
+  - 監査ログテーブル設計
+  - 変更履歴の自動記録
+  - エンティティ・ユーザー別ログ取得 API
+
+- ✅ **第7章**: イベントソーシング
+  - ドメインイベントの定義
+  - イベントパブリッシャー実装（RabbitMQ）
+  - イベント駆動アーキテクチャ
+  - 非同期イベント処理
+
+- ✅ **第8章**: 実践的なテストデータと CLI クライアント
+  - D 社財務データの Seed スクリプト
+  - 期間比較分析サービス
+  - 期間比較 API エンドポイント
+  - CLI クライアント実装（clap + reqwest）
+  - 日次残高集計スクリプト
+  - データ検証ツール
 
 ### Just コマンド一覧
 

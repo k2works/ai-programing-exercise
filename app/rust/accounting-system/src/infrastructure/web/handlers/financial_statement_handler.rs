@@ -9,8 +9,10 @@ use std::sync::Arc;
 use utoipa::{IntoParams, ToSchema};
 
 use crate::application::ports::input::financial_statement_usecase::FinancialStatementUseCase;
+use crate::application::financial::financial_statement_service::FinancialStatementService;
 use crate::infrastructure::web::dtos::{
     BalanceSheetResponse, FinancialRatiosResponse, IncomeStatementResponse,
+    PeriodComparisonResponse,
 };
 
 #[derive(Debug, Deserialize, IntoParams, ToSchema)]
@@ -35,6 +37,14 @@ pub struct FinancialRatiosQuery {
     pub period_start: NaiveDate,
     /// 期間終了日 (YYYY-MM-DD)
     pub period_end: NaiveDate,
+}
+
+#[derive(Debug, Deserialize, IntoParams, ToSchema)]
+pub struct PeriodComparisonQuery {
+    /// 当期の期末日 (YYYY-MM-DD)
+    pub current_period: NaiveDate,
+    /// 前期の期末日 (YYYY-MM-DD)
+    pub previous_period: NaiveDate,
 }
 
 /// 貸借対照表を取得
@@ -104,4 +114,27 @@ pub async fn get_financial_ratios(
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 
     Ok(Json(FinancialRatiosResponse::from(ratios)))
+}
+
+/// 期間比較分析を取得
+#[utoipa::path(
+    get,
+    path = "/api/v1/financial/comparison",
+    params(PeriodComparisonQuery),
+    responses(
+        (status = 200, description = "期間比較分析の取得に成功", body = PeriodComparisonResponse),
+        (status = 500, description = "内部サーバーエラー")
+    ),
+    tag = "財務諸表"
+)]
+pub async fn compare_periods(
+    State(service): State<Arc<FinancialStatementService>>,
+    Query(query): Query<PeriodComparisonQuery>,
+) -> Result<Json<PeriodComparisonResponse>, (StatusCode, String)> {
+    let report = service
+        .compare_periods(query.current_period, query.previous_period)
+        .await
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+
+    Ok(Json(PeriodComparisonResponse::from(report)))
 }
