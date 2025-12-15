@@ -17,6 +17,11 @@ Rails.application.routes.draw do
       get 'financial-statements/balance-sheet', to: 'financial_statements#balance_sheet'
       get 'financial-statements/income-statement', to: 'financial_statements#income_statement'
       get 'financial-statements/ratios', to: 'financial_statements#ratios'
+
+      # 監査ログAPI
+      get 'audit_logs/entity/:entity_type/:entity_id', to: 'audit_logs#entity_history'
+      get 'audit_logs/user/:user_id', to: 'audit_logs#user_activity'
+      get 'audit_logs/period', to: 'audit_logs#period_logs'
     end
   end
 

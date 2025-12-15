@@ -24,6 +24,10 @@ module AccountingSystem
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
 
+    # カスタムディレクトリの自動読み込み
+    config.eager_load_paths << Rails.root.join('app', 'events')
+    config.eager_load_paths << Rails.root.join('app', 'event_handlers')
+
     # Only loads a smaller set of middleware suitable for API only apps.
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_15_011733) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_15_055652) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -52,6 +52,28 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_011733) do
     t.check_constraint "(transaction_type::text = ANY (ARRAY['1'::character varying::text, '2'::character varying::text, '3'::character varying::text, '4'::character varying::text, '5'::character varying::text])) OR transaction_type IS NULL", name: "check_transaction_type"
     t.check_constraint "bspl_type::text = 'B'::text AND (account_type = ANY (ARRAY[0, 1, 2])) OR bspl_type::text = 'P'::text AND (account_type = ANY (ARRAY[3, 4])) OR bspl_type IS NULL", name: "check_bspl_consistency"
     t.check_constraint "expense_type IS NOT NULL AND account_type = 4 OR expense_type IS NULL", name: "check_expense_type_only_for_expense"
+  end
+
+  create_table "audit_logs", comment: "監査ログテーブル（Append-Onlyで不変）", force: :cascade do |t|
+    t.string "action", limit: 20, null: false, comment: "操作種別（create, update, delete）"
+    t.jsonb "change_data", comment: "変更内容（CREATE時）"
+    t.datetime "created_at", null: false
+    t.string "entity_id", limit: 100, null: false, comment: "エンティティID"
+    t.string "entity_type", limit: 50, null: false, comment: "エンティティ種別（Journal, Account等）"
+    t.string "ip_address", limit: 45
+    t.jsonb "new_values", comment: "変更後の値（UPDATE時）"
+    t.jsonb "old_values", comment: "変更前の値（UPDATE, DELETE時）"
+    t.text "reason", comment: "操作理由（任意）"
+    t.datetime "timestamp", null: false
+    t.datetime "updated_at", null: false
+    t.text "user_agent"
+    t.string "user_id", limit: 100, null: false
+    t.string "user_name", limit: 200, null: false
+    t.index ["action"], name: "idx_audit_log_action"
+    t.index ["change_data"], name: "idx_audit_log_changes", using: :gin
+    t.index ["entity_type", "entity_id"], name: "idx_audit_log_entity"
+    t.index ["timestamp"], name: "idx_audit_log_timestamp"
+    t.index ["user_id"], name: "idx_audit_log_user"
   end
 
   create_table "auto_journal_logs", force: :cascade do |t|
