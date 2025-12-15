@@ -6,6 +6,9 @@ class JournalEntry < ApplicationRecord
   # アソシエーション
   has_many :details, class_name: 'JournalEntryDetail', dependent: :destroy
 
+  # Nested Attributes
+  accepts_nested_attributes_for :details
+
   # バリデーション
   validates :entry_number, presence: true, uniqueness: true, length: { maximum: 10 }
   validates :entry_date, presence: true
@@ -20,12 +23,12 @@ class JournalEntry < ApplicationRecord
 
   # 借方合計
   def debit_total
-    details.sum(:debit_amount)
+    details.to_a.sum(&:debit_amount)
   end
 
   # 貸方合計
   def credit_total
-    details.sum(:credit_amount)
+    details.to_a.sum(&:credit_amount)
   end
 
   # 貸借平衡チェック
