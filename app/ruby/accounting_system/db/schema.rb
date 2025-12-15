@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_15_001718) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_15_002323) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -33,8 +33,11 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_001718) do
     t.string "code", null: false
     t.datetime "created_at", null: false
     t.string "debit_credit_type", limit: 1, comment: "貸借区分（D:借方, C:貸方）"
+    t.integer "display_order", comment: "表示順序"
+    t.string "expense_type", limit: 1, comment: "費用区分（1:販管費, 2:営業外費用, 3:特別損失）"
     t.boolean "is_summary", default: false, null: false, comment: "集計科目フラグ（true:集計科目, false:明細科目）"
     t.string "name", null: false
+    t.string "transaction_type", limit: 1, comment: "取引要素区分（1:資産, 2:負債, 3:純資産, 4:収益, 5:費用）"
     t.datetime "updated_at", null: false
     t.index ["account_type"], name: "index_accounts_on_account_type"
     t.index ["code"], name: "index_accounts_on_code", unique: true
@@ -59,7 +62,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_001718) do
     t.index ["entity_type", "entity_id"], name: "idx_audit_log_entity"
     t.index ["timestamp"], name: "idx_audit_log_timestamp", order: :desc
     t.index ["user_id"], name: "idx_audit_log_user"
-    t.check_constraint "action::text = ANY (ARRAY['CREATE'::character varying, 'UPDATE'::character varying, 'DELETE'::character varying]::text[])", name: "audit_log_action_check"
+    t.check_constraint "action::text = ANY (ARRAY['CREATE'::character varying::text, 'UPDATE'::character varying::text, 'DELETE'::character varying::text])", name: "audit_log_action_check"
   end
 
   create_table "event_store", primary_key: "sequence_number", id: { comment: "グローバルなイベントシーケンス番号" }, comment: "イベントソーシング用の追記専用イベントストア", force: :cascade do |t|
@@ -184,7 +187,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_001718) do
     t.index ["仕訳伝票番号"], name: "idx_仕訳貸借明細_伝票番号"
     t.index ["勘定科目コード"], name: "idx_仕訳貸借明細_勘定科目"
     t.index ["部門コード"], name: "idx_仕訳貸借明細_部門"
-    t.check_constraint "\"仕訳行貸借区分\" = ANY (ARRAY['D'::bpchar, 'C'::bpchar])", name: "check_貸借区分"
+    t.check_constraint "\"仕訳行貸借区分\"::bpchar = ANY (ARRAY['D'::bpchar, 'C'::bpchar])", name: "check_貸借区分"
     t.check_constraint "\"仕訳金額\" >= 0::numeric", name: "check_仕訳金額"
     t.check_constraint "\"為替レート\" > 0::numeric", name: "check_為替レート"
     t.check_constraint "length(\"通貨コード\"::text) = 3", name: "check_通貨コード長"
@@ -211,11 +214,11 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_001718) do
     t.index ["勘定科目種別"], name: "idx_勘定科目マスタ_勘定科目種別"
     t.index ["表示順序"], name: "idx_account_display_order", comment: "表示順序での並び替えを高速化"
     t.index ["課税取引コード"], name: "idx_account_tax_code", where: "(\"課税取引コード\" IS NOT NULL)", comment: "課税取引コードでの検索を高速化（部分インデックス）"
-    t.check_constraint "(\"BSPL区分\" = ANY (ARRAY['B'::bpchar, 'P'::bpchar])) OR \"BSPL区分\" IS NULL", name: "check_bspl_distinction"
-    t.check_constraint "(\"貸借区分\" = ANY (ARRAY['D'::bpchar, 'C'::bpchar])) OR \"貸借区分\" IS NULL", name: "check_debit_credit_distinction"
-    t.check_constraint "(\"集計区分\" = ANY (ARRAY['H'::bpchar, 'S'::bpchar, 'D'::bpchar])) OR \"集計区分\" IS NULL", name: "check_aggregation_distinction"
-    t.check_constraint "\"BSPL区分\" = 'B'::bpchar AND (\"勘定科目種別\"::text = ANY (ARRAY['資産'::text, '負債'::text, '純資産'::text])) OR \"BSPL区分\" = 'P'::bpchar AND (\"勘定科目種別\"::text = ANY (ARRAY['収益'::text, '費用'::text])) OR \"BSPL区分\" IS NULL", name: "check_bspl_consistency"
-    t.check_constraint "\"貸借区分\" = 'D'::bpchar AND (\"勘定科目種別\"::text = ANY (ARRAY['資産'::text, '費用'::text])) OR \"貸借区分\" = 'C'::bpchar AND (\"勘定科目種別\"::text = ANY (ARRAY['負債'::text, '純資産'::text, '収益'::text])) OR \"貸借区分\" IS NULL", name: "check_debit_credit_consistency"
+    t.check_constraint "(\"BSPL区分\"::bpchar = ANY (ARRAY['B'::bpchar, 'P'::bpchar])) OR \"BSPL区分\" IS NULL", name: "check_bspl_distinction"
+    t.check_constraint "(\"貸借区分\"::bpchar = ANY (ARRAY['D'::bpchar, 'C'::bpchar])) OR \"貸借区分\" IS NULL", name: "check_debit_credit_distinction"
+    t.check_constraint "(\"集計区分\"::bpchar = ANY (ARRAY['H'::bpchar, 'S'::bpchar, 'D'::bpchar])) OR \"集計区分\" IS NULL", name: "check_aggregation_distinction"
+    t.check_constraint "\"BSPL区分\"::bpchar = 'B'::bpchar AND (\"勘定科目種別\"::text = ANY (ARRAY['資産'::text, '負債'::text, '純資産'::text])) OR \"BSPL区分\"::bpchar = 'P'::bpchar AND (\"勘定科目種別\"::text = ANY (ARRAY['収益'::text, '費用'::text])) OR \"BSPL区分\" IS NULL", name: "check_bspl_consistency"
+    t.check_constraint "\"貸借区分\"::bpchar = 'D'::bpchar AND (\"勘定科目種別\"::text = ANY (ARRAY['資産'::text, '費用'::text])) OR \"貸借区分\"::bpchar = 'C'::bpchar AND (\"勘定科目種別\"::text = ANY (ARRAY['負債'::text, '純資産'::text, '収益'::text])) OR \"貸借区分\" IS NULL", name: "check_debit_credit_consistency"
     t.unique_constraint ["勘定科目コード"], name: "勘定科目マスタ_勘定科目コード_key"
   end
 
@@ -296,7 +299,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_001718) do
     t.bigint "pattern_id", null: false
     t.timestamptz "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.index ["pattern_id"], name: "idx_自動仕訳パターン明細_pattern_id"
-    t.check_constraint "debit_credit_flag = ANY (ARRAY['D'::bpchar, 'C'::bpchar])", name: "check_貸借区分_auto"
+    t.check_constraint "debit_credit_flag::bpchar = ANY (ARRAY['D'::bpchar, 'C'::bpchar])", name: "check_貸借区分_auto"
     t.unique_constraint ["pattern_id", "line_number", "debit_credit_flag"], name: "uk_自動仕訳パターン明細_pattern_line"
   end
 
@@ -314,7 +317,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_001718) do
     t.index ["status"], name: "idx_自動仕訳実行ログ_status"
     t.check_constraint "generated_count >= 0", name: "check_generated_count"
     t.check_constraint "processed_count >= 0", name: "check_processed_count"
-    t.check_constraint "status::text = ANY (ARRAY['success'::character varying, 'error'::character varying, 'running'::character varying]::text[])", name: "check_status"
+    t.check_constraint "status::text = ANY (ARRAY['success'::character varying::text, 'error'::character varying::text, 'running'::character varying::text])", name: "check_status"
   end
 
   create_table "自動仕訳管理", comment: "自動仕訳の最終処理日時を管理するテーブル（日付管理方式）", force: :cascade do |t|
