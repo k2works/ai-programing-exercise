@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 class Account < ApplicationRecord
+  # アソシエーション
+  has_one :account_structure, foreign_key: :account_code, primary_key: :code
+
   # 勘定科目種別のenum定義
   enum :account_type, {
     asset: 0,       # 資産

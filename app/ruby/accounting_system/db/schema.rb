@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_15_004534) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_15_004934) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -24,6 +24,18 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_004534) do
     t.bigint "execution_time", null: false
     t.timestamptz "installed_on", default: -> { "now()" }, null: false
     t.boolean "success", null: false
+  end
+
+  create_table "account_structures", primary_key: "account_code", id: { type: :string, limit: 20, comment: "勘定科目コード" }, comment: "勘定科目の階層構造を管理するマスタテーブル", force: :cascade do |t|
+    t.string "account_path", limit: 200, null: false, comment: "チルダ連結形式のパス（例: 11~11000~11190~11110）"
+    t.datetime "created_at", null: false
+    t.integer "display_order", default: 0, null: false, comment: "同じ階層内での表示順序"
+    t.integer "hierarchy_level", default: 1, null: false, comment: "階層の深さ（ルート=1）"
+    t.string "parent_code", limit: 20, comment: "親科目のコード"
+    t.datetime "updated_at", null: false
+    t.index ["account_path"], name: "idx_rails_account_structure_path", comment: "パスでの検索を高速化"
+    t.index ["hierarchy_level"], name: "idx_rails_account_structure_level", comment: "階層レベルでの検索を高速化"
+    t.index ["parent_code"], name: "idx_rails_account_structure_parent", where: "(parent_code IS NOT NULL)", comment: "親科目での検索を高速化（部分インデックス）"
   end
 
   create_table "accounts", force: :cascade do |t|
@@ -350,6 +362,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_004534) do
     t.check_constraint "\"税率\" >= 0::numeric AND \"税率\" <= 1::numeric", name: "check_tax_rate"
   end
 
+  add_foreign_key "account_structures", "accounts", column: "account_code", primary_key: "code", on_delete: :cascade
   add_foreign_key "journal_entry_read_model", "journal_read_model", column: "journal_id", primary_key: "journal_id", name: "journal_entry_read_model_journal_id_fkey", on_delete: :cascade
   add_foreign_key "仕訳明細", "仕訳", column: "仕訳伝票番号", primary_key: "仕訳伝票番号", name: "fk_仕訳明細_仕訳", on_delete: :cascade
   add_foreign_key "仕訳貸借明細", "仕訳明細", column: ["仕訳伝票番号", "仕訳行番号"], primary_key: ["仕訳伝票番号", "仕訳行番号"], name: "fk_仕訳貸借明細_仕訳明細", on_delete: :cascade
