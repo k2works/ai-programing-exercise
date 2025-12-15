@@ -115,7 +115,7 @@ RSpec.describe BalanceService, type: :service do
 
   describe '.update_balance_from_journal' do
     let(:cash_account) { create(:account, code: '1010', name: '現金', account_type: :asset) }
-    let(:sales_account) { create(:account, code: '4010', name: '売上高', account_type: :revenue) }
+    let(:sales_account) { create(:account, :revenue, code: '4010', name: '売上高') }
 
     before do
       DailyAccountBalance.delete_all

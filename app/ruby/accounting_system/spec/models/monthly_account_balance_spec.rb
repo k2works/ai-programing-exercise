@@ -127,7 +127,7 @@ RSpec.describe MonthlyAccountBalance, type: :model do
 
     it '会計年度別に集計できる' do
       # Given: 2024年と2025年の売上高残高
-      sales_account = create(:account, code: '4010', name: '売上高', account_type: :revenue)
+      sales_account = create(:account, :revenue, code: '4010', name: '売上高')
 
       MonthlyAccountBalance.create!(
         fiscal_year: 2024,
@@ -169,7 +169,7 @@ RSpec.describe MonthlyAccountBalance, type: :model do
 
     it '決算仕訳フラグで通常仕訳と決算仕訳を分けて管理できる' do
       # Given: 通常仕訳と決算仕訳の月次残高
-      cost_account = create(:account, code: '5110', name: '仕入', account_type: :expense)
+      cost_account = create(:account, :expense, code: '5110', name: '仕入')
 
       # 通常仕訳
       MonthlyAccountBalance.create!(

@@ -9,9 +9,9 @@ RSpec.describe JournalEntry, type: :model do
       create(:account, code: '1100', name: '現金', account_type: :asset)
       create(:account, code: '1200', name: '普通預金', account_type: :asset)
       create(:account, code: '1300', name: '売掛金', account_type: :asset)
-      create(:account, code: '2120', name: '仮受消費税', account_type: :liability)
-      create(:account, code: '4100', name: '売上', account_type: :revenue)
-      create(:account, code: '6200', name: '支払手数料', account_type: :expense)
+      create(:account, :liability, code: '2120', name: '仮受消費税')
+      create(:account, :revenue, code: '4100', name: '売上')
+      create(:account, :expense, code: '6200', name: '支払手数料')
     end
 
     context '仕訳エントリを登録できる' do

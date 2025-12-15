@@ -70,7 +70,7 @@ RSpec.describe DailyAccountBalance, type: :model do
     it '部門別の残高を管理できる' do
       # Given: 売上高の部門別日次残高
       entry_date = Date.new(2025, 1, 15)
-      sales_account = create(:account, code: '4010', name: '売上高', account_type: :revenue)
+      sales_account = create(:account, :revenue, code: '4010', name: '売上高')
 
       # When: 部門001と部門002の残高を登録
       DailyAccountBalance.create!(
@@ -112,7 +112,7 @@ RSpec.describe DailyAccountBalance, type: :model do
     it 'プロジェクト別の残高を管理できる' do
       # Given: プロジェクト別の残高
       entry_date = Date.new(2025, 1, 15)
-      sales_account = create(:account, code: '4010', name: '売上高', account_type: :revenue)
+      sales_account = create(:account, :revenue, code: '4010', name: '売上高')
 
       # When: プロジェクトP001とP002の残高を登録
       DailyAccountBalance.create!(
@@ -196,7 +196,7 @@ RSpec.describe DailyAccountBalance, type: :model do
     it '決算仕訳フラグで通常仕訳と決算仕訳を分けて管理できる' do
       # Given: 通常仕訳と決算仕訳の残高
       entry_date = Date.new(2025, 3, 31)
-      cost_account = create(:account, code: '5110', name: '仕入', account_type: :expense)
+      cost_account = create(:account, :expense, code: '5110', name: '仕入')
 
       # When: 通常仕訳と決算仕訳の残高を登録
       DailyAccountBalance.create!(
