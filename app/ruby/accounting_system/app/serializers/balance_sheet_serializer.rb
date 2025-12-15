@@ -13,10 +13,10 @@ class BalanceSheetSerializer
       assets: serialize_items(@balance_sheet.assets),
       liabilities: serialize_items(@balance_sheet.liabilities),
       equity: serialize_items(@balance_sheet.equity),
-      total_assets: @balance_sheet.total_assets,
-      total_liabilities: @balance_sheet.total_liabilities,
-      total_equity: @balance_sheet.total_equity,
-      total_liabilities_and_equity: @balance_sheet.total_liabilities_and_equity
+      total_assets: @balance_sheet.total_assets.to_f,
+      total_liabilities: @balance_sheet.total_liabilities.to_f,
+      total_equity: @balance_sheet.total_equity.to_f,
+      total_liabilities_and_equity: @balance_sheet.total_liabilities_and_equity.to_f
     }
   end
 
@@ -27,8 +27,8 @@ class BalanceSheetSerializer
       {
         account_code: item.account_code,
         account_name: item.account_name,
-        balance: item.balance,
-        percentage: item.percentage
+        balance: item.balance.to_f,
+        percentage: item.percentage.to_f
       }
     end
   end

@@ -95,13 +95,13 @@ RSpec.describe 'Api::V1::FinancialStatements', type: :request do
         expect(json['equity']).to be_a(Array)
 
         # 資産合計 = 800,000円（現金 500,000 + 売掛金 300,000）
-        expect(json['total_assets']).to eq('800000.0')
+        expect(json['total_assets']).to eq(800_000.0)
 
         # 負債合計 = 200,000円
-        expect(json['total_liabilities']).to eq('200000.0')
+        expect(json['total_liabilities']).to eq(200_000.0)
 
         # 純資産合計 = 600,000円
-        expect(json['total_equity']).to eq('600000.0')
+        expect(json['total_equity']).to eq(600_000.0)
 
         # 貸借平衡の原則
         expect(json['total_liabilities_and_equity']).to eq(json['total_assets'])
@@ -151,19 +151,19 @@ RSpec.describe 'Api::V1::FinancialStatements', type: :request do
         expect(json['expenses']).to be_a(Array)
 
         # 売上高 = 1,000,000円
-        expect(json['total_revenues']).to eq('1000000.0')
+        expect(json['total_revenues']).to eq(1_000_000.0)
 
         # 費用合計 = 800,000円（売上原価 600,000 + 販売費 200,000）
-        expect(json['total_expenses']).to eq('800000.0')
+        expect(json['total_expenses']).to eq(800_000.0)
 
         # 売上総利益 = 400,000円（売上高 1,000,000 - 売上原価 600,000）
-        expect(json['gross_profit']).to eq('400000.0')
+        expect(json['gross_profit']).to eq(400_000.0)
 
         # 営業利益 = 200,000円（売上総利益 400,000 - 販売費 200,000）
-        expect(json['operating_income']).to eq('200000.0')
+        expect(json['operating_income']).to eq(200_000.0)
 
         # 当期純利益 = 200,000円（売上高 1,000,000 - 費用合計 800,000）
-        expect(json['net_income']).to eq('200000.0')
+        expect(json['net_income']).to eq(200_000.0)
       end
     end
 
