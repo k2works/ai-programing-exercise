@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_15_002722) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_15_003926) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -40,10 +40,14 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_002722) do
     t.string "transaction_type", limit: 1, comment: "取引要素区分（1:資産, 2:負債, 3:純資産, 4:収益, 5:費用）"
     t.datetime "updated_at", null: false
     t.index ["account_type"], name: "index_accounts_on_account_type"
+    t.index ["bspl_type", "display_order"], name: "idx_accounts_on_bspl_type_and_display_order", where: "((bspl_type IS NOT NULL) AND (display_order IS NOT NULL))", comment: "BSPL区分での絞り込み + 表示順序でのソートを高速化（財務諸表表示用）"
+    t.index ["bspl_type"], name: "idx_accounts_on_bspl_type", where: "(bspl_type IS NOT NULL)", comment: "BSPL区分での検索を高速化"
     t.index ["code"], name: "index_accounts_on_code", unique: true
-    t.check_constraint "(bspl_type::text = ANY (ARRAY['B'::character varying, 'P'::character varying]::text[])) OR bspl_type IS NULL", name: "check_bspl_type"
-    t.check_constraint "(expense_type::text = ANY (ARRAY['1'::character varying, '2'::character varying, '3'::character varying]::text[])) OR expense_type IS NULL", name: "check_expense_type"
-    t.check_constraint "(transaction_type::text = ANY (ARRAY['1'::character varying, '2'::character varying, '3'::character varying, '4'::character varying, '5'::character varying]::text[])) OR transaction_type IS NULL", name: "check_transaction_type"
+    t.index ["display_order"], name: "idx_accounts_on_display_order", where: "(display_order IS NOT NULL)", comment: "表示順序でのソートを高速化"
+    t.index ["transaction_type"], name: "idx_accounts_on_transaction_type", where: "(transaction_type IS NOT NULL)", comment: "取引要素区分での検索を高速化"
+    t.check_constraint "(bspl_type::text = ANY (ARRAY['B'::character varying::text, 'P'::character varying::text])) OR bspl_type IS NULL", name: "check_bspl_type"
+    t.check_constraint "(expense_type::text = ANY (ARRAY['1'::character varying::text, '2'::character varying::text, '3'::character varying::text])) OR expense_type IS NULL", name: "check_expense_type"
+    t.check_constraint "(transaction_type::text = ANY (ARRAY['1'::character varying::text, '2'::character varying::text, '3'::character varying::text, '4'::character varying::text, '5'::character varying::text])) OR transaction_type IS NULL", name: "check_transaction_type"
     t.check_constraint "bspl_type::text = 'B'::text AND (account_type = ANY (ARRAY[0, 1, 2])) OR bspl_type::text = 'P'::text AND (account_type = ANY (ARRAY[3, 4])) OR bspl_type IS NULL", name: "check_bspl_consistency"
     t.check_constraint "expense_type IS NOT NULL AND account_type = 4 OR expense_type IS NULL", name: "check_expense_type_only_for_expense"
   end
