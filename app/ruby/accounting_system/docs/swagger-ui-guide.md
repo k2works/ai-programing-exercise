@@ -117,6 +117,15 @@ RAILS_ENV=test bundle exec rake rswag:specs:swaggerize
 
 ## 開発環境での注意事項
 
+### Content Security Policy について
+
+Swagger UI が API エンドポイントに接続できるよう、Content Security Policy (CSP) に `connect-src` ディレクティブを追加しています。
+
+- 開発環境：`connect-src 'self' http://localhost:3000`
+- 本番環境：`connect-src 'self' https:`
+
+設定ファイル：`config/initializers/rswag_csp.rb`
+
 ### CORS について
 
 開発環境では、Swagger UI と API は同一オリジン（localhost:3000）で動作するため、CORS の設定は不要です。
