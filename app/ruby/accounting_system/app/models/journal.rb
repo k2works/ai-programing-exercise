@@ -3,6 +3,8 @@
 # 仕訳モデル（3層構造のヘッダー）
 # 複式簿記の仕訳データを管理する
 class Journal < ApplicationRecord
+  include DoubleEntryValidatable
+
   # 関連
   has_many :details, class_name: 'JournalDetail', dependent: :destroy
   has_many :detail_items, through: :details, source: :items
