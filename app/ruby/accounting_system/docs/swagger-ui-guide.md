@@ -128,7 +128,14 @@ Swagger UI が API エンドポイントに接続できるよう、Content Secur
 
 ### CORS について
 
-開発環境では、Swagger UI と API は同一オリジン（localhost:3000）で動作するため、CORS の設定は不要です。
+開発環境では、`localhost` と `127.0.0.1` を異なるオリジンとして扱うため、CORS 設定が必要です。
+
+設定ファイル：`config/initializers/cors.rb`
+
+- 開発環境：`http://localhost:3000` と `http://127.0.0.1:3000` の両方を許可
+- 本番環境：環境変数 `ALLOWED_ORIGINS` で指定されたオリジンを許可
+
+rack-cors gem を使用して Cross-Origin Resource Sharing を有効化しています。
 
 ### Production 環境
 
