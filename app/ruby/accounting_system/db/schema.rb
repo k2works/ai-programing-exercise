@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_15_004934) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_15_005758) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -105,6 +105,36 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_004934) do
     t.index ["event_type"], name: "idx_event_store_event_type"
     t.index ["occurred_at"], name: "idx_event_store_occurred_at"
     t.unique_constraint ["aggregate_type", "aggregate_id", "sequence_number"], name: "unique_aggregate_sequence"
+  end
+
+  create_table "journal_entries", comment: "仕訳エントリ（複式簿記の仕訳データ）", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "created_by", limit: 20, null: false, comment: "作成者"
+    t.string "description", limit: 100, null: false, comment: "摘要"
+    t.date "entry_date", null: false, comment: "仕訳日"
+    t.string "entry_number", limit: 10, null: false, comment: "伝票番号（主キー）"
+    t.string "reference_number", limit: 20, comment: "参照番号"
+    t.decimal "total_amount", precision: 15, scale: 2, null: false, comment: "合計金額"
+    t.datetime "updated_at", null: false
+    t.string "updated_by", limit: 20, comment: "更新者"
+    t.index ["entry_date"], name: "index_journal_entries_on_entry_date"
+    t.index ["entry_number"], name: "index_journal_entries_on_entry_number", unique: true
+  end
+
+  create_table "journal_entry_details", comment: "仕訳明細（仕訳エントリの明細行データ）", force: :cascade do |t|
+    t.string "account_code", limit: 20, null: false, comment: "勘定科目コード"
+    t.datetime "created_at", null: false
+    t.decimal "credit_amount", precision: 15, scale: 2, default: "0.0", null: false, comment: "貸方金額"
+    t.decimal "debit_amount", precision: 15, scale: 2, default: "0.0", null: false, comment: "借方金額"
+    t.string "description", limit: 100, null: false, comment: "摘要"
+    t.bigint "journal_entry_id", null: false, comment: "仕訳エントリID（外部キー）"
+    t.integer "line_number", null: false, comment: "行番号"
+    t.decimal "tax_amount", precision: 15, scale: 2, default: "0.0", comment: "消費税額"
+    t.decimal "tax_rate", precision: 5, scale: 2, comment: "消費税率"
+    t.datetime "updated_at", null: false
+    t.index ["account_code"], name: "index_journal_entry_details_on_account_code"
+    t.index ["journal_entry_id", "line_number"], name: "idx_on_journal_entry_id_line_number_2c8d7e16b4", unique: true
+    t.index ["journal_entry_id"], name: "index_journal_entry_details_on_journal_entry_id"
   end
 
   create_table "journal_entry_read_model", primary_key: "entry_id", comment: "CQRS読み取りモデル：仕訳明細表示用", force: :cascade do |t|
@@ -363,6 +393,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_004934) do
   end
 
   add_foreign_key "account_structures", "accounts", column: "account_code", primary_key: "code", on_delete: :cascade
+  add_foreign_key "journal_entry_details", "accounts", column: "account_code", primary_key: "code"
+  add_foreign_key "journal_entry_details", "journal_entries", on_delete: :cascade
   add_foreign_key "journal_entry_read_model", "journal_read_model", column: "journal_id", primary_key: "journal_id", name: "journal_entry_read_model_journal_id_fkey", on_delete: :cascade
   add_foreign_key "仕訳明細", "仕訳", column: "仕訳伝票番号", primary_key: "仕訳伝票番号", name: "fk_仕訳明細_仕訳", on_delete: :cascade
   add_foreign_key "仕訳貸借明細", "仕訳明細", column: ["仕訳伝票番号", "仕訳行番号"], primary_key: ["仕訳伝票番号", "仕訳行番号"], name: "fk_仕訳貸借明細_仕訳明細", on_delete: :cascade
