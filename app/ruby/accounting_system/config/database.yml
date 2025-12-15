@@ -25,7 +25,7 @@ default: &default
 
 development:
   <<: *default
-  database: financial_accounting
+  database: accounting_system_development
   port: 5432
 
 # Warning: The database defined as "test" will be erased and
@@ -33,8 +33,8 @@ development:
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: management_accounting
-  port: 5432
+  database: accounting_system_test
+  port: 5434
 
 # As with config/credentials.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
