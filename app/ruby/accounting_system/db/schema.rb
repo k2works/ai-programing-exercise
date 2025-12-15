@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_15_005758) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_15_010122) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -107,6 +107,50 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_005758) do
     t.unique_constraint ["aggregate_type", "aggregate_id", "sequence_number"], name: "unique_aggregate_sequence"
   end
 
+  create_table "journal_detail_items", force: :cascade do |t|
+    t.string "account_code", limit: 10, null: false
+    t.decimal "amount", precision: 15, scale: 2, null: false
+    t.decimal "base_amount", precision: 15, scale: 2, null: false
+    t.integer "cash_flow_flag", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.string "currency_code", limit: 3, default: "JPY", null: false
+    t.string "debit_credit_type", limit: 1, null: false
+    t.string "department_code", limit: 5
+    t.date "due_date"
+    t.decimal "exchange_rate", precision: 10, scale: 4, default: "1.0", null: false
+    t.bigint "journal_detail_id", null: false
+    t.string "note_code", limit: 1
+    t.string "note_content", limit: 60
+    t.string "offset_account_code", limit: 10
+    t.string "offset_sub_account_code", limit: 10
+    t.string "project_code", limit: 10
+    t.string "segment_code", limit: 10
+    t.string "sub_account_code", limit: 10
+    t.string "tax_calc_type", limit: 2
+    t.integer "tax_rate"
+    t.string "tax_type", limit: 2
+    t.datetime "updated_at", null: false
+    t.index ["account_code"], name: "index_journal_detail_items_on_account_code"
+    t.index ["department_code"], name: "index_journal_detail_items_on_department_code"
+    t.index ["journal_detail_id", "debit_credit_type"], name: "idx_journal_detail_items_unique", unique: true
+    t.index ["journal_detail_id"], name: "index_journal_detail_items_on_journal_detail_id"
+    t.index ["project_code"], name: "index_journal_detail_items_on_project_code"
+    t.check_constraint "amount >= 0::numeric", name: "check_amount"
+    t.check_constraint "debit_credit_type::text = ANY (ARRAY['D'::character varying, 'C'::character varying]::text[])", name: "check_debit_credit_type"
+    t.check_constraint "exchange_rate > 0::numeric", name: "check_exchange_rate"
+    t.check_constraint "length(currency_code::text) = 3", name: "check_currency_code_length"
+  end
+
+  create_table "journal_details", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "description", limit: 1000, null: false
+    t.bigint "journal_id", null: false
+    t.integer "line_number", null: false
+    t.datetime "updated_at", null: false
+    t.index ["journal_id", "line_number"], name: "index_journal_details_on_journal_id_and_line_number", unique: true
+    t.index ["journal_id"], name: "index_journal_details_on_journal_id"
+  end
+
   create_table "journal_entries", comment: "仕訳エントリ（複式簿記の仕訳データ）", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "created_by", limit: 20, null: false, comment: "作成者"
@@ -166,6 +210,29 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_005758) do
     t.index ["fiscal_year"], name: "idx_journal_read_fiscal_year"
     t.index ["journal_date"], name: "idx_journal_read_date"
     t.index ["status"], name: "idx_journal_read_status"
+  end
+
+  create_table "journals", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "department_code", limit: 5
+    t.string "employee_code", limit: 10
+    t.date "input_date", null: false
+    t.date "journal_date", null: false
+    t.string "journal_no", limit: 20, null: false
+    t.integer "periodic_flag", default: 0, null: false
+    t.string "red_black_slip_number", limit: 20
+    t.integer "red_slip_flag", default: 0, null: false
+    t.integer "settlement_flag", default: 0, null: false
+    t.integer "single_entry_flag", default: 0, null: false
+    t.integer "slip_type", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["department_code"], name: "index_journals_on_department_code"
+    t.index ["journal_date"], name: "index_journals_on_journal_date"
+    t.index ["journal_no"], name: "index_journals_on_journal_no", unique: true
+    t.index ["red_slip_flag"], name: "index_journals_on_red_slip_flag"
+    t.check_constraint "red_slip_flag = 0 OR red_slip_flag = 1 AND red_black_slip_number IS NOT NULL", name: "check_red_slip_voucher"
+    t.check_constraint "red_slip_flag = ANY (ARRAY[0, 1])", name: "check_red_slip_flag"
+    t.check_constraint "settlement_flag = ANY (ARRAY[0, 1])", name: "check_settlement_flag"
   end
 
   create_table "samples", force: :cascade do |t|
@@ -393,6 +460,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_005758) do
   end
 
   add_foreign_key "account_structures", "accounts", column: "account_code", primary_key: "code", on_delete: :cascade
+  add_foreign_key "journal_detail_items", "journal_details", on_delete: :cascade
+  add_foreign_key "journal_details", "journals", on_delete: :cascade
   add_foreign_key "journal_entry_details", "accounts", column: "account_code", primary_key: "code"
   add_foreign_key "journal_entry_details", "journal_entries", on_delete: :cascade
   add_foreign_key "journal_entry_read_model", "journal_read_model", column: "journal_id", primary_key: "journal_id", name: "journal_entry_read_model_journal_id_fkey", on_delete: :cascade
