@@ -1,0 +1,663 @@
+---
+openapi: 3.0.1
+info:
+  title: Accounting System API
+  version: v1
+  description: 財務会計システムの REST API。勘定科目管理、仕訳登録、財務諸表生成機能を提供します。
+paths:
+  "/api/v1/accounts":
+    get:
+      summary: 一覧取得
+      tags:
+      - 勘定科目
+      description: すべての勘定科目を取得します
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    code:
+                      type: string
+                      description: 勘定科目コード
+                    name:
+                      type: string
+                      description: 勘定科目名
+                    account_type:
+                      type: string
+                      description: 勘定科目種別
+                      enum:
+                      - asset
+                      - liability
+                      - equity
+                      - revenue
+                      - expense
+                    bspl_type:
+                      type: string
+                      description: BSPL区分
+                      enum:
+                      - B
+                      - P
+                    debit_credit_type:
+                      type: string
+                      description: 貸借区分
+                      enum:
+                      - D
+                      - C
+                    transaction_type:
+                      type: string
+                      description: 取引要素区分
+                    expense_type:
+                      type: string
+                      description: 費用区分
+                      nullable: true
+                    tax_code:
+                      type: string
+                      description: 課税取引コード
+                      nullable: true
+                    display_order:
+                      type: integer
+                      description: 表示順序
+                    is_summary:
+                      type: boolean
+                      description: 集計科目フラグ
+                  required:
+                  - code
+                  - name
+                  - account_type
+                  - bspl_type
+                  - debit_credit_type
+                  - transaction_type
+                  - display_order
+                  - is_summary
+    post:
+      summary: 新規作成
+      tags:
+      - 勘定科目
+      description: 新しい勘定科目を作成します
+      parameters: []
+      responses:
+        '201':
+          description: created
+        '422':
+          description: unprocessable entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                account:
+                  type: object
+                  properties:
+                    code:
+                      type: string
+                      description: 勘定科目コード
+                    name:
+                      type: string
+                      description: 勘定科目名
+                    account_type:
+                      type: string
+                      description: 勘定科目種別
+                      enum:
+                      - asset
+                      - liability
+                      - equity
+                      - revenue
+                      - expense
+                    bspl_type:
+                      type: string
+                      description: BSPL区分
+                      enum:
+                      - B
+                      - P
+                    debit_credit_type:
+                      type: string
+                      description: 貸借区分
+                      enum:
+                      - D
+                      - C
+                    transaction_type:
+                      type: string
+                      description: 取引要素区分
+                    expense_type:
+                      type: string
+                      description: 費用区分
+                      nullable: true
+                    tax_code:
+                      type: string
+                      description: 課税取引コード
+                      nullable: true
+                    display_order:
+                      type: integer
+                      description: 表示順序
+                    is_summary:
+                      type: boolean
+                      description: 集計科目フラグ
+                  required:
+                  - code
+                  - name
+                  - account_type
+                  - bspl_type
+                  - debit_credit_type
+                  - transaction_type
+                  - display_order
+                  - is_summary
+  "/api/v1/accounts/{code}":
+    parameters:
+    - name: code
+      in: path
+      description: 勘定科目コード
+      required: true
+      schema:
+        type: string
+    get:
+      summary: 詳細取得
+      tags:
+      - 勘定科目
+      description: 指定された勘定科目を取得します
+      responses:
+        '200':
+          description: successful
+        '404':
+          description: not found
+    put:
+      summary: 更新
+      tags:
+      - 勘定科目
+      description: 指定された勘定科目を更新します
+      parameters: []
+      responses:
+        '200':
+          description: successful
+        '404':
+          description: not found
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                account:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: 勘定科目名
+                    display_order:
+                      type: integer
+                      description: 表示順序
+    delete:
+      summary: 削除
+      tags:
+      - 勘定科目
+      description: 指定された勘定科目を削除します
+      responses:
+        '204':
+          description: no content
+        '404':
+          description: not found
+  "/api/v1/financial-statements/balance-sheet":
+    get:
+      summary: 貸借対照表取得
+      tags:
+      - 財務諸表
+      description: 指定日時点の貸借対照表を取得します
+      parameters:
+      - name: as_of_date
+        in: query
+        format: date
+        description: 基準日（YYYY-MM-DD）
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  as_of_date:
+                    type: string
+                    format: date
+                    description: 基準日
+                  assets:
+                    type: array
+                    description: 資産
+                    items:
+                      type: object
+                      properties:
+                        account_code:
+                          type: string
+                          description: 勘定科目コード
+                        account_name:
+                          type: string
+                          description: 勘定科目名
+                        balance:
+                          type: number
+                          description: 残高
+                        percentage:
+                          type: number
+                          description: 構成比率（%）
+                  liabilities:
+                    type: array
+                    description: 負債
+                    items:
+                      type: object
+                      properties:
+                        account_code:
+                          type: string
+                          description: 勘定科目コード
+                        account_name:
+                          type: string
+                          description: 勘定科目名
+                        balance:
+                          type: number
+                          description: 残高
+                        percentage:
+                          type: number
+                          description: 構成比率（%）
+                  equity:
+                    type: array
+                    description: 純資産
+                    items:
+                      type: object
+                      properties:
+                        account_code:
+                          type: string
+                          description: 勘定科目コード
+                        account_name:
+                          type: string
+                          description: 勘定科目名
+                        balance:
+                          type: number
+                          description: 残高
+                        percentage:
+                          type: number
+                          description: 構成比率（%）
+                  total_assets:
+                    type: number
+                    description: 資産合計
+                  total_liabilities:
+                    type: number
+                    description: 負債合計
+                  total_equity:
+                    type: number
+                    description: 純資産合計
+                  total_liabilities_and_equity:
+                    type: number
+                    description: 負債・純資産合計
+                required:
+                - as_of_date
+                - assets
+                - liabilities
+                - equity
+                - total_assets
+                - total_liabilities
+                - total_equity
+                - total_liabilities_and_equity
+        '400':
+          description: bad request
+  "/api/v1/financial-statements/income-statement":
+    get:
+      summary: 損益計算書取得
+      tags:
+      - 財務諸表
+      description: 指定期間の損益計算書を取得します
+      parameters:
+      - name: from_date
+        in: query
+        format: date
+        description: 開始日（YYYY-MM-DD）
+        required: true
+        schema:
+          type: string
+      - name: to_date
+        in: query
+        format: date
+        description: 終了日（YYYY-MM-DD）
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  from_date:
+                    type: string
+                    format: date
+                    description: 開始日
+                  to_date:
+                    type: string
+                    format: date
+                    description: 終了日
+                  revenues:
+                    type: array
+                    description: 収益
+                    items:
+                      type: object
+                      properties:
+                        account_code:
+                          type: string
+                          description: 勘定科目コード
+                        account_name:
+                          type: string
+                          description: 勘定科目名
+                        balance:
+                          type: number
+                          description: 金額
+                        percentage:
+                          type: number
+                          description: 対売上比（%）
+                  expenses:
+                    type: array
+                    description: 費用
+                    items:
+                      type: object
+                      properties:
+                        account_code:
+                          type: string
+                          description: 勘定科目コード
+                        account_name:
+                          type: string
+                          description: 勘定科目名
+                        balance:
+                          type: number
+                          description: 金額
+                        percentage:
+                          type: number
+                          description: 対売上比（%）
+                  gross_profit:
+                    type: number
+                    description: 売上総利益
+                  operating_income:
+                    type: number
+                    description: 営業利益
+                  net_income:
+                    type: number
+                    description: 当期純利益
+                  total_revenues:
+                    type: number
+                    description: 収益合計
+                  total_expenses:
+                    type: number
+                    description: 費用合計
+                required:
+                - from_date
+                - to_date
+                - revenues
+                - expenses
+                - gross_profit
+                - operating_income
+                - net_income
+                - total_revenues
+                - total_expenses
+        '400':
+          description: bad request
+  "/api/v1/financial-statements/ratios":
+    get:
+      summary: 財務指標取得
+      tags:
+      - 財務諸表
+      description: 財務指標を計算して取得します
+      parameters:
+      - name: as_of_date
+        in: query
+        format: date
+        description: 基準日（YYYY-MM-DD）
+        required: true
+        schema:
+          type: string
+      - name: from_date
+        in: query
+        format: date
+        description: 開始日（YYYY-MM-DD）
+        required: true
+        schema:
+          type: string
+      - name: to_date
+        in: query
+        format: date
+        description: 終了日（YYYY-MM-DD）
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  current_ratio:
+                    type: number
+                    description: 流動比率（%）
+                  debt_to_equity_ratio:
+                    type: number
+                    description: 自己資本比率（%）
+                  gross_profit_margin:
+                    type: number
+                    description: 売上総利益率（%）
+                  operating_profit_margin:
+                    type: number
+                    description: 営業利益率（%）
+                  net_profit_margin:
+                    type: number
+                    description: 当期純利益率（%）
+                  roa:
+                    type: number
+                    description: 総資産利益率（ROA, %）
+                  roe:
+                    type: number
+                    description: 自己資本利益率（ROE, %）
+                required:
+                - current_ratio
+                - debt_to_equity_ratio
+                - gross_profit_margin
+                - operating_profit_margin
+                - net_profit_margin
+                - roa
+                - roe
+        '400':
+          description: bad request
+  "/api/v1/journal-entries":
+    get:
+      summary: 一覧取得
+      tags:
+      - 仕訳
+      description: すべての仕訳を取得します
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      description: 仕訳ID
+                    entry_number:
+                      type: string
+                      description: 仕訳番号
+                    entry_date:
+                      type: string
+                      format: date
+                      description: 仕訳日付
+                    description:
+                      type: string
+                      description: 摘要
+                    total_amount:
+                      type: number
+                      description: 合計金額
+                    created_by:
+                      type: string
+                      description: 作成者
+                    details:
+                      type: array
+                      description: 仕訳明細
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            description: 明細ID
+                          line_number:
+                            type: integer
+                            description: 行番号
+                          account_code:
+                            type: string
+                            description: 勘定科目コード
+                          debit_amount:
+                            type: number
+                            description: 借方金額
+                          credit_amount:
+                            type: number
+                            description: 貸方金額
+                          description:
+                            type: string
+                            description: 摘要
+                        required:
+                        - id
+                        - line_number
+                        - account_code
+                        - debit_amount
+                        - credit_amount
+                        - description
+                  required:
+                  - id
+                  - entry_number
+                  - entry_date
+                  - description
+                  - total_amount
+                  - created_by
+                  - details
+    post:
+      summary: 新規作成
+      tags:
+      - 仕訳
+      description: 新しい仕訳を作成します。貸借が一致し、明細が2件以上必要です。
+      parameters: []
+      responses:
+        '201':
+          description: created
+        '422':
+          description: unprocessable entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                journal_entry:
+                  type: object
+                  properties:
+                    entry_number:
+                      type: string
+                      description: 仕訳番号
+                    entry_date:
+                      type: string
+                      format: date
+                      description: 仕訳日付
+                    description:
+                      type: string
+                      description: 摘要
+                    total_amount:
+                      type: number
+                      description: 合計金額
+                    created_by:
+                      type: string
+                      description: 作成者
+                    details_attributes:
+                      type: array
+                      description: 仕訳明細
+                      items:
+                        type: object
+                        properties:
+                          line_number:
+                            type: integer
+                            description: 行番号
+                          account_code:
+                            type: string
+                            description: 勘定科目コード
+                          debit_amount:
+                            type: number
+                            description: 借方金額
+                          credit_amount:
+                            type: number
+                            description: 貸方金額
+                          description:
+                            type: string
+                            description: 摘要
+                        required:
+                        - line_number
+                        - account_code
+                        - debit_amount
+                        - credit_amount
+                        - description
+                  required:
+                  - entry_number
+                  - entry_date
+                  - description
+                  - total_amount
+                  - created_by
+                  - details_attributes
+  "/api/v1/journal-entries/{id}":
+    parameters:
+    - name: id
+      in: path
+      description: 仕訳ID
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: 詳細取得
+      tags:
+      - 仕訳
+      description: 指定された仕訳を取得します
+      responses:
+        '200':
+          description: successful
+        '404':
+          description: not found
+    delete:
+      summary: 削除
+      tags:
+      - 仕訳
+      description: 指定された仕訳を削除します
+      responses:
+        '204':
+          description: no content
+        '404':
+          description: not found
+servers:
+- url: http://localhost:3000
+  description: Development server
+- url: https://{defaultHost}
+  variables:
+    defaultHost:
+      default: www.example.com
+  description: Production server
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: エラーメッセージ
+      required:
+      - error
