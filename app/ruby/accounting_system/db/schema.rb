@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_13_074923) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_15_001718) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -29,8 +29,11 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_13_074923) do
   create_table "accounts", force: :cascade do |t|
     t.integer "account_type", default: 0, null: false
     t.decimal "balance", precision: 15, scale: 2, default: "0.0"
+    t.string "bspl_type", limit: 1, comment: "BSPL区分（B:貸借対照表, P:損益計算書）"
     t.string "code", null: false
     t.datetime "created_at", null: false
+    t.string "debit_credit_type", limit: 1, comment: "貸借区分（D:借方, C:貸方）"
+    t.boolean "is_summary", default: false, null: false, comment: "集計科目フラグ（true:集計科目, false:明細科目）"
     t.string "name", null: false
     t.datetime "updated_at", null: false
     t.index ["account_type"], name: "index_accounts_on_account_type"
