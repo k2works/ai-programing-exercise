@@ -213,4 +213,73 @@ class FinancialStatementService
       )
     end
   end
+
+  # 財務指標を計算
+  #
+  # @param balance_sheet [BalanceSheet] 貸借対照表
+  # @param income_statement [IncomeStatement] 損益計算書
+  # @return [FinancialRatios] 財務指標
+  def self.calculate_financial_ratios(balance_sheet, income_statement)
+    # 流動資産・流動負債の抽出
+    current_assets = balance_sheet.assets
+                                   .select { |asset| asset.account_code.start_with?('11', '12') }
+                                   .sum(&:balance)
+
+    current_liabilities = balance_sheet.liabilities
+                                       .select { |liability| liability.account_code.start_with?('21') }
+                                       .sum(&:balance)
+
+    # 各種指標の計算
+    current_ratio = if current_liabilities > 0
+                      ((current_assets / current_liabilities) * 100).round(2)
+                    else
+                      0.0
+                    end
+
+    debt_to_equity_ratio = if balance_sheet.total_assets > 0
+                             ((balance_sheet.total_equity / balance_sheet.total_assets) * 100).round(2)
+                           else
+                             0.0
+                           end
+
+    gross_profit_margin = if income_statement.total_revenues > 0
+                            ((income_statement.gross_profit / income_statement.total_revenues) * 100).round(2)
+                          else
+                            0.0
+                          end
+
+    operating_profit_margin = if income_statement.total_revenues > 0
+                                ((income_statement.operating_income / income_statement.total_revenues) * 100).round(2)
+                              else
+                                0.0
+                              end
+
+    net_profit_margin = if income_statement.total_revenues > 0
+                          ((income_statement.net_income / income_statement.total_revenues) * 100).round(2)
+                        else
+                          0.0
+                        end
+
+    roa = if balance_sheet.total_assets > 0
+            ((income_statement.net_income / balance_sheet.total_assets) * 100).round(2)
+          else
+            0.0
+          end
+
+    roe = if balance_sheet.total_equity > 0
+            ((income_statement.net_income / balance_sheet.total_equity) * 100).round(2)
+          else
+            0.0
+          end
+
+    FinancialRatios.new(
+      current_ratio: current_ratio,
+      debt_to_equity_ratio: debt_to_equity_ratio,
+      gross_profit_margin: gross_profit_margin,
+      operating_profit_margin: operating_profit_margin,
+      net_profit_margin: net_profit_margin,
+      roa: roa,
+      roe: roe
+    )
+  end
 end

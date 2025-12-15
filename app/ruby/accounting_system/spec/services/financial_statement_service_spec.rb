@@ -426,4 +426,260 @@ RSpec.describe FinancialStatementService, type: :service do
       expect(purchases.percentage).to eq(60.0)
     end
   end
+
+  describe '財務指標の計算' do
+    let(:as_of_date) { Date.new(2025, 1, 31) }
+    let(:from_date) { Date.new(2025, 1, 1) }
+    let(:to_date) { Date.new(2025, 1, 31) }
+
+    before do
+      # テーブルをクリア
+      DailyAccountBalance.delete_all
+      Account.delete_all
+
+      # 貸借対照表科目
+      # 流動資産
+      Account.create!(
+        code: '1110',
+        name: '普通預金',
+        account_type: :asset,
+        bspl_type: 'B',
+        debit_credit_type: 'D',
+        transaction_type: '1',
+        display_order: 110
+      )
+
+      # 固定資産
+      Account.create!(
+        code: '1410',
+        name: '建物',
+        account_type: :asset,
+        bspl_type: 'B',
+        debit_credit_type: 'D',
+        transaction_type: '1',
+        display_order: 140
+      )
+
+      # 流動負債
+      Account.create!(
+        code: '2110',
+        name: '買掛金',
+        account_type: :liability,
+        bspl_type: 'B',
+        debit_credit_type: 'C',
+        transaction_type: '2',
+        display_order: 210
+      )
+
+      # 純資産
+      Account.create!(
+        code: '3110',
+        name: '資本金',
+        account_type: :equity,
+        bspl_type: 'B',
+        debit_credit_type: 'C',
+        transaction_type: '3',
+        display_order: 310
+      )
+
+      # 損益計算書科目
+      # 収益
+      Account.create!(
+        code: '4010',
+        name: '売上高',
+        account_type: :revenue,
+        bspl_type: 'P',
+        debit_credit_type: 'C',
+        transaction_type: '4',
+        display_order: 410
+      )
+
+      # 費用（売上原価）
+      Account.create!(
+        code: '5110',
+        name: '仕入高',
+        account_type: :expense,
+        bspl_type: 'P',
+        debit_credit_type: 'D',
+        transaction_type: '5',
+        expense_type: '1',
+        display_order: 510
+      )
+
+      # 費用（販管費）
+      Account.create!(
+        code: '6110',
+        name: '給料手当',
+        account_type: :expense,
+        bspl_type: 'P',
+        debit_credit_type: 'D',
+        transaction_type: '5',
+        expense_type: '2',
+        display_order: 610
+      )
+
+      # 貸借対照表の残高
+      DailyAccountBalance.create!(
+        entry_date: as_of_date,
+        account_code: '1110',
+        sub_account_code: '',
+        department_code: '',
+        project_code: '',
+        settlement_flag: 0,
+        debit_amount: 8_000_000,
+        credit_amount: 0
+      )
+
+      DailyAccountBalance.create!(
+        entry_date: as_of_date,
+        account_code: '1410',
+        sub_account_code: '',
+        department_code: '',
+        project_code: '',
+        settlement_flag: 0,
+        debit_amount: 2_000_000,
+        credit_amount: 0
+      )
+
+      DailyAccountBalance.create!(
+        entry_date: as_of_date,
+        account_code: '2110',
+        sub_account_code: '',
+        department_code: '',
+        project_code: '',
+        settlement_flag: 0,
+        debit_amount: 0,
+        credit_amount: 4_000_000
+      )
+
+      DailyAccountBalance.create!(
+        entry_date: as_of_date,
+        account_code: '3110',
+        sub_account_code: '',
+        department_code: '',
+        project_code: '',
+        settlement_flag: 0,
+        debit_amount: 0,
+        credit_amount: 6_000_000
+      )
+
+      # 損益計算書の残高
+      DailyAccountBalance.create!(
+        entry_date: from_date,
+        account_code: '4010',
+        sub_account_code: '',
+        department_code: '',
+        project_code: '',
+        settlement_flag: 0,
+        debit_amount: 0,
+        credit_amount: 10_000_000
+      )
+
+      DailyAccountBalance.create!(
+        entry_date: from_date,
+        account_code: '5110',
+        sub_account_code: '',
+        department_code: '',
+        project_code: '',
+        settlement_flag: 0,
+        debit_amount: 6_000_000,
+        credit_amount: 0
+      )
+
+      DailyAccountBalance.create!(
+        entry_date: from_date,
+        account_code: '6110',
+        sub_account_code: '',
+        department_code: '',
+        project_code: '',
+        settlement_flag: 0,
+        debit_amount: 2_000_000,
+        credit_amount: 0
+      )
+    end
+
+    it '財務指標を計算できる' do
+      # Given: 貸借対照表と損益計算書を生成
+      balance_sheet = FinancialStatementService.generate_balance_sheet(as_of_date)
+      income_statement = FinancialStatementService.generate_income_statement(from_date, to_date)
+
+      # When: 財務指標を計算
+      ratios = FinancialStatementService.calculate_financial_ratios(balance_sheet, income_statement)
+
+      # Then: 財務指標が存在する
+      expect(ratios).not_to be_nil
+      expect(ratios.current_ratio).to be > 0
+      expect(ratios.debt_to_equity_ratio).to be > 0
+      expect(ratios.gross_profit_margin).to be > 0
+      expect(ratios.operating_profit_margin).to be > 0
+      expect(ratios.net_profit_margin).to be > 0
+      expect(ratios.roa).to be > 0
+      expect(ratios.roe).to be > 0
+    end
+
+    it '流動比率が正しく計算されている' do
+      # Given: 貸借対照表を生成
+      balance_sheet = FinancialStatementService.generate_balance_sheet(as_of_date)
+      income_statement = FinancialStatementService.generate_income_statement(from_date, to_date)
+
+      # When: 財務指標を計算
+      ratios = FinancialStatementService.calculate_financial_ratios(balance_sheet, income_statement)
+
+      # Then: 流動比率 = 流動資産 / 流動負債 × 100
+      # 流動資産: 8,000,000（普通預金）
+      # 流動負債: 4,000,000（買掛金）
+      # 流動比率 = 8,000,000 / 4,000,000 × 100 = 200%
+      expect(ratios.current_ratio).to eq(200.0)
+    end
+
+    it '自己資本比率が正しく計算されている' do
+      # Given: 貸借対照表を生成
+      balance_sheet = FinancialStatementService.generate_balance_sheet(as_of_date)
+      income_statement = FinancialStatementService.generate_income_statement(from_date, to_date)
+
+      # When: 財務指標を計算
+      ratios = FinancialStatementService.calculate_financial_ratios(balance_sheet, income_statement)
+
+      # Then: 自己資本比率 = 純資産 / 総資産 × 100
+      # 純資産: 6,000,000
+      # 総資産: 10,000,000
+      # 自己資本比率 = 6,000,000 / 10,000,000 × 100 = 60%
+      expect(ratios.debt_to_equity_ratio).to eq(60.0)
+    end
+
+    it '利益率が正しく計算されている' do
+      # Given: 損益計算書を生成
+      balance_sheet = FinancialStatementService.generate_balance_sheet(as_of_date)
+      income_statement = FinancialStatementService.generate_income_statement(from_date, to_date)
+
+      # When: 財務指標を計算
+      ratios = FinancialStatementService.calculate_financial_ratios(balance_sheet, income_statement)
+
+      # Then: 各種利益率が計算されている
+      # 売上総利益率 = 売上総利益 / 売上高 × 100 = 4,000,000 / 10,000,000 × 100 = 40%
+      expect(ratios.gross_profit_margin).to eq(40.0)
+
+      # 営業利益率 = 営業利益 / 売上高 × 100 = 2,000,000 / 10,000,000 × 100 = 20%
+      expect(ratios.operating_profit_margin).to eq(20.0)
+
+      # 当期純利益率 = 当期純利益 / 売上高 × 100 = 2,000,000 / 10,000,000 × 100 = 20%
+      expect(ratios.net_profit_margin).to eq(20.0)
+    end
+
+    it 'ROAとROEが正しく計算されている' do
+      # Given: 貸借対照表と損益計算書を生成
+      balance_sheet = FinancialStatementService.generate_balance_sheet(as_of_date)
+      income_statement = FinancialStatementService.generate_income_statement(from_date, to_date)
+
+      # When: 財務指標を計算
+      ratios = FinancialStatementService.calculate_financial_ratios(balance_sheet, income_statement)
+
+      # Then: ROAとROEが計算されている
+      # ROA = 当期純利益 / 総資産 × 100 = 2,000,000 / 10,000,000 × 100 = 20%
+      expect(ratios.roa).to eq(20.0)
+
+      # ROE = 当期純利益 / 純資産 × 100 = 2,000,000 / 6,000,000 × 100 = 33.33%
+      expect(ratios.roe).to eq(33.33)
+    end
+  end
 end
