@@ -9,6 +9,12 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :accounts, param: :code
+      resources :journal_entries, path: 'journal-entries'
+
+      # 財務諸表エンドポイント
+      get 'financial-statements/balance-sheet', to: 'financial_statements#balance_sheet'
+      get 'financial-statements/income-statement', to: 'financial_statements#income_statement'
+      get 'financial-statements/ratios', to: 'financial_statements#ratios'
     end
   end
 
