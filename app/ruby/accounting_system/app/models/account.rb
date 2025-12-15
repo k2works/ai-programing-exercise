@@ -15,6 +15,7 @@ class Account < ApplicationRecord
   validates :name, presence: true
   validates :account_type, presence: true
   validates :debit_credit_type, inclusion: { in: %w[D C], allow_nil: true }
+  validates :tax_code, length: { maximum: 2 }, allow_nil: true
 
   # カスタムバリデーション
   validate :validate_bspl_type

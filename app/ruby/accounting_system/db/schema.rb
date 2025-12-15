@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_15_003926) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_15_004534) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -37,6 +37,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_003926) do
     t.string "expense_type", limit: 1, comment: "費用区分（1:販管費, 2:営業外費用, 3:特別損失）"
     t.boolean "is_summary", default: false, null: false, comment: "集計科目フラグ（true:集計科目, false:明細科目）"
     t.string "name", null: false
+    t.string "tax_code", limit: 2, comment: "課税取引コード（課税取引マスタへの外部キー）"
     t.string "transaction_type", limit: 1, comment: "取引要素区分（1:資産, 2:負債, 3:純資産, 4:収益, 5:費用）"
     t.datetime "updated_at", null: false
     t.index ["account_type"], name: "index_accounts_on_account_type"
@@ -44,6 +45,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_003926) do
     t.index ["bspl_type"], name: "idx_accounts_on_bspl_type", where: "(bspl_type IS NOT NULL)", comment: "BSPL区分での検索を高速化"
     t.index ["code"], name: "index_accounts_on_code", unique: true
     t.index ["display_order"], name: "idx_accounts_on_display_order", where: "(display_order IS NOT NULL)", comment: "表示順序でのソートを高速化"
+    t.index ["tax_code"], name: "idx_accounts_on_tax_code", where: "(tax_code IS NOT NULL)", comment: "課税取引コードでの検索を高速化"
     t.index ["transaction_type"], name: "idx_accounts_on_transaction_type", where: "(transaction_type IS NOT NULL)", comment: "取引要素区分での検索を高速化"
     t.check_constraint "(bspl_type::text = ANY (ARRAY['B'::character varying::text, 'P'::character varying::text])) OR bspl_type IS NULL", name: "check_bspl_type"
     t.check_constraint "(expense_type::text = ANY (ARRAY['1'::character varying::text, '2'::character varying::text, '3'::character varying::text])) OR expense_type IS NULL", name: "check_expense_type"
