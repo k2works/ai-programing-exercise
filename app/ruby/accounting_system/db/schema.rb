@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_15_010755) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_15_011122) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -101,6 +101,26 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_010755) do
     t.datetime "updated_at", null: false
     t.index ["is_active"], name: "index_auto_journal_patterns_on_is_active"
     t.index ["pattern_code"], name: "index_auto_journal_patterns_on_pattern_code", unique: true
+  end
+
+  create_table "daily_account_balances", primary_key: ["entry_date", "account_code", "sub_account_code", "department_code", "project_code", "settlement_flag"], comment: "日次勘定科目残高テーブル", force: :cascade do |t|
+    t.string "account_code", limit: 10, null: false, comment: "勘定科目マスタの外部キー"
+    t.datetime "created_at", null: false
+    t.decimal "credit_amount", precision: 15, scale: 2, default: "0.0", null: false, comment: "貸方合計金額"
+    t.decimal "debit_amount", precision: 15, scale: 2, default: "0.0", null: false, comment: "借方合計金額"
+    t.string "department_code", limit: 5, default: "", null: false, comment: "部門別管理用"
+    t.date "entry_date", null: false, comment: "実際の取引発生日"
+    t.string "project_code", limit: 10, default: "", null: false, comment: "プロジェクト別管理用"
+    t.integer "settlement_flag", default: 0, null: false, comment: "0=通常仕訳、1=決算仕訳"
+    t.string "sub_account_code", limit: 10, default: "", null: false, comment: "補助科目（得意先、仕入先など）"
+    t.datetime "updated_at", null: false
+    t.index ["account_code"], name: "idx_daily_balance_account"
+    t.index ["department_code"], name: "idx_daily_balance_department"
+    t.index ["entry_date"], name: "idx_daily_balance_entry_date"
+    t.index ["project_code"], name: "idx_daily_balance_project"
+    t.check_constraint "credit_amount >= 0::numeric", name: "check_daily_balance_credit_amount"
+    t.check_constraint "debit_amount >= 0::numeric", name: "check_daily_balance_debit_amount"
+    t.check_constraint "settlement_flag = ANY (ARRAY[0, 1])", name: "check_daily_balance_settlement_flag"
   end
 
   create_table "journal_detail_items", force: :cascade do |t|
@@ -203,6 +223,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_010755) do
   add_foreign_key "account_structures", "accounts", column: "account_code", primary_key: "code", on_delete: :cascade
   add_foreign_key "auto_journal_logs", "auto_journal_patterns", on_delete: :cascade
   add_foreign_key "auto_journal_pattern_items", "auto_journal_patterns", on_delete: :cascade
+  add_foreign_key "daily_account_balances", "accounts", column: "account_code", primary_key: "code"
   add_foreign_key "journal_detail_items", "journal_details", on_delete: :cascade
   add_foreign_key "journal_details", "journals", on_delete: :cascade
   add_foreign_key "journal_entry_details", "accounts", column: "account_code", primary_key: "code"
