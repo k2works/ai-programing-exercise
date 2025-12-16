@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_15_055652) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_16_004335) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -47,9 +47,9 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_055652) do
     t.index ["display_order"], name: "idx_accounts_on_display_order", where: "(display_order IS NOT NULL)", comment: "表示順序でのソートを高速化"
     t.index ["tax_code"], name: "idx_accounts_on_tax_code", where: "(tax_code IS NOT NULL)", comment: "課税取引コードでの検索を高速化"
     t.index ["transaction_type"], name: "idx_accounts_on_transaction_type", where: "(transaction_type IS NOT NULL)", comment: "取引要素区分での検索を高速化"
-    t.check_constraint "(bspl_type::text = ANY (ARRAY['B'::character varying::text, 'P'::character varying::text])) OR bspl_type IS NULL", name: "check_bspl_type"
-    t.check_constraint "(expense_type::text = ANY (ARRAY['1'::character varying::text, '2'::character varying::text, '3'::character varying::text])) OR expense_type IS NULL", name: "check_expense_type"
-    t.check_constraint "(transaction_type::text = ANY (ARRAY['1'::character varying::text, '2'::character varying::text, '3'::character varying::text, '4'::character varying::text, '5'::character varying::text])) OR transaction_type IS NULL", name: "check_transaction_type"
+    t.check_constraint "(bspl_type::text = ANY (ARRAY['B'::character varying, 'P'::character varying]::text[])) OR bspl_type IS NULL", name: "check_bspl_type"
+    t.check_constraint "(expense_type::text = ANY (ARRAY['1'::character varying, '2'::character varying, '3'::character varying]::text[])) OR expense_type IS NULL", name: "check_expense_type"
+    t.check_constraint "(transaction_type::text = ANY (ARRAY['1'::character varying, '2'::character varying, '3'::character varying, '4'::character varying, '5'::character varying]::text[])) OR transaction_type IS NULL", name: "check_transaction_type"
     t.check_constraint "bspl_type::text = 'B'::text AND (account_type = ANY (ARRAY[0, 1, 2])) OR bspl_type::text = 'P'::text AND (account_type = ANY (ARRAY[3, 4])) OR bspl_type IS NULL", name: "check_bspl_consistency"
     t.check_constraint "expense_type IS NOT NULL AND account_type = 4 OR expense_type IS NULL", name: "check_expense_type_only_for_expense"
   end
@@ -110,7 +110,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_055652) do
     t.datetime "updated_at", null: false
     t.index ["auto_journal_pattern_id", "line_number"], name: "idx_auto_journal_pattern_items_unique", unique: true
     t.index ["auto_journal_pattern_id"], name: "index_auto_journal_pattern_items_on_auto_journal_pattern_id"
-    t.check_constraint "debit_credit_flag::text = ANY (ARRAY['D'::character varying::text, 'C'::character varying::text])", name: "check_debit_credit_flag"
+    t.check_constraint "debit_credit_flag::text = ANY (ARRAY['D'::character varying, 'C'::character varying]::text[])", name: "check_debit_credit_flag"
   end
 
   create_table "auto_journal_patterns", force: :cascade do |t|
@@ -145,6 +145,27 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_055652) do
     t.check_constraint "settlement_flag = ANY (ARRAY[0, 1])", name: "check_daily_balance_settlement_flag"
   end
 
+  create_table "event_stores", comment: "イベントストア（Event Sourcing用、Append-Onlyで不変）", force: :cascade do |t|
+    t.string "aggregate_id", limit: 100, null: false, comment: "Aggregateのユニーク識別子（例: \"account-1001\"）"
+    t.string "aggregate_type", limit: 50, null: false, comment: "Aggregateの型（例: \"Account\", \"JournalEntry\"）"
+    t.string "causation_id", limit: 100, comment: "因果関係のあるイベントID"
+    t.string "correlation_id", limit: 100, comment: "関連する一連のイベントをグループ化"
+    t.datetime "created_at", null: false
+    t.jsonb "event_data", null: false, comment: "イベントのペイロード（JSONB形式）"
+    t.string "event_type", limit: 100, null: false, comment: "イベントの型（例: \"AccountCreatedEvent\"）"
+    t.integer "event_version", default: 1, null: false, comment: "イベント定義のバージョン（スキーマ進化に対応）"
+    t.datetime "occurred_at", default: -> { "CURRENT_TIMESTAMP" }, null: false, comment: "イベントが発生した日時"
+    t.integer "sequence_number", null: false, comment: "Aggregate内でのイベントの順序番号"
+    t.datetime "updated_at", null: false
+    t.string "user_id", limit: 100, comment: "イベントを発生させたユーザーID"
+    t.index ["aggregate_id", "sequence_number"], name: "idx_event_store_aggregate_id"
+    t.index ["aggregate_id", "sequence_number"], name: "uk_aggregate_sequence", unique: true
+    t.index ["correlation_id"], name: "idx_event_store_correlation_id"
+    t.index ["event_data"], name: "idx_event_store_event_data", using: :gin
+    t.index ["event_type"], name: "idx_event_store_event_type"
+    t.index ["occurred_at"], name: "idx_event_store_occurred_at"
+  end
+
   create_table "journal_detail_items", force: :cascade do |t|
     t.string "account_code", limit: 10, null: false
     t.decimal "amount", precision: 15, scale: 2, null: false
@@ -174,7 +195,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_055652) do
     t.index ["journal_detail_id"], name: "index_journal_detail_items_on_journal_detail_id"
     t.index ["project_code"], name: "index_journal_detail_items_on_project_code"
     t.check_constraint "amount >= 0::numeric", name: "check_amount"
-    t.check_constraint "debit_credit_type::text = ANY (ARRAY['D'::character varying::text, 'C'::character varying::text])", name: "check_debit_credit_type"
+    t.check_constraint "debit_credit_type::text = ANY (ARRAY['D'::character varying, 'C'::character varying]::text[])", name: "check_debit_credit_type"
     t.check_constraint "exchange_rate > 0::numeric", name: "check_exchange_rate"
     t.check_constraint "length(currency_code::text) = 3", name: "check_currency_code_length"
   end
