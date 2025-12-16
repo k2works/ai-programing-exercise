@@ -1,0 +1,2 @@
+# This file ensures that the ports/out directory is tracked by Git
+# Output ports (repository interfaces) will be placed here
