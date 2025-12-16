@@ -104,11 +104,36 @@ end
 - ✅ ドメインモデル（Journal, JournalEntry）
 - ✅ ポートインターフェース（入力ポート、出力ポート）
 - ✅ ユースケース実装（CreateJournalService）
-- ✅ TDD によるテストカバレッジ
+- ✅ インフラストラクチャ層（ActiveRecord アダプター）
+  - JournalRecord, JournalEntryRecord（永続化モデル）
+  - JournalRepositoryImpl（リポジトリ実装）
+  - 伝票番号の自動生成
+  - 会計年度による検索
+- ✅ データベースマイグレーション
+- ✅ TDD によるテストカバレッジ（ドメイン、アプリケーション、インフラ層）
+
+## データベース設定
+
+```yaml
+# config/database.yml
+development:
+  database: financial_accounting_development
+  username: postgres
+  password: postgres
+  host: localhost
+  port: 5432
+
+test:
+  database: financial_accounting_test
+  username: postgres
+  password: postgres
+  host: localhost
+  port: 5434
+```
 
 ## 次のステップ
 
-- インフラストラクチャ層の実装（ActiveRecord アダプター）
+- シードデータの作成
 - REST API コントローラの実装
 - 管理会計サービスとの連携（サービス間通信）
 - Docker Compose による統合テスト環境
