@@ -1,7 +1,12 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../../../../app/infrastructure/adapters/out/persistence/journal_repository_impl'
+require Rails.root.join('app', 'domain', 'models', 'journal.rb')
+require Rails.root.join('app', 'domain', 'models', 'journal_entry.rb')
+require Rails.root.join('app', 'ports', 'out', 'journal_repository.rb')
+require Rails.root.join('app', 'infrastructure', 'adapters', 'out', 'persistence', 'journal_record.rb')
+require Rails.root.join('app', 'infrastructure', 'adapters', 'out', 'persistence', 'journal_entry_record.rb')
+require Rails.root.join('app', 'infrastructure', 'adapters', 'out', 'persistence', 'journal_repository_impl.rb')
 
 RSpec.describe Infrastructure::Adapters::Out::Persistence::JournalRepositoryImpl do
   let(:repository) { described_class.new }

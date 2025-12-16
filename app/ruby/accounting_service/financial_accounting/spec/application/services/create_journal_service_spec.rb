@@ -2,8 +2,11 @@
 
 require 'date'
 require 'bigdecimal'
-require_relative '../../../app/application/services/create_journal_service'
+require_relative '../../../app/ports/in/create_journal_use_case'
 require_relative '../../../app/ports/out/journal_repository'
+require_relative '../../../app/domain/models/journal'
+require_relative '../../../app/domain/models/journal_entry'
+require_relative '../../../app/application/services/create_journal_service'
 
 RSpec.describe Application::Services::CreateJournalService do
   let(:journal_repository) { instance_double(Ports::Out::JournalRepository) }

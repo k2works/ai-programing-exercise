@@ -1,11 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../../../ports/out/journal_repository'
-require_relative '../../../domain/models/journal'
-require_relative '../../../domain/models/journal_entry'
-require_relative 'journal_record'
-require_relative 'journal_entry_record'
-
 module Infrastructure
   module Adapters
     module Out
