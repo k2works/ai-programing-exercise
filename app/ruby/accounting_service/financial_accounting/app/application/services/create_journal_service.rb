@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require_relative '../../ports/in/create_journal_use_case'
+require_relative '../../domain/models/journal'
+require_relative '../../domain/models/journal_entry'
+
 module Application
   module Services
     class CreateJournalService < Ports::In::CreateJournalUseCase

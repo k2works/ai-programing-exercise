@@ -7,8 +7,15 @@
 
 puts 'Loading Financial Accounting seed data for Company D (Fiscal Year 2023)...'
 
-# リポジトリの初期化
+# 必要なファイルを読み込み
+require_relative '../app/domain/models/journal_entry'
+require_relative '../app/domain/models/journal'
+require_relative '../app/ports/out/journal_repository'
+require_relative '../app/infrastructure/adapters/out/persistence/journal_record'
+require_relative '../app/infrastructure/adapters/out/persistence/journal_entry_record'
 require_relative '../app/infrastructure/adapters/out/persistence/journal_repository_impl'
+
+# リポジトリの初期化
 repository = Infrastructure::Adapters::Out::Persistence::JournalRepositoryImpl.new
 
 # 令和4年度（2023年）の仕訳データ

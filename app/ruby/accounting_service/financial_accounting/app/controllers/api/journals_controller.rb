@@ -1,25 +1,22 @@
 # frozen_string_literal: true
 
+require_relative '../../infrastructure/adapters/out/persistence/journal_repository_impl'
+require_relative '../../application/services/create_journal_service'
+
 module Api
   class JournalsController < ApplicationController
-    def initialize
-      super
-      @repository = Infrastructure::Adapters::Out::Persistence::JournalRepositoryImpl.new
-      @create_journal_service = Application::Services::CreateJournalService.new(journal_repository: @repository)
-    end
-
     def index
       journals = if params[:fiscal_year]
-                   @repository.find_by_fiscal_year(params[:fiscal_year].to_i)
+                   repository.find_by_fiscal_year(params[:fiscal_year].to_i)
                  else
-                   @repository.find_all
+                   repository.find_all
                  end
 
       render json: journals.map { |journal| journal_to_hash(journal) }
     end
 
     def show
-      journal = @repository.find_by_id(params[:id])
+      journal = repository.find_by_id(params[:id])
 
       if journal
         render json: journal_to_hash(journal)
@@ -31,7 +28,7 @@ module Api
     def create
       permitted_params = journal_params
 
-      journal = @create_journal_service.execute(
+      journal = create_journal_service.execute(
         journal_date: Date.parse(permitted_params[:journal_date]),
         description: permitted_params[:description],
         fiscal_year: permitted_params[:fiscal_year],
@@ -44,6 +41,14 @@ module Api
     end
 
     private
+
+    def repository
+      @repository ||= Infrastructure::Adapters::Out::Persistence::JournalRepositoryImpl.new
+    end
+
+    def create_journal_service
+      @create_journal_service ||= Application::Services::CreateJournalService.new(journal_repository: repository)
+    end
 
     def journal_params
       params.permit(

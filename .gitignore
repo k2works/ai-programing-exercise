@@ -1085,4 +1085,7 @@ CLAUDE.local.md
 **/build/
 !gradle-wrapper.jar
 gradle-app.setting
-.gradletasknamecache
+.gradletasknamecache!/app/ruby/accounting_service/financial_accounting/app/ports/out/
+!/app/ruby/accounting_service/management_accounting/app/ports/out/
+!/app/ruby/accounting_service/financial_accounting/app/infrastructure/adapters/out/
+!/app/ruby/accounting_service/management_accounting/app/infrastructure/adapters/out/
