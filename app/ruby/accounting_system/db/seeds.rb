@@ -124,8 +124,18 @@ journals_data.each_with_index do |journal_data, idx|
       credit_amount: detail[:dc] == 'C' ? detail[:amount] : 0,
       description: journal_data[:description]
     )
+
+    # 日次残高を更新
+    BalanceService.update_daily_balance(
+      entry_date: journal.entry_date,
+      account_code: detail[:code],
+      settlement_flag: 0,
+      debit_amount: detail[:dc] == 'D' ? detail[:amount] : 0,
+      credit_amount: detail[:dc] == 'C' ? detail[:amount] : 0
+    )
   end
 end
 
 puts "Created #{JournalEntry.count} journal entries"
+puts "Created #{DailyAccountBalance.count} daily account balances"
 puts 'Seed data created successfully!'
