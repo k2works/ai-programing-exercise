@@ -1,0 +1,101 @@
+services:
+  # 財務会計データベース
+  postgres-financial:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: financial_accounting_development
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - financial-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - accounting-network
+
+  # 管理会計データベース
+  postgres-management:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: management_accounting_development
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - management-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - accounting-network
+
+  # 財務会計サービス
+  financial-accounting:
+    build:
+      context: ./financial_accounting
+      dockerfile: Dockerfile.dev
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres-financial:5432/financial_accounting_development
+      RAILS_ENV: development
+      RAILS_LOG_TO_STDOUT: "true"
+    depends_on:
+      postgres-financial:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./financial_accounting:/rails
+      - financial-bundle:/usr/local/bundle
+    command: >
+      bash -c "
+        bundle install &&
+        bin/rails db:create db:migrate db:seed &&
+        bin/rails server -b 0.0.0.0
+      "
+    networks:
+      - accounting-network
+
+  # 管理会計サービス
+  management-accounting:
+    build:
+      context: ./management_accounting
+      dockerfile: Dockerfile.dev
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres-management:5432/management_accounting_development
+      FINANCIAL_ACCOUNTING_SERVICE_URL: http://financial-accounting:3000
+      RAILS_ENV: development
+      RAILS_LOG_TO_STDOUT: "true"
+    depends_on:
+      - financial-accounting
+      - postgres-management
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./management_accounting:/rails
+      - management-bundle:/usr/local/bundle
+    command: >
+      bash -c "
+        bundle install &&
+        bin/rails db:create db:migrate &&
+        bin/rails server -b 0.0.0.0
+      "
+    networks:
+      - accounting-network
+
+volumes:
+  financial-db-data:
+  management-db-data:
+  financial-bundle:
+  management-bundle:
+
+networks:
+  accounting-network:
+    driver: bridge
