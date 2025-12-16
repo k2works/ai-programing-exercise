@@ -87,5 +87,107 @@ FactoryBot.define do
       transaction_type { '3' }
       display_order { 300 }
     end
+
+    # D社用の勘定科目
+    trait :d_company_cash do
+      code { '1001' }
+      name { '現金預金' }
+      account_type { :asset }
+      bspl_type { 'B' }
+      debit_credit_type { 'D' }
+      transaction_type { '1' }
+    end
+
+    trait :d_company_accounts_receivable do
+      code { '1010' }
+      name { '売掛金' }
+      account_type { :asset }
+      bspl_type { 'B' }
+      debit_credit_type { 'D' }
+      transaction_type { '1' }
+    end
+
+    trait :d_company_inventory do
+      code { '1020' }
+      name { '棚卸資産' }
+      account_type { :asset }
+      bspl_type { 'B' }
+      debit_credit_type { 'D' }
+      transaction_type { '1' }
+    end
+
+    trait :d_company_fixed_assets do
+      code { '1100' }
+      name { '固定資産' }
+      account_type { :asset }
+      bspl_type { 'B' }
+      debit_credit_type { 'D' }
+      transaction_type { '1' }
+    end
+
+    trait :d_company_accounts_payable do
+      code { '2001' }
+      name { '買掛金' }
+      account_type { :liability }
+      bspl_type { 'B' }
+      debit_credit_type { 'C' }
+      transaction_type { '2' }
+    end
+
+    trait :d_company_short_term_loans do
+      code { '2010' }
+      name { '短期借入金' }
+      account_type { :liability }
+      bspl_type { 'B' }
+      debit_credit_type { 'C' }
+      transaction_type { '2' }
+    end
+
+    trait :d_company_capital do
+      code { '3001' }
+      name { '資本金' }
+      account_type { :equity }
+      bspl_type { 'B' }
+      debit_credit_type { 'C' }
+      transaction_type { '3' }
+    end
+
+    trait :d_company_retained_earnings do
+      code { '3010' }
+      name { '利益剰余金' }
+      account_type { :equity }
+      bspl_type { 'B' }
+      debit_credit_type { 'C' }
+      transaction_type { '3' }
+    end
+
+    trait :d_company_sales do
+      code { '4001' }
+      name { '売上高' }
+      account_type { :revenue }
+      bspl_type { 'P' }
+      debit_credit_type { 'C' }
+      transaction_type { '4' }
+    end
+
+    trait :d_company_cost_of_sales do
+      code { '5001' }
+      name { '売上原価' }
+      account_type { :expense }
+      bspl_type { 'P' }
+      debit_credit_type { 'D' }
+      transaction_type { '5' }
+      expense_type { '1' }
+    end
+
+    trait :d_company_sg_and_a do
+      code { '5010' }
+      name { '販売費及び一般管理費' }
+      account_type { :expense }
+      bspl_type { 'P' }
+      debit_credit_type { 'D' }
+      transaction_type { '5' }
+      expense_type { '1' }
+    end
   end
 end
