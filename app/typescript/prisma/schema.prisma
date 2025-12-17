@@ -34,6 +34,34 @@ enum ItemCategory {
   @@map("item_category")
 }
 
+/// 就業区分
+enum WorkdayType {
+  WORKING  @map("稼働日")
+  HOLIDAY  @map("休日")
+  HALF_DAY @map("半日")
+
+  @@map("workday_type")
+}
+
+/// 取引先区分
+enum SupplierType {
+  CUSTOMER @map("得意先")
+  VENDOR   @map("仕入先")
+  BOTH     @map("得意先・仕入先")
+
+  @@map("supplier_type")
+}
+
+/// 場所区分
+enum LocationType {
+  WAREHOUSE @map("倉庫")
+  FACTORY   @map("工場")
+  OFFICE    @map("事務所")
+  EXTERNAL  @map("外部倉庫")
+
+  @@map("location_type")
+}
+
 /// 単位マスタ
 model Unit {
   /// 単位コード
@@ -123,4 +151,136 @@ model Bom {
 
   @@id([parentItemCode, childItemCode, effectiveFrom])
   @@map("bom")
+}
+
+/// シフトマスタ
+model Shift {
+  /// シフトコード
+  shiftCode String   @id @map("shift_code") @db.VarChar(10)
+  /// シフト名
+  shiftName String   @map("shift_name") @db.VarChar(50)
+  /// 開始時刻
+  startTime DateTime @map("start_time") @db.Time()
+  /// 終了時刻
+  endTime   DateTime @map("end_time") @db.Time()
+
+  /// 就業日との関連
+  workdays Workday[]
+
+  @@map("shifts")
+}
+
+/// 就業日マスタ
+model Workday {
+  /// 日付
+  date        DateTime    @id @map("date") @db.Date
+  /// 就業区分
+  workdayType WorkdayType @map("workday_type")
+  /// シフトコード
+  shiftCode   String?     @map("shift_code") @db.VarChar(10)
+  /// 備考
+  note        String?     @map("note") @db.VarChar(200)
+  /// 更新日時
+  updatedAt   DateTime    @default(now()) @updatedAt @map("updated_at")
+
+  /// シフトとの関連
+  shift Shift? @relation(fields: [shiftCode], references: [shiftCode])
+
+  @@map("workdays")
+}
+
+/// 部門マスタ
+model Department {
+  /// 部門コード
+  departmentCode String   @map("department_code") @db.VarChar(10)
+  /// 適用開始日
+  effectiveFrom  DateTime @map("effective_from") @db.Date
+  /// 適用停止日
+  effectiveTo    DateTime? @map("effective_to") @db.Date
+  /// 親部門コード
+  parentCode     String?  @map("parent_code") @db.VarChar(10)
+  /// 階層レベル
+  level          Int      @map("level")
+  /// 部門名
+  departmentName String   @map("department_name") @db.VarChar(100)
+  /// 略称
+  shortName      String?  @map("short_name") @db.VarChar(50)
+  /// 更新日時
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@id([departmentCode, effectiveFrom])
+  @@map("departments")
+}
+
+/// 担当者マスタ
+model Employee {
+  /// 担当者コード
+  employeeCode     String   @map("employee_code") @db.VarChar(10)
+  /// 適用開始日
+  effectiveFrom    DateTime @map("effective_from") @db.Date
+  /// 適用停止日
+  effectiveTo      DateTime? @map("effective_to") @db.Date
+  /// 担当者名
+  employeeName     String   @map("employee_name") @db.VarChar(100)
+  /// 担当者名カナ
+  employeeNameKana String?  @map("employee_name_kana") @db.VarChar(100)
+  /// 部門コード（参照のみ、外部キー制約なし）
+  departmentCode   String?  @map("department_code") @db.VarChar(10)
+  /// メールアドレス
+  email            String?  @map("email") @db.VarChar(100)
+  /// 更新日時
+  updatedAt        DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@id([employeeCode, effectiveFrom])
+  @@map("employees")
+}
+
+/// 取引先マスタ
+model Supplier {
+  /// 取引先コード
+  supplierCode     String       @id @map("supplier_code") @db.VarChar(10)
+  /// 取引先名
+  supplierName     String       @map("supplier_name") @db.VarChar(100)
+  /// 取引先名カナ
+  supplierNameKana String?      @map("supplier_name_kana") @db.VarChar(100)
+  /// 取引先区分
+  supplierType     SupplierType @map("supplier_type")
+  /// 郵便番号
+  postalCode       String?      @map("postal_code") @db.VarChar(8)
+  /// 住所
+  address          String?      @map("address") @db.VarChar(200)
+  /// 電話番号
+  phone            String?      @map("phone") @db.VarChar(20)
+  /// FAX番号
+  fax              String?      @map("fax") @db.VarChar(20)
+  /// メールアドレス
+  email            String?      @map("email") @db.VarChar(100)
+  /// 更新日時
+  updatedAt        DateTime     @default(now()) @updatedAt @map("updated_at")
+
+  @@map("suppliers")
+}
+
+/// 場所マスタ
+model Location {
+  /// 場所コード
+  locationCode   String       @id @map("location_code") @db.VarChar(10)
+  /// 場所名
+  locationName   String       @map("location_name") @db.VarChar(100)
+  /// 場所区分
+  locationType   LocationType @map("location_type")
+  /// 管理部門コード（参照のみ、外部キー制約なし）
+  departmentCode String?      @map("department_code") @db.VarChar(10)
+  /// 取引先コード（参照のみ、外部キー制約なし）
+  supplierCode   String?      @map("supplier_code") @db.VarChar(10)
+  /// 郵便番号
+  postalCode     String?      @map("postal_code") @db.VarChar(8)
+  /// 住所
+  address        String?      @map("address") @db.VarChar(200)
+  /// 電話番号
+  phone          String?      @map("phone") @db.VarChar(20)
+  /// 更新日時
+  updatedAt      DateTime     @default(now()) @updatedAt @map("updated_at")
+
+  @@map("locations")
 }

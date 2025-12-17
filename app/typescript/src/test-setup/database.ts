@@ -52,6 +52,12 @@ export class TestDatabase {
 
     // すべてのテーブルをクリア（外部キー制約を考慮した順序）
     // 第3章以降でテーブルを追加した際に更新
+    await this.prisma.$executeRaw`TRUNCATE TABLE "locations" CASCADE`
+    await this.prisma.$executeRaw`TRUNCATE TABLE "suppliers" CASCADE`
+    await this.prisma.$executeRaw`TRUNCATE TABLE "employees" CASCADE`
+    await this.prisma.$executeRaw`TRUNCATE TABLE "departments" CASCADE`
+    await this.prisma.$executeRaw`TRUNCATE TABLE "workdays" CASCADE`
+    await this.prisma.$executeRaw`TRUNCATE TABLE "shifts" CASCADE`
     await this.prisma.$executeRaw`TRUNCATE TABLE "bom" CASCADE`
     await this.prisma.$executeRaw`TRUNCATE TABLE "items" CASCADE`
     await this.prisma.$executeRaw`TRUNCATE TABLE "units" CASCADE`
@@ -61,9 +67,21 @@ export class TestDatabase {
     if (!this.prisma) return
 
     // テスト用マイグレーション（第3章以降でテーブルを追加した際に更新）
-    // 品目区分のENUM型
+    // ENUM型の作成
     await this.prisma.$executeRaw`
       CREATE TYPE "item_category" AS ENUM ('PRODUCT', 'SEMI_PRODUCT', 'INTERMEDIATE', 'PART', 'MATERIAL', 'RAW_MATERIAL', 'SUPPLY');
+    `
+
+    await this.prisma.$executeRaw`
+      CREATE TYPE "workday_type" AS ENUM ('WORKING', 'HOLIDAY', 'HALF_DAY');
+    `
+
+    await this.prisma.$executeRaw`
+      CREATE TYPE "supplier_type" AS ENUM ('CUSTOMER', 'VENDOR', 'BOTH');
+    `
+
+    await this.prisma.$executeRaw`
+      CREATE TYPE "location_type" AS ENUM ('WAREHOUSE', 'FACTORY', 'OFFICE', 'EXTERNAL');
     `
 
     // 単位マスタテーブル
@@ -159,6 +177,95 @@ export class TestDatabase {
       ALTER TABLE "bom"
       ADD CONSTRAINT "bom_child_item_code_fkey"
       FOREIGN KEY ("child_item_code") REFERENCES "items"("item_code");
+    `
+
+    // シフトマスタテーブル
+    await this.prisma.$executeRaw`
+      CREATE TABLE IF NOT EXISTS "shifts" (
+        "shift_code" VARCHAR(10) PRIMARY KEY,
+        "shift_name" VARCHAR(50) NOT NULL,
+        "start_time" TIME NOT NULL,
+        "end_time" TIME NOT NULL
+      );
+    `
+
+    // 就業日マスタテーブル
+    await this.prisma.$executeRaw`
+      CREATE TABLE IF NOT EXISTS "workdays" (
+        "date" DATE PRIMARY KEY,
+        "workday_type" "workday_type" NOT NULL,
+        "shift_code" VARCHAR(10),
+        "note" VARCHAR(200),
+        "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `
+
+    // 就業日マスタの外部キー制約
+    await this.prisma.$executeRaw`
+      ALTER TABLE "workdays"
+      ADD CONSTRAINT "workdays_shift_code_fkey"
+      FOREIGN KEY ("shift_code") REFERENCES "shifts"("shift_code");
+    `
+
+    // 部門マスタテーブル
+    await this.prisma.$executeRaw`
+      CREATE TABLE IF NOT EXISTS "departments" (
+        "department_code" VARCHAR(10) NOT NULL,
+        "effective_from" DATE NOT NULL,
+        "effective_to" DATE,
+        "parent_code" VARCHAR(10),
+        "level" INTEGER NOT NULL,
+        "department_name" VARCHAR(100) NOT NULL,
+        "short_name" VARCHAR(50),
+        "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY ("department_code", "effective_from")
+      );
+    `
+
+    // 担当者マスタテーブル
+    await this.prisma.$executeRaw`
+      CREATE TABLE IF NOT EXISTS "employees" (
+        "employee_code" VARCHAR(10) NOT NULL,
+        "effective_from" DATE NOT NULL,
+        "effective_to" DATE,
+        "employee_name" VARCHAR(100) NOT NULL,
+        "employee_name_kana" VARCHAR(100),
+        "department_code" VARCHAR(10),
+        "email" VARCHAR(100),
+        "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY ("employee_code", "effective_from")
+      );
+    `
+
+    // 取引先マスタテーブル
+    await this.prisma.$executeRaw`
+      CREATE TABLE IF NOT EXISTS "suppliers" (
+        "supplier_code" VARCHAR(10) PRIMARY KEY,
+        "supplier_name" VARCHAR(100) NOT NULL,
+        "supplier_name_kana" VARCHAR(100),
+        "supplier_type" "supplier_type" NOT NULL,
+        "postal_code" VARCHAR(8),
+        "address" VARCHAR(200),
+        "phone" VARCHAR(20),
+        "fax" VARCHAR(20),
+        "email" VARCHAR(100),
+        "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `
+
+    // 場所マスタテーブル
+    await this.prisma.$executeRaw`
+      CREATE TABLE IF NOT EXISTS "locations" (
+        "location_code" VARCHAR(10) PRIMARY KEY,
+        "location_name" VARCHAR(100) NOT NULL,
+        "location_type" "location_type" NOT NULL,
+        "department_code" VARCHAR(10),
+        "supplier_code" VARCHAR(10),
+        "postal_code" VARCHAR(8),
+        "address" VARCHAR(200),
+        "phone" VARCHAR(20),
+        "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
     `
   }
 }
