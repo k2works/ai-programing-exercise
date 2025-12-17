@@ -47,9 +47,9 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_16_004335) do
     t.index ["display_order"], name: "idx_accounts_on_display_order", where: "(display_order IS NOT NULL)", comment: "表示順序でのソートを高速化"
     t.index ["tax_code"], name: "idx_accounts_on_tax_code", where: "(tax_code IS NOT NULL)", comment: "課税取引コードでの検索を高速化"
     t.index ["transaction_type"], name: "idx_accounts_on_transaction_type", where: "(transaction_type IS NOT NULL)", comment: "取引要素区分での検索を高速化"
-    t.check_constraint "(bspl_type::text = ANY (ARRAY['B'::character varying, 'P'::character varying]::text[])) OR bspl_type IS NULL", name: "check_bspl_type"
-    t.check_constraint "(expense_type::text = ANY (ARRAY['1'::character varying, '2'::character varying, '3'::character varying]::text[])) OR expense_type IS NULL", name: "check_expense_type"
-    t.check_constraint "(transaction_type::text = ANY (ARRAY['1'::character varying, '2'::character varying, '3'::character varying, '4'::character varying, '5'::character varying]::text[])) OR transaction_type IS NULL", name: "check_transaction_type"
+    t.check_constraint "(bspl_type::text = ANY (ARRAY['B'::character varying::text, 'P'::character varying::text])) OR bspl_type IS NULL", name: "check_bspl_type"
+    t.check_constraint "(expense_type::text = ANY (ARRAY['1'::character varying::text, '2'::character varying::text, '3'::character varying::text])) OR expense_type IS NULL", name: "check_expense_type"
+    t.check_constraint "(transaction_type::text = ANY (ARRAY['1'::character varying::text, '2'::character varying::text, '3'::character varying::text, '4'::character varying::text, '5'::character varying::text])) OR transaction_type IS NULL", name: "check_transaction_type"
     t.check_constraint "bspl_type::text = 'B'::text AND (account_type = ANY (ARRAY[0, 1, 2])) OR bspl_type::text = 'P'::text AND (account_type = ANY (ARRAY[3, 4])) OR bspl_type IS NULL", name: "check_bspl_consistency"
     t.check_constraint "expense_type IS NOT NULL AND account_type = 4 OR expense_type IS NULL", name: "check_expense_type_only_for_expense"
   end
@@ -110,7 +110,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_16_004335) do
     t.datetime "updated_at", null: false
     t.index ["auto_journal_pattern_id", "line_number"], name: "idx_auto_journal_pattern_items_unique", unique: true
     t.index ["auto_journal_pattern_id"], name: "index_auto_journal_pattern_items_on_auto_journal_pattern_id"
-    t.check_constraint "debit_credit_flag::text = ANY (ARRAY['D'::character varying, 'C'::character varying]::text[])", name: "check_debit_credit_flag"
+    t.check_constraint "debit_credit_flag::text = ANY (ARRAY['D'::character varying::text, 'C'::character varying::text])", name: "check_debit_credit_flag"
   end
 
   create_table "auto_journal_patterns", force: :cascade do |t|
@@ -195,7 +195,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_16_004335) do
     t.index ["journal_detail_id"], name: "index_journal_detail_items_on_journal_detail_id"
     t.index ["project_code"], name: "index_journal_detail_items_on_project_code"
     t.check_constraint "amount >= 0::numeric", name: "check_amount"
-    t.check_constraint "debit_credit_type::text = ANY (ARRAY['D'::character varying, 'C'::character varying]::text[])", name: "check_debit_credit_type"
+    t.check_constraint "debit_credit_type::text = ANY (ARRAY['D'::character varying::text, 'C'::character varying::text])", name: "check_debit_credit_type"
     t.check_constraint "exchange_rate > 0::numeric", name: "check_exchange_rate"
     t.check_constraint "length(currency_code::text) = 3", name: "check_currency_code_length"
   end
