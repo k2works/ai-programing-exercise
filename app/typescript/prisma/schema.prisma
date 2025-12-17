@@ -20,3 +20,107 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+/// 品目区分
+enum ItemCategory {
+  PRODUCT      @map("製品")
+  SEMI_PRODUCT @map("半製品")
+  INTERMEDIATE @map("中間品")
+  PART         @map("部品")
+  MATERIAL     @map("材料")
+  RAW_MATERIAL @map("原料")
+  SUPPLY       @map("資材")
+
+  @@map("item_category")
+}
+
+/// 単位マスタ
+model Unit {
+  /// 単位コード
+  unitCode   String @id @map("unit_code") @db.VarChar(10)
+  /// 単位記号
+  unitSymbol String @map("unit_symbol") @db.VarChar(10)
+  /// 単位名
+  unitName   String @map("unit_name") @db.VarChar(50)
+
+  /// 品目との関連
+  items Item[]
+
+  @@map("units")
+}
+
+/// 品目マスタ（生産管理システムの基本となる品目情報）
+model Item {
+  /// 品目ID（主キー）
+  id              Int          @id @default(autoincrement())
+  /// 品目コード
+  itemCode        String       @unique @map("item_code") @db.VarChar(20)
+  /// 適用開始日
+  effectiveFrom   DateTime     @map("effective_from") @db.Date
+  /// 適用停止日
+  effectiveTo     DateTime?    @map("effective_to") @db.Date
+  /// 品名
+  itemName        String       @map("item_name") @db.VarChar(100)
+  /// 品目区分
+  itemCategory    ItemCategory @map("item_category")
+  /// 単位コード（外部キー）
+  unitCode        String?      @map("unit_code") @db.VarChar(10)
+  /// リードタイム（日数）
+  leadTime        Int          @default(0) @map("lead_time")
+  /// 安全リードタイム（日数）
+  safetyLeadTime  Int          @default(0) @map("safety_lead_time")
+  /// 安全在庫数
+  safetyStock     Decimal      @default(0) @map("safety_stock") @db.Decimal(15, 2)
+  /// 歩留率（%）
+  yieldRate       Decimal      @default(100) @map("yield_rate") @db.Decimal(5, 2)
+  /// 最小ロット数
+  minLotSize      Decimal      @default(1) @map("min_lot_size") @db.Decimal(15, 2)
+  /// 刻みロット数
+  lotIncrement    Decimal      @default(1) @map("lot_increment") @db.Decimal(15, 2)
+  /// 最大ロット数
+  maxLotSize      Decimal?     @map("max_lot_size") @db.Decimal(15, 2)
+  /// 有効期間（日数）
+  shelfLife       Int?         @map("shelf_life")
+  /// 作成日時
+  createdAt       DateTime     @default(now()) @map("created_at")
+  /// 更新日時
+  updatedAt       DateTime     @default(now()) @updatedAt @map("updated_at")
+
+  /// 単位との関連
+  unit Unit? @relation(fields: [unitCode], references: [unitCode])
+
+  /// BOMの親品目として参照されている
+  bomAsParent Bom[] @relation("ParentItem")
+  /// BOMの子品目として参照されている
+  bomAsChild Bom[] @relation("ChildItem")
+
+  @@map("items")
+}
+
+/// BOM（部品構成表）
+model Bom {
+  /// 親品目コード
+  parentItemCode   String   @map("parent_item_code") @db.VarChar(20)
+  /// 子品目コード
+  childItemCode    String   @map("child_item_code") @db.VarChar(20)
+  /// 適用開始日
+  effectiveFrom    DateTime @map("effective_from") @db.Date
+  /// 適用停止日
+  effectiveTo      DateTime? @map("effective_to") @db.Date
+  /// 基準量（親品目の数量）
+  baseQuantity     Decimal  @map("base_quantity") @db.Decimal(15, 2)
+  /// 必要量（子品目の数量）
+  requiredQuantity Decimal  @map("required_quantity") @db.Decimal(15, 2)
+  /// 不良率（%）
+  defectRate       Decimal  @default(0) @map("defect_rate") @db.Decimal(5, 2)
+  /// 工順
+  sequence         Int?     @map("sequence")
+
+  /// 親品目との関連
+  parentItem Item @relation("ParentItem", fields: [parentItemCode], references: [itemCode])
+  /// 子品目との関連
+  childItem  Item @relation("ChildItem", fields: [childItemCode], references: [itemCode])
+
+  @@id([parentItemCode, childItemCode, effectiveFrom])
+  @@map("bom")
+}

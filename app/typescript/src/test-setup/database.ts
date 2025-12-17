@@ -52,7 +52,9 @@ export class TestDatabase {
 
     // すべてのテーブルをクリア（外部キー制約を考慮した順序）
     // 第3章以降でテーブルを追加した際に更新
+    await this.prisma.$executeRaw`TRUNCATE TABLE "bom" CASCADE`
     await this.prisma.$executeRaw`TRUNCATE TABLE "items" CASCADE`
+    await this.prisma.$executeRaw`TRUNCATE TABLE "units" CASCADE`
   }
 
   private async runMigrations(): Promise<void> {
@@ -62,6 +64,15 @@ export class TestDatabase {
     // 品目区分のENUM型
     await this.prisma.$executeRaw`
       CREATE TYPE "item_category" AS ENUM ('PRODUCT', 'SEMI_PRODUCT', 'INTERMEDIATE', 'PART', 'MATERIAL', 'RAW_MATERIAL', 'SUPPLY');
+    `
+
+    // 単位マスタテーブル
+    await this.prisma.$executeRaw`
+      CREATE TABLE IF NOT EXISTS "units" (
+        "unit_code" VARCHAR(10) PRIMARY KEY,
+        "unit_symbol" VARCHAR(10) NOT NULL,
+        "unit_name" VARCHAR(50) NOT NULL
+      );
     `
 
     // 品目マスタテーブル
@@ -114,6 +125,40 @@ export class TestDatabase {
     `
     await this.prisma.$executeRaw`
       COMMENT ON COLUMN "items"."safety_stock" IS '安全在庫数';
+    `
+
+    // BOMテーブル
+    await this.prisma.$executeRaw`
+      CREATE TABLE IF NOT EXISTS "bom" (
+        "parent_item_code" VARCHAR(20) NOT NULL,
+        "child_item_code" VARCHAR(20) NOT NULL,
+        "effective_from" DATE NOT NULL,
+        "effective_to" DATE,
+        "base_quantity" DECIMAL(15,2) NOT NULL,
+        "required_quantity" DECIMAL(15,2) NOT NULL,
+        "defect_rate" DECIMAL(5,2) DEFAULT 0,
+        "sequence" INTEGER,
+        PRIMARY KEY ("parent_item_code", "child_item_code", "effective_from")
+      );
+    `
+
+    // 外部キー制約の追加
+    await this.prisma.$executeRaw`
+      ALTER TABLE "items"
+      ADD CONSTRAINT "items_unit_code_fkey"
+      FOREIGN KEY ("unit_code") REFERENCES "units"("unit_code");
+    `
+
+    await this.prisma.$executeRaw`
+      ALTER TABLE "bom"
+      ADD CONSTRAINT "bom_parent_item_code_fkey"
+      FOREIGN KEY ("parent_item_code") REFERENCES "items"("item_code");
+    `
+
+    await this.prisma.$executeRaw`
+      ALTER TABLE "bom"
+      ADD CONSTRAINT "bom_child_item_code_fkey"
+      FOREIGN KEY ("child_item_code") REFERENCES "items"("item_code");
     `
   }
 }
