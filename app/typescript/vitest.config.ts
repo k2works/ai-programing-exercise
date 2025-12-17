@@ -5,6 +5,8 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     timeout: 60000, // TestContainerの起動時間を考慮
+    hookTimeout: 60000, // フック（beforeAll/afterAllなど）のタイムアウト
+    fileParallelism: false, // TestContainerを使うテストは順次実行
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'json'],
