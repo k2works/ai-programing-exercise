@@ -122,6 +122,31 @@ model Item {
   /// BOMの子品目として参照されている
   bomAsChild Bom[] @relation("ChildItem")
 
+  /// 基準生産計画との関連
+  masterProductionSchedules MasterProductionSchedule[]
+  /// オーダとの関連
+  orders Order[]
+  /// 所要情報との関連
+  requirements Requirement[]
+
+  /// 単価マスタとの関連
+  unitPrices UnitPrice[]
+  /// 発注明細との関連
+  purchaseOrderDetails PurchaseOrderDetail[]
+
+  /// 入荷受入データとの関連
+  receivingData ReceivingData[]
+  /// 受入検査データとの関連
+  inspectionData InspectionData[]
+  /// 検収データとの関連
+  acceptanceData AcceptanceData[]
+  /// 検収返品データとの関連
+  acceptanceReturnData AcceptanceReturnData[]
+  /// 支給明細データとの関連
+  supplyDetails SupplyDetailData[] @relation("SupplyItem")
+  /// 消費明細データとの関連
+  consumptionDetails ConsumptionDetailData[] @relation("ConsumptionItem")
+
   @@map("items")
 }
 
@@ -258,6 +283,17 @@ model Supplier {
   /// 更新日時
   updatedAt        DateTime     @default(now()) @updatedAt @map("updated_at")
 
+  /// 単価マスタとの関連
+  unitPrices    UnitPrice[]
+  /// 発注データとの関連
+  purchaseOrders PurchaseOrder[]
+  /// 検収データとの関連
+  acceptanceData AcceptanceData[]
+  /// 支給データとの関連
+  supplies SupplyData[] @relation("SupplySupplier")
+  /// 消費データとの関連
+  consumptions ConsumptionData[] @relation("ConsumptionSupplier")
+
   @@map("suppliers")
 }
 
@@ -282,5 +318,1261 @@ model Location {
   /// 更新日時
   updatedAt      DateTime     @default(now()) @updatedAt @map("updated_at")
 
+  /// リレーション
+  inventories    Inventory[]
+  issueInstructions IssueInstructionData[] @relation("IssueInstructionLocation")
+  issues         IssueData[] @relation("IssueLocation")
+
   @@map("locations")
+}
+
+/// 計画ステータス
+enum PlanStatus {
+  DRAFT     @map("草案")
+  CONFIRMED @map("確定")
+  EXPANDED  @map("展開済")
+  CANCELLED @map("取消")
+
+  @@map("plan_status")
+}
+
+/// オーダ種別
+enum OrderType {
+  PURCHASE     @map("購買")
+  MANUFACTURING @map("製造")
+
+  @@map("order_type")
+}
+
+/// 引当区分
+enum AllocationCategory {
+  INVENTORY       @map("在庫")
+  PURCHASE_REMAIN @map("発注残")
+  MANUFACTURING_REMAIN @map("製造残")
+
+  @@map("allocation_category")
+}
+
+/// 基準生産計画
+model MasterProductionSchedule {
+  /// ID
+  id             Int        @id @default(autoincrement()) @map("id")
+  /// MPS番号
+  mpsNumber      String     @unique @map("mps_number") @db.VarChar(20)
+  /// 計画日
+  planDate       DateTime   @map("plan_date") @db.Date
+  /// 品目コード
+  itemCode       String     @map("item_code") @db.VarChar(20)
+  /// 計画数量
+  plannedQuantity Decimal   @map("planned_quantity") @db.Decimal(15, 2)
+  /// 納期
+  dueDate        DateTime   @map("due_date") @db.Date
+  /// ステータス
+  status         PlanStatus @default(DRAFT) @map("status")
+  /// 場所コード
+  locationCode   String?    @map("location_code") @db.VarChar(20)
+  /// 備考
+  note           String?    @map("note") @db.Text
+  /// 作成日時
+  createdAt      DateTime   @default(now()) @map("created_at")
+  /// 作成者
+  createdBy      String?    @map("created_by") @db.VarChar(50)
+  /// 更新日時
+  updatedAt      DateTime   @updatedAt @map("updated_at")
+  /// 更新者
+  updatedBy      String?    @map("updated_by") @db.VarChar(50)
+
+  /// リレーション
+  item   Item    @relation(fields: [itemCode], references: [itemCode])
+  orders Order[]
+
+  @@map("master_production_schedules")
+}
+
+/// オーダ情報
+model Order {
+  /// ID
+  id                Int        @id @default(autoincrement()) @map("id")
+  /// オーダNO
+  orderNumber       String     @unique @map("order_number") @db.VarChar(20)
+  /// オーダ種別
+  orderType         OrderType  @map("order_type")
+  /// 品目コード
+  itemCode          String     @map("item_code") @db.VarChar(20)
+  /// 着手予定日
+  startDate         DateTime   @map("start_date") @db.Date
+  /// 納期
+  dueDate           DateTime   @map("due_date") @db.Date
+  /// 有効期限
+  expirationDate    DateTime?  @map("expiration_date") @db.Date
+  /// 計画数量
+  plannedQuantity   Decimal    @map("planned_quantity") @db.Decimal(15, 2)
+  /// 場所コード
+  locationCode      String     @map("location_code") @db.VarChar(20)
+  /// ステータス
+  status            PlanStatus @default(DRAFT) @map("status")
+  /// MPS ID
+  mpsId             Int?       @map("mps_id")
+  /// 親オーダID
+  parentOrderId     Int?       @map("parent_order_id")
+  /// 作成日時
+  createdAt         DateTime   @default(now()) @map("created_at")
+  /// 作成者
+  createdBy         String?    @map("created_by") @db.VarChar(50)
+  /// 更新日時
+  updatedAt         DateTime   @updatedAt @map("updated_at")
+  /// 更新者
+  updatedBy         String?    @map("updated_by") @db.VarChar(50)
+
+  /// リレーション
+  item             Item                      @relation(fields: [itemCode], references: [itemCode])
+  mps              MasterProductionSchedule? @relation(fields: [mpsId], references: [id])
+  parentOrder      Order?                    @relation("OrderHierarchy", fields: [parentOrderId], references: [id])
+  childOrders      Order[]                   @relation("OrderHierarchy")
+  requirements     Requirement[]
+  allocations      Allocation[]
+
+  @@map("orders")
+}
+
+/// 所要情報
+model Requirement {
+  /// ID
+  id                    Int      @id @default(autoincrement()) @map("id")
+  /// 所要NO
+  requirementNumber     String   @unique @map("requirement_number") @db.VarChar(20)
+  /// オーダID
+  orderId               Int      @map("order_id")
+  /// 品目コード
+  itemCode              String   @map("item_code") @db.VarChar(20)
+  /// 納期
+  dueDate               DateTime @map("due_date") @db.Date
+  /// 必要数量
+  requiredQuantity      Decimal  @map("required_quantity") @db.Decimal(15, 2)
+  /// 引当済数量
+  allocatedQuantity     Decimal  @default(0) @map("allocated_quantity") @db.Decimal(15, 2)
+  /// 不足数量
+  shortageQuantity      Decimal  @default(0) @map("shortage_quantity") @db.Decimal(15, 2)
+  /// 場所コード
+  locationCode          String   @map("location_code") @db.VarChar(20)
+  /// 作成日時
+  createdAt             DateTime @default(now()) @map("created_at")
+  /// 更新日時
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  /// リレーション
+  order       Order        @relation(fields: [orderId], references: [id])
+  item        Item         @relation(fields: [itemCode], references: [itemCode])
+  allocations Allocation[]
+
+  @@map("requirements")
+}
+
+/// 引当情報
+model Allocation {
+  /// ID
+  id                  Int                  @id @default(autoincrement()) @map("id")
+  /// 所要ID
+  requirementId       Int                  @map("requirement_id")
+  /// 引当区分
+  allocationCategory  AllocationCategory   @map("allocation_category")
+  /// オーダID
+  orderId             Int?                 @map("order_id")
+  /// 引当日
+  allocationDate      DateTime             @map("allocation_date") @db.Date
+  /// 引当数量
+  allocatedQuantity   Decimal              @map("allocated_quantity") @db.Decimal(15, 2)
+  /// 場所コード
+  locationCode        String               @map("location_code") @db.VarChar(20)
+  /// 作成日時
+  createdAt           DateTime             @default(now()) @map("created_at")
+  /// 更新日時
+  updatedAt           DateTime             @updatedAt @map("updated_at")
+
+  /// リレーション
+  requirement Requirement @relation(fields: [requirementId], references: [id])
+  order       Order?      @relation(fields: [orderId], references: [id])
+
+  @@map("allocations")
+}
+
+// ============================================
+// 第8章: 発注業務
+// ============================================
+
+/// 発注ステータス
+enum PurchaseOrderStatus {
+  DRAFT         @map("作成中")
+  ORDERED       @map("発注済")
+  PARTIALLY_RECEIVED @map("一部入荷")
+  FULLY_RECEIVED @map("入荷完了")
+  INSPECTED     @map("検収完了")
+  CANCELLED     @map("取消")
+
+  @@map("purchase_order_status")
+}
+
+/// 単価マスタ
+model UnitPrice {
+  /// ID
+  id                Int       @id @default(autoincrement())
+  /// 品目コード
+  itemCode          String    @map("item_code") @db.VarChar(20)
+  /// 取引先コード
+  supplierCode      String    @map("supplier_code") @db.VarChar(20)
+  /// ロット単位数
+  lotUnitQuantity   Decimal   @default(1) @map("lot_unit_quantity") @db.Decimal(15, 2)
+  /// 使用開始日
+  effectiveFrom     DateTime  @map("effective_from") @db.Date
+  /// 使用停止日
+  effectiveTo       DateTime? @map("effective_to") @db.Date
+  /// 単価
+  unitPrice         Decimal   @map("unit_price") @db.Decimal(15, 2)
+  /// 作成日時
+  createdAt         DateTime  @default(now()) @map("created_at")
+  /// 作成者
+  createdBy         String?   @map("created_by") @db.VarChar(50)
+  /// 更新日時
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  /// 更新者
+  updatedBy         String?   @map("updated_by") @db.VarChar(50)
+
+  /// リレーション
+  item     Item     @relation(fields: [itemCode], references: [itemCode])
+  supplier Supplier @relation(fields: [supplierCode], references: [supplierCode])
+
+  @@unique([itemCode, supplierCode, lotUnitQuantity, effectiveFrom])
+  @@map("unit_prices")
+}
+
+/// 発注データ
+model PurchaseOrder {
+  /// ID
+  id                  Int                   @id @default(autoincrement())
+  /// 発注番号
+  orderNumber         String                @unique @map("order_number") @db.VarChar(20)
+  /// 発注日
+  orderDate           DateTime              @map("order_date") @db.Date
+  /// 取引先コード
+  supplierCode        String                @map("supplier_code") @db.VarChar(20)
+  /// 発注担当者コード
+  purchaserCode       String?               @map("purchaser_code") @db.VarChar(20)
+  /// 発注部門コード
+  departmentCode      String?               @map("department_code") @db.VarChar(20)
+  /// ステータス
+  status              PurchaseOrderStatus   @default(DRAFT) @map("status")
+  /// 備考
+  note                String?               @map("note") @db.Text
+  /// 作成日時
+  createdAt           DateTime              @default(now()) @map("created_at")
+  /// 作成者
+  createdBy           String?               @map("created_by") @db.VarChar(50)
+  /// 更新日時
+  updatedAt           DateTime              @updatedAt @map("updated_at")
+  /// 更新者
+  updatedBy           String?               @map("updated_by") @db.VarChar(50)
+
+  /// リレーション
+  supplier   Supplier              @relation(fields: [supplierCode], references: [supplierCode])
+  details    PurchaseOrderDetail[]
+
+  @@map("purchase_orders")
+}
+
+/// 発注明細データ
+model PurchaseOrderDetail {
+  /// ID
+  id                    Int                   @id @default(autoincrement())
+  /// 発注番号
+  orderNumber           String                @map("order_number") @db.VarChar(20)
+  /// 発注行番号
+  lineNumber            Int                   @map("line_number")
+  /// オーダ番号
+  productionOrderNumber String?               @map("production_order_number") @db.VarChar(20)
+  /// 納入場所コード
+  deliveryLocationCode  String?               @map("delivery_location_code") @db.VarChar(20)
+  /// 品目コード
+  itemCode              String                @map("item_code") @db.VarChar(20)
+  /// 諸口品目区分
+  isMiscellaneous       Boolean               @default(false) @map("is_miscellaneous")
+  /// 受入予定日
+  scheduledReceiptDate  DateTime              @map("scheduled_receipt_date") @db.Date
+  /// 回答納期
+  confirmedDeliveryDate DateTime?             @map("confirmed_delivery_date") @db.Date
+  /// 発注単価
+  orderUnitPrice        Decimal               @map("order_unit_price") @db.Decimal(15, 2)
+  /// 発注数量
+  orderQuantity         Decimal               @map("order_quantity") @db.Decimal(15, 2)
+  /// 入荷済数量
+  receivedQuantity      Decimal               @default(0) @map("received_quantity") @db.Decimal(15, 2)
+  /// 検査済数量
+  inspectedQuantity     Decimal               @default(0) @map("inspected_quantity") @db.Decimal(15, 2)
+  /// 検収済数量
+  acceptedQuantity      Decimal               @default(0) @map("accepted_quantity") @db.Decimal(15, 2)
+  /// 発注金額
+  orderAmount           Decimal               @map("order_amount") @db.Decimal(15, 2)
+  /// 消費税金額
+  taxAmount             Decimal               @default(0) @map("tax_amount") @db.Decimal(15, 2)
+  /// 完了フラグ
+  isCompleted           Boolean               @default(false) @map("is_completed")
+  /// 明細備考
+  detailNote            String?               @map("detail_note") @db.Text
+  /// 作成日時
+  createdAt             DateTime              @default(now()) @map("created_at")
+  /// 作成者
+  createdBy             String?               @map("created_by") @db.VarChar(50)
+  /// 更新日時
+  updatedAt             DateTime              @updatedAt @map("updated_at")
+  /// 更新者
+  updatedBy             String?               @map("updated_by") @db.VarChar(50)
+
+  /// リレーション
+  purchaseOrder        PurchaseOrder         @relation(fields: [orderNumber], references: [orderNumber])
+  item                 Item                  @relation(fields: [itemCode], references: [itemCode])
+  miscellaneousItem    MiscellaneousItem?
+  receivingData        ReceivingData[]
+  acceptanceData       AcceptanceData[]
+  acceptanceReturnData AcceptanceReturnData[]
+  supplies             SupplyData[]
+
+  @@unique([orderNumber, lineNumber])
+  @@map("purchase_order_details")
+}
+
+/// 諸口品目情報（マスタに登録されていない臨時品目）
+model MiscellaneousItem {
+  /// ID
+  id              Int      @id @default(autoincrement())
+  /// 発注番号
+  orderNumber     String   @map("order_number") @db.VarChar(20)
+  /// 発注行番号
+  lineNumber      Int      @map("line_number")
+  /// 品目コード
+  itemCode        String   @map("item_code") @db.VarChar(20)
+  /// 品名
+  itemName        String   @map("item_name") @db.VarChar(100)
+  /// 規格
+  specification   String?  @map("specification") @db.VarChar(100)
+  /// 図番メーカー
+  drawingNumber   String?  @map("drawing_number") @db.VarChar(100)
+  /// 版数
+  revision        String?  @map("revision") @db.VarChar(20)
+  /// 作成日時
+  createdAt       DateTime @default(now()) @map("created_at")
+  /// 更新日時
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  /// リレーション
+  purchaseOrderDetail PurchaseOrderDetail @relation(fields: [orderNumber, lineNumber], references: [orderNumber, lineNumber])
+
+  @@unique([orderNumber, lineNumber])
+  @@map("miscellaneous_items")
+}
+
+// ============================================
+// 第9章: 入荷・受入・検収業務
+// ============================================
+
+/// 入荷受入区分
+enum ReceivingCategory {
+  NORMAL   @map("通常入荷")
+  SPLIT    @map("分割入荷")
+  RETURN   @map("返品入荷")
+
+  @@map("receiving_category")
+}
+
+/// 入荷受入データ
+model ReceivingData {
+  /// ID
+  id                  Int               @id @default(autoincrement())
+  /// 入荷番号
+  receivingNumber     String            @unique @map("receiving_number") @db.VarChar(20)
+  /// 発注番号
+  orderNumber         String            @map("order_number") @db.VarChar(20)
+  /// 発注行番号
+  lineNumber          Int               @map("line_number")
+  /// 入荷日
+  receivingDate       DateTime          @map("receiving_date") @db.Date
+  /// 入荷担当者コード
+  receiverCode        String?           @map("receiver_code") @db.VarChar(20)
+  /// 入荷受入区分
+  receivingCategory   ReceivingCategory @default(NORMAL) @map("receiving_category")
+  /// 品目コード
+  itemCode            String            @map("item_code") @db.VarChar(20)
+  /// 諸口品目区分
+  isMiscellaneous     Boolean           @default(false) @map("is_miscellaneous")
+  /// 入荷数量
+  receivedQuantity    Decimal           @map("received_quantity") @db.Decimal(15, 2)
+  /// 入荷備考
+  note                String?           @map("note") @db.Text
+  /// 作成日時
+  createdAt           DateTime          @default(now()) @map("created_at")
+  /// 作成者
+  createdBy           String?           @map("created_by") @db.VarChar(50)
+  /// 更新日時
+  updatedAt           DateTime          @updatedAt @map("updated_at")
+  /// 更新者
+  updatedBy           String?           @map("updated_by") @db.VarChar(50)
+
+  /// リレーション
+  purchaseOrderDetail PurchaseOrderDetail @relation(fields: [orderNumber, lineNumber], references: [orderNumber, lineNumber])
+  item                Item                @relation(fields: [itemCode], references: [itemCode])
+  inspections         InspectionData[]
+  consumptions        ConsumptionData[]
+
+  @@map("receiving_data")
+}
+
+/// 受入検査データ
+model InspectionData {
+  /// ID
+  id                  Int       @id @default(autoincrement())
+  /// 受入検査番号
+  inspectionNumber    String    @unique @map("inspection_number") @db.VarChar(20)
+  /// 入荷番号
+  receivingNumber     String    @map("receiving_number") @db.VarChar(20)
+  /// 発注番号
+  orderNumber         String    @map("order_number") @db.VarChar(20)
+  /// 発注行番号
+  lineNumber          Int       @map("line_number")
+  /// 受入検査日
+  inspectionDate      DateTime  @map("inspection_date") @db.Date
+  /// 受入検査担当者コード
+  inspectorCode       String?   @map("inspector_code") @db.VarChar(20)
+  /// 品目コード
+  itemCode            String    @map("item_code") @db.VarChar(20)
+  /// 諸口品目区分
+  isMiscellaneous     Boolean   @default(false) @map("is_miscellaneous")
+  /// 良品数
+  acceptedQuantity    Decimal   @map("accepted_quantity") @db.Decimal(15, 2)
+  /// 不良品数
+  rejectedQuantity    Decimal   @default(0) @map("rejected_quantity") @db.Decimal(15, 2)
+  /// 受入検査備考
+  note                String?   @map("note") @db.Text
+  /// 作成日時
+  createdAt           DateTime  @default(now()) @map("created_at")
+  /// 作成者
+  createdBy           String?   @map("created_by") @db.VarChar(50)
+  /// 更新日時
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+  /// 更新者
+  updatedBy           String?   @map("updated_by") @db.VarChar(50)
+
+  /// リレーション
+  receiving        ReceivingData          @relation(fields: [receivingNumber], references: [receivingNumber])
+  item             Item                   @relation(fields: [itemCode], references: [itemCode])
+  inspectionResults InspectionResultData[]
+  acceptances      AcceptanceData[]
+
+  @@map("inspection_data")
+}
+
+/// 受入検査結果データ
+model InspectionResultData {
+  /// ID
+  id                Int      @id @default(autoincrement())
+  /// 受入検査番号
+  inspectionNumber  String   @map("inspection_number") @db.VarChar(20)
+  /// 欠点コード
+  defectCode        String   @map("defect_code") @db.VarChar(20)
+  /// 数量
+  quantity          Decimal  @map("quantity") @db.Decimal(15, 2)
+  /// 作成日時
+  createdAt         DateTime @default(now()) @map("created_at")
+  /// 作成者
+  createdBy         String?  @map("created_by") @db.VarChar(50)
+  /// 更新日時
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  /// 更新者
+  updatedBy         String?  @map("updated_by") @db.VarChar(50)
+
+  /// リレーション
+  inspection InspectionData @relation(fields: [inspectionNumber], references: [inspectionNumber])
+  defect     DefectMaster   @relation(fields: [defectCode], references: [defectCode])
+
+  @@unique([inspectionNumber, defectCode])
+  @@map("inspection_result_data")
+}
+
+/// 欠点マスタ
+model DefectMaster {
+  /// ID
+  id               Int      @id @default(autoincrement())
+  /// 欠点コード
+  defectCode       String   @unique @map("defect_code") @db.VarChar(20)
+  /// 欠点内容
+  defectContent    String   @map("defect_content") @db.VarChar(200)
+  /// 作成日時
+  createdAt        DateTime @default(now()) @map("created_at")
+  /// 作成者
+  createdBy        String?  @map("created_by") @db.VarChar(50)
+  /// 更新日時
+  updatedAt        DateTime @updatedAt @map("updated_at")
+  /// 更新者
+  updatedBy        String?  @map("updated_by") @db.VarChar(50)
+
+  /// リレーション
+  inspectionResults InspectionResultData[]
+  completionInspections CompletionInspectionData[]
+
+  @@map("defect_masters")
+}
+
+/// 検収データ
+model AcceptanceData {
+  /// ID
+  id                Int      @id @default(autoincrement())
+  /// 検収番号
+  acceptanceNumber  String   @unique @map("acceptance_number") @db.VarChar(20)
+  /// 受入検査番号
+  inspectionNumber  String   @map("inspection_number") @db.VarChar(20)
+  /// 発注番号
+  orderNumber       String   @map("order_number") @db.VarChar(20)
+  /// 発注行番号
+  lineNumber        Int      @map("line_number")
+  /// 検収日
+  acceptanceDate    DateTime @map("acceptance_date") @db.Date
+  /// 検収担当者コード
+  acceptorCode      String?  @map("acceptor_code") @db.VarChar(20)
+  /// 取引先コード
+  supplierCode      String   @map("supplier_code") @db.VarChar(20)
+  /// 品目コード
+  itemCode          String   @map("item_code") @db.VarChar(20)
+  /// 諸口品目区分
+  isMiscellaneous   Boolean  @default(false) @map("is_miscellaneous")
+  /// 検収数
+  acceptedQuantity  Decimal  @map("accepted_quantity") @db.Decimal(15, 2)
+  /// 検収単価
+  acceptancePrice   Decimal  @map("acceptance_price") @db.Decimal(15, 2)
+  /// 検収金額
+  acceptanceAmount  Decimal  @map("acceptance_amount") @db.Decimal(15, 2)
+  /// 検収消費税額
+  taxAmount         Decimal  @default(0) @map("tax_amount") @db.Decimal(15, 2)
+  /// 検収備考
+  note              String?  @map("note") @db.Text
+  /// 作成日時
+  createdAt         DateTime @default(now()) @map("created_at")
+  /// 作成者
+  createdBy         String?  @map("created_by") @db.VarChar(50)
+  /// 更新日時
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  /// 更新者
+  updatedBy         String?  @map("updated_by") @db.VarChar(50)
+
+  /// リレーション
+  inspection          InspectionData      @relation(fields: [inspectionNumber], references: [inspectionNumber])
+  purchaseOrderDetail PurchaseOrderDetail @relation(fields: [orderNumber, lineNumber], references: [orderNumber, lineNumber])
+  supplier            Supplier            @relation(fields: [supplierCode], references: [supplierCode])
+  item                Item                @relation(fields: [itemCode], references: [itemCode])
+
+  @@map("acceptance_data")
+}
+
+/// 検収返品データ
+model AcceptanceReturnData {
+  /// ID
+  id                Int      @id @default(autoincrement())
+  /// 検収返品番号
+  returnNumber      String   @unique @map("return_number") @db.VarChar(20)
+  /// 発注番号
+  orderNumber       String   @map("order_number") @db.VarChar(20)
+  /// 発注行番号
+  lineNumber        Int      @map("line_number")
+  /// 検収返品日
+  returnDate        DateTime @map("return_date") @db.Date
+  /// 品目コード
+  itemCode          String   @map("item_code") @db.VarChar(20)
+  /// 諸口品目区分
+  isMiscellaneous   Boolean  @default(false) @map("is_miscellaneous")
+  /// 検収返品数量
+  returnedQuantity  Decimal  @map("returned_quantity") @db.Decimal(15, 2)
+  /// 検収返品単価
+  returnPrice       Decimal  @map("return_price") @db.Decimal(15, 2)
+  /// 検収返品金額
+  returnAmount      Decimal  @map("return_amount") @db.Decimal(15, 2)
+  /// 検収返品消費税金額
+  taxAmount         Decimal  @default(0) @map("tax_amount") @db.Decimal(15, 2)
+  /// 検収返品理由
+  returnReason      String?  @map("return_reason") @db.Text
+  /// 作成日時
+  createdAt         DateTime @default(now()) @map("created_at")
+  /// 作成者
+  createdBy         String?  @map("created_by") @db.VarChar(50)
+  /// 更新日時
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  /// 更新者
+  updatedBy         String?  @map("updated_by") @db.VarChar(50)
+
+  /// リレーション
+  purchaseOrderDetail PurchaseOrderDetail @relation(fields: [orderNumber, lineNumber], references: [orderNumber, lineNumber])
+  item                Item                @relation(fields: [itemCode], references: [itemCode])
+
+  @@map("acceptance_return_data")
+}
+
+// ============================================
+// 第10章: 外注委託管理
+// ============================================
+
+/// 支給区分
+enum SupplyCategory {
+  PAID @map("有償支給")
+  FREE @map("無償支給")
+
+  @@map("supply_category")
+}
+
+/// 支給データ
+model SupplyData {
+  /// ID
+  id                  Int             @id @default(autoincrement())
+  /// 支給番号
+  supplyNumber        String          @unique @map("supply_number") @db.VarChar(20)
+  /// 発注番号
+  orderNumber         String          @map("order_number") @db.VarChar(20)
+  /// 発注行番号
+  lineNumber          Int             @map("line_number")
+  /// 取引先コード
+  supplierCode        String          @map("supplier_code") @db.VarChar(20)
+  /// 支給日
+  supplyDate          DateTime        @map("supply_date") @db.Date
+  /// 支給担当者コード
+  supplierPersonCode  String?         @map("supplier_person_code") @db.VarChar(20)
+  /// 支給区分
+  supplyCategory      SupplyCategory  @default(FREE) @map("supply_category")
+  /// 備考
+  note                String?         @map("note") @db.Text
+  /// 作成日時
+  createdAt           DateTime        @default(now()) @map("created_at")
+  /// 作成者
+  createdBy           String?         @map("created_by") @db.VarChar(50)
+  /// 更新日時
+  updatedAt           DateTime        @updatedAt @map("updated_at")
+  /// 更新者
+  updatedBy           String?         @map("updated_by") @db.VarChar(50)
+
+  /// リレーション
+  purchaseOrderDetail PurchaseOrderDetail  @relation(fields: [orderNumber, lineNumber], references: [orderNumber, lineNumber])
+  supplier            Supplier             @relation("SupplySupplier", fields: [supplierCode], references: [supplierCode])
+  details             SupplyDetailData[]
+
+  @@map("supply_data")
+}
+
+/// 支給明細データ
+model SupplyDetailData {
+  /// ID
+  id              Int         @id @default(autoincrement())
+  /// 支給番号
+  supplyNumber    String      @map("supply_number") @db.VarChar(20)
+  /// 支給行番号
+  lineNumber      Int         @map("line_number")
+  /// 品目コード
+  itemCode        String      @map("item_code") @db.VarChar(20)
+  /// 支給数量
+  supplyQuantity  Decimal     @map("supply_quantity") @db.Decimal(15, 2)
+  /// 支給単価
+  supplyUnitPrice Decimal     @map("supply_unit_price") @db.Decimal(15, 2)
+  /// 支給金額
+  supplyAmount    Decimal     @map("supply_amount") @db.Decimal(15, 2)
+  /// 備考
+  note            String?     @map("note") @db.Text
+
+  /// リレーション
+  supplyData SupplyData @relation(fields: [supplyNumber], references: [supplyNumber])
+  item       Item       @relation("SupplyItem", fields: [itemCode], references: [itemCode])
+
+  @@unique([supplyNumber, lineNumber])
+  @@map("supply_detail_data")
+}
+
+/// 消費データ
+model ConsumptionData {
+  /// ID
+  id              Int      @id @default(autoincrement())
+  /// 消費番号
+  consumptionNumber String @unique @map("consumption_number") @db.VarChar(20)
+  /// 入荷番号
+  receivingNumber String   @map("receiving_number") @db.VarChar(20)
+  /// 消費日
+  consumptionDate DateTime @map("consumption_date") @db.Date
+  /// 取引先コード
+  supplierCode    String   @map("supplier_code") @db.VarChar(20)
+  /// 備考
+  note            String?  @map("note") @db.Text
+  /// 作成日時
+  createdAt       DateTime @default(now()) @map("created_at")
+  /// 作成者
+  createdBy       String?  @map("created_by") @db.VarChar(50)
+  /// 更新日時
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  /// 更新者
+  updatedBy       String?  @map("updated_by") @db.VarChar(50)
+
+  /// リレーション
+  receiving ReceivingData           @relation(fields: [receivingNumber], references: [receivingNumber])
+  supplier  Supplier                @relation("ConsumptionSupplier", fields: [supplierCode], references: [supplierCode])
+  details   ConsumptionDetailData[]
+
+  @@map("consumption_data")
+}
+
+/// 消費明細データ
+model ConsumptionDetailData {
+  /// ID
+  id                    Int             @id @default(autoincrement())
+  /// 消費番号
+  consumptionNumber     String          @map("consumption_number") @db.VarChar(20)
+  /// 消費行番号
+  lineNumber            Int             @map("line_number")
+  /// 品目コード
+  itemCode              String          @map("item_code") @db.VarChar(20)
+  /// 消費数量
+  consumptionQuantity   Decimal         @map("consumption_quantity") @db.Decimal(15, 2)
+  /// 備考
+  note                  String?         @map("note") @db.Text
+
+  /// リレーション
+  consumptionData ConsumptionData @relation(fields: [consumptionNumber], references: [consumptionNumber])
+  item            Item            @relation("ConsumptionItem", fields: [itemCode], references: [itemCode])
+
+  @@unique([consumptionNumber, lineNumber])
+  @@map("consumption_detail_data")
+}
+
+// ============================================
+// 第14章: 製造指示の DB 設計
+// ============================================
+
+/// 作業指示ステータス
+enum WorkOrderStatus {
+  NOT_STARTED @map("未着手")
+  IN_PROGRESS @map("作業中")
+  COMPLETED   @map("完了")
+  SUSPENDED   @map("中断")
+
+  @@map("work_order_status")
+}
+
+/// 工程マスタ
+model ProcessMaster {
+  /// 工程コード
+  processCode String   @id @map("process_code") @db.VarChar(10)
+  /// 工程名
+  processName String   @map("process_name") @db.VarChar(100)
+  /// 標準サイクルタイム（分）
+  standardCycleTime Decimal? @map("standard_cycle_time") @db.Decimal(10, 2)
+  /// 段取時間（分）
+  setupTime   Decimal? @map("setup_time") @db.Decimal(10, 2)
+  /// 作成日時
+  createdAt   DateTime @default(now()) @map("created_at")
+  /// 作成者
+  createdBy   String?  @map("created_by") @db.VarChar(50)
+  /// 更新日時
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  /// 更新者
+  updatedBy   String?  @map("updated_by") @db.VarChar(50)
+
+  /// リレーション
+  routings        Routing[]
+  workOrderDetails WorkOrderDetailData[]
+  laborHours      LaborHoursData[]
+
+  @@map("process_masters")
+}
+
+/// 工程表
+model Routing {
+  /// 品目コード
+  itemCode    String   @map("item_code") @db.VarChar(20)
+  /// 適用開始日
+  effectiveFrom DateTime @map("effective_from") @db.Date
+  /// 工順
+  sequence    Int      @map("sequence")
+  /// 工程コード
+  processCode String   @map("process_code") @db.VarChar(10)
+  /// 適用停止日
+  effectiveTo DateTime? @map("effective_to") @db.Date
+  /// 作業時間（分/個）
+  workTime    Decimal? @map("work_time") @db.Decimal(10, 2)
+  /// 作成日時
+  createdAt   DateTime @default(now()) @map("created_at")
+  /// 作成者
+  createdBy   String?  @map("created_by") @db.VarChar(50)
+  /// 更新日時
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  /// 更新者
+  updatedBy   String?  @map("updated_by") @db.VarChar(50)
+
+  /// リレーション
+  process ProcessMaster @relation(fields: [processCode], references: [processCode])
+
+  @@id([itemCode, effectiveFrom, sequence])
+  @@map("routings")
+}
+
+/// 作業指示データ
+model WorkOrderData {
+  /// ID
+  id                Int              @id @default(autoincrement())
+  /// 作業指示番号
+  workOrderNumber   String           @unique @map("work_order_number") @db.VarChar(20)
+  /// 製造オーダ番号
+  productionOrderNumber String       @map("production_order_number") @db.VarChar(20)
+  /// 作業指示日
+  workOrderDate     DateTime         @map("work_order_date") @db.Date
+  /// 品目コード
+  itemCode          String           @map("item_code") @db.VarChar(20)
+  /// 指示数量
+  orderQuantity     Decimal          @map("order_quantity") @db.Decimal(15, 2)
+  /// 完成数量
+  completedQuantity Decimal          @default(0) @map("completed_quantity") @db.Decimal(15, 2)
+  /// 開始予定日
+  scheduledStartDate DateTime        @map("scheduled_start_date") @db.Date
+  /// 完了予定日
+  scheduledEndDate  DateTime         @map("scheduled_end_date") @db.Date
+  /// ステータス
+  status            WorkOrderStatus  @default(NOT_STARTED) @map("status")
+  /// 備考
+  note              String?          @map("note") @db.Text
+  /// 作成日時
+  createdAt         DateTime         @default(now()) @map("created_at")
+  /// 作成者
+  createdBy         String?          @map("created_by") @db.VarChar(50)
+  /// 更新日時
+  updatedAt         DateTime         @updatedAt @map("updated_at")
+  /// 更新者
+  updatedBy         String?          @map("updated_by") @db.VarChar(50)
+
+  /// リレーション
+  details          WorkOrderDetailData[]
+  completionResults CompletionResultData[]
+
+  @@map("work_order_data")
+}
+
+/// 作業指示明細データ
+model WorkOrderDetailData {
+  /// ID
+  id              Int      @id @default(autoincrement())
+  /// 作業指示番号
+  workOrderNumber String   @map("work_order_number") @db.VarChar(20)
+  /// 工順
+  sequence        Int      @map("sequence")
+  /// 工程コード
+  processCode     String   @map("process_code") @db.VarChar(10)
+  /// 開始予定日時
+  scheduledStartTime DateTime? @map("scheduled_start_time")
+  /// 完了予定日時
+  scheduledEndTime   DateTime? @map("scheduled_end_time")
+  /// 作成日時
+  createdAt       DateTime @default(now()) @map("created_at")
+  /// 作成者
+  createdBy       String?  @map("created_by") @db.VarChar(50)
+  /// 更新日時
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  /// 更新者
+  updatedBy       String?  @map("updated_by") @db.VarChar(50)
+
+  /// リレーション
+  workOrder    WorkOrderData @relation(fields: [workOrderNumber], references: [workOrderNumber])
+  process      ProcessMaster @relation(fields: [processCode], references: [processCode])
+  laborHours   LaborHoursData[]
+
+  @@unique([workOrderNumber, sequence])
+  @@map("work_order_detail_data")
+}
+
+// ============================================
+// 第15章: 製造実績の DB 設計
+// ============================================
+
+/// 完成実績データ
+model CompletionResultData {
+  /// ID
+  id                    Int      @id @default(autoincrement())
+  /// 完成実績番号
+  completionNumber      String   @unique @map("completion_number") @db.VarChar(20)
+  /// 作業指示番号
+  workOrderNumber       String   @map("work_order_number") @db.VarChar(20)
+  /// 完成日
+  completionDate        DateTime @map("completion_date") @db.Date
+  /// 品目コード
+  itemCode              String   @map("item_code") @db.VarChar(20)
+  /// 完成数量
+  completedQuantity     Decimal  @map("completed_quantity") @db.Decimal(15, 2)
+  /// 不良数量
+  defectQuantity        Decimal  @default(0) @map("defect_quantity") @db.Decimal(15, 2)
+  /// 報告担当者コード
+  reporterCode          String?  @map("reporter_code") @db.VarChar(20)
+  /// 備考
+  note                  String?  @map("note") @db.Text
+  /// 作成日時
+  createdAt             DateTime @default(now()) @map("created_at")
+  /// 作成者
+  createdBy             String?  @map("created_by") @db.VarChar(50)
+  /// 更新日時
+  updatedAt             DateTime @updatedAt @map("updated_at")
+  /// 更新者
+  updatedBy             String?  @map("updated_by") @db.VarChar(50)
+
+  /// リレーション
+  workOrder             WorkOrderData                  @relation(fields: [workOrderNumber], references: [workOrderNumber])
+  inspectionResults     CompletionInspectionData[]
+  consumptions          CompletionConsumptionData[]
+
+  @@map("completion_result_data")
+}
+
+/// 完成検査結果データ
+model CompletionInspectionData {
+  /// ID
+  id               Int      @id @default(autoincrement())
+  /// 完成実績番号
+  completionNumber String   @map("completion_number") @db.VarChar(20)
+  /// 欠点コード
+  defectCode       String   @map("defect_code") @db.VarChar(20)
+  /// 不良数量
+  defectQuantity   Decimal  @map("defect_quantity") @db.Decimal(15, 2)
+  /// 作成日時
+  createdAt        DateTime @default(now()) @map("created_at")
+  /// 作成者
+  createdBy        String?  @map("created_by") @db.VarChar(50)
+  /// 更新日時
+  updatedAt        DateTime @updatedAt @map("updated_at")
+  /// 更新者
+  updatedBy        String?  @map("updated_by") @db.VarChar(50)
+
+  /// リレーション
+  completionResult CompletionResultData @relation(fields: [completionNumber], references: [completionNumber])
+  defect           DefectMaster         @relation(fields: [defectCode], references: [defectCode])
+
+  @@unique([completionNumber, defectCode])
+  @@map("completion_inspection_data")
+}
+
+/// 完成実績消費データ
+model CompletionConsumptionData {
+  /// ID
+  id                  Int      @id @default(autoincrement())
+  /// 完成実績番号
+  completionNumber    String   @unique @map("completion_number") @db.VarChar(20)
+  /// 消費日
+  consumptionDate     DateTime @map("consumption_date") @db.Date
+  /// 備考
+  note                String?  @map("note") @db.Text
+  /// 作成日時
+  createdAt           DateTime @default(now()) @map("created_at")
+  /// 作成者
+  createdBy           String?  @map("created_by") @db.VarChar(50)
+  /// 更新日時
+  updatedAt           DateTime @updatedAt @map("updated_at")
+  /// 更新者
+  updatedBy           String?  @map("updated_by") @db.VarChar(50)
+
+  /// リレーション
+  completionResult CompletionResultData            @relation(fields: [completionNumber], references: [completionNumber])
+  details          CompletionConsumptionDetailData[]
+
+  @@map("completion_consumption_data")
+}
+
+/// 完成実績消費明細データ
+model CompletionConsumptionDetailData {
+  /// ID
+  id                    Int      @id @default(autoincrement())
+  /// 完成実績番号
+  completionNumber      String   @map("completion_number") @db.VarChar(20)
+  /// 行番号
+  lineNumber            Int      @map("line_number")
+  /// 品目コード
+  itemCode              String   @map("item_code") @db.VarChar(20)
+  /// 消費数量
+  consumptionQuantity   Decimal  @map("consumption_quantity") @db.Decimal(15, 2)
+  /// 備考
+  note                  String?  @map("note") @db.Text
+
+  /// リレーション
+  completionConsumption CompletionConsumptionData @relation(fields: [completionNumber], references: [completionNumber])
+
+  @@unique([completionNumber, lineNumber])
+  @@map("completion_consumption_detail_data")
+}
+
+// ============================================
+// 第16章: 工数実績の DB 設計
+// ============================================
+
+/// 工数実績データ
+model LaborHoursData {
+  /// ID
+  id                Int      @id @default(autoincrement())
+  /// 工数実績番号
+  laborHoursNumber  String   @unique @map("labor_hours_number") @db.VarChar(20)
+  /// 作業指示番号
+  workOrderNumber   String   @map("work_order_number") @db.VarChar(20)
+  /// 工順
+  sequence          Int      @map("sequence")
+  /// 工程コード
+  processCode       String   @map("process_code") @db.VarChar(10)
+  /// 作業日
+  workDate          DateTime @map("work_date") @db.Date
+  /// 担当者コード
+  employeeCode      String   @map("employee_code") @db.VarChar(20)
+  /// 開始時刻
+  startTime         DateTime @map("start_time") @db.Time()
+  /// 終了時刻
+  endTime           DateTime @map("end_time") @db.Time()
+  /// 作業時間（分）
+  workMinutes       Decimal  @map("work_minutes") @db.Decimal(10, 2)
+  /// 備考
+  note              String?  @map("note") @db.Text
+  /// 作成日時
+  createdAt         DateTime @default(now()) @map("created_at")
+  /// 作成者
+  createdBy         String?  @map("created_by") @db.VarChar(50)
+  /// 更新日時
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  /// 更新者
+  updatedBy         String?  @map("updated_by") @db.VarChar(50)
+
+  /// リレーション
+  workOrderDetail WorkOrderDetailData @relation(fields: [workOrderNumber, sequence], references: [workOrderNumber, sequence])
+  process         ProcessMaster       @relation(fields: [processCode], references: [processCode])
+
+  @@map("labor_hours_data")
+}
+
+// ============================================
+// 第17章: 在庫情報の DB 設計
+// ============================================
+
+/// 在庫情報
+model Inventory {
+  /// ID
+  id              Int      @id @default(autoincrement())
+  /// 場所コード
+  locationCode    String   @map("location_code") @db.VarChar(10)
+  /// 品目コード
+  itemCode        String   @map("item_code") @db.VarChar(20)
+  /// 在庫数量
+  stockQuantity   Decimal  @map("stock_quantity") @db.Decimal(15, 2)
+  /// 合格数
+  acceptedQuantity Decimal @default(0) @map("accepted_quantity") @db.Decimal(15, 2)
+  /// 不良数
+  defectQuantity  Decimal  @default(0) @map("defect_quantity") @db.Decimal(15, 2)
+  /// 未検査数
+  uninspectedQuantity Decimal @default(0) @map("uninspected_quantity") @db.Decimal(15, 2)
+  /// 作成日時
+  createdAt       DateTime @default(now()) @map("created_at")
+  /// 更新日時
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  /// リレーション
+  location        Location @relation(fields: [locationCode], references: [locationCode])
+
+  @@unique([locationCode, itemCode])
+  @@map("inventories")
+}
+
+// ============================================
+// 第18章: 払出業務の DB 設計
+// ============================================
+
+/// 払出指示データ
+model IssueInstructionData {
+  /// ID
+  id                      Int                         @id @default(autoincrement())
+  /// 払出指示番号
+  issueInstructionNumber  String                      @unique @map("issue_instruction_number") @db.VarChar(20)
+  /// オーダ番号
+  orderNumber             String                      @map("order_number") @db.VarChar(20)
+  /// 払出指示日
+  issueInstructionDate    DateTime                    @map("issue_instruction_date") @db.Date
+  /// 場所コード
+  locationCode            String                      @map("location_code") @db.VarChar(10)
+  /// 備考
+  note                    String?                     @map("note") @db.Text
+  /// 作成日時
+  createdAt               DateTime                    @default(now()) @map("created_at")
+  /// 更新日時
+  updatedAt               DateTime                    @updatedAt @map("updated_at")
+
+  /// リレーション
+  order                   Order                       @relation(fields: [orderNumber], references: [orderNumber])
+  location                Location                    @relation("IssueInstructionLocation", fields: [locationCode], references: [locationCode])
+  details                 IssueInstructionDetailData[]
+
+  @@map("issue_instruction_data")
+}
+
+/// 払出指示明細データ
+model IssueInstructionDetailData {
+  /// ID
+  id                      Int                    @id @default(autoincrement())
+  /// 払出指示番号
+  issueInstructionNumber  String                 @map("issue_instruction_number") @db.VarChar(20)
+  /// 払出行番号
+  issueLineNumber         Int                    @map("issue_line_number")
+  /// 品目コード
+  itemCode                String                 @map("item_code") @db.VarChar(20)
+  /// 工順
+  sequence                Int                    @map("sequence")
+  /// 払出数量
+  issueQuantity           Decimal                @map("issue_quantity") @db.Decimal(15, 2)
+  /// 作成日時
+  createdAt               DateTime               @default(now()) @map("created_at")
+  /// 更新日時
+  updatedAt               DateTime               @updatedAt @map("updated_at")
+
+  /// リレーション
+  issueInstruction        IssueInstructionData   @relation(fields: [issueInstructionNumber], references: [issueInstructionNumber])
+
+  @@unique([issueInstructionNumber, issueLineNumber])
+  @@map("issue_instruction_detail_data")
+}
+
+/// 払出データ
+model IssueData {
+  /// ID
+  id                      Int                    @id @default(autoincrement())
+  /// 払出番号
+  issueNumber             String                 @unique @map("issue_number") @db.VarChar(20)
+  /// 作業指示番号
+  workOrderNumber         String                 @map("work_order_number") @db.VarChar(20)
+  /// 工順
+  sequence                Int                    @map("sequence")
+  /// 場所コード
+  locationCode            String                 @map("location_code") @db.VarChar(10)
+  /// 払出日
+  issueDate               DateTime               @map("issue_date") @db.Date
+  /// 払出担当者コード
+  issuerCode              String                 @map("issuer_code") @db.VarChar(20)
+  /// 作成日時
+  createdAt               DateTime               @default(now()) @map("created_at")
+  /// 更新日時
+  updatedAt               DateTime               @updatedAt @map("updated_at")
+
+  /// リレーション
+  location                Location               @relation("IssueLocation", fields: [locationCode], references: [locationCode])
+  details                 IssueDetailData[]
+
+  @@map("issue_data")
+}
+
+/// 払出明細データ
+model IssueDetailData {
+  /// ID
+  id                      Int          @id @default(autoincrement())
+  /// 払出番号
+  issueNumber             String       @map("issue_number") @db.VarChar(20)
+  /// 払出行番号
+  issueLineNumber         Int          @map("issue_line_number")
+  /// 品目コード
+  itemCode                String       @map("item_code") @db.VarChar(20)
+  /// 払出数
+  issuedQuantity          Decimal      @map("issued_quantity") @db.Decimal(15, 2)
+  /// 作成日時
+  createdAt               DateTime     @default(now()) @map("created_at")
+  /// 更新日時
+  updatedAt               DateTime     @updatedAt @map("updated_at")
+
+  /// リレーション
+  issue                   IssueData    @relation(fields: [issueNumber], references: [issueNumber])
+
+  @@unique([issueNumber, issueLineNumber])
+  @@map("issue_detail_data")
+}
+
+// ============================================
+// 第19章: 棚卸業務の DB 設計
+// ============================================
+
+/// 棚卸ステータス
+enum StocktakingStatus {
+  ISSUED    @map("発行済")
+  INPUTTED  @map("入力済")
+  CONFIRMED @map("確定")
+
+  @@map("stocktaking_status")
+}
+
+/// 棚卸データ
+model StocktakingData {
+  /// ID
+  id                      Int                      @id @default(autoincrement())
+  /// 棚卸番号
+  stocktakingNumber       String                   @unique @map("stocktaking_number") @db.VarChar(20)
+  /// 場所コード
+  locationCode            String                   @map("location_code") @db.VarChar(10)
+  /// 棚卸日
+  stocktakingDate         DateTime                 @map("stocktaking_date") @db.Date
+  /// ステータス
+  status                  StocktakingStatus        @default(ISSUED) @map("status")
+  /// 作成日時
+  createdAt               DateTime                 @default(now()) @map("created_at")
+  /// 更新日時
+  updatedAt               DateTime                 @updatedAt @map("updated_at")
+
+  /// リレーション
+  details                 StocktakingDetailData[]
+  adjustments             StockAdjustmentData[]
+
+  @@map("stocktaking_data")
+}
+
+/// 棚卸明細データ
+model StocktakingDetailData {
+  /// ID
+  id                      Int               @id @default(autoincrement())
+  /// 棚卸番号
+  stocktakingNumber       String            @map("stocktaking_number") @db.VarChar(20)
+  /// 棚卸行番号
+  stocktakingLineNumber   Int               @map("stocktaking_line_number")
+  /// 品目コード
+  itemCode                String            @map("item_code") @db.VarChar(20)
+  /// 帳簿数量
+  bookQuantity            Decimal           @map("book_quantity") @db.Decimal(15, 2)
+  /// 実棚数量
+  actualQuantity          Decimal?          @map("actual_quantity") @db.Decimal(15, 2)
+  /// 差異数量
+  differenceQuantity      Decimal?          @map("difference_quantity") @db.Decimal(15, 2)
+
+  /// リレーション
+  stocktaking             StocktakingData   @relation(fields: [stocktakingNumber], references: [stocktakingNumber])
+
+  @@unique([stocktakingNumber, stocktakingLineNumber])
+  @@map("stocktaking_detail_data")
+}
+
+/// 在庫調整データ
+model StockAdjustmentData {
+  /// ID
+  id                      Int               @id @default(autoincrement())
+  /// 在庫調整番号
+  adjustmentNumber        String            @unique @default(cuid()) @map("adjustment_number") @db.VarChar(30)
+  /// 棚卸番号
+  stocktakingNumber       String?           @map("stocktaking_number") @db.VarChar(20)
+  /// 品目コード
+  itemCode                String            @map("item_code") @db.VarChar(20)
+  /// 場所コード
+  locationCode            String            @map("location_code") @db.VarChar(10)
+  /// 調整日
+  adjustmentDate          DateTime          @map("adjustment_date") @db.Date
+  /// 調整担当者コード
+  adjusterCode            String            @map("adjuster_code") @db.VarChar(20)
+  /// 調整数
+  adjustmentQuantity      Decimal           @map("adjustment_quantity") @db.Decimal(15, 2)
+  /// 理由コード
+  reasonCode              String            @map("reason_code") @db.VarChar(20)
+  /// 作成日時
+  createdAt               DateTime          @default(now()) @map("created_at")
+  /// 更新日時
+  updatedAt               DateTime          @updatedAt @map("updated_at")
+
+  /// リレーション
+  stocktaking             StocktakingData?  @relation(fields: [stocktakingNumber], references: [stocktakingNumber])
+
+  @@map("stock_adjustment_data")
 }
