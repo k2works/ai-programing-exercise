@@ -1,0 +1,846 @@
+openapi: 3.0.3
+info:
+  title: 生産管理システム API
+  description: TDD で育てる生産管理システムの API ドキュメント
+  version: 1.0.0
+components:
+  schemas: {}
+paths:
+  /:
+    get:
+      responses:
+        '200':
+          description: Default Response
+  /health:
+    get:
+      responses:
+        '200':
+          description: Default Response
+  /items:
+    get:
+      summary: 品目一覧の取得
+      tags:
+        - items
+      description: すべての品目を取得します。category クエリパラメータでフィルタリング可能です。
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: category
+          required: false
+          description: 品目区分でフィルタリング
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                description: 成功
+                type: array
+                items:
+                  type: object
+                  properties:
+                    品目コード:
+                      type: string
+                    品名:
+                      type: string
+                    品目区分:
+                      type: string
+                    リードタイム:
+                      type: number
+                    安全在庫数:
+                      type: number
+    post:
+      summary: 品目の登録
+      tags:
+        - items
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - 品目コード
+                - 品名
+                - 品目区分
+              properties:
+                品目コード:
+                  type: string
+                品名:
+                  type: string
+                品目区分:
+                  type: string
+                品目グループコード:
+                  type: string
+                単位コード:
+                  type: string
+                場所コード:
+                  type: string
+                リードタイム:
+                  type: number
+                安全在庫数:
+                  type: number
+        required: true
+      responses:
+        '200':
+          description: Default Response
+  /items/{itemCode}:
+    get:
+      summary: 品目の取得
+      tags:
+        - items
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: itemCode
+          required: true
+          description: 品目コード
+      responses:
+        '200':
+          description: Default Response
+    put:
+      summary: 品目の更新
+      tags:
+        - items
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: itemCode
+          required: true
+      responses:
+        '200':
+          description: Default Response
+    delete:
+      summary: 品目の削除
+      tags:
+        - items
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: itemCode
+          required: true
+      responses:
+        '200':
+          description: Default Response
+  /bom:
+    post:
+      summary: BOMの登録
+      tags:
+        - bom
+      description: BOM（部品構成表）を登録します
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - 親品目コード
+                - 子品目コード
+                - 基準量
+                - 必要量
+              properties:
+                親品目コード:
+                  type: string
+                子品目コード:
+                  type: string
+                適用開始日:
+                  type: string
+                  format: date
+                基準量:
+                  type: number
+                必要量:
+                  type: number
+                適用停止日:
+                  type: string
+                  format: date
+                不良率:
+                  type: number
+                工順:
+                  type: number
+        required: true
+      responses:
+        '200':
+          description: Default Response
+  /bom/{parentItemCode}/children:
+    get:
+      summary: 子品目一覧の取得
+      tags:
+        - bom
+      description: 指定した親品目の子品目一覧を取得します
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: parentItemCode
+          required: true
+          description: 親品目コード
+      responses:
+        '200':
+          description: Default Response
+  /bom/{itemCode}/explode:
+    get:
+      summary: BOM展開（部品展開）
+      tags:
+        - bom
+      description: 指定した品目のBOMを全階層展開します
+      parameters:
+        - schema:
+            type: number
+            default: 1
+          in: query
+          name: quantity
+          required: false
+          description: 展開数量
+        - schema:
+            type: string
+          in: path
+          name: itemCode
+          required: true
+          description: 品目コード
+      responses:
+        '200':
+          description: Default Response
+  /bom/{childItemCode}/where-used:
+    get:
+      summary: 使用先照会
+      tags:
+        - bom
+      description: 指定した子品目がどの親品目で使用されているかを照会します
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: childItemCode
+          required: true
+          description: 子品目コード
+      responses:
+        '200':
+          description: Default Response
+  /bom/{parentItemCode}/{childItemCode}/{effectiveFrom}:
+    put:
+      summary: BOMの更新
+      tags:
+        - bom
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: parentItemCode
+          required: true
+        - schema:
+            type: string
+          in: path
+          name: childItemCode
+          required: true
+        - schema:
+            type: string
+          in: path
+          name: effectiveFrom
+          required: true
+      responses:
+        '200':
+          description: Default Response
+    delete:
+      summary: BOMの削除
+      tags:
+        - bom
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: parentItemCode
+          required: true
+        - schema:
+            type: string
+          in: path
+          name: childItemCode
+          required: true
+        - schema:
+            type: string
+          in: path
+          name: effectiveFrom
+          required: true
+      responses:
+        '200':
+          description: Default Response
+  /inventory:
+    get:
+      summary: 在庫一覧の照会
+      tags:
+        - inventory
+      description: 在庫情報を照会します。クエリパラメータで場所や品目を指定できます
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: 場所コード
+          required: false
+          description: 場所コード
+        - schema:
+            type: string
+          in: query
+          name: 品目コード
+          required: false
+          description: 品目コード
+      responses:
+        '200':
+          description: Default Response
+  /inventory/{locationCode}/{itemCode}:
+    get:
+      summary: 在庫の照会
+      tags:
+        - inventory
+      description: 指定した場所・品目の在庫情報を照会します
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: locationCode
+          required: true
+          description: 場所コード
+        - schema:
+            type: string
+          in: path
+          name: itemCode
+          required: true
+          description: 品目コード
+      responses:
+        '200':
+          description: Default Response
+  /inventory/location/{locationCode}:
+    get:
+      summary: 場所別在庫一覧の照会
+      tags:
+        - inventory
+      description: 指定した場所の在庫一覧を照会します
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: locationCode
+          required: true
+          description: 場所コード
+      responses:
+        '200':
+          description: Default Response
+  /inventory/item/{itemCode}:
+    get:
+      summary: 品目別在庫一覧の照会
+      tags:
+        - inventory
+      description: 指定した品目の在庫一覧（全場所）を照会します
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: itemCode
+          required: true
+          description: 品目コード
+      responses:
+        '200':
+          description: Default Response
+  /purchase-orders:
+    post:
+      summary: 発注の作成
+      tags:
+        - purchase-orders
+      description: 新しい発注を作成します
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - 発注番号
+                - 発注日
+                - 取引先コード
+                - 明細
+              properties:
+                発注番号:
+                  type: string
+                発注日:
+                  type: string
+                  format: date
+                取引先コード:
+                  type: string
+                ステータス:
+                  type: string
+                  enum:
+                    - 作成中
+                    - 発注済
+                    - 一部入荷
+                    - 入荷完了
+                    - 検収完了
+                    - 取消
+                発注担当者コード:
+                  type: string
+                発注部門コード:
+                  type: string
+                備考:
+                  type: string
+                明細:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - 行番号
+                      - 品目コード
+                      - 受入予定日
+                      - 発注単価
+                      - 発注数量
+                    properties:
+                      行番号:
+                        type: number
+                      品目コード:
+                        type: string
+                      受入予定日:
+                        type: string
+                        format: date
+                      発注単価:
+                        type: number
+                      発注数量:
+                        type: number
+                      製造オーダ番号:
+                        type: string
+                      納入場所コード:
+                        type: string
+                      回答納期:
+                        type: string
+                        format: date
+                      入荷済数量:
+                        type: number
+                      検査済数量:
+                        type: number
+                      検収済数量:
+                        type: number
+                      消費税金額:
+                        type: number
+                      完了フラグ:
+                        type: boolean
+                      明細備考:
+                        type: string
+        required: true
+      responses:
+        '200':
+          description: Default Response
+    get:
+      summary: 発注一覧の検索
+      tags:
+        - purchase-orders
+      description: 発注を検索します。クエリパラメータで取引先やステータスを指定できます
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: 取引先コード
+          required: false
+          description: 取引先コード
+        - schema:
+            type: string
+            enum:
+              - 作成中
+              - 発注済
+              - 一部入荷
+              - 入荷完了
+              - 検収完了
+              - 取消
+          in: query
+          name: ステータス
+          required: false
+          description: ステータス
+      responses:
+        '200':
+          description: Default Response
+  /purchase-orders/{orderNumber}:
+    get:
+      summary: 発注の取得
+      tags:
+        - purchase-orders
+      description: 発注番号で発注を取得します
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: orderNumber
+          required: true
+          description: 発注番号
+      responses:
+        '200':
+          description: Default Response
+  /purchase-orders/supplier/{supplierCode}:
+    get:
+      summary: 取引先別発注一覧の取得
+      tags:
+        - purchase-orders
+      description: 指定した取引先の発注一覧を取得します
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: supplierCode
+          required: true
+          description: 取引先コード
+      responses:
+        '200':
+          description: Default Response
+  /purchase-orders/status/{status}:
+    get:
+      summary: ステータス別発注一覧の取得
+      tags:
+        - purchase-orders
+      description: 指定したステータスの発注一覧を取得します
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - 作成中
+              - 発注済
+              - 一部入荷
+              - 入荷完了
+              - 検収完了
+              - 取消
+          in: path
+          name: status
+          required: true
+          description: ステータス
+      responses:
+        '200':
+          description: Default Response
+  /purchase-orders/{orderNumber}/status:
+    patch:
+      summary: 発注ステータスの更新
+      tags:
+        - purchase-orders
+      description: 発注のステータスを更新します
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - ステータス
+              properties:
+                ステータス:
+                  type: string
+                  enum:
+                    - 作成中
+                    - 発注済
+                    - 一部入荷
+                    - 入荷完了
+                    - 検収完了
+                    - 取消
+        required: true
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: orderNumber
+          required: true
+          description: 発注番号
+      responses:
+        '200':
+          description: Default Response
+  /work-orders:
+    post:
+      summary: 作業指示の作成
+      tags:
+        - work-orders
+      description: 新しい作業指示を作成します
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - 作業指示番号
+                - 製造オーダ番号
+                - 作業指示日
+                - 品目コード
+                - 指示数量
+                - 明細
+              properties:
+                作業指示番号:
+                  type: string
+                製造オーダ番号:
+                  type: string
+                作業指示日:
+                  type: string
+                  format: date
+                品目コード:
+                  type: string
+                指示数量:
+                  type: number
+                ステータス:
+                  type: string
+                  enum:
+                    - 未着手
+                    - 作業中
+                    - 完了
+                    - 中断
+                完成数量:
+                  type: number
+                開始予定日:
+                  type: string
+                  format: date
+                完了予定日:
+                  type: string
+                  format: date
+                備考:
+                  type: string
+                明細:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - 工順
+                      - 工程コード
+                    properties:
+                      工順:
+                        type: number
+                      工程コード:
+                        type: string
+                      開始予定日時:
+                        type: string
+                        format: date-time
+                      完了予定日時:
+                        type: string
+                        format: date-time
+        required: true
+      responses:
+        '200':
+          description: Default Response
+    get:
+      summary: 作業指示一覧の検索
+      tags:
+        - work-orders
+      description: 作業指示を検索します。クエリパラメータで製造オーダやステータスを指定できます
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: 製造オーダ番号
+          required: false
+          description: 製造オーダ番号
+        - schema:
+            type: string
+            enum:
+              - 未着手
+              - 作業中
+              - 完了
+              - 中断
+          in: query
+          name: ステータス
+          required: false
+          description: ステータス
+      responses:
+        '200':
+          description: Default Response
+  /work-orders/{workOrderNumber}:
+    get:
+      summary: 作業指示の取得
+      tags:
+        - work-orders
+      description: 作業指示番号で作業指示を取得します
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: workOrderNumber
+          required: true
+          description: 作業指示番号
+      responses:
+        '200':
+          description: Default Response
+  /work-orders/production-order/{productionOrderNumber}:
+    get:
+      summary: 製造オーダ別作業指示一覧の取得
+      tags:
+        - work-orders
+      description: 指定した製造オーダの作業指示一覧を取得します
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: productionOrderNumber
+          required: true
+          description: 製造オーダ番号
+      responses:
+        '200':
+          description: Default Response
+  /work-orders/status/{status}:
+    get:
+      summary: ステータス別作業指示一覧の取得
+      tags:
+        - work-orders
+      description: 指定したステータスの作業指示一覧を取得します
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - 未着手
+              - 作業中
+              - 完了
+              - 中断
+          in: path
+          name: status
+          required: true
+          description: ステータス
+      responses:
+        '200':
+          description: Default Response
+  /work-orders/{workOrderNumber}/status:
+    patch:
+      summary: 作業指示ステータスの更新
+      tags:
+        - work-orders
+      description: 作業指示のステータスを更新します
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - ステータス
+              properties:
+                ステータス:
+                  type: string
+                  enum:
+                    - 未着手
+                    - 作業中
+                    - 完了
+                    - 中断
+        required: true
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: workOrderNumber
+          required: true
+          description: 作業指示番号
+      responses:
+        '200':
+          description: Default Response
+  /work-orders/{workOrderNumber}/completed-quantity:
+    patch:
+      summary: 完成数量の更新
+      tags:
+        - work-orders
+      description: 作業指示の完成数量を更新します
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - 完成数量
+              properties:
+                完成数量:
+                  type: number
+        required: true
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: workOrderNumber
+          required: true
+          description: 作業指示番号
+      responses:
+        '200':
+          description: Default Response
+  /mrp/execute:
+    post:
+      summary: MRPの実行
+      tags:
+        - mrp
+      description: 基準生産計画（MPS）を基にMRP（資材所要量計画）を実行し、製造オーダ、購買オーダ、所要情報を生成します
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - mpsNumber
+              properties:
+                mpsNumber:
+                  type: string
+                  description: MPS番号
+        required: true
+      responses:
+        '200':
+          description: MRP実行成功
+          content:
+            application/json:
+              schema:
+                description: MRP実行成功
+                type: object
+                properties:
+                  mpsNumber:
+                    type: string
+                  generatedManufacturingOrders:
+                    type: number
+                  generatedPurchaseOrders:
+                    type: number
+                  generatedRequirements:
+                    type: number
+                  executedAt:
+                    type: string
+                    format: date-time
+        '400':
+          description: リクエストエラー
+          content:
+            application/json:
+              schema:
+                description: リクエストエラー
+                type: object
+                properties:
+                  error:
+                    type: string
+                  message:
+                    type: string
+        '404':
+          description: MPSが見つからない
+          content:
+            application/json:
+              schema:
+                description: MPSが見つからない
+                type: object
+                properties:
+                  error:
+                    type: string
+                  message:
+                    type: string
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                description: サーバーエラー
+                type: object
+                properties:
+                  error:
+                    type: string
+                  message:
+                    type: string
+servers:
+  - url: http://localhost:3000
+    description: 開発サーバー
+tags:
+  - name: items
+    description: 品目マスタ API
+  - name: bom
+    description: BOM（部品構成表）API
+  - name: suppliers
+    description: 取引先マスタ API
+  - name: orders
+    description: オーダ API
+  - name: inventory
+    description: 在庫 API
+  - name: work-orders
+    description: 作業指示 API
+  - name: purchase-orders
+    description: 発注 API
+  - name: mrp
+    description: MRP（資材所要量計画）API

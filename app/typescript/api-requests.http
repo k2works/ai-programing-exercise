@@ -1,0 +1,288 @@
+###
+# 生産管理システム API リクエスト集
+# JetBrains HTTP Client 用
+###
+
+@baseUrl = http://localhost:3000
+@contentType = application/json
+
+### ========================================
+### ヘルスチェック
+### ========================================
+
+### ヘルスチェック
+GET {{baseUrl}}/health
+
+### ========================================
+### 品目マスタ API (Item Management)
+### ========================================
+
+### 品目一覧取得
+GET {{baseUrl}}/items
+
+### 品目検索（品目コード指定）
+GET {{baseUrl}}/items?itemCode=PRODUCT-001
+
+### 品目検索（カテゴリ指定）
+GET {{baseUrl}}/items?category=PRODUCT
+
+### 品目詳細取得
+GET {{baseUrl}}/items/PRODUCT-001
+
+### 品目作成（製品）
+POST {{baseUrl}}/items
+Content-Type: {{contentType}}
+
+{
+  "itemCode": "PRODUCT-001",
+  "effectiveFrom": "2025-01-01",
+  "itemName": "製品A",
+  "itemCategory": "製品",
+  "unitCode": "PC",
+  "leadTime": 7,
+  "safetyLeadTime": 2,
+  "safetyStock": 50,
+  "yieldRate": 0.98,
+  "minLotSize": 10,
+  "lotIncrement": 5,
+  "maxLotSize": 1000,
+  "shelfLife": 365
+}
+
+### 品目作成（部品）
+POST {{baseUrl}}/items
+Content-Type: {{contentType}}
+
+{
+  "itemCode": "PART-001",
+  "effectiveFrom": "2025-01-01",
+  "itemName": "部品A",
+  "itemCategory": "部品",
+  "unitCode": "PC",
+  "leadTime": 3,
+  "safetyStock": 100
+}
+
+### 品目更新
+PUT {{baseUrl}}/items/PRODUCT-001
+Content-Type: {{contentType}}
+
+{
+  "effectiveFrom": "2025-01-01",
+  "itemName": "製品A（改訂版）",
+  "safetyStock": 60
+}
+
+### 品目削除
+DELETE {{baseUrl}}/items/PRODUCT-001?effectiveFrom=2025-01-01
+
+### ========================================
+### 在庫照会 API (Inventory Inquiry)
+### ========================================
+
+### 在庫一覧取得
+GET {{baseUrl}}/inventory
+
+### 在庫検索（品目コード指定）
+GET {{baseUrl}}/inventory?itemCode=PRODUCT-001
+
+### 在庫検索（ロケーション指定）
+GET {{baseUrl}}/inventory?locationCode=WH-001
+
+### 在庫検索（品目コードとロケーション指定）
+GET {{baseUrl}}/inventory?itemCode=PRODUCT-001&locationCode=WH-001
+
+### 在庫詳細取得
+GET {{baseUrl}}/inventory/PRODUCT-001/WH-001
+
+### 在庫作成
+POST {{baseUrl}}/inventory
+Content-Type: {{contentType}}
+
+{
+  "itemCode": "PRODUCT-001",
+  "locationCode": "WH-001",
+  "quantity": 500,
+  "availableQuantity": 450,
+  "reservedQuantity": 50,
+  "lotNumber": "LOT-2025-001",
+  "expirationDate": "2026-01-01"
+}
+
+### 在庫数量更新（入庫）
+PATCH {{baseUrl}}/inventory/PRODUCT-001/WH-001/adjust
+Content-Type: {{contentType}}
+
+{
+  "quantity": 100,
+  "reason": "入庫"
+}
+
+### 在庫数量更新（出庫）
+PATCH {{baseUrl}}/inventory/PRODUCT-001/WH-001/adjust
+Content-Type: {{contentType}}
+
+{
+  "quantity": -50,
+  "reason": "出庫"
+}
+
+### ========================================
+### BOM（部品構成表）API
+### ========================================
+
+### BOM一覧取得
+GET {{baseUrl}}/bom
+
+### BOM検索（親品目指定）
+GET {{baseUrl}}/bom?parentItemCode=PRODUCT-001
+
+### BOM検索（子品目指定）
+GET {{baseUrl}}/bom?childItemCode=PART-001
+
+### BOM詳細取得
+GET {{baseUrl}}/bom/PRODUCT-001/PART-001
+
+### BOM作成
+POST {{baseUrl}}/bom
+Content-Type: {{contentType}}
+
+{
+  "parentItemCode": "PRODUCT-001",
+  "childItemCode": "PART-001",
+  "effectiveFrom": "2025-01-01",
+  "baseQuantity": 1,
+  "requiredQuantity": 2
+}
+
+### BOM更新
+PUT {{baseUrl}}/bom/PRODUCT-001/PART-001
+Content-Type: {{contentType}}
+
+{
+  "effectiveFrom": "2025-01-01",
+  "requiredQuantity": 3
+}
+
+### BOM削除
+DELETE {{baseUrl}}/bom/PRODUCT-001/PART-001?effectiveFrom=2025-01-01
+
+### ========================================
+### MRP（資材所要量計画）API
+### ========================================
+
+### MRP実行
+POST {{baseUrl}}/mrp/execute
+Content-Type: {{contentType}}
+
+{
+  "mpsNumber": "MPS-2025-001"
+}
+
+### ========================================
+### 発注 API (Purchase Orders)
+### ========================================
+
+### 発注一覧取得
+GET {{baseUrl}}/purchase-orders
+
+### 発注検索（発注番号指定）
+GET {{baseUrl}}/purchase-orders?orderNumber=PO-2025-001
+
+### 発注検索（品目コード指定）
+GET {{baseUrl}}/purchase-orders?itemCode=PART-001
+
+### 発注検索（ステータス指定）
+GET {{baseUrl}}/purchase-orders?status=CONFIRMED
+
+### 発注詳細取得
+GET {{baseUrl}}/purchase-orders/PO-2025-001
+
+### 発注作成
+POST {{baseUrl}}/purchase-orders
+Content-Type: {{contentType}}
+
+{
+  "orderNumber": "PO-2025-001",
+  "supplierCode": "SUP-001",
+  "itemCode": "PART-001",
+  "orderDate": "2025-01-01",
+  "deliveryDate": "2025-01-15",
+  "quantity": 1000,
+  "unitPrice": 100,
+  "locationCode": "WH-001"
+}
+
+### 発注ステータス更新（確定）
+PATCH {{baseUrl}}/purchase-orders/PO-2025-001/status
+Content-Type: {{contentType}}
+
+{
+  "status": "CONFIRMED"
+}
+
+### 発注ステータス更新（完了）
+PATCH {{baseUrl}}/purchase-orders/PO-2025-001/status
+Content-Type: {{contentType}}
+
+{
+  "status": "COMPLETED"
+}
+
+### ========================================
+### 作業指示 API (Work Orders)
+### ========================================
+
+### 作業指示一覧取得
+GET {{baseUrl}}/work-orders
+
+### 作業指示検索（作業指示番号指定）
+GET {{baseUrl}}/work-orders?workOrderNumber=WO-2025-001
+
+### 作業指示検索（品目コード指定）
+GET {{baseUrl}}/work-orders?itemCode=PRODUCT-001
+
+### 作業指示検索（ステータス指定）
+GET {{baseUrl}}/work-orders?status=IN_PROGRESS
+
+### 作業指示詳細取得
+GET {{baseUrl}}/work-orders/WO-2025-001
+
+### 作業指示作成
+POST {{baseUrl}}/work-orders
+Content-Type: {{contentType}}
+
+{
+  "workOrderNumber": "WO-2025-001",
+  "itemCode": "PRODUCT-001",
+  "startDate": "2025-01-10",
+  "dueDate": "2025-01-20",
+  "plannedQuantity": 100,
+  "workCenterCode": "WC-001",
+  "locationCode": "WH-001"
+}
+
+### 作業指示ステータス更新（開始）
+PATCH {{baseUrl}}/work-orders/WO-2025-001/status
+Content-Type: {{contentType}}
+
+{
+  "status": "IN_PROGRESS"
+}
+
+### 作業指示ステータス更新（完了）
+PATCH {{baseUrl}}/work-orders/WO-2025-001/status
+Content-Type: {{contentType}}
+
+{
+  "status": "COMPLETED"
+}
+
+### 作業実績報告
+PATCH {{baseUrl}}/work-orders/WO-2025-001/report
+Content-Type: {{contentType}}
+
+{
+  "completedQuantity": 95,
+  "scrapQuantity": 5
+}
