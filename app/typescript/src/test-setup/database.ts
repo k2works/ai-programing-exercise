@@ -51,6 +51,15 @@ export class TestDatabase {
     if (!this.prisma) return
 
     // すべてのテーブルをクリア（外部キー制約を考慮した順序）
+    // 第21章: 原価管理
+    await this.prisma.$executeRaw`TRUNCATE TABLE "cost_variance_data" CASCADE`
+    await this.prisma.$executeRaw`TRUNCATE TABLE "actual_cost_data" CASCADE`
+    await this.prisma.$executeRaw`TRUNCATE TABLE "standard_cost_master" CASCADE`
+    // 第20章: 品質管理
+    await this.prisma.$executeRaw`TRUNCATE TABLE "shipping_inspection_result_data" CASCADE`
+    await this.prisma.$executeRaw`TRUNCATE TABLE "shipping_inspection_data" CASCADE`
+    await this.prisma.$executeRaw`TRUNCATE TABLE "lot_composition" CASCADE`
+    await this.prisma.$executeRaw`TRUNCATE TABLE "lot_master" CASCADE`
     // 第17-19章: 在庫管理
     await this.prisma.$executeRaw`TRUNCATE TABLE "stock_adjustment_data" CASCADE`
     await this.prisma.$executeRaw`TRUNCATE TABLE "stocktaking_detail_data" CASCADE`
@@ -110,6 +119,9 @@ export class TestDatabase {
 
     // テスト用マイグレーション（第3章以降でテーブルを追加した際に更新）
     // ENUM型の作成
+    await this.prisma.$executeRaw`
+      DROP TYPE IF EXISTS "item_category" CASCADE;
+    `
     await this.prisma.$executeRaw`
       CREATE TYPE "item_category" AS ENUM ('PRODUCT', 'SEMI_PRODUCT', 'INTERMEDIATE', 'PART', 'MATERIAL', 'RAW_MATERIAL', 'SUPPLY');
     `
@@ -405,9 +417,9 @@ export class TestDatabase {
     `
 
     // 第8章: 発注業務
-    // 発注ステータス enum
+    // 発注ステータス enum (@map ディレクティブに従い日本語の値を使用)
     await this.prisma.$executeRaw`
-      CREATE TYPE "purchase_order_status" AS ENUM ('DRAFT', 'ORDERED', 'PARTIALLY_RECEIVED', 'FULLY_RECEIVED', 'INSPECTED', 'CANCELLED');
+      CREATE TYPE "purchase_order_status" AS ENUM ('作成中', '発注済', '一部入荷', '入荷完了', '検収完了', '取消');
     `
 
     // 単価マスタテーブル
@@ -439,7 +451,7 @@ export class TestDatabase {
         "supplier_code" VARCHAR(20) NOT NULL,
         "purchaser_code" VARCHAR(20),
         "department_code" VARCHAR(20),
-        "status" "purchase_order_status" DEFAULT 'DRAFT',
+        "status" "purchase_order_status" DEFAULT '作成中',
         "note" TEXT,
         "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         "created_by" VARCHAR(50),
@@ -714,9 +726,9 @@ export class TestDatabase {
 
     // 第14-16章: 工程管理
 
-    // 作業指示ステータス enum
+    // 作業指示ステータス enum (@map ディレクティブに従い日本語の値を使用)
     await this.prisma.$executeRaw`
-      CREATE TYPE "work_order_status" AS ENUM ('NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'SUSPENDED');
+      CREATE TYPE "work_order_status" AS ENUM ('未着手', '作業中', '完了', '中断');
     `
 
     // 工程マスタテーブル
@@ -761,9 +773,9 @@ export class TestDatabase {
         "item_code" VARCHAR(20) NOT NULL,
         "order_quantity" DECIMAL(15,2) NOT NULL,
         "completed_quantity" DECIMAL(15,2) DEFAULT 0,
-        "scheduled_start_date" DATE NOT NULL,
-        "scheduled_end_date" DATE NOT NULL,
-        "status" "work_order_status" DEFAULT 'NOT_STARTED',
+        "scheduled_start_date" DATE,
+        "scheduled_end_date" DATE,
+        "status" "work_order_status" DEFAULT '未着手',
         "note" TEXT,
         "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         "created_by" VARCHAR(50),
@@ -1022,6 +1034,140 @@ export class TestDatabase {
         "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         "updated_by" VARCHAR(50),
         FOREIGN KEY ("stocktaking_number") REFERENCES "stocktaking_data"("stocktaking_number")
+      );
+    `
+
+    // ===== 第20章: 品質管理 =====
+
+    // 検査判定 ENUM型の作成
+    await this.prisma.$executeRaw`
+      DO $$ BEGIN
+        CREATE TYPE "inspection_judgment" AS ENUM ('合格', '不合格', '保留');
+      EXCEPTION
+        WHEN duplicate_object THEN null;
+      END $$;
+    `
+
+    // 出荷検査データテーブル
+    await this.prisma.$executeRaw`
+      CREATE TABLE IF NOT EXISTS "shipping_inspection_data" (
+        "id" SERIAL PRIMARY KEY,
+        "inspection_number" VARCHAR(20) UNIQUE NOT NULL,
+        "shipping_number" VARCHAR(20) NOT NULL,
+        "item_code" VARCHAR(20) NOT NULL,
+        "inspection_date" DATE NOT NULL,
+        "inspector_code" VARCHAR(20) NOT NULL,
+        "inspection_quantity" DECIMAL(15,2) NOT NULL,
+        "passed_quantity" DECIMAL(15,2) NOT NULL,
+        "failed_quantity" DECIMAL(15,2) NOT NULL,
+        "judgment" inspection_judgment NOT NULL,
+        "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY ("item_code") REFERENCES "items"("item_code")
+      );
+    `
+
+    // 出荷検査結果データテーブル
+    await this.prisma.$executeRaw`
+      CREATE TABLE IF NOT EXISTS "shipping_inspection_result_data" (
+        "id" SERIAL PRIMARY KEY,
+        "inspection_number" VARCHAR(20) NOT NULL,
+        "defect_code" VARCHAR(20) NOT NULL,
+        "quantity" DECIMAL(15,2) NOT NULL,
+        FOREIGN KEY ("inspection_number") REFERENCES "shipping_inspection_data"("inspection_number"),
+        FOREIGN KEY ("defect_code") REFERENCES "defect_masters"("defect_code"),
+        UNIQUE ("inspection_number", "defect_code")
+      );
+    `
+
+    // ロット種別 ENUM型の作成
+    await this.prisma.$executeRaw`
+      DO $$ BEGIN
+        CREATE TYPE "lot_type" AS ENUM ('購入ロット', '製造ロット');
+      EXCEPTION
+        WHEN duplicate_object THEN null;
+      END $$;
+    `
+
+    // ロットマスタテーブル
+    await this.prisma.$executeRaw`
+      CREATE TABLE IF NOT EXISTS "lot_master" (
+        "id" SERIAL PRIMARY KEY,
+        "lot_number" VARCHAR(30) UNIQUE NOT NULL,
+        "item_code" VARCHAR(20) NOT NULL,
+        "lot_type" lot_type NOT NULL,
+        "manufactured_date" DATE,
+        "expiration_date" DATE,
+        "quantity" DECIMAL(15,2) NOT NULL,
+        "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY ("item_code") REFERENCES "items"("item_code")
+      );
+    `
+
+    // ロット構成テーブル
+    await this.prisma.$executeRaw`
+      CREATE TABLE IF NOT EXISTS "lot_composition" (
+        "id" SERIAL PRIMARY KEY,
+        "parent_lot_number" VARCHAR(30) NOT NULL,
+        "child_lot_number" VARCHAR(30) NOT NULL,
+        "used_quantity" DECIMAL(15,2) NOT NULL,
+        FOREIGN KEY ("parent_lot_number") REFERENCES "lot_master"("lot_number"),
+        FOREIGN KEY ("child_lot_number") REFERENCES "lot_master"("lot_number"),
+        UNIQUE ("parent_lot_number", "child_lot_number")
+      );
+    `
+
+    // ===== 第21章: 原価管理 =====
+
+    // 標準原価マスタテーブル
+    await this.prisma.$executeRaw`
+      CREATE TABLE IF NOT EXISTS "standard_cost_master" (
+        "id" SERIAL PRIMARY KEY,
+        "item_code" VARCHAR(20) NOT NULL,
+        "effective_from" DATE NOT NULL,
+        "effective_to" DATE,
+        "standard_material_cost" DECIMAL(15,2) NOT NULL,
+        "standard_labor_cost" DECIMAL(15,2) NOT NULL,
+        "standard_overhead" DECIMAL(15,2) NOT NULL,
+        "standard_manufacturing_cost" DECIMAL(15,2) NOT NULL,
+        "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY ("item_code") REFERENCES "items"("item_code"),
+        UNIQUE ("item_code", "effective_from")
+      );
+    `
+
+    // 実際原価データテーブル
+    await this.prisma.$executeRaw`
+      CREATE TABLE IF NOT EXISTS "actual_cost_data" (
+        "id" SERIAL PRIMARY KEY,
+        "work_order_number" VARCHAR(20) NOT NULL,
+        "item_code" VARCHAR(20) NOT NULL,
+        "completed_quantity" DECIMAL(15,2) NOT NULL,
+        "actual_material_cost" DECIMAL(15,2) NOT NULL,
+        "actual_labor_cost" DECIMAL(15,2) NOT NULL,
+        "actual_overhead" DECIMAL(15,2) NOT NULL,
+        "actual_manufacturing_cost" DECIMAL(15,2) NOT NULL,
+        "unit_cost" DECIMAL(15,4) NOT NULL,
+        "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY ("work_order_number") REFERENCES "work_order_data"("work_order_number"),
+        FOREIGN KEY ("item_code") REFERENCES "items"("item_code")
+      );
+    `
+
+    // 原価差異データテーブル
+    await this.prisma.$executeRaw`
+      CREATE TABLE IF NOT EXISTS "cost_variance_data" (
+        "id" SERIAL PRIMARY KEY,
+        "work_order_number" VARCHAR(20) NOT NULL,
+        "item_code" VARCHAR(20) NOT NULL,
+        "material_cost_variance" DECIMAL(15,2) NOT NULL,
+        "labor_cost_variance" DECIMAL(15,2) NOT NULL,
+        "overhead_variance" DECIMAL(15,2) NOT NULL,
+        "total_variance" DECIMAL(15,2) NOT NULL,
+        "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `
   }
