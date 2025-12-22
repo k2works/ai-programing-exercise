@@ -23,13 +23,13 @@ datasource db {
 
 /// 品目区分
 enum ItemCategory {
-  PRODUCT      @map("製品")
-  SEMI_PRODUCT @map("半製品")
-  INTERMEDIATE @map("中間品")
-  PART         @map("部品")
-  MATERIAL     @map("材料")
-  RAW_MATERIAL @map("原料")
-  SUPPLY       @map("資材")
+  PRODUCT
+  SEMI_PRODUCT
+  INTERMEDIATE
+  PART
+  MATERIAL
+  RAW_MATERIAL
+  SUPPLY
 
   @@map("item_category")
 }
@@ -146,6 +146,14 @@ model Item {
   supplyDetails SupplyDetailData[] @relation("SupplyItem")
   /// 消費明細データとの関連
   consumptionDetails ConsumptionDetailData[] @relation("ConsumptionItem")
+  /// 出荷検査データとの関連
+  shippingInspections ShippingInspectionData[]
+  /// ロットマスタとの関連
+  lotMasters LotMaster[]
+  /// 標準原価マスタとの関連
+  standardCosts StandardCostMaster[]
+  /// 実際原価データとの関連
+  actualCosts ActualCostData[]
 
   @@map("items")
 }
@@ -431,6 +439,7 @@ model Order {
   childOrders      Order[]                   @relation("OrderHierarchy")
   requirements     Requirement[]
   allocations      Allocation[]
+  issueInstructions IssueInstructionData[]
 
   @@map("orders")
 }
@@ -815,6 +824,7 @@ model DefectMaster {
   /// リレーション
   inspectionResults InspectionResultData[]
   completionInspections CompletionInspectionData[]
+  shippingInspectionResults ShippingInspectionResultData[]
 
   @@map("defect_masters")
 }
@@ -1129,9 +1139,9 @@ model WorkOrderData {
   /// 完成数量
   completedQuantity Decimal          @default(0) @map("completed_quantity") @db.Decimal(15, 2)
   /// 開始予定日
-  scheduledStartDate DateTime        @map("scheduled_start_date") @db.Date
+  scheduledStartDate DateTime?       @map("scheduled_start_date") @db.Date
   /// 完了予定日
-  scheduledEndDate  DateTime         @map("scheduled_end_date") @db.Date
+  scheduledEndDate  DateTime?        @map("scheduled_end_date") @db.Date
   /// ステータス
   status            WorkOrderStatus  @default(NOT_STARTED) @map("status")
   /// 備考
@@ -1148,6 +1158,7 @@ model WorkOrderData {
   /// リレーション
   details          WorkOrderDetailData[]
   completionResults CompletionResultData[]
+  actualCosts      ActualCostData[]
 
   @@map("work_order_data")
 }
@@ -1575,4 +1586,206 @@ model StockAdjustmentData {
   stocktaking             StocktakingData?  @relation(fields: [stocktakingNumber], references: [stocktakingNumber])
 
   @@map("stock_adjustment_data")
+}
+
+/// 検査判定
+enum InspectionJudgment {
+  PASS      @map("合格")
+  FAIL      @map("不合格")
+  HOLD      @map("保留")
+
+  @@map("inspection_judgment")
+}
+
+/// 出荷検査データ
+model ShippingInspectionData {
+  /// ID
+  id                      Int                             @id @default(autoincrement())
+  /// 出荷検査番号
+  inspectionNumber        String                          @unique @map("inspection_number") @db.VarChar(20)
+  /// 出荷番号
+  shippingNumber          String                          @map("shipping_number") @db.VarChar(20)
+  /// 品目コード
+  itemCode                String                          @map("item_code") @db.VarChar(20)
+  /// 検査日
+  inspectionDate          DateTime                        @map("inspection_date") @db.Date
+  /// 検査担当者コード
+  inspectorCode           String                          @map("inspector_code") @db.VarChar(20)
+  /// 検査数量
+  inspectionQuantity      Decimal                         @map("inspection_quantity") @db.Decimal(15, 2)
+  /// 合格数
+  passedQuantity          Decimal                         @map("passed_quantity") @db.Decimal(15, 2)
+  /// 不合格数
+  failedQuantity          Decimal                         @map("failed_quantity") @db.Decimal(15, 2)
+  /// 判定
+  judgment                InspectionJudgment              @map("judgment")
+  /// 作成日時
+  createdAt               DateTime                        @default(now()) @map("created_at")
+  /// 更新日時
+  updatedAt               DateTime                        @updatedAt @map("updated_at")
+
+  /// リレーション
+  item                    Item                            @relation(fields: [itemCode], references: [itemCode])
+  results                 ShippingInspectionResultData[]
+
+  @@map("shipping_inspection_data")
+}
+
+/// 出荷検査結果データ
+model ShippingInspectionResultData {
+  /// ID
+  id                      Int                             @id @default(autoincrement())
+  /// 出荷検査番号
+  inspectionNumber        String                          @map("inspection_number") @db.VarChar(20)
+  /// 欠点コード
+  defectCode              String                          @map("defect_code") @db.VarChar(20)
+  /// 数量
+  quantity                Decimal                         @map("quantity") @db.Decimal(15, 2)
+
+  /// リレーション
+  inspection              ShippingInspectionData          @relation(fields: [inspectionNumber], references: [inspectionNumber])
+  defect                  DefectMaster                    @relation(fields: [defectCode], references: [defectCode])
+
+  @@unique([inspectionNumber, defectCode])
+  @@map("shipping_inspection_result_data")
+}
+
+/// ロット種別
+enum LotType {
+  PURCHASE      @map("購入ロット")
+  MANUFACTURING @map("製造ロット")
+
+  @@map("lot_type")
+}
+
+/// ロットマスタ
+model LotMaster {
+  /// ID
+  id                      Int                             @id @default(autoincrement())
+  /// ロット番号
+  lotNumber               String                          @unique @map("lot_number") @db.VarChar(30)
+  /// 品目コード
+  itemCode                String                          @map("item_code") @db.VarChar(20)
+  /// ロット種別
+  lotType                 LotType                         @map("lot_type")
+  /// 製造日
+  manufacturedDate        DateTime?                       @map("manufactured_date") @db.Date
+  /// 有効期限
+  expirationDate          DateTime?                       @map("expiration_date") @db.Date
+  /// 数量
+  quantity                Decimal                         @map("quantity") @db.Decimal(15, 2)
+  /// 作成日時
+  createdAt               DateTime                        @default(now()) @map("created_at")
+  /// 更新日時
+  updatedAt               DateTime                        @updatedAt @map("updated_at")
+
+  /// リレーション
+  item                    Item                            @relation(fields: [itemCode], references: [itemCode])
+  parentLotCompositions   LotComposition[]                @relation("ParentLot")
+  childLotCompositions    LotComposition[]                @relation("ChildLot")
+
+  @@map("lot_master")
+}
+
+/// ロット構成
+model LotComposition {
+  /// ID
+  id                      Int                             @id @default(autoincrement())
+  /// 親ロット番号
+  parentLotNumber         String                          @map("parent_lot_number") @db.VarChar(30)
+  /// 子ロット番号
+  childLotNumber          String                          @map("child_lot_number") @db.VarChar(30)
+  /// 使用数量
+  usedQuantity            Decimal                         @map("used_quantity") @db.Decimal(15, 2)
+
+  /// リレーション
+  parentLot               LotMaster                       @relation("ParentLot", fields: [parentLotNumber], references: [lotNumber])
+  childLot                LotMaster                       @relation("ChildLot", fields: [childLotNumber], references: [lotNumber])
+
+  @@unique([parentLotNumber, childLotNumber])
+  @@map("lot_composition")
+}
+
+/// 標準原価マスタ
+model StandardCostMaster {
+  /// ID
+  id                      Int                             @id @default(autoincrement())
+  /// 品目コード
+  itemCode                String                          @map("item_code") @db.VarChar(20)
+  /// 適用開始日
+  effectiveFrom           DateTime                        @map("effective_from") @db.Date
+  /// 適用終了日
+  effectiveTo             DateTime?                       @map("effective_to") @db.Date
+  /// 標準材料費
+  standardMaterialCost    Decimal                         @map("standard_material_cost") @db.Decimal(15, 2)
+  /// 標準労務費
+  standardLaborCost       Decimal                         @map("standard_labor_cost") @db.Decimal(15, 2)
+  /// 標準経費
+  standardOverhead        Decimal                         @map("standard_overhead") @db.Decimal(15, 2)
+  /// 標準製造原価
+  standardManufacturingCost Decimal                       @map("standard_manufacturing_cost") @db.Decimal(15, 2)
+  /// 作成日時
+  createdAt               DateTime                        @default(now()) @map("created_at")
+  /// 更新日時
+  updatedAt               DateTime                        @updatedAt @map("updated_at")
+
+  /// リレーション
+  item                    Item                            @relation(fields: [itemCode], references: [itemCode])
+
+  @@unique([itemCode, effectiveFrom])
+  @@map("standard_cost_master")
+}
+
+/// 実際原価データ
+model ActualCostData {
+  /// ID
+  id                      Int                             @id @default(autoincrement())
+  /// 作業指示番号
+  workOrderNumber         String                          @map("work_order_number") @db.VarChar(20)
+  /// 品目コード
+  itemCode                String                          @map("item_code") @db.VarChar(20)
+  /// 完成数量
+  completedQuantity       Decimal                         @map("completed_quantity") @db.Decimal(15, 2)
+  /// 実際材料費
+  actualMaterialCost      Decimal                         @map("actual_material_cost") @db.Decimal(15, 2)
+  /// 実際労務費
+  actualLaborCost         Decimal                         @map("actual_labor_cost") @db.Decimal(15, 2)
+  /// 実際経費
+  actualOverhead          Decimal                         @map("actual_overhead") @db.Decimal(15, 2)
+  /// 実際製造原価
+  actualManufacturingCost Decimal                         @map("actual_manufacturing_cost") @db.Decimal(15, 2)
+  /// 単位原価
+  unitCost                Decimal                         @map("unit_cost") @db.Decimal(15, 4)
+  /// 作成日時
+  createdAt               DateTime                        @default(now()) @map("created_at")
+  /// 更新日時
+  updatedAt               DateTime                        @updatedAt @map("updated_at")
+
+  /// リレーション
+  workOrder               WorkOrderData                   @relation(fields: [workOrderNumber], references: [workOrderNumber])
+  item                    Item                            @relation(fields: [itemCode], references: [itemCode])
+
+  @@map("actual_cost_data")
+}
+
+/// 原価差異データ
+model CostVarianceData {
+  /// ID
+  id                      Int                             @id @default(autoincrement())
+  /// 作業指示番号
+  workOrderNumber         String                          @map("work_order_number") @db.VarChar(20)
+  /// 品目コード
+  itemCode                String                          @map("item_code") @db.VarChar(20)
+  /// 材料費差異
+  materialCostVariance    Decimal                         @map("material_cost_variance") @db.Decimal(15, 2)
+  /// 労務費差異
+  laborCostVariance       Decimal                         @map("labor_cost_variance") @db.Decimal(15, 2)
+  /// 経費差異
+  overheadVariance        Decimal                         @map("overhead_variance") @db.Decimal(15, 2)
+  /// 総差異
+  totalVariance           Decimal                         @map("total_variance") @db.Decimal(15, 2)
+  /// 作成日時
+  createdAt               DateTime                        @default(now()) @map("created_at")
+
+  @@map("cost_variance_data")
 }

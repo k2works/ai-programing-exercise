@@ -27,3 +27,4 @@ src/generated/
 
 # SchemaSpy
 schemaspy-output/
+!/src/application/port/out/
