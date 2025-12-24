@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.production.infrastructure.persistence.mapper.LocationMapper">
+
+    <resultMap id="LocationResultMap" type="com.example.production.domain.model.location.Location">
+        <result property="locationCode" column="場所コード"/>
+        <result property="locationName" column="場所名"/>
+        <result property="locationType" column="場所区分"
+                typeHandler="com.example.production.infrastructure.persistence.LocationTypeTypeHandler"/>
+        <result property="parentLocationCode" column="親場所コード"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.example.production.domain.model.location.Location">
+        INSERT INTO "場所マスタ" (
+            "場所コード",
+            "場所名",
+            "場所区分",
+            "親場所コード",
+            "作成日時",
+            "更新日時"
+        ) VALUES (
+            #{locationCode},
+            #{locationName},
+            #{locationType, typeHandler=com.example.production.infrastructure.persistence.LocationTypeTypeHandler}::場所区分,
+            #{parentLocationCode},
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <select id="findByLocationCode" resultMap="LocationResultMap">
+        SELECT * FROM "場所マスタ"
+        WHERE "場所コード" = #{locationCode}
+    </select>
+
+    <select id="findByLocationType" resultMap="LocationResultMap">
+        SELECT * FROM "場所マスタ"
+        WHERE "場所区分" = #{locationType, typeHandler=com.example.production.infrastructure.persistence.LocationTypeTypeHandler}::場所区分
+        ORDER BY "場所コード"
+    </select>
+
+    <select id="findByParentLocationCode" resultMap="LocationResultMap">
+        SELECT * FROM "場所マスタ"
+        WHERE "親場所コード" = #{parentLocationCode}
+        ORDER BY "場所コード"
+    </select>
+
+    <select id="findAll" resultMap="LocationResultMap">
+        SELECT * FROM "場所マスタ"
+        ORDER BY "場所コード"
+    </select>
+
+    <delete id="deleteAll">
+        TRUNCATE TABLE "場所マスタ" CASCADE
+    </delete>
+</mapper>
