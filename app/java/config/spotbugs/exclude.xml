@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- テストクラスを除外 -->
+    <Match>
+        <Class name="~.*Test"/>
+    </Match>
+    <Match>
+        <Class name="~.*Tests"/>
+    </Match>
+    <Match>
+        <Package name="~.*\.testsetup"/>
+    </Match>
+
+    <!-- Spring Boot 自動生成クラスを除外 -->
+    <Match>
+        <Class name="~.*Application"/>
+    </Match>
+
+    <!-- Lombok 生成コードに対する警告を除外 -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+</FindBugsFilter>

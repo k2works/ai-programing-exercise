@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: production-management
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: false
