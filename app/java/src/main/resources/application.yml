@@ -14,7 +14,7 @@ spring:
 mybatis:
   configuration:
     map-underscore-to-camel-case: false
-  mapper-locations: classpath:mapper/**/*.xml
+  mapper-locations: classpath*:com/example/production/infrastructure/persistence/mapper/**/*.xml
 
 server:
   port: 8080

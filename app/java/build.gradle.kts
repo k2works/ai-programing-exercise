@@ -132,3 +132,7 @@ pmd {
     ruleSets = listOf() // ruleSetFilesを使用するため空に
     isIgnoreFailures = true // 初期は警告のみ
 }
+
+// Flyway マイグレーションタスク（Spring Boot経由で実行）
+// docker compose up -d でPostgreSQLを起動後、./gradlew bootRun で自動マイグレーション
+// または TestContainers でテスト時に自動マイグレーション
