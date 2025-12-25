@@ -1,5 +1,6 @@
 package com.example.production.application.service;
 
+import com.example.production.application.port.in.InventoryUseCase;
 import com.example.production.application.port.in.command.StockChangeCommand;
 import com.example.production.application.port.in.command.StockStatusChangeCommand;
 import com.example.production.application.port.out.StockRepository;
@@ -18,13 +19,14 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor
-public class InventoryService {
+public class InventoryService implements InventoryUseCase {
 
     private final StockRepository stockRepository;
 
     /**
      * 在庫を取得する
      */
+    @Override
     public Stock getStock(String locationCode, String itemCode) {
         return stockRepository.findByLocationAndItem(locationCode, itemCode)
                 .orElse(Stock.empty(locationCode, itemCode));
@@ -33,6 +35,7 @@ public class InventoryService {
     /**
      * 場所別の在庫一覧を取得する
      */
+    @Override
     public List<Stock> getStocksByLocation(String locationCode) {
         return stockRepository.findByLocationCode(locationCode);
     }
@@ -40,8 +43,35 @@ public class InventoryService {
     /**
      * 品目別の在庫一覧を取得する
      */
+    @Override
     public List<Stock> getStocksByItem(String itemCode) {
         return stockRepository.findByItemCode(itemCode);
+    }
+
+    /**
+     * すべての在庫を取得する
+     */
+    @Override
+    public List<Stock> getAllStocks() {
+        return stockRepository.findAll();
+    }
+
+    /**
+     * 在庫照会クエリで在庫を取得する
+     */
+    @Override
+    public List<Stock> getInventory(InventoryQuery query) {
+        if (query.itemCode() != null && query.locationCode() != null) {
+            return stockRepository.findByLocationAndItem(query.locationCode(), query.itemCode())
+                    .map(List::of)
+                    .orElse(List.of());
+        } else if (query.itemCode() != null) {
+            return stockRepository.findByItemCode(query.itemCode());
+        } else if (query.locationCode() != null) {
+            return stockRepository.findByLocationCode(query.locationCode());
+        } else {
+            return stockRepository.findAll();
+        }
     }
 
     /**

@@ -3,6 +3,8 @@ package com.example.production.infrastructure.web.exception;
 import com.example.production.domain.exception.DomainException;
 import com.example.production.domain.exception.DuplicateItemException;
 import com.example.production.domain.exception.ItemNotFoundException;
+import com.example.production.domain.exception.PurchaseOrderNotFoundException;
+import com.example.production.domain.exception.WorkOrderNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -38,6 +40,26 @@ public class GlobalExceptionHandler {
                 HttpStatus.CONFLICT, ex.getMessage());
         problem.setTitle("品目コード重複");
         problem.setType(URI.create("https://api.example.com/errors/duplicate-item"));
+        problem.setProperty("timestamp", Instant.now());
+        return problem;
+    }
+
+    @ExceptionHandler(PurchaseOrderNotFoundException.class)
+    public ProblemDetail handlePurchaseOrderNotFoundException(PurchaseOrderNotFoundException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND, ex.getMessage());
+        problem.setTitle("発注が見つかりません");
+        problem.setType(URI.create("https://api.example.com/errors/purchase-order-not-found"));
+        problem.setProperty("timestamp", Instant.now());
+        return problem;
+    }
+
+    @ExceptionHandler(WorkOrderNotFoundException.class)
+    public ProblemDetail handleWorkOrderNotFoundException(WorkOrderNotFoundException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND, ex.getMessage());
+        problem.setTitle("作業指示が見つかりません");
+        problem.setType(URI.create("https://api.example.com/errors/work-order-not-found"));
         problem.setProperty("timestamp", Instant.now());
         return problem;
     }

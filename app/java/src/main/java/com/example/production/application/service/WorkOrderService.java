@@ -1,7 +1,9 @@
 package com.example.production.application.service;
 
+import com.example.production.application.port.in.WorkOrderUseCase;
 import com.example.production.application.port.in.command.WorkOrderCreateCommand;
 import com.example.production.application.port.out.*;
+import com.example.production.domain.exception.WorkOrderNotFoundException;
 import com.example.production.domain.model.plan.Order;
 import com.example.production.domain.model.process.*;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +21,7 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor
-public class WorkOrderService {
+public class WorkOrderService implements WorkOrderUseCase {
 
     private final WorkOrderRepository workOrderRepository;
     private final WorkOrderDetailRepository workOrderDetailRepository;
@@ -135,5 +137,59 @@ public class WorkOrderService {
             workOrder.setDetails(workOrderDetailRepository.findByWorkOrderNumber(workOrderNumber));
         }
         return workOrder;
+    }
+
+    /**
+     * 作業指示を取得する
+     */
+    @Override
+    public WorkOrder getWorkOrder(String workOrderNumber) {
+        WorkOrder workOrder = workOrderRepository.findByWorkOrderNumber(workOrderNumber)
+                .orElseThrow(() -> new WorkOrderNotFoundException(workOrderNumber));
+        workOrder.setDetails(workOrderDetailRepository.findByWorkOrderNumber(workOrderNumber));
+        return workOrder;
+    }
+
+    /**
+     * すべての作業指示を取得する
+     */
+    @Override
+    public List<WorkOrder> getAllWorkOrders() {
+        return workOrderRepository.findAll();
+    }
+
+    /**
+     * ステータス別に作業指示を取得する
+     */
+    @Override
+    public List<WorkOrder> getWorkOrdersByStatus(WorkOrderStatus status) {
+        return workOrderRepository.findByStatus(status);
+    }
+
+    /**
+     * 進捗を更新する
+     */
+    @Override
+    @Transactional
+    public WorkOrder updateProgress(String workOrderNumber, WorkOrderStatus status) {
+        WorkOrder workOrder = workOrderRepository.findByWorkOrderNumber(workOrderNumber)
+                .orElseThrow(() -> new WorkOrderNotFoundException(workOrderNumber));
+
+        switch (status) {
+            case IN_PROGRESS:
+                if (workOrder.getStatus() == WorkOrderStatus.NOT_STARTED) {
+                    workOrderRepository.startWork(workOrderNumber, LocalDate.now());
+                }
+                break;
+            case COMPLETED:
+                if (workOrder.getStatus() == WorkOrderStatus.IN_PROGRESS) {
+                    workOrderRepository.completeWork(workOrderNumber, LocalDate.now());
+                }
+                break;
+            default:
+                throw new IllegalStateException("Invalid status transition: " + status);
+        }
+
+        return getWorkOrder(workOrderNumber);
     }
 }
