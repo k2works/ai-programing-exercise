@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.production.infrastructure.persistence.mapper.IssueMapper">
+
+    <resultMap id="IssueResultMap" type="com.example.production.domain.model.inventory.Issue">
+        <id property="id" column="ID"/>
+        <result property="issueNumber" column="払出番号"/>
+        <result property="workOrderNumber" column="作業指示番号"/>
+        <result property="routingSequence" column="工順"/>
+        <result property="locationCode" column="場所コード"/>
+        <result property="issueDate" column="払出日"/>
+        <result property="issuerCode" column="払出担当者コード"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+    </resultMap>
+
+    <resultMap id="IssueDetailResultMap" type="com.example.production.domain.model.inventory.IssueDetail">
+        <id property="id" column="ID"/>
+        <result property="issueNumber" column="払出番号"/>
+        <result property="lineNumber" column="払出行番号"/>
+        <result property="itemCode" column="品目コード"/>
+        <result property="issueQuantity" column="払出数"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+    </resultMap>
+
+    <select id="findByIssueNumber" resultMap="IssueResultMap">
+        SELECT * FROM "払出データ"
+        WHERE "払出番号" = #{issueNumber}
+    </select>
+
+    <select id="findDetailsByIssueNumber" resultMap="IssueDetailResultMap">
+        SELECT * FROM "払出明細データ"
+        WHERE "払出番号" = #{issueNumber}
+        ORDER BY "払出行番号"
+    </select>
+
+    <select id="findByWorkOrderNumber" resultMap="IssueResultMap">
+        SELECT * FROM "払出データ"
+        WHERE "作業指示番号" = #{workOrderNumber}
+        ORDER BY "払出日"
+    </select>
+
+    <select id="countByPrefix" resultType="long">
+        SELECT COUNT(*) FROM "払出データ"
+        WHERE "払出番号" LIKE #{prefix} || '%'
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
+        INSERT INTO "払出データ" (
+            "払出番号", "作業指示番号", "工順", "場所コード",
+            "払出日", "払出担当者コード"
+        ) VALUES (
+            #{issueNumber}, #{workOrderNumber}, #{routingSequence},
+            #{locationCode}, #{issueDate}, #{issuerCode}
+        )
+    </insert>
+
+    <insert id="insertDetail" useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
+        INSERT INTO "払出明細データ" (
+            "払出番号", "払出行番号", "品目コード", "払出数"
+        ) VALUES (
+            #{issueNumber}, #{lineNumber}, #{itemCode}, #{issueQuantity}
+        )
+    </insert>
+
+    <delete id="deleteAllDetails">
+        TRUNCATE TABLE "払出明細データ" CASCADE
+    </delete>
+
+    <delete id="deleteAll">
+        TRUNCATE TABLE "払出データ" CASCADE
+    </delete>
+</mapper>
