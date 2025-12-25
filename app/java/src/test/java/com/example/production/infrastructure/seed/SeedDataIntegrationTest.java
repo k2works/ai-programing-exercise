@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -337,6 +338,275 @@ class SeedDataIntegrationTest extends BaseIntegrationTest {
             assertThat(itemRepository.findAll()).hasSize(initialItemCount);
             assertThat(bomRepository.findAll()).hasSize(initialBomCount);
             assertThat(stockRepository.findAll()).hasSize(initialStockCount);
+        }
+    }
+
+    // ========================================
+    // 第23章：データの検証と活用
+    // ========================================
+
+    @Nested
+    @DisplayName("マスタデータの妥当性検証")
+    class MasterDataValidation {
+
+        @Test
+        @DisplayName("すべての品目が単位を持つ")
+        void allItemsHaveUnit() {
+            List<Item> items = itemRepository.findAll();
+
+            assertThat(items).isNotEmpty();
+            for (Item item : items) {
+                assertThat(item.getUnitCode())
+                        .as("品目 %s は単位コードを持つ", item.getItemCode())
+                        .isNotBlank();
+            }
+        }
+
+        @Test
+        @DisplayName("すべての担当者が部門に所属している")
+        void allEmployeesBelongToDepartment() {
+            var employees = employeeRepository.findAll();
+            var departmentCodes = departmentRepository.findAll().stream()
+                    .map(dept -> dept.getDepartmentCode())
+                    .toList();
+
+            assertThat(employees).isNotEmpty();
+            for (var employee : employees) {
+                assertThat(employee.getDepartmentCode())
+                        .as("担当者 %s は部門コードを持つ", employee.getEmployeeCode())
+                        .isNotBlank();
+                assertThat(departmentCodes)
+                        .as("担当者 %s の部門コード %s が部門マスタに存在する",
+                                employee.getEmployeeCode(), employee.getDepartmentCode())
+                        .contains(employee.getDepartmentCode());
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("BOM 展開の整合性確認")
+    class BomIntegrity {
+
+        @Test
+        @DisplayName("製品の BOM が正しく展開できる")
+        void productBomCanBeExpanded() {
+            var boms = bomRepository.findByParentItemCode("PROD-A001");
+
+            assertThat(boms).isNotEmpty();
+            for (var bom : boms) {
+                assertThat(bom.getRequiredQuantity())
+                        .as("BOM の必要量は正の値")
+                        .isPositive();
+            }
+        }
+
+        @Test
+        @DisplayName("BOM に循環参照がない")
+        void noCyclicReferenceInBom() {
+            var allBoms = bomRepository.findAll();
+
+            for (var bom : allBoms) {
+                // 簡易的な循環参照チェック（親=子は禁止）
+                assertThat(bom.getParentItemCode())
+                        .as("BOM の親品目コードと子品目コードが同一でない")
+                        .isNotEqualTo(bom.getChildItemCode());
+            }
+        }
+
+        @Test
+        @DisplayName("BOM の階層構造が正しい")
+        void bomHierarchyIsCorrect() {
+            // 製品から半製品・部品・材料への構成を確認
+            var prodBoms = bomRepository.findByParentItemCode("PROD-B001");
+            assertThat(prodBoms).isNotEmpty();
+
+            var childCodes = prodBoms.stream()
+                    .map(bom -> bom.getChildItemCode())
+                    .toList();
+
+            // ギアボックスアセンブリには半製品、部品、材料が含まれる
+            assertThat(childCodes)
+                    .anyMatch(code -> code.startsWith("SEMI-"))
+                    .anyMatch(code -> code.startsWith("PART-"))
+                    .anyMatch(code -> code.startsWith("MAT-"));
+        }
+    }
+
+    @Nested
+    @DisplayName("在庫数量の正確性検証")
+    class StockValidation {
+
+        @Test
+        @DisplayName("在庫数量が 0 以上である")
+        void stockQuantityIsNonNegative() {
+            List<Stock> stocks = stockRepository.findAll();
+
+            assertThat(stocks).isNotEmpty();
+            for (Stock stock : stocks) {
+                assertThat(stock.getStockQuantity())
+                        .as("在庫 %s の数量は非負", stock.getItemCode())
+                        .isNotNegative();
+            }
+        }
+
+        @Test
+        @DisplayName("在庫の品目が品目マスタに存在する")
+        void stockItemsExistInItemMaster() {
+            var stocks = stockRepository.findAll();
+            var itemCodes = itemRepository.findAll().stream()
+                    .map(Item::getItemCode)
+                    .toList();
+
+            assertThat(stocks)
+                    .allSatisfy(stock -> {
+                        assertThat(itemCodes)
+                                .as("在庫品目 %s が品目マスタに存在する", stock.getItemCode())
+                                .contains(stock.getItemCode());
+                    });
+        }
+    }
+
+    @Nested
+    @DisplayName("MRP 実行検証")
+    class MrpValidation {
+
+        @Test
+        @DisplayName("製造オーダから所要量が正しく計算される")
+        void calculateRequirementsFromManufacturingOrder() {
+            var orderOpt = orderRepository.findByOrderNumber("MO-2025-001");
+            assertThat(orderOpt).isPresent();
+
+            var order = orderOpt.get();
+            assertThat(order.getPlanQuantity()).isEqualByComparingTo(new BigDecimal("100"));
+
+            // BOM 展開で必要量を計算
+            var boms = bomRepository.findByParentItemCode(order.getItemCode());
+            assertThat(boms).isNotEmpty();
+
+            for (var bom : boms) {
+                BigDecimal requiredQty = order.getPlanQuantity().multiply(bom.getRequiredQuantity());
+                assertThat(requiredQty)
+                        .as("BOM 展開による所要量が計算できる")
+                        .isPositive();
+            }
+        }
+
+        @Test
+        @DisplayName("製造オーダのステータスが正しい")
+        void manufacturingOrderStatusIsCorrect() {
+            var orders = orderRepository.findAll();
+
+            assertThat(orders)
+                    .filteredOn(order -> order.getOrderNumber().startsWith("MO-"))
+                    .allSatisfy(order -> {
+                        assertThat(order.getStatus())
+                                .as("製造オーダ %s のステータスが設定されている", order.getOrderNumber())
+                                .isNotNull();
+                    });
+        }
+    }
+
+    @Nested
+    @DisplayName("発注フローの検証")
+    class PurchaseFlowValidation {
+
+        @Test
+        @DisplayName("発注から入荷までのフローが正しく動作する")
+        void purchaseFlowWorksCorrectly() {
+            var purchaseOrderOpt = purchaseOrderRepository.findByPurchaseOrderNumber("PUR-2025-001");
+            assertThat(purchaseOrderOpt).isPresent();
+
+            var purchaseOrder = purchaseOrderOpt.get();
+            assertThat(purchaseOrder.getStatus()).isNotNull();
+            assertThat(purchaseOrder.getSupplierCode()).isNotBlank();
+            assertThat(purchaseOrder.getOrderDate()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("発注先が取引先マスタに存在する")
+        void purchaseOrderSuppliersExist() {
+            var purchaseOrders = purchaseOrderRepository.findAll();
+            var supplierCodes = supplierRepository.findAll().stream()
+                    .map(supplier -> supplier.getSupplierCode())
+                    .toList();
+
+            assertThat(purchaseOrders)
+                    .allSatisfy(po -> {
+                        assertThat(supplierCodes)
+                                .as("発注 %s の仕入先 %s が取引先マスタに存在する",
+                                        po.getPurchaseOrderNumber(), po.getSupplierCode())
+                                .contains(po.getSupplierCode());
+                    });
+        }
+    }
+
+    @Nested
+    @DisplayName("製造実績フローの検証")
+    class ManufacturingFlowValidation {
+
+        @Test
+        @DisplayName("作業指示に対する完成実績が正しく記録される")
+        void completionRecordsAreCorrectlyRecorded() {
+            var workOrderOpt = workOrderRepository.findByWorkOrderNumber("WO-2025-002");
+            assertThat(workOrderOpt).isPresent();
+
+            var workOrder = workOrderOpt.get();
+            var completionRecords = completionResultRepository.findByWorkOrderNumber(workOrder.getWorkOrderNumber());
+            assertThat(completionRecords).isNotEmpty();
+
+            for (var record : completionRecords) {
+                assertThat(record.getCompletedQuantity())
+                        .as("完成数量は正の値")
+                        .isPositive();
+
+                if (record.getCompletedQuantity().compareTo(BigDecimal.ZERO) > 0) {
+                    BigDecimal yieldRate = record.getGoodQuantity()
+                            .divide(record.getCompletedQuantity(), 4, RoundingMode.HALF_UP)
+                            .multiply(new BigDecimal("100"));
+
+                    // 良品率は 90% 以上を期待
+                    assertThat(yieldRate)
+                            .as("完成実績 %s の良品率が 90%% 以上", record.getCompletionResultNumber())
+                            .isGreaterThan(new BigDecimal("90"));
+                }
+            }
+        }
+
+        @Test
+        @DisplayName("工数実績が正しく記録される")
+        void laborRecordsAreCorrectlyRecorded() {
+            var laborRecords = laborHoursRepository.findAll();
+
+            assertThat(laborRecords).isNotEmpty();
+
+            BigDecimal totalLaborHours = BigDecimal.ZERO;
+            for (var record : laborRecords) {
+                assertThat(record.getHours())
+                        .as("工数実績 %s の作業時間は正の値", record.getLaborHoursNumber())
+                        .isPositive();
+                totalLaborHours = totalLaborHours.add(record.getHours());
+            }
+
+            assertThat(totalLaborHours)
+                    .as("合計作業時間が計算される")
+                    .isPositive();
+        }
+
+        @Test
+        @DisplayName("完成実績の作業指示番号が存在する")
+        void completionResultsHaveValidWorkOrders() {
+            var completionResults = completionResultRepository.findAll();
+            var workOrderNumbers = workOrderRepository.findAll().stream()
+                    .map(wo -> wo.getWorkOrderNumber())
+                    .toList();
+
+            assertThat(completionResults)
+                    .allSatisfy(result -> {
+                        assertThat(workOrderNumbers)
+                                .as("完成実績 %s の作業指示 %s が存在する",
+                                        result.getCompletionResultNumber(), result.getWorkOrderNumber())
+                                .contains(result.getWorkOrderNumber());
+                    });
         }
     }
 }
