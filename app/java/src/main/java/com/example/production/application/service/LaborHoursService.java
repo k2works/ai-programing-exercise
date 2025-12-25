@@ -113,7 +113,7 @@ public class LaborHoursService {
      * 作業指示の工数サマリを取得する
      */
     public LaborHoursSummary getSummary(String workOrderNumber) {
-        WorkOrder workOrder = workOrderRepository.findByWorkOrderNumber(workOrderNumber)
+        workOrderRepository.findByWorkOrderNumber(workOrderNumber)
                 .orElseThrow(() -> new IllegalArgumentException("Work order not found: " + workOrderNumber));
 
         List<WorkOrderDetail> details = workOrderDetailRepository.findByWorkOrderNumber(workOrderNumber);

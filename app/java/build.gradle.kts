@@ -30,6 +30,7 @@ repositories {
 // バージョン管理
 val mybatisVersion = "4.0.0"
 val testcontainersVersion = "1.20.4"
+val springdocVersion = "2.8.4"
 
 dependencies {
     // Spring Boot
@@ -44,6 +45,9 @@ dependencies {
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")
 
+    // OpenAPI / Swagger
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springdocVersion")
+
     // Database
     runtimeOnly("org.postgresql:postgresql")
 
@@ -53,6 +57,7 @@ dependencies {
 
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-webmvc-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.mybatis.spring.boot:mybatis-spring-boot-starter-test:$mybatisVersion")
     testImplementation(platform("org.testcontainers:testcontainers-bom:$testcontainersVersion"))
@@ -131,7 +136,7 @@ pmd {
     isConsoleOutput = true
     ruleSetFiles = files("${rootDir}/config/pmd/ruleset.xml")
     ruleSets = listOf() // ruleSetFilesを使用するため空に
-    isIgnoreFailures = true // 初期は警告のみ
+    isIgnoreFailures = false
 }
 
 // Docker Compose 設定

@@ -66,7 +66,7 @@ public class StocktakingService {
      */
     @Transactional
     public Stocktaking inputActualCount(ActualCountInputCommand command) {
-        Stocktaking stocktaking = stocktakingRepository.findByStocktakingNumber(command.getStocktakingNumber())
+        stocktakingRepository.findByStocktakingNumber(command.getStocktakingNumber())
                 .orElseThrow(() -> new IllegalArgumentException("棚卸データが見つかりません: " + command.getStocktakingNumber()));
 
         List<StocktakingDetail> existingDetails = stocktakingRepository.findDetailsByStocktakingNumber(
