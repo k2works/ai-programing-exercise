@@ -1,4 +1,4 @@
-package com.example.production.seed;
+package com.example.production.infrastructure.seed;
 
 import com.example.production.application.port.out.*;
 import com.example.production.domain.model.inventory.Stock;

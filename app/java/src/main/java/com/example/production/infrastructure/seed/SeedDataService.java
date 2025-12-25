@@ -1,4 +1,4 @@
-package com.example.production.seed;
+package com.example.production.infrastructure.seed;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
