@@ -7,6 +7,7 @@ plugins {
     id("org.springframework.boot") version "4.0.0"
     id("io.spring.dependency-management") version "1.1.7"
     id("com.github.spotbugs") version "6.0.27"
+    id("com.avast.gradle.docker-compose") version "0.17.12"
 }
 
 group = "com.example.production"
@@ -133,6 +134,15 @@ pmd {
     isIgnoreFailures = true // 初期は警告のみ
 }
 
-// Flyway マイグレーションタスク（Spring Boot経由で実行）
-// docker compose up -d でPostgreSQLを起動後、./gradlew bootRun で自動マイグレーション
-// または TestContainers でテスト時に自動マイグレーション
+// Docker Compose 設定
+dockerCompose {
+    useComposeFiles.add("docker-compose.yml")
+    isRequiredBy(tasks.named("bootRun"))
+    waitForTcpPorts = true
+    captureContainersOutputToFiles = project.file("build/docker-logs")
+}
+
+// bootRun 実行前に Docker Compose を起動
+tasks.named("bootRun") {
+    dependsOn("composeUp")
+}
