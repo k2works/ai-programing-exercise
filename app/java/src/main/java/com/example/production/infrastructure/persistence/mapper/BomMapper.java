@@ -18,5 +18,6 @@ public interface BomMapper {
     List<Bom> findByChildItemCode(String childItemCode);
     List<BomExplosion> explode(@Param("itemCode") String itemCode,
                                @Param("quantity") BigDecimal quantity);
+    List<Bom> findAll();
     void deleteAll();
 }

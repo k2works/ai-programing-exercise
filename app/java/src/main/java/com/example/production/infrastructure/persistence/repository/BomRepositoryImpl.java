@@ -45,6 +45,11 @@ public class BomRepositoryImpl implements BomRepository {
     }
 
     @Override
+    public List<Bom> findAll() {
+        return bomMapper.findAll();
+    }
+
+    @Override
     public void deleteAll() {
         bomMapper.deleteAll();
     }

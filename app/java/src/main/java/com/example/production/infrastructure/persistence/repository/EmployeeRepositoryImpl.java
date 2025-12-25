@@ -36,6 +36,11 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
     }
 
     @Override
+    public List<Employee> findAll() {
+        return employeeMapper.findAll();
+    }
+
+    @Override
     public void deleteAll() {
         employeeMapper.deleteAll();
     }

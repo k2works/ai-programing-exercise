@@ -65,6 +65,11 @@ public class WorkOrderRepositoryImpl implements WorkOrderRepository {
     }
 
     @Override
+    public List<WorkOrder> findAll() {
+        return workOrderMapper.findAll();
+    }
+
+    @Override
     public void deleteAll() {
         workOrderMapper.deleteAll();
     }

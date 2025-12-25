@@ -21,5 +21,6 @@ public interface WorkOrderRepository {
     void completeWork(String workOrderNumber, LocalDate actualEndDate);
     void updateCompletionQuantities(String workOrderNumber, BigDecimal completedQuantity,
                                     BigDecimal goodQuantity, BigDecimal defectQuantity);
+    List<WorkOrder> findAll();
     void deleteAll();
 }

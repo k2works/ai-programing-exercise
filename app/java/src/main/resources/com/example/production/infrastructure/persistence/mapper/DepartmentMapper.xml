@@ -32,6 +32,11 @@
         WHERE "部門コード" = #{departmentCode}
     </select>
 
+    <select id="findAll" resultMap="DepartmentResultMap">
+        SELECT * FROM "部門マスタ"
+        ORDER BY "部門コード"
+    </select>
+
     <delete id="deleteAll">
         TRUNCATE TABLE "部門マスタ" CASCADE
     </delete>

@@ -3,6 +3,7 @@ package com.example.production.application.port.out;
 import com.example.production.domain.model.purchase.PurchaseOrder;
 import com.example.production.domain.model.purchase.PurchaseOrderStatus;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -16,6 +17,8 @@ public interface PurchaseOrderRepository {
     Optional<String> findLatestPurchaseOrderNumber(String prefix);
 
     void updateStatus(String purchaseOrderNumber, PurchaseOrderStatus status);
+
+    List<PurchaseOrder> findAll();
 
     void deleteAll();
 }

@@ -13,5 +13,6 @@ public interface CompletionResultRepository {
     Optional<CompletionResult> findByCompletionResultNumber(String completionResultNumber);
     List<CompletionResult> findByWorkOrderNumber(String workOrderNumber);
     Optional<String> findLatestCompletionResultNumber(String prefix);
+    List<CompletionResult> findAll();
     void deleteAll();
 }

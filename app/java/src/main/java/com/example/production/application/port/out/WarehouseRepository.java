@@ -12,5 +12,6 @@ public interface WarehouseRepository {
     void save(Warehouse warehouse);
     Optional<Warehouse> findByWarehouseCode(String warehouseCode);
     List<Warehouse> findByDepartmentCode(String departmentCode);
+    List<Warehouse> findAll();
     void deleteAll();
 }

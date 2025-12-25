@@ -41,6 +41,11 @@
         ORDER BY "担当者コード"
     </select>
 
+    <select id="findAll" resultMap="EmployeeResultMap">
+        SELECT * FROM "担当者マスタ"
+        ORDER BY "担当者コード"
+    </select>
+
     <delete id="deleteAll">
         TRUNCATE TABLE "担当者マスタ" CASCADE
     </delete>

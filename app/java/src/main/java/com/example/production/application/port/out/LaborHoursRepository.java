@@ -18,5 +18,6 @@ public interface LaborHoursRepository {
     BigDecimal sumByWorkOrder(String workOrderNumber);
     BigDecimal sumByEmployee(String employeeCode, LocalDate startDate, LocalDate endDate);
     Optional<String> findLatestLaborHoursNumber(String prefix);
+    List<LaborHours> findAll();
     void deleteAll();
 }

@@ -41,6 +41,11 @@
         ORDER BY "工順"
     </select>
 
+    <select id="findAll" resultMap="RoutingResultMap">
+        SELECT * FROM "工程表"
+        ORDER BY "品目コード", "工順"
+    </select>
+
     <delete id="deleteAll">
         TRUNCATE TABLE "工程表" CASCADE
     </delete>

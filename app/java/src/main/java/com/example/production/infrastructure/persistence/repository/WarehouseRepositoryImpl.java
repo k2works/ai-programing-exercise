@@ -36,6 +36,11 @@ public class WarehouseRepositoryImpl implements WarehouseRepository {
     }
 
     @Override
+    public List<Warehouse> findAll() {
+        return warehouseMapper.findAll();
+    }
+
+    @Override
     public void deleteAll() {
         warehouseMapper.deleteAll();
     }

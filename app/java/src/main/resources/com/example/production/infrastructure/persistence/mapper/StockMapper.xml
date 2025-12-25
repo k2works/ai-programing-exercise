@@ -136,6 +136,11 @@
           AND "品目コード" = #{itemCode}
     </update>
 
+    <select id="findAll" resultMap="StockResultMap">
+        SELECT * FROM "在庫情報"
+        ORDER BY "場所コード", "品目コード"
+    </select>
+
     <delete id="deleteAll">
         TRUNCATE TABLE "在庫情報" CASCADE
     </delete>

@@ -12,5 +12,6 @@ public interface RoutingRepository {
     void save(Routing routing);
     Optional<Routing> findById(Integer id);
     List<Routing> findByItemCode(String itemCode);
+    List<Routing> findAll();
     void deleteAll();
 }

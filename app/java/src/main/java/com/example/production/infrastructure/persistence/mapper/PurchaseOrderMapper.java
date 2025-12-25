@@ -5,6 +5,7 @@ import com.example.production.domain.model.purchase.PurchaseOrderStatus;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 @Mapper
@@ -17,6 +18,8 @@ public interface PurchaseOrderMapper {
 
     void updateStatus(@Param("purchaseOrderNumber") String purchaseOrderNumber,
                       @Param("status") PurchaseOrderStatus status);
+
+    List<PurchaseOrder> findAll();
 
     void deleteAll();
 }

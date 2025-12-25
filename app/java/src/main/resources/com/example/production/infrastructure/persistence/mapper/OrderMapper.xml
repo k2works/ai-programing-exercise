@@ -98,6 +98,11 @@
         WHERE "ID" = #{id}
     </update>
 
+    <select id="findAll" resultMap="OrderResultMap">
+        SELECT * FROM "オーダ情報"
+        ORDER BY "オーダNO"
+    </select>
+
     <delete id="deleteAll">
         TRUNCATE TABLE "オーダ情報" CASCADE
     </delete>

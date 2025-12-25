@@ -122,6 +122,11 @@
         WHERE "作業指示番号" = #{workOrderNumber}
     </update>
 
+    <select id="findAll" resultMap="WorkOrderResultMap">
+        SELECT * FROM "作業指示データ"
+        ORDER BY "作業指示番号"
+    </select>
+
     <delete id="deleteAll">
         TRUNCATE TABLE "作業指示データ" CASCADE
     </delete>

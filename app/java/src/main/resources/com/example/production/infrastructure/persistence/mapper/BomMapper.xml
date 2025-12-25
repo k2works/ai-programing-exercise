@@ -132,6 +132,11 @@
         ORDER BY "階層", "親品目コード", "工順", "子品目コード"
     </select>
 
+    <select id="findAll" resultMap="BomResultMap">
+        SELECT * FROM "部品構成表"
+        ORDER BY "親品目コード", "工順", "子品目コード"
+    </select>
+
     <delete id="deleteAll">
         TRUNCATE TABLE "部品構成表" CASCADE
     </delete>

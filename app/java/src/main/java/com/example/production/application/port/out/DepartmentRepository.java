@@ -2,6 +2,7 @@ package com.example.production.application.port.out;
 
 import com.example.production.domain.model.organization.Department;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -10,5 +11,6 @@ import java.util.Optional;
 public interface DepartmentRepository {
     void save(Department department);
     Optional<Department> findByDepartmentCode(String departmentCode);
+    List<Department> findAll();
     void deleteAll();
 }

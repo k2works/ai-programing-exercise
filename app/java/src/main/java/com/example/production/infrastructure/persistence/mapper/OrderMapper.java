@@ -24,5 +24,7 @@ public interface OrderMapper {
 
     void updateStatus(@Param("id") Integer id, @Param("status") PlanStatus status);
 
+    List<Order> findAll();
+
     void deleteAll();
 }

@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Mapper
@@ -15,6 +16,8 @@ public interface UnitPriceMapper {
             @Param("itemCode") String itemCode,
             @Param("supplierCode") String supplierCode,
             @Param("date") LocalDate date);
+
+    List<UnitPrice> findAll();
 
     void deleteAll();
 }

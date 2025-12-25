@@ -6,6 +6,7 @@ import com.example.production.domain.model.purchase.PurchaseOrderStatus;
 import com.example.production.infrastructure.persistence.mapper.PurchaseOrderMapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -38,6 +39,11 @@ public class PurchaseOrderRepositoryImpl implements PurchaseOrderRepository {
     @Override
     public void updateStatus(String purchaseOrderNumber, PurchaseOrderStatus status) {
         purchaseOrderMapper.updateStatus(purchaseOrderNumber, status);
+    }
+
+    @Override
+    public List<PurchaseOrder> findAll() {
+        return purchaseOrderMapper.findAll();
     }
 
     @Override

@@ -57,6 +57,11 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
+    public List<Order> findAll() {
+        return orderMapper.findAll();
+    }
+
+    @Override
     public void deleteAll() {
         orderMapper.deleteAll();
     }

@@ -36,6 +36,11 @@ public class RoutingRepositoryImpl implements RoutingRepository {
     }
 
     @Override
+    public List<Routing> findAll() {
+        return routingMapper.findAll();
+    }
+
+    @Override
     public void deleteAll() {
         routingMapper.deleteAll();
     }

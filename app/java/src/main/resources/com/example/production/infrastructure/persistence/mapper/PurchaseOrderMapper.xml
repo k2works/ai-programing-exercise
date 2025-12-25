@@ -68,6 +68,11 @@
         WHERE "発注番号" = #{purchaseOrderNumber}
     </update>
 
+    <select id="findAll" resultMap="PurchaseOrderResultMap">
+        SELECT * FROM "発注データ"
+        ORDER BY "発注番号"
+    </select>
+
     <delete id="deleteAll">
         DELETE FROM "発注データ"
     </delete>

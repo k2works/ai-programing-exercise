@@ -11,5 +11,6 @@ public interface EmployeeMapper {
     void insert(Employee employee);
     Optional<Employee> findByEmployeeCode(String employeeCode);
     List<Employee> findByDepartmentCode(String departmentCode);
+    List<Employee> findAll();
     void deleteAll();
 }

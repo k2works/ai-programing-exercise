@@ -17,5 +17,6 @@ public interface OrderRepository {
     List<Order> findByParentOrderId(Integer parentOrderId);
     void updateParentOrderId(Integer id, Integer parentOrderId);
     void updateStatus(Integer id, PlanStatus status);
+    List<Order> findAll();
     void deleteAll();
 }

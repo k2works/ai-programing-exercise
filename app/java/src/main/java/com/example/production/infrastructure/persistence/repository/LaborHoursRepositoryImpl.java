@@ -58,6 +58,11 @@ public class LaborHoursRepositoryImpl implements LaborHoursRepository {
     }
 
     @Override
+    public List<LaborHours> findAll() {
+        return laborHoursMapper.findAll();
+    }
+
+    @Override
     public void deleteAll() {
         laborHoursMapper.deleteAll();
     }

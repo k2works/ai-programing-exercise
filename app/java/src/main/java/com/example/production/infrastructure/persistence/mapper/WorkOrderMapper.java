@@ -25,5 +25,6 @@ public interface WorkOrderMapper {
                                     @Param("completedQuantity") BigDecimal completedQuantity,
                                     @Param("goodQuantity") BigDecimal goodQuantity,
                                     @Param("defectQuantity") BigDecimal defectQuantity);
+    List<WorkOrder> findAll();
     void deleteAll();
 }

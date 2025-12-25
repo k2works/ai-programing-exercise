@@ -55,6 +55,11 @@
         LIMIT 1
     </select>
 
+    <select id="findAll" resultMap="UnitPriceResultMap">
+        SELECT * FROM "単価マスタ"
+        ORDER BY "品目コード", "取引先コード"
+    </select>
+
     <delete id="deleteAll">
         DELETE FROM "単価マスタ"
     </delete>

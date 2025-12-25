@@ -21,5 +21,6 @@ public interface LaborHoursMapper {
                              @Param("startDate") LocalDate startDate,
                              @Param("endDate") LocalDate endDate);
     Optional<String> findLatestLaborHoursNumber(String prefix);
+    List<LaborHours> findAll();
     void deleteAll();
 }

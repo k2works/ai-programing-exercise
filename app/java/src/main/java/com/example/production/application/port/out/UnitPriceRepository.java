@@ -3,6 +3,7 @@ package com.example.production.application.port.out;
 import com.example.production.domain.model.purchase.UnitPrice;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -12,6 +13,8 @@ public interface UnitPriceRepository {
     void save(UnitPrice unitPrice);
 
     Optional<UnitPrice> findEffectiveUnitPrice(String itemCode, String supplierCode, LocalDate date);
+
+    List<UnitPrice> findAll();
 
     void deleteAll();
 }

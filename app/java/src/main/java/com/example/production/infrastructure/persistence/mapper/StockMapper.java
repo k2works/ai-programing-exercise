@@ -28,5 +28,6 @@ public interface StockMapper {
                       @Param("fromStatus") String fromStatus,
                       @Param("toStatus") String toStatus);
     void update(Stock stock);
+    List<Stock> findAll();
     void deleteAll();
 }

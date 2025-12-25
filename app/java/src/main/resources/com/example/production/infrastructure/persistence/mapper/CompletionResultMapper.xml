@@ -69,6 +69,11 @@
         LIMIT 1
     </select>
 
+    <select id="findAll" resultMap="CompletionResultResultMap">
+        SELECT * FROM "完成実績データ"
+        ORDER BY "完成実績番号"
+    </select>
+
     <delete id="deleteAll">
         TRUNCATE TABLE "完成実績データ" CASCADE
     </delete>

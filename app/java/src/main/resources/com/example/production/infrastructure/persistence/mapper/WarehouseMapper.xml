@@ -42,6 +42,11 @@
         ORDER BY "倉庫コード"
     </select>
 
+    <select id="findAll" resultMap="WarehouseResultMap">
+        SELECT * FROM "倉庫マスタ"
+        ORDER BY "倉庫コード"
+    </select>
+
     <delete id="deleteAll">
         TRUNCATE TABLE "倉庫マスタ" CASCADE
     </delete>

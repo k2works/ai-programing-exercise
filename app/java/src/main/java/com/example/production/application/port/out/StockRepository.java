@@ -19,5 +19,6 @@ public interface StockRepository {
     void decreaseByStatus(String locationCode, String itemCode, BigDecimal quantity, StockStatus status);
     void changeStatus(String locationCode, String itemCode, BigDecimal quantity, StockStatus fromStatus, StockStatus toStatus);
     void update(Stock stock);
+    List<Stock> findAll();
     void deleteAll();
 }

@@ -6,6 +6,7 @@ import com.example.production.infrastructure.persistence.mapper.UnitPriceMapper;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -28,6 +29,11 @@ public class UnitPriceRepositoryImpl implements UnitPriceRepository {
     @Override
     public Optional<UnitPrice> findEffectiveUnitPrice(String itemCode, String supplierCode, LocalDate date) {
         return unitPriceMapper.findEffectiveUnitPrice(itemCode, supplierCode, date);
+    }
+
+    @Override
+    public List<UnitPrice> findAll() {
+        return unitPriceMapper.findAll();
     }
 
     @Override

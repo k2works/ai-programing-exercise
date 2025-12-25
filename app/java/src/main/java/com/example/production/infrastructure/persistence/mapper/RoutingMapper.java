@@ -11,5 +11,6 @@ public interface RoutingMapper {
     void insert(Routing routing);
     Optional<Routing> findById(Integer id);
     List<Routing> findByItemCode(String itemCode);
+    List<Routing> findAll();
     void deleteAll();
 }

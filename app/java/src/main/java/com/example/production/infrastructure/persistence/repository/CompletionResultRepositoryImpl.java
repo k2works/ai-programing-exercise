@@ -41,6 +41,11 @@ public class CompletionResultRepositoryImpl implements CompletionResultRepositor
     }
 
     @Override
+    public List<CompletionResult> findAll() {
+        return completionResultMapper.findAll();
+    }
+
+    @Override
     public void deleteAll() {
         completionResultMapper.deleteAll();
     }

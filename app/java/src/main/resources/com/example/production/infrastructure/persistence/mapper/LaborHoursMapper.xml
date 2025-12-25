@@ -94,6 +94,11 @@
         LIMIT 1
     </select>
 
+    <select id="findAll" resultMap="LaborHoursResultMap">
+        SELECT * FROM "工数実績データ"
+        ORDER BY "工数実績番号"
+    </select>
+
     <delete id="deleteAll">
         TRUNCATE TABLE "工数実績データ" CASCADE
     </delete>

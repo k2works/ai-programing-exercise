@@ -12,5 +12,6 @@ public interface EmployeeRepository {
     void save(Employee employee);
     Optional<Employee> findByEmployeeCode(String employeeCode);
     List<Employee> findByDepartmentCode(String departmentCode);
+    List<Employee> findAll();
     void deleteAll();
 }

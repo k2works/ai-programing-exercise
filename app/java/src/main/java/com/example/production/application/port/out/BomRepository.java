@@ -22,5 +22,7 @@ public interface BomRepository {
 
     List<BomExplosion> explode(String itemCode, BigDecimal quantity);
 
+    List<Bom> findAll();
+
     void deleteAll();
 }

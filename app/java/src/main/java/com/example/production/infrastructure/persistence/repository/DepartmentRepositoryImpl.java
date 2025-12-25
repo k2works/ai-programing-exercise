@@ -5,6 +5,7 @@ import com.example.production.domain.model.organization.Department;
 import com.example.production.infrastructure.persistence.mapper.DepartmentMapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -27,6 +28,11 @@ public class DepartmentRepositoryImpl implements DepartmentRepository {
     @Override
     public Optional<Department> findByDepartmentCode(String departmentCode) {
         return departmentMapper.findByDepartmentCode(departmentCode);
+    }
+
+    @Override
+    public List<Department> findAll() {
+        return departmentMapper.findAll();
     }
 
     @Override
