@@ -1,4 +1,4 @@
-package com.example.production.application.service.dto;
+package com.example.production.infrastructure.dto;
 
 import lombok.Builder;
 import lombok.Data;
