@@ -52,6 +52,21 @@ public class ItemController {
                 .toList());
     }
 
+    @GetMapping("/category/{category}")
+    @Operation(
+            summary = "カテゴリ別品目一覧の取得",
+            description = "指定したカテゴリの品目を取得します"
+    )
+    public ResponseEntity<List<ItemResponse>> getItemsByCategory(
+            @Parameter(description = "品目区分", required = true)
+            @PathVariable ItemCategory category) {
+
+        List<Item> items = itemUseCase.getItemsByCategory(category);
+        return ResponseEntity.ok(items.stream()
+                .map(ItemResponse::from)
+                .toList());
+    }
+
     @GetMapping("/{itemCode}")
     @Operation(summary = "品目の取得")
     @ApiResponse(responseCode = "200", description = "成功")

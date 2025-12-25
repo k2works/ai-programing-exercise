@@ -3,6 +3,7 @@ package com.example.production.infrastructure.web.exception;
 import com.example.production.domain.exception.DomainException;
 import com.example.production.domain.exception.DuplicateItemException;
 import com.example.production.domain.exception.ItemNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 /**
  * グローバル例外ハンドラ
  */
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -75,6 +77,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGenericException(Exception ex) {
+        log.error("予期しないエラーが発生しました", ex);
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
                 HttpStatus.INTERNAL_SERVER_ERROR, "予期しないエラーが発生しました");
         problem.setTitle("内部エラー");
