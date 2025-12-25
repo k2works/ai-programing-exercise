@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.production.infrastructure.persistence.mapper.CompletionInspectionResultMapper">
+
+    <resultMap id="CompletionInspectionResultResultMap" type="com.example.production.domain.model.process.CompletionInspectionResult">
+        <id property="id" column="ID"/>
+        <result property="completionResultNumber" column="完成実績番号"/>
+        <result property="defectCode" column="欠点コード"/>
+        <result property="quantity" column="数量"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.example.production.domain.model.process.CompletionInspectionResult"
+            useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
+        INSERT INTO "完成検査結果データ" (
+            "完成実績番号",
+            "欠点コード",
+            "数量",
+            "作成日時",
+            "更新日時"
+        ) VALUES (
+            #{completionResultNumber},
+            #{defectCode},
+            #{quantity},
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <select id="findByCompletionResultNumber" resultMap="CompletionInspectionResultResultMap">
+        SELECT * FROM "完成検査結果データ"
+        WHERE "完成実績番号" = #{completionResultNumber}
+        ORDER BY "欠点コード"
+    </select>
+
+    <delete id="deleteAll">
+        TRUNCATE TABLE "完成検査結果データ" CASCADE
+    </delete>
+</mapper>
