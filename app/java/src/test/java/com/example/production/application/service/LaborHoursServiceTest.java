@@ -3,7 +3,7 @@ package com.example.production.application.service;
 import com.example.production.application.port.in.command.LaborHoursCreateCommand;
 import com.example.production.application.port.in.command.WorkOrderCreateCommand;
 import com.example.production.application.port.out.*;
-import com.example.production.infrastructure.dto.LaborHoursSummary;
+import com.example.production.application.port.out.dto.LaborHoursSummary;
 import com.example.production.domain.model.item.Item;
 import com.example.production.domain.model.item.ItemCategory;
 import com.example.production.domain.model.location.Location;
