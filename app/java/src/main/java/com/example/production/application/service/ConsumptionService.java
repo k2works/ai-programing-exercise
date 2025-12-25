@@ -1,5 +1,7 @@
 package com.example.production.application.service;
 
+import com.example.production.application.port.in.command.ConsumptionCreateCommand;
+import com.example.production.application.port.in.command.ConsumptionDetailCommand;
 import com.example.production.application.port.out.*;
 import com.example.production.domain.model.purchase.Receiving;
 import com.example.production.domain.model.subcontract.*;
@@ -49,16 +51,16 @@ public class ConsumptionService {
      * 消費データを作成する
      */
     @Transactional
-    public Consumption createConsumption(ConsumptionCreateInput input) {
+    public Consumption createConsumption(ConsumptionCreateCommand command) {
         // 入荷データの取得
-        Receiving receiving = receivingRepository.findByReceivingNumber(input.getReceivingNumber())
-                .orElseThrow(() -> new IllegalArgumentException("Receiving not found: " + input.getReceivingNumber()));
+        Receiving receiving = receivingRepository.findByReceivingNumber(command.getReceivingNumber())
+                .orElseThrow(() -> new IllegalArgumentException("Receiving not found: " + command.getReceivingNumber()));
 
         // 関連する支給データを取得
         List<Supply> supplies = supplyRepository.findByPurchaseOrderDetail(
                 receiving.getPurchaseOrderNumber(), receiving.getLineNumber());
         if (supplies.isEmpty()) {
-            throw new IllegalArgumentException("Supply not found for receiving: " + input.getReceivingNumber());
+            throw new IllegalArgumentException("Supply not found for receiving: " + command.getReceivingNumber());
         }
 
         // 最初の支給を使用（通常は1つ）
@@ -66,25 +68,25 @@ public class ConsumptionService {
         List<SupplyDetail> supplyDetails = supplyDetailRepository.findBySupplyNumber(supply.getSupplyNumber());
 
         // 消費数量のバリデーション
-        for (ConsumptionDetailInput detailInput : input.getDetails()) {
+        for (ConsumptionDetailCommand detailCommand : command.getDetails()) {
             for (SupplyDetail supplyDetail : supplyDetails) {
-                if (supplyDetail.getItemCode().equals(detailInput.getItemCode())) {
-                    if (detailInput.getQuantity().compareTo(supplyDetail.getQuantity()) > 0) {
+                if (supplyDetail.getItemCode().equals(detailCommand.getItemCode())) {
+                    if (detailCommand.getQuantity().compareTo(supplyDetail.getQuantity()) > 0) {
                         throw new IllegalStateException("Consumption quantity exceeds supply quantity");
                     }
                 }
             }
         }
 
-        String consumptionNumber = generateConsumptionNumber(input.getConsumptionDate());
+        String consumptionNumber = generateConsumptionNumber(command.getConsumptionDate());
 
         // 消費ヘッダを作成
         Consumption consumption = Consumption.builder()
                 .consumptionNumber(consumptionNumber)
-                .receivingNumber(input.getReceivingNumber())
-                .consumptionDate(input.getConsumptionDate())
-                .supplierCode(input.getSupplierCode())
-                .remarks(input.getRemarks())
+                .receivingNumber(command.getReceivingNumber())
+                .consumptionDate(command.getConsumptionDate())
+                .supplierCode(command.getSupplierCode())
+                .remarks(command.getRemarks())
                 .build();
         consumptionRepository.save(consumption);
 
@@ -92,15 +94,15 @@ public class ConsumptionService {
         List<ConsumptionDetail> details = new ArrayList<>();
         int lineNumber = 0;
 
-        for (ConsumptionDetailInput detailInput : input.getDetails()) {
+        for (ConsumptionDetailCommand detailCommand : command.getDetails()) {
             lineNumber++;
 
             ConsumptionDetail detail = ConsumptionDetail.builder()
                     .consumptionNumber(consumptionNumber)
                     .lineNumber(lineNumber)
-                    .itemCode(detailInput.getItemCode())
-                    .quantity(detailInput.getQuantity())
-                    .remarks(detailInput.getRemarks())
+                    .itemCode(detailCommand.getItemCode())
+                    .quantity(detailCommand.getQuantity())
+                    .remarks(detailCommand.getRemarks())
                     .build();
             consumptionDetailRepository.save(detail);
 

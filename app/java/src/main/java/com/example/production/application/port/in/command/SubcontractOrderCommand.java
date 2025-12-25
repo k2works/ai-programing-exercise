@@ -1,4 +1,4 @@
-package com.example.production.application.service;
+package com.example.production.application.port.in.command;
 
 import lombok.Builder;
 import lombok.Data;
@@ -7,11 +7,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
- * 外注発注入力DTO
+ * 外注発注コマンド
  */
 @Data
 @Builder
-public class SubcontractOrderInput {
+public class SubcontractOrderCommand {
     private String supplierCode;
     private LocalDate deliveryDate;
     private String itemCode;

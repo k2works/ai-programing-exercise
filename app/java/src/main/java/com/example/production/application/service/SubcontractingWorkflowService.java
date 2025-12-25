@@ -1,5 +1,6 @@
 package com.example.production.application.service;
 
+import com.example.production.application.port.in.command.SubcontractOrderCommand;
 import com.example.production.application.port.out.*;
 import com.example.production.domain.model.purchase.*;
 import com.example.production.domain.model.subcontract.*;
@@ -49,14 +50,14 @@ public class SubcontractingWorkflowService {
      * 外注発注を作成する
      */
     @Transactional
-    public PurchaseOrder createSubcontractOrder(SubcontractOrderInput input) {
+    public PurchaseOrder createSubcontractOrder(SubcontractOrderCommand command) {
         String purchaseOrderNumber = generatePurchaseOrderNumber();
 
         // 単価を取得
-        BigDecimal unitPrice = input.getUnitPrice();
+        BigDecimal unitPrice = command.getUnitPrice();
         if (unitPrice == null) {
             Optional<UnitPrice> priceOpt = unitPriceRepository.findEffectiveUnitPrice(
-                    input.getItemCode(), input.getSupplierCode(), LocalDate.now());
+                    command.getItemCode(), command.getSupplierCode(), LocalDate.now());
             unitPrice = priceOpt.map(UnitPrice::getUnitPrice).orElse(BigDecimal.ZERO);
         }
 
@@ -64,21 +65,21 @@ public class SubcontractingWorkflowService {
         PurchaseOrder purchaseOrder = PurchaseOrder.builder()
                 .purchaseOrderNumber(purchaseOrderNumber)
                 .orderDate(LocalDate.now())
-                .supplierCode(input.getSupplierCode())
+                .supplierCode(command.getSupplierCode())
                 .status(PurchaseOrderStatus.CREATING)
                 .build();
         purchaseOrderRepository.save(purchaseOrder);
 
         // 発注明細を作成
-        BigDecimal orderAmount = input.getQuantity().multiply(unitPrice);
+        BigDecimal orderAmount = command.getQuantity().multiply(unitPrice);
         PurchaseOrderDetail detail = PurchaseOrderDetail.builder()
                 .purchaseOrderNumber(purchaseOrderNumber)
                 .lineNumber(1)
-                .itemCode(input.getItemCode())
-                .orderQuantity(input.getQuantity())
+                .itemCode(command.getItemCode())
+                .orderQuantity(command.getQuantity())
                 .orderUnitPrice(unitPrice)
                 .orderAmount(orderAmount)
-                .expectedReceivingDate(input.getDeliveryDate())
+                .expectedReceivingDate(command.getDeliveryDate())
                 .completedFlag(false)
                 .build();
         purchaseOrderDetailRepository.save(detail);

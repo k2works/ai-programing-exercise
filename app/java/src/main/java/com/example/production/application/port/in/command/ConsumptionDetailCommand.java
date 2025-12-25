@@ -1,4 +1,4 @@
-package com.example.production.application.service;
+package com.example.production.application.port.in.command;
 
 import lombok.Builder;
 import lombok.Data;
@@ -6,13 +6,12 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 /**
- * 支給明細入力DTO
+ * 消費明細コマンド
  */
 @Data
 @Builder
-public class SupplyDetailInput {
+public class ConsumptionDetailCommand {
     private String itemCode;
     private BigDecimal quantity;
-    private BigDecimal unitPrice;
     private String remarks;
 }

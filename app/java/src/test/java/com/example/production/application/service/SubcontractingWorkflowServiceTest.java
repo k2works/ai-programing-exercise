@@ -1,5 +1,6 @@
 package com.example.production.application.service;
 
+import com.example.production.application.port.in.command.*;
 import com.example.production.application.port.out.*;
 import com.example.production.domain.model.item.Item;
 import com.example.production.domain.model.item.ItemCategory;
@@ -123,7 +124,7 @@ class SubcontractingWorkflowServiceTest extends BaseIntegrationTest {
         @DisplayName("外注発注を作成できる")
         void canCreateSubcontractOrder() {
             // Arrange
-            SubcontractOrderInput input = SubcontractOrderInput.builder()
+            SubcontractOrderCommand input = SubcontractOrderCommand.builder()
                     .supplierCode("SUB-001")
                     .deliveryDate(LocalDate.of(2025, 2, 15))
                     .itemCode("PLATED-001")
@@ -144,7 +145,7 @@ class SubcontractingWorkflowServiceTest extends BaseIntegrationTest {
         @DisplayName("単価マスタから単価を取得して発注金額を計算する")
         void calculatesOrderAmountFromUnitPrice() {
             // Arrange
-            SubcontractOrderInput input = SubcontractOrderInput.builder()
+            SubcontractOrderCommand input = SubcontractOrderCommand.builder()
                     .supplierCode("SUB-001")
                     .deliveryDate(LocalDate.of(2025, 2, 15))
                     .itemCode("PLATED-001")
@@ -165,7 +166,7 @@ class SubcontractingWorkflowServiceTest extends BaseIntegrationTest {
         @DisplayName("指定した単価で発注を作成できる")
         void canCreateWithSpecifiedUnitPrice() {
             // Arrange
-            SubcontractOrderInput input = SubcontractOrderInput.builder()
+            SubcontractOrderCommand input = SubcontractOrderCommand.builder()
                     .supplierCode("SUB-001")
                     .deliveryDate(LocalDate.of(2025, 2, 15))
                     .itemCode("PLATED-001")
@@ -191,7 +192,7 @@ class SubcontractingWorkflowServiceTest extends BaseIntegrationTest {
         @DisplayName("発注直後の状況を取得できる")
         void canGetStatusAfterOrdering() {
             // Arrange
-            SubcontractOrderInput input = SubcontractOrderInput.builder()
+            SubcontractOrderCommand input = SubcontractOrderCommand.builder()
                     .supplierCode("SUB-001")
                     .deliveryDate(LocalDate.of(2025, 2, 15))
                     .itemCode("PLATED-001")
@@ -215,7 +216,7 @@ class SubcontractingWorkflowServiceTest extends BaseIntegrationTest {
         @DisplayName("支給後の状況を取得できる")
         void canGetStatusAfterSupply() {
             // Arrange
-            SubcontractOrderInput orderInput = SubcontractOrderInput.builder()
+            SubcontractOrderCommand orderInput = SubcontractOrderCommand.builder()
                     .supplierCode("SUB-001")
                     .deliveryDate(LocalDate.of(2025, 2, 15))
                     .itemCode("PLATED-001")
@@ -224,7 +225,7 @@ class SubcontractingWorkflowServiceTest extends BaseIntegrationTest {
             PurchaseOrder order = workflowService.createSubcontractOrder(orderInput);
 
             // 支給を実行
-            SupplyCreateInput supplyInput = SupplyCreateInput.builder()
+            SupplyCreateCommand supplyInput = SupplyCreateCommand.builder()
                     .purchaseOrderNumber(order.getPurchaseOrderNumber())
                     .lineNumber(1)
                     .supplierCode("SUB-001")
@@ -232,7 +233,7 @@ class SubcontractingWorkflowServiceTest extends BaseIntegrationTest {
                     .supplierPersonCode("EMP001")
                     .supplyType(SupplyType.FREE)
                     .details(List.of(
-                            SupplyDetailInput.builder()
+                            SupplyDetailCommand.builder()
                                     .itemCode("PRESS-001")
                                     .quantity(new BigDecimal("100"))
                                     .unitPrice(new BigDecimal("200"))
@@ -254,7 +255,7 @@ class SubcontractingWorkflowServiceTest extends BaseIntegrationTest {
         @DisplayName("消費後の歩留り率を計算できる")
         void canCalculateYieldRateAfterConsumption() {
             // Arrange
-            SubcontractOrderInput orderInput = SubcontractOrderInput.builder()
+            SubcontractOrderCommand orderInput = SubcontractOrderCommand.builder()
                     .supplierCode("SUB-001")
                     .deliveryDate(LocalDate.of(2025, 2, 15))
                     .itemCode("PLATED-001")
@@ -263,7 +264,7 @@ class SubcontractingWorkflowServiceTest extends BaseIntegrationTest {
             PurchaseOrder order = workflowService.createSubcontractOrder(orderInput);
 
             // 支給を実行
-            SupplyCreateInput supplyInput = SupplyCreateInput.builder()
+            SupplyCreateCommand supplyInput = SupplyCreateCommand.builder()
                     .purchaseOrderNumber(order.getPurchaseOrderNumber())
                     .lineNumber(1)
                     .supplierCode("SUB-001")
@@ -271,7 +272,7 @@ class SubcontractingWorkflowServiceTest extends BaseIntegrationTest {
                     .supplierPersonCode("EMP001")
                     .supplyType(SupplyType.FREE)
                     .details(List.of(
-                            SupplyDetailInput.builder()
+                            SupplyDetailCommand.builder()
                                     .itemCode("PRESS-001")
                                     .quantity(new BigDecimal("100"))
                                     .unitPrice(new BigDecimal("200"))
@@ -294,12 +295,12 @@ class SubcontractingWorkflowServiceTest extends BaseIntegrationTest {
             receivingRepository.save(receiving);
 
             // 消費を記録
-            ConsumptionCreateInput consumptionInput = ConsumptionCreateInput.builder()
+            ConsumptionCreateCommand consumptionInput = ConsumptionCreateCommand.builder()
                     .receivingNumber("RCV-TEST-001")
                     .consumptionDate(LocalDate.of(2025, 2, 10))
                     .supplierCode("SUB-001")
                     .details(List.of(
-                            ConsumptionDetailInput.builder()
+                            ConsumptionDetailCommand.builder()
                                     .itemCode("PRESS-001")
                                     .quantity(new BigDecimal("95"))
                                     .build()

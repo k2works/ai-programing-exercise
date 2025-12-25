@@ -1,5 +1,7 @@
 package com.example.production.application.service;
 
+import com.example.production.application.port.in.command.SupplyCreateCommand;
+import com.example.production.application.port.in.command.SupplyDetailCommand;
 import com.example.production.application.port.out.*;
 import com.example.production.domain.model.item.Item;
 import com.example.production.domain.model.item.ItemCategory;
@@ -115,7 +117,7 @@ class SupplyServiceTest extends BaseIntegrationTest {
         @DisplayName("発注に紐づく支給データを作成できる")
         void canCreateSupplyFromPurchaseOrder() {
             // Arrange
-            SupplyCreateInput input = SupplyCreateInput.builder()
+            SupplyCreateCommand input = SupplyCreateCommand.builder()
                     .purchaseOrderNumber(testPurchaseOrder.getPurchaseOrderNumber())
                     .lineNumber(1)
                     .supplierCode("SUB-001")
@@ -123,7 +125,7 @@ class SupplyServiceTest extends BaseIntegrationTest {
                     .supplierPersonCode("EMP001")
                     .supplyType(SupplyType.FREE)
                     .details(List.of(
-                            SupplyDetailInput.builder()
+                            SupplyDetailCommand.builder()
                                     .itemCode("PRESS-001")
                                     .quantity(new BigDecimal("100"))
                                     .unitPrice(new BigDecimal("200"))
@@ -148,7 +150,7 @@ class SupplyServiceTest extends BaseIntegrationTest {
         @DisplayName("有償支給を作成できる")
         void canCreatePaidSupply() {
             // Arrange
-            SupplyCreateInput input = SupplyCreateInput.builder()
+            SupplyCreateCommand input = SupplyCreateCommand.builder()
                     .purchaseOrderNumber(testPurchaseOrder.getPurchaseOrderNumber())
                     .lineNumber(1)
                     .supplierCode("SUB-001")
@@ -156,7 +158,7 @@ class SupplyServiceTest extends BaseIntegrationTest {
                     .supplierPersonCode("EMP001")
                     .supplyType(SupplyType.PAID)
                     .details(List.of(
-                            SupplyDetailInput.builder()
+                            SupplyDetailCommand.builder()
                                     .itemCode("PRESS-001")
                                     .quantity(new BigDecimal("100"))
                                     .unitPrice(new BigDecimal("200"))
@@ -185,7 +187,7 @@ class SupplyServiceTest extends BaseIntegrationTest {
                     .build();
             itemRepository.save(supplyItem2);
 
-            SupplyCreateInput input = SupplyCreateInput.builder()
+            SupplyCreateCommand input = SupplyCreateCommand.builder()
                     .purchaseOrderNumber(testPurchaseOrder.getPurchaseOrderNumber())
                     .lineNumber(1)
                     .supplierCode("SUB-001")
@@ -193,12 +195,12 @@ class SupplyServiceTest extends BaseIntegrationTest {
                     .supplierPersonCode("EMP001")
                     .supplyType(SupplyType.FREE)
                     .details(List.of(
-                            SupplyDetailInput.builder()
+                            SupplyDetailCommand.builder()
                                     .itemCode("PRESS-001")
                                     .quantity(new BigDecimal("50"))
                                     .unitPrice(new BigDecimal("200"))
                                     .build(),
-                            SupplyDetailInput.builder()
+                            SupplyDetailCommand.builder()
                                     .itemCode("PRESS-002")
                                     .quantity(new BigDecimal("30"))
                                     .unitPrice(new BigDecimal("150"))
@@ -219,7 +221,7 @@ class SupplyServiceTest extends BaseIntegrationTest {
         @DisplayName("支給区分を指定しない場合は無償支給になる")
         void defaultsToFreeSupplyType() {
             // Arrange
-            SupplyCreateInput input = SupplyCreateInput.builder()
+            SupplyCreateCommand input = SupplyCreateCommand.builder()
                     .purchaseOrderNumber(testPurchaseOrder.getPurchaseOrderNumber())
                     .lineNumber(1)
                     .supplierCode("SUB-001")
@@ -227,7 +229,7 @@ class SupplyServiceTest extends BaseIntegrationTest {
                     .supplierPersonCode("EMP001")
                     .supplyType(null)  // 明示的にnull
                     .details(List.of(
-                            SupplyDetailInput.builder()
+                            SupplyDetailCommand.builder()
                                     .itemCode("PRESS-001")
                                     .quantity(new BigDecimal("100"))
                                     .unitPrice(new BigDecimal("200"))
@@ -251,7 +253,7 @@ class SupplyServiceTest extends BaseIntegrationTest {
         @DisplayName("支給番号で支給データを検索できる")
         void canFindBySupplyNumber() {
             // Arrange: 支給データを作成
-            SupplyCreateInput input = SupplyCreateInput.builder()
+            SupplyCreateCommand input = SupplyCreateCommand.builder()
                     .purchaseOrderNumber(testPurchaseOrder.getPurchaseOrderNumber())
                     .lineNumber(1)
                     .supplierCode("SUB-001")
@@ -259,7 +261,7 @@ class SupplyServiceTest extends BaseIntegrationTest {
                     .supplierPersonCode("EMP001")
                     .supplyType(SupplyType.FREE)
                     .details(List.of(
-                            SupplyDetailInput.builder()
+                            SupplyDetailCommand.builder()
                                     .itemCode("PRESS-001")
                                     .quantity(new BigDecimal("100"))
                                     .unitPrice(new BigDecimal("200"))
@@ -281,7 +283,7 @@ class SupplyServiceTest extends BaseIntegrationTest {
         @DisplayName("発注明細に紐づく支給データを検索できる")
         void canFindByPurchaseOrderDetail() {
             // Arrange: 支給データを2件作成
-            SupplyCreateInput input1 = SupplyCreateInput.builder()
+            SupplyCreateCommand input1 = SupplyCreateCommand.builder()
                     .purchaseOrderNumber(testPurchaseOrder.getPurchaseOrderNumber())
                     .lineNumber(1)
                     .supplierCode("SUB-001")
@@ -289,7 +291,7 @@ class SupplyServiceTest extends BaseIntegrationTest {
                     .supplierPersonCode("EMP001")
                     .supplyType(SupplyType.FREE)
                     .details(List.of(
-                            SupplyDetailInput.builder()
+                            SupplyDetailCommand.builder()
                                     .itemCode("PRESS-001")
                                     .quantity(new BigDecimal("50"))
                                     .unitPrice(new BigDecimal("200"))
@@ -298,7 +300,7 @@ class SupplyServiceTest extends BaseIntegrationTest {
                     .build();
             supplyService.createSupply(input1);
 
-            SupplyCreateInput input2 = SupplyCreateInput.builder()
+            SupplyCreateCommand input2 = SupplyCreateCommand.builder()
                     .purchaseOrderNumber(testPurchaseOrder.getPurchaseOrderNumber())
                     .lineNumber(1)
                     .supplierCode("SUB-001")
@@ -306,7 +308,7 @@ class SupplyServiceTest extends BaseIntegrationTest {
                     .supplierPersonCode("EMP001")
                     .supplyType(SupplyType.FREE)
                     .details(List.of(
-                            SupplyDetailInput.builder()
+                            SupplyDetailCommand.builder()
                                     .itemCode("PRESS-001")
                                     .quantity(new BigDecimal("50"))
                                     .unitPrice(new BigDecimal("200"))
@@ -342,7 +344,7 @@ class SupplyServiceTest extends BaseIntegrationTest {
         @DisplayName("支給番号は日付ベースで連番になる")
         void generatesSequentialSupplyNumbers() {
             // Arrange & Act: 同じ日に2件作成
-            SupplyCreateInput input1 = SupplyCreateInput.builder()
+            SupplyCreateCommand input1 = SupplyCreateCommand.builder()
                     .purchaseOrderNumber(testPurchaseOrder.getPurchaseOrderNumber())
                     .lineNumber(1)
                     .supplierCode("SUB-001")
@@ -350,7 +352,7 @@ class SupplyServiceTest extends BaseIntegrationTest {
                     .supplierPersonCode("EMP001")
                     .supplyType(SupplyType.FREE)
                     .details(List.of(
-                            SupplyDetailInput.builder()
+                            SupplyDetailCommand.builder()
                                     .itemCode("PRESS-001")
                                     .quantity(new BigDecimal("50"))
                                     .unitPrice(new BigDecimal("200"))
@@ -359,7 +361,7 @@ class SupplyServiceTest extends BaseIntegrationTest {
                     .build();
             Supply supply1 = supplyService.createSupply(input1);
 
-            SupplyCreateInput input2 = SupplyCreateInput.builder()
+            SupplyCreateCommand input2 = SupplyCreateCommand.builder()
                     .purchaseOrderNumber(testPurchaseOrder.getPurchaseOrderNumber())
                     .lineNumber(1)
                     .supplierCode("SUB-001")
@@ -367,7 +369,7 @@ class SupplyServiceTest extends BaseIntegrationTest {
                     .supplierPersonCode("EMP001")
                     .supplyType(SupplyType.FREE)
                     .details(List.of(
-                            SupplyDetailInput.builder()
+                            SupplyDetailCommand.builder()
                                     .itemCode("PRESS-001")
                                     .quantity(new BigDecimal("50"))
                                     .unitPrice(new BigDecimal("200"))

@@ -1,4 +1,4 @@
-package com.example.production.application.service;
+package com.example.production.application.port.in.command;
 
 import com.example.production.domain.model.subcontract.SupplyType;
 import lombok.Builder;
@@ -8,11 +8,11 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * 支給作成入力DTO
+ * 支給作成コマンド
  */
 @Data
 @Builder
-public class SupplyCreateInput {
+public class SupplyCreateCommand {
     private String purchaseOrderNumber;
     private Integer lineNumber;
     private String supplierCode;
@@ -20,5 +20,5 @@ public class SupplyCreateInput {
     private String supplierPersonCode;
     private SupplyType supplyType;
     private String remarks;
-    private List<SupplyDetailInput> details;
+    private List<SupplyDetailCommand> details;
 }

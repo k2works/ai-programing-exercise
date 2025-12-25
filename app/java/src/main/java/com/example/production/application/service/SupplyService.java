@@ -1,5 +1,7 @@
 package com.example.production.application.service;
 
+import com.example.production.application.port.in.command.SupplyCreateCommand;
+import com.example.production.application.port.in.command.SupplyDetailCommand;
 import com.example.production.application.port.out.SupplyDetailRepository;
 import com.example.production.application.port.out.SupplyRepository;
 import com.example.production.domain.model.subcontract.Supply;
@@ -46,20 +48,20 @@ public class SupplyService {
      * 支給データを作成する
      */
     @Transactional
-    public Supply createSupply(SupplyCreateInput input) {
-        String supplyNumber = generateSupplyNumber(input.getSupplyDate());
-        SupplyType supplyType = input.getSupplyType() != null ? input.getSupplyType() : SupplyType.FREE;
+    public Supply createSupply(SupplyCreateCommand command) {
+        String supplyNumber = generateSupplyNumber(command.getSupplyDate());
+        SupplyType supplyType = command.getSupplyType() != null ? command.getSupplyType() : SupplyType.FREE;
 
         // 支給ヘッダを作成
         Supply supply = Supply.builder()
                 .supplyNumber(supplyNumber)
-                .purchaseOrderNumber(input.getPurchaseOrderNumber())
-                .lineNumber(input.getLineNumber())
-                .supplierCode(input.getSupplierCode())
-                .supplyDate(input.getSupplyDate())
-                .supplierPersonCode(input.getSupplierPersonCode())
+                .purchaseOrderNumber(command.getPurchaseOrderNumber())
+                .lineNumber(command.getLineNumber())
+                .supplierCode(command.getSupplierCode())
+                .supplyDate(command.getSupplyDate())
+                .supplierPersonCode(command.getSupplierPersonCode())
                 .supplyType(supplyType)
-                .remarks(input.getRemarks())
+                .remarks(command.getRemarks())
                 .build();
         supplyRepository.save(supply);
 
@@ -67,17 +69,17 @@ public class SupplyService {
         List<SupplyDetail> details = new ArrayList<>();
         int detailLineNumber = 0;
 
-        for (SupplyDetailInput detailInput : input.getDetails()) {
+        for (SupplyDetailCommand detailCommand : command.getDetails()) {
             detailLineNumber++;
 
             SupplyDetail detail = SupplyDetail.builder()
                     .supplyNumber(supplyNumber)
                     .lineNumber(detailLineNumber)
-                    .itemCode(detailInput.getItemCode())
-                    .quantity(detailInput.getQuantity())
-                    .unitPrice(detailInput.getUnitPrice())
-                    .amount(detailInput.getQuantity().multiply(detailInput.getUnitPrice()))
-                    .remarks(detailInput.getRemarks())
+                    .itemCode(detailCommand.getItemCode())
+                    .quantity(detailCommand.getQuantity())
+                    .unitPrice(detailCommand.getUnitPrice())
+                    .amount(detailCommand.getQuantity().multiply(detailCommand.getUnitPrice()))
+                    .remarks(detailCommand.getRemarks())
                     .build();
             supplyDetailRepository.save(detail);
 
