@@ -3,6 +3,7 @@ package com.example.production.application.service;
 import com.example.production.application.port.in.command.SubcontractOrderCommand;
 import com.example.production.application.port.out.*;
 import com.example.production.domain.model.purchase.*;
+import com.example.production.infrastructure.dto.SubcontractStatus;
 import com.example.production.domain.model.subcontract.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

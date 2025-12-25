@@ -1,4 +1,4 @@
-package com.example.production.application.port.out;
+package com.example.production.infrastructure.dto;
 
 import com.example.production.domain.model.purchase.PurchaseOrderStatus;
 import lombok.Builder;

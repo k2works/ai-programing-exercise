@@ -6,7 +6,7 @@ import com.example.production.domain.model.item.Item;
 import com.example.production.domain.model.item.ItemCategory;
 import com.example.production.domain.model.supplier.Supplier;
 import com.example.production.domain.model.supplier.SupplierType;
-import com.example.production.application.port.out.SubcontractStatus;
+import com.example.production.infrastructure.dto.SubcontractStatus;
 import com.example.production.domain.model.purchase.*;
 import com.example.production.domain.model.subcontract.*;
 import com.example.production.testsetup.BaseIntegrationTest;
