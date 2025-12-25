@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.production.infrastructure.persistence.mapper.CostVarianceMapper">
+
+    <resultMap id="CostVarianceResultMap" type="com.example.production.domain.model.cost.CostVariance">
+        <id property="id" column="ID"/>
+        <result property="workOrderNumber" column="作業指示番号"/>
+        <result property="itemCode" column="品目コード"/>
+        <result property="materialCostVariance" column="材料費差異"/>
+        <result property="laborCostVariance" column="労務費差異"/>
+        <result property="expenseVariance" column="経費差異"/>
+        <result property="totalVariance" column="総差異"/>
+        <result property="createdAt" column="作成日時"/>
+    </resultMap>
+
+    <select id="findById" resultMap="CostVarianceResultMap">
+        SELECT * FROM "原価差異データ"
+        WHERE "ID" = #{id}
+    </select>
+
+    <select id="findByWorkOrderNumber" resultMap="CostVarianceResultMap">
+        SELECT * FROM "原価差異データ"
+        WHERE "作業指示番号" = #{workOrderNumber}
+    </select>
+
+    <select id="findByItemCode" resultMap="CostVarianceResultMap">
+        SELECT * FROM "原価差異データ"
+        WHERE "品目コード" = #{itemCode}
+        ORDER BY "作成日時" DESC
+    </select>
+
+    <select id="findAll" resultMap="CostVarianceResultMap">
+        SELECT * FROM "原価差異データ"
+        ORDER BY "作成日時" DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
+        INSERT INTO "原価差異データ" (
+            "作業指示番号", "品目コード",
+            "材料費差異", "労務費差異", "経費差異", "総差異"
+        ) VALUES (
+            #{workOrderNumber}, #{itemCode},
+            #{materialCostVariance}, #{laborCostVariance}, #{expenseVariance}, #{totalVariance}
+        )
+    </insert>
+
+    <delete id="deleteAll">
+        TRUNCATE TABLE "原価差異データ" CASCADE
+    </delete>
+</mapper>

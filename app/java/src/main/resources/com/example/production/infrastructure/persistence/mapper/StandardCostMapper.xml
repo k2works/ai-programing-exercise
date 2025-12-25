@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.production.infrastructure.persistence.mapper.StandardCostMapper">
+
+    <resultMap id="StandardCostResultMap" type="com.example.production.domain.model.cost.StandardCost">
+        <id property="id" column="ID"/>
+        <result property="itemCode" column="品目コード"/>
+        <result property="effectiveStartDate" column="適用開始日"/>
+        <result property="effectiveEndDate" column="適用終了日"/>
+        <result property="standardMaterialCost" column="標準材料費"/>
+        <result property="standardLaborCost" column="標準労務費"/>
+        <result property="standardExpense" column="標準経費"/>
+        <result property="standardManufacturingCost" column="標準製造原価"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+    </resultMap>
+
+    <select id="findById" resultMap="StandardCostResultMap">
+        SELECT * FROM "標準原価マスタ"
+        WHERE "ID" = #{id}
+    </select>
+
+    <select id="findByItemCodeAndDate" resultMap="StandardCostResultMap">
+        SELECT * FROM "標準原価マスタ"
+        WHERE "品目コード" = #{itemCode}
+          AND "適用開始日" &lt;= #{date}
+          AND ("適用終了日" IS NULL OR "適用終了日" &gt;= #{date})
+        ORDER BY "適用開始日" DESC
+        LIMIT 1
+    </select>
+
+    <select id="findByItemCode" resultMap="StandardCostResultMap">
+        SELECT * FROM "標準原価マスタ"
+        WHERE "品目コード" = #{itemCode}
+        ORDER BY "適用開始日" DESC
+    </select>
+
+    <select id="findAll" resultMap="StandardCostResultMap">
+        SELECT * FROM "標準原価マスタ"
+        ORDER BY "品目コード", "適用開始日" DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
+        INSERT INTO "標準原価マスタ" (
+            "品目コード", "適用開始日", "適用終了日",
+            "標準材料費", "標準労務費", "標準経費", "標準製造原価"
+        ) VALUES (
+            #{itemCode}, #{effectiveStartDate}, #{effectiveEndDate},
+            #{standardMaterialCost}, #{standardLaborCost}, #{standardExpense}, #{standardManufacturingCost}
+        )
+    </insert>
+
+    <delete id="deleteAll">
+        TRUNCATE TABLE "標準原価マスタ" CASCADE
+    </delete>
+</mapper>
