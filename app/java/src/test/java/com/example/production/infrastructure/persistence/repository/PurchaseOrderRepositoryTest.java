@@ -4,6 +4,8 @@ import com.example.production.application.port.out.ItemRepository;
 import com.example.production.application.port.out.PurchaseOrderDetailRepository;
 import com.example.production.application.port.out.PurchaseOrderRepository;
 import com.example.production.application.port.out.SupplierRepository;
+import com.example.production.application.port.out.SupplyDetailRepository;
+import com.example.production.application.port.out.SupplyRepository;
 import com.example.production.application.port.out.UnitPriceRepository;
 import com.example.production.domain.model.item.Item;
 import com.example.production.domain.model.item.ItemCategory;
@@ -43,8 +45,16 @@ class PurchaseOrderRepositoryTest extends BaseIntegrationTest {
     @Autowired
     private SupplierRepository supplierRepository;
 
+    @Autowired
+    private SupplyDetailRepository supplyDetailRepository;
+
+    @Autowired
+    private SupplyRepository supplyRepository;
+
     @BeforeEach
     void setUp() {
+        supplyDetailRepository.deleteAll();
+        supplyRepository.deleteAll();
         detailRepository.deleteAll();
         purchaseOrderRepository.deleteAll();
         unitPriceRepository.deleteAll();
