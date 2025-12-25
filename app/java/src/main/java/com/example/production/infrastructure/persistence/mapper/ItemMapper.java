@@ -1,6 +1,7 @@
 package com.example.production.infrastructure.persistence.mapper;
 
 import com.example.production.domain.model.item.Item;
+import com.example.production.domain.model.item.ItemCategory;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -19,7 +20,11 @@ public interface ItemMapper {
 
     List<Item> findAll();
 
+    List<Item> findByCategory(@Param("category") ItemCategory category);
+
     void update(Item item);
+
+    void deleteByItemCode(String itemCode);
 
     void deleteAll();
 }

@@ -86,6 +86,12 @@
         ORDER BY "品目コード", "適用開始日" DESC
     </select>
 
+    <select id="findByCategory" resultMap="ItemResultMap">
+        SELECT * FROM "品目マスタ"
+        WHERE "品目区分" = #{category, typeHandler=com.example.production.infrastructure.persistence.ItemCategoryTypeHandler}::品目区分
+        ORDER BY "品目コード", "適用開始日" DESC
+    </select>
+
     <update id="update" parameterType="com.example.production.domain.model.item.Item">
         UPDATE "品目マスタ" SET
             "品名" = #{itemName},
@@ -102,6 +108,11 @@
             "更新日時" = CURRENT_TIMESTAMP
         WHERE "ID" = #{id}
     </update>
+
+    <delete id="deleteByItemCode">
+        DELETE FROM "品目マスタ"
+        WHERE "品目コード" = #{itemCode}
+    </delete>
 
     <delete id="deleteAll">
         TRUNCATE TABLE "品目マスタ" CASCADE

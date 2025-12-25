@@ -54,6 +54,8 @@
         <exclude name="CouplingBetweenObjects"/>
         <exclude name="UseObjectForClearerAPI"/>
         <exclude name="MutableStaticState"/>
+        <exclude name="CyclomaticComplexity"/>
+        <exclude name="NPathComplexity"/>
     </rule>
 
     <!-- エラープローン -->

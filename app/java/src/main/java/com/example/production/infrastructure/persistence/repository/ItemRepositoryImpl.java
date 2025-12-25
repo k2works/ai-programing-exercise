@@ -2,6 +2,7 @@ package com.example.production.infrastructure.persistence.repository;
 
 import com.example.production.application.port.out.ItemRepository;
 import com.example.production.domain.model.item.Item;
+import com.example.production.domain.model.item.ItemCategory;
 import com.example.production.infrastructure.persistence.mapper.ItemMapper;
 import org.springframework.stereotype.Repository;
 
@@ -42,8 +43,18 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
+    public List<Item> findByCategory(ItemCategory category) {
+        return itemMapper.findByCategory(category);
+    }
+
+    @Override
     public void update(Item item) {
         itemMapper.update(item);
+    }
+
+    @Override
+    public void deleteByItemCode(String itemCode) {
+        itemMapper.deleteByItemCode(itemCode);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.example.production.application.port.out;
 
 import com.example.production.domain.model.item.Item;
+import com.example.production.domain.model.item.ItemCategory;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -33,9 +34,19 @@ public interface ItemRepository {
     List<Item> findAll();
 
     /**
+     * 品目区分で品目を取得する
+     */
+    List<Item> findByCategory(ItemCategory category);
+
+    /**
      * 品目を更新する
      */
     void update(Item item);
+
+    /**
+     * 品目コードで品目を削除する
+     */
+    void deleteByItemCode(String itemCode);
 
     /**
      * すべての品目を削除する
