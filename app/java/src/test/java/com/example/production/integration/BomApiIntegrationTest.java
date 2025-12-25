@@ -1,4 +1,4 @@
-package com.example.production.infrastructure.web.controller;
+package com.example.production.integration;
 
 import com.example.production.application.port.out.BomRepository;
 import com.example.production.application.port.out.ItemRepository;
@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @AutoConfigureMockMvc
 @DisplayName("BOM API")
-class BomControllerIntegrationTest extends BaseIntegrationTest {
+class BomApiIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;

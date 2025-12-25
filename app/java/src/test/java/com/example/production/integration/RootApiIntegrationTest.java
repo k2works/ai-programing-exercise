@@ -1,4 +1,4 @@
-package com.example.production.infrastructure.web.controller;
+package com.example.production.integration;
 
 import com.example.production.testsetup.BaseIntegrationTest;
 import org.junit.jupiter.api.DisplayName;
@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @AutoConfigureMockMvc
 @DisplayName("ルート API")
-class RootControllerTest extends BaseIntegrationTest {
+class RootApiIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
