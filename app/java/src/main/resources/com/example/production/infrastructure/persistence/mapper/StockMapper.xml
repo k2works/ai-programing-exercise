@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.production.infrastructure.persistence.mapper.StockMapper">
+
+    <resultMap id="StockResultMap" type="com.example.production.domain.model.inventory.Stock">
+        <id property="id" column="ID"/>
+        <result property="locationCode" column="場所コード"/>
+        <result property="itemCode" column="品目コード"/>
+        <result property="stockQuantity" column="在庫数量"/>
+        <result property="passedQuantity" column="合格数"/>
+        <result property="defectiveQuantity" column="不良数"/>
+        <result property="uninspectedQuantity" column="未検査数"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.example.production.domain.model.inventory.Stock"
+            useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
+        INSERT INTO "在庫情報" (
+            "場所コード",
+            "品目コード",
+            "在庫数量",
+            "合格数",
+            "不良数",
+            "未検査数",
+            "作成日時",
+            "更新日時"
+        ) VALUES (
+            #{locationCode},
+            #{itemCode},
+            #{stockQuantity},
+            #{passedQuantity},
+            #{defectiveQuantity},
+            #{uninspectedQuantity},
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <select id="findByLocationAndItem" resultMap="StockResultMap">
+        SELECT * FROM "在庫情報"
+        WHERE "場所コード" = #{locationCode}
+          AND "品目コード" = #{itemCode}
+    </select>
+
+    <select id="findByLocationCode" resultMap="StockResultMap">
+        SELECT * FROM "在庫情報"
+        WHERE "場所コード" = #{locationCode}
+        ORDER BY "品目コード"
+    </select>
+
+    <select id="findByItemCode" resultMap="StockResultMap">
+        SELECT * FROM "在庫情報"
+        WHERE "品目コード" = #{itemCode}
+        ORDER BY "場所コード"
+    </select>
+
+    <update id="increaseByStatus">
+        UPDATE "在庫情報"
+        SET "在庫数量" = "在庫数量" + #{quantity},
+            <choose>
+                <when test="status == 'PASSED'">
+                    "合格数" = "合格数" + #{quantity}
+                </when>
+                <when test="status == 'DEFECTIVE'">
+                    "不良数" = "不良数" + #{quantity}
+                </when>
+                <when test="status == 'UNINSPECTED'">
+                    "未検査数" = "未検査数" + #{quantity}
+                </when>
+            </choose>,
+            "更新日時" = CURRENT_TIMESTAMP
+        WHERE "場所コード" = #{locationCode}
+          AND "品目コード" = #{itemCode}
+    </update>
+
+    <update id="decreaseByStatus">
+        UPDATE "在庫情報"
+        SET "在庫数量" = "在庫数量" - #{quantity},
+            <choose>
+                <when test="status == 'PASSED'">
+                    "合格数" = "合格数" - #{quantity}
+                </when>
+                <when test="status == 'DEFECTIVE'">
+                    "不良数" = "不良数" - #{quantity}
+                </when>
+                <when test="status == 'UNINSPECTED'">
+                    "未検査数" = "未検査数" - #{quantity}
+                </when>
+            </choose>,
+            "更新日時" = CURRENT_TIMESTAMP
+        WHERE "場所コード" = #{locationCode}
+          AND "品目コード" = #{itemCode}
+    </update>
+
+    <update id="changeStatus">
+        UPDATE "在庫情報"
+        SET
+            <choose>
+                <when test="fromStatus == 'PASSED'">
+                    "合格数" = "合格数" - #{quantity}
+                </when>
+                <when test="fromStatus == 'DEFECTIVE'">
+                    "不良数" = "不良数" - #{quantity}
+                </when>
+                <when test="fromStatus == 'UNINSPECTED'">
+                    "未検査数" = "未検査数" - #{quantity}
+                </when>
+            </choose>,
+            <choose>
+                <when test="toStatus == 'PASSED'">
+                    "合格数" = "合格数" + #{quantity}
+                </when>
+                <when test="toStatus == 'DEFECTIVE'">
+                    "不良数" = "不良数" + #{quantity}
+                </when>
+                <when test="toStatus == 'UNINSPECTED'">
+                    "未検査数" = "未検査数" + #{quantity}
+                </when>
+            </choose>,
+            "更新日時" = CURRENT_TIMESTAMP
+        WHERE "場所コード" = #{locationCode}
+          AND "品目コード" = #{itemCode}
+    </update>
+
+    <delete id="deleteAll">
+        TRUNCATE TABLE "在庫情報" CASCADE
+    </delete>
+</mapper>
