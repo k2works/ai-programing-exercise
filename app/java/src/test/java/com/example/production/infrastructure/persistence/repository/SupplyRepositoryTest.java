@@ -40,8 +40,16 @@ class SupplyRepositoryTest extends BaseIntegrationTest {
     @Autowired
     private SupplierRepository supplierRepository;
 
+    @Autowired
+    private ConsumptionDetailRepository consumptionDetailRepository;
+
+    @Autowired
+    private ConsumptionRepository consumptionRepository;
+
     @BeforeEach
     void setUp() {
+        consumptionDetailRepository.deleteAll();
+        consumptionRepository.deleteAll();
         supplyDetailRepository.deleteAll();
         supplyRepository.deleteAll();
         detailRepository.deleteAll();

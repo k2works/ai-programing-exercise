@@ -1,8 +1,13 @@
 package com.example.production.infrastructure.persistence.repository;
 
+import com.example.production.application.port.out.AcceptanceRepository;
+import com.example.production.application.port.out.ConsumptionDetailRepository;
+import com.example.production.application.port.out.ConsumptionRepository;
+import com.example.production.application.port.out.InspectionRepository;
 import com.example.production.application.port.out.ItemRepository;
 import com.example.production.application.port.out.PurchaseOrderDetailRepository;
 import com.example.production.application.port.out.PurchaseOrderRepository;
+import com.example.production.application.port.out.ReceivingRepository;
 import com.example.production.application.port.out.SupplierRepository;
 import com.example.production.application.port.out.SupplyDetailRepository;
 import com.example.production.application.port.out.SupplyRepository;
@@ -51,10 +56,30 @@ class PurchaseOrderRepositoryTest extends BaseIntegrationTest {
     @Autowired
     private SupplyRepository supplyRepository;
 
+    @Autowired
+    private ConsumptionDetailRepository consumptionDetailRepository;
+
+    @Autowired
+    private ConsumptionRepository consumptionRepository;
+
+    @Autowired
+    private AcceptanceRepository acceptanceRepository;
+
+    @Autowired
+    private InspectionRepository inspectionRepository;
+
+    @Autowired
+    private ReceivingRepository receivingRepository;
+
     @BeforeEach
     void setUp() {
+        consumptionDetailRepository.deleteAll();
+        consumptionRepository.deleteAll();
         supplyDetailRepository.deleteAll();
         supplyRepository.deleteAll();
+        acceptanceRepository.deleteAll();
+        inspectionRepository.deleteAll();
+        receivingRepository.deleteAll();
         detailRepository.deleteAll();
         purchaseOrderRepository.deleteAll();
         unitPriceRepository.deleteAll();

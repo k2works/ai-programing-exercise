@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.production.infrastructure.persistence.mapper.ConsumptionMapper">
+
+    <resultMap id="consumptionResultMap" type="com.example.production.domain.model.subcontract.Consumption">
+        <id property="id" column="ID"/>
+        <result property="consumptionNumber" column="消費番号"/>
+        <result property="receivingNumber" column="入荷番号"/>
+        <result property="consumptionDate" column="消費日"/>
+        <result property="supplierCode" column="取引先コード"/>
+        <result property="remarks" column="備考"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
+        INSERT INTO "消費データ" (
+            "消費番号",
+            "入荷番号",
+            "消費日",
+            "取引先コード",
+            "備考",
+            "作成日時",
+            "作成者",
+            "更新日時",
+            "更新者"
+        ) VALUES (
+            #{consumptionNumber},
+            #{receivingNumber},
+            #{consumptionDate},
+            #{supplierCode},
+            #{remarks},
+            CURRENT_TIMESTAMP,
+            #{createdBy},
+            CURRENT_TIMESTAMP,
+            #{updatedBy}
+        )
+    </insert>
+
+    <select id="findById" resultMap="consumptionResultMap">
+        SELECT * FROM "消費データ" WHERE "ID" = #{id}
+    </select>
+
+    <select id="findByConsumptionNumber" resultMap="consumptionResultMap">
+        SELECT * FROM "消費データ" WHERE "消費番号" = #{consumptionNumber}
+    </select>
+
+    <select id="findByReceivingNumber" resultMap="consumptionResultMap">
+        SELECT * FROM "消費データ" WHERE "入荷番号" = #{receivingNumber}
+    </select>
+
+    <select id="findLatestConsumptionNumber" resultType="string">
+        SELECT "消費番号" FROM "消費データ"
+        WHERE "消費番号" LIKE #{prefix} || '%'
+        ORDER BY "消費番号" DESC
+        LIMIT 1
+    </select>
+
+    <delete id="deleteAll">
+        DELETE FROM "消費データ"
+    </delete>
+
+</mapper>

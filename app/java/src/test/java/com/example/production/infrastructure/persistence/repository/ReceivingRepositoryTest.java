@@ -51,8 +51,16 @@ class ReceivingRepositoryTest extends BaseIntegrationTest {
     @Autowired
     private SupplyRepository supplyRepository;
 
+    @Autowired
+    private ConsumptionDetailRepository consumptionDetailRepository;
+
+    @Autowired
+    private ConsumptionRepository consumptionRepository;
+
     @BeforeEach
     void setUp() {
+        consumptionDetailRepository.deleteAll();
+        consumptionRepository.deleteAll();
         supplyDetailRepository.deleteAll();
         supplyRepository.deleteAll();
         acceptanceRepository.deleteAll();
