@@ -27,5 +27,6 @@ public interface StockMapper {
                       @Param("quantity") BigDecimal quantity,
                       @Param("fromStatus") String fromStatus,
                       @Param("toStatus") String toStatus);
+    void update(Stock stock);
     void deleteAll();
 }

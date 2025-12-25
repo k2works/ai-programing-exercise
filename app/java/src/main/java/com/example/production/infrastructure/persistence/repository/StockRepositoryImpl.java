@@ -58,6 +58,11 @@ public class StockRepositoryImpl implements StockRepository {
     }
 
     @Override
+    public void update(Stock stock) {
+        stockMapper.update(stock);
+    }
+
+    @Override
     public void deleteAll() {
         stockMapper.deleteAll();
     }

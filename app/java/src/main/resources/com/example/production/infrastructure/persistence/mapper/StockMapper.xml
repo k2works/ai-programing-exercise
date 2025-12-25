@@ -125,6 +125,17 @@
           AND "品目コード" = #{itemCode}
     </update>
 
+    <update id="update">
+        UPDATE "在庫情報"
+        SET "在庫数量" = #{stockQuantity},
+            "合格数" = #{passedQuantity},
+            "不良数" = #{defectiveQuantity},
+            "未検査数" = #{uninspectedQuantity},
+            "更新日時" = CURRENT_TIMESTAMP
+        WHERE "場所コード" = #{locationCode}
+          AND "品目コード" = #{itemCode}
+    </update>
+
     <delete id="deleteAll">
         TRUNCATE TABLE "在庫情報" CASCADE
     </delete>
