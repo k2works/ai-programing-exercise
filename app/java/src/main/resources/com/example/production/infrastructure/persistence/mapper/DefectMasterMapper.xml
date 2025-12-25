@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.production.infrastructure.persistence.mapper.DefectMasterMapper">
+
+    <resultMap id="DefectMasterResultMap" type="com.example.production.domain.model.quality.DefectMaster">
+        <id property="id" column="ID"/>
+        <result property="defectCode" column="欠点コード"/>
+        <result property="defectDescription" column="欠点内容"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
+        INSERT INTO "欠点マスタ" (
+            "欠点コード", "欠点内容"
+        ) VALUES (
+            #{defectCode}, #{defectDescription}
+        )
+    </insert>
+
+    <select id="findByDefectCode" resultMap="DefectMasterResultMap">
+        SELECT * FROM "欠点マスタ"
+        WHERE "欠点コード" = #{defectCode}
+    </select>
+
+    <select id="findAll" resultMap="DefectMasterResultMap">
+        SELECT * FROM "欠点マスタ"
+        ORDER BY "欠点コード"
+    </select>
+
+    <delete id="deleteAll">
+        DELETE FROM "欠点マスタ"
+    </delete>
+</mapper>
