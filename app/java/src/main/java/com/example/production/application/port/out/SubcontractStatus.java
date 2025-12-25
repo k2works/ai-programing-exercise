@@ -1,4 +1,4 @@
-package com.example.production.application.service;
+package com.example.production.application.port.out;
 
 import com.example.production.domain.model.purchase.PurchaseOrderStatus;
 import lombok.Builder;
