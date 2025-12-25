@@ -18,3 +18,7 @@ mybatis:
 
 server:
   port: 8080
+
+# シードデータ投入設定
+seed:
+  enabled: true
