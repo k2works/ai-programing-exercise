@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.production.infrastructure.persistence.mapper.EmployeeMapper">
+
+    <resultMap id="EmployeeResultMap" type="com.example.production.domain.model.organization.Employee">
+        <id property="employeeCode" column="担当者コード"/>
+        <result property="employeeName" column="担当者名"/>
+        <result property="departmentCode" column="部門コード"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.example.production.domain.model.organization.Employee">
+        INSERT INTO "担当者マスタ" (
+            "担当者コード",
+            "担当者名",
+            "部門コード",
+            "作成日時",
+            "更新日時"
+        ) VALUES (
+            #{employeeCode},
+            #{employeeName},
+            #{departmentCode},
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <select id="findByEmployeeCode" resultMap="EmployeeResultMap">
+        SELECT * FROM "担当者マスタ"
+        WHERE "担当者コード" = #{employeeCode}
+    </select>
+
+    <select id="findByDepartmentCode" resultMap="EmployeeResultMap">
+        SELECT * FROM "担当者マスタ"
+        WHERE "部門コード" = #{departmentCode}
+        ORDER BY "担当者コード"
+    </select>
+
+    <delete id="deleteAll">
+        TRUNCATE TABLE "担当者マスタ" CASCADE
+    </delete>
+</mapper>
