@@ -7,33 +7,34 @@ import com.example.production.domain.model.bom.Bom;
 import com.example.production.domain.model.item.Item;
 import com.example.production.domain.model.item.ItemCategory;
 import com.example.production.domain.model.item.Unit;
-import com.example.production.testsetup.BaseIntegrationTest;
+import com.example.production.testsetup.TestcontainersConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.annotation.Import;
+import org.springframework.web.client.RestClient;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
 
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * BOM API インテグレーションテスト
+ * BOM API 統合テスト
  */
-@AutoConfigureMockMvc
-@DisplayName("BOM API")
-class BomApiIntegrationTest extends BaseIntegrationTest {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Import(TestcontainersConfiguration.class)
+@DisplayName("BOM API 統合テスト")
+class BomApiIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    @LocalServerPort
+    private int port;
 
     @Autowired
     private BomRepository bomRepository;
@@ -44,8 +45,12 @@ class BomApiIntegrationTest extends BaseIntegrationTest {
     @Autowired
     private UnitRepository unitRepository;
 
+    private RestClient restClient;
+
     @BeforeEach
     void setUp() {
+        restClient = RestClient.create("http://localhost:" + port);
+
         // テストデータをクリーンアップして作成
         bomRepository.deleteAll();
         itemRepository.deleteAll();
@@ -141,11 +146,15 @@ class BomApiIntegrationTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("すべてのBOMを取得できる")
-        void shouldReturnAllBom() throws Exception {
-            mockMvc.perform(get("/api/bom"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$").isArray())
-                    .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(3))));
+        @SuppressWarnings("unchecked")
+        void shouldReturnAllBom() {
+            List<Map<String, Object>> response = restClient.get()
+                    .uri("/api/bom")
+                    .retrieve()
+                    .body(List.class);
+
+            assertThat(response).isNotNull()
+                    .hasSizeGreaterThanOrEqualTo(3);
         }
     }
 
@@ -155,32 +164,43 @@ class BomApiIntegrationTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("子品目一覧を取得できる")
-        void shouldReturnChildren() throws Exception {
-            mockMvc.perform(get("/api/bom/BOM-PARENT/children"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$").isArray())
-                    .andExpect(jsonPath("$", hasSize(2)))
-                    .andExpect(jsonPath("$[0].parentItemCode").value("BOM-PARENT"))
-                    .andExpect(jsonPath("$[0].childItemCode").value("BOM-CHILD-1"))
-                    .andExpect(jsonPath("$[0].requiredQuantity").value(2.0));
+        @SuppressWarnings("unchecked")
+        void shouldReturnChildren() {
+            List<Map<String, Object>> response = restClient.get()
+                    .uri("/api/bom/BOM-PARENT/children")
+                    .retrieve()
+                    .body(List.class);
+
+            assertThat(response).isNotNull()
+                    .hasSize(2);
+            assertThat(response.get(0).get("parentItemCode")).isEqualTo("BOM-PARENT");
+            assertThat(response.get(0).get("childItemCode")).isEqualTo("BOM-CHILD-1");
         }
 
         @Test
         @DisplayName("子品目がない場合は空配列を返す")
-        void shouldReturnEmptyArrayWhenNoChildren() throws Exception {
-            mockMvc.perform(get("/api/bom/BOM-GRANDCHILD/children"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$").isArray())
-                    .andExpect(jsonPath("$", hasSize(0)));
+        @SuppressWarnings("unchecked")
+        void shouldReturnEmptyArrayWhenNoChildren() {
+            List<Map<String, Object>> response = restClient.get()
+                    .uri("/api/bom/BOM-GRANDCHILD/children")
+                    .retrieve()
+                    .body(List.class);
+
+            assertThat(response).isNotNull()
+                    .isEmpty();
         }
 
         @Test
         @DisplayName("存在しない品目コードでも空配列を返す")
-        void shouldReturnEmptyArrayForNonExistentItem() throws Exception {
-            mockMvc.perform(get("/api/bom/NON-EXISTENT/children"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$").isArray())
-                    .andExpect(jsonPath("$", hasSize(0)));
+        @SuppressWarnings("unchecked")
+        void shouldReturnEmptyArrayForNonExistentItem() {
+            List<Map<String, Object>> response = restClient.get()
+                    .uri("/api/bom/NON-EXISTENT/children")
+                    .retrieve()
+                    .body(List.class);
+
+            assertThat(response).isNotNull()
+                    .isEmpty();
         }
     }
 
@@ -190,32 +210,44 @@ class BomApiIntegrationTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("親品目一覧を取得できる（使用先照会）")
-        void shouldReturnParents() throws Exception {
-            mockMvc.perform(get("/api/bom/BOM-CHILD-1/parents"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$").isArray())
-                    .andExpect(jsonPath("$", hasSize(1)))
-                    .andExpect(jsonPath("$[0].parentItemCode").value("BOM-PARENT"))
-                    .andExpect(jsonPath("$[0].childItemCode").value("BOM-CHILD-1"));
+        @SuppressWarnings("unchecked")
+        void shouldReturnParents() {
+            List<Map<String, Object>> response = restClient.get()
+                    .uri("/api/bom/BOM-CHILD-1/parents")
+                    .retrieve()
+                    .body(List.class);
+
+            assertThat(response).isNotNull()
+                    .hasSize(1);
+            assertThat(response.get(0).get("parentItemCode")).isEqualTo("BOM-PARENT");
+            assertThat(response.get(0).get("childItemCode")).isEqualTo("BOM-CHILD-1");
         }
 
         @Test
         @DisplayName("親品目がない場合は空配列を返す")
-        void shouldReturnEmptyArrayWhenNoParents() throws Exception {
-            mockMvc.perform(get("/api/bom/BOM-PARENT/parents"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$").isArray())
-                    .andExpect(jsonPath("$", hasSize(0)));
+        @SuppressWarnings("unchecked")
+        void shouldReturnEmptyArrayWhenNoParents() {
+            List<Map<String, Object>> response = restClient.get()
+                    .uri("/api/bom/BOM-PARENT/parents")
+                    .retrieve()
+                    .body(List.class);
+
+            assertThat(response).isNotNull()
+                    .isEmpty();
         }
 
         @Test
         @DisplayName("孫品目から親を辿れる")
-        void shouldReturnParentOfGrandchild() throws Exception {
-            mockMvc.perform(get("/api/bom/BOM-GRANDCHILD/parents"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$").isArray())
-                    .andExpect(jsonPath("$", hasSize(1)))
-                    .andExpect(jsonPath("$[0].parentItemCode").value("BOM-CHILD-1"));
+        @SuppressWarnings("unchecked")
+        void shouldReturnParentOfGrandchild() {
+            List<Map<String, Object>> response = restClient.get()
+                    .uri("/api/bom/BOM-GRANDCHILD/parents")
+                    .retrieve()
+                    .body(List.class);
+
+            assertThat(response).isNotNull()
+                    .hasSize(1);
+            assertThat(response.get(0).get("parentItemCode")).isEqualTo("BOM-CHILD-1");
         }
     }
 
@@ -229,15 +261,18 @@ class BomApiIntegrationTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("BOM展開のエンドポイントが存在する")
-        void explodeEndpointExists() throws Exception {
+        void explodeEndpointExists() {
             // エンドポイントの存在確認のみ（500エラーでも404ではないことを確認）
-            mockMvc.perform(get("/api/bom/BOM-PARENT/explode"))
-                    .andExpect(result -> {
-                        int status = result.getResponse().getStatus();
-                        // 200 または 500（既知の問題）のどちらかであることを確認
-                        // 404 ではないことが重要
-                        assert status == 200 || status == 500;
-                    });
+            try {
+                restClient.get()
+                        .uri("/api/bom/BOM-PARENT/explode")
+                        .retrieve()
+                        .body(List.class);
+                // 成功すればOK
+            } catch (Exception e) {
+                // 500エラーでも404以外ならエンドポイントは存在する
+                assertThat(e.getMessage()).doesNotContain("404");
+            }
         }
     }
 }

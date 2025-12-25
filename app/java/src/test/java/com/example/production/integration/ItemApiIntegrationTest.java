@@ -5,40 +5,38 @@ import com.example.production.application.port.out.UnitRepository;
 import com.example.production.domain.model.item.Item;
 import com.example.production.domain.model.item.ItemCategory;
 import com.example.production.domain.model.item.Unit;
-import com.example.production.testsetup.BaseIntegrationTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.example.production.testsetup.TestcontainersConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClient;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * 品目 API インテグレーションテスト
+ * 品目 API 統合テスト
  */
-@AutoConfigureMockMvc
-@DisplayName("品目 API")
-class ItemApiIntegrationTest extends BaseIntegrationTest {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Import(TestcontainersConfiguration.class)
+@DisplayName("品目 API 統合テスト")
+class ItemApiIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    @LocalServerPort
+    private int port;
 
     @Autowired
     private ItemRepository itemRepository;
@@ -46,13 +44,12 @@ class ItemApiIntegrationTest extends BaseIntegrationTest {
     @Autowired
     private UnitRepository unitRepository;
 
-    private final ObjectMapper objectMapper = new ObjectMapper()
-            .registerModule(new JavaTimeModule());
-
-    private Item testItem;
+    private RestClient restClient;
 
     @BeforeEach
     void setUp() {
+        restClient = RestClient.create("http://localhost:" + port);
+
         // テストデータをクリーンアップして作成
         itemRepository.findByItemCode("TEST-001").ifPresent(item ->
                 itemRepository.deleteByItemCode("TEST-001"));
@@ -71,7 +68,7 @@ class ItemApiIntegrationTest extends BaseIntegrationTest {
                     .unitCode("KG").unitSymbol("kg").unitName("キログラム").build());
         }
 
-        testItem = Item.builder()
+        Item testItem = Item.builder()
                 .itemCode("TEST-001")
                 .itemName("テスト品目")
                 .itemCategory(ItemCategory.PRODUCT)
@@ -93,21 +90,29 @@ class ItemApiIntegrationTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("すべての品目を取得できる")
-        void shouldReturnAllItems() throws Exception {
-            mockMvc.perform(get("/api/items"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$").isArray())
-                    .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(1))));
+        @SuppressWarnings("unchecked")
+        void shouldReturnAllItems() {
+            List<Map<String, Object>> response = restClient.get()
+                    .uri("/api/items")
+                    .retrieve()
+                    .body(List.class);
+
+            assertThat(response).isNotNull()
+                    .hasSizeGreaterThanOrEqualTo(1);
         }
 
         @Test
         @DisplayName("カテゴリでフィルタリングできる")
-        void shouldFilterByCategory() throws Exception {
-            mockMvc.perform(get("/api/items")
-                            .param("category", "PRODUCT"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$").isArray())
-                    .andExpect(jsonPath("$[0].category").value("PRODUCT"));
+        @SuppressWarnings("unchecked")
+        void shouldFilterByCategory() {
+            List<Map<String, Object>> response = restClient.get()
+                    .uri("/api/items?category=PRODUCT")
+                    .retrieve()
+                    .body(List.class);
+
+            assertThat(response).isNotNull()
+                    .isNotEmpty();
+            assertThat(response.get(0).get("category")).isEqualTo("PRODUCT");
         }
     }
 
@@ -117,18 +122,31 @@ class ItemApiIntegrationTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("カテゴリ別に品目を取得できる")
-        void shouldReturnItemsByCategory() throws Exception {
-            mockMvc.perform(get("/api/items/category/PRODUCT"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$").isArray())
-                    .andExpect(jsonPath("$[0].category").value("PRODUCT"));
+        @SuppressWarnings("unchecked")
+        void shouldReturnItemsByCategory() {
+            List<Map<String, Object>> response = restClient.get()
+                    .uri("/api/items/category/PRODUCT")
+                    .retrieve()
+                    .body(List.class);
+
+            assertThat(response).isNotNull()
+                    .isNotEmpty();
+            assertThat(response.get(0).get("category")).isEqualTo("PRODUCT");
         }
 
         @Test
         @DisplayName("無効なカテゴリで400エラーを返す")
-        void shouldReturn400ForInvalidCategory() throws Exception {
-            mockMvc.perform(get("/api/items/category/INVALID"))
-                    .andExpect(status().isBadRequest());
+        void shouldReturn400ForInvalidCategory() {
+            assertThatThrownBy(() ->
+                    restClient.get()
+                            .uri("/api/items/category/INVALID")
+                            .retrieve()
+                            .body(Map.class))
+                    .isInstanceOf(HttpClientErrorException.class)
+                    .satisfies(ex -> {
+                        HttpClientErrorException httpEx = (HttpClientErrorException) ex;
+                        assertThat(httpEx.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+                    });
         }
     }
 
@@ -138,20 +156,32 @@ class ItemApiIntegrationTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("品目コードで品目を取得できる")
-        void shouldReturnItemByCode() throws Exception {
-            mockMvc.perform(get("/api/items/TEST-001"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.itemCode").value("TEST-001"))
-                    .andExpect(jsonPath("$.itemName").value("テスト品目"))
-                    .andExpect(jsonPath("$.category").value("PRODUCT"));
+        @SuppressWarnings("unchecked")
+        void shouldReturnItemByCode() {
+            Map<String, Object> response = restClient.get()
+                    .uri("/api/items/TEST-001")
+                    .retrieve()
+                    .body(Map.class);
+
+            assertThat(response).isNotNull()
+                    .containsEntry("itemCode", "TEST-001")
+                    .containsEntry("itemName", "テスト品目")
+                    .containsEntry("category", "PRODUCT");
         }
 
         @Test
         @DisplayName("存在しない品目コードで404エラーを返す")
-        void shouldReturn404ForNonExistentItem() throws Exception {
-            mockMvc.perform(get("/api/items/NON-EXISTENT"))
-                    .andExpect(status().isNotFound())
-                    .andExpect(jsonPath("$.title").value("品目が見つかりません"));
+        void shouldReturn404ForNonExistentItem() {
+            assertThatThrownBy(() ->
+                    restClient.get()
+                            .uri("/api/items/NON-EXISTENT")
+                            .retrieve()
+                            .body(Map.class))
+                    .isInstanceOf(HttpClientErrorException.class)
+                    .satisfies(ex -> {
+                        HttpClientErrorException httpEx = (HttpClientErrorException) ex;
+                        assertThat(httpEx.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+                    });
         }
     }
 
@@ -161,8 +191,9 @@ class ItemApiIntegrationTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("新規品目を登録できる")
-        void shouldCreateNewItem() throws Exception {
-            var request = Map.of(
+        @SuppressWarnings("unchecked")
+        void shouldCreateNewItem() {
+            Map<String, Object> request = Map.of(
                     "itemCode", "NEW-001",
                     "itemName", "新規品目",
                     "category", "MATERIAL",
@@ -170,43 +201,62 @@ class ItemApiIntegrationTest extends BaseIntegrationTest {
                     "leadTime", 14
             );
 
-            mockMvc.perform(post("/api/items")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
-                    .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.itemCode").value("NEW-001"))
-                    .andExpect(jsonPath("$.itemName").value("新規品目"))
-                    .andExpect(jsonPath("$.category").value("MATERIAL"));
+            Map<String, Object> response = restClient.post()
+                    .uri("/api/items")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(request)
+                    .retrieve()
+                    .body(Map.class);
+
+            assertThat(response).isNotNull()
+                    .containsEntry("itemCode", "NEW-001")
+                    .containsEntry("itemName", "新規品目")
+                    .containsEntry("category", "MATERIAL");
         }
 
         @Test
         @DisplayName("重複する品目コードで409エラーを返す")
-        void shouldReturn409ForDuplicateItemCode() throws Exception {
-            var request = Map.of(
+        void shouldReturn409ForDuplicateItemCode() {
+            Map<String, Object> request = Map.of(
                     "itemCode", "TEST-001",
                     "itemName", "重複品目",
                     "category", "PRODUCT"
             );
 
-            mockMvc.perform(post("/api/items")
+            assertThatThrownBy(() ->
+                    restClient.post()
+                            .uri("/api/items")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
-                    .andExpect(status().isConflict())
-                    .andExpect(jsonPath("$.title").value("品目コード重複"));
+                            .body(request)
+                            .retrieve()
+                            .body(Map.class))
+                    .isInstanceOf(HttpClientErrorException.class)
+                    .satisfies(ex -> {
+                        HttpClientErrorException httpEx = (HttpClientErrorException) ex;
+                        assertThat(httpEx.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+                    });
         }
 
         @Test
         @DisplayName("必須項目が欠けている場合400エラーを返す")
-        void shouldReturn400ForMissingRequiredFields() throws Exception {
-            var request = Map.of(
+        void shouldReturn400ForMissingRequiredFields() {
+            Map<String, Object> request = Map.of(
                     "itemCode", "NEW-002"
                     // itemName と category が欠けている
             );
 
-            mockMvc.perform(post("/api/items")
+            assertThatThrownBy(() ->
+                    restClient.post()
+                            .uri("/api/items")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
-                    .andExpect(status().isBadRequest());
+                            .body(request)
+                            .retrieve()
+                            .body(Map.class))
+                    .isInstanceOf(HttpClientErrorException.class)
+                    .satisfies(ex -> {
+                        HttpClientErrorException httpEx = (HttpClientErrorException) ex;
+                        assertThat(httpEx.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+                    });
         }
     }
 
@@ -216,32 +266,45 @@ class ItemApiIntegrationTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("品目を更新できる")
-        void shouldUpdateItem() throws Exception {
-            var request = Map.of(
+        @SuppressWarnings("unchecked")
+        void shouldUpdateItem() {
+            Map<String, Object> request = Map.of(
                     "itemName", "更新後の品目名",
                     "leadTime", 10
             );
 
-            mockMvc.perform(put("/api/items/TEST-001")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.itemCode").value("TEST-001"))
-                    .andExpect(jsonPath("$.itemName").value("更新後の品目名"))
-                    .andExpect(jsonPath("$.leadTime").value(10));
+            Map<String, Object> response = restClient.put()
+                    .uri("/api/items/TEST-001")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(request)
+                    .retrieve()
+                    .body(Map.class);
+
+            assertThat(response).isNotNull()
+                    .containsEntry("itemCode", "TEST-001")
+                    .containsEntry("itemName", "更新後の品目名")
+                    .containsEntry("leadTime", 10);
         }
 
         @Test
         @DisplayName("存在しない品目を更新しようとすると404エラーを返す")
-        void shouldReturn404ForNonExistentItem() throws Exception {
-            var request = Map.of(
+        void shouldReturn404ForNonExistentItem() {
+            Map<String, Object> request = Map.of(
                     "itemName", "更新品目"
             );
 
-            mockMvc.perform(put("/api/items/NON-EXISTENT")
+            assertThatThrownBy(() ->
+                    restClient.put()
+                            .uri("/api/items/NON-EXISTENT")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
-                    .andExpect(status().isNotFound());
+                            .body(request)
+                            .retrieve()
+                            .body(Map.class))
+                    .isInstanceOf(HttpClientErrorException.class)
+                    .satisfies(ex -> {
+                        HttpClientErrorException httpEx = (HttpClientErrorException) ex;
+                        assertThat(httpEx.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+                    });
         }
     }
 
@@ -251,7 +314,7 @@ class ItemApiIntegrationTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("品目を削除できる")
-        void shouldDeleteItem() throws Exception {
+        void shouldDeleteItem() {
             // テスト用の品目を作成
             Item itemToDelete = Item.builder()
                     .itemCode("TEST-002")
@@ -264,19 +327,37 @@ class ItemApiIntegrationTest extends BaseIntegrationTest {
                     .build();
             itemRepository.save(itemToDelete);
 
-            mockMvc.perform(delete("/api/items/TEST-002"))
-                    .andExpect(status().isNoContent());
+            restClient.delete()
+                    .uri("/api/items/TEST-002")
+                    .retrieve()
+                    .toBodilessEntity();
 
             // 削除されていることを確認
-            mockMvc.perform(get("/api/items/TEST-002"))
-                    .andExpect(status().isNotFound());
+            assertThatThrownBy(() ->
+                    restClient.get()
+                            .uri("/api/items/TEST-002")
+                            .retrieve()
+                            .body(Map.class))
+                    .isInstanceOf(HttpClientErrorException.class)
+                    .satisfies(ex -> {
+                        HttpClientErrorException httpEx = (HttpClientErrorException) ex;
+                        assertThat(httpEx.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+                    });
         }
 
         @Test
         @DisplayName("存在しない品目を削除しようとすると404エラーを返す")
-        void shouldReturn404ForNonExistentItem() throws Exception {
-            mockMvc.perform(delete("/api/items/NON-EXISTENT"))
-                    .andExpect(status().isNotFound());
+        void shouldReturn404ForNonExistentItem() {
+            assertThatThrownBy(() ->
+                    restClient.delete()
+                            .uri("/api/items/NON-EXISTENT")
+                            .retrieve()
+                            .toBodilessEntity())
+                    .isInstanceOf(HttpClientErrorException.class)
+                    .satisfies(ex -> {
+                        HttpClientErrorException httpEx = (HttpClientErrorException) ex;
+                        assertThat(httpEx.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+                    });
         }
     }
 }
