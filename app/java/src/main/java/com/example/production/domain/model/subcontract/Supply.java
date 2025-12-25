@@ -3,6 +3,7 @@ package com.example.production.domain.model.subcontract;
 import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 支給データ
@@ -25,4 +26,7 @@ public class Supply {
     private String createdBy;
     private LocalDateTime updatedAt;
     private String updatedBy;
+
+    // 明細リスト（リレーション）
+    private List<SupplyDetail> details;
 }
