@@ -1,4 +1,4 @@
-package com.example.production.config;
+package com.example.production.infrastructure.config;
 
 import org.flywaydb.core.Flyway;
 import org.springframework.beans.factory.annotation.Value;
