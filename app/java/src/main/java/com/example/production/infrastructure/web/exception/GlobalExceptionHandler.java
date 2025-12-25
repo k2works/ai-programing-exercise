@@ -2,6 +2,7 @@ package com.example.production.infrastructure.web.exception;
 
 import com.example.production.domain.exception.DomainException;
 import com.example.production.domain.exception.DuplicateItemException;
+import com.example.production.domain.exception.InsufficientInventoryException;
 import com.example.production.domain.exception.ItemNotFoundException;
 import com.example.production.domain.exception.PurchaseOrderNotFoundException;
 import com.example.production.domain.exception.WorkOrderNotFoundException;
@@ -60,6 +61,16 @@ public class GlobalExceptionHandler {
                 HttpStatus.NOT_FOUND, ex.getMessage());
         problem.setTitle("作業指示が見つかりません");
         problem.setType(URI.create("https://api.example.com/errors/work-order-not-found"));
+        problem.setProperty("timestamp", Instant.now());
+        return problem;
+    }
+
+    @ExceptionHandler(InsufficientInventoryException.class)
+    public ProblemDetail handleInsufficientInventoryException(InsufficientInventoryException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
+        problem.setTitle("在庫不足");
+        problem.setType(URI.create("https://api.example.com/errors/insufficient-inventory"));
         problem.setProperty("timestamp", Instant.now());
         return problem;
     }
