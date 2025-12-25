@@ -9,6 +9,7 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.net.URI;
 import java.time.Instant;
@@ -71,6 +72,18 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST, ex.getMessage());
         problem.setTitle("不正な引数");
         problem.setType(URI.create("https://api.example.com/errors/illegal-argument"));
+        problem.setProperty("timestamp", Instant.now());
+        return problem;
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ProblemDetail handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        String message = String.format("パラメータ '%s' の値 '%s' は不正です",
+                ex.getName(), ex.getValue());
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST, message);
+        problem.setTitle("パラメータ型エラー");
+        problem.setType(URI.create("https://api.example.com/errors/type-mismatch"));
         problem.setProperty("timestamp", Instant.now());
         return problem;
     }
