@@ -1,59 +1,60 @@
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace ProductionManagement.Domain.Models;
+namespace ProductionManagement.Domain.Models.Item;
 
 /// <summary>
 /// 品目マスタ
 /// </summary>
 public class Item
 {
+    private string _itemCategoryValue = "製品";
+
     public int Id { get; set; }
 
-    [Column("品目コード")]
     public required string ItemCode { get; set; }
 
-    [Column("適用開始日")]
     public DateOnly EffectiveFrom { get; set; }
 
-    [Column("適用停止日")]
     public DateOnly? EffectiveTo { get; set; }
 
-    [Column("品名")]
     public required string ItemName { get; set; }
 
-    [Column("品目区分")]
-    public required string ItemCategory { get; set; }
+    /// <summary>
+    /// 品目区分（データベース格納用の日本語文字列）
+    /// Dapper のマッピングに使用
+    /// </summary>
+    public string ItemCategoryValue
+    {
+        get => _itemCategoryValue;
+        set => _itemCategoryValue = value;
+    }
 
-    [Column("単位コード")]
+    /// <summary>
+    /// 品目区分（ドメインロジック用の Enum）
+    /// </summary>
+    public ItemCategory ItemCategory
+    {
+        get => ItemCategoryExtensions.FromDisplayName(_itemCategoryValue);
+        set => _itemCategoryValue = value.GetDisplayName();
+    }
+
     public string? UnitCode { get; set; }
 
-    [Column("リードタイム")]
     public int LeadTime { get; set; }
 
-    [Column("安全リードタイム")]
     public int SafetyLeadTime { get; set; }
 
-    [Column("安全在庫数")]
-    public decimal SafetyStock { get; set; }
+    public decimal SafetyStock { get; set; } = 0m;
 
-    [Column("歩留率")]
     public decimal YieldRate { get; set; } = 100m;
 
-    [Column("最小ロット数")]
     public decimal MinLotSize { get; set; } = 1m;
 
-    [Column("刻みロット数")]
     public decimal LotIncrement { get; set; } = 1m;
 
-    [Column("最大ロット数")]
     public decimal? MaxLotSize { get; set; }
 
-    [Column("有効期間")]
     public int? ShelfLife { get; set; }
 
-    [Column("作成日時")]
     public DateTime CreatedAt { get; set; }
 
-    [Column("更新日時")]
     public DateTime UpdatedAt { get; set; }
 }
