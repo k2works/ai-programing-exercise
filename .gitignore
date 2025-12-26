@@ -1079,3 +1079,4 @@ rebar3.crashdump
 docs/wiki
 CLAUDE.local.md
 .claude.testcontainers.properties
+.claude
