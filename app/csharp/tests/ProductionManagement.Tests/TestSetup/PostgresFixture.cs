@@ -1,3 +1,4 @@
+using DotNet.Testcontainers.Builders;
 using FluentMigrator.Runner;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
@@ -15,6 +16,7 @@ public class PostgresFixture : IAsyncLifetime
         .WithDatabase("testdb")
         .WithUsername("testuser")
         .WithPassword("testpass")
+        .WithDockerEndpoint(new Uri("npipe://./pipe/docker_engine"))
         .Build();
 
     public string ConnectionString => _postgres.GetConnectionString();
