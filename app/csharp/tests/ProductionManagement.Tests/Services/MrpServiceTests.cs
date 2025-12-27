@@ -26,6 +26,9 @@ public class MrpServiceTests
     private readonly IWorkOrderRepository _workOrderRepository;
     private readonly ICompletionInspectionResultRepository _completionInspectionResultRepository;
     private readonly ICompletionResultRepository _completionResultRepository;
+    private readonly ILaborHoursRepository _laborHoursRepository;
+    private readonly IEmployeeRepository _employeeRepository;
+    private readonly IDepartmentRepository _departmentRepository;
 
     public MrpServiceTests(PostgresFixture fixture)
     {
@@ -39,6 +42,9 @@ public class MrpServiceTests
         _workOrderRepository = new WorkOrderRepository(fixture.ConnectionString);
         _completionInspectionResultRepository = new CompletionInspectionResultRepository(fixture.ConnectionString);
         _completionResultRepository = new CompletionResultRepository(fixture.ConnectionString);
+        _laborHoursRepository = new LaborHoursRepository(fixture.ConnectionString);
+        _employeeRepository = new EmployeeRepository(fixture.ConnectionString);
+        _departmentRepository = new DepartmentRepository(fixture.ConnectionString);
 
         _mrpService = new MrpService(
             _itemRepository,
@@ -53,7 +59,10 @@ public class MrpServiceTests
 
     private async Task CleanupAsync()
     {
-        // FK制約の順序に従って削除（完成実績 → 作業指示 → Order）
+        // FK制約の順序に従って削除（工数実績 → 完成実績 → 作業指示 → Order）
+        await _laborHoursRepository.DeleteAllAsync();
+        await _employeeRepository.DeleteAllAsync();
+        await _departmentRepository.DeleteAllAsync();
         await _completionInspectionResultRepository.DeleteAllAsync();
         await _completionResultRepository.DeleteAllAsync();
         await _workOrderDetailRepository.DeleteAllAsync();

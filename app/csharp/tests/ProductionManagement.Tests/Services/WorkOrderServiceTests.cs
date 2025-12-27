@@ -30,6 +30,9 @@ public class WorkOrderServiceTests
     private readonly IRequirementRepository _requirementRepository;
     private readonly ICompletionInspectionResultRepository _completionInspectionResultRepository;
     private readonly ICompletionResultRepository _completionResultRepository;
+    private readonly ILaborHoursRepository _laborHoursRepository;
+    private readonly IEmployeeRepository _employeeRepository;
+    private readonly IDepartmentRepository _departmentRepository;
 
     public WorkOrderServiceTests(PostgresFixture fixture)
     {
@@ -45,6 +48,9 @@ public class WorkOrderServiceTests
         _requirementRepository = new RequirementRepository(fixture.ConnectionString);
         _completionInspectionResultRepository = new CompletionInspectionResultRepository(fixture.ConnectionString);
         _completionResultRepository = new CompletionResultRepository(fixture.ConnectionString);
+        _laborHoursRepository = new LaborHoursRepository(fixture.ConnectionString);
+        _employeeRepository = new EmployeeRepository(fixture.ConnectionString);
+        _departmentRepository = new DepartmentRepository(fixture.ConnectionString);
 
         _workOrderService = new WorkOrderService(
             _workOrderRepository,
@@ -52,7 +58,10 @@ public class WorkOrderServiceTests
             _orderRepository,
             _routingRepository);
 
-        // FK制約の順序に従って削除（完成実績 → 作業指示 → 依存テーブル）
+        // FK制約の順序に従って削除（工数実績 → 完成実績 → 作業指示 → 依存テーブル）
+        _laborHoursRepository.DeleteAllAsync().Wait();
+        _employeeRepository.DeleteAllAsync().Wait();
+        _departmentRepository.DeleteAllAsync().Wait();
         _completionInspectionResultRepository.DeleteAllAsync().Wait();
         _completionResultRepository.DeleteAllAsync().Wait();
         _workOrderDetailRepository.DeleteAllAsync().Wait();

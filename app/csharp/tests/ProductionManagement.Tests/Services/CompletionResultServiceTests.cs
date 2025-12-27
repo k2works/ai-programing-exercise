@@ -33,6 +33,9 @@ public class CompletionResultServiceTests
     private readonly IDefectRepository _defectRepository;
     private readonly IAllocationRepository _allocationRepository;
     private readonly IRequirementRepository _requirementRepository;
+    private readonly ILaborHoursRepository _laborHoursRepository;
+    private readonly IEmployeeRepository _employeeRepository;
+    private readonly IDepartmentRepository _departmentRepository;
 
     public CompletionResultServiceTests(PostgresFixture fixture)
     {
@@ -49,6 +52,9 @@ public class CompletionResultServiceTests
         _defectRepository = new DefectRepository(fixture.ConnectionString);
         _allocationRepository = new AllocationRepository(fixture.ConnectionString);
         _requirementRepository = new RequirementRepository(fixture.ConnectionString);
+        _laborHoursRepository = new LaborHoursRepository(fixture.ConnectionString);
+        _employeeRepository = new EmployeeRepository(fixture.ConnectionString);
+        _departmentRepository = new DepartmentRepository(fixture.ConnectionString);
 
         _completionResultService = new CompletionResultService(
             _completionResultRepository,
@@ -61,7 +67,10 @@ public class CompletionResultServiceTests
             _orderRepository,
             _routingRepository);
 
-        // FK制約の順序に従って削除
+        // FK制約の順序に従って削除（工数実績 → 完成実績 → 作業指示 → ...）
+        _laborHoursRepository.DeleteAllAsync().Wait();
+        _employeeRepository.DeleteAllAsync().Wait();
+        _departmentRepository.DeleteAllAsync().Wait();
         _completionInspectionResultRepository.DeleteAllAsync().Wait();
         _completionResultRepository.DeleteAllAsync().Wait();
         _workOrderDetailRepository.DeleteAllAsync().Wait();
