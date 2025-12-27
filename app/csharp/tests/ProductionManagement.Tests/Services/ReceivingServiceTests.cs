@@ -28,6 +28,10 @@ public class ReceivingServiceTests
     private readonly IUnitPriceRepository _unitPriceRepository;
     private readonly IItemRepository _itemRepository;
     private readonly ISupplierRepository _supplierRepository;
+    private readonly IConsumptionDetailRepository _consumptionDetailRepository;
+    private readonly IConsumptionRepository _consumptionRepository;
+    private readonly ISupplyDetailRepository _supplyDetailRepository;
+    private readonly ISupplyRepository _supplyRepository;
 
     public ReceivingServiceTests(PostgresFixture fixture)
     {
@@ -41,6 +45,10 @@ public class ReceivingServiceTests
         _unitPriceRepository = new UnitPriceRepository(fixture.ConnectionString);
         _itemRepository = new ItemRepository(fixture.ConnectionString);
         _supplierRepository = new SupplierRepository(fixture.ConnectionString);
+        _consumptionDetailRepository = new ConsumptionDetailRepository(fixture.ConnectionString);
+        _consumptionRepository = new ConsumptionRepository(fixture.ConnectionString);
+        _supplyDetailRepository = new SupplyDetailRepository(fixture.ConnectionString);
+        _supplyRepository = new SupplyRepository(fixture.ConnectionString);
 
         _receivingService = new ReceivingService(
             _receivingRepository,
@@ -54,7 +62,11 @@ public class ReceivingServiceTests
             _purchaseOrderDetailRepository,
             _unitPriceRepository);
 
-        // FK制約の順序に従って削除
+        // FK制約の順序に従って削除（消費・支給関連を先に削除）
+        _consumptionDetailRepository.DeleteAllAsync().Wait();
+        _consumptionRepository.DeleteAllAsync().Wait();
+        _supplyDetailRepository.DeleteAllAsync().Wait();
+        _supplyRepository.DeleteAllAsync().Wait();
         _acceptanceRepository.DeleteAllAsync().Wait();
         _inspectionRepository.DeleteAllAsync().Wait();
         _receivingRepository.DeleteAllAsync().Wait();
