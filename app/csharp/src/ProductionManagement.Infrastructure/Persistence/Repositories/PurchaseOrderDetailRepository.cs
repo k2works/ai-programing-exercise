@@ -134,6 +134,24 @@ public class PurchaseOrderDetailRepository : IPurchaseOrderDetailRepository
         });
     }
 
+    public async Task UpdateInspectedQuantityAsync(
+        string purchaseOrderNumber, int lineNumber, decimal inspectedQuantity)
+    {
+        const string sql = """
+            UPDATE "発注明細データ"
+            SET "検査済数量" = @InspectedQuantity, "更新日時" = CURRENT_TIMESTAMP
+            WHERE "発注番号" = @PurchaseOrderNumber AND "発注行番号" = @LineNumber
+            """;
+
+        await using var connection = new NpgsqlConnection(_connectionString);
+        await connection.ExecuteAsync(sql, new
+        {
+            PurchaseOrderNumber = purchaseOrderNumber,
+            LineNumber = lineNumber,
+            InspectedQuantity = inspectedQuantity
+        });
+    }
+
     public async Task UpdateAcceptedQuantityAsync(
         string purchaseOrderNumber, int lineNumber, decimal acceptedQuantity)
     {
