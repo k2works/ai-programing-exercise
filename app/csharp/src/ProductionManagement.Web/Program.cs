@@ -4,6 +4,7 @@ using ProductionManagement.Application.Port.Out;
 using ProductionManagement.Application.Services;
 using ProductionManagement.Infrastructure.Persistence.Repositories;
 using ProductionManagement.Web.Controllers;
+using ProductionManagement.Web.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,8 +37,15 @@ builder.Services.AddScoped<MrpService>();
 builder.Services.AddScoped<ISupplierUseCase, SupplierService>();
 builder.Services.AddScoped<IOrderUseCase, OrderService>();
 
+// ドメイン例外フィルターの登録
+builder.Services.AddScoped<DomainExceptionFilter>();
+
 // MVC + Razor Views（Web プロジェクトのコントローラーのみ登録）
-builder.Services.AddControllersWithViews()
+builder.Services.AddControllersWithViews(options =>
+    {
+        // ドメイン例外フィルターをグローバルに適用
+        options.Filters.Add<DomainExceptionFilter>();
+    })
     .ConfigureApplicationPartManager(manager =>
     {
         // Infrastructure の REST コントローラーを除外

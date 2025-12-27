@@ -12,11 +12,22 @@ namespace ProductionManagement.Web.Controllers;
 public class HomeController : Controller
 {
     private readonly IItemUseCase _itemUseCase;
+    private readonly IPurchaseOrderUseCase _purchaseOrderUseCase;
+    private readonly IWorkOrderUseCase _workOrderUseCase;
+    private readonly IInventoryUseCase _inventoryUseCase;
     private readonly ILogger<HomeController> _logger;
 
-    public HomeController(IItemUseCase itemUseCase, ILogger<HomeController> logger)
+    public HomeController(
+        IItemUseCase itemUseCase,
+        IPurchaseOrderUseCase purchaseOrderUseCase,
+        IWorkOrderUseCase workOrderUseCase,
+        IInventoryUseCase inventoryUseCase,
+        ILogger<HomeController> logger)
     {
         _itemUseCase = itemUseCase;
+        _purchaseOrderUseCase = purchaseOrderUseCase;
+        _workOrderUseCase = workOrderUseCase;
+        _inventoryUseCase = inventoryUseCase;
         _logger = logger;
     }
 
@@ -27,14 +38,29 @@ public class HomeController : Controller
     {
         try
         {
-            // 品目数を取得してダッシュボードに表示
+            // 品目数を取得
             var items = await _itemUseCase.GetAllItemsAsync();
             ViewBag.ItemCount = items.Count;
+
+            // 発注数を取得
+            var purchaseOrders = await _purchaseOrderUseCase.GetAllOrdersAsync();
+            ViewBag.PurchaseOrderCount = purchaseOrders.Count;
+
+            // 作業指示数を取得
+            var workOrders = await _workOrderUseCase.GetAllWorkOrdersAsync();
+            ViewBag.WorkOrderCount = workOrders.Count;
+
+            // 在庫サマリー数を取得
+            var inventorySummaries = await _inventoryUseCase.GetInventorySummaryAsync();
+            ViewBag.InventoryCount = inventorySummaries.Count;
         }
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "ダッシュボード情報の取得に失敗しました");
             ViewBag.ItemCount = 0;
+            ViewBag.PurchaseOrderCount = 0;
+            ViewBag.WorkOrderCount = 0;
+            ViewBag.InventoryCount = 0;
         }
 
         return View();

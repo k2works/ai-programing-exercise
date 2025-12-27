@@ -28,7 +28,11 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" asp-controller="Items" asp-action="Index">品目マスタ</a></li>
-                                <li><a class="dropdown-item" asp-controller="Bom" asp-action="Index">BOM（部品構成表）</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><h6 class="dropdown-header">BOM（部品構成表）</h6></li>
+                                <li><a class="dropdown-item" asp-controller="Bom" asp-action="Explode">部品展開</a></li>
+                                <li><a class="dropdown-item" asp-controller="Bom" asp-action="WhereUsed">使用先照会</a></li>
+                                <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" asp-controller="Suppliers" asp-action="Index">取引先マスタ</a></li>
                             </ul>
                         </li>
@@ -38,7 +42,7 @@
                                 <i class="bi bi-calendar-check me-1"></i>計画
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" asp-controller="Mrp" asp-action="Index">MRP 所要量展開</a></li>
+                                <li><a class="dropdown-item" asp-controller="Mrp" asp-action="Execute">MRP 所要量展開</a></li>
                                 <li><a class="dropdown-item" asp-controller="Orders" asp-action="Index">オーダ一覧</a></li>
                             </ul>
                         </li>

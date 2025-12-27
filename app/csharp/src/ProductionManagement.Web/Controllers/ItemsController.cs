@@ -24,11 +24,35 @@ public class ItemsController : Controller
     /// <summary>
     /// 品目一覧
     /// </summary>
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(ItemSearchViewModel search)
     {
-        var items = await _itemUseCase.GetAllItemsAsync();
-        var viewModels = items.Select(ItemViewModel.FromDomain).ToList();
-        return View(viewModels);
+        var allItems = await _itemUseCase.GetAllItemsAsync();
+
+        // フィルタリング
+        var filteredItems = allItems.AsEnumerable();
+
+        if (!string.IsNullOrEmpty(search.Category))
+        {
+            var category = Enum.Parse<ItemCategory>(search.Category);
+            filteredItems = filteredItems.Where(i => i.ItemCategory == category);
+        }
+
+        if (!string.IsNullOrEmpty(search.Keyword))
+        {
+            var keyword = search.Keyword.ToLower();
+            filteredItems = filteredItems.Where(i =>
+                i.ItemCode.ToLower().Contains(keyword) ||
+                i.ItemName.ToLower().Contains(keyword));
+        }
+
+        search.CategoryOptions = GetCategorySelectList();
+        var viewModel = new ItemListViewModel
+        {
+            Items = filteredItems.Select(ItemViewModel.FromDomain).ToList(),
+            Search = search
+        };
+
+        return View(viewModel);
     }
 
     /// <summary>

@@ -1,7 +1,31 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using ProductionManagement.Domain.Models.Item;
 
 namespace ProductionManagement.Web.Models;
+
+/// <summary>
+/// 品目一覧 ViewModel
+/// </summary>
+public class ItemListViewModel
+{
+    public List<ItemViewModel> Items { get; set; } = [];
+    public ItemSearchViewModel Search { get; set; } = new();
+}
+
+/// <summary>
+/// 品目検索 ViewModel
+/// </summary>
+public class ItemSearchViewModel
+{
+    [Display(Name = "キーワード")]
+    public string? Keyword { get; set; }
+
+    [Display(Name = "品目区分")]
+    public string? Category { get; set; }
+
+    public List<SelectListItem> CategoryOptions { get; set; } = [];
+}
 
 /// <summary>
 /// 品目 ViewModel
