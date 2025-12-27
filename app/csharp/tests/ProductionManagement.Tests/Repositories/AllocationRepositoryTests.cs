@@ -18,6 +18,8 @@ public class AllocationRepositoryTests
     private readonly IRequirementRepository _requirementRepository;
     private readonly IOrderRepository _orderRepository;
     private readonly IItemRepository _itemRepository;
+    private readonly IWorkOrderDetailRepository _workOrderDetailRepository;
+    private readonly IWorkOrderRepository _workOrderRepository;
 
     public AllocationRepositoryTests(PostgresFixture fixture)
     {
@@ -26,7 +28,12 @@ public class AllocationRepositoryTests
         _requirementRepository = new RequirementRepository(fixture.ConnectionString);
         _orderRepository = new OrderRepository(fixture.ConnectionString);
         _itemRepository = new ItemRepository(fixture.ConnectionString);
+        _workOrderDetailRepository = new WorkOrderDetailRepository(fixture.ConnectionString);
+        _workOrderRepository = new WorkOrderRepository(fixture.ConnectionString);
 
+        // FK制約の順序に従って削除（作業指示は Order に依存）
+        _workOrderDetailRepository.DeleteAllAsync().Wait();
+        _workOrderRepository.DeleteAllAsync().Wait();
         _allocationRepository.DeleteAllAsync().Wait();
         _requirementRepository.DeleteAllAsync().Wait();
         _orderRepository.DeleteAllAsync().Wait();

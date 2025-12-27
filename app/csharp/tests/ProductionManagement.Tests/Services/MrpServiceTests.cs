@@ -22,6 +22,8 @@ public class MrpServiceTests
     private readonly IOrderRepository _orderRepository;
     private readonly IRequirementRepository _requirementRepository;
     private readonly IAllocationRepository _allocationRepository;
+    private readonly IWorkOrderDetailRepository _workOrderDetailRepository;
+    private readonly IWorkOrderRepository _workOrderRepository;
 
     public MrpServiceTests(PostgresFixture fixture)
     {
@@ -31,6 +33,8 @@ public class MrpServiceTests
         _orderRepository = new OrderRepository(fixture.ConnectionString);
         _requirementRepository = new RequirementRepository(fixture.ConnectionString);
         _allocationRepository = new AllocationRepository(fixture.ConnectionString);
+        _workOrderDetailRepository = new WorkOrderDetailRepository(fixture.ConnectionString);
+        _workOrderRepository = new WorkOrderRepository(fixture.ConnectionString);
 
         _mrpService = new MrpService(
             _itemRepository,
@@ -45,6 +49,9 @@ public class MrpServiceTests
 
     private async Task CleanupAsync()
     {
+        // FK制約の順序に従って削除（作業指示は Order に依存）
+        await _workOrderDetailRepository.DeleteAllAsync();
+        await _workOrderRepository.DeleteAllAsync();
         await _allocationRepository.DeleteAllAsync();
         await _requirementRepository.DeleteAllAsync();
         await _orderRepository.DeleteAllAsync();
