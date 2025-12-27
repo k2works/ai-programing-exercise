@@ -1,0 +1,180 @@
+@model List<ProductionManagement.Web.Models.StockViewModel>
+@{
+    ViewData["Title"] = "在庫詳細";
+    var itemCode = ViewBag.ItemCode as string;
+    var itemName = ViewBag.ItemName as string;
+    var summary = ViewBag.Summary as ProductionManagement.Web.Models.InventorySummaryViewModel;
+}
+
+<div class="row mb-3">
+    <div class="col">
+        <h2><i class="bi bi-box-seam me-2"></i>在庫詳細</h2>
+    </div>
+    <div class="col-auto">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>一覧へ戻る
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-info-circle me-2"></i>品目情報
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">品目コード</dt>
+                    <dd class="col-sm-9">@itemCode</dd>
+
+                    <dt class="col-sm-3">品目名</dt>
+                    <dd class="col-sm-9">@itemName</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <i class="bi bi-geo-alt me-2"></i>ロケーション別在庫
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>場所コード</th>
+                                <th class="text-end">在庫数量</th>
+                                <th class="text-end">合格数量</th>
+                                <th class="text-end">不良数量</th>
+                                <th class="text-end">未検査数量</th>
+                                <th>更新日時</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.Any())
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">
+                                        <i class="bi bi-inbox me-2"></i>該当する在庫がありません
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                @foreach (var stock in Model)
+                                {
+                                    <tr>
+                                        <td>@stock.LocationCode</td>
+                                        <td class="text-end">@stock.StockQuantity.ToString("#,##0.###")</td>
+                                        <td class="text-end text-success">@stock.PassedQuantity.ToString("#,##0.###")</td>
+                                        <td class="text-end text-danger">@stock.DefectiveQuantity.ToString("#,##0.###")</td>
+                                        <td class="text-end text-warning">@stock.UninspectedQuantity.ToString("#,##0.###")</td>
+                                        <td>@stock.UpdatedAt.ToString("yyyy/MM/dd HH:mm")</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                        @if (Model.Any())
+                        {
+                            <tfoot class="table-light">
+                                <tr>
+                                    <th>合計</th>
+                                    <th class="text-end">@Model.Sum(s => s.StockQuantity).ToString("#,##0.###")</th>
+                                    <th class="text-end text-success">@Model.Sum(s => s.PassedQuantity).ToString("#,##0.###")</th>
+                                    <th class="text-end text-danger">@Model.Sum(s => s.DefectiveQuantity).ToString("#,##0.###")</th>
+                                    <th class="text-end text-warning">@Model.Sum(s => s.UninspectedQuantity).ToString("#,##0.###")</th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        }
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        @if (summary != null)
+        {
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-bar-chart me-2"></i>在庫サマリー
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-6">総在庫数量</dt>
+                        <dd class="col-sm-6 text-end">@summary.TotalQuantity.ToString("#,##0.###")</dd>
+
+                        <dt class="col-sm-6">安全在庫</dt>
+                        <dd class="col-sm-6 text-end">@(summary.SafetyStock?.ToString("#,##0.###") ?? "-")</dd>
+
+                        <dt class="col-sm-6">過不足</dt>
+                        <dd class="col-sm-6 text-end @GetDifferenceClass(summary.DifferenceQuantity)">
+                            @if (summary.DifferenceQuantity.HasValue)
+                            {
+                                @(summary.DifferenceQuantity.Value >= 0 ? "+" : "")@summary.DifferenceQuantity.Value.ToString("#,##0.###")
+                            }
+                            else
+                            {
+                                <span>-</span>
+                            }
+                        </dd>
+                    </dl>
+
+                    <hr />
+
+                    <div class="text-center">
+                        <h6>在庫状態</h6>
+                        <span class="badge @GetStateBadgeClass(summary.StockState) fs-5 px-4 py-2">
+                            @summary.StockStateDisplayName
+                        </span>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <i class="bi bi-info-circle me-2"></i>凡例
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <span class="text-success"><i class="bi bi-check-circle me-1"></i>合格数量</span>
+                        <small class="text-muted d-block">検査済みで使用可能な在庫</small>
+                    </li>
+                    <li class="mb-2">
+                        <span class="text-danger"><i class="bi bi-x-circle me-1"></i>不良数量</span>
+                        <small class="text-muted d-block">不良品として判定された在庫</small>
+                    </li>
+                    <li>
+                        <span class="text-warning"><i class="bi bi-question-circle me-1"></i>未検査数量</span>
+                        <small class="text-muted d-block">検査待ちの在庫</small>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetStateBadgeClass(ProductionManagement.Application.Port.In.StockState state)
+    {
+        return state switch
+        {
+            ProductionManagement.Application.Port.In.StockState.Normal => "bg-success",
+            ProductionManagement.Application.Port.In.StockState.Shortage => "bg-danger",
+            ProductionManagement.Application.Port.In.StockState.Excess => "bg-warning text-dark",
+            _ => "bg-secondary"
+        };
+    }
+
+    string GetDifferenceClass(decimal? difference)
+    {
+        if (!difference.HasValue) return "";
+        if (difference.Value < 0) return "text-danger";
+        if (difference.Value > 0) return "text-success";
+        return "";
+    }
+}
