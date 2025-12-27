@@ -1,0 +1,177 @@
+@model ProductionManagement.Web.Models.WorkOrderViewModel
+@{
+    ViewData["Title"] = "作業指示詳細";
+}
+
+<div class="row mb-3">
+    <div class="col">
+        <h2><i class="bi bi-tools me-2"></i>作業指示詳細</h2>
+    </div>
+    <div class="col-auto">
+        @if (Model.Status == ProductionManagement.Domain.Models.Process.WorkOrderStatus.NotStarted)
+        {
+            <form asp-action="Start" asp-route-id="@Model.WorkOrderNumber" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-success me-2" onclick="return confirm('作業を開始しますか？')">
+                    <i class="bi bi-play-fill me-1"></i>作業開始
+                </button>
+            </form>
+        }
+        @if (Model.Status == ProductionManagement.Domain.Models.Process.WorkOrderStatus.InProgress)
+        {
+            <form asp-action="Complete" asp-route-id="@Model.WorkOrderNumber" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-primary me-2" onclick="return confirm('作業を完了しますか？')">
+                    <i class="bi bi-check-circle me-1"></i>作業完了
+                </button>
+            </form>
+        }
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>一覧へ戻る
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-info-circle me-2"></i>基本情報
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">@Html.DisplayNameFor(model => model.WorkOrderNumber)</dt>
+                    <dd class="col-sm-8">@Model.WorkOrderNumber</dd>
+
+                    <dt class="col-sm-4">@Html.DisplayNameFor(model => model.OrderNumber)</dt>
+                    <dd class="col-sm-8">@Model.OrderNumber</dd>
+
+                    <dt class="col-sm-4">@Html.DisplayNameFor(model => model.WorkOrderDate)</dt>
+                    <dd class="col-sm-8">@Model.WorkOrderDate.ToString("yyyy/MM/dd")</dd>
+
+                    <dt class="col-sm-4">@Html.DisplayNameFor(model => model.ItemCode)</dt>
+                    <dd class="col-sm-8">
+                        @Model.ItemCode
+                        @if (!string.IsNullOrEmpty(Model.ItemName))
+                        {
+                            <span class="text-muted">(@Model.ItemName)</span>
+                        }
+                    </dd>
+
+                    <dt class="col-sm-4">@Html.DisplayNameFor(model => model.LocationCode)</dt>
+                    <dd class="col-sm-8">@Model.LocationCode</dd>
+
+                    <dt class="col-sm-4">@Html.DisplayNameFor(model => model.Status)</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge @GetStatusBadgeClass(Model.Status)">
+                            @Model.StatusDisplayName
+                        </span>
+                    </dd>
+
+                    <dt class="col-sm-4">@Html.DisplayNameFor(model => model.Remarks)</dt>
+                    <dd class="col-sm-8">@(Model.Remarks ?? "-")</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <i class="bi bi-calendar-range me-2"></i>日程情報
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">@Html.DisplayNameFor(model => model.PlannedStartDate)</dt>
+                    <dd class="col-sm-8">@Model.PlannedStartDate.ToString("yyyy/MM/dd")</dd>
+
+                    <dt class="col-sm-4">@Html.DisplayNameFor(model => model.PlannedEndDate)</dt>
+                    <dd class="col-sm-8">@Model.PlannedEndDate.ToString("yyyy/MM/dd")</dd>
+
+                    <dt class="col-sm-4">@Html.DisplayNameFor(model => model.ActualStartDate)</dt>
+                    <dd class="col-sm-8">@(Model.ActualStartDate?.ToString("yyyy/MM/dd") ?? "-")</dd>
+
+                    <dt class="col-sm-4">@Html.DisplayNameFor(model => model.ActualEndDate)</dt>
+                    <dd class="col-sm-8">@(Model.ActualEndDate?.ToString("yyyy/MM/dd") ?? "-")</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-bar-chart me-2"></i>数量・進捗
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-6">@Html.DisplayNameFor(model => model.OrderQuantity)</dt>
+                    <dd class="col-sm-6 text-end">@Model.OrderQuantity.ToString("#,##0.###")</dd>
+
+                    <dt class="col-sm-6">@Html.DisplayNameFor(model => model.CompletedQuantity)</dt>
+                    <dd class="col-sm-6 text-end">@Model.CompletedQuantity.ToString("#,##0.###")</dd>
+
+                    <dt class="col-sm-6">@Html.DisplayNameFor(model => model.TotalGoodQuantity)</dt>
+                    <dd class="col-sm-6 text-end text-success">@Model.TotalGoodQuantity.ToString("#,##0.###")</dd>
+
+                    <dt class="col-sm-6">@Html.DisplayNameFor(model => model.TotalDefectQuantity)</dt>
+                    <dd class="col-sm-6 text-end text-danger">@Model.TotalDefectQuantity.ToString("#,##0.###")</dd>
+                </dl>
+
+                <hr />
+
+                <div class="text-center">
+                    <h6>進捗率</h6>
+                    <div class="progress" style="height: 30px;">
+                        <div class="progress-bar @GetProgressBarClass(Model.ProgressRate)"
+                             role="progressbar"
+                             style="width: @Model.ProgressRate%"
+                             aria-valuenow="@Model.ProgressRate"
+                             aria-valuemin="0"
+                             aria-valuemax="100">
+                            @Model.ProgressRate.ToString("0.0")%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <i class="bi bi-clock-history me-2"></i>更新情報
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-5">@Html.DisplayNameFor(model => model.CreatedAt)</dt>
+                    <dd class="col-sm-7">@(Model.CreatedAt?.ToString("yyyy/MM/dd HH:mm") ?? "-")</dd>
+
+                    <dt class="col-sm-5">@Html.DisplayNameFor(model => model.UpdatedAt)</dt>
+                    <dd class="col-sm-7">@(Model.UpdatedAt?.ToString("yyyy/MM/dd HH:mm") ?? "-")</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetStatusBadgeClass(ProductionManagement.Domain.Models.Process.WorkOrderStatus status)
+    {
+        return status switch
+        {
+            ProductionManagement.Domain.Models.Process.WorkOrderStatus.NotStarted => "bg-secondary",
+            ProductionManagement.Domain.Models.Process.WorkOrderStatus.InProgress => "bg-primary",
+            ProductionManagement.Domain.Models.Process.WorkOrderStatus.Completed => "bg-success",
+            ProductionManagement.Domain.Models.Process.WorkOrderStatus.Suspended => "bg-warning text-dark",
+            _ => "bg-secondary"
+        };
+    }
+
+    string GetProgressBarClass(decimal progressRate)
+    {
+        return progressRate switch
+        {
+            >= 100 => "bg-success",
+            >= 50 => "bg-info",
+            >= 25 => "bg-warning",
+            _ => "bg-danger"
+        };
+    }
+}
