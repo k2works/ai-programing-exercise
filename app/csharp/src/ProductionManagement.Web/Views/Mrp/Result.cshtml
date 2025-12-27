@@ -1,0 +1,171 @@
+@model ProductionManagement.Web.Models.MrpResultViewModel
+@{
+    ViewData["Title"] = "MRP結果";
+}
+
+<div class="row mb-3">
+    <div class="col">
+        <h2><i class="bi bi-diagram-3 me-2"></i>MRP結果</h2>
+    </div>
+    <div class="col-auto">
+        <a asp-action="Execute" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>MRP実行画面へ
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <i class="bi bi-info-circle me-2"></i>対象オーダ
+    </div>
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Order.OrderNumber)</dt>
+            <dd class="col-sm-9">@Model.Order.OrderNumber</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Order.OrderType)</dt>
+            <dd class="col-sm-9">
+                <span class="badge @(Model.Order.OrderType == ProductionManagement.Domain.Models.Plan.OrderType.Manufacturing ? "bg-primary" : "bg-info")">
+                    @Model.Order.OrderTypeDisplayName
+                </span>
+            </dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Order.ItemCode)</dt>
+            <dd class="col-sm-9">
+                @Model.Order.ItemCode
+                @if (!string.IsNullOrEmpty(Model.Order.ItemName))
+                {
+                    <span class="text-muted">(@Model.Order.ItemName)</span>
+                }
+            </dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Order.DueDate)</dt>
+            <dd class="col-sm-9">@Model.Order.DueDate.ToString("yyyy/MM/dd")</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Order.PlanQuantity)</dt>
+            <dd class="col-sm-9">@Model.Order.PlanQuantity.ToString("#,##0.###")</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Order.Status)</dt>
+            <dd class="col-sm-9">
+                <span class="badge @GetStatusBadgeClass(Model.Order.Status)">
+                    @Model.Order.StatusDisplayName
+                </span>
+            </dd>
+        </dl>
+    </div>
+</div>
+
+<div class="card mt-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-list-check me-2"></i>展開された所要（@Model.Requirements.Count 件）</span>
+        <span class="text-muted">
+            総所要量: @Model.TotalRequiredQuantity.ToString("#,##0.###") /
+            総不足量: @Model.TotalShortageQuantity.ToString("#,##0.###")
+        </span>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead class="table-light">
+                    <tr>
+                        <th>所要番号</th>
+                        <th>品目コード</th>
+                        <th>納期</th>
+                        <th class="text-end">所要量</th>
+                        <th class="text-end">引当量</th>
+                        <th class="text-end">不足量</th>
+                        <th class="text-end">引当率</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Requirements.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-3">
+                                <i class="bi bi-inbox me-2"></i>展開された所要がありません
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var req in Model.Requirements)
+                        {
+                            <tr>
+                                <td>@req.RequirementNumber</td>
+                                <td>
+                                    @req.ItemCode
+                                    @if (!string.IsNullOrEmpty(req.ItemName))
+                                    {
+                                        <br><small class="text-muted">@req.ItemName</small>
+                                    }
+                                </td>
+                                <td>@req.DueDate.ToString("yyyy/MM/dd")</td>
+                                <td class="text-end">@req.RequiredQuantity.ToString("#,##0.###")</td>
+                                <td class="text-end">@req.AllocatedQuantity.ToString("#,##0.###")</td>
+                                <td class="text-end">
+                                    @if (req.ShortageQuantity > 0)
+                                    {
+                                        <span class="text-danger fw-bold">@req.ShortageQuantity.ToString("#,##0.###")</span>
+                                    }
+                                    else
+                                    {
+                                        @req.ShortageQuantity.ToString("#,##0.###")
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    @if (req.AllocationRate >= 100)
+                                    {
+                                        <span class="badge bg-success">@req.AllocationRate.ToString("0.0")%</span>
+                                    }
+                                    else if (req.AllocationRate >= 50)
+                                    {
+                                        <span class="badge bg-warning text-dark">@req.AllocationRate.ToString("0.0")%</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">@req.AllocationRate.ToString("0.0")%</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@if (Model.Requirements.Any(r => r.ShortageQuantity > 0))
+{
+    <div class="card mt-3 border-warning">
+        <div class="card-header bg-warning text-dark">
+            <i class="bi bi-exclamation-triangle me-2"></i>不足品目サマリ
+        </div>
+        <div class="card-body">
+            <p class="mb-2">以下の品目で不足が発生しています。発注または製造を検討してください。</p>
+            <ul class="mb-0">
+                @foreach (var req in Model.Requirements.Where(r => r.ShortageQuantity > 0))
+                {
+                    <li>
+                        <strong>@req.ItemCode</strong>: 不足 @req.ShortageQuantity.ToString("#,##0.###")
+                        （納期: @req.DueDate.ToString("yyyy/MM/dd")）
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+}
+
+@functions {
+    string GetStatusBadgeClass(ProductionManagement.Domain.Models.Plan.PlanStatus status)
+    {
+        return status switch
+        {
+            ProductionManagement.Domain.Models.Plan.PlanStatus.Draft => "bg-secondary",
+            ProductionManagement.Domain.Models.Plan.PlanStatus.Confirmed => "bg-primary",
+            ProductionManagement.Domain.Models.Plan.PlanStatus.Expanded => "bg-success",
+            ProductionManagement.Domain.Models.Plan.PlanStatus.Cancelled => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}

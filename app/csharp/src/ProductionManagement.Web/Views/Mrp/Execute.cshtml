@@ -1,0 +1,71 @@
+@model ProductionManagement.Web.Models.MrpExecuteViewModel
+@{
+    ViewData["Title"] = "MRP実行";
+}
+
+<div class="row mb-3">
+    <div class="col">
+        <h2><i class="bi bi-diagram-3 me-2"></i>MRP実行（所要量展開）</h2>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <i class="bi bi-play-circle me-2"></i>MRP 実行パラメータ
+    </div>
+    <div class="card-body">
+        @if (!Model.OrderOptions.Any())
+        {
+            <div class="alert alert-warning" role="alert">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                確定済みのオーダがありません。MRP を実行するには、まずオーダを確定してください。
+            </div>
+        }
+        else
+        {
+            <form asp-action="Execute" method="post">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="OrderId" class="form-label">対象オーダ</label>
+                        <select asp-for="OrderId" asp-items="Model.OrderOptions" class="form-select">
+                            <option value="">オーダを選択してください</option>
+                        </select>
+                        <span asp-validation-for="OrderId" class="text-danger"></span>
+                        <div class="form-text">
+                            確定済みのオーダに対して所要量展開（MRP）を実行します。
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-play-fill me-1"></i>MRP 実行
+                    </button>
+                </div>
+            </form>
+        }
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">
+        <i class="bi bi-info-circle me-2"></i>MRP について
+    </div>
+    <div class="card-body">
+        <p class="mb-2">
+            <strong>MRP（Material Requirements Planning：資材所要量計画）</strong>とは、
+            製品の生産計画から必要な部品・原材料の所要量を計算し、適切な発注計画を立てるための手法です。
+        </p>
+        <h6 class="mt-3">処理の流れ</h6>
+        <ol class="mb-0">
+            <li>親オーダ（製品）の BOM を参照</li>
+            <li>子品目ごとに所要量を計算（必要数量 × (1 + 不良率)）</li>
+            <li>リードタイムを考慮した納期を算出</li>
+            <li>在庫からの引当処理</li>
+            <li>不足分に対する発注提案</li>
+        </ol>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

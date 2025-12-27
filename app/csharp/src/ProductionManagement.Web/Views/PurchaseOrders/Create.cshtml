@@ -1,0 +1,202 @@
+@model ProductionManagement.Web.Models.PurchaseOrderCreateViewModel
+@{
+    ViewData["Title"] = "発注登録";
+}
+
+<div class="row mb-3">
+    <div class="col">
+        <h2><i class="bi bi-cart-plus me-2"></i>発注登録</h2>
+    </div>
+    <div class="col-auto">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>一覧へ戻る
+        </a>
+    </div>
+</div>
+
+<form asp-action="Create" method="post" id="createForm">
+    <div class="card">
+        <div class="card-header">
+            <i class="bi bi-info-circle me-2"></i>基本情報
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label asp-for="OrderDate" class="form-label"></label>
+                    <input asp-for="OrderDate" type="date" class="form-control" />
+                    <span asp-validation-for="OrderDate" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="SupplierCode" class="form-label"></label>
+                    <select asp-for="SupplierCode" asp-items="Model.SupplierOptions" class="form-select">
+                        <option value="">選択してください</option>
+                    </select>
+                    <span asp-validation-for="SupplierCode" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <label asp-for="Remarks" class="form-label"></label>
+                    <textarea asp-for="Remarks" class="form-control" rows="2"></textarea>
+                    <span asp-validation-for="Remarks" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-list-ul me-2"></i>発注明細</span>
+            <button type="button" class="btn btn-sm btn-success" id="addDetailBtn">
+                <i class="bi bi-plus-circle me-1"></i>明細追加
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table" id="detailsTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 30%;">品目</th>
+                            <th style="width: 15%;">発注数量</th>
+                            <th style="width: 20%;">納入予定日</th>
+                            <th style="width: 25%;">納入場所</th>
+                            <th style="width: 10%;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailsBody">
+                        @if (Model.Details.Any())
+                        {
+                            for (int i = 0; i < Model.Details.Count; i++)
+                            {
+                                <tr class="detail-row">
+                                    <td>
+                                        <select name="Details[@i].ItemCode" class="form-select form-select-sm" required>
+                                            <option value="">選択</option>
+                                            @foreach (var item in Model.ItemOptions)
+                                            {
+                                                <option value="@item.Value" selected="@(item.Value == Model.Details[i].ItemCode)">@item.Text</option>
+                                            }
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="Details[@i].OrderQuantity" value="@Model.Details[i].OrderQuantity"
+                                               class="form-control form-control-sm text-end" step="0.001" min="0.001" required>
+                                    </td>
+                                    <td>
+                                        <input type="date" name="Details[@i].ExpectedReceivingDate" value="@Model.Details[i].ExpectedReceivingDate.ToString("yyyy-MM-dd")"
+                                               class="form-control form-control-sm" required>
+                                    </td>
+                                    <td>
+                                        <input type="text" name="Details[@i].DeliveryLocationCode" value="@Model.Details[i].DeliveryLocationCode"
+                                               class="form-control form-control-sm" placeholder="納入場所コード">
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-sm btn-outline-danger remove-detail">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div id="noDetailsMessage" class="text-center text-muted py-3" style="display: @(Model.Details.Any() ? "none" : "block");">
+                <i class="bi bi-inbox me-2"></i>明細を追加してください
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-circle me-1"></i>登録
+        </button>
+        <a asp-action="Index" class="btn btn-outline-secondary ms-2">
+            <i class="bi bi-x-circle me-1"></i>キャンセル
+        </a>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const detailsBody = document.getElementById('detailsBody');
+            const addDetailBtn = document.getElementById('addDetailBtn');
+            const noDetailsMessage = document.getElementById('noDetailsMessage');
+
+            // 品目オプションをJSON形式で保持
+            const itemOptions = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ItemOptions.Select(i => new { i.Value, i.Text })));
+
+            // 7日後の日付
+            const defaultDate = new Date();
+            defaultDate.setDate(defaultDate.getDate() + 7);
+            const defaultDateStr = defaultDate.toISOString().split('T')[0];
+
+            function updateRowIndices() {
+                const rows = detailsBody.querySelectorAll('.detail-row');
+                rows.forEach((row, index) => {
+                    row.querySelectorAll('[name]').forEach(input => {
+                        const name = input.getAttribute('name');
+                        const newName = name.replace(/\[\d+\]/, `[${index}]`);
+                        input.setAttribute('name', newName);
+                    });
+                });
+
+                noDetailsMessage.style.display = rows.length === 0 ? 'block' : 'none';
+            }
+
+            function createItemSelect(index) {
+                let options = '<option value="">選択</option>';
+                itemOptions.forEach(item => {
+                    options += `<option value="${item.Value}">${item.Text}</option>`;
+                });
+                return `<select name="Details[${index}].ItemCode" class="form-select form-select-sm" required>${options}</select>`;
+            }
+
+            addDetailBtn.addEventListener('click', function() {
+                const index = detailsBody.querySelectorAll('.detail-row').length;
+                const row = document.createElement('tr');
+                row.className = 'detail-row';
+                row.innerHTML = `
+                    <td>${createItemSelect(index)}</td>
+                    <td>
+                        <input type="number" name="Details[${index}].OrderQuantity"
+                               class="form-control form-control-sm text-end" step="0.001" min="0.001" required>
+                    </td>
+                    <td>
+                        <input type="date" name="Details[${index}].ExpectedReceivingDate" value="${defaultDateStr}"
+                               class="form-control form-control-sm" required>
+                    </td>
+                    <td>
+                        <input type="text" name="Details[${index}].DeliveryLocationCode"
+                               class="form-control form-control-sm" placeholder="納入場所コード">
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-sm btn-outline-danger remove-detail">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                `;
+                detailsBody.appendChild(row);
+                updateRowIndices();
+            });
+
+            detailsBody.addEventListener('click', function(e) {
+                if (e.target.closest('.remove-detail')) {
+                    e.target.closest('.detail-row').remove();
+                    updateRowIndices();
+                }
+            });
+
+            document.getElementById('createForm').addEventListener('submit', function(e) {
+                const rows = detailsBody.querySelectorAll('.detail-row');
+                if (rows.length === 0) {
+                    e.preventDefault();
+                    alert('発注明細を1件以上入力してください。');
+                }
+            });
+        });
+    </script>
+}

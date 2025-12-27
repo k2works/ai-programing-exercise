@@ -1,0 +1,164 @@
+@model ProductionManagement.Web.Models.PurchaseOrderViewModel
+@{
+    ViewData["Title"] = "発注詳細";
+}
+
+<div class="row mb-3">
+    <div class="col">
+        <h2><i class="bi bi-cart me-2"></i>発注詳細</h2>
+    </div>
+    <div class="col-auto">
+        @if (Model.Status == ProductionManagement.Domain.Models.Purchase.PurchaseOrderStatus.Creating)
+        {
+            <form asp-action="Confirm" asp-route-id="@Model.PurchaseOrderNumber" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-success me-2" onclick="return confirm('この発注を確定しますか？')">
+                    <i class="bi bi-check-circle me-1"></i>発注確定
+                </button>
+            </form>
+            <form asp-action="Cancel" asp-route-id="@Model.PurchaseOrderNumber" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-danger me-2" onclick="return confirm('この発注を取消しますか？')">
+                    <i class="bi bi-x-circle me-1"></i>取消
+                </button>
+            </form>
+        }
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>一覧へ戻る
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <i class="bi bi-info-circle me-2"></i>基本情報
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.PurchaseOrderNumber)</dt>
+            <dd class="col-sm-9">@Model.PurchaseOrderNumber</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.OrderDate)</dt>
+            <dd class="col-sm-9">@Model.OrderDate.ToString("yyyy/MM/dd")</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.SupplierCode)</dt>
+            <dd class="col-sm-9">
+                @Model.SupplierCode
+                @if (!string.IsNullOrEmpty(Model.SupplierName))
+                {
+                    <span class="text-muted">(@Model.SupplierName)</span>
+                }
+            </dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Status)</dt>
+            <dd class="col-sm-9">
+                <span class="badge @GetStatusBadgeClass(Model.Status)">
+                    @Model.StatusDisplayName
+                </span>
+            </dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Remarks)</dt>
+            <dd class="col-sm-9">@(Model.Remarks ?? "-")</dd>
+        </dl>
+    </div>
+</div>
+
+<div class="card mt-3">
+    <div class="card-header">
+        <i class="bi bi-list-ul me-2"></i>発注明細
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead class="table-light">
+                    <tr>
+                        <th>行番号</th>
+                        <th>品目コード</th>
+                        <th>納入予定日</th>
+                        <th class="text-end">単価</th>
+                        <th class="text-end">発注数量</th>
+                        <th class="text-end">入荷数量</th>
+                        <th class="text-end">金額</th>
+                        <th>完了</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Details.Any())
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-3">
+                                明細がありません
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var detail in Model.Details.OrderBy(d => d.LineNumber))
+                        {
+                            <tr>
+                                <td>@detail.LineNumber</td>
+                                <td>@detail.ItemCode</td>
+                                <td>@detail.ExpectedReceivingDate.ToString("yyyy/MM/dd")</td>
+                                <td class="text-end">@detail.OrderUnitPrice.ToString("#,##0.00")</td>
+                                <td class="text-end">@detail.OrderQuantity.ToString("#,##0.###")</td>
+                                <td class="text-end">@detail.ReceivedQuantity.ToString("#,##0.###")</td>
+                                <td class="text-end">@detail.OrderAmount.ToString("#,##0")</td>
+                                <td>
+                                    @if (detail.CompletedFlag)
+                                    {
+                                        <span class="badge bg-success">完了</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">未完了</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+                @if (Model.Details.Any())
+                {
+                    <tfoot class="table-light">
+                        <tr>
+                            <th colspan="6" class="text-end">合計</th>
+                            <th class="text-end">@Model.TotalAmount.ToString("#,##0")</th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                }
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-3">
+    <div class="card-header">
+        <i class="bi bi-clock-history me-2"></i>更新情報
+    </div>
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.CreatedAt)</dt>
+            <dd class="col-sm-9">@(Model.CreatedAt?.ToString("yyyy/MM/dd HH:mm:ss") ?? "-")</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.UpdatedAt)</dt>
+            <dd class="col-sm-9">@(Model.UpdatedAt?.ToString("yyyy/MM/dd HH:mm:ss") ?? "-")</dd>
+        </dl>
+    </div>
+</div>
+
+@functions {
+    string GetStatusBadgeClass(ProductionManagement.Domain.Models.Purchase.PurchaseOrderStatus status)
+    {
+        return status switch
+        {
+            ProductionManagement.Domain.Models.Purchase.PurchaseOrderStatus.Creating => "bg-secondary",
+            ProductionManagement.Domain.Models.Purchase.PurchaseOrderStatus.Ordered => "bg-primary",
+            ProductionManagement.Domain.Models.Purchase.PurchaseOrderStatus.PartiallyReceived => "bg-info",
+            ProductionManagement.Domain.Models.Purchase.PurchaseOrderStatus.Received => "bg-success",
+            ProductionManagement.Domain.Models.Purchase.PurchaseOrderStatus.Accepted => "bg-success",
+            ProductionManagement.Domain.Models.Purchase.PurchaseOrderStatus.Cancelled => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}
