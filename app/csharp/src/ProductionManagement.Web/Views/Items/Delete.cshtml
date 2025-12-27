@@ -1,0 +1,55 @@
+@model ProductionManagement.Web.Models.ItemViewModel
+@{
+    ViewData["Title"] = "品目削除";
+}
+
+<div class="row mb-3">
+    <div class="col">
+        <h2><i class="bi bi-trash me-2"></i>品目削除</h2>
+    </div>
+</div>
+
+<div class="alert alert-danger">
+    <i class="bi bi-exclamation-triangle me-2"></i>
+    <strong>この品目を削除しますか？</strong>
+    この操作は取り消せません。
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">@Model.ItemCode - @Model.ItemName</h5>
+    </div>
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">品目コード</dt>
+            <dd class="col-sm-9">@Model.ItemCode</dd>
+
+            <dt class="col-sm-3">品目名</dt>
+            <dd class="col-sm-9">@Model.ItemName</dd>
+
+            <dt class="col-sm-3">品目区分</dt>
+            <dd class="col-sm-9">@Model.ItemCategoryDisplayName</dd>
+
+            <dt class="col-sm-3">単位</dt>
+            <dd class="col-sm-9">@(Model.UnitCode ?? "-")</dd>
+
+            <dt class="col-sm-3">リードタイム</dt>
+            <dd class="col-sm-9">@Model.LeadTime 日</dd>
+
+            <dt class="col-sm-3">安全在庫</dt>
+            <dd class="col-sm-9">@Model.SafetyStock.ToString("N2")</dd>
+        </dl>
+    </div>
+</div>
+
+<div class="mt-3 d-flex justify-content-between">
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>キャンセル
+    </a>
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="ItemCode" />
+        <button type="submit" class="btn btn-danger">
+            <i class="bi bi-trash me-1"></i>削除する
+        </button>
+    </form>
+</div>
