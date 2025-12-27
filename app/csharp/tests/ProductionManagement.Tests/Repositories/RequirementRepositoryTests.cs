@@ -25,6 +25,7 @@ public class RequirementRepositoryTests
     private readonly ILaborHoursRepository _laborHoursRepository;
     private readonly IEmployeeRepository _employeeRepository;
     private readonly IDepartmentRepository _departmentRepository;
+    private readonly IIssueRepository _issueRepository;
 
     public RequirementRepositoryTests(PostgresFixture fixture)
     {
@@ -40,8 +41,11 @@ public class RequirementRepositoryTests
         _laborHoursRepository = new LaborHoursRepository(fixture.ConnectionString);
         _employeeRepository = new EmployeeRepository(fixture.ConnectionString);
         _departmentRepository = new DepartmentRepository(fixture.ConnectionString);
+        _issueRepository = new IssueRepository(fixture.ConnectionString);
 
-        // FK制約の順序に従って削除: 工数実績 → 完成検査結果 → 完成実績 → 作業指示明細 → 作業指示 → 引当 → 所要 → オーダ → 品目
+        // FK制約の順序に従って削除: 払出 → 工数実績 → 完成検査結果 → 完成実績 → 作業指示明細 → 作業指示 → 引当 → 所要 → オーダ → 品目
+        _issueRepository.DeleteAllDetailsAsync().Wait();
+        _issueRepository.DeleteAllAsync().Wait();
         _laborHoursRepository.DeleteAllAsync().Wait();
         _employeeRepository.DeleteAllAsync().Wait();
         _departmentRepository.DeleteAllAsync().Wait();

@@ -29,6 +29,7 @@ public class MrpServiceTests
     private readonly ILaborHoursRepository _laborHoursRepository;
     private readonly IEmployeeRepository _employeeRepository;
     private readonly IDepartmentRepository _departmentRepository;
+    private readonly IIssueRepository _issueRepository;
 
     public MrpServiceTests(PostgresFixture fixture)
     {
@@ -45,6 +46,7 @@ public class MrpServiceTests
         _laborHoursRepository = new LaborHoursRepository(fixture.ConnectionString);
         _employeeRepository = new EmployeeRepository(fixture.ConnectionString);
         _departmentRepository = new DepartmentRepository(fixture.ConnectionString);
+        _issueRepository = new IssueRepository(fixture.ConnectionString);
 
         _mrpService = new MrpService(
             _itemRepository,
@@ -59,7 +61,9 @@ public class MrpServiceTests
 
     private async Task CleanupAsync()
     {
-        // FK制約の順序に従って削除（工数実績 → 完成実績 → 作業指示 → Order）
+        // FK制約の順序に従って削除（払出 → 工数実績 → 完成実績 → 作業指示 → Order）
+        await _issueRepository.DeleteAllDetailsAsync();
+        await _issueRepository.DeleteAllAsync();
         await _laborHoursRepository.DeleteAllAsync();
         await _employeeRepository.DeleteAllAsync();
         await _departmentRepository.DeleteAllAsync();
