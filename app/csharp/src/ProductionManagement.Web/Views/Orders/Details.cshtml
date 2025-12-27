@@ -1,0 +1,106 @@
+@model ProductionManagement.Web.Models.OrderViewModel
+@{
+    ViewData["Title"] = "オーダ詳細";
+}
+
+<div class="row mb-3">
+    <div class="col">
+        <h2><i class="bi bi-calendar-check me-2"></i>オーダ詳細</h2>
+    </div>
+    <div class="col-auto">
+        @if (Model.Status == ProductionManagement.Domain.Models.Plan.PlanStatus.Draft)
+        {
+            <form asp-action="Confirm" asp-route-id="@Model.Id" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-success me-2" onclick="return confirm('このオーダを確定しますか？')">
+                    <i class="bi bi-check-circle me-1"></i>確定
+                </button>
+            </form>
+            <form asp-action="Cancel" asp-route-id="@Model.Id" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-danger me-2" onclick="return confirm('このオーダを取消しますか？')">
+                    <i class="bi bi-x-circle me-1"></i>取消
+                </button>
+            </form>
+        }
+        @if (Model.Status == ProductionManagement.Domain.Models.Plan.PlanStatus.Confirmed)
+        {
+            <a asp-controller="Mrp" asp-action="Execute" class="btn btn-info me-2">
+                <i class="bi bi-diagram-3 me-1"></i>MRP 実行
+            </a>
+        }
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>一覧へ戻る
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <i class="bi bi-info-circle me-2"></i>基本情報
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.OrderNumber)</dt>
+            <dd class="col-sm-9">@Model.OrderNumber</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.OrderType)</dt>
+            <dd class="col-sm-9">
+                <span class="badge @(Model.OrderType == ProductionManagement.Domain.Models.Plan.OrderType.Manufacturing ? "bg-primary" : "bg-info")">
+                    @Model.OrderTypeDisplayName
+                </span>
+            </dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.ItemCode)</dt>
+            <dd class="col-sm-9">
+                @Model.ItemCode
+                @if (!string.IsNullOrEmpty(Model.ItemName))
+                {
+                    <span class="text-muted">(@Model.ItemName)</span>
+                }
+            </dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Status)</dt>
+            <dd class="col-sm-9">
+                <span class="badge @GetStatusBadgeClass(Model.Status)">
+                    @Model.StatusDisplayName
+                </span>
+            </dd>
+        </dl>
+    </div>
+</div>
+
+<div class="card mt-3">
+    <div class="card-header">
+        <i class="bi bi-calendar-range me-2"></i>計画情報
+    </div>
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.StartDate)</dt>
+            <dd class="col-sm-9">@Model.StartDate.ToString("yyyy/MM/dd")</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.DueDate)</dt>
+            <dd class="col-sm-9">@Model.DueDate.ToString("yyyy/MM/dd")</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.PlanQuantity)</dt>
+            <dd class="col-sm-9">@Model.PlanQuantity.ToString("#,##0.###")</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.LocationCode)</dt>
+            <dd class="col-sm-9">@(Model.LocationCode ?? "-")</dd>
+        </dl>
+    </div>
+</div>
+
+@functions {
+    string GetStatusBadgeClass(ProductionManagement.Domain.Models.Plan.PlanStatus status)
+    {
+        return status switch
+        {
+            ProductionManagement.Domain.Models.Plan.PlanStatus.Draft => "bg-secondary",
+            ProductionManagement.Domain.Models.Plan.PlanStatus.Confirmed => "bg-primary",
+            ProductionManagement.Domain.Models.Plan.PlanStatus.Expanded => "bg-success",
+            ProductionManagement.Domain.Models.Plan.PlanStatus.Cancelled => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}

@@ -112,6 +112,35 @@ public class OrderRepository : IOrderRepository
         return await connection.QuerySingleOrDefaultAsync<Order>(sql, new { OrderNumber = orderNumber });
     }
 
+    public async Task<IReadOnlyList<Order>> FindAllAsync()
+    {
+        const string sql = """
+            SELECT
+                "ID" as Id,
+                "オーダNO" as OrderNumber,
+                "オーダ種別"::TEXT as OrderTypeValue,
+                "品目コード" as ItemCode,
+                "着手予定日" as StartDate,
+                "納期" as DueDate,
+                "有効期限" as ExpirationDate,
+                "計画数量" as PlanQuantity,
+                "場所コード" as LocationCode,
+                "ステータス"::TEXT as StatusValue,
+                "MPS_ID" as MpsId,
+                "親オーダID" as ParentOrderId,
+                "作成日時" as CreatedAt,
+                "作成者" as CreatedBy,
+                "更新日時" as UpdatedAt,
+                "更新者" as UpdatedBy
+            FROM "オーダ情報"
+            ORDER BY "作成日時" DESC
+            """;
+
+        await using var connection = new NpgsqlConnection(_connectionString);
+        var result = await connection.QueryAsync<Order>(sql);
+        return result.ToList();
+    }
+
     public async Task<IReadOnlyList<Order>> FindByMpsIdAsync(int mpsId)
     {
         const string sql = """

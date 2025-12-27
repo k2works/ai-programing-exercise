@@ -10,6 +10,7 @@ public interface IOrderRepository
     Task SaveAsync(Order order);
     Task<Order?> FindByIdAsync(int id);
     Task<Order?> FindByOrderNumberAsync(string orderNumber);
+    Task<IReadOnlyList<Order>> FindAllAsync();
     Task<IReadOnlyList<Order>> FindByMpsIdAsync(int mpsId);
     Task<IReadOnlyList<Order>> FindByParentOrderIdAsync(int parentOrderId);
     Task UpdateParentOrderIdAsync(int id, int parentOrderId);
