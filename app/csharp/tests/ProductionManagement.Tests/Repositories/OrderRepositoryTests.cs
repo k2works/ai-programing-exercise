@@ -27,6 +27,7 @@ public class OrderRepositoryTests
     private readonly IEmployeeRepository _employeeRepository;
     private readonly IDepartmentRepository _departmentRepository;
     private readonly IIssueRepository _issueRepository;
+    private readonly ICostRepository _costRepository;
 
     public OrderRepositoryTests(PostgresFixture fixture)
     {
@@ -44,8 +45,11 @@ public class OrderRepositoryTests
         _employeeRepository = new EmployeeRepository(fixture.ConnectionString);
         _departmentRepository = new DepartmentRepository(fixture.ConnectionString);
         _issueRepository = new IssueRepository(fixture.ConnectionString);
+        _costRepository = new CostRepository(fixture.ConnectionString);
 
-        // FK制約の順序に従って削除: 払出 → 工数実績 → 完成検査結果 → 完成実績 → 作業指示明細 → 作業指示 → 引当 → 所要 → オーダ → MPS → 品目
+        // FK制約の順序に従って削除: 原価差異 → 実際原価 → 払出 → 工数実績 → 完成検査結果 → 完成実績 → 作業指示明細 → 作業指示 → 引当 → 所要 → オーダ → MPS → 品目
+        _costRepository.DeleteAllCostVariancesAsync().Wait();
+        _costRepository.DeleteAllActualCostsAsync().Wait();
         _issueRepository.DeleteAllDetailsAsync().Wait();
         _issueRepository.DeleteAllAsync().Wait();
         _laborHoursRepository.DeleteAllAsync().Wait();
@@ -59,6 +63,7 @@ public class OrderRepositoryTests
         _requirementRepository.DeleteAllAsync().Wait();
         _orderRepository.DeleteAllAsync().Wait();
         _mpsRepository.DeleteAllAsync().Wait();
+        _costRepository.DeleteAllStandardCostsAsync().Wait();
         _itemRepository.DeleteAllAsync().Wait();
     }
 
