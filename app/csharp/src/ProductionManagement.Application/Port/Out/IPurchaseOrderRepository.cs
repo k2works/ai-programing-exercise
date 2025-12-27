@@ -10,6 +10,7 @@ public interface IPurchaseOrderRepository
     Task SaveAsync(PurchaseOrder purchaseOrder);
     Task<PurchaseOrder?> FindByIdAsync(int id);
     Task<PurchaseOrder?> FindByPurchaseOrderNumberAsync(string purchaseOrderNumber);
+    Task<IReadOnlyList<PurchaseOrder>> FindAllAsync();
     Task<string?> FindLatestPurchaseOrderNumberAsync(string prefix);
     Task UpdateStatusAsync(string purchaseOrderNumber, PurchaseOrderStatus status);
     Task DeleteAllAsync();

@@ -1,3 +1,4 @@
+using ProductionManagement.Application.Port.In;
 using ProductionManagement.Application.Port.In.Command;
 using ProductionManagement.Application.Port.Out;
 using ProductionManagement.Domain.Exceptions;
@@ -8,13 +9,99 @@ namespace ProductionManagement.Application.Services;
 /// <summary>
 /// 在庫サービス
 /// </summary>
-public class InventoryService
+public class InventoryService : IInventoryUseCase
 {
     private readonly IStockRepository _stockRepository;
+    private readonly IItemRepository _itemRepository;
 
-    public InventoryService(IStockRepository stockRepository)
+    public InventoryService(IStockRepository stockRepository, IItemRepository itemRepository)
     {
         _stockRepository = stockRepository;
+        _itemRepository = itemRepository;
+    }
+
+    /// <summary>
+    /// 在庫一覧を取得
+    /// </summary>
+    public async Task<IReadOnlyList<Stock>> GetInventoryAsync(InventoryQuery query)
+    {
+        var stocks = await _stockRepository.FindAllAsync();
+
+        return stocks
+            .Where(s => query.ItemCode == null || s.ItemCode == query.ItemCode)
+            .Where(s => query.LocationCode == null || s.LocationCode == query.LocationCode)
+            .Where(s => query.Status == null || HasStockByStatus(s, query.Status.Value))
+            .ToList();
+    }
+
+    private static bool HasStockByStatus(Stock stock, StockStatus status) => status switch
+    {
+        StockStatus.Passed => stock.PassedQuantity > 0,
+        StockStatus.Defective => stock.DefectiveQuantity > 0,
+        StockStatus.Uninspected => stock.UninspectedQuantity > 0,
+        _ => false
+    };
+
+    /// <summary>
+    /// 在庫サマリーを取得
+    /// </summary>
+    public async Task<IReadOnlyList<InventorySummary>> GetInventorySummaryAsync()
+    {
+        var stocks = await _stockRepository.FindAllAsync();
+        var items = await _itemRepository.FindAllAsync();
+        var itemDict = items.ToDictionary(i => i.ItemCode);
+
+        var grouped = stocks.GroupBy(s => s.ItemCode);
+        var summaries = new List<InventorySummary>();
+
+        foreach (var group in grouped)
+        {
+            var itemCode = group.Key;
+            var totalQuantity = group.Sum(s => s.StockQuantity);
+            var item = itemDict.GetValueOrDefault(itemCode);
+            var safetyStock = item?.SafetyStock;
+
+            var state = DetermineStockState(totalQuantity, safetyStock);
+
+            summaries.Add(new InventorySummary(
+                itemCode,
+                item?.ItemName ?? itemCode,
+                totalQuantity,
+                safetyStock,
+                state
+            ));
+        }
+
+        return summaries;
+    }
+
+    /// <summary>
+    /// 在庫不足品目を取得
+    /// </summary>
+    public async Task<IReadOnlyList<InventorySummary>> GetShortageItemsAsync()
+    {
+        var summaries = await GetInventorySummaryAsync();
+        return summaries.Where(s => s.StockState == StockState.Shortage).ToList();
+    }
+
+    private static StockState DetermineStockState(decimal totalQuantity, decimal? safetyStock)
+    {
+        if (safetyStock == null)
+        {
+            return StockState.Normal;
+        }
+
+        if (totalQuantity < safetyStock.Value)
+        {
+            return StockState.Shortage;
+        }
+
+        if (totalQuantity > safetyStock.Value * 2)
+        {
+            return StockState.Excess;
+        }
+
+        return StockState.Normal;
     }
 
     /// <summary>

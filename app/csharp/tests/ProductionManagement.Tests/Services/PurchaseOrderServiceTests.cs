@@ -117,7 +117,7 @@ public class PurchaseOrderServiceTests
                 ]
             };
 
-            var purchaseOrder = await _purchaseOrderService.CreatePurchaseOrderAsync(input);
+            var purchaseOrder = await _purchaseOrderService.CreateOrderAsync(input);
 
             // Assert
             purchaseOrder.Should().NotBeNull();
@@ -196,7 +196,7 @@ public class PurchaseOrderServiceTests
                 ]
             };
 
-            var purchaseOrder = await _purchaseOrderService.CreatePurchaseOrderAsync(input);
+            var purchaseOrder = await _purchaseOrderService.CreateOrderAsync(input);
 
             // Assert
             purchaseOrder.Details.Should().HaveCount(2);
@@ -248,10 +248,10 @@ public class PurchaseOrderServiceTests
                 ]
             };
 
-            var purchaseOrder = await _purchaseOrderService.CreatePurchaseOrderAsync(input);
+            var purchaseOrder = await _purchaseOrderService.CreateOrderAsync(input);
 
             // Act: 発注確定
-            var confirmedOrder = await _purchaseOrderService.ConfirmPurchaseOrderAsync(
+            var confirmedOrder = await _purchaseOrderService.ConfirmOrderAsync(
                 purchaseOrder.PurchaseOrderNumber);
 
             // Assert
@@ -309,7 +309,7 @@ public class PurchaseOrderServiceTests
                 ]
             };
 
-            var purchaseOrder = await _purchaseOrderService.CreatePurchaseOrderAsync(input);
+            var purchaseOrder = await _purchaseOrderService.CreateOrderAsync(input);
 
             // Assert: 100 × 1000 = 100,000円、消費税 10,000円
             purchaseOrder.Details[0].OrderAmount.Should().Be(100000m);
@@ -361,7 +361,7 @@ public class PurchaseOrderServiceTests
                 ]
             };
 
-            var purchaseOrder = await _purchaseOrderService.CreatePurchaseOrderAsync(input);
+            var purchaseOrder = await _purchaseOrderService.CreateOrderAsync(input);
 
             // Assert: 200 × 500 = 100,000円、消費税 10,000円（10%）
             purchaseOrder.Details[0].OrderAmount.Should().Be(100000m);
@@ -417,14 +417,15 @@ public class PurchaseOrderServiceTests
                 ]
             };
 
-            var purchaseOrder = await _purchaseOrderService.CreatePurchaseOrderAsync(input);
+            var purchaseOrder = await _purchaseOrderService.CreateOrderAsync(input);
 
             // Act
-            var cancelledOrder = await _purchaseOrderService.CancelPurchaseOrderAsync(
-                purchaseOrder.PurchaseOrderNumber);
+            await _purchaseOrderService.CancelOrderAsync(purchaseOrder.PurchaseOrderNumber);
 
             // Assert
-            cancelledOrder.Status.Should().Be(PurchaseOrderStatus.Cancelled);
+            var cancelledOrder = await _purchaseOrderRepository.FindByPurchaseOrderNumberAsync(
+                purchaseOrder.PurchaseOrderNumber);
+            cancelledOrder!.Status.Should().Be(PurchaseOrderStatus.Cancelled);
         }
 
         [Fact]
@@ -465,7 +466,7 @@ public class PurchaseOrderServiceTests
             };
 
             // Act & Assert
-            var act = async () => await _purchaseOrderService.CreatePurchaseOrderAsync(input);
+            var act = async () => await _purchaseOrderService.CreateOrderAsync(input);
             await act.Should().ThrowAsync<InvalidOperationException>()
                 .WithMessage("Unit price not found: MAT-008 / SUP-007");
         }

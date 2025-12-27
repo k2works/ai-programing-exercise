@@ -81,6 +81,40 @@ public class WorkOrderRepository : IWorkOrderRepository
         return await connection.QuerySingleOrDefaultAsync<WorkOrder>(sql, new { WorkOrderNumber = workOrderNumber });
     }
 
+    public async Task<IReadOnlyList<WorkOrder>> FindAllAsync()
+    {
+        const string sql = """
+            SELECT
+                "ID" AS Id,
+                "作業指示番号" AS WorkOrderNumber,
+                "オーダ番号" AS OrderNumber,
+                "作業指示日" AS WorkOrderDate,
+                "品目コード" AS ItemCode,
+                "作業指示数" AS OrderQuantity,
+                "場所コード" AS LocationCode,
+                "開始予定日" AS PlannedStartDate,
+                "完成予定日" AS PlannedEndDate,
+                "実績開始日" AS ActualStartDate,
+                "実績完了日" AS ActualEndDate,
+                "完成済数" AS CompletedQuantity,
+                "総良品数" AS TotalGoodQuantity,
+                "総不良品数" AS TotalDefectQuantity,
+                "ステータス"::TEXT AS StatusValue,
+                "完了フラグ" AS CompletedFlag,
+                "備考" AS Remarks,
+                "作成日時" AS CreatedAt,
+                "作成者" AS CreatedBy,
+                "更新日時" AS UpdatedAt,
+                "更新者" AS UpdatedBy
+            FROM "作業指示データ"
+            ORDER BY "作業指示番号" DESC
+            """;
+
+        await using var connection = new NpgsqlConnection(_connectionString);
+        var result = await connection.QueryAsync<WorkOrder>(sql);
+        return result.ToList();
+    }
+
     public async Task<string?> FindLatestWorkOrderNumberAsync(string prefix)
     {
         const string sql = """

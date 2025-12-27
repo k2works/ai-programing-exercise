@@ -9,6 +9,7 @@ public interface IWorkOrderRepository
 {
     Task SaveAsync(WorkOrder workOrder);
     Task<WorkOrder?> FindByWorkOrderNumberAsync(string workOrderNumber);
+    Task<IReadOnlyList<WorkOrder>> FindAllAsync();
     Task<string?> FindLatestWorkOrderNumberAsync(string prefix);
     Task StartWorkAsync(string workOrderNumber, DateOnly actualStartDate);
     Task CompleteWorkAsync(string workOrderNumber, DateOnly actualEndDate);

@@ -29,7 +29,7 @@ public class InventoryServiceTests
         _stockRepository = new StockRepository(fixture.ConnectionString);
         _locationRepository = new LocationRepository(fixture.ConnectionString);
         _itemRepository = new ItemRepository(fixture.ConnectionString);
-        _inventoryService = new InventoryService(_stockRepository);
+        _inventoryService = new InventoryService(_stockRepository, _itemRepository);
 
         // クリーンアップ
         _stockRepository.DeleteAllAsync().Wait();

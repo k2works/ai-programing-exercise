@@ -191,6 +191,45 @@ public class ItemRepository : IItemRepository
         });
     }
 
+    public async Task<IReadOnlyList<Item>> FindByCategoryAsync(ItemCategory category)
+    {
+        const string sql = """
+            SELECT
+                "ID" as Id,
+                "品目コード" as ItemCode,
+                "適用開始日" as EffectiveFrom,
+                "適用停止日" as EffectiveTo,
+                "品名" as ItemName,
+                "品目区分"::TEXT as ItemCategoryValue,
+                "単位コード" as UnitCode,
+                "リードタイム" as LeadTime,
+                "安全リードタイム" as SafetyLeadTime,
+                "安全在庫数" as SafetyStock,
+                "歩留率" as YieldRate,
+                "最小ロット数" as MinLotSize,
+                "刻みロット数" as LotIncrement,
+                "最大ロット数" as MaxLotSize,
+                "有効期間" as ShelfLife,
+                "作成日時" as CreatedAt,
+                "更新日時" as UpdatedAt
+            FROM "品目マスタ"
+            WHERE "品目区分" = @Category::品目区分
+            ORDER BY "品目コード"
+            """;
+
+        await using var connection = new NpgsqlConnection(_connectionString);
+        var result = await connection.QueryAsync<Item>(sql, new { Category = category.GetDisplayName() });
+        return result.ToList();
+    }
+
+    public async Task DeleteByCodeAsync(string itemCode)
+    {
+        const string sql = """DELETE FROM "品目マスタ" WHERE "品目コード" = @ItemCode""";
+
+        await using var connection = new NpgsqlConnection(_connectionString);
+        await connection.ExecuteAsync(sql, new { ItemCode = itemCode });
+    }
+
     public async Task DeleteAllAsync()
     {
         const string sql = """TRUNCATE TABLE "品目マスタ" CASCADE""";

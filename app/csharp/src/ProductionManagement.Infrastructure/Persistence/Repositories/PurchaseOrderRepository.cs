@@ -100,6 +100,31 @@ public class PurchaseOrderRepository : IPurchaseOrderRepository
             sql, new { PurchaseOrderNumber = purchaseOrderNumber });
     }
 
+    public async Task<IReadOnlyList<PurchaseOrder>> FindAllAsync()
+    {
+        const string sql = """
+            SELECT
+                "ID" AS Id,
+                "発注番号" AS PurchaseOrderNumber,
+                "発注日" AS OrderDate,
+                "取引先コード" AS SupplierCode,
+                "発注担当者コード" AS OrdererCode,
+                "発注部門コード" AS DepartmentCode,
+                "ステータス"::TEXT AS StatusValue,
+                "備考" AS Remarks,
+                "作成日時" AS CreatedAt,
+                "作成者" AS CreatedBy,
+                "更新日時" AS UpdatedAt,
+                "更新者" AS UpdatedBy
+            FROM "発注データ"
+            ORDER BY "発注番号" DESC
+            """;
+
+        await using var connection = new NpgsqlConnection(_connectionString);
+        var result = await connection.QueryAsync<PurchaseOrder>(sql);
+        return result.ToList();
+    }
+
     public async Task<string?> FindLatestPurchaseOrderNumberAsync(string prefix)
     {
         const string sql = """

@@ -54,7 +54,7 @@ public class IssueServiceTests
         _completionResultRepository = new CompletionResultRepository(fixture.ConnectionString);
         _completionInspectionResultRepository = new CompletionInspectionResultRepository(fixture.ConnectionString);
 
-        _inventoryService = new InventoryService(_stockRepository);
+        _inventoryService = new InventoryService(_stockRepository, _itemRepository);
 
         _issueService = new IssueService(
             _issueInstructionRepository,

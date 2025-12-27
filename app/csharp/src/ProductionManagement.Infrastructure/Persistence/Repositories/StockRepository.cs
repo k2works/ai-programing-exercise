@@ -62,6 +62,27 @@ public class StockRepository : IStockRepository
         return result.ToList();
     }
 
+    public async Task<IReadOnlyList<Stock>> FindAllAsync()
+    {
+        const string sql = """
+            SELECT
+                "ID" AS Id,
+                "場所コード" AS LocationCode,
+                "品目コード" AS ItemCode,
+                "在庫数量" AS StockQuantity,
+                "合格数" AS PassedQuantity,
+                "不良数" AS DefectiveQuantity,
+                "未検査数" AS UninspectedQuantity,
+                "作成日時" AS CreatedAt,
+                "更新日時" AS UpdatedAt
+            FROM "在庫情報"
+            """;
+
+        await using var connection = CreateConnection();
+        var result = await connection.QueryAsync<Stock>(sql);
+        return result.ToList();
+    }
+
     public async Task<long> SaveAsync(Stock stock)
     {
         const string sql = """

@@ -126,8 +126,8 @@ public class SupplyServiceTests
             ]
         };
 
-        var purchaseOrder = await _purchaseOrderService.CreatePurchaseOrderAsync(createCommand);
-        await _purchaseOrderService.ConfirmPurchaseOrderAsync(purchaseOrder.PurchaseOrderNumber);
+        var purchaseOrder = await _purchaseOrderService.CreateOrderAsync(createCommand);
+        await _purchaseOrderService.ConfirmOrderAsync(purchaseOrder.PurchaseOrderNumber);
 
         return purchaseOrder;
     }

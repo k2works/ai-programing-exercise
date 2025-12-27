@@ -34,6 +34,16 @@ public interface IItemRepository
     Task UpdateAsync(Item item);
 
     /// <summary>
+    /// 品目区分で品目を取得する
+    /// </summary>
+    Task<IReadOnlyList<Item>> FindByCategoryAsync(ItemCategory category);
+
+    /// <summary>
+    /// 品目コードで品目を削除する
+    /// </summary>
+    Task DeleteByCodeAsync(string itemCode);
+
+    /// <summary>
     /// すべての品目を削除する
     /// </summary>
     Task DeleteAllAsync();

@@ -1,5 +1,7 @@
+using ProductionManagement.Application.Port.In;
 using ProductionManagement.Application.Port.In.Command;
 using ProductionManagement.Application.Port.Out;
+using ProductionManagement.Domain.Exceptions;
 using ProductionManagement.Domain.Models.Process;
 
 namespace ProductionManagement.Application.Services;
@@ -7,7 +9,7 @@ namespace ProductionManagement.Application.Services;
 /// <summary>
 /// 作業指示サービス
 /// </summary>
-public class WorkOrderService
+public class WorkOrderService : IWorkOrderUseCase
 {
     private readonly IWorkOrderRepository _workOrderRepository;
     private readonly IWorkOrderDetailRepository _workOrderDetailRepository;
@@ -137,16 +139,23 @@ public class WorkOrderService
     }
 
     /// <summary>
-    /// 作業指示を検索する
+    /// 作業指示を取得する
     /// </summary>
-    public async Task<WorkOrder?> FindByWorkOrderNumberAsync(string workOrderNumber)
+    public async Task<WorkOrder> GetWorkOrderAsync(string workOrderNumber)
     {
-        var workOrder = await _workOrderRepository.FindByWorkOrderNumberAsync(workOrderNumber);
-        if (workOrder != null)
-        {
-            var details = await _workOrderDetailRepository.FindByWorkOrderNumberAsync(workOrderNumber);
-            workOrder.Details = details;
-        }
+        var workOrder = await _workOrderRepository.FindByWorkOrderNumberAsync(workOrderNumber)
+            ?? throw new WorkOrderNotFoundException(workOrderNumber);
+
+        var details = await _workOrderDetailRepository.FindByWorkOrderNumberAsync(workOrderNumber);
+        workOrder.Details = details;
         return workOrder;
+    }
+
+    /// <summary>
+    /// 作業指示一覧を取得する
+    /// </summary>
+    public async Task<IReadOnlyList<WorkOrder>> GetAllWorkOrdersAsync()
+    {
+        return await _workOrderRepository.FindAllAsync();
     }
 }

@@ -127,7 +127,7 @@ public class ConsumptionServiceTests
         });
 
         // 発注を作成
-        var purchaseOrder = await _purchaseOrderService.CreatePurchaseOrderAsync(new PurchaseOrderCreateCommand
+        var purchaseOrder = await _purchaseOrderService.CreateOrderAsync(new PurchaseOrderCreateCommand
         {
             SupplierCode = "SUB-CON-001",
             OrderDate = new DateOnly(2025, 1, 15),
@@ -142,7 +142,7 @@ public class ConsumptionServiceTests
                 }
             ]
         });
-        await _purchaseOrderService.ConfirmPurchaseOrderAsync(purchaseOrder.PurchaseOrderNumber);
+        await _purchaseOrderService.ConfirmOrderAsync(purchaseOrder.PurchaseOrderNumber);
 
         // 支給を作成
         var supply = await _supplyService.CreateSupplyAsync(new SupplyCommand
@@ -271,7 +271,7 @@ public class ConsumptionServiceTests
                 Price = 100m
             });
 
-            var purchaseOrder = await _purchaseOrderService.CreatePurchaseOrderAsync(new PurchaseOrderCreateCommand
+            var purchaseOrder = await _purchaseOrderService.CreateOrderAsync(new PurchaseOrderCreateCommand
             {
                 SupplierCode = "VEN-001",
                 OrderDate = new DateOnly(2025, 1, 15),
@@ -285,7 +285,7 @@ public class ConsumptionServiceTests
                     }
                 ]
             });
-            await _purchaseOrderService.ConfirmPurchaseOrderAsync(purchaseOrder.PurchaseOrderNumber);
+            await _purchaseOrderService.ConfirmOrderAsync(purchaseOrder.PurchaseOrderNumber);
 
             var receiving = await _receivingService.RegisterReceivingAsync(new ReceivingCommand
             {

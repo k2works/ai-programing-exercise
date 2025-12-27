@@ -1,5 +1,7 @@
+using ProductionManagement.Application.Port.In;
 using ProductionManagement.Application.Port.In.Command;
 using ProductionManagement.Application.Port.Out;
+using ProductionManagement.Domain.Exceptions;
 using ProductionManagement.Domain.Models.Purchase;
 
 namespace ProductionManagement.Application.Services;
@@ -7,7 +9,7 @@ namespace ProductionManagement.Application.Services;
 /// <summary>
 /// 発注サービス
 /// </summary>
-public class PurchaseOrderService
+public class PurchaseOrderService : IPurchaseOrderUseCase
 {
     private readonly IPurchaseOrderRepository _purchaseOrderRepository;
     private readonly IPurchaseOrderDetailRepository _purchaseOrderDetailRepository;
@@ -44,7 +46,7 @@ public class PurchaseOrderService
     /// <summary>
     /// 発注を作成する
     /// </summary>
-    public async Task<PurchaseOrder> CreatePurchaseOrderAsync(PurchaseOrderCreateCommand input)
+    public async Task<PurchaseOrder> CreateOrderAsync(PurchaseOrderCreateCommand input)
     {
         var purchaseOrderNumber = await GeneratePurchaseOrderNumberAsync(input.OrderDate);
         var taxRate = input.TaxRate ?? 10m;
@@ -110,16 +112,33 @@ public class PurchaseOrderService
     }
 
     /// <summary>
+    /// 発注を取得する
+    /// </summary>
+    public async Task<PurchaseOrder> GetOrderAsync(string purchaseOrderNumber)
+    {
+        var purchaseOrder = await _purchaseOrderRepository.FindByPurchaseOrderNumberAsync(purchaseOrderNumber)
+            ?? throw new PurchaseOrderNotFoundException(purchaseOrderNumber);
+
+        var details = await _purchaseOrderDetailRepository.FindByPurchaseOrderNumberAsync(purchaseOrderNumber);
+        purchaseOrder.Details = details;
+        return purchaseOrder;
+    }
+
+    /// <summary>
+    /// 発注一覧を取得する
+    /// </summary>
+    public async Task<IReadOnlyList<PurchaseOrder>> GetAllOrdersAsync()
+    {
+        return await _purchaseOrderRepository.FindAllAsync();
+    }
+
+    /// <summary>
     /// 発注を確定する
     /// </summary>
-    public async Task<PurchaseOrder> ConfirmPurchaseOrderAsync(string purchaseOrderNumber)
+    public async Task<PurchaseOrder> ConfirmOrderAsync(string purchaseOrderNumber)
     {
-        var purchaseOrder = await _purchaseOrderRepository.FindByPurchaseOrderNumberAsync(purchaseOrderNumber);
-
-        if (purchaseOrder == null)
-        {
-            throw new InvalidOperationException($"Purchase order not found: {purchaseOrderNumber}");
-        }
+        var purchaseOrder = await _purchaseOrderRepository.FindByPurchaseOrderNumberAsync(purchaseOrderNumber)
+            ?? throw new PurchaseOrderNotFoundException(purchaseOrderNumber);
 
         if (purchaseOrder.Status != PurchaseOrderStatus.Creating)
         {
@@ -135,14 +154,10 @@ public class PurchaseOrderService
     /// <summary>
     /// 発注を取消する
     /// </summary>
-    public async Task<PurchaseOrder> CancelPurchaseOrderAsync(string purchaseOrderNumber)
+    public async Task CancelOrderAsync(string purchaseOrderNumber)
     {
-        var purchaseOrder = await _purchaseOrderRepository.FindByPurchaseOrderNumberAsync(purchaseOrderNumber);
-
-        if (purchaseOrder == null)
-        {
-            throw new InvalidOperationException($"Purchase order not found: {purchaseOrderNumber}");
-        }
+        var purchaseOrder = await _purchaseOrderRepository.FindByPurchaseOrderNumberAsync(purchaseOrderNumber)
+            ?? throw new PurchaseOrderNotFoundException(purchaseOrderNumber);
 
         var details = await _purchaseOrderDetailRepository.FindByPurchaseOrderNumberAsync(purchaseOrderNumber);
         var hasReceived = details.Any(d => d.ReceivedQuantity > 0);
@@ -154,7 +169,5 @@ public class PurchaseOrderService
         }
 
         await _purchaseOrderRepository.UpdateStatusAsync(purchaseOrderNumber, PurchaseOrderStatus.Cancelled);
-        purchaseOrder.Status = PurchaseOrderStatus.Cancelled;
-        return purchaseOrder;
     }
 }
