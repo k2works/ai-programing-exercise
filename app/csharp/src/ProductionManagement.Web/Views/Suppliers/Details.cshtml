@@ -1,0 +1,99 @@
+@model ProductionManagement.Web.Models.SupplierViewModel
+@{
+    ViewData["Title"] = "取引先詳細";
+}
+
+<div class="row mb-3">
+    <div class="col">
+        <h2><i class="bi bi-building me-2"></i>取引先詳細</h2>
+    </div>
+    <div class="col-auto">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>一覧へ戻る
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <i class="bi bi-info-circle me-2"></i>基本情報
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.SupplierCode)</dt>
+            <dd class="col-sm-9">@Model.SupplierCode</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.SupplierName)</dt>
+            <dd class="col-sm-9">@Model.SupplierName</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.SupplierNameKana)</dt>
+            <dd class="col-sm-9">@(Model.SupplierNameKana ?? "-")</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.SupplierType)</dt>
+            <dd class="col-sm-9">
+                <span class="badge @GetSupplierTypeBadgeClass(Model.SupplierType)">
+                    @Model.SupplierTypeDisplayName
+                </span>
+            </dd>
+        </dl>
+    </div>
+</div>
+
+<div class="card mt-3">
+    <div class="card-header">
+        <i class="bi bi-geo-alt me-2"></i>連絡先情報
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.PostalCode)</dt>
+            <dd class="col-sm-9">@(Model.PostalCode ?? "-")</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Address)</dt>
+            <dd class="col-sm-9">@(Model.Address ?? "-")</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.PhoneNumber)</dt>
+            <dd class="col-sm-9">@(Model.PhoneNumber ?? "-")</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.FaxNumber)</dt>
+            <dd class="col-sm-9">@(Model.FaxNumber ?? "-")</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.ContactPerson)</dt>
+            <dd class="col-sm-9">@(Model.ContactPerson ?? "-")</dd>
+        </dl>
+    </div>
+</div>
+
+<div class="card mt-3">
+    <div class="card-header">
+        <i class="bi bi-clock-history me-2"></i>有効期間・更新情報
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.EffectiveFrom)</dt>
+            <dd class="col-sm-9">@Model.EffectiveFrom.ToString("yyyy/MM/dd")</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.EffectiveTo)</dt>
+            <dd class="col-sm-9">@(Model.EffectiveTo?.ToString("yyyy/MM/dd") ?? "-")</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.CreatedAt)</dt>
+            <dd class="col-sm-9">@Model.CreatedAt.ToString("yyyy/MM/dd HH:mm:ss")</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.UpdatedAt)</dt>
+            <dd class="col-sm-9">@Model.UpdatedAt.ToString("yyyy/MM/dd HH:mm:ss")</dd>
+        </dl>
+    </div>
+</div>
+
+@functions {
+    string GetSupplierTypeBadgeClass(ProductionManagement.Domain.Models.Supplier.SupplierType supplierType)
+    {
+        return supplierType switch
+        {
+            ProductionManagement.Domain.Models.Supplier.SupplierType.Vendor => "bg-primary",
+            ProductionManagement.Domain.Models.Supplier.SupplierType.Subcontractor => "bg-info",
+            ProductionManagement.Domain.Models.Supplier.SupplierType.Customer => "bg-success",
+            ProductionManagement.Domain.Models.Supplier.SupplierType.VendorAndSubcontractor => "bg-warning text-dark",
+            _ => "bg-secondary"
+        };
+    }
+}

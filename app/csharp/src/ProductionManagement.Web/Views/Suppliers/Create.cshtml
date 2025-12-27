@@ -1,0 +1,101 @@
+@model ProductionManagement.Web.Models.SupplierViewModel
+@{
+    ViewData["Title"] = "取引先登録";
+}
+
+<div class="row mb-3">
+    <div class="col">
+        <h2><i class="bi bi-building me-2"></i>取引先登録</h2>
+    </div>
+    <div class="col-auto">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>一覧へ戻る
+        </a>
+    </div>
+</div>
+
+<form asp-action="Create" method="post">
+    <div class="card">
+        <div class="card-header">
+            <i class="bi bi-info-circle me-2"></i>基本情報
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label asp-for="SupplierCode" class="form-label"></label>
+                    <input asp-for="SupplierCode" class="form-control" />
+                    <span asp-validation-for="SupplierCode" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="SupplierType" class="form-label"></label>
+                    <select asp-for="SupplierType" asp-items="@ViewBag.SupplierTypes" class="form-select"></select>
+                    <span asp-validation-for="SupplierType" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="SupplierName" class="form-label"></label>
+                    <input asp-for="SupplierName" class="form-control" />
+                    <span asp-validation-for="SupplierName" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="SupplierNameKana" class="form-label"></label>
+                    <input asp-for="SupplierNameKana" class="form-control" />
+                    <span asp-validation-for="SupplierNameKana" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-header">
+            <i class="bi bi-geo-alt me-2"></i>連絡先情報
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label asp-for="PostalCode" class="form-label"></label>
+                    <input asp-for="PostalCode" class="form-control" placeholder="000-0000" />
+                    <span asp-validation-for="PostalCode" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <label asp-for="Address" class="form-label"></label>
+                    <input asp-for="Address" class="form-control" />
+                    <span asp-validation-for="Address" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label asp-for="PhoneNumber" class="form-label"></label>
+                    <input asp-for="PhoneNumber" class="form-control" placeholder="000-0000-0000" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="FaxNumber" class="form-label"></label>
+                    <input asp-for="FaxNumber" class="form-control" placeholder="000-0000-0000" />
+                    <span asp-validation-for="FaxNumber" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="ContactPerson" class="form-label"></label>
+                    <input asp-for="ContactPerson" class="form-control" />
+                    <span asp-validation-for="ContactPerson" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-circle me-1"></i>登録
+        </button>
+        <a asp-action="Index" class="btn btn-outline-secondary ms-2">
+            <i class="bi bi-x-circle me-1"></i>キャンセル
+        </a>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

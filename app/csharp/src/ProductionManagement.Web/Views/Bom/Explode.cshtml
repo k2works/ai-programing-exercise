@@ -1,0 +1,91 @@
+@model ProductionManagement.Web.Models.BomExplodeViewModel
+@{
+    ViewData["Title"] = "部品展開";
+}
+
+<div class="row mb-3">
+    <div class="col">
+        <h2><i class="bi bi-diagram-3 me-2"></i>部品展開</h2>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form asp-action="Explode" method="get" class="row g-3">
+            <div class="col-md-4">
+                <label asp-for="ItemCode" class="form-label"></label>
+                <input asp-for="ItemCode" class="form-control"
+                       placeholder="親品目コードを入力" required>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search me-1"></i>展開
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (Model.BomTree != null)
+{
+    var flatList = FlattenBomTree(Model.BomTree);
+
+    <div class="card">
+        <div class="card-header">
+            <i class="bi bi-list-nested me-2"></i>部品構成
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>階層</th>
+                            <th>品目コード</th>
+                            <th>品目名</th>
+                            <th class="text-end">所要量</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var node in flatList)
+                        {
+                            var indent = string.Concat(Enumerable.Repeat("\u00A0\u00A0\u00A0\u00A0", node.Level));
+                            var prefix = node.Level > 0 ? "└─ " : "";
+                            <tr>
+                                <td>
+                                    <span class="text-muted">L@node.Level</span>
+                                </td>
+                                <td>
+                                    @indent@prefix
+                                    <a asp-controller="Items" asp-action="Details" asp-route-id="@node.ItemCode"
+                                       class="text-decoration-none">
+                                        @node.ItemCode
+                                    </a>
+                                </td>
+                                <td>@node.ItemName</td>
+                                <td class="text-end">@node.RequiredQuantity.ToString("N2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else if (!string.IsNullOrEmpty(Model.ItemCode))
+{
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i>部品構成がありません。
+    </div>
+}
+
+@functions {
+    List<ProductionManagement.Web.Models.BomNodeViewModel> FlattenBomTree(ProductionManagement.Web.Models.BomNodeViewModel node)
+    {
+        var result = new List<ProductionManagement.Web.Models.BomNodeViewModel> { node };
+        foreach (var child in node.Children)
+        {
+            result.AddRange(FlattenBomTree(child));
+        }
+        return result;
+    }
+}
