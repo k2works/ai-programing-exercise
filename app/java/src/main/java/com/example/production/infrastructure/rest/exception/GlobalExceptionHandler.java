@@ -1,4 +1,4 @@
-package com.example.production.infrastructure.web.exception;
+package com.example.production.infrastructure.rest.exception;
 
 import com.example.production.domain.exception.DomainException;
 import com.example.production.domain.exception.DuplicateItemException;

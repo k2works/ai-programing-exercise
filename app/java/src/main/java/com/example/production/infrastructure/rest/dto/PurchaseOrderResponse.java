@@ -1,4 +1,4 @@
-package com.example.production.infrastructure.web.dto;
+package com.example.production.infrastructure.rest.dto;
 
 import com.example.production.domain.model.purchase.PurchaseOrder;
 import com.example.production.domain.model.purchase.PurchaseOrderDetail;

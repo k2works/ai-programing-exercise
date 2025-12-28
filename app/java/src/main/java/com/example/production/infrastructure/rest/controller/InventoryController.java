@@ -1,8 +1,8 @@
-package com.example.production.infrastructure.web.controller;
+package com.example.production.infrastructure.rest.controller;
 
 import com.example.production.application.port.in.InventoryUseCase;
 import com.example.production.domain.model.inventory.Stock;
-import com.example.production.infrastructure.web.dto.StockResponse;
+import com.example.production.infrastructure.rest.dto.StockResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

@@ -1,4 +1,4 @@
-package com.example.production.infrastructure.web.controller;
+package com.example.production.infrastructure.rest.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

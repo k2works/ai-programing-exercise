@@ -1,10 +1,10 @@
-package com.example.production.infrastructure.web.controller;
+package com.example.production.infrastructure.rest.controller;
 
 import com.example.production.application.port.out.BomRepository;
 import com.example.production.domain.model.bom.Bom;
 import com.example.production.domain.model.bom.BomExplosion;
-import com.example.production.infrastructure.web.dto.BomExplosionResponse;
-import com.example.production.infrastructure.web.dto.BomResponse;
+import com.example.production.infrastructure.rest.dto.BomExplosionResponse;
+import com.example.production.infrastructure.rest.dto.BomResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

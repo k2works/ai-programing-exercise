@@ -1,13 +1,13 @@
-package com.example.production.infrastructure.web.controller;
+package com.example.production.infrastructure.rest.controller;
 
 import com.example.production.application.port.in.ItemUseCase;
 import com.example.production.application.port.in.command.CreateItemCommand;
 import com.example.production.application.port.in.command.UpdateItemCommand;
 import com.example.production.domain.model.item.Item;
 import com.example.production.domain.model.item.ItemCategory;
-import com.example.production.infrastructure.web.dto.CreateItemRequest;
-import com.example.production.infrastructure.web.dto.ItemResponse;
-import com.example.production.infrastructure.web.dto.UpdateItemRequest;
+import com.example.production.infrastructure.rest.dto.CreateItemRequest;
+import com.example.production.infrastructure.rest.dto.ItemResponse;
+import com.example.production.infrastructure.rest.dto.UpdateItemRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

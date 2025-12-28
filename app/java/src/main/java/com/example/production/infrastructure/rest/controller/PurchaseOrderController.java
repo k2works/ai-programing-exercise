@@ -1,10 +1,10 @@
-package com.example.production.infrastructure.web.controller;
+package com.example.production.infrastructure.rest.controller;
 
 import com.example.production.application.port.in.PurchaseOrderUseCase;
 import com.example.production.application.port.in.command.CreatePurchaseOrderCommand;
 import com.example.production.domain.model.purchase.PurchaseOrder;
-import com.example.production.infrastructure.web.dto.CreatePurchaseOrderRequest;
-import com.example.production.infrastructure.web.dto.PurchaseOrderResponse;
+import com.example.production.infrastructure.rest.dto.CreatePurchaseOrderRequest;
+import com.example.production.infrastructure.rest.dto.PurchaseOrderResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

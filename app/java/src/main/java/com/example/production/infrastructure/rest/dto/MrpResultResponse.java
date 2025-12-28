@@ -1,4 +1,4 @@
-package com.example.production.infrastructure.web.dto;
+package com.example.production.infrastructure.rest.dto;
 
 import lombok.Builder;
 import lombok.Value;

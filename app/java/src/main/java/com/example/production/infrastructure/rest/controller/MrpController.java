@@ -1,8 +1,8 @@
-package com.example.production.infrastructure.web.controller;
+package com.example.production.infrastructure.rest.controller;
 
 import com.example.production.application.service.MrpService;
-import com.example.production.infrastructure.web.dto.ExecuteMrpRequest;
-import com.example.production.infrastructure.web.dto.MrpResultResponse;
+import com.example.production.infrastructure.rest.dto.ExecuteMrpRequest;
+import com.example.production.infrastructure.rest.dto.MrpResultResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

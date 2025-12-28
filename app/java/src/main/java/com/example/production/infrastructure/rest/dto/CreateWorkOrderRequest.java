@@ -1,4 +1,4 @@
-package com.example.production.infrastructure.web.dto;
+package com.example.production.infrastructure.rest.dto;
 
 import com.example.production.application.port.in.command.WorkOrderCreateCommand;
 import jakarta.validation.constraints.NotBlank;

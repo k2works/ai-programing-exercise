@@ -1,4 +1,4 @@
-package com.example.production.infrastructure.web.dto;
+package com.example.production.infrastructure.rest.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

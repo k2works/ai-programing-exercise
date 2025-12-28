@@ -1,11 +1,11 @@
-package com.example.production.infrastructure.web.controller;
+package com.example.production.infrastructure.rest.controller;
 
 import com.example.production.application.port.in.WorkOrderUseCase;
 import com.example.production.domain.model.process.WorkOrder;
 import com.example.production.domain.model.process.WorkOrderStatus;
-import com.example.production.infrastructure.web.dto.CreateWorkOrderRequest;
-import com.example.production.infrastructure.web.dto.UpdateProgressRequest;
-import com.example.production.infrastructure.web.dto.WorkOrderResponse;
+import com.example.production.infrastructure.rest.dto.CreateWorkOrderRequest;
+import com.example.production.infrastructure.rest.dto.UpdateProgressRequest;
+import com.example.production.infrastructure.rest.dto.WorkOrderResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
