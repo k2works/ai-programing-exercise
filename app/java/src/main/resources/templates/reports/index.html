@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>帳票出力</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <h1 class="mb-4">帳票出力</h1>
+
+    <div class="row">
+        <!-- 在庫一覧 Excel -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-box-seam"></i> 在庫一覧
+                </div>
+                <div class="card-body">
+                    <p class="card-text">在庫情報を Excel 形式でダウンロードします。</p>
+                    <form th:action="@{/reports/inventory/excel}" method="get" class="row g-3">
+                        <div class="col-md-8">
+                            <label for="locationCode" class="form-label">場所コード（任意）</label>
+                            <input type="text" class="form-control" id="locationCode" name="locationCode"
+                                   placeholder="指定しない場合は全場所">
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-success w-100">
+                                Excel ダウンロード
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- 品目一覧 Excel -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-list-ul"></i> 品目一覧
+                </div>
+                <div class="card-body">
+                    <p class="card-text">品目マスタ情報を Excel 形式でダウンロードします。</p>
+                    <a th:href="@{/reports/items/excel}" class="btn btn-success">
+                        Excel ダウンロード
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- オーダ一覧 Excel -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-clipboard-check"></i> オーダ一覧
+                </div>
+                <div class="card-body">
+                    <p class="card-text">オーダ情報を Excel 形式でダウンロードします。</p>
+                    <a th:href="@{/reports/orders/excel}" class="btn btn-success">
+                        Excel ダウンロード
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 作業指示一覧 Excel -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-gear"></i> 作業指示一覧
+                </div>
+                <div class="card-body">
+                    <p class="card-text">作業指示情報を Excel 形式でダウンロードします。</p>
+                    <a th:href="@{/reports/work-orders/excel}" class="btn btn-success">
+                        Excel ダウンロード
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 使用上の注意 -->
+    <div class="card mt-4">
+        <div class="card-header">使用上の注意</div>
+        <div class="card-body">
+            <ul class="mb-0">
+                <li>ダウンロードした Excel ファイルは Microsoft Excel または LibreOffice Calc で開くことができます。</li>
+                <li>ファイル名には出力日が自動的に付与されます。</li>
+                <li>大量データの場合、ダウンロードに時間がかかる場合があります。</li>
+            </ul>
+        </div>
+    </div>
+</div>
+</body>
+</html>
