@@ -16,6 +16,8 @@ public interface RequirementMapper {
 
     List<Requirement> findByOrderId(Integer orderId);
 
+    List<Requirement> findAll();
+
     void updateAllocation(@Param("id") Integer id,
                           @Param("allocatedQuantity") BigDecimal allocatedQuantity,
                           @Param("shortageQuantity") BigDecimal shortageQuantity);

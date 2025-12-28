@@ -37,6 +37,11 @@ public class RequirementRepositoryImpl implements RequirementRepository {
     }
 
     @Override
+    public List<Requirement> findAll() {
+        return requirementMapper.findAll();
+    }
+
+    @Override
     public void updateAllocation(Integer id, BigDecimal allocatedQuantity, BigDecimal shortageQuantity) {
         requirementMapper.updateAllocation(id, allocatedQuantity, shortageQuantity);
     }

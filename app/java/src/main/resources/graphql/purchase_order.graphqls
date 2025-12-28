@@ -1,0 +1,66 @@
+# 発注ステータス
+enum PurchaseOrderStatus {
+    CREATING
+    ORDERED
+    PARTIALLY_RECEIVED
+    RECEIVED
+    ACCEPTED
+    CANCELLED
+}
+
+# 発注
+type PurchaseOrder {
+    purchaseOrderNumber: ID!
+    supplierCode: String!
+    ordererCode: String
+    departmentCode: String
+    orderDate: Date!
+    status: PurchaseOrderStatus!
+    remarks: String
+    totalOrderAmount: BigDecimal!
+    earliestDeliveryDate: Date
+    details: [PurchaseOrderDetail!]!
+}
+
+type PurchaseOrderDetail {
+    lineNumber: Int!
+    itemCode: ID!
+    orderQuantity: BigDecimal!
+    orderUnitPrice: BigDecimal!
+    orderAmount: BigDecimal
+    expectedReceivingDate: Date!
+    confirmedDeliveryDate: Date
+    receivedQuantity: BigDecimal!
+    inspectedQuantity: BigDecimal!
+    acceptedQuantity: BigDecimal!
+    completedFlag: Boolean!
+
+    # 関連データ
+    item: Item!
+}
+
+type PurchaseOrderConnection {
+    edges: [PurchaseOrderEdge!]!
+    pageInfo: PageInfo!
+}
+
+type PurchaseOrderEdge {
+    node: PurchaseOrder!
+    cursor: String!
+}
+
+# 入力型
+input CreatePurchaseOrderInput {
+    supplierCode: String!
+    ordererCode: String
+    departmentCode: String
+    remarks: String
+    details: [CreateOrderDetailInput!]!
+}
+
+input CreateOrderDetailInput {
+    itemCode: ID!
+    orderQuantity: BigDecimal!
+    unitPrice: BigDecimal!
+    deliveryDate: Date!
+}

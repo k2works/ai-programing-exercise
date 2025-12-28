@@ -1,0 +1,56 @@
+# MRP 入力
+input ExecuteMrpInput {
+    startDate: Date!
+    endDate: Date!
+}
+
+# MRP 結果
+type MrpResult {
+    executionId: ID!
+    periodStart: Date!
+    periodEnd: Date!
+    plannedOrders: [PlannedOrder!]!
+    shortageItems: [ShortageItem!]!
+    statistics: MrpStatistics!
+}
+
+type PlannedOrder {
+    itemCode: ID!
+    itemName: String!
+    quantity: BigDecimal!
+    dueDate: Date!
+    orderType: String!
+}
+
+type ShortageItem {
+    itemCode: ID!
+    itemName: String!
+    shortageQuantity: BigDecimal!
+    recommendedOrderDate: Date!
+}
+
+type MrpStatistics {
+    totalItemsProcessed: Int!
+    purchaseOrderCount: Int!
+    productionOrderCount: Int!
+    shortageItemCount: Int!
+    executionTimeMs: Long!
+}
+
+# MRP 進捗（Subscription）
+type MrpProgress {
+    executionId: ID!
+    phase: String!
+    current: Int!
+    total: Int!
+    message: String!
+}
+
+# 在庫変動（Subscription）
+type StockChange {
+    itemCode: ID!
+    changeType: String!
+    quantity: BigDecimal!
+}
+
+scalar Long

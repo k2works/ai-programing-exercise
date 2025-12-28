@@ -56,6 +56,11 @@
         ORDER BY "所要NO"
     </select>
 
+    <select id="findAll" resultMap="RequirementResultMap">
+        SELECT * FROM "所要情報"
+        ORDER BY "所要NO"
+    </select>
+
     <update id="updateAllocation">
         UPDATE "所要情報" SET
             "引当済数量" = #{allocatedQuantity},
