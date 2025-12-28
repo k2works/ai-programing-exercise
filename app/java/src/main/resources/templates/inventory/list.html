@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>在庫照会</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>在庫照会</h1>
+    </div>
+
+    <!-- 成功メッセージ -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- エラーメッセージ -->
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- フィルター -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form th:action="@{/inventory}" method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="locationCode" class="form-label">場所</label>
+                    <select class="form-select" id="locationCode" name="locationCode">
+                        <option value="">すべて</option>
+                        <option th:each="loc : ${locations}"
+                                th:value="${loc.locationCode}"
+                                th:text="${loc.locationCode + ' - ' + loc.locationName}"
+                                th:selected="${loc.locationCode == selectedLocation}"></option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="itemCode" class="form-label">品目</label>
+                    <select class="form-select" id="itemCode" name="itemCode">
+                        <option value="">すべて</option>
+                        <option th:each="item : ${items}"
+                                th:value="${item.itemCode}"
+                                th:text="${item.itemCode + ' - ' + item.itemName}"
+                                th:selected="${item.itemCode == selectedItem}"></option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-secondary">検索</button>
+                    <a th:href="@{/inventory}" class="btn btn-outline-secondary ms-2">クリア</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 集計サマリ -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h6 class="card-title">総在庫数</h6>
+                    <h3 class="mb-0" th:text="${#numbers.formatDecimal(totalStock, 1, 'COMMA', 2, 'POINT')}"></h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h6 class="card-title">合格品</h6>
+                    <h3 class="mb-0" th:text="${#numbers.formatDecimal(totalPassed, 1, 'COMMA', 2, 'POINT')}"></h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card" th:classappend="${totalDefective.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? 'bg-danger text-white' : 'bg-light'">
+                <div class="card-body text-center">
+                    <h6 class="card-title">不良品</h6>
+                    <h3 class="mb-0" th:text="${#numbers.formatDecimal(totalDefective, 1, 'COMMA', 2, 'POINT')}"></h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card" th:classappend="${totalUninspected.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? 'bg-warning' : 'bg-light'">
+                <div class="card-body text-center">
+                    <h6 class="card-title">未検査</h6>
+                    <h3 class="mb-0" th:text="${#numbers.formatDecimal(totalUninspected, 1, 'COMMA', 2, 'POINT')}"></h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 一覧テーブル -->
+    <div class="card">
+        <div class="card-body">
+            <div th:if="${#lists.isEmpty(stocks)}" class="text-muted">
+                在庫データがありません。
+            </div>
+            <table th:unless="${#lists.isEmpty(stocks)}" class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>場所コード</th>
+                        <th>品目コード</th>
+                        <th>総在庫数</th>
+                        <th>合格品</th>
+                        <th>不良品</th>
+                        <th>未検査</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="stock : ${stocks}">
+                        <td th:text="${stock.locationCode}"></td>
+                        <td>
+                            <a th:href="@{/inventory/{loc}/{item}(loc=${stock.locationCode}, item=${stock.itemCode})}"
+                               th:text="${stock.itemCode}"></a>
+                        </td>
+                        <td class="text-end fw-bold" th:text="${#numbers.formatDecimal(stock.stockQuantity, 1, 'COMMA', 2, 'POINT')}"></td>
+                        <td class="text-end text-success" th:text="${#numbers.formatDecimal(stock.passedQuantity, 1, 'COMMA', 2, 'POINT')}"></td>
+                        <td class="text-end">
+                            <span th:if="${stock.defectiveQuantity.compareTo(T(java.math.BigDecimal).ZERO) > 0}"
+                                  class="text-danger"
+                                  th:text="${#numbers.formatDecimal(stock.defectiveQuantity, 1, 'COMMA', 2, 'POINT')}"></span>
+                            <span th:unless="${stock.defectiveQuantity.compareTo(T(java.math.BigDecimal).ZERO) > 0}">-</span>
+                        </td>
+                        <td class="text-end">
+                            <span th:if="${stock.uninspectedQuantity.compareTo(T(java.math.BigDecimal).ZERO) > 0}"
+                                  class="text-warning"
+                                  th:text="${#numbers.formatDecimal(stock.uninspectedQuantity, 1, 'COMMA', 2, 'POINT')}"></span>
+                            <span th:unless="${stock.uninspectedQuantity.compareTo(T(java.math.BigDecimal).ZERO) > 0}">-</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

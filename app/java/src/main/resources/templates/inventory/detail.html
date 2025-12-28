@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>在庫詳細</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>在庫詳細</h1>
+        <a th:href="@{/inventory}" class="btn btn-secondary">一覧に戻る</a>
+    </div>
+
+    <!-- 基本情報 -->
+    <div class="card mb-4">
+        <div class="card-header">在庫情報</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">場所コード</dt>
+                        <dd class="col-sm-8" th:text="${stock.locationCode}"></dd>
+
+                        <dt class="col-sm-4">品目コード</dt>
+                        <dd class="col-sm-8" th:text="${stock.itemCode}"></dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">総在庫数</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge bg-primary fs-5" th:text="${#numbers.formatDecimal(stock.stockQuantity, 1, 'COMMA', 2, 'POINT')}"></span>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 在庫状態別数量 -->
+    <div class="card mb-4">
+        <div class="card-header">状態別在庫</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card bg-success text-white">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">合格品</h5>
+                            <h2 class="mb-0" th:text="${#numbers.formatDecimal(stock.passedQuantity, 1, 'COMMA', 2, 'POINT')}"></h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card" th:classappend="${stock.defectiveQuantity.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? 'bg-danger text-white' : 'bg-light'">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">不良品</h5>
+                            <h2 class="mb-0" th:text="${#numbers.formatDecimal(stock.defectiveQuantity, 1, 'COMMA', 2, 'POINT')}"></h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card" th:classappend="${stock.uninspectedQuantity.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? 'bg-warning' : 'bg-light'">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">未検査</h5>
+                            <h2 class="mb-0" th:text="${#numbers.formatDecimal(stock.uninspectedQuantity, 1, 'COMMA', 2, 'POINT')}"></h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 在庫構成グラフ（プログレスバー） -->
+    <div class="card mb-4" th:if="${stock.stockQuantity.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
+        <div class="card-header">在庫構成</div>
+        <div class="card-body">
+            <div class="progress" style="height: 30px;">
+                <div class="progress-bar bg-success"
+                     role="progressbar"
+                     th:style="'width: ' + ${stock.passedQuantity.multiply(100).divide(stock.stockQuantity, 2, T(java.math.RoundingMode).HALF_UP)} + '%'"
+                     th:text="${'合格: ' + #numbers.formatDecimal(stock.passedQuantity, 1, 'COMMA', 2, 'POINT')}">
+                </div>
+                <div class="progress-bar bg-danger"
+                     role="progressbar"
+                     th:if="${stock.defectiveQuantity.compareTo(T(java.math.BigDecimal).ZERO) > 0}"
+                     th:style="'width: ' + ${stock.defectiveQuantity.multiply(100).divide(stock.stockQuantity, 2, T(java.math.RoundingMode).HALF_UP)} + '%'"
+                     th:text="${'不良: ' + #numbers.formatDecimal(stock.defectiveQuantity, 1, 'COMMA', 2, 'POINT')}">
+                </div>
+                <div class="progress-bar bg-warning"
+                     role="progressbar"
+                     th:if="${stock.uninspectedQuantity.compareTo(T(java.math.BigDecimal).ZERO) > 0}"
+                     th:style="'width: ' + ${stock.uninspectedQuantity.multiply(100).divide(stock.stockQuantity, 2, T(java.math.RoundingMode).HALF_UP)} + '%'"
+                     th:text="${'未検査: ' + #numbers.formatDecimal(stock.uninspectedQuantity, 1, 'COMMA', 2, 'POINT')}">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 監査情報 -->
+    <div class="card">
+        <div class="card-header">監査情報</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">作成日時</dt>
+                        <dd class="col-sm-8" th:text="${stock.createdAt}"></dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">更新日時</dt>
+                        <dd class="col-sm-8" th:text="${stock.updatedAt}"></dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
