@@ -70,6 +70,11 @@
         ORDER BY "発注行番号", "入荷日"
     </select>
 
+    <select id="findAll" resultMap="receivingResultMap">
+        SELECT * FROM "入荷受入データ"
+        ORDER BY "入荷日" DESC, "入荷番号"
+    </select>
+
     <select id="findLatestReceivingNumber" resultType="string">
         SELECT "入荷番号" FROM "入荷受入データ"
         WHERE "入荷番号" LIKE #{prefix} || '%'

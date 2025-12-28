@@ -18,6 +18,8 @@ public interface ReceivingRepository {
 
     List<Receiving> findByPurchaseOrderNumber(String purchaseOrderNumber);
 
+    List<Receiving> findAll();
+
     Optional<String> findLatestReceivingNumber(String prefix);
 
     void deleteAll();

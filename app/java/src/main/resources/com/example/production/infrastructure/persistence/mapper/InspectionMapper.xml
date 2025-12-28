@@ -72,6 +72,11 @@
         ORDER BY "受入検査日"
     </select>
 
+    <select id="findAll" resultMap="inspectionResultMap">
+        SELECT * FROM "受入検査データ"
+        ORDER BY "受入検査日" DESC, "受入検査番号"
+    </select>
+
     <select id="findLatestInspectionNumber" resultType="string">
         SELECT "受入検査番号" FROM "受入検査データ"
         WHERE "受入検査番号" LIKE #{prefix} || '%'

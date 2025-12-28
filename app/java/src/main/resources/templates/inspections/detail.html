@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>検収詳細</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>検収詳細</h1>
+        <a th:href="@{/inspections}" class="btn btn-secondary">一覧に戻る</a>
+    </div>
+
+    <!-- 基本情報 -->
+    <div class="card mb-4">
+        <div class="card-header">検収情報</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">検収番号</dt>
+                        <dd class="col-sm-8" th:text="${inspection.inspectionNumber}"></dd>
+
+                        <dt class="col-sm-4">入荷番号</dt>
+                        <dd class="col-sm-8">
+                            <a th:href="@{/receivings/{no}(no=${inspection.receivingNumber})}"
+                               th:text="${inspection.receivingNumber}"></a>
+                        </dd>
+
+                        <dt class="col-sm-4">発注番号</dt>
+                        <dd class="col-sm-8">
+                            <a th:href="@{/purchase-orders/{no}(no=${inspection.purchaseOrderNumber})}"
+                               th:text="${inspection.purchaseOrderNumber}"></a>
+                        </dd>
+
+                        <dt class="col-sm-4">発注行番号</dt>
+                        <dd class="col-sm-8" th:text="${inspection.lineNumber}"></dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">検収日</dt>
+                        <dd class="col-sm-8" th:text="${inspection.inspectionDate}"></dd>
+
+                        <dt class="col-sm-4">担当者</dt>
+                        <dd class="col-sm-8" th:text="${inspection.inspectorCode ?: '-'}"></dd>
+
+                        <dt class="col-sm-4">品目コード</dt>
+                        <dd class="col-sm-8" th:text="${inspection.itemCode}"></dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 検収結果 -->
+    <div class="card mb-4">
+        <div class="card-header">検収結果</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card bg-success text-white">
+                        <div class="card-body text-center">
+                            <h6 class="card-title">良品数</h6>
+                            <h2 class="mb-0" th:text="${#numbers.formatDecimal(inspection.goodQuantity, 1, 'COMMA', 2, 'POINT')}"></h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card" th:classappend="${inspection.defectQuantity != null and inspection.defectQuantity.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? 'bg-danger text-white' : 'bg-light'">
+                        <div class="card-body text-center">
+                            <h6 class="card-title">不良品数</h6>
+                            <h2 class="mb-0" th:text="${inspection.defectQuantity != null} ? ${#numbers.formatDecimal(inspection.defectQuantity, 1, 'COMMA', 2, 'POINT')} : '0'"></h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-info text-white">
+                        <div class="card-body text-center">
+                            <h6 class="card-title">合計</h6>
+                            <h2 class="mb-0" th:text="${#numbers.formatDecimal(inspection.goodQuantity.add(inspection.defectQuantity != null ? inspection.defectQuantity : T(java.math.BigDecimal).ZERO), 1, 'COMMA', 2, 'POINT')}"></h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-3" th:if="${inspection.remarks}">
+                <div class="col-12">
+                    <dt>備考</dt>
+                    <dd th:text="${inspection.remarks}"></dd>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 監査情報 -->
+    <div class="card">
+        <div class="card-header">監査情報</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">作成日時</dt>
+                        <dd class="col-sm-8" th:text="${inspection.createdAt}"></dd>
+                        <dt class="col-sm-4">作成者</dt>
+                        <dd class="col-sm-8" th:text="${inspection.createdBy ?: '-'}"></dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">更新日時</dt>
+                        <dd class="col-sm-8" th:text="${inspection.updatedAt}"></dd>
+                        <dt class="col-sm-4">更新者</dt>
+                        <dd class="col-sm-8" th:text="${inspection.updatedBy ?: '-'}"></dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

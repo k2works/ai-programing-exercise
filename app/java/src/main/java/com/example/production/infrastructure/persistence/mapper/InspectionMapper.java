@@ -18,6 +18,8 @@ public interface InspectionMapper {
 
     List<Inspection> findByReceivingNumber(@Param("receivingNumber") String receivingNumber);
 
+    List<Inspection> findAll();
+
     Optional<String> findLatestInspectionNumber(@Param("prefix") String prefix);
 
     void deleteAll();

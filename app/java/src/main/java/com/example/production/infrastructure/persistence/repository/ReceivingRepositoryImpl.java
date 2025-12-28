@@ -41,6 +41,11 @@ public class ReceivingRepositoryImpl implements ReceivingRepository {
     }
 
     @Override
+    public List<Receiving> findAll() {
+        return receivingMapper.findAll();
+    }
+
+    @Override
     public Optional<String> findLatestReceivingNumber(String prefix) {
         return receivingMapper.findLatestReceivingNumber(prefix);
     }

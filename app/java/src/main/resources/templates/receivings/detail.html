@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>入荷詳細</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>入荷詳細</h1>
+        <div>
+            <a th:href="@{/inspections/new(receivingNumber=${receiving.receivingNumber})}"
+               class="btn btn-success">検収登録</a>
+            <a th:href="@{/receivings}" class="btn btn-secondary">一覧に戻る</a>
+        </div>
+    </div>
+
+    <!-- 基本情報 -->
+    <div class="card mb-4">
+        <div class="card-header">入荷情報</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">入荷番号</dt>
+                        <dd class="col-sm-8" th:text="${receiving.receivingNumber}"></dd>
+
+                        <dt class="col-sm-4">発注番号</dt>
+                        <dd class="col-sm-8">
+                            <a th:href="@{/purchase-orders/{no}(no=${receiving.purchaseOrderNumber})}"
+                               th:text="${receiving.purchaseOrderNumber}"></a>
+                        </dd>
+
+                        <dt class="col-sm-4">発注行番号</dt>
+                        <dd class="col-sm-8" th:text="${receiving.lineNumber}"></dd>
+
+                        <dt class="col-sm-4">入荷日</dt>
+                        <dd class="col-sm-8" th:text="${receiving.receivingDate}"></dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">入荷区分</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge"
+                                  th:classappend="${receiving.receivingType.name() == 'NORMAL'} ? 'bg-success' :
+                                                  (${receiving.receivingType.name() == 'RETURN'} ? 'bg-warning' : 'bg-secondary')"
+                                  th:text="${receiving.receivingType.displayName}"></span>
+                        </dd>
+
+                        <dt class="col-sm-4">担当者</dt>
+                        <dd class="col-sm-8" th:text="${receiving.receiverCode ?: '-'}"></dd>
+
+                        <dt class="col-sm-4">品目コード</dt>
+                        <dd class="col-sm-8" th:text="${receiving.itemCode}"></dd>
+
+                        <dt class="col-sm-4">入荷数量</dt>
+                        <dd class="col-sm-8" th:text="${#numbers.formatDecimal(receiving.receivingQuantity, 1, 'COMMA', 2, 'POINT')}"></dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="row mt-3" th:if="${receiving.remarks}">
+                <div class="col-12">
+                    <dt>備考</dt>
+                    <dd th:text="${receiving.remarks}"></dd>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 監査情報 -->
+    <div class="card">
+        <div class="card-header">監査情報</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">作成日時</dt>
+                        <dd class="col-sm-8" th:text="${receiving.createdAt}"></dd>
+                        <dt class="col-sm-4">作成者</dt>
+                        <dd class="col-sm-8" th:text="${receiving.createdBy ?: '-'}"></dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">更新日時</dt>
+                        <dd class="col-sm-8" th:text="${receiving.updatedAt}"></dd>
+                        <dt class="col-sm-4">更新者</dt>
+                        <dd class="col-sm-8" th:text="${receiving.updatedBy ?: '-'}"></dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

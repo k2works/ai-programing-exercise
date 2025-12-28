@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>検収登録</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>検収登録</h1>
+        <a th:href="@{/inspections}" class="btn btn-secondary">一覧に戻る</a>
+    </div>
+
+    <form th:action="@{/inspections}" method="post" th:object="${form}">
+        <div class="card mb-4">
+            <div class="card-header">検収情報</div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="receivingNumber" class="form-label">入荷番号 <span class="text-danger">*</span></label>
+                        <select class="form-select" id="receivingNumber"
+                                th:field="*{receivingNumber}"
+                                th:classappend="${#fields.hasErrors('receivingNumber')} ? 'is-invalid' : ''">
+                            <option value="">選択してください</option>
+                            <option th:each="receiving : ${receivings}"
+                                    th:value="${receiving.receivingNumber}"
+                                    th:text="${receiving.receivingNumber + ' (' + receiving.itemCode + ')'}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('receivingNumber')}"
+                             th:errors="*{receivingNumber}"></div>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="inspectionDate" class="form-label">検収日 <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="inspectionDate"
+                               th:field="*{inspectionDate}"
+                               th:classappend="${#fields.hasErrors('inspectionDate')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('inspectionDate')}"
+                             th:errors="*{inspectionDate}"></div>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="inspectorCode" class="form-label">担当者コード</label>
+                        <input type="text" class="form-control" id="inspectorCode"
+                               th:field="*{inspectorCode}">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="purchaseOrderNumber" class="form-label">発注番号 <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="purchaseOrderNumber"
+                               th:field="*{purchaseOrderNumber}"
+                               th:classappend="${#fields.hasErrors('purchaseOrderNumber')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('purchaseOrderNumber')}"
+                             th:errors="*{purchaseOrderNumber}"></div>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="lineNumber" class="form-label">行番号 <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="lineNumber"
+                               th:field="*{lineNumber}"
+                               th:classappend="${#fields.hasErrors('lineNumber')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('lineNumber')}"
+                             th:errors="*{lineNumber}"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="itemCode" class="form-label">品目コード <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="itemCode"
+                               th:field="*{itemCode}"
+                               th:classappend="${#fields.hasErrors('itemCode')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('itemCode')}"
+                             th:errors="*{itemCode}"></div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label for="goodQuantity" class="form-label">良品数 <span class="text-danger">*</span></label>
+                        <input type="number" step="0.01" class="form-control" id="goodQuantity"
+                               th:field="*{goodQuantity}"
+                               th:classappend="${#fields.hasErrors('goodQuantity')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('goodQuantity')}"
+                             th:errors="*{goodQuantity}"></div>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="defectQuantity" class="form-label">不良品数</label>
+                        <input type="number" step="0.01" class="form-control" id="defectQuantity"
+                               th:field="*{defectQuantity}"
+                               th:classappend="${#fields.hasErrors('defectQuantity')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('defectQuantity')}"
+                             th:errors="*{defectQuantity}"></div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="remarks" class="form-label">備考</label>
+                    <textarea class="form-control" id="remarks" rows="2"
+                              th:field="*{remarks}"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">登録</button>
+            <a th:href="@{/inspections}" class="btn btn-secondary">キャンセル</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

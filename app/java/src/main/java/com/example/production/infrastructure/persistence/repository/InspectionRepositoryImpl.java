@@ -41,6 +41,11 @@ public class InspectionRepositoryImpl implements InspectionRepository {
     }
 
     @Override
+    public List<Inspection> findAll() {
+        return inspectionMapper.findAll();
+    }
+
+    @Override
     public Optional<String> findLatestInspectionNumber(String prefix) {
         return inspectionMapper.findLatestInspectionNumber(prefix);
     }

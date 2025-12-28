@@ -18,6 +18,8 @@ public interface InspectionRepository {
 
     List<Inspection> findByReceivingNumber(String receivingNumber);
 
+    List<Inspection> findAll();
+
     Optional<String> findLatestInspectionNumber(String prefix);
 
     void deleteAll();

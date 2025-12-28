@@ -18,6 +18,8 @@ public interface ReceivingMapper {
 
     List<Receiving> findByPurchaseOrderNumber(@Param("purchaseOrderNumber") String purchaseOrderNumber);
 
+    List<Receiving> findAll();
+
     Optional<String> findLatestReceivingNumber(@Param("prefix") String prefix);
 
     void deleteAll();
