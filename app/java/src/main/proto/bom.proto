@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+package com.example.production.grpc;
+
+option java_multiple_files = true;
+option java_package = "com.example.production.grpc";
+option java_outer_classname = "BomProto";
+
+import "common.proto";
+
+// BOM（部品構成表）
+message Bom {
+    string parent_item_code = 1;
+    string child_item_code = 2;
+    Date effective_from = 3;
+    Date effective_to = 4;
+    Decimal base_quantity = 5;
+    Decimal required_quantity = 6;
+    Decimal defect_rate = 7;
+    int32 sequence = 8;
+}
+
+// BOM 展開結果ノード
+message BomNode {
+    string parent_item_code = 1;
+    string child_item_code = 2;
+    Decimal required_quantity = 3;
+    Decimal total_quantity = 4;
+    int32 level = 5;
+    int32 sequence = 6;
+}
+
+// 使用先照会結果
+message WhereUsedResult {
+    string parent_item_code = 1;
+    string child_item_code = 2;
+    Decimal required_quantity = 3;
+}
+
+// BOM 展開リクエスト
+message ExplodeBomRequest {
+    string item_code = 1;
+    Decimal quantity = 2;
+}
+
+// BOM 展開レスポンス
+message ExplodeBomResponse {
+    repeated BomNode nodes = 1;
+}
+
+// 使用先照会リクエスト
+message WhereUsedRequest {
+    string item_code = 1;
+}
+
+// 使用先照会レスポンス
+message WhereUsedResponse {
+    repeated WhereUsedResult results = 1;
+}
+
+// 子品目取得リクエスト
+message GetChildrenRequest {
+    string parent_item_code = 1;
+}
+
+// 子品目取得レスポンス
+message GetChildrenResponse {
+    repeated Bom children = 1;
+}
+
+// BOM サービス
+service BomService {
+    // 部品展開（Server Streaming）
+    rpc ExplodeBom(ExplodeBomRequest) returns (stream BomNode);
+
+    // 使用先照会
+    rpc WhereUsed(WhereUsedRequest) returns (WhereUsedResponse);
+
+    // 子品目一覧取得
+    rpc GetChildren(GetChildrenRequest) returns (GetChildrenResponse);
+}
