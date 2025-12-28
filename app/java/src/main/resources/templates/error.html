@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>Error</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="text-center py-5">
+        <h1 class="display-1 text-muted" th:text="${status ?: 'Error'}"></h1>
+        <h2 th:text="${error ?: 'エラーが発生しました'}"></h2>
+        <p class="lead" th:text="${message ?: '処理中にエラーが発生しました。'}"></p>
+        <p class="text-muted" th:if="${path}">
+            パス: <span th:text="${path}"></span>
+        </p>
+        <a th:href="@{/}" class="btn btn-primary mt-3">ホームに戻る</a>
+    </div>
+</div>
+</body>
+</html>
