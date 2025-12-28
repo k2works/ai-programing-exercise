@@ -33,12 +33,14 @@ public class BomWebController {
     private final ItemUseCase itemUseCase;
 
     /**
-     * BOM 一覧画面（製品の一覧）
+     * BOM 一覧画面
      */
     @GetMapping
     public String list(Model model) {
         List<Item> products = itemUseCase.getItemsByCategory(ItemCategory.PRODUCT);
+        List<Bom> allBom = bomRepository.findAll();
         model.addAttribute("products", products);
+        model.addAttribute("allBom", allBom);
         return "bom/list";
     }
 
