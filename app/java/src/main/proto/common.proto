@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package com.example.production.grpc;
+
+option java_multiple_files = true;
+option java_package = "com.example.production.grpc";
+option java_outer_classname = "CommonProto";
+
+// 空メッセージ
+message Empty {}
+
+// 日付型
+message Date {
+    int32 year = 1;
+    int32 month = 2;
+    int32 day = 3;
+}
+
+// 高精度数値型（BigDecimal相当）
+message Decimal {
+    string value = 1;  // 文字列として保持（精度保証）
+    int32 scale = 2;   // 小数点以下桁数
+}
+
+// ページング要求
+message PageRequest {
+    int32 page = 1;
+    int32 size = 2;
+    string sort_by = 3;
+    bool ascending = 4;
+}
+
+// ページング応答
+message PageResponse {
+    int32 page = 1;
+    int32 size = 2;
+    int64 total_elements = 3;
+    int32 total_pages = 4;
+    bool has_next = 5;
+    bool has_previous = 6;
+}

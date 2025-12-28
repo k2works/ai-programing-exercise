@@ -1,0 +1,110 @@
+syntax = "proto3";
+
+package com.example.production.grpc;
+
+option java_multiple_files = true;
+option java_package = "com.example.production.grpc";
+option java_outer_classname = "ItemProto";
+
+import "common.proto";
+
+// 品目カテゴリ
+enum ItemCategory {
+    ITEM_CATEGORY_UNSPECIFIED = 0;
+    PRODUCT = 1;           // 製品
+    SEMI_PRODUCT = 2;      // 半製品
+    COMPONENT = 3;         // 部品
+    RAW_MATERIAL = 4;      // 原材料
+    PURCHASED_PART = 5;    // 購入品
+}
+
+// 品目
+message Item {
+    string item_code = 1;
+    string item_name = 2;
+    ItemCategory category = 3;
+    string unit_code = 4;
+    int32 lead_time = 5;
+    int32 safety_lead_time = 6;
+    Decimal safety_stock = 7;
+    Decimal yield_rate = 8;
+    Decimal min_lot_size = 9;
+    Decimal lot_increment = 10;
+    Decimal max_lot_size = 11;
+    int32 shelf_life = 12;
+}
+
+// 品目取得リクエスト
+message GetItemRequest {
+    string item_code = 1;
+}
+
+// 品目一覧取得リクエスト
+message GetItemsRequest {
+    PageRequest page = 1;
+    ItemCategory category = 2;
+}
+
+// 品目一覧応答
+message GetItemsResponse {
+    repeated Item items = 1;
+    PageResponse page = 2;
+}
+
+// 品目作成リクエスト
+message CreateItemRequest {
+    string item_code = 1;
+    string item_name = 2;
+    ItemCategory category = 3;
+    string unit_code = 4;
+    int32 lead_time = 5;
+    int32 safety_lead_time = 6;
+    Decimal safety_stock = 7;
+    Decimal yield_rate = 8;
+    Decimal min_lot_size = 9;
+    Decimal lot_increment = 10;
+    Decimal max_lot_size = 11;
+    int32 shelf_life = 12;
+}
+
+// 品目更新リクエスト
+message UpdateItemRequest {
+    string item_code = 1;
+    string item_name = 2;
+    ItemCategory category = 3;
+    string unit_code = 4;
+    int32 lead_time = 5;
+    int32 safety_lead_time = 6;
+    Decimal safety_stock = 7;
+    Decimal yield_rate = 8;
+    Decimal min_lot_size = 9;
+    Decimal lot_increment = 10;
+    Decimal max_lot_size = 11;
+    int32 shelf_life = 12;
+}
+
+// 品目削除リクエスト
+message DeleteItemRequest {
+    string item_code = 1;
+}
+
+// 品目サービス
+service ItemService {
+    // 品目取得（Unary RPC）
+    rpc GetItem(GetItemRequest) returns (Item);
+
+    // 品目一覧（Unary RPC）
+    rpc GetItems(GetItemsRequest) returns (GetItemsResponse);
+
+    // 品目作成（Unary RPC）
+    rpc CreateItem(CreateItemRequest) returns (Item);
+
+    // 品目更新（Unary RPC）
+    rpc UpdateItem(UpdateItemRequest) returns (Item);
+
+    // 品目削除（Unary RPC）
+    rpc DeleteItem(DeleteItemRequest) returns (Empty);
+
+    // 品目ストリーム（Server Streaming RPC）
+    rpc StreamItems(GetItemsRequest) returns (stream Item);
+}
