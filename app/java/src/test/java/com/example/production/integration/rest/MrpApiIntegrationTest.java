@@ -1,4 +1,4 @@
-package com.example.production.integration;
+package com.example.production.integration.rest;
 
 import com.example.production.testsetup.TestcontainersConfiguration;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
 
 import java.util.Map;
@@ -15,12 +16,12 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * API ドキュメント統合テスト
+ * MRP API 統合テスト
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestcontainersConfiguration.class)
-@DisplayName("API ドキュメント統合テスト")
-class ApiDocumentationIntegrationTest {
+@DisplayName("MRP API 統合テスト")
+class MrpApiIntegrationTest {
 
     @LocalServerPort
     private int port;
@@ -33,64 +34,67 @@ class ApiDocumentationIntegrationTest {
     }
 
     @Nested
-    @DisplayName("GET /api")
-    class RootApi {
+    @DisplayName("POST /api/mrp/execute")
+    class ExecuteMrp {
 
         @Test
-        @DisplayName("API 情報を取得できる")
+        @DisplayName("MRPを実行できる")
         @SuppressWarnings("unchecked")
-        void shouldReturnApiInfo() {
-            Map<String, Object> response = restClient.get()
-                    .uri("/api")
+        void shouldExecuteMrp() {
+            String request = """
+                {
+                    "startDate": "2025-01-01",
+                    "endDate": "2025-01-31"
+                }
+                """;
+
+            Map<String, Object> response = restClient.post()
+                    .uri("/api/mrp/execute")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(request)
                     .retrieve()
                     .body(Map.class);
 
             assertThat(response).isNotNull();
-            assertThat(response.get("message")).isEqualTo("生産管理システム API");
-            assertThat(response.get("version")).isEqualTo("1.0.0");
-            assertThat(response.get("docs")).isEqualTo("/swagger-ui.html");
+            assertThat(response.get("executionTime")).isNotNull();
+            assertThat(response.get("periodStart")).isEqualTo("2025-01-01");
+            assertThat(response.get("periodEnd")).isEqualTo("2025-01-31");
         }
     }
 
     @Nested
-    @DisplayName("GET /health")
-    class HealthCheck {
+    @DisplayName("GET /api/mrp/results")
+    class GetResults {
 
         @Test
-        @DisplayName("ヘルスチェックが成功する")
+        @DisplayName("MRP実行結果を照会できる")
         @SuppressWarnings("unchecked")
-        void shouldReturnHealthStatus() {
+        void shouldGetResults() {
             Map<String, Object> response = restClient.get()
-                    .uri("/health")
+                    .uri("/api/mrp/results")
                     .retrieve()
                     .body(Map.class);
 
             assertThat(response).isNotNull();
-            assertThat(response.get("status")).isEqualTo("ok");
-            assertThat(response.get("timestamp")).isNotNull();
+            assertThat(response.get("message")).isNotNull();
         }
     }
 
     @Nested
-    @DisplayName("GET /v3/api-docs")
-    class OpenApiDocs {
+    @DisplayName("GET /api/mrp/planned-orders")
+    class GetPlannedOrders {
 
         @Test
-        @DisplayName("OpenAPI ドキュメントを取得できる")
+        @DisplayName("計画オーダ一覧を取得できる")
         @SuppressWarnings("unchecked")
-        void shouldReturnOpenApiDocs() {
+        void shouldGetPlannedOrders() {
             Map<String, Object> response = restClient.get()
-                    .uri("/v3/api-docs")
+                    .uri("/api/mrp/planned-orders")
                     .retrieve()
                     .body(Map.class);
 
             assertThat(response).isNotNull();
-            assertThat(response.get("openapi")).isNotNull();
-
-            Map<String, Object> info = (Map<String, Object>) response.get("info");
-            assertThat(info).isNotNull();
-            assertThat(info.get("title")).isEqualTo("生産管理システム API");
-            assertThat(info.get("version")).isEqualTo("1.0.0");
+            assertThat(response.get("message")).isNotNull();
         }
     }
 }

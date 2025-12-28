@@ -1,4 +1,4 @@
-package com.example.production.integration;
+package com.example.production.integration.rest;
 
 import com.example.production.application.port.out.ItemRepository;
 import com.example.production.application.port.out.LocationRepository;
