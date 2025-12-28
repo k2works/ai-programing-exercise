@@ -1,0 +1,150 @@
+syntax = "proto3";
+
+package com.example.production.grpc;
+
+option java_multiple_files = true;
+option java_package = "com.example.production.grpc";
+option java_outer_classname = "MrpProto";
+
+import "common.proto";
+
+// オーダタイプ
+enum OrderType {
+    ORDER_TYPE_UNSPECIFIED = 0;
+    MANUFACTURING = 1;  // 製造オーダ
+    PURCHASE = 2;       // 購買オーダ
+}
+
+// 計画ステータス
+enum PlanStatus {
+    PLAN_STATUS_UNSPECIFIED = 0;
+    PLAN_DRAFT = 1;          // 草案
+    PLAN_CONFIRMED = 2;      // 確定
+    PLAN_EXPANDED = 3;       // 展開済
+    PLAN_CANCELLED = 4;      // 取消
+}
+
+// 引当タイプ
+enum AllocationType {
+    ALLOCATION_TYPE_UNSPECIFIED = 0;
+    ALLOC_INVENTORY = 1;          // 在庫
+    ALLOC_PURCHASE_ORDER = 2;     // 発注残
+    ALLOC_MANUFACTURING_ORDER = 3; // 製造残
+}
+
+// 所要量
+message Requirement {
+    string requirement_number = 1;
+    int32 order_id = 2;
+    string item_code = 3;
+    Date due_date = 4;
+    Decimal required_quantity = 5;
+    Decimal allocated_quantity = 6;
+    Decimal shortage_quantity = 7;
+    string location_code = 8;
+}
+
+// オーダ
+message Order {
+    int32 id = 1;
+    string order_number = 2;
+    OrderType order_type = 3;
+    string item_code = 4;
+    Date start_date = 5;
+    Date due_date = 6;
+    Decimal plan_quantity = 7;
+    string location_code = 8;
+    PlanStatus status = 9;
+    int32 mps_id = 10;
+    int32 parent_order_id = 11;
+}
+
+// 引当
+message Allocation {
+    int32 id = 1;
+    int32 requirement_id = 2;
+    AllocationType allocation_type = 3;
+    int32 order_id = 4;
+    Date allocation_date = 5;
+    Decimal allocated_quantity = 6;
+    string location_code = 7;
+}
+
+// MRP 実行リクエスト
+message ExecuteMrpRequest {
+    int32 mps_id = 1;
+}
+
+// MRP 実行レスポンス
+message ExecuteMrpResponse {
+    bool success = 1;
+    string message = 2;
+    repeated Requirement requirements = 3;
+    repeated Order orders = 4;
+}
+
+// 所要量展開リクエスト
+message ExplodeRequirementsRequest {
+    int32 order_id = 1;
+}
+
+// 所要量展開レスポンス
+message ExplodeRequirementsResponse {
+    repeated Requirement requirements = 1;
+}
+
+// 在庫引当リクエスト
+message AllocateInventoryRequest {
+    int32 requirement_id = 1;
+    int32 inventory_quantity = 2;
+}
+
+// 不足オーダ生成リクエスト
+message CreateShortageOrderRequest {
+    string item_code = 1;
+    Decimal shortage_quantity = 2;
+    Date due_date = 3;
+    string location_code = 4;
+    OrderType order_type = 5;
+}
+
+// ロットサイズ計算リクエスト
+message CalculateLotSizeRequest {
+    Decimal required_quantity = 1;
+    Decimal minimum_lot_size = 2;
+    Decimal increment_lot_size = 3;
+    Decimal maximum_lot_size = 4;
+}
+
+// ロットサイズ計算レスポンス
+message CalculateLotSizeResponse {
+    Decimal order_quantity = 1;
+}
+
+// 所要量ストリーミング用
+message RequirementEvent {
+    string event_type = 1;  // CREATED, ALLOCATED, SHORTAGE
+    Requirement requirement = 2;
+    Order related_order = 3;
+}
+
+// MRP サービス
+service MrpService {
+    // MRP 完全実行（Unary RPC）
+    rpc ExecuteMrp(ExecuteMrpRequest) returns (ExecuteMrpResponse);
+
+    // 所要量展開（Unary RPC）
+    rpc ExplodeRequirements(ExplodeRequirementsRequest) returns (ExplodeRequirementsResponse);
+
+    // 在庫引当（Unary RPC）
+    rpc AllocateFromInventory(AllocateInventoryRequest) returns (Allocation);
+
+    // 不足オーダ生成（Unary RPC）
+    rpc CreateShortageOrder(CreateShortageOrderRequest) returns (Order);
+
+    // ロットサイズ計算（Unary RPC）
+    rpc CalculateLotSize(CalculateLotSizeRequest) returns (CalculateLotSizeResponse);
+
+    // 所要量ストリーム（Server Streaming RPC）
+    rpc StreamRequirements(ExecuteMrpRequest) returns (stream RequirementEvent);
+}
