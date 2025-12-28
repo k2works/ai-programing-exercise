@@ -14,6 +14,12 @@ public interface BomRepository {
 
     void save(Bom bom);
 
+    void update(Bom bom);
+
+    void delete(String parentItemCode, String childItemCode, LocalDate effectiveFrom);
+
+    Bom findByKey(String parentItemCode, String childItemCode, LocalDate effectiveFrom);
+
     List<Bom> findByParentItemCode(String parentItemCode);
 
     List<Bom> findByParentItemCodeAndDate(String parentItemCode, LocalDate baseDate);

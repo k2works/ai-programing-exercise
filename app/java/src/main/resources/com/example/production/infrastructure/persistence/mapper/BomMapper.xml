@@ -57,6 +57,33 @@
         )
     </insert>
 
+    <update id="update" parameterType="com.example.production.domain.model.bom.Bom">
+        UPDATE "部品構成表"
+        SET "適用停止日" = #{effectiveTo},
+            "基準数量" = #{baseQuantity},
+            "必要数量" = #{requiredQuantity},
+            "不良率" = #{defectRate},
+            "工順" = #{sequence},
+            "更新日時" = CURRENT_TIMESTAMP
+        WHERE "親品目コード" = #{parentItemCode}
+          AND "子品目コード" = #{childItemCode}
+          AND "適用開始日" = #{effectiveFrom}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM "部品構成表"
+        WHERE "親品目コード" = #{parentItemCode}
+          AND "子品目コード" = #{childItemCode}
+          AND "適用開始日" = #{effectiveFrom}
+    </delete>
+
+    <select id="findByKey" resultMap="BomResultMap">
+        SELECT * FROM "部品構成表"
+        WHERE "親品目コード" = #{parentItemCode}
+          AND "子品目コード" = #{childItemCode}
+          AND "適用開始日" = #{effectiveFrom}
+    </select>
+
     <select id="findByParentItemCode" resultMap="BomResultMap">
         SELECT * FROM "部品構成表"
         WHERE "親品目コード" = #{parentItemCode}

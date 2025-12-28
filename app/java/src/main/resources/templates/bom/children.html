@@ -9,7 +9,10 @@
 <div layout:fragment="content">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>直下子品目</h1>
-        <a th:href="@{/bom}" class="btn btn-secondary">一覧に戻る</a>
+        <div>
+            <a th:href="@{/bom/new(parentItemCode=${item.itemCode})}" class="btn btn-primary">子品目を追加</a>
+            <a th:href="@{/bom}" class="btn btn-secondary">一覧に戻る</a>
+        </div>
     </div>
 
     <!-- 親品目情報 -->
@@ -54,6 +57,15 @@
                                class="btn btn-sm btn-outline-secondary">子品目</a>
                             <a th:href="@{/bom/{code}/where-used(code=${child.childItemCode})}"
                                class="btn btn-sm btn-outline-info">使用先</a>
+                            <a th:href="@{/bom/edit(parentItemCode=${child.parentItemCode},childItemCode=${child.childItemCode},effectiveFrom=${child.effectiveFrom})}"
+                               class="btn btn-sm btn-outline-warning">編集</a>
+                            <form th:action="@{/bom/delete}" method="post" class="d-inline"
+                                  onsubmit="return confirm('この BOM を削除しますか？');">
+                                <input type="hidden" name="parentItemCode" th:value="${child.parentItemCode}">
+                                <input type="hidden" name="childItemCode" th:value="${child.childItemCode}">
+                                <input type="hidden" name="effectiveFrom" th:value="${child.effectiveFrom}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">削除</button>
+                            </form>
                         </td>
                     </tr>
                 </tbody>

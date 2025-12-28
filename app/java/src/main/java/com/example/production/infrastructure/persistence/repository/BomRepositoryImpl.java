@@ -25,6 +25,21 @@ public class BomRepositoryImpl implements BomRepository {
     }
 
     @Override
+    public void update(Bom bom) {
+        bomMapper.update(bom);
+    }
+
+    @Override
+    public void delete(String parentItemCode, String childItemCode, LocalDate effectiveFrom) {
+        bomMapper.delete(parentItemCode, childItemCode, effectiveFrom);
+    }
+
+    @Override
+    public Bom findByKey(String parentItemCode, String childItemCode, LocalDate effectiveFrom) {
+        return bomMapper.findByKey(parentItemCode, childItemCode, effectiveFrom);
+    }
+
+    @Override
     public List<Bom> findByParentItemCode(String parentItemCode) {
         return bomMapper.findByParentItemCode(parentItemCode);
     }
