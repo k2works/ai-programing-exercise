@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>場所マスタ</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>場所マスタ</h1>
+        <a th:href="@{/locations/new}" class="btn btn-primary">新規登録</a>
+    </div>
+
+    <!-- 検索フォーム -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form th:action="@{/locations}" method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">キーワード検索</label>
+                    <input type="text" class="form-control" name="keyword"
+                           th:value="${keyword}" placeholder="場所コードまたは名称">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">場所区分</label>
+                    <select class="form-select" name="type">
+                        <option value="">すべて</option>
+                        <option th:each="t : ${types}"
+                                th:value="${t}"
+                                th:text="${t.displayName}"
+                                th:selected="${t == selectedType}"></option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-secondary">検索</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 場所一覧テーブル -->
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-striped table-hover" th:if="${not #lists.isEmpty(locations)}">
+                <thead>
+                    <tr>
+                        <th>場所コード</th>
+                        <th>場所名</th>
+                        <th>場所区分</th>
+                        <th>親場所コード</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="location : ${locations}">
+                        <td>
+                            <a th:href="@{/locations/{code}(code=${location.locationCode})}"
+                               th:text="${location.locationCode}"></a>
+                        </td>
+                        <td th:text="${location.locationName}"></td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${location.locationType.name() == 'WAREHOUSE'} ? 'bg-primary' :
+                                                  (${location.locationType.name() == 'MANUFACTURING'} ? 'bg-success' :
+                                                  (${location.locationType.name() == 'INSPECTION'} ? 'bg-info' :
+                                                  (${location.locationType.name() == 'SHIPPING'} ? 'bg-warning' : 'bg-secondary')))"
+                                  th:text="${location.locationType.displayName}"></span>
+                        </td>
+                        <td>
+                            <a th:if="${location.parentLocationCode != null}"
+                               th:href="@{/locations/{code}(code=${location.parentLocationCode})}"
+                               th:text="${location.parentLocationCode}"></a>
+                            <span th:unless="${location.parentLocationCode != null}">-</span>
+                        </td>
+                        <td>
+                            <a th:href="@{/locations/{code}/edit(code=${location.locationCode})}"
+                               class="btn btn-sm btn-outline-primary">編集</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div th:if="${#lists.isEmpty(locations)}" class="alert alert-info">
+                該当する場所がありません。
+            </div>
+        </div>
+    </div>
+
+    <!-- 件数表示 -->
+    <div class="mt-3 text-muted">
+        全 <span th:text="${#lists.size(locations)}">0</span> 件
+    </div>
+</div>
+</body>
+</html>

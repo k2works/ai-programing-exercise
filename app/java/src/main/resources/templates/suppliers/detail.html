@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>取引先詳細</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>取引先詳細</h1>
+        <div>
+            <a th:href="@{/suppliers/{code}/edit(code=${supplier.supplierCode})}"
+               class="btn btn-primary">編集</a>
+            <a th:href="@{/suppliers}" class="btn btn-secondary">一覧に戻る</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <!-- 基本情報 -->
+            <h5 class="card-title mb-3">基本情報</h5>
+            <dl class="row">
+                <dt class="col-sm-3">取引先コード</dt>
+                <dd class="col-sm-9" th:text="${supplier.supplierCode}"></dd>
+
+                <dt class="col-sm-3">取引先名</dt>
+                <dd class="col-sm-9" th:text="${supplier.supplierName}"></dd>
+
+                <dt class="col-sm-3">取引先名（カナ）</dt>
+                <dd class="col-sm-9" th:text="${supplier.supplierNameKana ?: '-'}"></dd>
+
+                <dt class="col-sm-3">取引先区分</dt>
+                <dd class="col-sm-9">
+                    <span class="badge"
+                          th:classappend="${supplier.supplierType.name() == 'VENDOR'} ? 'bg-primary' :
+                                          (${supplier.supplierType.name() == 'SUBCONTRACTOR'} ? 'bg-info' :
+                                          (${supplier.supplierType.name() == 'CUSTOMER'} ? 'bg-success' : 'bg-secondary'))"
+                          th:text="${supplier.supplierType.displayName}"></span>
+                </dd>
+            </dl>
+
+            <hr>
+
+            <!-- 連絡先情報 -->
+            <h5 class="card-title mb-3">連絡先情報</h5>
+            <dl class="row">
+                <dt class="col-sm-3">郵便番号</dt>
+                <dd class="col-sm-9" th:text="${supplier.postalCode ?: '-'}"></dd>
+
+                <dt class="col-sm-3">住所</dt>
+                <dd class="col-sm-9" th:text="${supplier.address ?: '-'}"></dd>
+
+                <dt class="col-sm-3">電話番号</dt>
+                <dd class="col-sm-9" th:text="${supplier.phoneNumber ?: '-'}"></dd>
+
+                <dt class="col-sm-3">FAX番号</dt>
+                <dd class="col-sm-9" th:text="${supplier.faxNumber ?: '-'}"></dd>
+
+                <dt class="col-sm-3">担当者名</dt>
+                <dd class="col-sm-9" th:text="${supplier.contactPerson ?: '-'}"></dd>
+            </dl>
+
+            <hr>
+
+            <!-- システム情報 -->
+            <h5 class="card-title mb-3">システム情報</h5>
+            <dl class="row">
+                <dt class="col-sm-3">適用開始日</dt>
+                <dd class="col-sm-9" th:text="${supplier.effectiveFrom}"></dd>
+
+                <dt class="col-sm-3">適用終了日</dt>
+                <dd class="col-sm-9" th:text="${supplier.effectiveTo ?: '-'}"></dd>
+
+                <dt class="col-sm-3">作成日時</dt>
+                <dd class="col-sm-9" th:text="${supplier.createdAt}"></dd>
+
+                <dt class="col-sm-3">更新日時</dt>
+                <dd class="col-sm-9" th:text="${supplier.updatedAt}"></dd>
+            </dl>
+        </div>
+    </div>
+</div>
+</body>
+</html>

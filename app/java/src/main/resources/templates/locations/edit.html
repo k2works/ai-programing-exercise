@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>場所編集</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>場所編集</h1>
+        <a th:href="@{/locations/{code}(code=${form.locationCode})}" class="btn btn-secondary">詳細に戻る</a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form th:action="@{/locations/{code}(code=${form.locationCode})}" method="post" th:object="${form}">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="locationCode" class="form-label">場所コード</label>
+                        <input type="text" class="form-control" id="locationCode"
+                               th:field="*{locationCode}" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="locationType" class="form-label">場所区分 <span class="text-danger">*</span></label>
+                        <select class="form-select" id="locationType"
+                                th:field="*{locationType}"
+                                th:classappend="${#fields.hasErrors('locationType')} ? 'is-invalid' : ''">
+                            <option value="">選択してください</option>
+                            <option th:each="t : ${types}"
+                                    th:value="${t}"
+                                    th:text="${t.displayName}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('locationType')}"
+                             th:errors="*{locationType}"></div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="locationName" class="form-label">場所名 <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="locationName"
+                               th:field="*{locationName}"
+                               th:classappend="${#fields.hasErrors('locationName')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('locationName')}"
+                             th:errors="*{locationName}"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="parentLocationCode" class="form-label">親場所</label>
+                        <select class="form-select" id="parentLocationCode"
+                                th:field="*{parentLocationCode}"
+                                th:classappend="${#fields.hasErrors('parentLocationCode')} ? 'is-invalid' : ''">
+                            <option value="">なし（トップレベル）</option>
+                            <option th:each="loc : ${allLocations}"
+                                    th:value="${loc.locationCode}"
+                                    th:text="${loc.locationCode + ' - ' + loc.locationName}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('parentLocationCode')}"
+                             th:errors="*{parentLocationCode}"></div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">更新</button>
+                    <a th:href="@{/locations/{code}(code=${form.locationCode})}" class="btn btn-secondary">キャンセル</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
