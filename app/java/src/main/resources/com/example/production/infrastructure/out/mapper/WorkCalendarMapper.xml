@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.production.infrastructure.out.mapper.WorkCalendarMapper">
+
+    <resultMap id="WorkCalendarResultMap" type="com.example.production.domain.model.calendar.WorkCalendar">
+        <result property="calendarCode" column="カレンダコード"/>
+        <result property="date" column="日付"/>
+        <result property="dateType" column="日付区分"
+                typeHandler="com.example.production.infrastructure.out.DateTypeTypeHandler"/>
+        <result property="workingHours" column="稼働時間"/>
+        <result property="note" column="備考"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.example.production.domain.model.calendar.WorkCalendar">
+        INSERT INTO "カレンダマスタ" (
+            "カレンダコード",
+            "日付",
+            "日付区分",
+            "稼働時間",
+            "備考",
+            "作成日時",
+            "更新日時"
+        ) VALUES (
+            #{calendarCode},
+            #{date},
+            #{dateType, typeHandler=com.example.production.infrastructure.out.DateTypeTypeHandler}::日付区分,
+            #{workingHours},
+            #{note},
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <select id="findByCodeAndDate" resultMap="WorkCalendarResultMap">
+        SELECT * FROM "カレンダマスタ"
+        WHERE "カレンダコード" = #{calendarCode}
+          AND "日付" = #{date}
+    </select>
+
+    <select id="findByCalendarCode" resultMap="WorkCalendarResultMap">
+        SELECT * FROM "カレンダマスタ"
+        WHERE "カレンダコード" = #{calendarCode}
+        ORDER BY "日付"
+    </select>
+
+    <select id="findByCalendarCodeAndDateRange" resultMap="WorkCalendarResultMap">
+        SELECT * FROM "カレンダマスタ"
+        WHERE "カレンダコード" = #{calendarCode}
+          AND "日付" >= #{fromDate}
+          AND "日付" &lt;= #{toDate}
+        ORDER BY "日付"
+    </select>
+
+    <select id="findWorkingDays" resultMap="WorkCalendarResultMap">
+        SELECT * FROM "カレンダマスタ"
+        WHERE "カレンダコード" = #{calendarCode}
+          AND "日付" >= #{fromDate}
+          AND "日付" &lt;= #{toDate}
+          AND "日付区分" = '稼働日'
+        ORDER BY "日付"
+    </select>
+
+    <delete id="deleteAll">
+        TRUNCATE TABLE "カレンダマスタ" CASCADE
+    </delete>
+</mapper>

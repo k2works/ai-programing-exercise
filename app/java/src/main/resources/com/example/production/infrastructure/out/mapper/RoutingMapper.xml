@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.production.infrastructure.out.mapper.RoutingMapper">
+
+    <resultMap id="RoutingResultMap" type="com.example.production.domain.model.process.Routing">
+        <id property="id" column="ID"/>
+        <result property="itemCode" column="品目コード"/>
+        <result property="sequence" column="工順"/>
+        <result property="processCode" column="工程コード"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.example.production.domain.model.process.Routing"
+            useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
+        INSERT INTO "工程表" (
+            "品目コード",
+            "工順",
+            "工程コード",
+            "作成日時",
+            "更新日時"
+        ) VALUES (
+            #{itemCode},
+            #{sequence},
+            #{processCode},
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <select id="findById" resultMap="RoutingResultMap">
+        SELECT * FROM "工程表"
+        WHERE "ID" = #{id}
+    </select>
+
+    <select id="findByItemCode" resultMap="RoutingResultMap">
+        SELECT * FROM "工程表"
+        WHERE "品目コード" = #{itemCode}
+        ORDER BY "工順"
+    </select>
+
+    <select id="findAll" resultMap="RoutingResultMap">
+        SELECT * FROM "工程表"
+        ORDER BY "品目コード", "工順"
+    </select>
+
+    <delete id="deleteAll">
+        TRUNCATE TABLE "工程表" CASCADE
+    </delete>
+</mapper>

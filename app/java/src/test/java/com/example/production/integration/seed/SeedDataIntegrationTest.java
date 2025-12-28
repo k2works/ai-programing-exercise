@@ -3,7 +3,7 @@ package com.example.production.integration.seed;
 import com.example.production.application.port.out.*;
 import com.example.production.domain.model.item.Item;
 import com.example.production.domain.model.inventory.Stock;
-import com.example.production.infrastructure.seed.SeedDataService;
+import com.example.production.infrastructure.in.seed.SeedDataService;
 import com.example.production.testsetup.BaseIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

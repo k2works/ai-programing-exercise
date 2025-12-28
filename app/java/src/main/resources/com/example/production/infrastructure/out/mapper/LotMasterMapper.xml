@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.production.infrastructure.out.mapper.LotMasterMapper">
+
+    <resultMap id="LotMasterResultMap" type="com.example.production.domain.model.quality.LotMaster">
+        <id property="id" column="ID"/>
+        <result property="lotNumber" column="ロット番号"/>
+        <result property="itemCode" column="品目コード"/>
+        <result property="lotType" column="ロット種別"
+                typeHandler="com.example.production.infrastructure.out.LotTypeTypeHandler"/>
+        <result property="productionDate" column="製造日"/>
+        <result property="expirationDate" column="有効期限"/>
+        <result property="quantity" column="数量"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
+        INSERT INTO "ロットマスタ" (
+            "ロット番号", "品目コード", "ロット種別", "製造日", "有効期限", "数量"
+        ) VALUES (
+            #{lotNumber}, #{itemCode},
+            #{lotType, typeHandler=com.example.production.infrastructure.out.LotTypeTypeHandler}::"ロット種別",
+            #{productionDate}, #{expirationDate}, #{quantity}
+        )
+    </insert>
+
+    <select id="findByLotNumber" resultMap="LotMasterResultMap">
+        SELECT * FROM "ロットマスタ"
+        WHERE "ロット番号" = #{lotNumber}
+    </select>
+
+    <select id="findByItemCode" resultMap="LotMasterResultMap">
+        SELECT * FROM "ロットマスタ"
+        WHERE "品目コード" = #{itemCode}
+        ORDER BY "ロット番号"
+    </select>
+
+    <delete id="deleteAll">
+        TRUNCATE TABLE "ロットマスタ" CASCADE
+    </delete>
+</mapper>

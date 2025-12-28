@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.production.infrastructure.out.mapper.InspectionMapper">
+
+    <resultMap id="inspectionResultMap" type="com.example.production.domain.model.purchase.Inspection">
+        <id property="id" column="ID"/>
+        <result property="inspectionNumber" column="受入検査番号"/>
+        <result property="receivingNumber" column="入荷番号"/>
+        <result property="purchaseOrderNumber" column="発注番号"/>
+        <result property="lineNumber" column="発注行番号"/>
+        <result property="inspectionDate" column="受入検査日"/>
+        <result property="inspectorCode" column="受入検査担当者コード"/>
+        <result property="itemCode" column="品目コード"/>
+        <result property="miscellaneousItemFlag" column="諸口品目区分"/>
+        <result property="goodQuantity" column="良品数"/>
+        <result property="defectQuantity" column="不良品数"/>
+        <result property="remarks" column="受入検査備考"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
+        INSERT INTO "受入検査データ" (
+            "受入検査番号",
+            "入荷番号",
+            "発注番号",
+            "発注行番号",
+            "受入検査日",
+            "受入検査担当者コード",
+            "品目コード",
+            "諸口品目区分",
+            "良品数",
+            "不良品数",
+            "受入検査備考",
+            "作成日時",
+            "作成者",
+            "更新日時",
+            "更新者"
+        ) VALUES (
+            #{inspectionNumber},
+            #{receivingNumber},
+            #{purchaseOrderNumber},
+            #{lineNumber},
+            #{inspectionDate},
+            #{inspectorCode},
+            #{itemCode},
+            #{miscellaneousItemFlag},
+            #{goodQuantity},
+            #{defectQuantity},
+            #{remarks},
+            CURRENT_TIMESTAMP,
+            #{createdBy},
+            CURRENT_TIMESTAMP,
+            #{updatedBy}
+        )
+    </insert>
+
+    <select id="findById" resultMap="inspectionResultMap">
+        SELECT * FROM "受入検査データ" WHERE "ID" = #{id}
+    </select>
+
+    <select id="findByInspectionNumber" resultMap="inspectionResultMap">
+        SELECT * FROM "受入検査データ" WHERE "受入検査番号" = #{inspectionNumber}
+    </select>
+
+    <select id="findByReceivingNumber" resultMap="inspectionResultMap">
+        SELECT * FROM "受入検査データ"
+        WHERE "入荷番号" = #{receivingNumber}
+        ORDER BY "受入検査日"
+    </select>
+
+    <select id="findAll" resultMap="inspectionResultMap">
+        SELECT * FROM "受入検査データ"
+        ORDER BY "受入検査日" DESC, "受入検査番号"
+    </select>
+
+    <select id="findLatestInspectionNumber" resultType="string">
+        SELECT "受入検査番号" FROM "受入検査データ"
+        WHERE "受入検査番号" LIKE #{prefix} || '%'
+        ORDER BY "受入検査番号" DESC
+        LIMIT 1
+    </select>
+
+    <delete id="deleteAll">
+        DELETE FROM "受入検査データ"
+    </delete>
+
+</mapper>

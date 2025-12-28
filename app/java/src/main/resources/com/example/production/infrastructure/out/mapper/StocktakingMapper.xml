@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.production.infrastructure.out.mapper.StocktakingMapper">
+
+    <resultMap id="StocktakingResultMap" type="com.example.production.domain.model.inventory.Stocktaking">
+        <id property="id" column="ID"/>
+        <result property="stocktakingNumber" column="棚卸番号"/>
+        <result property="locationCode" column="場所コード"/>
+        <result property="stocktakingDate" column="棚卸日"/>
+        <result property="status" column="ステータス"
+                typeHandler="com.example.production.infrastructure.out.StocktakingStatusTypeHandler"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+    </resultMap>
+
+    <resultMap id="StocktakingWithDetailsResultMap" type="com.example.production.domain.model.inventory.Stocktaking"
+               extends="StocktakingResultMap">
+        <collection property="details" ofType="com.example.production.domain.model.inventory.StocktakingDetail">
+            <id property="id" column="detail_ID"/>
+            <result property="stocktakingNumber" column="detail_棚卸番号"/>
+            <result property="lineNumber" column="棚卸行番号"/>
+            <result property="itemCode" column="detail_品目コード"/>
+            <result property="bookQuantity" column="帳簿数量"/>
+            <result property="actualQuantity" column="実棚数量"/>
+            <result property="differenceQuantity" column="差異数量"/>
+        </collection>
+    </resultMap>
+
+    <resultMap id="StocktakingDetailResultMap" type="com.example.production.domain.model.inventory.StocktakingDetail">
+        <id property="id" column="ID"/>
+        <result property="stocktakingNumber" column="棚卸番号"/>
+        <result property="lineNumber" column="棚卸行番号"/>
+        <result property="itemCode" column="品目コード"/>
+        <result property="bookQuantity" column="帳簿数量"/>
+        <result property="actualQuantity" column="実棚数量"/>
+        <result property="differenceQuantity" column="差異数量"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+    </resultMap>
+
+    <select id="findByStocktakingNumber" resultMap="StocktakingResultMap">
+        SELECT * FROM "棚卸データ"
+        WHERE "棚卸番号" = #{stocktakingNumber}
+    </select>
+
+    <select id="findByStocktakingNumberWithDetails" resultMap="StocktakingWithDetailsResultMap">
+        SELECT
+            s."ID", s."棚卸番号", s."場所コード", s."棚卸日", s."ステータス",
+            s."作成日時", s."更新日時",
+            d."ID" AS detail_ID, d."棚卸番号" AS "detail_棚卸番号",
+            d."棚卸行番号", d."品目コード" AS "detail_品目コード",
+            d."帳簿数量", d."実棚数量", d."差異数量"
+        FROM "棚卸データ" s
+        LEFT JOIN "棚卸明細データ" d ON s."棚卸番号" = d."棚卸番号"
+        WHERE s."棚卸番号" = #{stocktakingNumber}
+        ORDER BY d."棚卸行番号"
+    </select>
+
+    <select id="findDetailsByStocktakingNumber" resultMap="StocktakingDetailResultMap">
+        SELECT * FROM "棚卸明細データ"
+        WHERE "棚卸番号" = #{stocktakingNumber}
+        ORDER BY "棚卸行番号"
+    </select>
+
+    <select id="countByYear" resultType="long">
+        SELECT COUNT(*) FROM "棚卸データ"
+        WHERE "棚卸番号" LIKE 'ST-' || #{year} || '-%'
+    </select>
+
+    <select id="findAll" resultMap="StocktakingResultMap">
+        SELECT * FROM "棚卸データ"
+        ORDER BY "棚卸日" DESC, "棚卸番号" DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
+        INSERT INTO "棚卸データ" (
+            "棚卸番号", "場所コード", "棚卸日", "ステータス"
+        ) VALUES (
+            #{stocktakingNumber}, #{locationCode}, #{stocktakingDate},
+            #{status, typeHandler=com.example.production.infrastructure.out.StocktakingStatusTypeHandler}::"棚卸ステータス"
+        )
+    </insert>
+
+    <insert id="insertDetail" useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
+        INSERT INTO "棚卸明細データ" (
+            "棚卸番号", "棚卸行番号", "品目コード", "帳簿数量"
+        ) VALUES (
+            #{stocktakingNumber}, #{lineNumber}, #{itemCode}, #{bookQuantity}
+        )
+    </insert>
+
+    <update id="updateDetail">
+        UPDATE "棚卸明細データ"
+        SET "実棚数量" = #{actualQuantity},
+            "差異数量" = #{differenceQuantity},
+            "更新日時" = CURRENT_TIMESTAMP
+        WHERE "ID" = #{id}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE "棚卸データ"
+        SET "ステータス" = #{status, typeHandler=com.example.production.infrastructure.out.StocktakingStatusTypeHandler}::"棚卸ステータス",
+            "更新日時" = CURRENT_TIMESTAMP
+        WHERE "棚卸番号" = #{stocktakingNumber}
+    </update>
+
+    <delete id="deleteAllDetails">
+        TRUNCATE TABLE "棚卸明細データ" CASCADE
+    </delete>
+
+    <delete id="deleteAll">
+        TRUNCATE TABLE "棚卸データ" CASCADE
+    </delete>
+</mapper>

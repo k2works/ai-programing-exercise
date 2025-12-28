@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.production.infrastructure.out.mapper.UnitMapper">
+
+    <resultMap id="UnitResultMap" type="com.example.production.domain.model.item.Unit">
+        <id property="unitCode" column="単位コード"/>
+        <result property="unitSymbol" column="単位記号"/>
+        <result property="unitName" column="単位名"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.example.production.domain.model.item.Unit">
+        INSERT INTO "単位マスタ" (
+            "単位コード",
+            "単位記号",
+            "単位名",
+            "作成日時",
+            "更新日時"
+        ) VALUES (
+            #{unitCode},
+            #{unitSymbol},
+            #{unitName},
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <select id="findByUnitCode" resultMap="UnitResultMap">
+        SELECT * FROM "単位マスタ"
+        WHERE "単位コード" = #{unitCode}
+    </select>
+
+    <select id="findAll" resultMap="UnitResultMap">
+        SELECT * FROM "単位マスタ"
+        ORDER BY "単位コード"
+    </select>
+
+    <select id="existsByUnitCode" resultType="boolean">
+        SELECT EXISTS(
+            SELECT 1 FROM "単位マスタ"
+            WHERE "単位コード" = #{unitCode}
+        )
+    </select>
+
+    <delete id="deleteAll">
+        TRUNCATE TABLE "単位マスタ" CASCADE
+    </delete>
+</mapper>

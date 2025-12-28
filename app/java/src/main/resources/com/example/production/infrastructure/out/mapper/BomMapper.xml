@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.production.infrastructure.out.mapper.BomMapper">
+
+    <!-- 日本語カラム名と英語プロパティ名のマッピング -->
+    <resultMap id="BomResultMap" type="com.example.production.domain.model.bom.Bom">
+        <result property="parentItemCode" column="親品目コード"/>
+        <result property="childItemCode" column="子品目コード"/>
+        <result property="effectiveFrom" column="適用開始日"/>
+        <result property="effectiveTo" column="適用停止日"/>
+        <result property="baseQuantity" column="基準数量"/>
+        <result property="requiredQuantity" column="必要数量"/>
+        <result property="defectRate" column="不良率"/>
+        <result property="sequence" column="工順"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+    </resultMap>
+
+    <resultMap id="BomExplosionResultMap" type="com.example.production.domain.model.bom.BomExplosion">
+        <result property="parentItemCode" column="親品目コード"/>
+        <result property="childItemCode" column="子品目コード"/>
+        <result property="effectiveFrom" column="適用開始日"/>
+        <result property="effectiveTo" column="適用停止日"/>
+        <result property="baseQuantity" column="基準数量"/>
+        <result property="requiredQuantity" column="必要数量"/>
+        <result property="defectRate" column="不良率"/>
+        <result property="sequence" column="工順"/>
+        <result property="level" column="階層"/>
+        <result property="totalQuantity" column="累計数量"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.example.production.domain.model.bom.Bom">
+        INSERT INTO "部品構成表" (
+            "親品目コード",
+            "子品目コード",
+            "適用開始日",
+            "適用停止日",
+            "基準数量",
+            "必要数量",
+            "不良率",
+            "工順",
+            "作成日時",
+            "更新日時"
+        ) VALUES (
+            #{parentItemCode},
+            #{childItemCode},
+            #{effectiveFrom},
+            #{effectiveTo},
+            #{baseQuantity},
+            #{requiredQuantity},
+            #{defectRate},
+            #{sequence},
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <update id="update" parameterType="com.example.production.domain.model.bom.Bom">
+        UPDATE "部品構成表"
+        SET "適用停止日" = #{effectiveTo},
+            "基準数量" = #{baseQuantity},
+            "必要数量" = #{requiredQuantity},
+            "不良率" = #{defectRate},
+            "工順" = #{sequence},
+            "更新日時" = CURRENT_TIMESTAMP
+        WHERE "親品目コード" = #{parentItemCode}
+          AND "子品目コード" = #{childItemCode}
+          AND "適用開始日" = #{effectiveFrom}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM "部品構成表"
+        WHERE "親品目コード" = #{parentItemCode}
+          AND "子品目コード" = #{childItemCode}
+          AND "適用開始日" = #{effectiveFrom}
+    </delete>
+
+    <select id="findByKey" resultMap="BomResultMap">
+        SELECT * FROM "部品構成表"
+        WHERE "親品目コード" = #{parentItemCode}
+          AND "子品目コード" = #{childItemCode}
+          AND "適用開始日" = #{effectiveFrom}
+    </select>
+
+    <select id="findByParentItemCode" resultMap="BomResultMap">
+        SELECT * FROM "部品構成表"
+        WHERE "親品目コード" = #{parentItemCode}
+          AND ("適用停止日" IS NULL OR "適用停止日" > CURRENT_DATE)
+        ORDER BY "工順", "子品目コード"
+    </select>
+
+    <select id="findByParentItemCodeAndDate" resultMap="BomResultMap">
+        SELECT * FROM "部品構成表"
+        WHERE "親品目コード" = #{parentItemCode}
+          AND "適用開始日" &lt;= #{baseDate}
+          AND ("適用停止日" IS NULL OR "適用停止日" > #{baseDate})
+        ORDER BY "工順", "子品目コード"
+    </select>
+
+    <select id="findByChildItemCode" resultMap="BomResultMap">
+        SELECT * FROM "部品構成表"
+        WHERE "子品目コード" = #{childItemCode}
+          AND ("適用停止日" IS NULL OR "適用停止日" > CURRENT_DATE)
+        ORDER BY "親品目コード"
+    </select>
+
+    <!-- 再帰CTEによる全階層展開 -->
+    <select id="explode" resultMap="BomExplosionResultMap">
+        WITH RECURSIVE bom_explosion AS (
+            -- 基底: 直接の子品目
+            SELECT
+                "親品目コード",
+                "子品目コード",
+                "適用開始日",
+                "適用停止日",
+                "基準数量",
+                "必要数量",
+                "不良率",
+                "工順",
+                1 as "階層",
+                CAST("必要数量" AS NUMERIC) as "累計数量"
+            FROM "部品構成表"
+            WHERE "親品目コード" = #{itemCode}
+              AND ("適用停止日" IS NULL OR "適用停止日" >= CURRENT_DATE)
+
+            UNION ALL
+
+            -- 再帰: 子品目の子品目
+            SELECT
+                b."親品目コード",
+                b."子品目コード",
+                b."適用開始日",
+                b."適用停止日",
+                b."基準数量",
+                b."必要数量",
+                b."不良率",
+                b."工順",
+                be."階層" + 1,
+                be."累計数量" * CAST(b."必要数量" AS NUMERIC)
+            FROM "部品構成表" b
+            INNER JOIN bom_explosion be ON b."親品目コード" = be."子品目コード"
+            WHERE (b."適用停止日" IS NULL OR b."適用停止日" >= CURRENT_DATE)
+              AND be."階層" &lt; 10  -- 無限ループ防止
+        )
+        SELECT
+            "親品目コード",
+            "子品目コード",
+            "適用開始日",
+            "適用停止日",
+            "基準数量",
+            "必要数量",
+            "不良率",
+            "工順",
+            "階層",
+            "累計数量" * #{quantity} as "累計数量"
+        FROM bom_explosion
+        ORDER BY "階層", "親品目コード", "工順", "子品目コード"
+    </select>
+
+    <select id="findAll" resultMap="BomResultMap">
+        SELECT * FROM "部品構成表"
+        ORDER BY "親品目コード", "工順", "子品目コード"
+    </select>
+
+    <delete id="deleteAll">
+        TRUNCATE TABLE "部品構成表" CASCADE
+    </delete>
+</mapper>

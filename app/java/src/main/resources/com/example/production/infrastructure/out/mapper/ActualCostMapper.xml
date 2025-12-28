@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.production.infrastructure.out.mapper.ActualCostMapper">
+
+    <resultMap id="ActualCostResultMap" type="com.example.production.domain.model.cost.ActualCost">
+        <id property="id" column="ID"/>
+        <result property="workOrderNumber" column="作業指示番号"/>
+        <result property="itemCode" column="品目コード"/>
+        <result property="completedQuantity" column="完成数量"/>
+        <result property="actualMaterialCost" column="実際材料費"/>
+        <result property="actualLaborCost" column="実際労務費"/>
+        <result property="actualExpense" column="実際経費"/>
+        <result property="actualManufacturingCost" column="実際製造原価"/>
+        <result property="unitCost" column="単位原価"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+    </resultMap>
+
+    <select id="findById" resultMap="ActualCostResultMap">
+        SELECT * FROM "実際原価データ"
+        WHERE "ID" = #{id}
+    </select>
+
+    <select id="findByWorkOrderNumber" resultMap="ActualCostResultMap">
+        SELECT * FROM "実際原価データ"
+        WHERE "作業指示番号" = #{workOrderNumber}
+    </select>
+
+    <select id="findByItemCode" resultMap="ActualCostResultMap">
+        SELECT * FROM "実際原価データ"
+        WHERE "品目コード" = #{itemCode}
+        ORDER BY "作成日時" DESC
+    </select>
+
+    <select id="findAll" resultMap="ActualCostResultMap">
+        SELECT * FROM "実際原価データ"
+        ORDER BY "作成日時" DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
+        INSERT INTO "実際原価データ" (
+            "作業指示番号", "品目コード", "完成数量",
+            "実際材料費", "実際労務費", "実際経費", "実際製造原価", "単位原価"
+        ) VALUES (
+            #{workOrderNumber}, #{itemCode}, #{completedQuantity},
+            #{actualMaterialCost}, #{actualLaborCost}, #{actualExpense}, #{actualManufacturingCost}, #{unitCost}
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE "実際原価データ"
+        SET "品目コード" = #{itemCode},
+            "完成数量" = #{completedQuantity},
+            "実際材料費" = #{actualMaterialCost},
+            "実際労務費" = #{actualLaborCost},
+            "実際経費" = #{actualExpense},
+            "実際製造原価" = #{actualManufacturingCost},
+            "単位原価" = #{unitCost},
+            "更新日時" = CURRENT_TIMESTAMP
+        WHERE "作業指示番号" = #{workOrderNumber}
+    </update>
+
+    <delete id="deleteAll">
+        TRUNCATE TABLE "実際原価データ" CASCADE
+    </delete>
+</mapper>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.production.infrastructure.out.mapper.RequirementMapper">
+
+    <resultMap id="RequirementResultMap" type="com.example.production.domain.model.plan.Requirement">
+        <id property="id" column="ID"/>
+        <result property="requirementNumber" column="所要NO"/>
+        <result property="orderId" column="オーダID"/>
+        <result property="itemCode" column="品目コード"/>
+        <result property="dueDate" column="納期"/>
+        <result property="requiredQuantity" column="必要数量"/>
+        <result property="allocatedQuantity" column="引当済数量"/>
+        <result property="shortageQuantity" column="不足数量"/>
+        <result property="locationCode" column="場所コード"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.example.production.domain.model.plan.Requirement"
+            useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
+        INSERT INTO "所要情報" (
+            "所要NO",
+            "オーダID",
+            "品目コード",
+            "納期",
+            "必要数量",
+            "引当済数量",
+            "不足数量",
+            "場所コード",
+            "作成日時",
+            "更新日時"
+        ) VALUES (
+            #{requirementNumber},
+            #{orderId},
+            #{itemCode},
+            #{dueDate},
+            #{requiredQuantity},
+            #{allocatedQuantity},
+            #{shortageQuantity},
+            #{locationCode},
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <select id="findById" resultMap="RequirementResultMap">
+        SELECT * FROM "所要情報"
+        WHERE "ID" = #{id}
+    </select>
+
+    <select id="findByOrderId" resultMap="RequirementResultMap">
+        SELECT * FROM "所要情報"
+        WHERE "オーダID" = #{orderId}
+        ORDER BY "所要NO"
+    </select>
+
+    <select id="findAll" resultMap="RequirementResultMap">
+        SELECT * FROM "所要情報"
+        ORDER BY "所要NO"
+    </select>
+
+    <update id="updateAllocation">
+        UPDATE "所要情報" SET
+            "引当済数量" = #{allocatedQuantity},
+            "不足数量" = #{shortageQuantity},
+            "更新日時" = CURRENT_TIMESTAMP
+        WHERE "ID" = #{id}
+    </update>
+
+    <delete id="deleteAll">
+        TRUNCATE TABLE "所要情報" CASCADE
+    </delete>
+</mapper>

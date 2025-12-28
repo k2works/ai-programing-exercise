@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.production.infrastructure.out.mapper.StockAdjustmentMapper">
+
+    <resultMap id="StockAdjustmentResultMap" type="com.example.production.domain.model.inventory.StockAdjustment">
+        <id property="id" column="ID"/>
+        <result property="adjustmentNumber" column="在庫調整番号"/>
+        <result property="stocktakingNumber" column="棚卸番号"/>
+        <result property="itemCode" column="品目コード"/>
+        <result property="locationCode" column="場所コード"/>
+        <result property="adjustmentDate" column="調整日"/>
+        <result property="adjusterCode" column="調整担当者コード"/>
+        <result property="adjustmentQuantity" column="調整数"/>
+        <result property="reasonCode" column="理由コード"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+    </resultMap>
+
+    <select id="findByStocktakingNumber" resultMap="StockAdjustmentResultMap">
+        SELECT * FROM "在庫調整データ"
+        WHERE "棚卸番号" = #{stocktakingNumber}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
+        INSERT INTO "在庫調整データ" (
+            "在庫調整番号", "棚卸番号", "品目コード", "場所コード",
+            "調整日", "調整担当者コード", "調整数", "理由コード"
+        ) VALUES (
+            #{adjustmentNumber}, #{stocktakingNumber}, #{itemCode}, #{locationCode},
+            #{adjustmentDate}, #{adjusterCode}, #{adjustmentQuantity}, #{reasonCode}
+        )
+    </insert>
+
+    <delete id="deleteAll">
+        TRUNCATE TABLE "在庫調整データ" CASCADE
+    </delete>
+</mapper>

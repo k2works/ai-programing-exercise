@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.production.infrastructure.out.mapper.ShipmentInspectionMapper">
+
+    <resultMap id="ShipmentInspectionResultMap" type="com.example.production.domain.model.quality.ShipmentInspection">
+        <id property="id" column="ID"/>
+        <result property="shipmentInspectionNumber" column="出荷検査番号"/>
+        <result property="shipmentNumber" column="出荷番号"/>
+        <result property="itemCode" column="品目コード"/>
+        <result property="inspectionDate" column="検査日"/>
+        <result property="inspectorCode" column="検査担当者コード"/>
+        <result property="inspectionQuantity" column="検査数量"/>
+        <result property="passedQuantity" column="合格数"/>
+        <result property="failedQuantity" column="不合格数"/>
+        <result property="judgment" column="判定"
+                typeHandler="com.example.production.infrastructure.out.InspectionJudgmentTypeHandler"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+    </resultMap>
+
+    <resultMap id="ShipmentInspectionWithResultsResultMap" type="com.example.production.domain.model.quality.ShipmentInspection"
+               extends="ShipmentInspectionResultMap">
+        <collection property="results" ofType="com.example.production.domain.model.quality.ShipmentInspectionResult">
+            <id property="id" column="result_ID"/>
+            <result property="shipmentInspectionNumber" column="result_出荷検査番号"/>
+            <result property="defectCode" column="result_欠点コード"/>
+            <result property="quantity" column="result_数量"/>
+        </collection>
+    </resultMap>
+
+    <resultMap id="ShipmentInspectionResultResultMap" type="com.example.production.domain.model.quality.ShipmentInspectionResult">
+        <id property="id" column="ID"/>
+        <result property="shipmentInspectionNumber" column="出荷検査番号"/>
+        <result property="defectCode" column="欠点コード"/>
+        <result property="quantity" column="数量"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
+        INSERT INTO "出荷検査データ" (
+            "出荷検査番号", "出荷番号", "品目コード", "検査日",
+            "検査担当者コード", "検査数量", "合格数", "不合格数", "判定"
+        ) VALUES (
+            #{shipmentInspectionNumber}, #{shipmentNumber}, #{itemCode}, #{inspectionDate},
+            #{inspectorCode}, #{inspectionQuantity}, #{passedQuantity}, #{failedQuantity},
+            #{judgment, typeHandler=com.example.production.infrastructure.out.InspectionJudgmentTypeHandler}::"検査判定"
+        )
+    </insert>
+
+    <insert id="insertResult" useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
+        INSERT INTO "出荷検査結果データ" (
+            "出荷検査番号", "欠点コード", "数量"
+        ) VALUES (
+            #{shipmentInspectionNumber}, #{defectCode}, #{quantity}
+        )
+    </insert>
+
+    <select id="findByShipmentInspectionNumber" resultMap="ShipmentInspectionResultMap">
+        SELECT * FROM "出荷検査データ"
+        WHERE "出荷検査番号" = #{shipmentInspectionNumber}
+    </select>
+
+    <select id="findByShipmentInspectionNumberWithResults" resultMap="ShipmentInspectionWithResultsResultMap">
+        SELECT
+            s."ID", s."出荷検査番号", s."出荷番号", s."品目コード", s."検査日",
+            s."検査担当者コード", s."検査数量", s."合格数", s."不合格数", s."判定",
+            s."作成日時", s."更新日時",
+            r."ID" AS result_ID, r."出荷検査番号" AS "result_出荷検査番号",
+            r."欠点コード" AS "result_欠点コード", r."数量" AS "result_数量"
+        FROM "出荷検査データ" s
+        LEFT JOIN "出荷検査結果データ" r ON s."出荷検査番号" = r."出荷検査番号"
+        WHERE s."出荷検査番号" = #{shipmentInspectionNumber}
+    </select>
+
+    <select id="findByShipmentNumber" resultMap="ShipmentInspectionResultMap">
+        SELECT * FROM "出荷検査データ"
+        WHERE "出荷番号" = #{shipmentNumber}
+        ORDER BY "出荷検査番号"
+    </select>
+
+    <select id="findResultsByShipmentInspectionNumber" resultMap="ShipmentInspectionResultResultMap">
+        SELECT * FROM "出荷検査結果データ"
+        WHERE "出荷検査番号" = #{shipmentInspectionNumber}
+    </select>
+
+    <select id="countByYear" resultType="long">
+        SELECT COUNT(*) FROM "出荷検査データ"
+        WHERE "出荷検査番号" LIKE 'SI-' || #{year} || '-%'
+    </select>
+
+    <delete id="deleteAllResults">
+        TRUNCATE TABLE "出荷検査結果データ" CASCADE
+    </delete>
+
+    <delete id="deleteAll">
+        TRUNCATE TABLE "出荷検査データ" CASCADE
+    </delete>
+</mapper>

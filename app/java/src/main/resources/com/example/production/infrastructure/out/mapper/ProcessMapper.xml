@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.production.infrastructure.out.mapper.ProcessMapper">
+
+    <resultMap id="ProcessResultMap" type="com.example.production.domain.model.process.Process">
+        <id property="processCode" column="工程コード"/>
+        <result property="processName" column="工程名"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.example.production.domain.model.process.Process">
+        INSERT INTO "工程マスタ" (
+            "工程コード",
+            "工程名",
+            "作成日時",
+            "作成者",
+            "更新日時",
+            "更新者"
+        ) VALUES (
+            #{processCode},
+            #{processName},
+            CURRENT_TIMESTAMP,
+            #{createdBy},
+            CURRENT_TIMESTAMP,
+            #{updatedBy}
+        )
+    </insert>
+
+    <select id="findByProcessCode" resultMap="ProcessResultMap">
+        SELECT * FROM "工程マスタ"
+        WHERE "工程コード" = #{processCode}
+    </select>
+
+    <select id="findAll" resultMap="ProcessResultMap">
+        SELECT * FROM "工程マスタ"
+        ORDER BY "工程コード"
+    </select>
+
+    <delete id="deleteAll">
+        TRUNCATE TABLE "工程マスタ" CASCADE
+    </delete>
+</mapper>

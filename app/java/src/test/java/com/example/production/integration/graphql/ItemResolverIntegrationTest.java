@@ -2,7 +2,7 @@ package com.example.production.integration.graphql;
 
 import com.example.production.domain.model.item.Item;
 import com.example.production.domain.model.item.ItemCategory;
-import com.example.production.infrastructure.persistence.mapper.ItemMapper;
+import com.example.production.infrastructure.out.mapper.ItemMapper;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.production.infrastructure.out.mapper.ItemMapper">
+
+    <!-- 日本語カラム名と英語プロパティ名のマッピング -->
+    <resultMap id="ItemResultMap" type="com.example.production.domain.model.item.Item">
+        <id property="id" column="ID"/>
+        <result property="itemCode" column="品目コード"/>
+        <result property="effectiveFrom" column="適用開始日"/>
+        <result property="effectiveTo" column="適用停止日"/>
+        <result property="itemName" column="品名"/>
+        <result property="itemCategory" column="品目区分"
+                typeHandler="com.example.production.infrastructure.out.ItemCategoryTypeHandler"/>
+        <result property="unitCode" column="単位コード"/>
+        <result property="leadTime" column="リードタイム"/>
+        <result property="safetyLeadTime" column="安全リードタイム"/>
+        <result property="safetyStock" column="安全在庫数"/>
+        <result property="yieldRate" column="歩留率"/>
+        <result property="minLotSize" column="最小ロット数"/>
+        <result property="lotIncrement" column="刻みロット数"/>
+        <result property="maxLotSize" column="最大ロット数"/>
+        <result property="shelfLife" column="有効期間"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="updatedAt" column="更新日時"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.example.production.domain.model.item.Item"
+            useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
+        INSERT INTO "品目マスタ" (
+            "品目コード",
+            "適用開始日",
+            "適用停止日",
+            "品名",
+            "品目区分",
+            "単位コード",
+            "リードタイム",
+            "安全リードタイム",
+            "安全在庫数",
+            "歩留率",
+            "最小ロット数",
+            "刻みロット数",
+            "最大ロット数",
+            "有効期間",
+            "作成日時",
+            "更新日時"
+        ) VALUES (
+            #{itemCode},
+            #{effectiveFrom},
+            #{effectiveTo},
+            #{itemName},
+            #{itemCategory, typeHandler=com.example.production.infrastructure.out.ItemCategoryTypeHandler}::品目区分,
+            #{unitCode},
+            #{leadTime},
+            #{safetyLeadTime},
+            #{safetyStock},
+            #{yieldRate},
+            #{minLotSize},
+            #{lotIncrement},
+            #{maxLotSize},
+            #{shelfLife},
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <select id="findByItemCode" resultMap="ItemResultMap">
+        SELECT * FROM "品目マスタ"
+        WHERE "品目コード" = #{itemCode}
+        ORDER BY "適用開始日" DESC
+        LIMIT 1
+    </select>
+
+    <select id="findByItemCodeAndDate" resultMap="ItemResultMap">
+        SELECT * FROM "品目マスタ"
+        WHERE "品目コード" = #{itemCode}
+          AND "適用開始日" &lt;= #{baseDate}
+          AND ("適用停止日" IS NULL OR "適用停止日" > #{baseDate})
+        ORDER BY "適用開始日" DESC
+        LIMIT 1
+    </select>
+
+    <select id="findAll" resultMap="ItemResultMap">
+        SELECT * FROM "品目マスタ"
+        ORDER BY "品目コード", "適用開始日" DESC
+    </select>
+
+    <select id="findByCategory" resultMap="ItemResultMap">
+        SELECT * FROM "品目マスタ"
+        WHERE "品目区分" = #{category, typeHandler=com.example.production.infrastructure.out.ItemCategoryTypeHandler}::品目区分
+        ORDER BY "品目コード", "適用開始日" DESC
+    </select>
+
+    <select id="findByItemCodes" resultMap="ItemResultMap">
+        SELECT DISTINCT ON ("品目コード") * FROM "品目マスタ"
+        WHERE "品目コード" IN
+        <foreach collection="itemCodes" item="itemCode" open="(" separator="," close=")">
+            #{itemCode}
+        </foreach>
+        ORDER BY "品目コード", "適用開始日" DESC
+    </select>
+
+    <update id="update" parameterType="com.example.production.domain.model.item.Item">
+        UPDATE "品目マスタ" SET
+            "品名" = #{itemName},
+            "品目区分" = #{itemCategory, typeHandler=com.example.production.infrastructure.out.ItemCategoryTypeHandler}::品目区分,
+            "単位コード" = #{unitCode},
+            "リードタイム" = #{leadTime},
+            "安全リードタイム" = #{safetyLeadTime},
+            "安全在庫数" = #{safetyStock},
+            "歩留率" = #{yieldRate},
+            "最小ロット数" = #{minLotSize},
+            "刻みロット数" = #{lotIncrement},
+            "最大ロット数" = #{maxLotSize},
+            "有効期間" = #{shelfLife},
+            "更新日時" = CURRENT_TIMESTAMP
+        WHERE "ID" = #{id}
+    </update>
+
+    <delete id="deleteByItemCode">
+        DELETE FROM "品目マスタ"
+        WHERE "品目コード" = #{itemCode}
+    </delete>
+
+    <delete id="deleteAll">
+        TRUNCATE TABLE "品目マスタ" CASCADE
+    </delete>
+</mapper>

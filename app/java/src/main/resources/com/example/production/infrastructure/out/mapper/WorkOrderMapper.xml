@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.production.infrastructure.out.mapper.WorkOrderMapper">
+
+    <resultMap id="WorkOrderResultMap" type="com.example.production.domain.model.process.WorkOrder">
+        <id property="id" column="ID"/>
+        <result property="workOrderNumber" column="作業指示番号"/>
+        <result property="orderNumber" column="オーダ番号"/>
+        <result property="workOrderDate" column="作業指示日"/>
+        <result property="itemCode" column="品目コード"/>
+        <result property="orderQuantity" column="作業指示数"/>
+        <result property="locationCode" column="場所コード"/>
+        <result property="plannedStartDate" column="開始予定日"/>
+        <result property="plannedEndDate" column="完成予定日"/>
+        <result property="actualStartDate" column="実績開始日"/>
+        <result property="actualEndDate" column="実績完了日"/>
+        <result property="completedQuantity" column="完成済数"/>
+        <result property="totalGoodQuantity" column="総良品数"/>
+        <result property="totalDefectQuantity" column="総不良品数"/>
+        <result property="status" column="ステータス"
+                typeHandler="com.example.production.infrastructure.out.WorkOrderStatusTypeHandler"/>
+        <result property="completedFlag" column="完了フラグ"/>
+        <result property="remarks" column="備考"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.example.production.domain.model.process.WorkOrder"
+            useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
+        INSERT INTO "作業指示データ" (
+            "作業指示番号",
+            "オーダ番号",
+            "作業指示日",
+            "品目コード",
+            "作業指示数",
+            "場所コード",
+            "開始予定日",
+            "完成予定日",
+            "完成済数",
+            "総良品数",
+            "総不良品数",
+            "ステータス",
+            "完了フラグ",
+            "備考",
+            "作成日時",
+            "作成者",
+            "更新日時",
+            "更新者"
+        ) VALUES (
+            #{workOrderNumber},
+            #{orderNumber},
+            #{workOrderDate},
+            #{itemCode},
+            #{orderQuantity},
+            #{locationCode},
+            #{plannedStartDate},
+            #{plannedEndDate},
+            #{completedQuantity},
+            #{totalGoodQuantity},
+            #{totalDefectQuantity},
+            #{status, typeHandler=com.example.production.infrastructure.out.WorkOrderStatusTypeHandler}::作業指示ステータス,
+            #{completedFlag},
+            #{remarks},
+            CURRENT_TIMESTAMP,
+            #{createdBy},
+            CURRENT_TIMESTAMP,
+            #{updatedBy}
+        )
+    </insert>
+
+    <select id="findByWorkOrderNumber" resultMap="WorkOrderResultMap">
+        SELECT * FROM "作業指示データ"
+        WHERE "作業指示番号" = #{workOrderNumber}
+    </select>
+
+    <select id="findByOrderNumber" resultMap="WorkOrderResultMap">
+        SELECT * FROM "作業指示データ"
+        WHERE "オーダ番号" = #{orderNumber}
+        ORDER BY "作業指示番号"
+    </select>
+
+    <select id="findByStatus" resultMap="WorkOrderResultMap">
+        SELECT * FROM "作業指示データ"
+        WHERE "ステータス" = #{status, typeHandler=com.example.production.infrastructure.out.WorkOrderStatusTypeHandler}::作業指示ステータス
+        ORDER BY "作業指示番号"
+    </select>
+
+    <select id="findLatestWorkOrderNumber" resultType="string">
+        SELECT "作業指示番号" FROM "作業指示データ"
+        WHERE "作業指示番号" LIKE #{prefix} || '%'
+        ORDER BY "作業指示番号" DESC
+        LIMIT 1
+    </select>
+
+    <update id="startWork">
+        UPDATE "作業指示データ" SET
+            "ステータス" = '作業中'::作業指示ステータス,
+            "実績開始日" = #{actualStartDate},
+            "更新日時" = CURRENT_TIMESTAMP
+        WHERE "作業指示番号" = #{workOrderNumber}
+    </update>
+
+    <update id="completeWork">
+        UPDATE "作業指示データ" SET
+            "ステータス" = '完了'::作業指示ステータス,
+            "完了フラグ" = true,
+            "実績完了日" = #{actualEndDate},
+            "更新日時" = CURRENT_TIMESTAMP
+        WHERE "作業指示番号" = #{workOrderNumber}
+    </update>
+
+    <update id="updateCompletionQuantities">
+        UPDATE "作業指示データ" SET
+            "完成済数" = "完成済数" + #{completedQuantity},
+            "総良品数" = "総良品数" + #{goodQuantity},
+            "総不良品数" = "総不良品数" + #{defectQuantity},
+            "更新日時" = CURRENT_TIMESTAMP
+        WHERE "作業指示番号" = #{workOrderNumber}
+    </update>
+
+    <select id="findAll" resultMap="WorkOrderResultMap">
+        SELECT * FROM "作業指示データ"
+        ORDER BY "作業指示番号"
+    </select>
+
+    <delete id="deleteAll">
+        TRUNCATE TABLE "作業指示データ" CASCADE
+    </delete>
+</mapper>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.production.infrastructure.out.mapper.PurchaseOrderMapper">
+
+    <resultMap id="PurchaseOrderResultMap" type="com.example.production.domain.model.purchase.PurchaseOrder">
+        <id property="id" column="ID"/>
+        <result property="purchaseOrderNumber" column="発注番号"/>
+        <result property="orderDate" column="発注日"/>
+        <result property="supplierCode" column="取引先コード"/>
+        <result property="ordererCode" column="発注担当者コード"/>
+        <result property="departmentCode" column="発注部門コード"/>
+        <result property="status" column="ステータス"
+                typeHandler="com.example.production.infrastructure.out.PurchaseOrderStatusTypeHandler"/>
+        <result property="remarks" column="備考"/>
+        <result property="createdAt" column="作成日時"/>
+        <result property="createdBy" column="作成者"/>
+        <result property="updatedAt" column="更新日時"/>
+        <result property="updatedBy" column="更新者"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.example.production.domain.model.purchase.PurchaseOrder"
+            useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
+        INSERT INTO "発注データ" (
+            "発注番号",
+            "発注日",
+            "取引先コード",
+            "発注担当者コード",
+            "発注部門コード",
+            "ステータス",
+            "備考",
+            "作成日時",
+            "作成者",
+            "更新日時",
+            "更新者"
+        ) VALUES (
+            #{purchaseOrderNumber},
+            #{orderDate},
+            #{supplierCode},
+            #{ordererCode},
+            #{departmentCode},
+            #{status, typeHandler=com.example.production.infrastructure.out.PurchaseOrderStatusTypeHandler}::発注ステータス,
+            #{remarks},
+            CURRENT_TIMESTAMP,
+            #{createdBy},
+            CURRENT_TIMESTAMP,
+            #{updatedBy}
+        )
+    </insert>
+
+    <select id="findByPurchaseOrderNumber" resultMap="PurchaseOrderResultMap">
+        SELECT * FROM "発注データ"
+        WHERE "発注番号" = #{purchaseOrderNumber}
+    </select>
+
+    <select id="findLatestPurchaseOrderNumber" resultType="string">
+        SELECT "発注番号" FROM "発注データ"
+        WHERE "発注番号" LIKE #{prefix} || '%'
+        ORDER BY "発注番号" DESC
+        LIMIT 1
+    </select>
+
+    <update id="updateStatus">
+        UPDATE "発注データ" SET
+            "ステータス" = #{status, typeHandler=com.example.production.infrastructure.out.PurchaseOrderStatusTypeHandler}::発注ステータス,
+            "更新日時" = CURRENT_TIMESTAMP
+        WHERE "発注番号" = #{purchaseOrderNumber}
+    </update>
+
+    <select id="findAll" resultMap="PurchaseOrderResultMap">
+        SELECT * FROM "発注データ"
+        ORDER BY "発注番号"
+    </select>
+
+    <delete id="deleteAll">
+        DELETE FROM "発注データ"
+    </delete>
+</mapper>
