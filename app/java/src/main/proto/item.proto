@@ -88,6 +88,13 @@ message DeleteItemRequest {
     string item_code = 1;
 }
 
+// バッチ登録レスポンス
+message BatchCreateResponse {
+    int32 success_count = 1;
+    int32 failed_count = 2;
+    repeated string failed_codes = 3;
+}
+
 // 品目サービス
 service ItemService {
     // 品目取得（Unary RPC）
@@ -107,4 +114,7 @@ service ItemService {
 
     // 品目ストリーム（Server Streaming RPC）
     rpc StreamItems(GetItemsRequest) returns (stream Item);
+
+    // バッチ登録（Client Streaming RPC）
+    rpc BatchCreateItems(stream CreateItemRequest) returns (BatchCreateResponse);
 }
