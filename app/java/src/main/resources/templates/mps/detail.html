@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>基準生産計画詳細</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>基準生産計画詳細</h1>
+        <div>
+            <!-- 草案状態のみ編集・確定・取消可能 -->
+            <a th:if="${mps.status.name() == 'DRAFT'}"
+               th:href="@{/mps/{id}/edit(id=${mps.id})}"
+               class="btn btn-primary">編集</a>
+            <form th:if="${mps.status.name() == 'DRAFT'}"
+                  th:action="@{/mps/{id}/confirm(id=${mps.id})}"
+                  method="post" class="d-inline">
+                <button type="submit" class="btn btn-success"
+                        onclick="return confirm('このMPSを確定しますか？')">確定</button>
+            </form>
+            <form th:if="${mps.status.name() != 'CANCELLED'}"
+                  th:action="@{/mps/{id}/cancel(id=${mps.id})}"
+                  method="post" class="d-inline">
+                <button type="submit" class="btn btn-danger"
+                        onclick="return confirm('このMPSを取り消しますか？')">取消</button>
+            </form>
+            <!-- 確定済みの場合はMRP実行へのリンク -->
+            <a th:if="${mps.status.name() == 'CONFIRMED'}"
+               th:href="@{/mrp/result/{id}(id=${mps.id})}"
+               class="btn btn-info">MRP実行</a>
+            <a th:href="@{/mps}" class="btn btn-secondary">一覧に戻る</a>
+        </div>
+    </div>
+
+    <!-- 成功メッセージ -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- エラーメッセージ -->
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">基本情報</div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">MPS番号</dt>
+                <dd class="col-sm-9" th:text="${mps.mpsNumber}"></dd>
+
+                <dt class="col-sm-3">ステータス</dt>
+                <dd class="col-sm-9">
+                    <span class="badge"
+                          th:classappend="${mps.status.name() == 'DRAFT'} ? 'bg-secondary' :
+                                          (${mps.status.name() == 'CONFIRMED'} ? 'bg-primary' :
+                                          (${mps.status.name() == 'EXPANDED'} ? 'bg-success' :
+                                          (${mps.status.name() == 'CANCELLED'} ? 'bg-danger' : 'bg-info')))"
+                          th:text="${mps.status.displayName}"></span>
+                </dd>
+
+                <dt class="col-sm-3">計画日</dt>
+                <dd class="col-sm-9" th:text="${mps.planDate}"></dd>
+
+                <dt class="col-sm-3">品目コード</dt>
+                <dd class="col-sm-9" th:text="${mps.itemCode}"></dd>
+
+                <dt class="col-sm-3">計画数量</dt>
+                <dd class="col-sm-9" th:text="${#numbers.formatDecimal(mps.planQuantity, 1, 'COMMA', 2, 'POINT')}"></dd>
+
+                <dt class="col-sm-3">納期</dt>
+                <dd class="col-sm-9" th:text="${mps.dueDate}"></dd>
+
+                <dt class="col-sm-3">場所</dt>
+                <dd class="col-sm-9" th:text="${mps.locationCode} ?: '-'"></dd>
+
+                <dt class="col-sm-3">備考</dt>
+                <dd class="col-sm-9" th:text="${mps.remarks} ?: '-'"></dd>
+            </dl>
+        </div>
+    </div>
+
+    <!-- システム情報 -->
+    <div class="card">
+        <div class="card-header">システム情報</div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">作成日時</dt>
+                <dd class="col-sm-9" th:text="${mps.createdAt}"></dd>
+
+                <dt class="col-sm-3">作成者</dt>
+                <dd class="col-sm-9" th:text="${mps.createdBy} ?: '-'"></dd>
+
+                <dt class="col-sm-3">更新日時</dt>
+                <dd class="col-sm-9" th:text="${mps.updatedAt}"></dd>
+
+                <dt class="col-sm-3">更新者</dt>
+                <dd class="col-sm-9" th:text="${mps.updatedBy} ?: '-'"></dd>
+            </dl>
+        </div>
+    </div>
+</div>
+</body>
+</html>

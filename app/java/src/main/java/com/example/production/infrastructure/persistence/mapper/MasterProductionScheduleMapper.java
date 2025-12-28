@@ -20,6 +20,8 @@ public interface MasterProductionScheduleMapper {
 
     List<MasterProductionSchedule> findAll();
 
+    void update(MasterProductionSchedule mps);
+
     void updateStatus(@Param("id") Integer id, @Param("status") PlanStatus status);
 
     void deleteAll();

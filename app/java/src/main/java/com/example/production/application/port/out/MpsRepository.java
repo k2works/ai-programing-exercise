@@ -15,6 +15,7 @@ public interface MpsRepository {
     Optional<MasterProductionSchedule> findByMpsNumber(String mpsNumber);
     List<MasterProductionSchedule> findByStatus(PlanStatus status);
     List<MasterProductionSchedule> findAll();
+    void update(MasterProductionSchedule mps);
     void updateStatus(Integer id, PlanStatus status);
     void deleteAll();
 }
