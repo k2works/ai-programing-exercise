@@ -93,7 +93,7 @@
                 "不良率",
                 "工順",
                 1 as "階層",
-                "必要数量" as "累計数量"
+                CAST("必要数量" AS NUMERIC) as "累計数量"
             FROM "部品構成表"
             WHERE "親品目コード" = #{itemCode}
               AND ("適用停止日" IS NULL OR "適用停止日" >= CURRENT_DATE)
@@ -111,7 +111,7 @@
                 b."不良率",
                 b."工順",
                 be."階層" + 1,
-                be."累計数量" * b."必要数量"
+                be."累計数量" * CAST(b."必要数量" AS NUMERIC)
             FROM "部品構成表" b
             INNER JOIN bom_explosion be ON b."親品目コード" = be."子品目コード"
             WHERE (b."適用停止日" IS NULL OR b."適用停止日" >= CURRENT_DATE)

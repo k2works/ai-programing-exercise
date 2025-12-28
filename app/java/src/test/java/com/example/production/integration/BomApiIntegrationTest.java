@@ -255,24 +255,67 @@ class BomApiIntegrationTest {
     @DisplayName("GET /api/bom/{itemCode}/explode")
     class ExplodeBom {
 
-        // 注意: explode エンドポイントには既知の SQL 型問題があるため、
-        // このテストは現在スキップしています。
-        // TODO: BomMapper.xml の recursive CTE の型問題を修正後に有効化する
+        @Test
+        @DisplayName("BOM展開で全階層の部品を取得できる")
+        @SuppressWarnings("unchecked")
+        void shouldReturnAllLevelsOfBom() {
+            List<Map<String, Object>> response = restClient.get()
+                    .uri("/api/bom/BOM-PARENT/explode")
+                    .retrieve()
+                    .body(List.class);
+
+            // BOM-PARENT -> BOM-CHILD-1 (2), BOM-CHILD-2 (3.5)
+            // BOM-CHILD-1 -> BOM-GRANDCHILD (4)
+            // 合計3件の展開結果
+            assertThat(response).isNotNull()
+                    .hasSize(3);
+
+            // 階層1: 直下の子品目
+            var level1Items = response.stream()
+                    .filter(r -> ((Number) r.get("level")).intValue() == 1)
+                    .toList();
+            assertThat(level1Items).hasSize(2);
+
+            // 階層2: 孫品目
+            var level2Items = response.stream()
+                    .filter(r -> ((Number) r.get("level")).intValue() == 2)
+                    .toList();
+            assertThat(level2Items).hasSize(1);
+            assertThat(level2Items.get(0).get("childItemCode")).isEqualTo("BOM-GRANDCHILD");
+        }
 
         @Test
-        @DisplayName("BOM展開のエンドポイントが存在する")
-        void explodeEndpointExists() {
-            // エンドポイントの存在確認のみ（500エラーでも404ではないことを確認）
-            try {
-                restClient.get()
-                        .uri("/api/bom/BOM-PARENT/explode")
-                        .retrieve()
-                        .body(List.class);
-                // 成功すればOK
-            } catch (Exception e) {
-                // 500エラーでも404以外ならエンドポイントは存在する
-                assertThat(e.getMessage()).doesNotContain("404");
-            }
+        @DisplayName("数量を指定してBOM展開できる")
+        @SuppressWarnings("unchecked")
+        void shouldExplodeWithQuantity() {
+            List<Map<String, Object>> response = restClient.get()
+                    .uri("/api/bom/BOM-PARENT/explode?quantity=10")
+                    .retrieve()
+                    .body(List.class);
+
+            assertThat(response).isNotNull()
+                    .hasSize(3);
+
+            // BOM-CHILD-1: 基準数量1に対して必要数量2 -> 10 * 2 = 20
+            var child1 = response.stream()
+                    .filter(r -> "BOM-CHILD-1".equals(r.get("childItemCode")))
+                    .findFirst()
+                    .orElseThrow();
+            assertThat(((Number) child1.get("totalQuantity")).doubleValue())
+                    .isEqualTo(20.0);
+        }
+
+        @Test
+        @DisplayName("子品目がない品目を展開すると空配列を返す")
+        @SuppressWarnings("unchecked")
+        void shouldReturnEmptyForLeafItem() {
+            List<Map<String, Object>> response = restClient.get()
+                    .uri("/api/bom/BOM-GRANDCHILD/explode")
+                    .retrieve()
+                    .body(List.class);
+
+            assertThat(response).isNotNull()
+                    .isEmpty();
         }
     }
 }
