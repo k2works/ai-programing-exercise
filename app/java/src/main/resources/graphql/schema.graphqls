@@ -1,0 +1,50 @@
+# ルートスキーマ
+type Query {
+    # 品目
+    item(itemCode: ID!): Item
+    items(category: ItemCategory, page: Int, size: Int): ItemConnection!
+
+    # BOM
+    bomTree(itemCode: ID!): BomNode
+    whereUsed(itemCode: ID!): [WhereUsedResult!]!
+
+    # 発注
+    purchaseOrder(purchaseOrderNumber: ID!): PurchaseOrder
+    purchaseOrders(status: PurchaseOrderStatus, page: Int, size: Int): PurchaseOrderConnection!
+}
+
+type Mutation {
+    # 品目
+    createItem(input: CreateItemInput!): Item!
+    updateItem(input: UpdateItemInput!): Item!
+    deleteItem(itemCode: ID!): Boolean!
+
+    # 発注
+    createPurchaseOrder(input: CreatePurchaseOrderInput!): PurchaseOrder!
+    confirmPurchaseOrder(purchaseOrderNumber: ID!): PurchaseOrder!
+    cancelPurchaseOrder(purchaseOrderNumber: ID!): Boolean!
+    receivePurchaseOrder(purchaseOrderNumber: ID!): PurchaseOrder!
+    acceptPurchaseOrder(purchaseOrderNumber: ID!): PurchaseOrder!
+
+    # MRP
+    executeMrp(input: ExecuteMrpInput!): MrpResult!
+}
+
+type Subscription {
+    # MRP 進捗
+    mrpProgress(executionId: ID!): MrpProgress!
+
+    # 発注ステータス変更
+    orderStatusChanged(orderNumber: ID): PurchaseOrder!
+
+    # 在庫変動
+    stockChanged(itemCode: ID): StockChange!
+}
+
+# ページネーション
+type PageInfo {
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+    totalElements: Int!
+    totalPages: Int!
+}
