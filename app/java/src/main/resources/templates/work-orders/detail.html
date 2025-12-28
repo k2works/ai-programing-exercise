@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>作業指示詳細</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>作業指示詳細</h1>
+        <div>
+            <!-- ステータスに応じたアクションボタン -->
+            <form th:if="${workOrder.status.name() == 'NOT_STARTED'}"
+                  th:action="@{/work-orders/{no}/start(no=${workOrder.workOrderNumber})}"
+                  method="post" class="d-inline">
+                <button type="submit" class="btn btn-success">作業開始</button>
+            </form>
+            <form th:if="${workOrder.status.name() == 'IN_PROGRESS'}"
+                  th:action="@{/work-orders/{no}/complete(no=${workOrder.workOrderNumber})}"
+                  method="post" class="d-inline">
+                <button type="submit" class="btn btn-primary">作業完了</button>
+            </form>
+            <a th:href="@{/work-orders}" class="btn btn-secondary">一覧に戻る</a>
+        </div>
+    </div>
+
+    <!-- 成功メッセージ -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- エラーメッセージ -->
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- 基本情報 -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>作業指示情報</span>
+            <span class="badge fs-6"
+                  th:classappend="${workOrder.status.name() == 'NOT_STARTED'} ? 'bg-secondary' :
+                                  (${workOrder.status.name() == 'IN_PROGRESS'} ? 'bg-primary' :
+                                  (${workOrder.status.name() == 'COMPLETED'} ? 'bg-success' : 'bg-warning'))"
+                  th:text="${workOrder.status.displayName}"></span>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">作業指示番号</dt>
+                        <dd class="col-sm-8" th:text="${workOrder.workOrderNumber}"></dd>
+
+                        <dt class="col-sm-4">オーダ番号</dt>
+                        <dd class="col-sm-8">
+                            <a th:href="@{/orders/{id}(id=${workOrder.order != null ? workOrder.order.id : 0})}"
+                               th:text="${workOrder.orderNumber}"></a>
+                        </dd>
+
+                        <dt class="col-sm-4">作業指示日</dt>
+                        <dd class="col-sm-8" th:text="${workOrder.workOrderDate}"></dd>
+
+                        <dt class="col-sm-4">品目コード</dt>
+                        <dd class="col-sm-8" th:text="${workOrder.itemCode}"></dd>
+
+                        <dt class="col-sm-4">場所</dt>
+                        <dd class="col-sm-8" th:text="${workOrder.locationCode}"></dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">指示数量</dt>
+                        <dd class="col-sm-8" th:text="${#numbers.formatDecimal(workOrder.orderQuantity, 1, 'COMMA', 2, 'POINT')}"></dd>
+
+                        <dt class="col-sm-4">予定開始日</dt>
+                        <dd class="col-sm-8" th:text="${workOrder.plannedStartDate}"></dd>
+
+                        <dt class="col-sm-4">予定終了日</dt>
+                        <dd class="col-sm-8" th:text="${workOrder.plannedEndDate}"></dd>
+
+                        <dt class="col-sm-4">実績開始日</dt>
+                        <dd class="col-sm-8" th:text="${workOrder.actualStartDate ?: '-'}"></dd>
+
+                        <dt class="col-sm-4">実績終了日</dt>
+                        <dd class="col-sm-8" th:text="${workOrder.actualEndDate ?: '-'}"></dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="row mt-3" th:if="${workOrder.remarks}">
+                <div class="col-12">
+                    <dt>備考</dt>
+                    <dd th:text="${workOrder.remarks}"></dd>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 進捗状況 -->
+    <div class="card mb-4">
+        <div class="card-header">進捗状況</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card bg-light">
+                        <div class="card-body text-center">
+                            <h6 class="card-title">指示数量</h6>
+                            <h3 class="mb-0" th:text="${#numbers.formatDecimal(workOrder.orderQuantity, 1, 'COMMA', 2, 'POINT')}"></h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body text-center">
+                            <h6 class="card-title">完成数</h6>
+                            <h3 class="mb-0" th:text="${#numbers.formatDecimal(workOrder.completedQuantity, 1, 'COMMA', 2, 'POINT')}"></h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body text-center">
+                            <h6 class="card-title">良品数</h6>
+                            <h3 class="mb-0" th:text="${#numbers.formatDecimal(workOrder.totalGoodQuantity, 1, 'COMMA', 2, 'POINT')}"></h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card" th:classappend="${workOrder.totalDefectQuantity.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? 'bg-danger text-white' : 'bg-light'">
+                        <div class="card-body text-center">
+                            <h6 class="card-title">不良品数</h6>
+                            <h3 class="mb-0" th:text="${#numbers.formatDecimal(workOrder.totalDefectQuantity, 1, 'COMMA', 2, 'POINT')}"></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 進捗バー -->
+            <div class="mt-4">
+                <div class="d-flex justify-content-between mb-1">
+                    <span>進捗率</span>
+                    <span th:text="${workOrder.orderQuantity.compareTo(T(java.math.BigDecimal).ZERO) > 0 ?
+                        #numbers.formatDecimal(workOrder.completedQuantity.multiply(100).divide(workOrder.orderQuantity, 2, T(java.math.RoundingMode).HALF_UP), 1, 'POINT', 1, 'POINT') + '%' : '0%'}"></span>
+                </div>
+                <div class="progress" style="height: 25px;">
+                    <div class="progress-bar bg-success"
+                         role="progressbar"
+                         th:style="'width: ' + ${workOrder.orderQuantity.compareTo(T(java.math.BigDecimal).ZERO) > 0 ?
+                            workOrder.completedQuantity.multiply(100).divide(workOrder.orderQuantity, 2, T(java.math.RoundingMode).HALF_UP) : 0} + '%'"
+                         th:attr="aria-valuenow=${workOrder.completedQuantity},aria-valuemin=0,aria-valuemax=${workOrder.orderQuantity}">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 作業工程 -->
+    <div class="card mb-4" th:if="${workOrder.details != null and !workOrder.details.isEmpty()}">
+        <div class="card-header">作業工程</div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>順序</th>
+                        <th>工程コード</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="detail : ${workOrder.details}">
+                        <td th:text="${detail.sequence}"></td>
+                        <td th:text="${detail.processCode}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 監査情報 -->
+    <div class="card">
+        <div class="card-header">監査情報</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">作成日時</dt>
+                        <dd class="col-sm-8" th:text="${workOrder.createdAt}"></dd>
+                        <dt class="col-sm-4">作成者</dt>
+                        <dd class="col-sm-8" th:text="${workOrder.createdBy ?: '-'}"></dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">更新日時</dt>
+                        <dd class="col-sm-8" th:text="${workOrder.updatedAt}"></dd>
+                        <dt class="col-sm-4">更新者</dt>
+                        <dd class="col-sm-8" th:text="${workOrder.updatedBy ?: '-'}"></dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

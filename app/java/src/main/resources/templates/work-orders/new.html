@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>作業指示登録</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>作業指示登録</h1>
+        <a th:href="@{/work-orders}" class="btn btn-secondary">一覧に戻る</a>
+    </div>
+
+    <!-- エラーメッセージ -->
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <form th:action="@{/work-orders}" method="post" th:object="${form}">
+        <div class="card mb-4">
+            <div class="card-header">作業指示情報</div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="orderNumber" class="form-label">製造オーダ <span class="text-danger">*</span></label>
+                        <select class="form-select" id="orderNumber"
+                                th:field="*{orderNumber}"
+                                th:classappend="${#fields.hasErrors('orderNumber')} ? 'is-invalid' : ''">
+                            <option value="">選択してください</option>
+                            <option th:each="order : ${orders}"
+                                    th:value="${order.orderNumber}"
+                                    th:text="${order.orderNumber + ' (' + order.itemCode + ' - ' + #numbers.formatDecimal(order.planQuantity, 1, 'COMMA', 2, 'POINT') + ')'}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('orderNumber')}"
+                             th:errors="*{orderNumber}"></div>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="workOrderDate" class="form-label">作業指示日 <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="workOrderDate"
+                               th:field="*{workOrderDate}"
+                               th:classappend="${#fields.hasErrors('workOrderDate')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('workOrderDate')}"
+                             th:errors="*{workOrderDate}"></div>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="locationCode" class="form-label">製造場所 <span class="text-danger">*</span></label>
+                        <select class="form-select" id="locationCode"
+                                th:field="*{locationCode}"
+                                th:classappend="${#fields.hasErrors('locationCode')} ? 'is-invalid' : ''">
+                            <option value="">選択してください</option>
+                            <option th:each="loc : ${locations}"
+                                    th:value="${loc.locationCode}"
+                                    th:text="${loc.locationCode + ' - ' + loc.locationName}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('locationCode')}"
+                             th:errors="*{locationCode}"></div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label for="plannedStartDate" class="form-label">予定開始日 <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="plannedStartDate"
+                               th:field="*{plannedStartDate}"
+                               th:classappend="${#fields.hasErrors('plannedStartDate')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('plannedStartDate')}"
+                             th:errors="*{plannedStartDate}"></div>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="plannedEndDate" class="form-label">予定終了日 <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="plannedEndDate"
+                               th:field="*{plannedEndDate}"
+                               th:classappend="${#fields.hasErrors('plannedEndDate')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('plannedEndDate')}"
+                             th:errors="*{plannedEndDate}"></div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="remarks" class="form-label">備考</label>
+                    <textarea class="form-control" id="remarks" rows="2"
+                              th:field="*{remarks}"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">登録</button>
+            <a th:href="@{/work-orders}" class="btn btn-secondary">キャンセル</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>
