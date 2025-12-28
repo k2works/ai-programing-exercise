@@ -8,6 +8,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
     id("com.github.spotbugs") version "6.0.27"
     id("com.avast.gradle.docker-compose") version "0.17.12"
+    id("com.google.protobuf") version "0.9.4"
 }
 
 group = "com.example.production"
@@ -33,6 +34,11 @@ val testcontainersVersion = "1.20.4"
 val springdocVersion = "2.8.4"
 val thymeleafLayoutDialectVersion = "3.3.0"
 val poiVersion = "5.2.5"
+
+// gRPC バージョン
+val grpcVersion = "1.60.0"
+val protobufVersion = "3.25.1"
+val grpcSpringBootVersion = "3.0.0.RELEASE"
 
 dependencies {
     // Spring Boot
@@ -60,6 +66,14 @@ dependencies {
 
     // OpenAPI / Swagger
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springdocVersion")
+
+    // gRPC
+    implementation("net.devh:grpc-spring-boot-starter:$grpcSpringBootVersion")
+    implementation("io.grpc:grpc-protobuf:$grpcVersion")
+    implementation("io.grpc:grpc-stub:$grpcVersion")
+    implementation("io.grpc:grpc-services:$grpcVersion")
+    implementation("com.google.protobuf:protobuf-java:$protobufVersion")
+    implementation("javax.annotation:javax.annotation-api:1.3.2")
 
     // Database
     runtimeOnly("org.postgresql:postgresql")
@@ -163,4 +177,23 @@ dockerCompose {
 // bootRun 実行前に Docker Compose を起動
 tasks.named("bootRun") {
     dependsOn("composeUp")
+}
+
+// Protobuf 設定
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:$protobufVersion"
+    }
+    plugins {
+        create("grpc") {
+            artifact = "io.grpc:protoc-gen-grpc-java:$grpcVersion"
+        }
+    }
+    generateProtoTasks {
+        all().forEach { task ->
+            task.plugins {
+                create("grpc")
+            }
+        }
+    }
 }
