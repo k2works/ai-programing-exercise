@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>BOM 展開</title>
+    <style>
+        .level-indent { padding-left: 20px; }
+        .level-0 { font-weight: bold; }
+        .level-1 { color: #198754; }
+        .level-2 { color: #0d6efd; }
+        .level-3 { color: #6c757d; }
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>BOM 展開</h1>
+        <a th:href="@{/bom}" class="btn btn-secondary">一覧に戻る</a>
+    </div>
+
+    <!-- 親品目情報 -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <strong th:text="${item.itemCode}"></strong> -
+            <span th:text="${item.itemName}"></span>
+            <span class="badge bg-primary ms-2" th:text="${item.itemCategory.displayName}"></span>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/bom/{code}/explode(code=${item.itemCode})}" method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">基準数量</label>
+                    <input type="number" class="form-control" name="quantity"
+                           th:value="${quantity}" min="1" step="0.01">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">再計算</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- BOM 展開結果 -->
+    <div class="card">
+        <div class="card-header">部品構成（展開結果）</div>
+        <div class="card-body">
+            <table class="table table-hover" th:if="${not #lists.isEmpty(explosions)}">
+                <thead>
+                    <tr>
+                        <th>レベル</th>
+                        <th>子品目コード</th>
+                        <th>親品目コード</th>
+                        <th class="text-end">基準数量</th>
+                        <th class="text-end">必要数量</th>
+                        <th class="text-end">所要量</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="exp : ${explosions}"
+                        th:classappend="'level-' + ${exp.level}">
+                        <td>
+                            <span class="badge bg-secondary" th:text="${exp.level}"></span>
+                        </td>
+                        <td>
+                            <span th:style="'padding-left:' + (${exp.level} * 20) + 'px'">
+                                <a th:href="@{/items/{code}(code=${exp.childItemCode})}"
+                                   th:text="${exp.childItemCode}"></a>
+                            </span>
+                        </td>
+                        <td th:text="${exp.parentItemCode}"></td>
+                        <td class="text-end" th:text="${exp.baseQuantity}"></td>
+                        <td class="text-end" th:text="${exp.requiredQuantity}"></td>
+                        <td class="text-end fw-bold" th:text="${exp.totalQuantity}"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div th:if="${#lists.isEmpty(explosions)}" class="alert alert-info">
+                この品目には部品構成がありません。
+            </div>
+        </div>
+    </div>
+
+    <!-- 関連リンク -->
+    <div class="mt-4">
+        <a th:href="@{/bom/{code}/where-used(code=${item.itemCode})}"
+           class="btn btn-outline-info">使用先照会</a>
+        <a th:href="@{/bom/{code}/children(code=${item.itemCode})}"
+           class="btn btn-outline-secondary">直下子品目</a>
+    </div>
+</div>
+</body>
+</html>

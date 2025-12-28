@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>品目詳細</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>品目詳細</h1>
+        <div class="d-flex gap-2">
+            <a th:href="@{/items/{code}/edit(code=${item.itemCode})}" class="btn btn-primary">編集</a>
+            <a th:href="@{/items}" class="btn btn-secondary">一覧に戻る</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th scope="row" class="w-25">品目コード</th>
+                        <td th:text="${item.itemCode}"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">品名</th>
+                        <td th:text="${item.itemName}"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">品目区分</th>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${item.itemCategory.name() == 'PRODUCT'} ? 'bg-primary' :
+                                                  (${item.itemCategory.name() == 'PART'} ? 'bg-success' : 'bg-secondary')"
+                                  th:text="${item.itemCategory.displayName}"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">単位コード</th>
+                        <td th:text="${item.unitCode ?: '-'}"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">リードタイム</th>
+                        <td>
+                            <span th:if="${item.leadTime != null}" th:text="${item.leadTime + ' 日'}"></span>
+                            <span th:unless="${item.leadTime != null}">-</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">安全リードタイム</th>
+                        <td>
+                            <span th:if="${item.safetyLeadTime != null}" th:text="${item.safetyLeadTime + ' 日'}"></span>
+                            <span th:unless="${item.safetyLeadTime != null}">-</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">安全在庫</th>
+                        <td th:text="${item.safetyStock ?: '-'}"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">歩留まり率</th>
+                        <td>
+                            <span th:if="${item.yieldRate != null}" th:text="${item.yieldRate + ' %'}"></span>
+                            <span th:unless="${item.yieldRate != null}">-</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">最小ロットサイズ</th>
+                        <td th:text="${item.minLotSize ?: '-'}"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">ロット増分</th>
+                        <td th:text="${item.lotIncrement ?: '-'}"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">最大ロットサイズ</th>
+                        <td th:text="${item.maxLotSize ?: '-'}"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">保管期限</th>
+                        <td>
+                            <span th:if="${item.shelfLife != null}" th:text="${item.shelfLife + ' 日'}"></span>
+                            <span th:unless="${item.shelfLife != null}">-</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">有効開始日</th>
+                        <td th:text="${item.effectiveFrom ?: '-'}"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">有効終了日</th>
+                        <td th:text="${item.effectiveTo ?: '-'}"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">作成日時</th>
+                        <td th:text="${item.createdAt ?: '-'}"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">更新日時</th>
+                        <td th:text="${item.updatedAt ?: '-'}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 削除ボタン -->
+    <div class="mt-4">
+        <form th:action="@{/items/{code}/delete(code=${item.itemCode})}"
+              method="post"
+              onsubmit="return confirm('本当に削除しますか？');">
+            <button type="submit" class="btn btn-danger">この品目を削除</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>
