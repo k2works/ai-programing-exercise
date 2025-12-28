@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>オーダ詳細</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>オーダ詳細</h1>
+        <div>
+            <!-- 草案状態のみ確定可能 -->
+            <form th:if="${order.status.name() == 'DRAFT'}"
+                  th:action="@{/orders/{id}/confirm(id=${order.id})}"
+                  method="post" class="d-inline">
+                <button type="submit" class="btn btn-success"
+                        onclick="return confirm('このオーダを確定しますか？')">確定</button>
+            </form>
+            <!-- 取消済み以外は取消可能 -->
+            <form th:if="${order.status.name() != 'CANCELLED'}"
+                  th:action="@{/orders/{id}/cancel(id=${order.id})}"
+                  method="post" class="d-inline">
+                <button type="submit" class="btn btn-danger"
+                        onclick="return confirm('このオーダを取り消しますか？')">取消</button>
+            </form>
+            <a th:href="@{/orders}" class="btn btn-secondary">一覧に戻る</a>
+        </div>
+    </div>
+
+    <!-- 成功メッセージ -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- エラーメッセージ -->
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- 基本情報 -->
+    <div class="card mb-4">
+        <div class="card-header">基本情報</div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">オーダ番号</dt>
+                <dd class="col-sm-9" th:text="${order.orderNumber}"></dd>
+
+                <dt class="col-sm-3">オーダタイプ</dt>
+                <dd class="col-sm-9">
+                    <span class="badge"
+                          th:classappend="${order.orderType.name() == 'MANUFACTURING'} ? 'bg-info' : 'bg-warning'"
+                          th:text="${order.orderType.displayName}"></span>
+                </dd>
+
+                <dt class="col-sm-3">ステータス</dt>
+                <dd class="col-sm-9">
+                    <span class="badge"
+                          th:classappend="${order.status.name() == 'DRAFT'} ? 'bg-secondary' :
+                                          (${order.status.name() == 'CONFIRMED'} ? 'bg-primary' :
+                                          (${order.status.name() == 'EXPANDED'} ? 'bg-success' :
+                                          (${order.status.name() == 'CANCELLED'} ? 'bg-danger' : 'bg-info')))"
+                          th:text="${order.status.displayName}"></span>
+                </dd>
+
+                <dt class="col-sm-3">品目コード</dt>
+                <dd class="col-sm-9" th:text="${order.itemCode}"></dd>
+
+                <dt class="col-sm-3">着手日</dt>
+                <dd class="col-sm-9" th:text="${order.startDate}"></dd>
+
+                <dt class="col-sm-3">納期</dt>
+                <dd class="col-sm-9" th:text="${order.dueDate}"></dd>
+
+                <dt class="col-sm-3">有効期限</dt>
+                <dd class="col-sm-9" th:text="${order.expirationDate} ?: '-'"></dd>
+
+                <dt class="col-sm-3">計画数量</dt>
+                <dd class="col-sm-9" th:text="${#numbers.formatDecimal(order.planQuantity, 1, 'COMMA', 2, 'POINT')}"></dd>
+
+                <dt class="col-sm-3">場所</dt>
+                <dd class="col-sm-9" th:text="${order.locationCode} ?: '-'"></dd>
+
+                <dt class="col-sm-3">MPS ID</dt>
+                <dd class="col-sm-9">
+                    <a th:if="${order.mpsId != null}"
+                       th:href="@{/mps/{id}(id=${order.mpsId})}"
+                       th:text="${order.mpsId}"></a>
+                    <span th:unless="${order.mpsId != null}">-</span>
+                </dd>
+            </dl>
+        </div>
+    </div>
+
+    <!-- 親オーダ -->
+    <div class="card mb-4" th:if="${parentOrder != null}">
+        <div class="card-header">親オーダ</div>
+        <div class="card-body">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>オーダ番号</th>
+                        <th>タイプ</th>
+                        <th>品目コード</th>
+                        <th>納期</th>
+                        <th>計画数量</th>
+                        <th>ステータス</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <a th:href="@{/orders/{id}(id=${parentOrder.id})}"
+                               th:text="${parentOrder.orderNumber}"></a>
+                        </td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${parentOrder.orderType.name() == 'MANUFACTURING'} ? 'bg-info' : 'bg-warning'"
+                                  th:text="${parentOrder.orderType.displayName}"></span>
+                        </td>
+                        <td th:text="${parentOrder.itemCode}"></td>
+                        <td th:text="${parentOrder.dueDate}"></td>
+                        <td class="text-end" th:text="${#numbers.formatDecimal(parentOrder.planQuantity, 1, 'COMMA', 2, 'POINT')}"></td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${parentOrder.status.name() == 'DRAFT'} ? 'bg-secondary' :
+                                                  (${parentOrder.status.name() == 'CONFIRMED'} ? 'bg-primary' :
+                                                  (${parentOrder.status.name() == 'EXPANDED'} ? 'bg-success' :
+                                                  (${parentOrder.status.name() == 'CANCELLED'} ? 'bg-danger' : 'bg-info')))"
+                                  th:text="${parentOrder.status.displayName}"></span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 子オーダ -->
+    <div class="card mb-4" th:if="${not #lists.isEmpty(childOrders)}">
+        <div class="card-header">
+            子オーダ
+            <span class="badge bg-secondary ms-2" th:text="${#lists.size(childOrders)} + ' 件'"></span>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped table-sm">
+                <thead>
+                    <tr>
+                        <th>オーダ番号</th>
+                        <th>タイプ</th>
+                        <th>品目コード</th>
+                        <th>着手日</th>
+                        <th>納期</th>
+                        <th>計画数量</th>
+                        <th>ステータス</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="child : ${childOrders}">
+                        <td>
+                            <a th:href="@{/orders/{id}(id=${child.id})}"
+                               th:text="${child.orderNumber}"></a>
+                        </td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${child.orderType.name() == 'MANUFACTURING'} ? 'bg-info' : 'bg-warning'"
+                                  th:text="${child.orderType.displayName}"></span>
+                        </td>
+                        <td th:text="${child.itemCode}"></td>
+                        <td th:text="${child.startDate}"></td>
+                        <td th:text="${child.dueDate}"></td>
+                        <td class="text-end" th:text="${#numbers.formatDecimal(child.planQuantity, 1, 'COMMA', 2, 'POINT')}"></td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${child.status.name() == 'DRAFT'} ? 'bg-secondary' :
+                                                  (${child.status.name() == 'CONFIRMED'} ? 'bg-primary' :
+                                                  (${child.status.name() == 'EXPANDED'} ? 'bg-success' :
+                                                  (${child.status.name() == 'CANCELLED'} ? 'bg-danger' : 'bg-info')))"
+                                  th:text="${child.status.displayName}"></span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- システム情報 -->
+    <div class="card">
+        <div class="card-header">システム情報</div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">作成日時</dt>
+                <dd class="col-sm-9" th:text="${order.createdAt}"></dd>
+
+                <dt class="col-sm-3">作成者</dt>
+                <dd class="col-sm-9" th:text="${order.createdBy} ?: '-'"></dd>
+
+                <dt class="col-sm-3">更新日時</dt>
+                <dd class="col-sm-9" th:text="${order.updatedAt}"></dd>
+
+                <dt class="col-sm-3">更新者</dt>
+                <dd class="col-sm-9" th:text="${order.updatedBy} ?: '-'"></dd>
+            </dl>
+        </div>
+    </div>
+</div>
+</body>
+</html>
