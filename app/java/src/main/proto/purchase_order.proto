@@ -1,0 +1,115 @@
+syntax = "proto3";
+
+package com.example.production.grpc;
+
+option java_multiple_files = true;
+option java_package = "com.example.production.grpc";
+option java_outer_classname = "PurchaseOrderProto";
+
+import "common.proto";
+
+// 発注ステータス
+enum PurchaseOrderStatusType {
+    PURCHASE_ORDER_STATUS_UNSPECIFIED = 0;
+    CREATING = 1;           // 作成中
+    ORDERED = 2;            // 発注済
+    PARTIALLY_RECEIVED = 3; // 一部入荷
+    RECEIVED = 4;           // 入荷完了
+    ACCEPTED = 5;           // 検収完了
+    CANCELLED = 6;          // 取消
+}
+
+// 発注ヘッダ
+message PurchaseOrder {
+    string purchase_order_number = 1;
+    string supplier_code = 2;
+    Date order_date = 3;
+    PurchaseOrderStatusType status = 4;
+    repeated PurchaseOrderDetailMsg details = 5;
+    Decimal total_amount = 6;
+    string orderer_code = 7;
+    string department_code = 8;
+    string remarks = 9;
+}
+
+// 発注明細
+message PurchaseOrderDetailMsg {
+    int32 line_number = 1;
+    string item_code = 2;
+    Decimal order_quantity = 3;
+    Decimal order_unit_price = 4;
+    Date expected_receiving_date = 5;
+    Decimal received_quantity = 6;
+    Decimal order_amount = 7;
+    bool completed_flag = 8;
+}
+
+// 発注取得リクエスト
+message GetPurchaseOrderRequest {
+    string purchase_order_number = 1;
+}
+
+// 発注一覧取得リクエスト
+message GetPurchaseOrdersRequest {
+    PurchaseOrderStatusType status = 1;
+    PageRequest page = 2;
+}
+
+// 発注作成リクエスト
+message CreatePurchaseOrderRequest {
+    string supplier_code = 1;
+    string orderer_code = 2;
+    string department_code = 3;
+    string remarks = 4;
+    repeated CreatePurchaseOrderDetailRequest details = 5;
+}
+
+// 発注明細作成リクエスト
+message CreatePurchaseOrderDetailRequest {
+    string item_code = 1;
+    Decimal order_quantity = 2;
+    Decimal unit_price = 3;
+    Date delivery_date = 4;
+}
+
+// 発注確定リクエスト
+message ConfirmPurchaseOrderRequest {
+    string purchase_order_number = 1;
+}
+
+// 入荷登録リクエスト（双方向ストリーミング用）
+message RecordReceivingRequest {
+    string purchase_order_number = 1;
+    int32 line_number = 2;
+    Decimal received_quantity = 3;
+    Date receiving_date = 4;
+}
+
+// 入荷登録レスポンス
+message RecordReceivingResponse {
+    string purchase_order_number = 1;
+    int32 line_number = 2;
+    Decimal total_received = 3;
+    bool is_completed = 4;
+}
+
+// 発注サービス
+service PurchaseOrderService {
+    // 発注取得（Unary RPC）
+    rpc GetOrder(GetPurchaseOrderRequest) returns (PurchaseOrder);
+
+    // 発注一覧ストリーム（Server Streaming RPC）
+    rpc StreamOrders(GetPurchaseOrdersRequest) returns (stream PurchaseOrder);
+
+    // 発注作成（Unary RPC）
+    rpc CreateOrder(CreatePurchaseOrderRequest) returns (PurchaseOrder);
+
+    // 発注確定（Unary RPC）
+    rpc ConfirmOrder(ConfirmPurchaseOrderRequest) returns (PurchaseOrder);
+
+    // 発注取消（Unary RPC）
+    rpc CancelOrder(GetPurchaseOrderRequest) returns (Empty);
+
+    // 入荷登録（Bidirectional Streaming RPC）
+    rpc RecordReceiving(stream RecordReceivingRequest) returns (stream RecordReceivingResponse);
+}
