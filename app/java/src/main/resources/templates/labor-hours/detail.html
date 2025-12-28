@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>工数実績詳細</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>工数実績詳細</h1>
+        <a th:href="@{/labor-hours}" class="btn btn-secondary">一覧に戻る</a>
+    </div>
+
+    <!-- 基本情報 -->
+    <div class="card mb-4">
+        <div class="card-header">工数実績情報</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">工数実績番号</dt>
+                        <dd class="col-sm-8" th:text="${laborHours.laborHoursNumber}"></dd>
+
+                        <dt class="col-sm-4">作業指示番号</dt>
+                        <dd class="col-sm-8">
+                            <a th:href="@{/work-orders/{no}(no=${laborHours.workOrderNumber})}"
+                               th:text="${laborHours.workOrderNumber}"></a>
+                        </dd>
+
+                        <dt class="col-sm-4">品目コード</dt>
+                        <dd class="col-sm-8" th:text="${laborHours.itemCode}"></dd>
+
+                        <dt class="col-sm-4">工順</dt>
+                        <dd class="col-sm-8" th:text="${laborHours.sequence}"></dd>
+
+                        <dt class="col-sm-4">工程コード</dt>
+                        <dd class="col-sm-8" th:text="${laborHours.processCode}"></dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">作業日</dt>
+                        <dd class="col-sm-8" th:text="${laborHours.workDate}"></dd>
+
+                        <dt class="col-sm-4">担当者コード</dt>
+                        <dd class="col-sm-8" th:text="${laborHours.employeeCode ?: '-'}"></dd>
+
+                        <dt class="col-sm-4">部門コード</dt>
+                        <dd class="col-sm-8" th:text="${laborHours.departmentCode ?: '-'}"></dd>
+
+                        <dt class="col-sm-4">工数</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge bg-primary fs-6" th:text="${#numbers.formatDecimal(laborHours.hours, 1, 'COMMA', 2, 'POINT') + ' H'}"></span>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="row mt-3" th:if="${laborHours.remarks}">
+                <div class="col-12">
+                    <dt>備考</dt>
+                    <dd th:text="${laborHours.remarks}"></dd>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 監査情報 -->
+    <div class="card">
+        <div class="card-header">監査情報</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">作成日時</dt>
+                        <dd class="col-sm-8" th:text="${laborHours.createdAt}"></dd>
+                        <dt class="col-sm-4">作成者</dt>
+                        <dd class="col-sm-8" th:text="${laborHours.createdBy ?: '-'}"></dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">更新日時</dt>
+                        <dd class="col-sm-8" th:text="${laborHours.updatedAt}"></dd>
+                        <dt class="col-sm-4">更新者</dt>
+                        <dd class="col-sm-8" th:text="${laborHours.updatedBy ?: '-'}"></dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

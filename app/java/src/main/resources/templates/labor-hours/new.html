@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>工数実績登録</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>工数実績登録</h1>
+        <a th:href="@{/labor-hours}" class="btn btn-secondary">一覧に戻る</a>
+    </div>
+
+    <!-- エラーメッセージ -->
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <form th:action="@{/labor-hours}" method="post" th:object="${form}">
+        <div class="card mb-4">
+            <div class="card-header">工数実績情報</div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="workOrderNumber" class="form-label">作業指示 <span class="text-danger">*</span></label>
+                        <select class="form-select" id="workOrderNumber"
+                                th:field="*{workOrderNumber}"
+                                th:classappend="${#fields.hasErrors('workOrderNumber')} ? 'is-invalid' : ''">
+                            <option value="">選択してください</option>
+                            <option th:each="wo : ${workOrders}"
+                                    th:value="${wo.workOrderNumber}"
+                                    th:text="${wo.workOrderNumber + ' (' + wo.itemCode + ')'}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('workOrderNumber')}"
+                             th:errors="*{workOrderNumber}"></div>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="sequence" class="form-label">工順 <span class="text-danger">*</span></label>
+                        <select class="form-select" id="sequence"
+                                th:field="*{sequence}"
+                                th:classappend="${#fields.hasErrors('sequence')} ? 'is-invalid' : ''">
+                            <option th:if="${workOrderDetails == null}" value="1">1</option>
+                            <option th:each="detail : ${workOrderDetails}"
+                                    th:value="${detail.sequence}"
+                                    th:text="${detail.sequence + ' - ' + detail.processCode}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('sequence')}"
+                             th:errors="*{sequence}"></div>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="workDate" class="form-label">作業日 <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="workDate"
+                               th:field="*{workDate}"
+                               th:classappend="${#fields.hasErrors('workDate')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('workDate')}"
+                             th:errors="*{workDate}"></div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label for="employeeCode" class="form-label">担当者コード</label>
+                        <input type="text" class="form-control" id="employeeCode"
+                               th:field="*{employeeCode}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="departmentCode" class="form-label">部門コード</label>
+                        <input type="text" class="form-control" id="departmentCode"
+                               th:field="*{departmentCode}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="hours" class="form-label">工数(H) <span class="text-danger">*</span></label>
+                        <input type="number" step="0.5" class="form-control" id="hours"
+                               th:field="*{hours}"
+                               th:classappend="${#fields.hasErrors('hours')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('hours')}"
+                             th:errors="*{hours}"></div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="remarks" class="form-label">備考</label>
+                    <textarea class="form-control" id="remarks" rows="2"
+                              th:field="*{remarks}"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">登録</button>
+            <a th:href="@{/labor-hours}" class="btn btn-secondary">キャンセル</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

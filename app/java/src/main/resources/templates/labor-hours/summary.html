@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>工数サマリ</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>工数サマリ</h1>
+        <a th:href="@{/labor-hours}" class="btn btn-secondary">一覧に戻る</a>
+    </div>
+
+    <!-- 作業指示情報 -->
+    <div class="card mb-4">
+        <div class="card-header">作業指示情報</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">作業指示番号</dt>
+                        <dd class="col-sm-8">
+                            <a th:href="@{/work-orders/{no}(no=${workOrder.workOrderNumber})}"
+                               th:text="${workOrder.workOrderNumber}"></a>
+                        </dd>
+                        <dt class="col-sm-4">品目コード</dt>
+                        <dd class="col-sm-8" th:text="${workOrder.itemCode}"></dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">指示数量</dt>
+                        <dd class="col-sm-8" th:text="${#numbers.formatDecimal(workOrder.orderQuantity, 1, 'COMMA', 2, 'POINT')}"></dd>
+                        <dt class="col-sm-4">ステータス</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge"
+                                  th:classappend="${workOrder.status.name() == 'NOT_STARTED'} ? 'bg-secondary' :
+                                                  (${workOrder.status.name() == 'IN_PROGRESS'} ? 'bg-primary' :
+                                                  (${workOrder.status.name() == 'COMPLETED'} ? 'bg-success' : 'bg-warning'))"
+                                  th:text="${workOrder.status.displayName}"></span>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 合計工数 -->
+    <div class="card mb-4">
+        <div class="card-header">合計工数</div>
+        <div class="card-body text-center">
+            <h1 class="display-4 text-primary" th:text="${#numbers.formatDecimal(summary.totalHours, 1, 'COMMA', 2, 'POINT') + ' H'}"></h1>
+        </div>
+    </div>
+
+    <!-- 工程別工数 -->
+    <div class="card mb-4">
+        <div class="card-header">工程別工数</div>
+        <div class="card-body">
+            <div th:if="${#lists.isEmpty(summary.processHours)}" class="text-muted">
+                工数実績データがありません。
+            </div>
+            <table th:unless="${#lists.isEmpty(summary.processHours)}" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>工順</th>
+                        <th>工程コード</th>
+                        <th>工程名</th>
+                        <th>工数(H)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="ph : ${summary.processHours}">
+                        <td th:text="${ph.sequence}"></td>
+                        <td th:text="${ph.processCode}"></td>
+                        <td th:text="${ph.processName ?: '-'}"></td>
+                        <td class="text-end" th:text="${#numbers.formatDecimal(ph.hours, 1, 'COMMA', 2, 'POINT')}"></td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr class="table-primary">
+                        <th colspan="3">合計</th>
+                        <th class="text-end" th:text="${#numbers.formatDecimal(summary.totalHours, 1, 'COMMA', 2, 'POINT')}"></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>
