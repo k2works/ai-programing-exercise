@@ -1,0 +1,28 @@
+# BOM エントリ
+type BomEntry {
+    parentItemCode: ID!
+    childItemCode: ID!
+    requiredQuantity: BigDecimal!
+    effectiveFrom: Date!
+    effectiveTo: Date
+
+    # 子品目の詳細
+    childItem: Item!
+}
+
+# BOM ツリーノード
+type BomNode {
+    itemCode: ID!
+    itemName: String!
+    requiredQuantity: BigDecimal!
+    level: Int!
+    children: [BomNode!]!
+}
+
+# 逆展開（使用先照会）
+type WhereUsedResult {
+    parentItemCode: ID!
+    itemName: String!
+    requiredQuantity: BigDecimal!
+    level: Int!
+}

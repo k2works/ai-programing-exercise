@@ -98,6 +98,12 @@ public class ItemService implements ItemUseCase {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<Item> getItemsByCodes(List<String> itemCodes) {
+        return itemRepository.findByItemCodes(itemCodes);
+    }
+
+    @Override
     public void deleteItem(String itemCode) {
         itemRepository.findByItemCode(itemCode)
                 .orElseThrow(() -> new ItemNotFoundException(itemCode));

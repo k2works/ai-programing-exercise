@@ -92,6 +92,15 @@
         ORDER BY "品目コード", "適用開始日" DESC
     </select>
 
+    <select id="findByItemCodes" resultMap="ItemResultMap">
+        SELECT DISTINCT ON ("品目コード") * FROM "品目マスタ"
+        WHERE "品目コード" IN
+        <foreach collection="itemCodes" item="itemCode" open="(" separator="," close=")">
+            #{itemCode}
+        </foreach>
+        ORDER BY "品目コード", "適用開始日" DESC
+    </select>
+
     <update id="update" parameterType="com.example.production.domain.model.item.Item">
         UPDATE "品目マスタ" SET
             "品名" = #{itemName},

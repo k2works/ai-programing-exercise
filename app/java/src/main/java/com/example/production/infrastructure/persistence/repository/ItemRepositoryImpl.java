@@ -48,6 +48,14 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
+    public List<Item> findByItemCodes(List<String> itemCodes) {
+        if (itemCodes == null || itemCodes.isEmpty()) {
+            return List.of();
+        }
+        return itemMapper.findByItemCodes(itemCodes);
+    }
+
+    @Override
     public void update(Item item) {
         itemMapper.update(item);
     }

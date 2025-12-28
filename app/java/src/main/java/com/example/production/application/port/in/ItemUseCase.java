@@ -38,6 +38,11 @@ public interface ItemUseCase {
     List<Item> getItemsByCategory(ItemCategory category);
 
     /**
+     * 複数の品目コードで品目を取得する（バッチ取得）
+     */
+    List<Item> getItemsByCodes(List<String> itemCodes);
+
+    /**
      * 品目を削除する
      */
     void deleteItem(String itemCode);

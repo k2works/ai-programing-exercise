@@ -39,6 +39,11 @@ public interface ItemRepository {
     List<Item> findByCategory(ItemCategory category);
 
     /**
+     * 複数の品目コードで品目を取得する（バッチ取得）
+     */
+    List<Item> findByItemCodes(List<String> itemCodes);
+
+    /**
      * 品目を更新する
      */
     void update(Item item);

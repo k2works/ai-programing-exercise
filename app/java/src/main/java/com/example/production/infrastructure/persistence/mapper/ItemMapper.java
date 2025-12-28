@@ -22,6 +22,8 @@ public interface ItemMapper {
 
     List<Item> findByCategory(@Param("category") ItemCategory category);
 
+    List<Item> findByItemCodes(@Param("itemCodes") List<String> itemCodes);
+
     void update(Item item);
 
     void deleteByItemCode(String itemCode);

@@ -1,0 +1,78 @@
+# 品目区分
+enum ItemCategory {
+    PRODUCT      # 製品
+    SEMI_PRODUCT # 半製品
+    PART         # 部品
+    MATERIAL     # 材料
+}
+
+# 品目
+type Item {
+    itemCode: ID!
+    effectiveFrom: Date
+    effectiveTo: Date
+    itemName: String!
+    itemCategory: ItemCategory!
+    unitCode: String
+    leadTime: Int
+    safetyLeadTime: Int
+    safetyStock: BigDecimal
+    yieldRate: BigDecimal
+    minLotSize: BigDecimal
+    lotIncrement: BigDecimal
+    maxLotSize: BigDecimal
+    shelfLife: Int
+
+    # GraphQL エイリアス（category で itemCategory を参照可能）
+    category: ItemCategory!
+
+    # 関連データ（必要な場合のみ取得）
+    bom: [BomEntry!]!
+    stock: Stock
+    purchaseOrders: [PurchaseOrder!]!
+}
+
+# 品目一覧（ページネーション付き）
+type ItemConnection {
+    edges: [ItemEdge!]!
+    pageInfo: PageInfo!
+}
+
+type ItemEdge {
+    node: Item!
+    cursor: String!
+}
+
+# 入力型
+input CreateItemInput {
+    itemCode: ID!
+    itemName: String!
+    category: ItemCategory!
+    itemGroupCode: String
+    unitCode: String
+    locationCode: String
+    leadTime: Int
+    safetyStock: Int
+}
+
+input UpdateItemInput {
+    itemCode: ID!
+    itemName: String
+    category: ItemCategory
+    leadTime: Int
+    safetyStock: Int
+}
+
+# 在庫
+type Stock {
+    itemCode: ID!
+    locationCode: String!
+    quantity: BigDecimal!
+    reservedQuantity: BigDecimal
+    availableQuantity: BigDecimal
+}
+
+# カスタムスカラー
+scalar Date
+scalar DateTime
+scalar BigDecimal
