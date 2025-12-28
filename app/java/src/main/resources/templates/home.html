@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>ホーム</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <h1 class="mb-4">ダッシュボード</h1>
+
+    <div class="row">
+        <!-- 本日の日付 -->
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3 dashboard-card">
+                <div class="card-header">本日</div>
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${#temporals.format(today, 'yyyy年MM月dd日')}"></h5>
+                </div>
+            </div>
+        </div>
+
+        <!-- 登録品目数 -->
+        <div class="col-md-3">
+            <div class="card text-white bg-info mb-3 dashboard-card">
+                <div class="card-header">登録品目数</div>
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <span th:text="${itemCount}">0</span> 件
+                    </h5>
+                    <a th:href="@{/items}" class="btn btn-sm btn-light">品目一覧</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 未処理オーダ数（プレースホルダー） -->
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3 dashboard-card">
+                <div class="card-header">未処理オーダ</div>
+                <div class="card-body">
+                    <h5 class="card-title">- 件</h5>
+                    <a th:href="@{/orders}" class="btn btn-sm btn-light">詳細を見る</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 在庫不足品目（プレースホルダー） -->
+        <div class="col-md-3">
+            <div class="card text-white bg-danger mb-3 dashboard-card">
+                <div class="card-header">在庫不足</div>
+                <div class="card-body">
+                    <h5 class="card-title">- 品目</h5>
+                    <a th:href="@{/inventory}" class="btn btn-sm btn-light">詳細を見る</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- クイックアクセス -->
+    <div class="card mt-4">
+        <div class="card-header">クイックアクセス</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 mb-2">
+                    <a th:href="@{/items/new}" class="btn btn-outline-primary w-100">
+                        品目登録
+                    </a>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <a th:href="@{/purchase-orders/new}" class="btn btn-outline-primary w-100">
+                        発注登録
+                    </a>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <a th:href="@{/work-orders/new}" class="btn btn-outline-primary w-100">
+                        作業指示登録
+                    </a>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <a th:href="@{/mrp}" class="btn btn-outline-success w-100">
+                        MRP 実行
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- システム情報 -->
+    <div class="card mt-4">
+        <div class="card-header">システム情報</div>
+        <div class="card-body">
+            <p class="mb-0">
+                生産管理システム（モノリス版）- Spring Boot + Thymeleaf
+            </p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

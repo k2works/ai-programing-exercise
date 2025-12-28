@@ -1,0 +1,95 @@
+/* 生産管理システム カスタムスタイル */
+
+/* 基本設定 */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* ナビゲーション */
+.navbar-brand {
+    font-weight: bold;
+}
+
+/* カード */
+.card-header {
+    font-weight: 600;
+}
+
+/* テーブル */
+.table th {
+    background-color: #f8f9fa;
+}
+
+/* フォーム */
+.form-label .text-danger {
+    font-size: 0.8em;
+}
+
+/* ボタン */
+.btn-group-action {
+    display: flex;
+    gap: 0.25rem;
+}
+
+/* バッジ */
+.badge {
+    font-weight: 500;
+}
+
+/* htmx インジケーター */
+.htmx-indicator {
+    display: none;
+}
+
+.htmx-request .htmx-indicator {
+    display: inline;
+}
+
+.htmx-request.htmx-indicator {
+    display: inline;
+}
+
+/* ローディングスピナー */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* ダッシュボードカード */
+.dashboard-card {
+    transition: transform 0.2s;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-2px);
+}
+
+/* 在庫不足表示 */
+.shortage-alert {
+    border-left: 4px solid #dc3545;
+}
+
+/* フッター */
+.footer {
+    margin-top: auto;
+}
+
+/* 印刷用スタイル */
+@media print {
+    .navbar,
+    .footer,
+    .btn,
+    .no-print {
+        display: none !important;
+    }
+
+    main {
+        margin-top: 0 !important;
+    }
+}

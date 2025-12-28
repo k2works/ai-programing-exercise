@@ -16,7 +16,7 @@ import java.util.Map;
 @Tag(name = "root", description = "ルート API")
 public class RootController {
 
-    @GetMapping("/")
+    @GetMapping("/api")
     @Operation(summary = "API 情報の取得")
     public Map<String, Object> root() {
         return Map.of(
