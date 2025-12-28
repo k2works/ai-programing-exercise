@@ -61,9 +61,7 @@
                         <th>発注番号</th>
                         <th>取引先</th>
                         <th>発注日</th>
-                        <th>納期</th>
                         <th>ステータス</th>
-                        <th>合計金額</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -74,16 +72,16 @@
                         </td>
                         <td th:text="${order.supplierCode}"></td>
                         <td th:text="${order.orderDate}"></td>
-                        <td th:text="${order.deliveryDate}"></td>
                         <td>
                             <span class="badge"
-                                  th:classappend="${order.status.name() == 'DRAFT'} ? 'bg-secondary' :
-                                                  (${order.status.name() == 'CONFIRMED'} ? 'bg-primary' :
+                                  th:classappend="${order.status.name() == 'CREATING'} ? 'bg-secondary' :
+                                                  (${order.status.name() == 'ORDERED'} ? 'bg-primary' :
+                                                  (${order.status.name() == 'PARTIALLY_RECEIVED'} ? 'bg-info' :
                                                   (${order.status.name() == 'RECEIVED'} ? 'bg-success' :
-                                                  (${order.status.name() == 'CANCELLED'} ? 'bg-danger' : 'bg-info')))"
+                                                  (${order.status.name() == 'ACCEPTED'} ? 'bg-dark' :
+                                                  (${order.status.name() == 'CANCELLED'} ? 'bg-danger' : 'bg-warning')))))"
                                   th:text="${order.status.displayName}"></span>
                         </td>
-                        <td class="text-end" th:text="${#numbers.formatDecimal(order.totalAmount, 1, 'COMMA', 0, 'POINT')} + ' 円'"></td>
                     </tr>
                 </tbody>
             </table>

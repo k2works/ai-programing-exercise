@@ -137,6 +137,34 @@ public class PurchaseOrderWebController {
     }
 
     /**
+     * 入荷処理
+     */
+    @PostMapping("/{orderNumber}/receive")
+    public String receive(
+            @PathVariable String orderNumber,
+            RedirectAttributes redirectAttributes) {
+
+        purchaseOrderUseCase.receiveOrder(orderNumber);
+        redirectAttributes.addFlashAttribute("successMessage",
+                "発注「" + orderNumber + "」の入荷処理を行いました");
+        return "redirect:/purchase-orders/" + orderNumber;
+    }
+
+    /**
+     * 検収処理
+     */
+    @PostMapping("/{orderNumber}/accept")
+    public String accept(
+            @PathVariable String orderNumber,
+            RedirectAttributes redirectAttributes) {
+
+        purchaseOrderUseCase.acceptOrder(orderNumber);
+        redirectAttributes.addFlashAttribute("successMessage",
+                "発注「" + orderNumber + "」の検収処理を行いました");
+        return "redirect:/purchase-orders/" + orderNumber;
+    }
+
+    /**
      * 明細行追加（htmx フラグメント）
      */
     @GetMapping("/add-detail-row")

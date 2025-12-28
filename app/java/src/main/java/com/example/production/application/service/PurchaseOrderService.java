@@ -127,4 +127,33 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
 
         purchaseOrderRepository.updateStatus(orderNumber, PurchaseOrderStatus.CANCELLED);
     }
+
+    @Override
+    @Transactional
+    public PurchaseOrder receiveOrder(String orderNumber) {
+        PurchaseOrder purchaseOrder = purchaseOrderRepository.findByPurchaseOrderNumber(orderNumber)
+                .orElseThrow(() -> new PurchaseOrderNotFoundException(orderNumber));
+
+        if (purchaseOrder.getStatus() != PurchaseOrderStatus.ORDERED &&
+            purchaseOrder.getStatus() != PurchaseOrderStatus.PARTIALLY_RECEIVED) {
+            throw new IllegalStateException("Only ORDERED or PARTIALLY_RECEIVED orders can be received");
+        }
+
+        purchaseOrderRepository.updateStatus(orderNumber, PurchaseOrderStatus.RECEIVED);
+        return getOrder(orderNumber);
+    }
+
+    @Override
+    @Transactional
+    public PurchaseOrder acceptOrder(String orderNumber) {
+        PurchaseOrder purchaseOrder = purchaseOrderRepository.findByPurchaseOrderNumber(orderNumber)
+                .orElseThrow(() -> new PurchaseOrderNotFoundException(orderNumber));
+
+        if (purchaseOrder.getStatus() != PurchaseOrderStatus.RECEIVED) {
+            throw new IllegalStateException("Only RECEIVED orders can be accepted");
+        }
+
+        purchaseOrderRepository.updateStatus(orderNumber, PurchaseOrderStatus.ACCEPTED);
+        return getOrder(orderNumber);
+    }
 }

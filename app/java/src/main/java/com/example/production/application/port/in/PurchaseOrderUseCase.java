@@ -34,4 +34,14 @@ public interface PurchaseOrderUseCase {
      * 発注を取消する
      */
     void cancelOrder(String orderNumber);
+
+    /**
+     * 入荷処理を行う
+     */
+    PurchaseOrder receiveOrder(String orderNumber);
+
+    /**
+     * 検収処理を行う
+     */
+    PurchaseOrder acceptOrder(String orderNumber);
 }
