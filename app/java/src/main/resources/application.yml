@@ -1,6 +1,17 @@
 spring:
   application:
     name: production-management
+  graphql:
+    path: /graphql
+    graphiql:
+      enabled: true
+      path: /graphiql
+    websocket:
+      path: /graphql
+    schema:
+      locations: classpath:graphql/
+      printer:
+        enabled: true
   datasource:
     url: jdbc:postgresql://localhost:5432/production_management
     username: postgres

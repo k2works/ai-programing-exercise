@@ -40,6 +40,9 @@ val grpcVersion = "1.60.0"
 val protobufVersion = "3.25.1"
 val grpcSpringBootVersion = "3.0.0.RELEASE"
 
+// GraphQL バージョン
+val graphqlExtendedScalarsVersion = "21.0"
+
 dependencies {
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -75,6 +78,11 @@ dependencies {
     implementation("com.google.protobuf:protobuf-java:$protobufVersion")
     implementation("javax.annotation:javax.annotation-api:1.3.2")
 
+    // GraphQL
+    implementation("org.springframework.boot:spring-boot-starter-graphql")
+    implementation("org.springframework.boot:spring-boot-starter-websocket")
+    implementation("com.graphql-java:graphql-java-extended-scalars:$graphqlExtendedScalarsVersion")
+
     // Database
     runtimeOnly("org.postgresql:postgresql")
 
@@ -86,10 +94,12 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-webmvc-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
+    testImplementation("org.springframework.boot:spring-boot-starter-webflux")  // WebTestClient 用
     testImplementation("org.mybatis.spring.boot:mybatis-spring-boot-starter-test:$mybatisVersion")
     testImplementation(platform("org.testcontainers:testcontainers-bom:$testcontainersVersion"))
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.springframework.graphql:spring-graphql-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     // SpotBugs
