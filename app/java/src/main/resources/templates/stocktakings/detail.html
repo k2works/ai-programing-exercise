@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>棚卸詳細</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>棚卸詳細</h1>
+        <a th:href="@{/stocktakings}" class="btn btn-secondary">一覧に戻る</a>
+    </div>
+
+    <!-- 成功メッセージ -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- エラーメッセージ -->
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- 基本情報 -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>棚卸情報</span>
+            <span class="badge fs-6"
+                  th:classappend="${stocktaking.status.name() == 'ISSUED'} ? 'bg-secondary' :
+                                  (${stocktaking.status.name() == 'ENTERED'} ? 'bg-primary' :
+                                  (${stocktaking.status.name() == 'CONFIRMED'} ? 'bg-success' : 'bg-warning'))"
+                  th:text="${stocktaking.status.displayName}"></span>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">棚卸番号</dt>
+                        <dd class="col-sm-8" th:text="${stocktaking.stocktakingNumber}"></dd>
+
+                        <dt class="col-sm-4">場所コード</dt>
+                        <dd class="col-sm-8" th:text="${stocktaking.locationCode}"></dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">棚卸日</dt>
+                        <dd class="col-sm-8" th:text="${stocktaking.stocktakingDate}"></dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- アクションボタン -->
+    <div class="card mb-4" th:if="${stocktaking.status.name() == 'ENTERED'}">
+        <div class="card-body">
+            <form th:action="@{/stocktakings/{no}/confirm(no=${stocktaking.stocktakingNumber})}" method="post" class="row g-3">
+                <div class="col-md-4">
+                    <label for="adjusterCode" class="form-label">調整担当者コード</label>
+                    <input type="text" class="form-control" id="adjusterCode" name="adjusterCode">
+                </div>
+                <div class="col-md-4">
+                    <label for="adjustmentReasonCode" class="form-label">調整理由コード</label>
+                    <input type="text" class="form-control" id="adjustmentReasonCode" name="adjustmentReasonCode">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-success">棚卸確定</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 棚卸明細 -->
+    <div class="card mb-4">
+        <div class="card-header">棚卸明細</div>
+        <div class="card-body">
+            <div th:if="${stocktaking.details == null || #lists.isEmpty(stocktaking.details)}" class="text-muted">
+                明細データがありません。
+            </div>
+            <table th:unless="${stocktaking.details == null || #lists.isEmpty(stocktaking.details)}" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>行番号</th>
+                        <th>品目コード</th>
+                        <th class="text-end">帳簿数量</th>
+                        <th class="text-end">実棚数量</th>
+                        <th class="text-end">差異数量</th>
+                        <th>差異状態</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="detail : ${stocktaking.details}">
+                        <td th:text="${detail.lineNumber}"></td>
+                        <td th:text="${detail.itemCode}"></td>
+                        <td class="text-end" th:text="${#numbers.formatDecimal(detail.bookQuantity, 1, 'COMMA', 2, 'POINT')}"></td>
+                        <td class="text-end" th:text="${detail.actualQuantity != null ? #numbers.formatDecimal(detail.actualQuantity, 1, 'COMMA', 2, 'POINT') : '-'}"></td>
+                        <td class="text-end">
+                            <span th:if="${detail.differenceQuantity != null}"
+                                  th:classappend="${detail.differenceQuantity.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? 'text-success' :
+                                                  (${detail.differenceQuantity.compareTo(T(java.math.BigDecimal).ZERO) < 0} ? 'text-danger' : '')"
+                                  th:text="${#numbers.formatDecimal(detail.differenceQuantity, 1, 'COMMA', 2, 'POINT')}"></span>
+                            <span th:if="${detail.differenceQuantity == null}">-</span>
+                        </td>
+                        <td>
+                            <span th:if="${detail.differenceQuantity != null}">
+                                <span th:if="${detail.differenceQuantity.compareTo(T(java.math.BigDecimal).ZERO) > 0}"
+                                      class="badge bg-success">過剰</span>
+                                <span th:if="${detail.differenceQuantity.compareTo(T(java.math.BigDecimal).ZERO) < 0}"
+                                      class="badge bg-danger">不足</span>
+                                <span th:if="${detail.differenceQuantity.compareTo(T(java.math.BigDecimal).ZERO) == 0}"
+                                      class="badge bg-secondary">一致</span>
+                            </span>
+                            <span th:if="${detail.differenceQuantity == null}"
+                                  class="badge bg-warning">未入力</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 差異サマリー -->
+    <div class="card mb-4" th:if="${stocktaking.details != null && !#lists.isEmpty(stocktaking.details)}">
+        <div class="card-header">差異サマリー</div>
+        <div class="card-body">
+            <div class="row text-center">
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h5 class="card-title">過剰品目数</h5>
+                            <h2 class="text-success" th:text="${stocktaking.details.?[differenceQuantity != null && differenceQuantity.compareTo(T(java.math.BigDecimal).ZERO) > 0].size()}"></h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h5 class="card-title">不足品目数</h5>
+                            <h2 class="text-danger" th:text="${stocktaking.details.?[differenceQuantity != null && differenceQuantity.compareTo(T(java.math.BigDecimal).ZERO) < 0].size()}"></h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h5 class="card-title">一致品目数</h5>
+                            <h2 class="text-secondary" th:text="${stocktaking.details.?[differenceQuantity != null && differenceQuantity.compareTo(T(java.math.BigDecimal).ZERO) == 0].size()}"></h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 監査情報 -->
+    <div class="card">
+        <div class="card-header">監査情報</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">作成日時</dt>
+                        <dd class="col-sm-8" th:text="${stocktaking.createdAt}"></dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">更新日時</dt>
+                        <dd class="col-sm-8" th:text="${stocktaking.updatedAt}"></dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

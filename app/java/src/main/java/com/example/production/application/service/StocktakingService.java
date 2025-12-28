@@ -156,6 +156,13 @@ public class StocktakingService {
         return stockAdjustmentRepository.findByStocktakingNumber(stocktakingNumber);
     }
 
+    /**
+     * 全ての棚卸データを取得する
+     */
+    public List<Stocktaking> findAll() {
+        return stocktakingRepository.findAll();
+    }
+
     private String generateStocktakingNumber() {
         int year = Year.now().getValue();
         long count = stocktakingRepository.countByYear(year);

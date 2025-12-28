@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>払出一覧</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>払出一覧</h1>
+        <a th:href="@{/issues/new}" class="btn btn-primary">払出登録</a>
+    </div>
+
+    <!-- 成功メッセージ -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- エラーメッセージ -->
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- フィルター -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form th:action="@{/issues}" method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="workOrderNumber" class="form-label">作業指示番号</label>
+                    <select class="form-select" id="workOrderNumber" name="workOrderNumber">
+                        <option value="">すべて</option>
+                        <option th:each="wo : ${workOrders}"
+                                th:value="${wo.workOrderNumber}"
+                                th:text="${wo.workOrderNumber + ' (' + wo.itemCode + ')'}"
+                                th:selected="${wo.workOrderNumber == selectedWorkOrder}"></option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-secondary">検索</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 一覧テーブル -->
+    <div class="card">
+        <div class="card-body">
+            <div th:if="${#lists.isEmpty(issues)}" class="text-muted">
+                払出データがありません。
+            </div>
+            <table th:unless="${#lists.isEmpty(issues)}" class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>払出番号</th>
+                        <th>作業指示番号</th>
+                        <th>工順</th>
+                        <th>場所コード</th>
+                        <th>払出日</th>
+                        <th>払出担当者</th>
+                        <th>作成日時</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="issue : ${issues}">
+                        <td>
+                            <a th:href="@{/issues/{no}(no=${issue.issueNumber})}"
+                               th:text="${issue.issueNumber}"></a>
+                        </td>
+                        <td>
+                            <a th:href="@{/work-orders/{no}(no=${issue.workOrderNumber})}"
+                               th:text="${issue.workOrderNumber}"></a>
+                        </td>
+                        <td th:text="${issue.routingSequence}"></td>
+                        <td th:text="${issue.locationCode}"></td>
+                        <td th:text="${issue.issueDate}"></td>
+                        <td th:text="${issue.issuerCode}"></td>
+                        <td th:text="${issue.createdAt}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

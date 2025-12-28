@@ -50,6 +50,11 @@ public class IssueRepositoryImpl implements IssueRepository {
     }
 
     @Override
+    public List<Issue> findAll() {
+        return issueMapper.findAll();
+    }
+
+    @Override
     public void deleteAll() {
         issueMapper.deleteAllDetails();
         issueMapper.deleteAll();

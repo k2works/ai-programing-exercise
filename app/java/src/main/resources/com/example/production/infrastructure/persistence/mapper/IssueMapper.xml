@@ -48,6 +48,11 @@
         WHERE "払出番号" LIKE #{prefix} || '%'
     </select>
 
+    <select id="findAll" resultMap="IssueResultMap">
+        SELECT * FROM "払出データ"
+        ORDER BY "払出日" DESC, "払出番号" DESC
+    </select>
+
     <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
         INSERT INTO "払出データ" (
             "払出番号", "作業指示番号", "工順", "場所コード",

@@ -26,6 +26,8 @@ public interface IssueMapper {
 
     long countByPrefix(@Param("prefix") String prefix);
 
+    List<Issue> findAll();
+
     void deleteAllDetails();
 
     void deleteAll();

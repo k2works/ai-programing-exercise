@@ -62,6 +62,11 @@ public class StocktakingRepositoryImpl implements StocktakingRepository {
     }
 
     @Override
+    public List<Stocktaking> findAll() {
+        return stocktakingMapper.findAll();
+    }
+
+    @Override
     public void deleteAll() {
         stocktakingMapper.deleteAll();
     }

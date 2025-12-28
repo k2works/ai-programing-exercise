@@ -69,6 +69,11 @@
         WHERE "棚卸番号" LIKE 'ST-' || #{year} || '-%'
     </select>
 
+    <select id="findAll" resultMap="StocktakingResultMap">
+        SELECT * FROM "棚卸データ"
+        ORDER BY "棚卸日" DESC, "棚卸番号" DESC
+    </select>
+
     <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="ID">
         INSERT INTO "棚卸データ" (
             "棚卸番号", "場所コード", "棚卸日", "ステータス"

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>払出詳細</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>払出詳細</h1>
+        <a th:href="@{/issues}" class="btn btn-secondary">一覧に戻る</a>
+    </div>
+
+    <!-- 基本情報 -->
+    <div class="card mb-4">
+        <div class="card-header">払出情報</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">払出番号</dt>
+                        <dd class="col-sm-8" th:text="${issue.issueNumber}"></dd>
+
+                        <dt class="col-sm-4">作業指示番号</dt>
+                        <dd class="col-sm-8">
+                            <a th:href="@{/work-orders/{no}(no=${issue.workOrderNumber})}"
+                               th:text="${issue.workOrderNumber}"></a>
+                        </dd>
+
+                        <dt class="col-sm-4">工順</dt>
+                        <dd class="col-sm-8" th:text="${issue.routingSequence}"></dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">場所コード</dt>
+                        <dd class="col-sm-8" th:text="${issue.locationCode}"></dd>
+
+                        <dt class="col-sm-4">払出日</dt>
+                        <dd class="col-sm-8" th:text="${issue.issueDate}"></dd>
+
+                        <dt class="col-sm-4">払出担当者</dt>
+                        <dd class="col-sm-8" th:text="${issue.issuerCode}"></dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 払出明細 -->
+    <div class="card mb-4">
+        <div class="card-header">払出明細</div>
+        <div class="card-body">
+            <div th:if="${issue.details == null || #lists.isEmpty(issue.details)}" class="text-muted">
+                明細データがありません。
+            </div>
+            <table th:unless="${issue.details == null || #lists.isEmpty(issue.details)}" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>行番号</th>
+                        <th>品目コード</th>
+                        <th class="text-end">払出数</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="detail : ${issue.details}">
+                        <td th:text="${detail.lineNumber}"></td>
+                        <td th:text="${detail.itemCode}"></td>
+                        <td class="text-end" th:text="${#numbers.formatDecimal(detail.issueQuantity, 1, 'COMMA', 2, 'POINT')}"></td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr class="table-secondary">
+                        <td colspan="2" class="text-end"><strong>合計</strong></td>
+                        <td class="text-end">
+                            <strong th:text="${#numbers.formatDecimal(issue.details.![issueQuantity].stream().reduce(T(java.math.BigDecimal).ZERO, (a, b) -> a.add(b)), 1, 'COMMA', 2, 'POINT')}"></strong>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <!-- 監査情報 -->
+    <div class="card">
+        <div class="card-header">監査情報</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">作成日時</dt>
+                        <dd class="col-sm-8" th:text="${issue.createdAt}"></dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">更新日時</dt>
+                        <dd class="col-sm-8" th:text="${issue.updatedAt}"></dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -23,5 +23,7 @@ public interface IssueRepository {
 
     long countByPrefix(String prefix);
 
+    List<Issue> findAll();
+
     void deleteAll();
 }

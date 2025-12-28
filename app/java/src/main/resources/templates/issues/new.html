@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>払出登録</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>払出登録</h1>
+        <a th:href="@{/issues}" class="btn btn-secondary">一覧に戻る</a>
+    </div>
+
+    <!-- エラーメッセージ -->
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form th:action="@{/issues}" th:object="${form}" method="post">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="workOrderNumber" class="form-label">作業指示番号 <span class="text-danger">*</span></label>
+                        <select class="form-select" id="workOrderNumber" th:field="*{workOrderNumber}"
+                                th:classappend="${#fields.hasErrors('workOrderNumber')} ? 'is-invalid'">
+                            <option value="">選択してください</option>
+                            <option th:each="wo : ${workOrders}"
+                                    th:value="${wo.workOrderNumber}"
+                                    th:text="${wo.workOrderNumber + ' (' + wo.itemCode + ')'}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('workOrderNumber')}"
+                             th:errors="*{workOrderNumber}"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="routingSequence" class="form-label">工順 <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="routingSequence" th:field="*{routingSequence}"
+                               th:classappend="${#fields.hasErrors('routingSequence')} ? 'is-invalid'">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('routingSequence')}"
+                             th:errors="*{routingSequence}"></div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="locationCode" class="form-label">場所コード <span class="text-danger">*</span></label>
+                        <select class="form-select" id="locationCode" th:field="*{locationCode}"
+                                th:classappend="${#fields.hasErrors('locationCode')} ? 'is-invalid'">
+                            <option value="">選択してください</option>
+                            <option th:each="loc : ${locations}"
+                                    th:value="${loc.locationCode}"
+                                    th:text="${loc.locationCode + ' - ' + loc.locationName}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('locationCode')}"
+                             th:errors="*{locationCode}"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="issueDate" class="form-label">払出日 <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="issueDate" th:field="*{issueDate}"
+                               th:classappend="${#fields.hasErrors('issueDate')} ? 'is-invalid'">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('issueDate')}"
+                             th:errors="*{issueDate}"></div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="issuerCode" class="form-label">払出担当者コード</label>
+                        <input type="text" class="form-control" id="issuerCode" th:field="*{issuerCode}">
+                    </div>
+                </div>
+
+                <hr class="my-4">
+                <h5>払出品目</h5>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="itemCode" class="form-label">品目コード <span class="text-danger">*</span></label>
+                        <select class="form-select" id="itemCode" th:field="*{itemCode}"
+                                th:classappend="${#fields.hasErrors('itemCode')} ? 'is-invalid'">
+                            <option value="">選択してください</option>
+                            <option th:each="item : ${items}"
+                                    th:value="${item.itemCode}"
+                                    th:text="${item.itemCode + ' - ' + item.itemName}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('itemCode')}"
+                             th:errors="*{itemCode}"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="issueQuantity" class="form-label">払出数 <span class="text-danger">*</span></label>
+                        <input type="number" step="0.01" class="form-control" id="issueQuantity" th:field="*{issueQuantity}"
+                               th:classappend="${#fields.hasErrors('issueQuantity')} ? 'is-invalid'">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('issueQuantity')}"
+                             th:errors="*{issueQuantity}"></div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                    <a th:href="@{/issues}" class="btn btn-secondary">キャンセル</a>
+                    <button type="submit" class="btn btn-primary">登録</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

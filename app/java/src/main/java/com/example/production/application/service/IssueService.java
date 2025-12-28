@@ -180,6 +180,13 @@ public class IssueService {
         return issueRepository.findByWorkOrderNumber(workOrderNumber);
     }
 
+    /**
+     * 全ての払出を取得する
+     */
+    public List<Issue> findAll() {
+        return issueRepository.findAll();
+    }
+
     private String generateInstructionNumber() {
         int year = Year.now().getValue();
         String prefix = "IS-" + year + "-";

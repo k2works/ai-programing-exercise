@@ -35,6 +35,8 @@ public interface StocktakingMapper {
 
     long countByYear(@Param("year") int year);
 
+    List<Stocktaking> findAll();
+
     void deleteAllDetails();
 
     void deleteAll();

@@ -29,6 +29,8 @@ public interface StocktakingRepository {
 
     long countByYear(int year);
 
+    List<Stocktaking> findAll();
+
     void deleteAll();
 
     void deleteAllDetails();
