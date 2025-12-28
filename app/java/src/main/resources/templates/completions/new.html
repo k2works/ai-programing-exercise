@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>完成実績登録</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>完成実績登録</h1>
+        <a th:href="@{/completions}" class="btn btn-secondary">一覧に戻る</a>
+    </div>
+
+    <!-- エラーメッセージ -->
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <form th:action="@{/completions}" method="post" th:object="${form}">
+        <div class="card mb-4">
+            <div class="card-header">完成実績情報</div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="workOrderNumber" class="form-label">作業指示 <span class="text-danger">*</span></label>
+                        <select class="form-select" id="workOrderNumber"
+                                th:field="*{workOrderNumber}"
+                                th:classappend="${#fields.hasErrors('workOrderNumber')} ? 'is-invalid' : ''">
+                            <option value="">選択してください</option>
+                            <option th:each="wo : ${workOrders}"
+                                    th:value="${wo.workOrderNumber}"
+                                    th:text="${wo.workOrderNumber + ' (' + wo.itemCode + ' - 残: ' + #numbers.formatDecimal(wo.orderQuantity.subtract(wo.completedQuantity), 1, 'COMMA', 2, 'POINT') + ')'}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('workOrderNumber')}"
+                             th:errors="*{workOrderNumber}"></div>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="completionDate" class="form-label">完成日 <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="completionDate"
+                               th:field="*{completionDate}"
+                               th:classappend="${#fields.hasErrors('completionDate')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('completionDate')}"
+                             th:errors="*{completionDate}"></div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label for="completedQuantity" class="form-label">完成数量 <span class="text-danger">*</span></label>
+                        <input type="number" step="0.01" class="form-control" id="completedQuantity"
+                               th:field="*{completedQuantity}"
+                               th:classappend="${#fields.hasErrors('completedQuantity')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('completedQuantity')}"
+                             th:errors="*{completedQuantity}"></div>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="goodQuantity" class="form-label">良品数 <span class="text-danger">*</span></label>
+                        <input type="number" step="0.01" class="form-control" id="goodQuantity"
+                               th:field="*{goodQuantity}"
+                               th:classappend="${#fields.hasErrors('goodQuantity')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('goodQuantity')}"
+                             th:errors="*{goodQuantity}"></div>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="defectQuantity" class="form-label">不良品数</label>
+                        <input type="number" step="0.01" class="form-control" id="defectQuantity"
+                               th:field="*{defectQuantity}"
+                               th:classappend="${#fields.hasErrors('defectQuantity')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('defectQuantity')}"
+                             th:errors="*{defectQuantity}"></div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="remarks" class="form-label">備考</label>
+                    <textarea class="form-control" id="remarks" rows="2"
+                              th:field="*{remarks}"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">登録</button>
+            <a th:href="@{/completions}" class="btn btn-secondary">キャンセル</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

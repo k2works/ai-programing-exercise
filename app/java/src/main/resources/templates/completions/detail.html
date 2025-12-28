@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>完成実績詳細</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>完成実績詳細</h1>
+        <a th:href="@{/completions}" class="btn btn-secondary">一覧に戻る</a>
+    </div>
+
+    <!-- 基本情報 -->
+    <div class="card mb-4">
+        <div class="card-header">完成実績情報</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">完成実績番号</dt>
+                        <dd class="col-sm-8" th:text="${completion.completionResultNumber}"></dd>
+
+                        <dt class="col-sm-4">作業指示番号</dt>
+                        <dd class="col-sm-8">
+                            <a th:href="@{/work-orders/{no}(no=${completion.workOrderNumber})}"
+                               th:text="${completion.workOrderNumber}"></a>
+                        </dd>
+
+                        <dt class="col-sm-4">品目コード</dt>
+                        <dd class="col-sm-8" th:text="${completion.itemCode}"></dd>
+
+                        <dt class="col-sm-4">完成日</dt>
+                        <dd class="col-sm-8" th:text="${completion.completionDate}"></dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">完成数量</dt>
+                        <dd class="col-sm-8" th:text="${#numbers.formatDecimal(completion.completedQuantity, 1, 'COMMA', 2, 'POINT')}"></dd>
+
+                        <dt class="col-sm-4">良品数</dt>
+                        <dd class="col-sm-8 text-success" th:text="${#numbers.formatDecimal(completion.goodQuantity, 1, 'COMMA', 2, 'POINT')}"></dd>
+
+                        <dt class="col-sm-4">不良品数</dt>
+                        <dd class="col-sm-8">
+                            <span th:if="${completion.defectQuantity != null and completion.defectQuantity.compareTo(T(java.math.BigDecimal).ZERO) > 0}"
+                                  class="text-danger"
+                                  th:text="${#numbers.formatDecimal(completion.defectQuantity, 1, 'COMMA', 2, 'POINT')}"></span>
+                            <span th:unless="${completion.defectQuantity != null and completion.defectQuantity.compareTo(T(java.math.BigDecimal).ZERO) > 0}">0</span>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="row mt-3" th:if="${completion.remarks}">
+                <div class="col-12">
+                    <dt>備考</dt>
+                    <dd th:text="${completion.remarks}"></dd>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 数量サマリー -->
+    <div class="card mb-4">
+        <div class="card-header">数量サマリー</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card bg-info text-white">
+                        <div class="card-body text-center">
+                            <h6 class="card-title">完成数量</h6>
+                            <h2 class="mb-0" th:text="${#numbers.formatDecimal(completion.completedQuantity, 1, 'COMMA', 2, 'POINT')}"></h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-success text-white">
+                        <div class="card-body text-center">
+                            <h6 class="card-title">良品数</h6>
+                            <h2 class="mb-0" th:text="${#numbers.formatDecimal(completion.goodQuantity, 1, 'COMMA', 2, 'POINT')}"></h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card" th:classappend="${completion.defectQuantity != null and completion.defectQuantity.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? 'bg-danger text-white' : 'bg-light'">
+                        <div class="card-body text-center">
+                            <h6 class="card-title">不良品数</h6>
+                            <h2 class="mb-0" th:text="${completion.defectQuantity != null} ? ${#numbers.formatDecimal(completion.defectQuantity, 1, 'COMMA', 2, 'POINT')} : '0'"></h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 検査結果 -->
+    <div class="card mb-4" th:if="${completion.inspectionResults != null and !completion.inspectionResults.isEmpty()}">
+        <div class="card-header">検査結果（不良内訳）</div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>不良コード</th>
+                        <th>数量</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="insp : ${completion.inspectionResults}">
+                        <td th:text="${insp.defectCode}"></td>
+                        <td class="text-end text-danger" th:text="${#numbers.formatDecimal(insp.quantity, 1, 'COMMA', 2, 'POINT')}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 監査情報 -->
+    <div class="card">
+        <div class="card-header">監査情報</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">作成日時</dt>
+                        <dd class="col-sm-8" th:text="${completion.createdAt}"></dd>
+                        <dt class="col-sm-4">作成者</dt>
+                        <dd class="col-sm-8" th:text="${completion.createdBy ?: '-'}"></dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">更新日時</dt>
+                        <dd class="col-sm-8" th:text="${completion.updatedAt}"></dd>
+                        <dt class="col-sm-4">更新者</dt>
+                        <dd class="col-sm-8" th:text="${completion.updatedBy ?: '-'}"></dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

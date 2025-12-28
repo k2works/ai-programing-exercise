@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>完成実績一覧</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>完成実績一覧</h1>
+        <a th:href="@{/completions/new}" class="btn btn-primary">完成実績登録</a>
+    </div>
+
+    <!-- 成功メッセージ -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- エラーメッセージ -->
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- フィルター -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form th:action="@{/completions}" method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="workOrderNumber" class="form-label">作業指示番号</label>
+                    <select class="form-select" id="workOrderNumber" name="workOrderNumber">
+                        <option value="">すべて</option>
+                        <option th:each="wo : ${workOrders}"
+                                th:value="${wo.workOrderNumber}"
+                                th:text="${wo.workOrderNumber + ' (' + wo.itemCode + ')'}"
+                                th:selected="${wo.workOrderNumber == selectedWorkOrder}"></option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-secondary">検索</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 一覧テーブル -->
+    <div class="card">
+        <div class="card-body">
+            <div th:if="${#lists.isEmpty(completions)}" class="text-muted">
+                完成実績データがありません。
+            </div>
+            <table th:unless="${#lists.isEmpty(completions)}" class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>完成実績番号</th>
+                        <th>作業指示番号</th>
+                        <th>品目コード</th>
+                        <th>完成日</th>
+                        <th>完成数量</th>
+                        <th>良品数</th>
+                        <th>不良品数</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="c : ${completions}">
+                        <td>
+                            <a th:href="@{/completions/{no}(no=${c.completionResultNumber})}"
+                               th:text="${c.completionResultNumber}"></a>
+                        </td>
+                        <td>
+                            <a th:href="@{/work-orders/{no}(no=${c.workOrderNumber})}"
+                               th:text="${c.workOrderNumber}"></a>
+                        </td>
+                        <td th:text="${c.itemCode}"></td>
+                        <td th:text="${c.completionDate}"></td>
+                        <td class="text-end" th:text="${#numbers.formatDecimal(c.completedQuantity, 1, 'COMMA', 2, 'POINT')}"></td>
+                        <td class="text-end text-success" th:text="${#numbers.formatDecimal(c.goodQuantity, 1, 'COMMA', 2, 'POINT')}"></td>
+                        <td class="text-end">
+                            <span th:if="${c.defectQuantity != null and c.defectQuantity.compareTo(T(java.math.BigDecimal).ZERO) > 0}"
+                                  class="text-danger"
+                                  th:text="${#numbers.formatDecimal(c.defectQuantity, 1, 'COMMA', 2, 'POINT')}"></span>
+                            <span th:unless="${c.defectQuantity != null and c.defectQuantity.compareTo(T(java.math.BigDecimal).ZERO) > 0}">-</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>
