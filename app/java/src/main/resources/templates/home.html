@@ -33,23 +33,27 @@
             </div>
         </div>
 
-        <!-- 未処理オーダ数（プレースホルダー） -->
+        <!-- 未処理オーダ数 -->
         <div class="col-md-3">
             <div class="card text-white bg-warning mb-3 dashboard-card">
                 <div class="card-header">未処理オーダ</div>
                 <div class="card-body">
-                    <h5 class="card-title">- 件</h5>
+                    <h5 class="card-title">
+                        <span th:text="${pendingOrderCount}">0</span> 件
+                    </h5>
                     <a th:href="@{/orders}" class="btn btn-sm btn-light">詳細を見る</a>
                 </div>
             </div>
         </div>
 
-        <!-- 在庫不足品目（プレースホルダー） -->
+        <!-- 在庫不足品目 -->
         <div class="col-md-3">
             <div class="card text-white bg-danger mb-3 dashboard-card">
-                <div class="card-header">在庫不足</div>
+                <div class="card-header">在庫注意</div>
                 <div class="card-body">
-                    <h5 class="card-title">- 品目</h5>
+                    <h5 class="card-title">
+                        <span th:text="${lowStockCount}">0</span> 品目
+                    </h5>
                     <a th:href="@{/inventory}" class="btn btn-sm btn-light">詳細を見る</a>
                 </div>
             </div>
