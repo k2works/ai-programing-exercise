@@ -42,6 +42,11 @@ public class MpsRepositoryImpl implements MpsRepository {
     }
 
     @Override
+    public List<MasterProductionSchedule> findAll() {
+        return mpsMapper.findAll();
+    }
+
+    @Override
     public void updateStatus(Integer id, PlanStatus status) {
         mpsMapper.updateStatus(id, status);
     }

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>発注詳細</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>発注詳細</h1>
+        <div>
+            <!-- 下書き状態のみ確定・取消可能 -->
+            <form th:if="${order.status.name() == 'DRAFT'}"
+                  th:action="@{/purchase-orders/{no}/confirm(no=${order.purchaseOrderNumber})}"
+                  method="post" class="d-inline">
+                <button type="submit" class="btn btn-success"
+                        onclick="return confirm('この発注を確定しますか？')">確定</button>
+            </form>
+            <form th:if="${order.status.name() == 'DRAFT'}"
+                  th:action="@{/purchase-orders/{no}/cancel(no=${order.purchaseOrderNumber})}"
+                  method="post" class="d-inline">
+                <button type="submit" class="btn btn-danger"
+                        onclick="return confirm('この発注を取り消しますか？')">取消</button>
+            </form>
+            <a th:href="@{/purchase-orders}" class="btn btn-secondary">一覧に戻る</a>
+        </div>
+    </div>
+
+    <!-- 成功メッセージ -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- 基本情報 -->
+    <div class="card mb-4">
+        <div class="card-header">基本情報</div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">発注番号</dt>
+                <dd class="col-sm-9" th:text="${order.purchaseOrderNumber}"></dd>
+
+                <dt class="col-sm-3">ステータス</dt>
+                <dd class="col-sm-9">
+                    <span class="badge"
+                          th:classappend="${order.status.name() == 'DRAFT'} ? 'bg-secondary' :
+                                          (${order.status.name() == 'CONFIRMED'} ? 'bg-primary' :
+                                          (${order.status.name() == 'RECEIVED'} ? 'bg-success' :
+                                          (${order.status.name() == 'CANCELLED'} ? 'bg-danger' : 'bg-info')))"
+                          th:text="${order.status.displayName}"></span>
+                </dd>
+
+                <dt class="col-sm-3">取引先</dt>
+                <dd class="col-sm-9" th:text="${order.supplierCode}"></dd>
+
+                <dt class="col-sm-3">発注日</dt>
+                <dd class="col-sm-9" th:text="${order.orderDate}"></dd>
+
+                <dt class="col-sm-3">納期</dt>
+                <dd class="col-sm-9" th:text="${order.deliveryDate}"></dd>
+
+                <dt class="col-sm-3">発注者</dt>
+                <dd class="col-sm-9" th:text="${order.ordererCode} ?: '-'"></dd>
+
+                <dt class="col-sm-3">部門</dt>
+                <dd class="col-sm-9" th:text="${order.departmentCode} ?: '-'"></dd>
+
+                <dt class="col-sm-3">備考</dt>
+                <dd class="col-sm-9" th:text="${order.remarks} ?: '-'"></dd>
+            </dl>
+        </div>
+    </div>
+
+    <!-- 明細情報 -->
+    <div class="card mb-4">
+        <div class="card-header">発注明細</div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>行番号</th>
+                        <th>品目コード</th>
+                        <th>発注数量</th>
+                        <th>単価</th>
+                        <th>金額</th>
+                        <th>納期</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="detail : ${order.details}">
+                        <td th:text="${detail.lineNumber}"></td>
+                        <td th:text="${detail.itemCode}"></td>
+                        <td class="text-end" th:text="${#numbers.formatDecimal(detail.orderQuantity, 1, 'COMMA', 2, 'POINT')}"></td>
+                        <td class="text-end" th:text="${#numbers.formatDecimal(detail.unitPrice, 1, 'COMMA', 0, 'POINT')} + ' 円'"></td>
+                        <td class="text-end" th:text="${#numbers.formatDecimal(detail.amount, 1, 'COMMA', 0, 'POINT')} + ' 円'"></td>
+                        <td th:text="${detail.deliveryDate}"></td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4" class="text-end fw-bold">合計金額</td>
+                        <td class="text-end fw-bold" th:text="${#numbers.formatDecimal(order.totalAmount, 1, 'COMMA', 0, 'POINT')} + ' 円'"></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <!-- システム情報 -->
+    <div class="card">
+        <div class="card-header">システム情報</div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">作成日時</dt>
+                <dd class="col-sm-9" th:text="${order.createdAt}"></dd>
+
+                <dt class="col-sm-3">更新日時</dt>
+                <dd class="col-sm-9" th:text="${order.updatedAt}"></dd>
+            </dl>
+        </div>
+    </div>
+</div>
+</body>
+</html>

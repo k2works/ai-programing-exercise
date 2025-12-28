@@ -68,6 +68,11 @@
         ORDER BY "計画日", "納期"
     </select>
 
+    <select id="findAll" resultMap="MpsResultMap">
+        SELECT * FROM "基準生産計画"
+        ORDER BY "計画日" DESC, "納期"
+    </select>
+
     <update id="updateStatus">
         UPDATE "基準生産計画" SET
             "ステータス" = #{status, typeHandler=com.example.production.infrastructure.persistence.PlanStatusTypeHandler}::計画ステータス,

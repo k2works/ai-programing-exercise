@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>MRP 実行</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>MRP 実行</h1>
+        <form th:action="@{/mrp/execute-all}" method="post" class="d-inline">
+            <button type="submit" class="btn btn-primary"
+                    onclick="return confirm('確定済みの全 MPS に対して MRP を実行しますか？')">
+                一括実行
+            </button>
+        </form>
+    </div>
+
+    <!-- 成功メッセージ -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- 警告メッセージ -->
+    <div th:if="${warningMessage}" class="alert alert-warning alert-dismissible fade show" role="alert">
+        <span th:text="${warningMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- エラーメッセージ -->
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- フィルター -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form th:action="@{/mrp}" method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="status" class="form-label">ステータス</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="">すべて</option>
+                        <option th:each="s : ${statuses}"
+                                th:value="${s}"
+                                th:text="${s.displayName}"
+                                th:selected="${s == selectedStatus}"></option>
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-secondary">検索</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MPS 一覧 -->
+    <div class="card">
+        <div class="card-header">基準生産計画 (MPS) 一覧</div>
+        <div class="card-body">
+            <div th:if="${#lists.isEmpty(mpsList)}" class="text-muted">
+                基準生産計画データがありません。
+            </div>
+            <table th:unless="${#lists.isEmpty(mpsList)}" class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>MPS 番号</th>
+                        <th>計画日</th>
+                        <th>品目コード</th>
+                        <th>計画数量</th>
+                        <th>納期</th>
+                        <th>ステータス</th>
+                        <th>場所</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="mps : ${mpsList}">
+                        <td th:text="${mps.mpsNumber}"></td>
+                        <td th:text="${mps.planDate}"></td>
+                        <td th:text="${mps.itemCode}"></td>
+                        <td class="text-end" th:text="${#numbers.formatDecimal(mps.planQuantity, 1, 'COMMA', 2, 'POINT')}"></td>
+                        <td th:text="${mps.dueDate}"></td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${mps.status.name() == 'DRAFT'} ? 'bg-secondary' :
+                                                  (${mps.status.name() == 'CONFIRMED'} ? 'bg-primary' :
+                                                  (${mps.status.name() == 'COMPLETED'} ? 'bg-success' :
+                                                  (${mps.status.name() == 'CANCELLED'} ? 'bg-danger' : 'bg-info')))"
+                                  th:text="${mps.status.displayName}"></span>
+                        </td>
+                        <td th:text="${mps.locationCode}"></td>
+                        <td>
+                            <form th:if="${mps.status.name() == 'CONFIRMED'}"
+                                  th:action="@{/mrp/execute/{id}(id=${mps.id})}"
+                                  method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-success"
+                                        onclick="return confirm('この MPS に対して MRP を実行しますか？')">
+                                    実行
+                                </button>
+                            </form>
+                            <a th:href="@{/mrp/result/{id}(id=${mps.id})}"
+                               class="btn btn-sm btn-outline-info">結果</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- 発注明細行フラグメント（htmx用） -->
+<tr th:fragment="detailRow">
+    <td>
+        <select class="form-select form-select-sm"
+                th:name="|details[${index}].itemCode|">
+            <option value="">選択</option>
+            <option th:each="item : ${items}"
+                    th:value="${item.itemCode}"
+                    th:text="${item.itemCode + ' - ' + item.itemName}"></option>
+        </select>
+    </td>
+    <td>
+        <input type="number" step="0.01" class="form-control form-control-sm"
+               th:name="|details[${index}].orderQuantity|">
+    </td>
+    <td>
+        <input type="number" step="1" class="form-control form-control-sm"
+               th:name="|details[${index}].unitPrice|">
+    </td>
+    <td>
+        <input type="date" class="form-control form-control-sm"
+               th:name="|details[${index}].deliveryDate|">
+    </td>
+    <td>
+        <button type="button" class="btn btn-sm btn-outline-danger"
+                onclick="this.closest('tr').remove()">削除</button>
+    </td>
+</tr>
+</body>
+</html>
