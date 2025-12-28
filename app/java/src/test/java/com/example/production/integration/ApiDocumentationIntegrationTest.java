@@ -33,7 +33,7 @@ class ApiDocumentationIntegrationTest {
     }
 
     @Nested
-    @DisplayName("GET /")
+    @DisplayName("GET /api")
     class RootApi {
 
         @Test
@@ -41,7 +41,7 @@ class ApiDocumentationIntegrationTest {
         @SuppressWarnings("unchecked")
         void shouldReturnApiInfo() {
             Map<String, Object> response = restClient.get()
-                    .uri("/")
+                    .uri("/api")
                     .retrieve()
                     .body(Map.class);
 

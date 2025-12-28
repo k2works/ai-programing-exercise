@@ -44,6 +44,7 @@ public class WorkOrderService implements WorkOrderUseCase {
     /**
      * 作業指示を作成する
      */
+    @Override
     @Transactional
     public WorkOrder createWorkOrder(WorkOrderCreateCommand command) {
         // オーダ情報を取得
@@ -96,6 +97,7 @@ public class WorkOrderService implements WorkOrderUseCase {
     /**
      * 作業を開始する
      */
+    @Override
     @Transactional
     public WorkOrder startWork(String workOrderNumber) {
         WorkOrder workOrder = workOrderRepository.findByWorkOrderNumber(workOrderNumber)
@@ -113,6 +115,7 @@ public class WorkOrderService implements WorkOrderUseCase {
     /**
      * 作業を完了する
      */
+    @Override
     @Transactional
     public WorkOrder completeWork(String workOrderNumber) {
         WorkOrder workOrder = workOrderRepository.findByWorkOrderNumber(workOrderNumber)
