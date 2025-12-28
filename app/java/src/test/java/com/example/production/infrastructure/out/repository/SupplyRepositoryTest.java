@@ -13,6 +13,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.jdbc.Sql;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -20,6 +21,7 @@ import java.time.LocalDate;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("支給リポジトリ")
+@Sql(scripts = "/db/truncate-all.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 class SupplyRepositoryTest extends BaseIntegrationTest {
 
     @Autowired
@@ -46,12 +48,16 @@ class SupplyRepositoryTest extends BaseIntegrationTest {
     @Autowired
     private ConsumptionRepository consumptionRepository;
 
+    @Autowired
+    private ReceivingRepository receivingRepository;
+
     @BeforeEach
     void setUp() {
         consumptionDetailRepository.deleteAll();
         consumptionRepository.deleteAll();
         supplyDetailRepository.deleteAll();
         supplyRepository.deleteAll();
+        receivingRepository.deleteAll();  // 入荷受入データを先に削除（外部キー制約）
         detailRepository.deleteAll();
         purchaseOrderRepository.deleteAll();
         supplierRepository.deleteAll();
