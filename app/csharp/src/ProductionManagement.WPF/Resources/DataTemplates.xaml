@@ -4,10 +4,18 @@
                     xmlns:bomVm="clr-namespace:ProductionManagement.WPF.ViewModels.Bom"
                     xmlns:supplierVm="clr-namespace:ProductionManagement.WPF.ViewModels.Suppliers"
                     xmlns:purchaseOrderVm="clr-namespace:ProductionManagement.WPF.ViewModels.PurchaseOrders"
+                    xmlns:planningVm="clr-namespace:ProductionManagement.WPF.ViewModels.Planning"
+                    xmlns:workOrderVm="clr-namespace:ProductionManagement.WPF.ViewModels.WorkOrders"
+                    xmlns:inventoryVm="clr-namespace:ProductionManagement.WPF.ViewModels.Inventory"
+                    xmlns:reportsVm="clr-namespace:ProductionManagement.WPF.ViewModels.Reports"
                     xmlns:itemViews="clr-namespace:ProductionManagement.WPF.Views.Items"
                     xmlns:bomViews="clr-namespace:ProductionManagement.WPF.Views.Bom"
                     xmlns:supplierViews="clr-namespace:ProductionManagement.WPF.Views.Suppliers"
-                    xmlns:purchaseOrderViews="clr-namespace:ProductionManagement.WPF.Views.PurchaseOrders">
+                    xmlns:purchaseOrderViews="clr-namespace:ProductionManagement.WPF.Views.PurchaseOrders"
+                    xmlns:planningViews="clr-namespace:ProductionManagement.WPF.Views.Planning"
+                    xmlns:workOrderViews="clr-namespace:ProductionManagement.WPF.Views.WorkOrders"
+                    xmlns:inventoryViews="clr-namespace:ProductionManagement.WPF.Views.Inventory"
+                    xmlns:reportsViews="clr-namespace:ProductionManagement.WPF.Views.Reports">
 
     <!-- 品目マスタ ViewModel - View マッピング -->
     <DataTemplate DataType="{x:Type itemVm:ItemListViewModel}">
@@ -47,6 +55,30 @@
 
     <DataTemplate DataType="{x:Type purchaseOrderVm:PurchaseOrderEditViewModel}">
         <purchaseOrderViews:PurchaseOrderEditView/>
+    </DataTemplate>
+
+    <!-- 生産計画 ViewModel - View マッピング -->
+    <DataTemplate DataType="{x:Type planningVm:MrpExecuteViewModel}">
+        <planningViews:MrpExecuteView/>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type planningVm:OrderListViewModel}">
+        <planningViews:OrderListView/>
+    </DataTemplate>
+
+    <!-- 作業指示 ViewModel - View マッピング -->
+    <DataTemplate DataType="{x:Type workOrderVm:WorkOrderListViewModel}">
+        <workOrderViews:WorkOrderListView/>
+    </DataTemplate>
+
+    <!-- 在庫 ViewModel - View マッピング -->
+    <DataTemplate DataType="{x:Type inventoryVm:StockListViewModel}">
+        <inventoryViews:StockListView/>
+    </DataTemplate>
+
+    <!-- 帳票 ViewModel - View マッピング -->
+    <DataTemplate DataType="{x:Type reportsVm:ReportListViewModel}">
+        <reportsViews:ReportListView/>
     </DataTemplate>
 
 </ResourceDictionary>

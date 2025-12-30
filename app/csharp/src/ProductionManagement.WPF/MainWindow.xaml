@@ -108,7 +108,18 @@
                             <StackPanel>
                                 <Button Content="在庫照会"
                                         Command="{Binding NavigateCommand}"
-                                        CommandParameter="InventoryList"
+                                        CommandParameter="StockList"
+                                        Style="{StaticResource MaterialDesignFlatButton}"
+                                        HorizontalAlignment="Stretch"/>
+                            </StackPanel>
+                        </Expander>
+
+                        <!-- 帳票 -->
+                        <Expander Header="帳票">
+                            <StackPanel>
+                                <Button Content="帳票出力"
+                                        Command="{Binding NavigateCommand}"
+                                        CommandParameter="ReportList"
                                         Style="{StaticResource MaterialDesignFlatButton}"
                                         HorizontalAlignment="Stretch"/>
                             </StackPanel>

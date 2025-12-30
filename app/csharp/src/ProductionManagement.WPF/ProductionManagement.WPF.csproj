@@ -20,6 +20,12 @@
     <!-- WPF 拡張 -->
     <PackageReference Include="MaterialDesignThemes" Version="5.2.1" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
+
+    <!-- Excel 出力 -->
+    <PackageReference Include="ClosedXML" Version="0.104.2" />
+
+    <!-- PDF 出力 -->
+    <PackageReference Include="QuestPDF" Version="2024.12.2" />
   </ItemGroup>
 
   <ItemGroup>

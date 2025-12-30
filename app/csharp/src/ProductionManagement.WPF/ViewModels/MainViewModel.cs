@@ -4,8 +4,12 @@ using Microsoft.Extensions.DependencyInjection;
 using ProductionManagement.WPF.Services;
 using ProductionManagement.WPF.ViewModels.Bom;
 using ProductionManagement.WPF.ViewModels.Items;
+using ProductionManagement.WPF.ViewModels.Planning;
 using ProductionManagement.WPF.ViewModels.PurchaseOrders;
+using ProductionManagement.WPF.ViewModels.Inventory;
 using ProductionManagement.WPF.ViewModels.Suppliers;
+using ProductionManagement.WPF.ViewModels.WorkOrders;
+using ProductionManagement.WPF.ViewModels.Reports;
 
 namespace ProductionManagement.WPF.ViewModels;
 
@@ -100,6 +104,11 @@ public partial class MainViewModel : ObservableObject
             "SupplierEdit" => _serviceProvider.GetRequiredService<SupplierEditViewModel>(),
             "PurchaseOrderList" => _serviceProvider.GetRequiredService<PurchaseOrderListViewModel>(),
             "PurchaseOrderEdit" => _serviceProvider.GetRequiredService<PurchaseOrderEditViewModel>(),
+            "MrpExecute" => _serviceProvider.GetRequiredService<MrpExecuteViewModel>(),
+            "OrderList" => _serviceProvider.GetRequiredService<OrderListViewModel>(),
+            "WorkOrderList" => _serviceProvider.GetRequiredService<WorkOrderListViewModel>(),
+            "StockList" => _serviceProvider.GetRequiredService<StockListViewModel>(),
+            "ReportList" => _serviceProvider.GetRequiredService<ReportListViewModel>(),
             _ => null
         };
     }
@@ -117,6 +126,11 @@ public partial class MainViewModel : ObservableObject
             "SupplierEdit" => "取引先登録/編集",
             "PurchaseOrderList" => "発注一覧",
             "PurchaseOrderEdit" => "発注登録/編集",
+            "MrpExecute" => "MRP 実行",
+            "OrderList" => "オーダ照会",
+            "WorkOrderList" => "作業指示一覧",
+            "StockList" => "在庫照会",
+            "ReportList" => "帳票出力",
             _ => viewName
         };
     }

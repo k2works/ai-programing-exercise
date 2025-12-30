@@ -14,4 +14,7 @@
     <!-- 複数条件用 -->
     <converters:AllTrueConverter x:Key="AllTrueConverter"/>
 
+    <!-- DateOnly <-> DateTime 変換用 -->
+    <converters:DateOnlyToDateTimeConverter x:Key="DateOnlyToDateTimeConverter"/>
+
 </ResourceDictionary>
