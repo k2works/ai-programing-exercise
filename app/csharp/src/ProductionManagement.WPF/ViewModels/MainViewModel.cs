@@ -1,6 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 using ProductionManagement.WPF.Services;
+using ProductionManagement.WPF.ViewModels.Bom;
+using ProductionManagement.WPF.ViewModels.Items;
 
 namespace ProductionManagement.WPF.ViewModels;
 
@@ -10,6 +13,7 @@ namespace ProductionManagement.WPF.ViewModels;
 public partial class MainViewModel : ObservableObject
 {
     private readonly INavigationService _navigationService;
+    private readonly IServiceProvider _serviceProvider;
 
     [ObservableProperty]
     private object? _currentView;
@@ -26,10 +30,14 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private DateTime _currentDate = DateTime.Today;
 
-    public MainViewModel(INavigationService navigationService)
+    public MainViewModel(INavigationService navigationService, IServiceProvider serviceProvider)
     {
         _navigationService = navigationService;
+        _serviceProvider = serviceProvider;
         _navigationService.NavigationRequested += OnNavigationRequested;
+        _navigationService.NavigationWithParameterRequested += OnNavigationWithParameterRequested;
+
+        NavigateToItemList();
     }
 
     public void SetLoading(bool isLoading, string? message = null)
@@ -47,10 +55,45 @@ public partial class MainViewModel : ObservableObject
         _navigationService.NavigateTo(viewName);
     }
 
+    [RelayCommand]
+    private void NavigateToItemList()
+    {
+        _navigationService.NavigateTo("ItemList");
+    }
+
     private void OnNavigationRequested(object? sender, string viewName)
     {
-        // 現時点では ViewModel の作成は後続の章で実装
-        // ここではステータスメッセージのみ更新
-        StatusMessage = $"{viewName} を表示中";
+        CurrentView = CreateViewModel(viewName);
+        StatusMessage = GetViewDisplayName(viewName);
+    }
+
+    private void OnNavigationWithParameterRequested(object? sender, (string ViewName, object Parameter) args)
+    {
+        CurrentView = CreateViewModel(args.ViewName);
+        StatusMessage = GetViewDisplayName(args.ViewName);
+    }
+
+    private object? CreateViewModel(string viewName)
+    {
+        return viewName switch
+        {
+            "ItemList" => _serviceProvider.GetRequiredService<ItemListViewModel>(),
+            "ItemDetail" => _serviceProvider.GetRequiredService<ItemDetailViewModel>(),
+            "ItemEdit" => _serviceProvider.GetRequiredService<ItemEditViewModel>(),
+            "BomExplode" => _serviceProvider.GetRequiredService<BomExplodeViewModel>(),
+            _ => null
+        };
+    }
+
+    private static string GetViewDisplayName(string viewName)
+    {
+        return viewName switch
+        {
+            "ItemList" => "品目一覧",
+            "ItemDetail" => "品目詳細",
+            "ItemEdit" => "品目登録/編集",
+            "BomExplode" => "BOM 展開",
+            _ => viewName
+        };
     }
 }

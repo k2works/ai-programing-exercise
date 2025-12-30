@@ -1,12 +1,26 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:itemVm="clr-namespace:ProductionManagement.WPF.ViewModels.Items"
+                    xmlns:bomVm="clr-namespace:ProductionManagement.WPF.ViewModels.Bom"
+                    xmlns:itemViews="clr-namespace:ProductionManagement.WPF.Views.Items"
+                    xmlns:bomViews="clr-namespace:ProductionManagement.WPF.Views.Bom">
 
-    <!--
-    DataTemplate は各 ViewModel の実装時に追加します。
-    例:
-    <DataTemplate DataType="{x:Type vm:ItemListViewModel}">
-        <views:ItemListView/>
+    <!-- 品目マスタ ViewModel - View マッピング -->
+    <DataTemplate DataType="{x:Type itemVm:ItemListViewModel}">
+        <itemViews:ItemListView/>
     </DataTemplate>
-    -->
+
+    <DataTemplate DataType="{x:Type itemVm:ItemDetailViewModel}">
+        <itemViews:ItemDetailView/>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type itemVm:ItemEditViewModel}">
+        <itemViews:ItemEditView/>
+    </DataTemplate>
+
+    <!-- BOM ViewModel - View マッピング -->
+    <DataTemplate DataType="{x:Type bomVm:BomExplodeViewModel}">
+        <bomViews:BomExplodeView/>
+    </DataTemplate>
 
 </ResourceDictionary>

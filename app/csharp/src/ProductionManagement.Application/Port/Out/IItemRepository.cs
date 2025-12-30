@@ -47,4 +47,9 @@ public interface IItemRepository
     /// すべての品目を削除する
     /// </summary>
     Task DeleteAllAsync();
+
+    /// <summary>
+    /// キーワードで品目を検索する（品目コードまたは品名に部分一致）
+    /// </summary>
+    Task<IReadOnlyList<Item>> SearchAsync(string keyword);
 }

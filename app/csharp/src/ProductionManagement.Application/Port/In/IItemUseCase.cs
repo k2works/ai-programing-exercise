@@ -36,4 +36,9 @@ public interface IItemUseCase
     /// 品目を削除する
     /// </summary>
     Task DeleteItemAsync(string itemCode);
+
+    /// <summary>
+    /// キーワードで品目を検索する
+    /// </summary>
+    Task<IReadOnlyList<Item>> SearchItemsAsync(string keyword);
 }

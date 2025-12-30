@@ -1,0 +1,94 @@
+<UserControl x:Class="ProductionManagement.WPF.Views.Bom.BomExplodeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:vm="clr-namespace:ProductionManagement.WPF.ViewModels.Bom"
+             xmlns:bomService="clr-namespace:ProductionManagement.Application.Services;assembly=ProductionManagement.Application"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:BomExplodeViewModel}"
+             d:DesignHeight="600" d:DesignWidth="800">
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ヘッダー -->
+        <DockPanel Grid.Row="0" Margin="0,0,0,16">
+            <Button DockPanel.Dock="Left"
+                    Command="{Binding GoBackCommand}"
+                    Style="{StaticResource MaterialDesignIconButton}"
+                    ToolTip="戻る">
+                <materialDesign:PackIcon Kind="ArrowLeft"/>
+            </Button>
+            <TextBlock Text="BOM 展開"
+                       Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                       VerticalAlignment="Center"
+                       Margin="8,0,0,0"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="全展開"
+                        Command="{Binding ExpandAllCommand}"
+                        Style="{StaticResource MaterialDesignOutlinedButton}"
+                        Margin="0,0,8,0"/>
+                <Button Content="折りたたみ"
+                        Command="{Binding CollapseAllCommand}"
+                        Style="{StaticResource MaterialDesignOutlinedButton}"/>
+            </StackPanel>
+        </DockPanel>
+
+        <!-- 親品目情報 -->
+        <materialDesign:Card Grid.Row="1" Padding="16" Margin="0,0,0,16">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding RootItem.ItemCode}"
+                           Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                           Margin="0,0,16,0"/>
+                <TextBlock Text="{Binding RootItem.ItemName}"
+                           VerticalAlignment="Center"/>
+                <materialDesign:Chip Content="{Binding RootItem.ItemCategory, Converter={StaticResource EnumDisplayNameConverter}}"
+                                     Margin="16,0,0,0"/>
+            </StackPanel>
+        </materialDesign:Card>
+
+        <!-- BOM ツリー -->
+        <TreeView Grid.Row="2"
+                  ItemsSource="{Binding BomTree.Children}">
+            <TreeView.Resources>
+                <HierarchicalDataTemplate DataType="{x:Type bomService:BomNode}"
+                                          ItemsSource="{Binding Children}">
+                    <StackPanel Orientation="Horizontal" Margin="4">
+                        <materialDesign:Chip>
+                            <materialDesign:Chip.Content>
+                                <TextBlock Text="{Binding Level}" FontSize="10"/>
+                            </materialDesign:Chip.Content>
+                        </materialDesign:Chip>
+                        <Button Content="{Binding ItemCode}"
+                                Command="{Binding DataContext.ShowItemDetailCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
+                                CommandParameter="{Binding ItemCode}"
+                                Style="{StaticResource MaterialDesignFlatButton}"
+                                Margin="8,0,0,0"/>
+                        <TextBlock Text="{Binding ItemName}"
+                                   VerticalAlignment="Center"
+                                   Margin="8,0,0,0"/>
+                        <TextBlock Text="{Binding RequiredQuantity, StringFormat=x {0}}"
+                                   Foreground="Gray"
+                                   VerticalAlignment="Center"
+                                   Margin="16,0,0,0"/>
+                    </StackPanel>
+                </HierarchicalDataTemplate>
+            </TreeView.Resources>
+        </TreeView>
+
+        <!-- ローディング -->
+        <Grid Grid.RowSpan="3"
+              Background="#80000000"
+              Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+            <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}"
+                         IsIndeterminate="True"
+                         Width="50" Height="50"/>
+        </Grid>
+    </Grid>
+</UserControl>

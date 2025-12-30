@@ -135,4 +135,14 @@ public class ItemService : IItemUseCase
 
         await _itemRepository.DeleteByCodeAsync(itemCode);
     }
+
+    public async Task<IReadOnlyList<Item>> SearchItemsAsync(string keyword)
+    {
+        if (string.IsNullOrWhiteSpace(keyword))
+        {
+            return await _itemRepository.FindAllAsync();
+        }
+
+        return await _itemRepository.SearchAsync(keyword);
+    }
 }
