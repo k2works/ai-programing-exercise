@@ -3,8 +3,12 @@
                     xmlns:converters="clr-namespace:ProductionManagement.WPF.Converters">
 
     <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    <converters:BoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" Invert="True"/>
     <converters:EnumDisplayNameConverter x:Key="EnumDisplayNameConverter"/>
     <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
     <converters:NullToVisibilityConverter x:Key="NullToVisibilityInvertConverter" Invert="True"/>
+
+    <!-- InverseBool用（IsEnabled等で使用） -->
+    <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
 
 </ResourceDictionary>

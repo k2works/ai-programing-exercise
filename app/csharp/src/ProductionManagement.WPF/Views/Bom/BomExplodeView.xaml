@@ -8,82 +8,172 @@
              xmlns:bomService="clr-namespace:ProductionManagement.Application.Services;assembly=ProductionManagement.Application"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=vm:BomExplodeViewModel}"
-             d:DesignHeight="600" d:DesignWidth="800">
+             d:DesignHeight="600" d:DesignWidth="1000">
 
-    <Grid Margin="16">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-        <!-- ヘッダー -->
-        <DockPanel Grid.Row="0" Margin="0,0,0,16">
-            <Button DockPanel.Dock="Left"
-                    Command="{Binding GoBackCommand}"
-                    Style="{StaticResource MaterialDesignIconButton}"
-                    ToolTip="戻る">
-                <materialDesign:PackIcon Kind="ArrowLeft"/>
-            </Button>
-            <TextBlock Text="BOM 展開"
-                       Style="{StaticResource MaterialDesignHeadline5TextBlock}"
-                       VerticalAlignment="Center"
-                       Margin="8,0,0,0"/>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="全展開"
-                        Command="{Binding ExpandAllCommand}"
-                        Style="{StaticResource MaterialDesignOutlinedButton}"
-                        Margin="0,0,8,0"/>
-                <Button Content="折りたたみ"
-                        Command="{Binding CollapseAllCommand}"
-                        Style="{StaticResource MaterialDesignOutlinedButton}"/>
-            </StackPanel>
-        </DockPanel>
+        <!-- 左パネル：親品目選択 -->
+        <Border Grid.Column="0" BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="0,0,1,0">
+            <Grid Margin="16">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-        <!-- 親品目情報 -->
-        <materialDesign:Card Grid.Row="1" Padding="16" Margin="0,0,0,16">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="{Binding RootItem.ItemCode}"
+                <!-- タイトル -->
+                <TextBlock Grid.Row="0"
+                           Text="親品目を選択"
                            Style="{StaticResource MaterialDesignHeadline6TextBlock}"
-                           Margin="0,0,16,0"/>
-                <TextBlock Text="{Binding RootItem.ItemName}"
-                           VerticalAlignment="Center"/>
-                <materialDesign:Chip Content="{Binding RootItem.ItemCategory, Converter={StaticResource EnumDisplayNameConverter}}"
-                                     Margin="16,0,0,0"/>
-            </StackPanel>
-        </materialDesign:Card>
+                           Margin="0,0,0,16"/>
 
-        <!-- BOM ツリー -->
-        <TreeView Grid.Row="2"
-                  ItemsSource="{Binding BomTree.Children}">
-            <TreeView.Resources>
-                <HierarchicalDataTemplate DataType="{x:Type bomService:BomNode}"
-                                          ItemsSource="{Binding Children}">
-                    <StackPanel Orientation="Horizontal" Margin="4">
-                        <materialDesign:Chip>
-                            <materialDesign:Chip.Content>
-                                <TextBlock Text="{Binding Level}" FontSize="10"/>
-                            </materialDesign:Chip.Content>
-                        </materialDesign:Chip>
-                        <Button Content="{Binding ItemCode}"
-                                Command="{Binding DataContext.ShowItemDetailCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
-                                CommandParameter="{Binding ItemCode}"
-                                Style="{StaticResource MaterialDesignFlatButton}"
-                                Margin="8,0,0,0"/>
-                        <TextBlock Text="{Binding ItemName}"
-                                   VerticalAlignment="Center"
-                                   Margin="8,0,0,0"/>
-                        <TextBlock Text="{Binding RequiredQuantity, StringFormat=x {0}}"
-                                   Foreground="Gray"
-                                   VerticalAlignment="Center"
-                                   Margin="16,0,0,0"/>
-                    </StackPanel>
-                </HierarchicalDataTemplate>
-            </TreeView.Resources>
-        </TreeView>
+                <!-- 検索 -->
+                <Grid Grid.Row="1" Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0"
+                             Text="{Binding SearchKeyword, UpdateSourceTrigger=PropertyChanged}"
+                             materialDesign:HintAssist.Hint="品目コード/品名で検索"
+                             Style="{StaticResource MaterialDesignOutlinedTextBox}">
+                        <TextBox.InputBindings>
+                            <KeyBinding Key="Enter" Command="{Binding SearchCommand}"/>
+                        </TextBox.InputBindings>
+                    </TextBox>
+                    <Button Grid.Column="1"
+                            Command="{Binding SearchCommand}"
+                            Style="{StaticResource MaterialDesignIconButton}"
+                            Margin="8,0,0,0">
+                        <materialDesign:PackIcon Kind="Magnify"/>
+                    </Button>
+                </Grid>
+
+                <!-- 品目一覧 -->
+                <ListBox Grid.Row="2"
+                         ItemsSource="{Binding Items}"
+                         SelectedItem="{Binding SelectedItem}"
+                         Style="{StaticResource MaterialDesignListBox}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="4">
+                                <TextBlock Text="{Binding ItemCode}"
+                                           Style="{StaticResource MaterialDesignSubtitle2TextBlock}"/>
+                                <TextBlock Text="{Binding ItemName}"
+                                           Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                           Foreground="Gray"/>
+                                <materialDesign:Chip Content="{Binding ItemCategory, Converter={StaticResource EnumDisplayNameConverter}}"
+                                                     Margin="0,4,0,0"
+                                                     FontSize="10"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+        </Border>
+
+        <!-- 右パネル：BOM 展開結果 -->
+        <Grid Grid.Column="1" Margin="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- ヘッダー -->
+            <DockPanel Grid.Row="0" Margin="0,0,0,16">
+                <TextBlock Text="BOM 展開"
+                           Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                           VerticalAlignment="Center"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                            Visibility="{Binding HasBomData, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Button Content="全展開"
+                            Command="{Binding ExpandAllCommand}"
+                            Style="{StaticResource MaterialDesignOutlinedButton}"
+                            Margin="0,0,8,0"/>
+                    <Button Content="折りたたみ"
+                            Command="{Binding CollapseAllCommand}"
+                            Style="{StaticResource MaterialDesignOutlinedButton}"/>
+                </StackPanel>
+            </DockPanel>
+
+            <!-- 選択された親品目情報 -->
+            <materialDesign:Card Grid.Row="1" Padding="16" Margin="0,0,0,16"
+                                 Visibility="{Binding RootItem, Converter={StaticResource NullToVisibilityConverter}}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding RootItem.ItemCode}"
+                               Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                               Margin="0,0,16,0"/>
+                    <TextBlock Text="{Binding RootItem.ItemName}"
+                               VerticalAlignment="Center"/>
+                    <materialDesign:Chip Content="{Binding RootItem.ItemCategory, Converter={StaticResource EnumDisplayNameConverter}}"
+                                         Margin="16,0,0,0"/>
+                </StackPanel>
+            </materialDesign:Card>
+
+            <!-- BOM ツリー -->
+            <Grid Grid.Row="2">
+                <!-- BOM データがある場合 -->
+                <TreeView ItemsSource="{Binding BomTree.Children}"
+                          Visibility="{Binding HasBomData, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <TreeView.Resources>
+                        <HierarchicalDataTemplate DataType="{x:Type bomService:BomNode}"
+                                                  ItemsSource="{Binding Children}">
+                            <StackPanel Orientation="Horizontal" Margin="4">
+                                <materialDesign:Chip>
+                                    <materialDesign:Chip.Content>
+                                        <TextBlock Text="{Binding Level}" FontSize="10"/>
+                                    </materialDesign:Chip.Content>
+                                </materialDesign:Chip>
+                                <Button Content="{Binding ItemCode}"
+                                        Command="{Binding DataContext.ShowItemDetailCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"
+                                        CommandParameter="{Binding ItemCode}"
+                                        Style="{StaticResource MaterialDesignFlatButton}"
+                                        Margin="8,0,0,0"/>
+                                <TextBlock Text="{Binding ItemName}"
+                                           VerticalAlignment="Center"
+                                           Margin="8,0,0,0"/>
+                                <TextBlock Text="{Binding RequiredQuantity, StringFormat=x {0}}"
+                                           Foreground="Gray"
+                                           VerticalAlignment="Center"
+                                           Margin="16,0,0,0"/>
+                            </StackPanel>
+                        </HierarchicalDataTemplate>
+                    </TreeView.Resources>
+                </TreeView>
+
+                <!-- 品目未選択の場合 -->
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                            Visibility="{Binding RootItem, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter=Inverse}">
+                    <materialDesign:PackIcon Kind="FileTreeOutline" Width="64" Height="64"
+                                             Foreground="Gray" HorizontalAlignment="Center"/>
+                    <TextBlock Text="左のリストから親品目を選択してください"
+                               Style="{StaticResource MaterialDesignBody1TextBlock}"
+                               Foreground="Gray"
+                               Margin="0,16,0,0"/>
+                </StackPanel>
+
+                <!-- BOM データがない場合 -->
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                            Visibility="{Binding HasBomData, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                    <materialDesign:PackIcon Kind="AlertCircleOutline" Width="64" Height="64"
+                                             Foreground="Gray" HorizontalAlignment="Center"
+                                             Visibility="{Binding RootItem, Converter={StaticResource NullToVisibilityConverter}}"/>
+                    <TextBlock Text="この品目には BOM が登録されていません"
+                               Style="{StaticResource MaterialDesignBody1TextBlock}"
+                               Foreground="Gray"
+                               Margin="0,16,0,0"
+                               Visibility="{Binding RootItem, Converter={StaticResource NullToVisibilityConverter}}"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
 
         <!-- ローディング -->
-        <Grid Grid.RowSpan="3"
+        <Grid Grid.ColumnSpan="2"
               Background="#80000000"
               Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
             <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}"

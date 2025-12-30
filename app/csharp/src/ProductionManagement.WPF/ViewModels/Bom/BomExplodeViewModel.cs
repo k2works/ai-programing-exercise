@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ProductionManagement.Application.Port.In;
@@ -28,11 +29,25 @@ public partial class BomExplodeViewModel : ObservableObject
         _navigationService = navigationService;
         _dialogService = dialogService;
 
+        // パラメータがあれば直接読み込み、なければ品目一覧を読み込み
         if (navigationService is NavigationService nav && nav.CurrentParameter is string itemCode)
         {
             _ = LoadAsync(itemCode);
         }
+        else
+        {
+            _ = LoadItemsAsync();
+        }
     }
+
+    [ObservableProperty]
+    private ObservableCollection<Item> _items = [];
+
+    [ObservableProperty]
+    private Item? _selectedItem;
+
+    [ObservableProperty]
+    private string _searchKeyword = string.Empty;
 
     [ObservableProperty]
     private Item? _rootItem;
@@ -44,10 +59,88 @@ public partial class BomExplodeViewModel : ObservableObject
     private bool _isLoading;
 
     [ObservableProperty]
+    private bool _hasBomData;
+
+    [ObservableProperty]
     private int _expandLevel = 99;
 
+    partial void OnSelectedItemChanged(Item? value)
+    {
+        if (value != null)
+        {
+            _ = LoadAsync(value.ItemCode);
+        }
+        else
+        {
+            RootItem = null;
+            BomTree = null;
+            HasBomData = false;
+        }
+    }
+
     /// <summary>
-    /// データ読み込み
+    /// 品目一覧を読み込み（製品・半製品のみ）
+    /// </summary>
+    private async Task LoadItemsAsync()
+    {
+        try
+        {
+            IsLoading = true;
+
+            var allItems = await _itemUseCase.GetAllItemsAsync();
+
+            // 製品・半製品のみフィルタ（BOMを持つ可能性のある品目）
+            var filteredItems = allItems
+                .Where(i => i.ItemCategory == ItemCategory.Product ||
+                           i.ItemCategory == ItemCategory.SemiProduct)
+                .OrderBy(i => i.ItemCode)
+                .ToList();
+
+            Items = new ObservableCollection<Item>(filteredItems);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    /// <summary>
+    /// キーワード検索
+    /// </summary>
+    [RelayCommand]
+    private async Task SearchAsync()
+    {
+        try
+        {
+            IsLoading = true;
+
+            IReadOnlyList<Item> items;
+            if (string.IsNullOrWhiteSpace(SearchKeyword))
+            {
+                items = await _itemUseCase.GetAllItemsAsync();
+            }
+            else
+            {
+                items = await _itemUseCase.SearchItemsAsync(SearchKeyword);
+            }
+
+            // 製品・半製品のみフィルタ
+            var filteredItems = items
+                .Where(i => i.ItemCategory == ItemCategory.Product ||
+                           i.ItemCategory == ItemCategory.SemiProduct)
+                .OrderBy(i => i.ItemCode)
+                .ToList();
+
+            Items = new ObservableCollection<Item>(filteredItems);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    /// <summary>
+    /// BOM 展開データ読み込み
     /// </summary>
     public async Task LoadAsync(string itemCode)
     {
@@ -57,11 +150,18 @@ public partial class BomExplodeViewModel : ObservableObject
 
             RootItem = await _itemUseCase.GetItemByCodeAsync(itemCode);
             BomTree = await _bomService.ExplodeBomAsync(itemCode);
+            HasBomData = BomTree?.Children.Count > 0;
+
+            // 選択状態を同期
+            if (SelectedItem?.ItemCode != itemCode)
+            {
+                SelectedItem = Items.FirstOrDefault(i => i.ItemCode == itemCode);
+            }
         }
         catch (Exception ex)
         {
             await _dialogService.ShowErrorAsync("エラー", ex.Message);
-            _navigationService.GoBack();
+            HasBomData = false;
         }
         finally
         {
