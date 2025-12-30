@@ -1,0 +1,143 @@
+syntax = "proto3";
+
+package production;
+
+import "common.proto";
+
+option csharp_namespace = "ProductionManagement.Grpc.Protos";
+
+// MRP 実行フェーズ
+enum MrpPhase {
+  MRP_PHASE_UNSPECIFIED = 0;
+  INITIALIZING = 1;         // 初期化中
+  EXPLODING_BOM = 2;        // BOM展開中
+  CALCULATING_REQUIREMENTS = 3; // 所要量計算中
+  ALLOCATING_INVENTORY = 4; // 在庫引当中
+  CREATING_ORDERS = 5;      // オーダ生成中
+  MRP_COMPLETED = 6;        // 完了
+}
+
+// オーダ種別
+enum OrderType {
+  ORDER_TYPE_UNSPECIFIED = 0;
+  PURCHASE = 1;             // 購買オーダ
+  MANUFACTURE = 2;          // 製造オーダ
+}
+
+// オーダステータス
+enum PlanStatus {
+  PLAN_STATUS_UNSPECIFIED = 0;
+  DRAFT = 1;                // 草案
+  CONFIRMED = 2;            // 確定
+  IN_PROGRESS = 3;          // 進行中
+  PLAN_COMPLETED = 4;       // 完了
+  CANCELLED = 5;            // 取消
+}
+
+// 所要情報メッセージ
+message RequirementMessage {
+  int32 id = 1;
+  string requirement_number = 2;
+  int32 order_id = 3;
+  string item_code = 4;
+  Date due_date = 5;
+  Decimal required_quantity = 6;
+  Decimal allocated_quantity = 7;
+  Decimal shortage_quantity = 8;
+  string location_code = 9;
+}
+
+// 計画オーダメッセージ
+message PlannedOrderMessage {
+  int32 id = 1;
+  string order_number = 2;
+  OrderType order_type = 3;
+  string item_code = 4;
+  Date start_date = 5;
+  Date due_date = 6;
+  Decimal plan_quantity = 7;
+  string location_code = 8;
+  PlanStatus status = 9;
+}
+
+// MRP 実行リクエスト
+message ExecuteMrpRequest {
+  Date start_date = 1;
+  Date end_date = 2;
+  string item_code = 3;      // オプション：特定品目のみ実行
+  string location_code = 4;  // オプション：特定場所のみ実行
+}
+
+// MRP 進捗メッセージ（ストリーミング用）
+message MrpProgressMessage {
+  MrpPhase phase = 1;
+  int32 current = 2;
+  int32 total = 3;
+  string message = 4;
+  string item_code = 5;      // 現在処理中の品目
+}
+
+// MRP 実行結果メッセージ
+message MrpResultMessage {
+  bool success = 1;
+  int32 requirements_created = 2;
+  int32 orders_created = 3;
+  int32 allocations_made = 4;
+  Decimal total_shortage_quantity = 5;
+  repeated RequirementMessage requirements = 6;
+  repeated PlannedOrderMessage planned_orders = 7;
+  string error_message = 8;
+}
+
+// 所要量展開リクエスト
+message ExplodeRequirementsRequest {
+  int32 order_id = 1;
+}
+
+// 所要量展開レスポンス
+message ExplodeRequirementsResponse {
+  repeated RequirementMessage requirements = 1;
+}
+
+// 在庫引当リクエスト
+message AllocateFromInventoryRequest {
+  int32 requirement_id = 1;
+  Decimal inventory_quantity = 2;
+}
+
+// 引当情報メッセージ
+message AllocationMessage {
+  int32 id = 1;
+  int32 requirement_id = 2;
+  string allocation_type = 3;  // Inventory, Order, etc.
+  Date allocation_date = 4;
+  Decimal allocated_quantity = 5;
+  string location_code = 6;
+}
+
+// 不足オーダ生成リクエスト
+message CreateShortageOrderRequest {
+  string item_code = 1;
+  Decimal shortage_quantity = 2;
+  Date due_date = 3;
+  string location_code = 4;
+  OrderType order_type = 5;
+}
+
+// MRP サービス
+service MrpGrpcService {
+  // MRP 実行（Server Streaming - 進捗通知）
+  rpc ExecuteMrp(ExecuteMrpRequest) returns (stream MrpProgressMessage);
+
+  // MRP 実行（同期 - 結果のみ）
+  rpc ExecuteMrpSync(ExecuteMrpRequest) returns (MrpResultMessage);
+
+  // 所要量展開
+  rpc ExplodeRequirements(ExplodeRequirementsRequest) returns (ExplodeRequirementsResponse);
+
+  // 在庫引当
+  rpc AllocateFromInventory(AllocateFromInventoryRequest) returns (AllocationMessage);
+
+  // 不足オーダ生成
+  rpc CreateShortageOrder(CreateShortageOrderRequest) returns (PlannedOrderMessage);
+}

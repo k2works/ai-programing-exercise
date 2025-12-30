@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+package production;
+
+import "common.proto";
+
+option csharp_namespace = "ProductionManagement.Grpc.Protos";
+
+// 発注ステータス
+enum PurchaseOrderStatus {
+  PURCHASE_ORDER_STATUS_UNSPECIFIED = 0;
+  CREATING = 1;          // 作成中
+  ORDERED = 2;           // 発注済
+  PARTIALLY_RECEIVED = 3; // 一部入荷
+  RECEIVED = 4;          // 入荷完了
+  ACCEPTED = 5;          // 検収完了
+  CANCELLED = 6;         // 取消
+}
+
+// 発注ヘッダ
+message PurchaseOrderMessage {
+  string purchase_order_number = 1;
+  string supplier_code = 2;
+  Date order_date = 3;
+  PurchaseOrderStatus status = 4;
+  repeated PurchaseOrderDetailMessage details = 5;
+  string remarks = 6;
+}
+
+// 発注明細
+message PurchaseOrderDetailMessage {
+  int32 line_number = 1;
+  string item_code = 2;
+  Decimal order_quantity = 3;
+  Decimal order_unit_price = 4;
+  Date expected_receiving_date = 5;
+  Decimal received_quantity = 6;
+  Decimal order_amount = 7;
+  bool completed_flag = 8;
+}
+
+// リクエスト
+message GetPurchaseOrderRequest {
+  string purchase_order_number = 1;
+}
+
+message GetPurchaseOrdersRequest {
+  PurchaseOrderStatus status = 1;
+  PageRequest page = 2;
+}
+
+message GetPurchaseOrdersResponse {
+  repeated PurchaseOrderMessage orders = 1;
+  PageResponse page = 2;
+}
+
+message CreatePurchaseOrderRequest {
+  string supplier_code = 1;
+  repeated CreatePurchaseOrderDetailRequest details = 2;
+  string remarks = 3;
+}
+
+message CreatePurchaseOrderDetailRequest {
+  string item_code = 1;
+  Decimal order_quantity = 2;
+  Decimal order_unit_price = 3;
+  Date expected_receiving_date = 4;
+}
+
+message ConfirmPurchaseOrderRequest {
+  string purchase_order_number = 1;
+}
+
+message CancelPurchaseOrderRequest {
+  string purchase_order_number = 1;
+}
+
+// 発注サービス
+service PurchaseOrderGrpcService {
+  // 発注取得（Unary）
+  rpc GetOrder(GetPurchaseOrderRequest) returns (PurchaseOrderMessage);
+
+  // 発注一覧（Server Streaming）
+  rpc StreamOrders(GetPurchaseOrdersRequest) returns (stream PurchaseOrderMessage);
+
+  // 発注作成（Unary）
+  rpc CreateOrder(CreatePurchaseOrderRequest) returns (PurchaseOrderMessage);
+
+  // 発注確定（Unary）
+  rpc ConfirmOrder(ConfirmPurchaseOrderRequest) returns (PurchaseOrderMessage);
+
+  // 発注取消（Unary）
+  rpc CancelOrder(CancelPurchaseOrderRequest) returns (Empty);
+}

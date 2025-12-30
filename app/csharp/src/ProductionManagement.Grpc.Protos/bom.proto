@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package production;
+
+import "common.proto";
+
+option csharp_namespace = "ProductionManagement.Grpc.Protos";
+
+// BOM ノードメッセージ
+message BomNodeMessage {
+  string item_code = 1;
+  string item_name = 2;
+  Decimal required_quantity = 3;
+  int32 level = 4;
+  repeated BomNodeMessage children = 5;
+}
+
+// 使用先照会結果
+message WhereUsedResultMessage {
+  string parent_item_code = 1;
+  string item_name = 2;
+  Decimal required_quantity = 3;
+}
+
+// リクエスト
+message ExplodeBomRequest {
+  string item_code = 1;
+}
+
+message WhereUsedRequest {
+  string item_code = 1;
+}
+
+message WhereUsedResponse {
+  repeated WhereUsedResultMessage results = 1;
+}
+
+// BOM サービス
+service BomService {
+  // 部品展開（Server Streaming）
+  rpc ExplodeBom(ExplodeBomRequest) returns (stream BomNodeMessage);
+
+  // 使用先照会（Unary）
+  rpc WhereUsed(WhereUsedRequest) returns (WhereUsedResponse);
+}

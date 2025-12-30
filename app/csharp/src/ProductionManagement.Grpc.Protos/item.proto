@@ -1,0 +1,113 @@
+syntax = "proto3";
+
+package production;
+
+import "common.proto";
+
+option csharp_namespace = "ProductionManagement.Grpc.Protos";
+
+// 品目区分
+enum ItemCategory {
+  ITEM_CATEGORY_UNSPECIFIED = 0;
+  PRODUCT = 1;        // 製品
+  SEMI_PRODUCT = 2;   // 半製品
+  INTERMEDIATE = 3;   // 中間品
+  PART = 4;           // 部品
+  MATERIAL = 5;       // 材料
+  RAW_MATERIAL = 6;   // 原料
+  SUPPLY = 7;         // 資材
+}
+
+// 品目メッセージ
+message ItemMessage {
+  int32 id = 1;
+  string item_code = 2;
+  Date effective_from = 3;
+  Date effective_to = 4;
+  string item_name = 5;
+  ItemCategory category = 6;
+  string unit_code = 7;
+  int32 lead_time = 8;
+  int32 safety_lead_time = 9;
+  Decimal safety_stock = 10;
+  Decimal yield_rate = 11;
+  Decimal min_lot_size = 12;
+  Decimal lot_increment = 13;
+  Decimal max_lot_size = 14;
+  int32 shelf_life = 15;
+}
+
+// リクエスト/レスポンス
+message GetItemRequest {
+  string item_code = 1;
+}
+
+message GetItemsRequest {
+  ItemCategory category = 1;  // optional filter
+  PageRequest page = 2;
+}
+
+message GetItemsResponse {
+  repeated ItemMessage items = 1;
+  PageResponse page = 2;
+}
+
+message CreateItemRequest {
+  string item_code = 1;
+  string item_name = 2;
+  ItemCategory category = 3;
+  string unit_code = 4;
+  int32 lead_time = 5;
+  int32 safety_lead_time = 6;
+  Decimal safety_stock = 7;
+  Decimal yield_rate = 8;
+  Decimal min_lot_size = 9;
+  Decimal lot_increment = 10;
+  Decimal max_lot_size = 11;
+  int32 shelf_life = 12;
+}
+
+message UpdateItemRequest {
+  string item_code = 1;
+  string item_name = 2;
+  ItemCategory category = 3;
+  string unit_code = 4;
+  int32 lead_time = 5;
+  int32 safety_lead_time = 6;
+  Decimal safety_stock = 7;
+  Decimal yield_rate = 8;
+  Decimal min_lot_size = 9;
+  Decimal lot_increment = 10;
+  Decimal max_lot_size = 11;
+  int32 shelf_life = 12;
+}
+
+message DeleteItemRequest {
+  string item_code = 1;
+}
+
+message SearchItemsRequest {
+  string keyword = 1;
+}
+
+message BatchCreateResponse {
+  int32 success_count = 1;
+  int32 failed_count = 2;
+  repeated string failed_codes = 3;
+}
+
+// 品目サービス
+service ItemService {
+  // Unary RPC
+  rpc GetItem(GetItemRequest) returns (ItemMessage);
+  rpc CreateItem(CreateItemRequest) returns (ItemMessage);
+  rpc UpdateItem(UpdateItemRequest) returns (ItemMessage);
+  rpc DeleteItem(DeleteItemRequest) returns (Empty);
+  rpc SearchItems(SearchItemsRequest) returns (GetItemsResponse);
+
+  // Server Streaming - 品目一覧のストリーム配信
+  rpc StreamItems(GetItemsRequest) returns (stream ItemMessage);
+
+  // Client Streaming - バッチ登録
+  rpc BatchCreateItems(stream CreateItemRequest) returns (BatchCreateResponse);
+}
