@@ -53,6 +53,8 @@ public partial class App : System.Windows.Application
         services.AddTransient<IBomRepository>(_ => new BomRepository(connectionString));
         services.AddTransient<ISupplierRepository>(_ => new SupplierRepository(connectionString));
         services.AddTransient<IPurchaseOrderRepository>(_ => new PurchaseOrderRepository(connectionString));
+        services.AddTransient<IPurchaseOrderDetailRepository>(_ => new PurchaseOrderDetailRepository(connectionString));
+        services.AddTransient<IUnitPriceRepository>(_ => new UnitPriceRepository(connectionString));
         services.AddTransient<IWorkOrderRepository>(_ => new WorkOrderRepository(connectionString));
         services.AddTransient<IStockRepository>(_ => new StockRepository(connectionString));
 
