@@ -59,7 +59,6 @@
                 <ComboBox Grid.Column="1"
                           ItemsSource="{Binding Suppliers}"
                           SelectedItem="{Binding SelectedSupplier}"
-                          DisplayMemberPath="SupplierName"
                           materialDesign:HintAssist.Hint="取引先 *"
                           Style="{StaticResource MaterialDesignOutlinedComboBox}"
                           IsEnabled="{Binding CanEditHeader}"
