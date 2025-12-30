@@ -18,6 +18,7 @@ AIプログラミングの実践的な学習と開発のためのプロジェク
 | Docker       | 最新     | 開発環境の構築に必要 |
 | Docker Compose | 最新   | 複数コンテナの管理に必要 |
 | Git          | 最新     | バージョン管理に必要 |
+| Node.js      | 22+     | npm スクリプト実行に必要 |
 
 ## 構成
 
@@ -38,12 +39,17 @@ AIプログラミングの実践的な学習と開発のためのプロジェク
    cd ai-programing-exercise
    ```
 
-2. Dockerコンテナを起動
+2. 依存関係をインストール
+   ```
+   npm install
+   ```
+
+3. Dockerコンテナを起動
    ```
    docker-compose up -d
    ```
 
-3. ドキュメントサイトにアクセス
+4. ドキュメントサイトにアクセス
    ```
    http://localhost:8000
    ```
@@ -58,6 +64,7 @@ AIプログラミングの実践的な学習と開発のためのプロジェク
 - **AI開発ツール**:
   - Claude Code (@anthropic-ai/claude-code)
   - Gemini CLI (@google/gemini-cli)
+  - Claude Code Booster (@k2works/claude-code-booster)
 - **ドキュメント環境**:
   - MkDocs (Python 3.11ベース)
   - Material for MkDocsテーマ
@@ -67,30 +74,36 @@ AIプログラミングの実践的な学習と開発のためのプロジェク
 
 ```
 ai-programing-exercise/
-├── .claude/                # Claude Code設定
-├── .devcontainer/          # Dev Container設定
-├── .github/                # GitHub Actions設定
-├── app/                    # アプリケーションコード
-├── db/                     # データベース関連
-├── docs/                   # ドキュメントディレクトリ
-│   ├── adr/                # アーキテクチャ決定記録
-│   ├── assets/             # CSS/JSアセット
-│   ├── design/             # 設計ドキュメント
-│   ├── development/        # 開発ガイド
-│   ├── operation/          # 運用ドキュメント
-│   ├── reference/          # リファレンス
-│   ├── requirements/       # 要件定義
-│   ├── template/           # テンプレート
-│   ├── Dockerfile          # MkDocs用Dockerfile
-│   └── index.md            # メインドキュメントページ
-├── scripts/                # ユーティリティスクリプト
-├── CLAUDE.md               # Claude Code用プロジェクト設定
-├── Dockerfile              # 開発環境のDockerfile
-├── docker-compose.yml      # Docker Compose設定
-├── gulpfile.js             # Gulpタスク定義
-├── mkdocs.yml              # MkDocs設定ファイル
-├── package.json            # Node.js依存関係
-└── README.md               # このファイル
+├── .devcontainer/              # Dev Container 設定
+├── .github/                    # GitHub Actions 設定
+├── apps/                       # アプリケーションコード
+├── docs/                       # ドキュメントディレクトリ
+│   ├── adr/                    # アーキテクチャ決定記録
+│   ├── assets/                 # CSS/JS アセット
+│   ├── design/                 # 設計ドキュメント
+│   ├── development/            # 開発ガイド
+│   ├── operation/              # 運用ドキュメント
+│   ├── reference/              # リファレンスガイド
+│   │   ├── よいソフトウェアとは.md
+│   │   ├── 開発ガイド.md
+│   │   ├── 要件定義ガイド.md
+│   │   ├── アーキテクチャ設計ガイド.md
+│   │   ├── テスト戦略ガイド.md
+│   │   └── ... その他のガイド
+│   ├── requirements/           # 要件定義
+│   ├── template/               # テンプレート
+│   ├── Dockerfile              # MkDocs 用 Dockerfile
+│   └── index.md                # メインドキュメントページ
+├── ops/                        # 運用・インフラ設定
+│   ├── docker/                 # Docker 関連設定
+│   └── scripts/                # 運用スクリプト
+├── CLAUDE.md                   # Claude Code 用プロジェクト設定
+├── Dockerfile                  # 開発環境の Dockerfile
+├── docker-compose.yml          # Docker Compose 設定
+├── gulpfile.js                 # Gulp タスク定義
+├── mkdocs.yml                  # MkDocs 設定ファイル
+├── package.json                # Node.js 依存関係
+└── README.md                   # このファイル
 ```
 
 **[⬆ back to top](#構成)**
@@ -140,9 +153,17 @@ ai-programing-exercise/
    git push
    ```
 
-#### Gulpタスクの使用
+#### npm スクリプト
 
-プロジェクトには以下のGulpタスクが用意されています：
+| コマンド | 説明 |
+|---------|------|
+| `npm run docs:serve` | MkDocs サーバーを起動 |
+| `npm run docs:stop` | MkDocs サーバーを停止 |
+| `npm run docs:build` | MkDocs ドキュメントをビルド |
+| `npm run journal` | 作業履歴（ジャーナル）を生成 |
+| `npm run claude:yol` | Claude Code を権限スキップモードで起動 |
+
+#### Gulpタスクの使用
 
 ##### MkDocsタスク
 
@@ -244,6 +265,24 @@ VS Code で Dev Container を使用する場合：
 
 ### 開発
 
+#### リファレンスガイド
+
+`docs/reference/` ディレクトリには開発に必要なガイドドキュメントが含まれています：
+
+- **よいソフトウェアとは.md** - ソフトウェア品質の定義と原則
+- **開発ガイド.md** - 開発ライフサイクルとプロセス
+- **要件定義ガイド.md** - RDRA による要件定義
+- **アーキテクチャ設計ガイド.md** - システムアーキテクチャ設計
+- **テスト戦略ガイド.md** - テスト戦略と実践
+- **コーディングとテストガイド.md** - TDD とコーディング規約
+- **エクストリームプログラミング.md** - XP プラクティス
+
 **[⬆ back to top](#構成)**
 
 ## 参照
+
+- [Claude Code ドキュメント](https://docs.anthropic.com/claude-code)
+- [MkDocs ドキュメント](https://www.mkdocs.org/)
+- [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/)
+- [GitHub Pages](https://pages.github.com/)
+- [Claude Code Booster](https://github.com/k2works/claude-code-booster)
