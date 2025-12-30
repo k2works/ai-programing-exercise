@@ -11,4 +11,7 @@
     <!-- InverseBool用（IsEnabled等で使用） -->
     <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
 
+    <!-- 複数条件用 -->
+    <converters:AllTrueConverter x:Key="AllTrueConverter"/>
+
 </ResourceDictionary>

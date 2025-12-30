@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using ProductionManagement.WPF.Services;
 using ProductionManagement.WPF.ViewModels.Bom;
 using ProductionManagement.WPF.ViewModels.Items;
+using ProductionManagement.WPF.ViewModels.PurchaseOrders;
 using ProductionManagement.WPF.ViewModels.Suppliers;
 
 namespace ProductionManagement.WPF.ViewModels;
@@ -68,6 +69,12 @@ public partial class MainViewModel : ObservableObject
         _navigationService.NavigateTo("SupplierList");
     }
 
+    [RelayCommand]
+    private void NavigateToPurchaseOrderList()
+    {
+        _navigationService.NavigateTo("PurchaseOrderList");
+    }
+
     private void OnNavigationRequested(object? sender, string viewName)
     {
         CurrentView = CreateViewModel(viewName);
@@ -91,6 +98,8 @@ public partial class MainViewModel : ObservableObject
             "SupplierList" => _serviceProvider.GetRequiredService<SupplierListViewModel>(),
             "SupplierDetail" => _serviceProvider.GetRequiredService<SupplierDetailViewModel>(),
             "SupplierEdit" => _serviceProvider.GetRequiredService<SupplierEditViewModel>(),
+            "PurchaseOrderList" => _serviceProvider.GetRequiredService<PurchaseOrderListViewModel>(),
+            "PurchaseOrderEdit" => _serviceProvider.GetRequiredService<PurchaseOrderEditViewModel>(),
             _ => null
         };
     }
@@ -106,6 +115,8 @@ public partial class MainViewModel : ObservableObject
             "SupplierList" => "取引先一覧",
             "SupplierDetail" => "取引先詳細",
             "SupplierEdit" => "取引先登録/編集",
+            "PurchaseOrderList" => "発注一覧",
+            "PurchaseOrderEdit" => "発注登録/編集",
             _ => viewName
         };
     }

@@ -3,9 +3,11 @@
                     xmlns:itemVm="clr-namespace:ProductionManagement.WPF.ViewModels.Items"
                     xmlns:bomVm="clr-namespace:ProductionManagement.WPF.ViewModels.Bom"
                     xmlns:supplierVm="clr-namespace:ProductionManagement.WPF.ViewModels.Suppliers"
+                    xmlns:purchaseOrderVm="clr-namespace:ProductionManagement.WPF.ViewModels.PurchaseOrders"
                     xmlns:itemViews="clr-namespace:ProductionManagement.WPF.Views.Items"
                     xmlns:bomViews="clr-namespace:ProductionManagement.WPF.Views.Bom"
-                    xmlns:supplierViews="clr-namespace:ProductionManagement.WPF.Views.Suppliers">
+                    xmlns:supplierViews="clr-namespace:ProductionManagement.WPF.Views.Suppliers"
+                    xmlns:purchaseOrderViews="clr-namespace:ProductionManagement.WPF.Views.PurchaseOrders">
 
     <!-- 品目マスタ ViewModel - View マッピング -->
     <DataTemplate DataType="{x:Type itemVm:ItemListViewModel}">
@@ -36,6 +38,15 @@
 
     <DataTemplate DataType="{x:Type supplierVm:SupplierEditViewModel}">
         <supplierViews:SupplierEditView/>
+    </DataTemplate>
+
+    <!-- 発注 ViewModel - View マッピング -->
+    <DataTemplate DataType="{x:Type purchaseOrderVm:PurchaseOrderListViewModel}">
+        <purchaseOrderViews:PurchaseOrderListView/>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type purchaseOrderVm:PurchaseOrderEditViewModel}">
+        <purchaseOrderViews:PurchaseOrderEditView/>
     </DataTemplate>
 
 </ResourceDictionary>
