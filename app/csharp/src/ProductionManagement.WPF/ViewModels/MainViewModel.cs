@@ -10,6 +10,7 @@ using ProductionManagement.WPF.ViewModels.Inventory;
 using ProductionManagement.WPF.ViewModels.Suppliers;
 using ProductionManagement.WPF.ViewModels.WorkOrders;
 using ProductionManagement.WPF.ViewModels.Reports;
+using ProductionManagement.WPF.ViewModels.Grpc;
 
 namespace ProductionManagement.WPF.ViewModels;
 
@@ -109,6 +110,9 @@ public partial class MainViewModel : ObservableObject
             "WorkOrderList" => _serviceProvider.GetRequiredService<WorkOrderListViewModel>(),
             "StockList" => _serviceProvider.GetRequiredService<StockListViewModel>(),
             "ReportList" => _serviceProvider.GetRequiredService<ReportListViewModel>(),
+            "GrpcItemList" => _serviceProvider.GetRequiredService<GrpcItemListViewModel>(),
+            "GrpcBomExplode" => _serviceProvider.GetRequiredService<GrpcBomExplodeViewModel>(),
+            "GrpcMrp" => _serviceProvider.GetRequiredService<GrpcMrpViewModel>(),
             _ => null
         };
     }
@@ -131,6 +135,9 @@ public partial class MainViewModel : ObservableObject
             "WorkOrderList" => "作業指示一覧",
             "StockList" => "在庫照会",
             "ReportList" => "帳票出力",
+            "GrpcItemList" => "品目マスタ (gRPC)",
+            "GrpcBomExplode" => "BOM 展開 (gRPC)",
+            "GrpcMrp" => "MRP 実行 (gRPC)",
             _ => viewName
         };
     }

@@ -19,6 +19,7 @@ using ProductionManagement.WPF.ViewModels.Planning;
 using ProductionManagement.WPF.ViewModels.Suppliers;
 using ProductionManagement.WPF.ViewModels.WorkOrders;
 using ProductionManagement.WPF.ViewModels.Reports;
+using ProductionManagement.WPF.ViewModels.Grpc;
 
 namespace ProductionManagement.WPF;
 
@@ -28,6 +29,14 @@ namespace ProductionManagement.WPF;
 public partial class App : System.Windows.Application
 {
     private readonly IHost _host;
+    private bool _isHandlingException;
+
+    static App()
+    {
+        // HTTP/2 非暗号化サポートを有効化（gRPC で HTTP を使用するために必要）
+        // 静的コンストラクタで最初に設定する必要がある
+        AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
+    }
 
     public App()
     {
@@ -85,6 +94,10 @@ public partial class App : System.Windows.Application
         services.AddSingleton<IDialogService, DialogService>();
         services.AddSingleton<IReportService, ExcelReportService>();
 
+        // gRPC Services
+        services.AddSingleton<IGrpcChannelFactory>(sp =>
+            new GrpcChannelFactory(configuration));
+
         // ViewModels
         services.AddTransient<MainViewModel>();
         services.AddTransient<ItemListViewModel>();
@@ -101,6 +114,11 @@ public partial class App : System.Windows.Application
         services.AddTransient<WorkOrderListViewModel>();
         services.AddTransient<StockListViewModel>();
         services.AddTransient<ReportListViewModel>();
+
+        // gRPC ViewModels
+        services.AddTransient<GrpcItemListViewModel>();
+        services.AddTransient<GrpcBomExplodeViewModel>();
+        services.AddTransient<GrpcMrpViewModel>();
 
         // Main Window
         services.AddSingleton<MainWindow>();
@@ -126,17 +144,33 @@ public partial class App : System.Windows.Application
     /// </summary>
     private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
-        var message = GetUserFriendlyMessage(e.Exception);
-        LogException(e.Exception);
+        // 再帰的な例外処理を防止
+        if (_isHandlingException)
+        {
+            e.Handled = true;
+            return;
+        }
 
-        MessageBox.Show(
-            message,
-            "エラー",
-            MessageBoxButton.OK,
-            MessageBoxImage.Error);
+        try
+        {
+            _isHandlingException = true;
 
-        // 回復可能な例外の場合はアプリ継続
-        e.Handled = IsRecoverableException(e.Exception);
+            var message = GetUserFriendlyMessage(e.Exception);
+            LogException(e.Exception);
+
+            MessageBox.Show(
+                message,
+                "エラー",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+
+            // 回復可能な例外の場合はアプリ継続
+            e.Handled = IsRecoverableException(e.Exception);
+        }
+        finally
+        {
+            _isHandlingException = false;
+        }
     }
 
     /// <summary>

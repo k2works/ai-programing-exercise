@@ -8,6 +8,7 @@
                     xmlns:workOrderVm="clr-namespace:ProductionManagement.WPF.ViewModels.WorkOrders"
                     xmlns:inventoryVm="clr-namespace:ProductionManagement.WPF.ViewModels.Inventory"
                     xmlns:reportsVm="clr-namespace:ProductionManagement.WPF.ViewModels.Reports"
+                    xmlns:grpcVm="clr-namespace:ProductionManagement.WPF.ViewModels.Grpc"
                     xmlns:itemViews="clr-namespace:ProductionManagement.WPF.Views.Items"
                     xmlns:bomViews="clr-namespace:ProductionManagement.WPF.Views.Bom"
                     xmlns:supplierViews="clr-namespace:ProductionManagement.WPF.Views.Suppliers"
@@ -15,7 +16,8 @@
                     xmlns:planningViews="clr-namespace:ProductionManagement.WPF.Views.Planning"
                     xmlns:workOrderViews="clr-namespace:ProductionManagement.WPF.Views.WorkOrders"
                     xmlns:inventoryViews="clr-namespace:ProductionManagement.WPF.Views.Inventory"
-                    xmlns:reportsViews="clr-namespace:ProductionManagement.WPF.Views.Reports">
+                    xmlns:reportsViews="clr-namespace:ProductionManagement.WPF.Views.Reports"
+                    xmlns:grpcViews="clr-namespace:ProductionManagement.WPF.Views.Grpc">
 
     <!-- 品目マスタ ViewModel - View マッピング -->
     <DataTemplate DataType="{x:Type itemVm:ItemListViewModel}">
@@ -79,6 +81,19 @@
     <!-- 帳票 ViewModel - View マッピング -->
     <DataTemplate DataType="{x:Type reportsVm:ReportListViewModel}">
         <reportsViews:ReportListView/>
+    </DataTemplate>
+
+    <!-- gRPC ViewModel - View マッピング -->
+    <DataTemplate DataType="{x:Type grpcVm:GrpcMrpViewModel}">
+        <grpcViews:GrpcMrpView/>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type grpcVm:GrpcItemListViewModel}">
+        <grpcViews:GrpcItemListView/>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type grpcVm:GrpcBomExplodeViewModel}">
+        <grpcViews:GrpcBomExplodeView/>
     </DataTemplate>
 
 </ResourceDictionary>

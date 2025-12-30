@@ -124,6 +124,27 @@
                                         HorizontalAlignment="Stretch"/>
                             </StackPanel>
                         </Expander>
+
+                        <!-- gRPC -->
+                        <Expander Header="gRPC" Foreground="Green">
+                            <StackPanel>
+                                <Button Content="品目マスタ (gRPC)"
+                                        Command="{Binding NavigateCommand}"
+                                        CommandParameter="GrpcItemList"
+                                        Style="{StaticResource MaterialDesignFlatButton}"
+                                        HorizontalAlignment="Stretch"/>
+                                <Button Content="BOM 展開 (gRPC)"
+                                        Command="{Binding NavigateCommand}"
+                                        CommandParameter="GrpcBomExplode"
+                                        Style="{StaticResource MaterialDesignFlatButton}"
+                                        HorizontalAlignment="Stretch"/>
+                                <Button Content="MRP 実行 (gRPC)"
+                                        Command="{Binding NavigateCommand}"
+                                        CommandParameter="GrpcMrp"
+                                        Style="{StaticResource MaterialDesignFlatButton}"
+                                        HorizontalAlignment="Stretch"/>
+                            </StackPanel>
+                        </Expander>
                     </StackPanel>
                 </ScrollViewer>
             </Border>

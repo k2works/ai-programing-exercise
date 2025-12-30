@@ -1,0 +1,116 @@
+<UserControl x:Class="ProductionManagement.WPF.Views.Grpc.GrpcItemListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:vm="clr-namespace:ProductionManagement.WPF.ViewModels.Grpc"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:GrpcItemListViewModel}"
+             d:DesignHeight="600" d:DesignWidth="900">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ヘッダー -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,16">
+            <TextBlock Text="品目マスタ (gRPC)"
+                       Style="{StaticResource MaterialDesignHeadline5TextBlock}"/>
+            <TextBlock Text="Server Streaming による品目一覧取得"
+                       Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                       Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+        </StackPanel>
+
+        <!-- 検索パネル -->
+        <materialDesign:Card Grid.Row="1" Padding="16" Margin="0,0,0,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBox Grid.Column="0"
+                         Text="{Binding Keyword, UpdateSourceTrigger=PropertyChanged}"
+                         materialDesign:HintAssist.Hint="検索キーワード"
+                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                         Margin="0,0,8,0">
+                    <TextBox.InputBindings>
+                        <KeyBinding Key="Enter" Command="{Binding SearchCommand}"/>
+                    </TextBox.InputBindings>
+                </TextBox>
+
+                <ComboBox Grid.Column="1"
+                          ItemsSource="{Binding Categories}"
+                          SelectedItem="{Binding SelectedCategory}"
+                          materialDesign:HintAssist.Hint="カテゴリ"
+                          Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                          Width="150"
+                          Margin="0,0,8,0"/>
+
+                <Button Grid.Column="2"
+                        Command="{Binding SearchCommand}"
+                        Content="検索"
+                        Style="{StaticResource MaterialDesignRaisedButton}"
+                        Margin="0,0,8,0"/>
+
+                <Button Grid.Column="3"
+                        Command="{Binding ClearFilterCommand}"
+                        Content="クリア"
+                        Style="{StaticResource MaterialDesignOutlinedButton}"/>
+            </Grid>
+        </materialDesign:Card>
+
+        <!-- データグリッド -->
+        <DataGrid Grid.Row="2"
+                  ItemsSource="{Binding Items}"
+                  SelectedItem="{Binding SelectedItem}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserAddRows="False"
+                  SelectionMode="Single"
+                  Style="{StaticResource MaterialDesignDataGrid}">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="品目コード" Binding="{Binding ItemCode}" Width="120"/>
+                <DataGridTextColumn Header="品目名" Binding="{Binding ItemName}" Width="*"/>
+                <DataGridTextColumn Header="カテゴリ" Binding="{Binding Category}" Width="100"/>
+                <DataGridTextColumn Header="単位" Binding="{Binding UnitCode}" Width="60"/>
+                <DataGridTextColumn Header="リードタイム" Binding="{Binding LeadTime}" Width="100"/>
+                <DataGridTextColumn Header="安全在庫" Binding="{Binding SafetyStock.Value}" Width="100"/>
+                <DataGridTextColumn Header="歩留率" Binding="{Binding YieldRate.Value}" Width="80"/>
+            </DataGrid.Columns>
+
+            <DataGrid.InputBindings>
+                <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding GetItemCommand}"/>
+            </DataGrid.InputBindings>
+        </DataGrid>
+
+        <!-- ステータスバー -->
+        <Grid Grid.Row="3" Margin="0,8,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <TextBlock Text="{Binding StreamingStatus}"
+                           VerticalAlignment="Center"
+                           Margin="0,0,16,0"/>
+                <ProgressBar IsIndeterminate="{Binding IsLoading}"
+                             Width="100"
+                             Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            </StackPanel>
+
+            <TextBlock Grid.Column="1"
+                       Text="{Binding ReceivedCount, StringFormat=受信: {0} 件}"
+                       VerticalAlignment="Center"/>
+        </Grid>
+    </Grid>
+</UserControl>
