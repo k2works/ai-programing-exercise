@@ -15,10 +15,14 @@
   <ItemGroup>
     <ProjectReference Include="..\ProductionManagement.Domain\ProductionManagement.Domain.csproj" />
     <ProjectReference Include="..\ProductionManagement.Application\ProductionManagement.Application.csproj" />
+    <ProjectReference Include="..\ProductionManagement.Grpc.Protos\ProductionManagement.Grpc.Protos.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.1.66" />
+    <!-- gRPC 関連 -->
+    <PackageReference Include="Grpc.AspNetCore" Version="2.60.0" />
+    <PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.60.0" />
     <PackageReference Include="FluentMigrator" Version="7.2.0" />
     <PackageReference Include="FluentMigrator.Runner" Version="7.2.0" />
     <PackageReference Include="FluentMigrator.Runner.Postgres" Version="7.2.0" />
