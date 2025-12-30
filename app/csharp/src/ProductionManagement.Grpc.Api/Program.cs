@@ -1,12 +1,19 @@
-using ProductionManagement.Api.Configuration;
 using ProductionManagement.Application.Port.In;
 using ProductionManagement.Application.Port.Out;
 using ProductionManagement.Application.Services;
+using ProductionManagement.Infrastructure.Grpc;
 using ProductionManagement.Infrastructure.Persistence.Repositories;
-using ProductionManagement.Infrastructure.Rest.Controllers;
-using ProductionManagement.Infrastructure.Rest.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// HTTP/2 のみを使用する Kestrel 設定（gRPC 用）
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenLocalhost(5001, listenOptions =>
+    {
+        listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2;
+    });
+});
 
 // 接続文字列の取得
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
@@ -37,47 +44,14 @@ builder.Services.AddScoped<MrpService>();
 builder.Services.AddScoped<ISupplierUseCase, SupplierService>();
 builder.Services.AddScoped<IOrderUseCase, OrderService>();
 
-// CORS 設定
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
-});
-
-// コントローラと例外ハンドラ
-// Infrastructure プロジェクトのコントローラを登録
-builder.Services.AddControllers()
-    .AddApplicationPart(typeof(RootController).Assembly);
-builder.Services.AddProblemDetails();
-
-// OpenAPI / Swagger
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(OpenApiConfiguration.ConfigureSwagger);
+// gRPC サービスの登録
+builder.Services.AddGrpcServices();
 
 var app = builder.Build();
 
-// 例外ハンドラ
-app.ConfigureExceptionHandler();
-app.UseMiddleware<DomainExceptionMiddleware>();
-
-// Swagger UI
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "生産管理システム API v1");
-    });
-}
-
-app.UseHttpsRedirection();
-app.UseCors();
-app.UseAuthorization();
-app.MapControllers();
+// gRPC エンドポイントのマッピング
+app.MapGrpcServices();
+app.MapGrpcReflectionIfDevelopment(app.Environment.IsDevelopment());
 
 await app.RunAsync();
 
