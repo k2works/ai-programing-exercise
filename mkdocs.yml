@@ -55,5 +55,8 @@ extra:
 plugins:
   - search
 
+exclude_docs: |
+  wiki
+
 nav:
   - Home: index.md
