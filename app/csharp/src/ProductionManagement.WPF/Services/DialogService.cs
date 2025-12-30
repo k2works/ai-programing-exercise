@@ -24,9 +24,22 @@ public class DialogService : IDialogService
         return Task.CompletedTask;
     }
 
+    public Task ShowErrorDetailAsync(string title, string message, string detail)
+    {
+        var fullMessage = $"{message}\n\n詳細:\n{detail}";
+        MessageBox.Show(fullMessage, title, MessageBoxButton.OK, MessageBoxImage.Error);
+        return Task.CompletedTask;
+    }
+
     public Task ShowInfoAsync(string title, string message)
     {
         MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Information);
+        return Task.CompletedTask;
+    }
+
+    public Task ShowWarningAsync(string title, string message)
+    {
+        MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Warning);
         return Task.CompletedTask;
     }
 

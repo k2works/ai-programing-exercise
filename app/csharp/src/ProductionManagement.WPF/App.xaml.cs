@@ -1,4 +1,7 @@
+using System.Data.Common;
+using System.IO;
 using System.Windows;
+using System.Windows.Threading;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -11,7 +14,11 @@ using ProductionManagement.WPF.ViewModels;
 using ProductionManagement.WPF.ViewModels.Bom;
 using ProductionManagement.WPF.ViewModels.Items;
 using ProductionManagement.WPF.ViewModels.PurchaseOrders;
+using ProductionManagement.WPF.ViewModels.Inventory;
+using ProductionManagement.WPF.ViewModels.Planning;
 using ProductionManagement.WPF.ViewModels.Suppliers;
+using ProductionManagement.WPF.ViewModels.WorkOrders;
+using ProductionManagement.WPF.ViewModels.Reports;
 
 namespace ProductionManagement.WPF;
 
@@ -24,6 +31,11 @@ public partial class App : System.Windows.Application
 
     public App()
     {
+        // グローバル例外ハンドラを登録
+        DispatcherUnhandledException += OnDispatcherUnhandledException;
+        AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+        TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
+
         _host = Host.CreateDefaultBuilder()
             .ConfigureAppConfiguration((context, config) =>
             {
@@ -57,6 +69,8 @@ public partial class App : System.Windows.Application
         services.AddTransient<IUnitPriceRepository>(_ => new UnitPriceRepository(connectionString));
         services.AddTransient<IWorkOrderRepository>(_ => new WorkOrderRepository(connectionString));
         services.AddTransient<IStockRepository>(_ => new StockRepository(connectionString));
+        services.AddTransient<IOrderRepository>(_ => new OrderRepository(connectionString));
+        services.AddTransient<ILocationRepository>(_ => new LocationRepository(connectionString));
 
         // Application Services（Input Ports）
         services.AddTransient<IItemUseCase, ItemService>();
@@ -69,6 +83,7 @@ public partial class App : System.Windows.Application
         // UI Services
         services.AddSingleton<INavigationService, NavigationService>();
         services.AddSingleton<IDialogService, DialogService>();
+        services.AddSingleton<IReportService, ExcelReportService>();
 
         // ViewModels
         services.AddTransient<MainViewModel>();
@@ -81,6 +96,11 @@ public partial class App : System.Windows.Application
         services.AddTransient<SupplierEditViewModel>();
         services.AddTransient<PurchaseOrderListViewModel>();
         services.AddTransient<PurchaseOrderEditViewModel>();
+        services.AddTransient<MrpExecuteViewModel>();
+        services.AddTransient<OrderListViewModel>();
+        services.AddTransient<WorkOrderListViewModel>();
+        services.AddTransient<StockListViewModel>();
+        services.AddTransient<ReportListViewModel>();
 
         // Main Window
         services.AddSingleton<MainWindow>();
@@ -99,5 +119,122 @@ public partial class App : System.Windows.Application
     {
         await _host.StopAsync();
         _host.Dispose();
+    }
+
+    /// <summary>
+    /// UI スレッドでの未処理例外ハンドラ
+    /// </summary>
+    private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+    {
+        var message = GetUserFriendlyMessage(e.Exception);
+        LogException(e.Exception);
+
+        MessageBox.Show(
+            message,
+            "エラー",
+            MessageBoxButton.OK,
+            MessageBoxImage.Error);
+
+        // 回復可能な例外の場合はアプリ継続
+        e.Handled = IsRecoverableException(e.Exception);
+    }
+
+    /// <summary>
+    /// 非 UI スレッドでの未処理例外ハンドラ
+    /// </summary>
+    private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+    {
+        if (e.ExceptionObject is Exception ex)
+        {
+            var message = GetUserFriendlyMessage(ex);
+            LogException(ex);
+
+            MessageBox.Show(
+                $"{message}\n\nアプリケーションを終了します。",
+                "致命的エラー",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+    }
+
+    /// <summary>
+    /// Task の未観測例外ハンドラ
+    /// </summary>
+    private void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
+    {
+        LogException(e.Exception);
+
+        // 例外を観測済みにしてアプリ継続
+        e.SetObserved();
+
+        Dispatcher.Invoke(() =>
+        {
+            var message = GetUserFriendlyMessage(e.Exception);
+            MessageBox.Show(
+                message,
+                "バックグラウンドエラー",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+        });
+    }
+
+    /// <summary>
+    /// ユーザーフレンドリーなメッセージを取得
+    /// </summary>
+    private static string GetUserFriendlyMessage(Exception ex)
+    {
+        return ex switch
+        {
+            DbException => "データベース接続に問題が発生しました。接続設定を確認してください。",
+            IOException => "ファイルの読み書きに問題が発生しました。ファイルが使用中でないか確認してください。",
+            UnauthorizedAccessException => "アクセス権限がありません。管理者権限で実行してください。",
+            TimeoutException => "処理がタイムアウトしました。しばらく待ってから再度お試しください。",
+            InvalidOperationException ioe when ioe.Message.Contains("接続") =>
+                "データベース接続に問題が発生しました。接続設定を確認してください。",
+            AggregateException ae => GetUserFriendlyMessage(ae.InnerException ?? ae),
+            _ => $"予期しないエラーが発生しました。\n\n{ex.Message}"
+        };
+    }
+
+    /// <summary>
+    /// 回復可能な例外かどうかを判定
+    /// </summary>
+    private static bool IsRecoverableException(Exception ex)
+    {
+        return ex is not (
+            OutOfMemoryException or
+            StackOverflowException or
+            AccessViolationException);
+    }
+
+    /// <summary>
+    /// 例外をログに記録
+    /// </summary>
+    private static void LogException(Exception ex)
+    {
+        try
+        {
+            var logPath = Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                "logs",
+                $"error_{DateTime.Now:yyyyMMdd}.log");
+
+            Directory.CreateDirectory(Path.GetDirectoryName(logPath)!);
+
+            var logMessage = $"""
+                [{DateTime.Now:yyyy-MM-dd HH:mm:ss}]
+                Type: {ex.GetType().FullName}
+                Message: {ex.Message}
+                StackTrace:
+                {ex.StackTrace}
+                ---
+                """;
+
+            File.AppendAllText(logPath, logMessage);
+        }
+        catch
+        {
+            // ログ記録失敗は無視
+        }
     }
 }
