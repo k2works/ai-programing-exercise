@@ -1,0 +1,169 @@
+<UserControl x:Class="ProductionManagement.WPF.Views.Inventory.StockListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:vm="clr-namespace:ProductionManagement.WPF.ViewModels.Inventory"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:StockListViewModel}"
+             d:DesignHeight="600" d:DesignWidth="1000">
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ヘッダー -->
+        <TextBlock Grid.Row="0"
+                   Text="在庫照会"
+                   Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                   Margin="0,0,0,16"/>
+
+        <!-- 検索フォーム -->
+        <materialDesign:Card Grid.Row="1" Padding="16" Margin="0,0,0,16">
+            <StackPanel Orientation="Horizontal">
+                <!-- 拠点 -->
+                <ComboBox ItemsSource="{Binding Locations}"
+                          SelectedItem="{Binding SelectedLocation}"
+                          Width="180"
+                          materialDesign:HintAssist.Hint="拠点（空白=すべて）"
+                          Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                          Margin="0,0,16,0">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock>
+                                <Run Text="{Binding LocationCode}"/>
+                                <Run Text=" - "/>
+                                <Run Text="{Binding LocationName}"/>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
+                <!-- 品目 -->
+                <ComboBox ItemsSource="{Binding Items}"
+                          SelectedItem="{Binding SelectedItem}"
+                          Width="220"
+                          materialDesign:HintAssist.Hint="品目（空白=すべて）"
+                          Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                          Margin="0,0,16,0">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock>
+                                <Run Text="{Binding ItemCode}"/>
+                                <Run Text=" - "/>
+                                <Run Text="{Binding ItemName}"/>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
+                <!-- ゼロ在庫表示 -->
+                <CheckBox Content="ゼロ在庫を表示"
+                          IsChecked="{Binding ShowZeroStock}"
+                          VerticalAlignment="Center"
+                          Margin="0,0,16,0"/>
+
+                <!-- ボタン -->
+                <Button Content="検索"
+                        Command="{Binding LoadCommand}"
+                        Style="{StaticResource MaterialDesignOutlinedButton}"
+                        Margin="0,0,8,0"/>
+                <Button Content="クリア"
+                        Command="{Binding ClearFilterCommand}"
+                        Style="{StaticResource MaterialDesignOutlinedSecondaryButton}"/>
+            </StackPanel>
+        </materialDesign:Card>
+
+        <!-- データグリッド -->
+        <DataGrid Grid.Row="2"
+                  ItemsSource="{Binding Stocks}"
+                  SelectedItem="{Binding SelectedStock}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserAddRows="False"
+                  SelectionMode="Single"
+                  Style="{StaticResource MaterialDesignDataGrid}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="拠点コード" Binding="{Binding LocationCode}" Width="120"/>
+                <DataGridTextColumn Header="品目コード" Binding="{Binding ItemCode}" Width="150"/>
+                <DataGridTextColumn Header="在庫数量" Binding="{Binding StockQuantity, StringFormat=N0}" Width="120">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Right"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="良品数量" Binding="{Binding PassedQuantity, StringFormat=N0}" Width="120">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Right"/>
+                            <Setter Property="Foreground" Value="Green"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="不良品数量" Binding="{Binding DefectiveQuantity, StringFormat=N0}" Width="120">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Right"/>
+                            <Setter Property="Foreground" Value="Red"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="未検査数量" Binding="{Binding UninspectedQuantity, StringFormat=N0}" Width="120">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Right"/>
+                            <Setter Property="Foreground" Value="Orange"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="更新日時" Binding="{Binding UpdatedAt, StringFormat=yyyy/MM/dd HH:mm}" Width="150"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- フッター（件数・合計表示） -->
+        <materialDesign:Card Grid.Row="3" Padding="12" Margin="0,8,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- 件数 -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <TextBlock Text="件数: "/>
+                    <TextBlock Text="{Binding Stocks.Count}"/>
+                    <TextBlock Text=" 件"/>
+                </StackPanel>
+
+                <!-- 合計 -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <TextBlock Text="合計: " FontWeight="Bold"/>
+                    <TextBlock Text="在庫 " Margin="8,0,0,0"/>
+                    <TextBlock Text="{Binding TotalStockQuantity, StringFormat=N0}"/>
+                    <TextBlock Text=" / 良品 " Foreground="Green" Margin="16,0,0,0"/>
+                    <TextBlock Text="{Binding TotalPassedQuantity, StringFormat=N0}" Foreground="Green"/>
+                    <TextBlock Text=" / 不良 " Foreground="Red" Margin="16,0,0,0"/>
+                    <TextBlock Text="{Binding TotalDefectiveQuantity, StringFormat=N0}" Foreground="Red"/>
+                    <TextBlock Text=" / 未検査 " Foreground="Orange" Margin="16,0,0,0"/>
+                    <TextBlock Text="{Binding TotalUninspectedQuantity, StringFormat=N0}" Foreground="Orange"/>
+                </StackPanel>
+            </Grid>
+        </materialDesign:Card>
+
+        <!-- ローディング -->
+        <Grid Grid.RowSpan="4"
+              Background="#80000000"
+              Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+            <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}"
+                         IsIndeterminate="True"
+                         Width="50" Height="50"/>
+        </Grid>
+    </Grid>
+</UserControl>
