@@ -274,7 +274,8 @@ public partial class PurchaseOrderEditViewModel : ObservableValidator
     private void Detail_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(PurchaseOrderDetailEditModel.OrderAmount) ||
-            e.PropertyName == nameof(PurchaseOrderDetailEditModel.SelectedItem))
+            e.PropertyName == nameof(PurchaseOrderDetailEditModel.SelectedItem) ||
+            e.PropertyName == nameof(PurchaseOrderDetailEditModel.OrderQuantity))
         {
             OnPropertyChanged(nameof(TotalAmount));
             SaveCommand.NotifyCanExecuteChanged();
@@ -334,6 +335,7 @@ public partial class PurchaseOrderEditViewModel : ObservableValidator
     }
 
     private bool CanSave() =>
+        CanEditHeader &&
         SelectedSupplier != null &&
         Details.Count > 0 &&
         Details.All(d => d.SelectedItem != null && d.OrderQuantity > 0) &&
