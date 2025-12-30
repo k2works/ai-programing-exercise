@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>ProductionManagement.WPF</RootNamespace>
+    <AssemblyName>ProductionManagement.WPF</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- MVVM ツールキット -->
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+
+    <!-- DI コンテナ -->
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.7" />
+
+    <!-- WPF 拡張 -->
+    <PackageReference Include="MaterialDesignThemes" Version="5.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ProductionManagement.Application\ProductionManagement.Application.csproj" />
+    <ProjectReference Include="..\ProductionManagement.Infrastructure\ProductionManagement.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

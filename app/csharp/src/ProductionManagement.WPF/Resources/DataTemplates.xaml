@@ -1,0 +1,12 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+    DataTemplate は各 ViewModel の実装時に追加します。
+    例:
+    <DataTemplate DataType="{x:Type vm:ItemListViewModel}">
+        <views:ItemListView/>
+    </DataTemplate>
+    -->
+
+</ResourceDictionary>
