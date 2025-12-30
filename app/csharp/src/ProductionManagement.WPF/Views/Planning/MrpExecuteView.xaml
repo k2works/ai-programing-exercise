@@ -1,0 +1,136 @@
+<UserControl x:Class="ProductionManagement.WPF.Views.Planning.MrpExecuteView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:vm="clr-namespace:ProductionManagement.WPF.ViewModels.Planning"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:MrpExecuteViewModel}"
+             d:DesignHeight="500" d:DesignWidth="600">
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ヘッダー -->
+        <TextBlock Grid.Row="0"
+                   Text="MRP 実行"
+                   Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                   Margin="0,0,0,16"/>
+
+        <!-- パラメータ設定 -->
+        <materialDesign:Card Grid.Row="1" Padding="24" Margin="0,0,0,16">
+            <StackPanel>
+                <TextBlock Text="実行パラメータ"
+                           Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                           Margin="0,0,0,16"/>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- 計画開始日 -->
+                    <DatePicker Grid.Row="0" Grid.Column="0"
+                                SelectedDate="{Binding PlanningStartDate}"
+                                materialDesign:HintAssist.Hint="計画開始日"
+                                Style="{StaticResource MaterialDesignOutlinedDatePicker}"
+                                IsEnabled="{Binding IsExecuting, Converter={StaticResource InverseBoolConverter}}"
+                                Margin="0,0,8,16"/>
+
+                    <!-- 計画終了日 -->
+                    <DatePicker Grid.Row="0" Grid.Column="1"
+                                SelectedDate="{Binding PlanningEndDate}"
+                                materialDesign:HintAssist.Hint="計画終了日"
+                                Style="{StaticResource MaterialDesignOutlinedDatePicker}"
+                                IsEnabled="{Binding IsExecuting, Converter={StaticResource InverseBoolConverter}}"
+                                Margin="8,0,0,16"/>
+
+                    <!-- 対象品目 -->
+                    <ComboBox Grid.Row="1" Grid.Column="0"
+                              ItemsSource="{Binding Items}"
+                              SelectedItem="{Binding SelectedItem}"
+                              materialDesign:HintAssist.Hint="対象品目（空白=全品目）"
+                              Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                              IsEnabled="{Binding IsExecuting, Converter={StaticResource InverseBoolConverter}}"
+                              Margin="0,0,8,16">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock>
+                                    <Run Text="{Binding ItemCode}"/>
+                                    <Run Text=" - "/>
+                                    <Run Text="{Binding ItemName}"/>
+                                </TextBlock>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                    <!-- 下位品目含む -->
+                    <CheckBox Grid.Row="1" Grid.Column="1"
+                              Content="下位品目を含む"
+                              IsChecked="{Binding IncludeSubItems}"
+                              IsEnabled="{Binding IsExecuting, Converter={StaticResource InverseBoolConverter}}"
+                              Margin="8,0,0,16"
+                              VerticalAlignment="Center"/>
+                </Grid>
+
+                <!-- ボタン -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="リセット"
+                            Command="{Binding ResetCommand}"
+                            Style="{StaticResource MaterialDesignOutlinedButton}"
+                            IsEnabled="{Binding IsExecuting, Converter={StaticResource InverseBoolConverter}}"
+                            Margin="0,0,16,0"/>
+                    <Button Content="MRP 実行"
+                            Command="{Binding ExecuteCommand}"
+                            Style="{StaticResource MaterialDesignRaisedButton}"/>
+                </StackPanel>
+            </StackPanel>
+        </materialDesign:Card>
+
+        <!-- 進捗表示 -->
+        <materialDesign:Card Grid.Row="2" Padding="24">
+            <StackPanel>
+                <TextBlock Text="実行状況"
+                           Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                           Margin="0,0,0,16"/>
+
+                <ProgressBar Value="{Binding ProgressPercent}"
+                             Minimum="0"
+                             Maximum="100"
+                             Height="20"
+                             Margin="0,0,0,8"/>
+
+                <TextBlock Text="{Binding StatusMessage}"
+                           Style="{StaticResource MaterialDesignBody1TextBlock}"
+                           HorizontalAlignment="Center"/>
+            </StackPanel>
+        </materialDesign:Card>
+
+        <!-- ローディング -->
+        <Grid Grid.RowSpan="4"
+              Background="#80000000"
+              Visibility="{Binding IsExecuting, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}"
+                             IsIndeterminate="True"
+                             Width="50" Height="50"/>
+                <TextBlock Text="{Binding StatusMessage}"
+                           Foreground="White"
+                           HorizontalAlignment="Center"
+                           Margin="0,16,0,0"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>
