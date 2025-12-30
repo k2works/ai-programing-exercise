@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using ProductionManagement.WPF.Services;
 using ProductionManagement.WPF.ViewModels.Bom;
 using ProductionManagement.WPF.ViewModels.Items;
+using ProductionManagement.WPF.ViewModels.Suppliers;
 
 namespace ProductionManagement.WPF.ViewModels;
 
@@ -61,6 +62,12 @@ public partial class MainViewModel : ObservableObject
         _navigationService.NavigateTo("ItemList");
     }
 
+    [RelayCommand]
+    private void NavigateToSupplierList()
+    {
+        _navigationService.NavigateTo("SupplierList");
+    }
+
     private void OnNavigationRequested(object? sender, string viewName)
     {
         CurrentView = CreateViewModel(viewName);
@@ -81,6 +88,9 @@ public partial class MainViewModel : ObservableObject
             "ItemDetail" => _serviceProvider.GetRequiredService<ItemDetailViewModel>(),
             "ItemEdit" => _serviceProvider.GetRequiredService<ItemEditViewModel>(),
             "BomExplode" => _serviceProvider.GetRequiredService<BomExplodeViewModel>(),
+            "SupplierList" => _serviceProvider.GetRequiredService<SupplierListViewModel>(),
+            "SupplierDetail" => _serviceProvider.GetRequiredService<SupplierDetailViewModel>(),
+            "SupplierEdit" => _serviceProvider.GetRequiredService<SupplierEditViewModel>(),
             _ => null
         };
     }
@@ -93,6 +103,9 @@ public partial class MainViewModel : ObservableObject
             "ItemDetail" => "品目詳細",
             "ItemEdit" => "品目登録/編集",
             "BomExplode" => "BOM 展開",
+            "SupplierList" => "取引先一覧",
+            "SupplierDetail" => "取引先詳細",
+            "SupplierEdit" => "取引先登録/編集",
             _ => viewName
         };
     }

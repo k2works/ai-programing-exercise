@@ -2,8 +2,10 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:itemVm="clr-namespace:ProductionManagement.WPF.ViewModels.Items"
                     xmlns:bomVm="clr-namespace:ProductionManagement.WPF.ViewModels.Bom"
+                    xmlns:supplierVm="clr-namespace:ProductionManagement.WPF.ViewModels.Suppliers"
                     xmlns:itemViews="clr-namespace:ProductionManagement.WPF.Views.Items"
-                    xmlns:bomViews="clr-namespace:ProductionManagement.WPF.Views.Bom">
+                    xmlns:bomViews="clr-namespace:ProductionManagement.WPF.Views.Bom"
+                    xmlns:supplierViews="clr-namespace:ProductionManagement.WPF.Views.Suppliers">
 
     <!-- 品目マスタ ViewModel - View マッピング -->
     <DataTemplate DataType="{x:Type itemVm:ItemListViewModel}">
@@ -21,6 +23,19 @@
     <!-- BOM ViewModel - View マッピング -->
     <DataTemplate DataType="{x:Type bomVm:BomExplodeViewModel}">
         <bomViews:BomExplodeView/>
+    </DataTemplate>
+
+    <!-- 取引先マスタ ViewModel - View マッピング -->
+    <DataTemplate DataType="{x:Type supplierVm:SupplierListViewModel}">
+        <supplierViews:SupplierListView/>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type supplierVm:SupplierDetailViewModel}">
+        <supplierViews:SupplierDetailView/>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type supplierVm:SupplierEditViewModel}">
+        <supplierViews:SupplierEditView/>
     </DataTemplate>
 
 </ResourceDictionary>

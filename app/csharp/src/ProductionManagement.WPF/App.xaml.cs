@@ -10,6 +10,7 @@ using ProductionManagement.WPF.Services;
 using ProductionManagement.WPF.ViewModels;
 using ProductionManagement.WPF.ViewModels.Bom;
 using ProductionManagement.WPF.ViewModels.Items;
+using ProductionManagement.WPF.ViewModels.Suppliers;
 
 namespace ProductionManagement.WPF;
 
@@ -72,6 +73,9 @@ public partial class App : System.Windows.Application
         services.AddTransient<ItemDetailViewModel>();
         services.AddTransient<ItemEditViewModel>();
         services.AddTransient<BomExplodeViewModel>();
+        services.AddTransient<SupplierListViewModel>();
+        services.AddTransient<SupplierDetailViewModel>();
+        services.AddTransient<SupplierEditViewModel>();
 
         // Main Window
         services.AddSingleton<MainWindow>();

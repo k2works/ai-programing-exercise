@@ -1,0 +1,127 @@
+<UserControl x:Class="ProductionManagement.WPF.Views.Suppliers.SupplierEditView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:vm="clr-namespace:ProductionManagement.WPF.ViewModels.Suppliers"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:SupplierEditViewModel}"
+             d:DesignHeight="700" d:DesignWidth="600">
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ヘッダー -->
+        <DockPanel Grid.Row="0" Margin="0,0,0,16">
+            <Button DockPanel.Dock="Left"
+                    Command="{Binding CancelCommand}"
+                    Style="{StaticResource MaterialDesignIconButton}"
+                    ToolTip="キャンセル">
+                <materialDesign:PackIcon Kind="Close"/>
+            </Button>
+            <TextBlock Text="{Binding Title}"
+                       Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                       VerticalAlignment="Center"
+                       Margin="8,0,0,0"/>
+        </DockPanel>
+
+        <!-- 入力フォーム -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <materialDesign:Card Padding="24">
+                <StackPanel>
+                    <!-- 取引先コード -->
+                    <TextBox Text="{Binding SupplierCode, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
+                             materialDesign:HintAssist.Hint="取引先コード *"
+                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                             IsEnabled="{Binding IsEditMode, Converter={StaticResource InverseBoolConverter}}"
+                             Margin="0,0,0,16"/>
+
+                    <!-- 取引先名 -->
+                    <TextBox Text="{Binding SupplierName, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
+                             materialDesign:HintAssist.Hint="取引先名 *"
+                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                             Margin="0,0,0,16"/>
+
+                    <!-- 取引先名カナ -->
+                    <TextBox Text="{Binding SupplierNameKana, UpdateSourceTrigger=PropertyChanged}"
+                             materialDesign:HintAssist.Hint="取引先名カナ"
+                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                             Margin="0,0,0,16"/>
+
+                    <!-- 取引先区分 -->
+                    <ComboBox ItemsSource="{Binding SupplierTypes}"
+                              SelectedItem="{Binding SupplierType}"
+                              materialDesign:HintAssist.Hint="取引先区分 *"
+                              Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                              Margin="0,0,0,16">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource EnumDisplayNameConverter}}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                    <!-- 郵便番号 -->
+                    <TextBox Text="{Binding PostalCode, UpdateSourceTrigger=PropertyChanged}"
+                             materialDesign:HintAssist.Hint="郵便番号"
+                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                             Margin="0,0,0,16"/>
+
+                    <!-- 住所 -->
+                    <TextBox Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}"
+                             materialDesign:HintAssist.Hint="住所"
+                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                             TextWrapping="Wrap"
+                             AcceptsReturn="False"
+                             Margin="0,0,0,16"/>
+
+                    <!-- 電話番号 -->
+                    <TextBox Text="{Binding PhoneNumber, UpdateSourceTrigger=PropertyChanged}"
+                             materialDesign:HintAssist.Hint="電話番号"
+                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                             Margin="0,0,0,16"/>
+
+                    <!-- FAX番号 -->
+                    <TextBox Text="{Binding FaxNumber, UpdateSourceTrigger=PropertyChanged}"
+                             materialDesign:HintAssist.Hint="FAX番号"
+                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                             Margin="0,0,0,16"/>
+
+                    <!-- 担当者 -->
+                    <TextBox Text="{Binding ContactPerson, UpdateSourceTrigger=PropertyChanged}"
+                             materialDesign:HintAssist.Hint="担当者"
+                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                             Margin="0,0,0,16"/>
+                </StackPanel>
+            </materialDesign:Card>
+        </ScrollViewer>
+
+        <!-- ボタン -->
+        <StackPanel Grid.Row="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Margin="0,16,0,0">
+            <Button Content="キャンセル"
+                    Command="{Binding CancelCommand}"
+                    Style="{StaticResource MaterialDesignOutlinedButton}"
+                    Margin="0,0,16,0"/>
+            <Button Content="保存"
+                    Command="{Binding SaveCommand}"
+                    Style="{StaticResource MaterialDesignRaisedButton}"/>
+        </StackPanel>
+
+        <!-- ローディング -->
+        <Grid Grid.RowSpan="3"
+              Background="#80000000"
+              Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+            <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}"
+                         IsIndeterminate="True"
+                         Width="50" Height="50"/>
+        </Grid>
+    </Grid>
+</UserControl>
