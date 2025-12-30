@@ -2,6 +2,7 @@ using ProductionManagement.Api.Configuration;
 using ProductionManagement.Application.Port.In;
 using ProductionManagement.Application.Port.Out;
 using ProductionManagement.Application.Services;
+using ProductionManagement.Infrastructure.Grpc;
 using ProductionManagement.Infrastructure.Persistence.Repositories;
 using ProductionManagement.Infrastructure.Rest.Controllers;
 using ProductionManagement.Infrastructure.Rest.Middleware;
@@ -58,6 +59,9 @@ builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(OpenApiConfiguration.ConfigureSwagger);
 
+// gRPC サービス
+builder.Services.AddGrpcServices();
+
 var app = builder.Build();
 
 // 例外ハンドラ
@@ -78,6 +82,10 @@ app.UseHttpsRedirection();
 app.UseCors();
 app.UseAuthorization();
 app.MapControllers();
+
+// gRPC エンドポイント
+app.MapGrpcServices();
+app.MapGrpcReflectionIfDevelopment(app.Environment.IsDevelopment());
 
 await app.RunAsync();
 
