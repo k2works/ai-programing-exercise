@@ -128,7 +128,7 @@
                                 <Button Command="{Binding DataContext.ConfirmCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                         Style="{StaticResource MaterialDesignIconButton}"
                                         ToolTip="確定"
-                                        Foreground="{StaticResource PrimaryHueMidBrush}">
+                                        Foreground="Green">
                                     <materialDesign:PackIcon Kind="Check"/>
                                 </Button>
                                 <Button Command="{Binding DataContext.CancelCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
