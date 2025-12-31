@@ -167,6 +167,6 @@ public class BomGrpcServiceTests : IAsyncLifetime
         var result = response.Results.First();
         result.ParentItemCode.Should().Be("PROD-001");
         result.ItemName.Should().Be("製品1");
-        result.RequiredQuantity.Value.Should().Be("5.5");
+        decimal.Parse(result.RequiredQuantity.Value).Should().Be(5.5m);
     }
 }

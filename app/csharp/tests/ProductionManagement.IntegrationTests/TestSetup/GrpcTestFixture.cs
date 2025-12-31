@@ -191,18 +191,18 @@ public class GrpcTestFixture : IAsyncLifetime
         await using var cmd = conn.CreateCommand();
         cmd.CommandText = @"
             INSERT INTO ""品目マスタ"" (
-                ""品目コード"", ""適用開始日"", ""品目名称"", ""品目区分"",
+                ""品目コード"", ""適用開始日"", ""品名"", ""品目区分"",
                 ""リードタイム"", ""安全リードタイム"", ""安全在庫数"",
-                ""歩留率"", ""最小ロットサイズ"", ""ロット増分""
+                ""歩留率"", ""最小ロット数"", ""刻みロット数""
             ) VALUES (
-                @itemCode, @effectiveFrom, @itemName, @category,
+                @itemCode, @effectiveFrom, @itemName, @category::品目区分,
                 0, 0, 0, 100, 1, 1
             )";
 
         cmd.Parameters.AddWithValue("@itemCode", itemCode);
         cmd.Parameters.AddWithValue("@effectiveFrom", DateOnly.FromDateTime(DateTime.Today));
         cmd.Parameters.AddWithValue("@itemName", itemName);
-        cmd.Parameters.AddWithValue("@category", category.ToString());
+        cmd.Parameters.AddWithValue("@category", category.GetDisplayName());
 
         await cmd.ExecuteNonQueryAsync();
     }
@@ -218,7 +218,7 @@ public class GrpcTestFixture : IAsyncLifetime
         await using var cmd = conn.CreateCommand();
         cmd.CommandText = @"
             INSERT INTO ""部品構成表"" (
-                ""親品目コード"", ""子品目コード"", ""適用開始日"", ""員数""
+                ""親品目コード"", ""子品目コード"", ""適用開始日"", ""必要数量""
             ) VALUES (
                 @parentCode, @childCode, @effectiveFrom, @quantity
             )";
