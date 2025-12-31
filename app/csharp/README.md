@@ -4,33 +4,34 @@
 
 ## アーキテクチャ
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                      Presentation Layer                      │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
-│  │  REST API   │  │  gRPC API   │  │    WPF Client       │  │
-│  │  (Port 5000)│  │  (Port 5001)│  │  (Desktop App)      │  │
-│  └─────────────┘  └─────────────┘  └─────────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
-                              │
-┌─────────────────────────────────────────────────────────────┐
-│                     Application Layer                        │
-│              Use Cases / Application Services                │
-└─────────────────────────────────────────────────────────────┘
-                              │
-┌─────────────────────────────────────────────────────────────┐
-│                       Domain Layer                           │
-│                 Entities / Value Objects                     │
-└─────────────────────────────────────────────────────────────┘
-                              │
-┌─────────────────────────────────────────────────────────────┐
-│                   Infrastructure Layer                       │
-│         Repositories / gRPC Services / REST Controllers      │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                        ┌───────────┐
-                        │ PostgreSQL│
-                        └───────────┘
+```mermaid
+graph TB
+    subgraph Presentation["Presentation Layer"]
+        REST["REST API<br/>(Port 5000)"]
+        GRPC["gRPC API<br/>(Port 5001)"]
+        WPF["WPF Client<br/>(Desktop App)"]
+    end
+
+    subgraph Application["Application Layer"]
+        UC["Use Cases / Application Services"]
+    end
+
+    subgraph Domain["Domain Layer"]
+        ENT["Entities / Value Objects"]
+    end
+
+    subgraph Infrastructure["Infrastructure Layer"]
+        REPO["Repositories / gRPC Services / REST Controllers"]
+    end
+
+    DB[(PostgreSQL)]
+
+    REST --> UC
+    GRPC --> UC
+    WPF --> GRPC
+    UC --> ENT
+    UC --> REPO
+    REPO --> DB
 ```
 
 ## プロジェクト構成
