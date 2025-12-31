@@ -95,6 +95,13 @@ public partial class ItemListViewModel : ObservableObject
                 Items.Add(item);
             }
         }
+        catch (Exception ex)
+        {
+            await _dialogService.ShowErrorDetailAsync(
+                "データ読み込みエラー",
+                "品目データの読み込みに失敗しました。データベース接続を確認してください。",
+                ex.Message);
+        }
         finally
         {
             IsLoading = false;

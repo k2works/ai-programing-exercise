@@ -52,18 +52,7 @@
                               Width="150"
                               materialDesign:HintAssist.Hint="ステータス"
                               Style="{StaticResource MaterialDesignOutlinedComboBox}"
-                              Margin="0,0,16,0">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock>
-                                    <TextBlock.Text>
-                                        <Binding Converter="{StaticResource EnumDisplayNameConverter}"
-                                                 TargetNullValue="（すべて）"/>
-                                    </TextBlock.Text>
-                                </TextBlock>
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
+                              Margin="0,0,16,0"/>
 
                     <!-- 取引先コード -->
                     <TextBox Text="{Binding SupplierCode, UpdateSourceTrigger=PropertyChanged}"
