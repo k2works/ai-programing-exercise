@@ -1,109 +1,38 @@
-# 実践 AIプログラミング
+# {project-name}
 
 ## 概要
 
-AIプログラミングの実践的な学習と開発のためのプロジェクトです。Claude Code および Gemini CLI を使用した AI 駆動開発環境と、MkDocs を使用したドキュメント管理システムを提供します。
-
 ### 目的
-
-- AIプログラミングの実践的な学習環境の提供
-- AI 駆動開発（Claude Code、Gemini CLI）のサポート
-- ドキュメント駆動開発の促進
-- プログラミング学習リソースの集約
 
 ### 前提
 
-| ソフトウェア | バージョン   | 備考 |
-| :----------- |:--------| :--- |
-| Docker       | 最新     | 開発環境の構築に必要 |
-| Docker Compose | 最新   | 複数コンテナの管理に必要 |
-| Git          | 最新     | バージョン管理に必要 |
-| Node.js      | 22+     | npm スクリプト実行に必要 |
+| ソフトウェア | バージョン | 備考 |
+| :----------- | :--------- | :--- |
+| nodejs       | 22.x       |      |
 
 ## 構成
 
 - [構築](#構築)
 - [配置](#配置)
 - [運用](#運用)
+- [Nix による開発環境](#nix-による開発環境)
 - [開発](#開発)
 
 ## 詳細
 
+### Qick Start
+
+```bash
+npm install
+npm start
+```
+
 ### 構築
 
-#### Quick Start
-
-1. リポジトリをクローン
-   ```
-   git clone https://github.com/k2works/ai-programing-exercise.git
-   cd ai-programing-exercise
-   ```
-
-2. 依存関係をインストール
-   ```
-   npm install
-   ```
-
-3. Dockerコンテナを起動
-   ```
-   docker-compose up -d
-   ```
-
-4. ドキュメントサイトにアクセス
-   ```
-   http://localhost:8000
-   ```
-
-#### 開発環境
-
-プロジェクトは以下の開発環境を提供します：
-
-- **ベースOS**: Ubuntu 22.04
-- **言語環境**:
-  - Node.js 22 (via NVM)
-- **AI開発ツール**:
-  - Claude Code (@anthropic-ai/claude-code)
-  - Gemini CLI (@google/gemini-cli)
-  - Claude Code Booster (@k2works/claude-code-booster)
-- **ドキュメント環境**:
-  - MkDocs (Python 3.11ベース)
-  - Material for MkDocsテーマ
-  - PlantUML / Mermaidによる図表サポート
-
-#### プロジェクト構造
-
-```
-ai-programing-exercise/
-├── .devcontainer/              # Dev Container 設定
-├── .github/                    # GitHub Actions 設定
-├── apps/                       # アプリケーションコード
-├── docs/                       # ドキュメントディレクトリ
-│   ├── adr/                    # アーキテクチャ決定記録
-│   ├── assets/                 # CSS/JS アセット
-│   ├── design/                 # 設計ドキュメント
-│   ├── development/            # 開発ガイド
-│   ├── operation/              # 運用ドキュメント
-│   ├── reference/              # リファレンスガイド
-│   │   ├── よいソフトウェアとは.md
-│   │   ├── 開発ガイド.md
-│   │   ├── 要件定義ガイド.md
-│   │   ├── アーキテクチャ設計ガイド.md
-│   │   ├── テスト戦略ガイド.md
-│   │   └── ... その他のガイド
-│   ├── requirements/           # 要件定義
-│   ├── template/               # テンプレート
-│   ├── Dockerfile              # MkDocs 用 Dockerfile
-│   └── index.md                # メインドキュメントページ
-├── ops/                        # 運用・インフラ設定
-│   ├── docker/                 # Docker 関連設定
-│   └── scripts/                # 運用スクリプト
-├── CLAUDE.md                   # Claude Code 用プロジェクト設定
-├── Dockerfile                  # 開発環境の Dockerfile
-├── docker-compose.yml          # Docker Compose 設定
-├── gulpfile.js                 # Gulp タスク定義
-├── mkdocs.yml                  # MkDocs 設定ファイル
-├── package.json                # Node.js 依存関係
-└── README.md                   # このファイル
+```bash
+claude mcp add github npx @modelcontextprotocol/server-github -e GITHUB_PERSONAL_ACCESS_TOKEN=xxxxxxxxxxxxxxx
+claude mcp add --transport http byterover-mcp --scope user https://mcp.byterover.dev/v2/mcp
+claude mcp add github npx -y @modelcontextprotocol/server-github -s project  
 ```
 
 **[⬆ back to top](#構成)**
@@ -153,17 +82,9 @@ ai-programing-exercise/
    git push
    ```
 
-#### npm スクリプト
-
-| コマンド | 説明 |
-|---------|------|
-| `npm run docs:serve` | MkDocs サーバーを起動 |
-| `npm run docs:stop` | MkDocs サーバーを停止 |
-| `npm run docs:build` | MkDocs ドキュメントをビルド |
-| `npm run journal` | 作業履歴（ジャーナル）を生成 |
-| `npm run claude:yol` | Claude Code を権限スキップモードで起動 |
-
 #### Gulpタスクの使用
+
+プロジェクトには以下のGulpタスクが用意されています：
 
 ##### MkDocsタスク
 
@@ -233,13 +154,20 @@ GHCR からイメージを取得して実行するには：
 
 ```bash
 # イメージをプル
-docker pull ghcr.io/k2works/ai-programing-exercise:latest
+docker pull ghcr.io/k2works/{project_name}:latest
 
 # または特定バージョン
-docker pull ghcr.io/k2works/ai-programing-exercise:0.0.1
+docker pull ghcr.io/k2works/{project_name}:0.0.1
 
 # コンテナを実行
-docker run -it -v $(pwd):/srv ghcr.io/k2works/ai-programing-exercise:latest
+docker run -it -v $(pwd):/srv ghcr.io/k2works/{project_name}:latest
+```
+
+または、docker-compose を使用してローカルでビルド・実行することもできます：
+
+```bash
+# 開発環境を起動して中に入る
+docker-compose run --rm dev bash
 ```
 
 認証が必要な場合は、以下のコマンドでログインします：
@@ -263,26 +191,44 @@ VS Code で Dev Container を使用する場合：
 
 **[⬆ back to top](#構成)**
 
+### Nix による開発環境
+
+Nix を使用して、再現可能な開発環境を構築できます。
+
+#### 準備
+
+1. [Nix をインストール](https://nixos.org/download.html)します。
+2. Flakes を有効にします（`~/.config/nix/nix.conf` に `experimental-features = nix-command flakes` を追加）。
+
+#### 環境の利用
+
+- **デフォルト環境（共通ツール）に入る:**
+  ```bash
+  nix develop
+  ```
+
+- **Node.js 環境に入る:**
+  ```bash
+  nix develop .#node
+  ```
+
+- **Python/MkDocs 環境に入る:**
+  ```bash
+  nix develop .#python
+  ```
+
+環境から抜けるには `exit` を入力します。
+
+#### 依存関係の更新
+
+```bash
+nix flake update
+```
+
+**[⬆ back to top](#構成)**
+
 ### 開発
-
-#### リファレンスガイド
-
-`docs/reference/` ディレクトリには開発に必要なガイドドキュメントが含まれています：
-
-- **よいソフトウェアとは.md** - ソフトウェア品質の定義と原則
-- **開発ガイド.md** - 開発ライフサイクルとプロセス
-- **要件定義ガイド.md** - RDRA による要件定義
-- **アーキテクチャ設計ガイド.md** - システムアーキテクチャ設計
-- **テスト戦略ガイド.md** - テスト戦略と実践
-- **コーディングとテストガイド.md** - TDD とコーディング規約
-- **エクストリームプログラミング.md** - XP プラクティス
 
 **[⬆ back to top](#構成)**
 
 ## 参照
-
-- [Claude Code ドキュメント](https://docs.anthropic.com/claude-code)
-- [MkDocs ドキュメント](https://www.mkdocs.org/)
-- [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/)
-- [GitHub Pages](https://pages.github.com/)
-- [Claude Code Booster](https://github.com/k2works/claude-code-booster)

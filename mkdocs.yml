@@ -1,8 +1,8 @@
-site_name: AI Programing Exercise
-site_description: Documentation for the AI Programming Exercise project.
+site_name: Site Name
+site_description: Site Description
 site_author: Project Team
-repo_url: https://github.com/k2works/ai-programing-exercise
-repo_name: ai-programing-exercise
+repo_url: https://github.com/k2works/claude-code-booster
+repo_name: claude-code-booster
 
 theme:
   name: material
@@ -40,6 +40,7 @@ markdown_extensions:
         - PLANTUML_SERVER_URL
         - http://www.plantuml.com/plantuml
       format: svg
+  - attr_list
 
 extra_javascript:
   - https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js
@@ -49,8 +50,8 @@ extra:
   plantuml_url: http://www.plantuml.com/plantuml
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/k2works/ai-programming-exercise
-      name: GitHub Repository
+      link: https://github.com/k2works
+      name: GitHub Repository/claude-code-booster
 
 plugins:
   - search

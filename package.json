@@ -1,7 +1,6 @@
 {
-  "name": "ai-programing-exercise",
-  "version": "1.0.0",
-  "description": "AIプログラミングの実践的な学習と開発のためのプロジェクト",
+  "name": "",
+  "version": "0.0.0",
   "main": "index.js",
   "scripts": {
     "start": "gulp dev",
@@ -9,11 +8,12 @@
     "docs:serve": "gulp mkdocs:serve",
     "docs:stop": "gulp mkdocs:stop",
     "docs:build": "gulp mkdocs:build",
-    "claude:yol": "claude --dangerously-skip-permissions"
+    "claude:yol": "claude --dangerously-skip-permissions",
+    "copilot:yol": "copilot --allow-all-tools"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/k2works/ai-programing-exercise.git"
+    "url": "git+https://github.com/k2works/{project_name}.git"
   },
   "keywords": [
     "ai",
@@ -23,12 +23,11 @@
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/k2works/ai-programing-exercise/issues"
+    "url": "https://github.com/k2works/{project_name}/issues"
   },
-  "homepage": "https://github.com/k2works/ai-programing-exercise#readme",
+  "homepage": "https://github.com/k2works/{project_name}#readme",
   "type": "module",
   "dependencies": {
-    "@k2works/claude-code-booster": "^0.10.0",
     "gulp": "^5.0.0"
   }
 }
