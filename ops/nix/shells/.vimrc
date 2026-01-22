@@ -201,6 +201,7 @@ if dein#load_state(s:dein_dir)
   call dein#add('rust-lang/rust.vim')
   call dein#add('OmniSharp/omnisharp-vim')
   call dein#add('OrangeT/vim-csharp')
+  call dein#add('ionide/ionide-vim')
   call dein#add('uiiaoo/java-syntax.vim')
   call dein#add('neovimhaskell/haskell-vim')
   call dein#add('vim-ruby/vim-ruby')
@@ -548,3 +549,6 @@ autocmd FileType elixir setlocal expandtab shiftwidth=2 tabstop=2
 
 " Scala
 autocmd FileType scala setlocal expandtab shiftwidth=2 tabstop=2
+
+" F#
+autocmd FileType fsharp setlocal expandtab shiftwidth=4 tabstop=4

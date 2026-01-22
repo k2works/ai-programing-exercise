@@ -5,7 +5,7 @@ in
 packages.mkShell {
   inherit (baseShell) pure;
   buildInputs = baseShell.buildInputs ++ (with packages; [
-    scala
+    scala_3
     sbt
     metals
     scala-cli

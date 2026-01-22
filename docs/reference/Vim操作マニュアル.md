@@ -136,6 +136,11 @@
 - **シンタックスハイライト**: `vim-scala` により Scala 構文がサポートされます。
 - **LSP連携**: `nix develop .#scala` 環境下で、`Metals` を使用した高度な開発が可能です。
 
+### [F# 開発](https://github.com/ionide/ionide-vim)
+- **Ionide-vim**: F# 用の高度な開発支援プラグインです。
+- **シンタックスハイライト**: `ionide/ionide-vim` により F# 構文がサポートされます。
+- **LSP連携**: `nix develop .#dotnet` 環境下で、`ionide-vim` による高度な開発支援（補完、定義ジャンプ等）が利用可能です。
+
 ### [CtrlP](https://github.com/ctrlpvim/ctrlp.vim) (ファイル検索・セレクタ)
 | キー | 動作 |
 |---|---|
