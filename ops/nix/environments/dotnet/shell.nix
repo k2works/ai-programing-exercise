@@ -5,16 +5,11 @@ in
 packages.mkShell {
   inherit (baseShell) pure;
   buildInputs = baseShell.buildInputs ++ (with packages; [
-    (python3.withPackages (ps: with ps; [
-      uv
-      mkdocs
-      mkdocs-material
-      pymdown-extensions
-      # plantuml-markdown and others might need to be checked if available
-    ]))
+    dotnet-sdk
   ]);
   shellHook = ''
     ${baseShell.shellHook}
-    echo "Python/MkDocs development environment activated"
+    echo ".NET development environment activated"
+    echo "  - .NET SDK: $(dotnet --version)"
   '';
 }

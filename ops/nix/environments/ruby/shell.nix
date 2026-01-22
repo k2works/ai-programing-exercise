@@ -5,16 +5,15 @@ in
 packages.mkShell {
   inherit (baseShell) pure;
   buildInputs = baseShell.buildInputs ++ (with packages; [
-    (python3.withPackages (ps: with ps; [
-      uv
-      mkdocs
-      mkdocs-material
-      pymdown-extensions
-      # plantuml-markdown and others might need to be checked if available
-    ]))
+    ruby
+    rubyPackages_3_3.solargraph
+    bundler
   ]);
   shellHook = ''
     ${baseShell.shellHook}
-    echo "Python/MkDocs development environment activated"
+    echo "Ruby development environment activated"
+    echo "  - Ruby: $(ruby --version | head -n 1)"
+    echo "  - Bundler: $(bundle --version)"
+    echo "  - Solargraph: $(solargraph --version)"
   '';
 }

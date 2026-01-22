@@ -5,16 +5,15 @@ in
 packages.mkShell {
   inherit (baseShell) pure;
   buildInputs = baseShell.buildInputs ++ (with packages; [
-    (python3.withPackages (ps: with ps; [
-      uv
-      mkdocs
-      mkdocs-material
-      pymdown-extensions
-      # plantuml-markdown and others might need to be checked if available
-    ]))
+    jdk
+    maven
+    gradle
   ]);
   shellHook = ''
     ${baseShell.shellHook}
-    echo "Python/MkDocs development environment activated"
+    echo "Java development environment activated"
+    echo "  - JDK: $(javac -version 2>&1)"
+    echo "  - Maven: $(mvn -version | head -n 1)"
+    echo "  - Gradle: $(gradle -version | grep Gradle)"
   '';
 }

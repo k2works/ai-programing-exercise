@@ -8,8 +8,10 @@
     "docs:serve": "gulp mkdocs:serve",
     "docs:stop": "gulp mkdocs:stop",
     "docs:build": "gulp mkdocs:build",
-    "claude:yol": "claude --dangerously-skip-permissions",
-    "copilot:yol": "copilot --allow-all-tools"
+    "claude:yolo": "claude --dangerously-skip-permissions",
+    "copilot:yolo": "copilot --allow-all-tools",
+    "codex:yolo": "codex --yolo",
+    "gemini:yolo": "gemini --yolo"
   },
   "repository": {
     "type": "git",

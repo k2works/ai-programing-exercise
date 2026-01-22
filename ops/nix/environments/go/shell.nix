@@ -5,16 +5,16 @@ in
 packages.mkShell {
   inherit (baseShell) pure;
   buildInputs = baseShell.buildInputs ++ (with packages; [
-    (python3.withPackages (ps: with ps; [
-      uv
-      mkdocs
-      mkdocs-material
-      pymdown-extensions
-      # plantuml-markdown and others might need to be checked if available
-    ]))
+    go
+    gopls
+    gotools
+    delve
+    golangci-lint
   ]);
   shellHook = ''
     ${baseShell.shellHook}
-    echo "Python/MkDocs development environment activated"
+    echo "Go development environment activated"
+    echo "  - Go: $(go version)"
+    echo "  - gopls: $(gopls version | head -n 1)"
   '';
 }
