@@ -335,15 +335,17 @@ git<span class="w"> </span>init
 &lt;空行&gt;
 &lt;フッタ&gt;
 </code></pre></div>
-<p><strong>タイプの種類：</strong>
-- <code>feat</code>: 新機能の追加
-- <code>fix</code>: バグ修正
-- <code>docs</code>: ドキュメント変更のみ
-- <code>style</code>: コードに影響を与えない変更（フォーマット等）
-- <code>refactor</code>: 機能追加でもバグ修正でもないコード変更
-- <code>perf</code>: パフォーマンスを改善するコード変更
-- <code>test</code>: テストの追加または修正
-- <code>chore</code>: ビルドプロセスやツールの変更</p>
+<p><strong>タイプの種類：</strong></p>
+<ul>
+<li><code>feat</code>: 新機能の追加</li>
+<li><code>fix</code>: バグ修正</li>
+<li><code>docs</code>: ドキュメント変更のみ</li>
+<li><code>style</code>: コードに影響を与えない変更（フォーマット等）</li>
+<li><code>refactor</code>: 機能追加でもバグ修正でもないコード変更</li>
+<li><code>perf</code>: パフォーマンスを改善するコード変更</li>
+<li><code>test</code>: テストの追加または修正</li>
+<li><code>chore</code>: ビルドプロセスやツールの変更</li>
+</ul>
 <p><strong>例：</strong>
 <div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s1">&#39;feat: FizzBuzz機能の実装&#39;</span>
 git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s1">&#39;refactor: メソッドの抽出&#39;</span>
@@ -602,18 +604,22 @@ git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </sp
 <span class="w">    </span><span class="n">ruleSets</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[]</span>
 <span class="o">}</span>
 </code></pre></div>
-<p>PMD はカスタム設定で以下をチェック：
-- マジックナンバーの使用
-- 空の catch ブロック
-- 循環複雑度が 7 を超えるメソッド
-- 認知複雑度が 7 を超えるメソッド
-- 不要なコード</p>
+<p>PMD はカスタム設定で以下をチェック：</p>
+<ul>
+<li>マジックナンバーの使用</li>
+<li>空の catch ブロック</li>
+<li>循環複雑度が 7 を超えるメソッド</li>
+<li>認知複雑度が 7 を超えるメソッド</li>
+<li>不要なコード</li>
+</ul>
 <h3 id="spotbugs">SpotBugs の設定（デフォルト設定を使用）<a class="headerlink" href="#spotbugs" title="Permanent link">&para;</a></h3>
-<p>SpotBugs は以下のバグパターンを検出：
-- Null ポインタ参照
-- リソースリーク
-- セキュリティ脆弱性
-- パフォーマンス問題</p>
+<p>SpotBugs は以下のバグパターンを検出：</p>
+<ul>
+<li>Null ポインタ参照</li>
+<li>リソースリーク</li>
+<li>セキュリティ脆弱性</li>
+<li>パフォーマンス問題</li>
+</ul>
 <h2 id="_6">タスクランナーコマンド一覧<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
 <h3 id="_7">基本コマンド<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># 依存関係のインストール</span>
@@ -757,22 +763,30 @@ chmod<span class="w"> </span>+x<span class="w"> </span>gradlew
 </code></pre></div>
 <h2 id="_15">ベストプラクティス<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h2>
 <ol>
-<li><strong>コミットは小さく頻繁に</strong></li>
-<li>機能単位でコミット</li>
+<li>
+<p><strong>コミットは小さく頻繁に</strong></p>
+</li>
+<li>
+<p>機能単位でコミット</p>
+</li>
 <li>
 <p>テストが通る状態でコミット</p>
 </li>
 <li>
 <p><strong>テストファースト</strong></p>
 </li>
-<li>実装前にテストを書く</li>
+<li>
+<p>実装前にテストを書く</p>
+</li>
 <li>
 <p>テストが失敗することを確認してから実装</p>
 </li>
 <li>
 <p><strong>継続的な品質チェック</strong></p>
 </li>
-<li>コミット前に <code>./gradlew qualityCheck</code> を実行</li>
+<li>
+<p>コミット前に <code>./gradlew qualityCheck</code> を実行</p>
+</li>
 <li>カバレッジ 80% 以上を目標</li>
 <li>
 <p>循環複雑度を 7 以下に維持</p>
@@ -780,14 +794,18 @@ chmod<span class="w"> </span>+x<span class="w"> </span>gradlew
 <li>
 <p><strong>自動化の活用</strong></p>
 </li>
-<li><code>./gradlew test --continuous</code> を常に起動</li>
+<li>
+<p><code>./gradlew test --continuous</code> を常に起動</p>
+</li>
 <li>
 <p>IDE の自動テスト機能を活用</p>
 </li>
 <li>
 <p><strong>リファクタリングの習慣</strong></p>
 </li>
-<li>テストが通ったらリファクタリング</li>
+<li>
+<p>テストが通ったらリファクタリング</p>
+</li>
 <li>重複コードの排除</li>
 <li>
 <p>意図が明確なコード</p>
@@ -795,7 +813,9 @@ chmod<span class="w"> </span>+x<span class="w"> </span>gradlew
 <li>
 <p><strong>複雑度の管理</strong></p>
 </li>
-<li>メソッドの循環複雑度は 7 以下を維持</li>
+<li>
+<p>メソッドの循環複雑度は 7 以下を維持</p>
+</li>
 <li>複雑なロジックは小さなメソッドに分割</li>
 <li>早期リターンやガード節を活用して複雑度を削減</li>
 </ol>
