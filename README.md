@@ -29,10 +29,64 @@ npm start
 ### 構築
 
 ```bash
-claude mcp add github npx @modelcontextprotocol/server-github -e GITHUB_PERSONAL_ACCESS_TOKEN=xxxxxxxxxxxxxxx
-claude mcp add --transport http byterover-mcp --scope user https://mcp.byterover.dev/v2/mcp
-claude mcp add github npx -y @modelcontextprotocol/server-github -s project  
+claude mcp add -s project memory -- npx @modelcontextprotocol/server-memory
+claude mcp add -s project codex -- npx @openai/codex mcp-server
 ```
+
+#### ralph-loopの導入
+
+- Claude Code 起動後、/plugin を実行
+
+- 検索ボックスで ralph-loop を探して選択
+
+- インストールするスコープを選ぶ（ユーザー / プロジェクト / ローカル）
+
+- Claude Code を再起動
+
+- コマンドで実行
+
+```powershell
+/ralph-loop "<プロンプト>" --max-iterations <数値> --completion-promise "<完了テキスト>"
+```
+
+#### AI アシスタント（Skills）
+
+`.claude/skills/` ディレクトリに定義された Skills により、AI アシスタントがタスクに応じた専門的な指示を自動的に読み込みます。Progressive Disclosure（段階的開示）により、必要なスキルのみがコンテキストに展開されます。
+
+##### Skills 一覧
+
+| カテゴリ | スキル | 説明 |
+| :--- | :--- | :--- |
+| **オーケストレーション** | `orchestrating-analysis` | 分析フェーズ全体のワークフロー案内 |
+| | `orchestrating-development` | 開発フェーズ全体の TDD ワークフロー案内 |
+| | `orchestrating-project` | 計画・進捗管理フェーズ全体のワークフロー案内 |
+| **分析** | `analyzing-business` | ビジネスアーキテクチャ分析 |
+| | `analyzing-requirements` | RDRA 2.0 に基づく要件定義 |
+| | `analyzing-usecases` | ユースケース・ユーザーストーリー作成 |
+| | `analyzing-architecture` | アーキテクチャ設計 |
+| | `analyzing-data-model` | データモデル設計 |
+| | `analyzing-domain-model` | ドメインモデル設計 |
+| | `analyzing-ui-design` | UI 設計 |
+| | `analyzing-tech-stack` | 技術スタック選定 |
+| | `analyzing-test-strategy` | テスト戦略策定 |
+| | `analyzing-non-functional` | 非機能要件定義 |
+| | `analyzing-operation` | 運用要件定義 |
+| **開発** | `developing-backend` | バックエンド TDD（インサイドアウト） |
+| | `developing-frontend` | フロントエンド TDD（アウトサイドイン） |
+| | `developing-release` | リリースワークフロー（品質ゲート・バージョン管理・CHANGELOG） |
+| **計画・進捗** | `planning-releases` | リリース・イテレーション計画 |
+| | `syncing-github-project` | GitHub Project 同期 |
+| | `tracking-progress` | 進捗分析・レポート生成 |
+| **運用** | `managing-operations` | 環境構築・デプロイ・監視 |
+| | `killing-processes` | 開発プロセス強制終了 |
+| **ドキュメント・Git** | `managing-docs` | ドキュメント管理・Lint |
+| | `git-commit` | Conventional Commits 準拠のコミット |
+| | `creating-adr` | ADR 作成 |
+| **共通** | `ai-agent-guidelines` | AI Agent 実行ガイドライン |
+
+##### カスタマイズ
+
+新しいスキルを追加するには、`.claude/skills/<skill-name>/SKILL.md` を作成します。テンプレートは `.claude/SKILLS_TEMPLATE.md` を参照してください。
 
 **[⬆ back to top](#構成)**
 

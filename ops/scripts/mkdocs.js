@@ -1,114 +1,82 @@
 'use strict';
 
-import {execSync} from 'child_process';
+import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import { cleanDockerEnv, isDockerAvailable, openUrl } from './shared.js';
 
 /**
- * @type {boolean} Windows環境かどうかをチェック
+ * docker compose コマンドを実行
+ * @param {string} args - docker compose に渡す引数
  */
-const isWindows = process.platform === 'win32';
+function dockerCompose(args) {
+  execSync(`docker compose ${args}`, { stdio: 'inherit', env: cleanDockerEnv() });
+}
 
-// Function to register the mkdocs:serve task
+/**
+ * Docker が利用可能か確認し、不可なら警告メッセージを表示して false を返す
+ * @returns {boolean} Docker が利用可能なら true
+ */
+function requireDocker() {
+  if (isDockerAvailable()) {
+    return true;
+  }
+  console.warn('Warning: Docker is not running. Skipping this task.');
+  console.warn('Please start Docker Desktop and try again.');
+  return false;
+}
+
+/**
+ * MkDocs タスクを gulp に登録する
+ * @param {import('gulp').Gulp} gulp - Gulp インスタンス
+ */
 export default function (gulp) {
-    // Helper function to remove site directory
-    const removeSiteDirectory = () => {
-        const siteDir = path.join(process.cwd(), 'site');
-        if (fs.existsSync(siteDir)) {
-            console.log('Removing existing site directory...');
-            fs.rmSync(siteDir, {recursive: true, force: true});
-            console.log('Site directory removed successfully!');
-        }
-    };
+  gulp.task('mkdocs:serve', (done) => {
+    if (!requireDocker()) { done(); return; }
+    try {
+      console.log('Starting MkDocs server...');
+      dockerCompose('up -d mkdocs');
+      console.log('\nDocumentation is available at http://localhost:8000');
+      done();
+    } catch (error) {
+      done(error);
+    }
+  });
 
-    // MkDocs serve task
-    gulp.task('mkdocs:serve', (done) => {
-        try {
-            console.log('Starting MkDocs server using Docker Compose...');
+  gulp.task('mkdocs:build', (done) => {
+    if (!requireDocker()) { done(); return; }
+    try {
+      console.log('Building MkDocs documentation...');
+      const siteDir = path.join(process.cwd(), 'site');
+      if (fs.existsSync(siteDir)) {
+        fs.rmSync(siteDir, { recursive: true, force: true });
+      }
+      dockerCompose('run --rm mkdocs mkdocs build');
+      console.log('\nBuild completed.');
+      done();
+    } catch (error) {
+      done(error);
+    }
+  });
 
-            // Normalize DOCKER_HOST on Windows if it's incorrect
-            const env = { ...process.env };
-            if (isWindows && env.DOCKER_HOST === 'npipe://./pipe/docker_engine') {
-                env.DOCKER_HOST = 'npipe:////./pipe/docker_engine';
-            }
+  gulp.task('mkdocs:stop', (done) => {
+    if (!requireDocker()) { done(); return; }
+    try {
+      console.log('Stopping MkDocs server...');
+      dockerCompose('down');
+      console.log('Stopped.');
+      done();
+    } catch (error) {
+      done(error);
+    }
+  });
 
-            // Execute docker-compose up command to start mkdocs service
-            execSync('docker compose up -d mkdocs', {stdio: 'inherit', env});
-
-            console.log('\nMkDocs server started successfully!');
-            console.log('Documentation is now available at http://localhost:8000');
-            console.log('Press Ctrl+C to stop the server when done.');
-
-            done();
-        } catch (error) {
-            console.error('Error starting MkDocs server:', error.message);
-            done(error);
-        }
-    });
-
-    // MkDocs build task
-    gulp.task('mkdocs:build', (done) => {
-        try {
-            console.log('Building MkDocs documentation...');
-
-            // Normalize DOCKER_HOST on Windows if it's incorrect
-            const env = { ...process.env };
-            if (isWindows && env.DOCKER_HOST === 'npipe://./pipe/docker_engine') {
-                env.DOCKER_HOST = 'npipe:////./pipe/docker_engine';
-            }
-
-            // Remove existing site directory before building
-            removeSiteDirectory();
-
-            // Execute docker-compose run command to build mkdocs documentation
-            execSync('docker compose run --rm mkdocs mkdocs build', {stdio: 'inherit', env});
-
-            console.log('\nMkDocs documentation built successfully!');
-
-            done();
-        } catch (error) {
-            console.error('Error building MkDocs documentation:', error.message);
-            done(error);
-        }
-    });
-
-    // MkDocs stop task
-    gulp.task('mkdocs:stop', (done) => {
-        try {
-            console.log('Stopping MkDocs server...');
-
-            // Normalize DOCKER_HOST on Windows if it's incorrect
-            const env = { ...process.env };
-            if (isWindows && env.DOCKER_HOST === 'npipe://./pipe/docker_engine') {
-                env.DOCKER_HOST = 'npipe:////./pipe/docker_engine';
-            }
-
-            // Execute docker-compose down command to stop mkdocs service
-            execSync('docker compose down', {stdio: 'inherit', env});
-
-            console.log('MkDocs server stopped successfully!');
-
-            done();
-        } catch (error) {
-            console.error('Error stopping MkDocs server:', error.message);
-            done(error);
-        }
-    });
-
-    // MkDocs open task
-    gulp.task('mkdocs:open', (done) => {
-        try {
-            console.log('Opening MkDocs server...');
-
-            const command = isWindows ? 'start http://localhost:8000' : 'open http://localhost:8000';
-            execSync(command, {stdio: 'inherit'});
-
-            console.log('MkDocs server opened successfully!');
-
-            done();
-        } catch (error) {
-            console.error('Error opening MkDocs server:', error.message);
-            done(error);
-        }
-    });
+  gulp.task('mkdocs:open', (done) => {
+    try {
+      openUrl('http://localhost:8000');
+      done();
+    } catch (error) {
+      done(error);
+    }
+  });
 }
