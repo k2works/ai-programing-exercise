@@ -309,59 +309,81 @@
 <h3 id="1-git">1. バージョン管理 (Git)<a class="headerlink" href="#1-git" title="Permanent link">&para;</a></h3>
 <p>全ての変更は Git で管理し、意味のある単位でコミットします。</p>
 <ul>
-<li><strong>コミットメッセージ規約（Angular形式）</strong>:
-  <code>type(scope): subject</code> の形式で記述します。</li>
-<li><code>feat</code>: 新機能</li>
-<li><code>fix</code>: バグ修正</li>
-<li><code>test</code>: テストの追加・修正</li>
-<li><code>refactor</code>: リファクタリング</li>
-<li><code>chore</code>: 雑事（設定変更等）</li>
+<li><strong>コミットメッセージ規約(Angular形式)</strong>:</li>
+</ul>
+<p><code>type(scope): subject</code> の形式で記述します。
+  - <code>feat</code>:</p>
+<div class="highlight"><pre><span></span><code>新機能
+</code></pre></div>
+<ul>
+<li>
+<p><code>fix</code>:</p>
+<p>バグ修正
+  - <code>test</code>:</p>
+<p>テストの追加・修正
+  - <code>refactor</code>:</p>
+<p>リファクタリング
+  - <code>chore</code>:</p>
+<p>雑事(設定変更等)</p>
+</li>
 </ul>
 <h3 id="2-tdd">2. テスティング (TDD)<a class="headerlink" href="#2-tdd" title="Permanent link">&para;</a></h3>
 <p>テスト駆動開発 (Test-Driven Development) を実践します。
-1. <strong>Red</strong>: 失敗するテストを書く
-2. <strong>Green</strong>: テストを通す最小限の実装を書く
-3. <strong>Refactor</strong>: コードをきれいに整理する</p>
+1. <strong>Red</strong>:</p>
+<p>失敗するテストを書く
+2. <strong>Green</strong>:</p>
+<p>テストを通す最小限の実装を書く
+3. <strong>Refactor</strong>:</p>
+<p>コードをきれいに整理する</p>
 <h3 id="3">3. 自動化<a class="headerlink" href="#3" title="Permanent link">&para;</a></h3>
 <p>コマンド一つでビルド、テスト、静的解析を実行できるようにします。また、ファイル変更を監視して自動的にテストを実行する「継続的テスト」を活用します。</p>
 <hr />
 <h2 id="_3">共通の開発フロー<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
 <ol>
-<li><strong>環境の起動</strong>: <code>nix develop .#&lt;language&gt;</code></li>
-<li><strong>プロジェクトの初期化</strong>: 各言語のパッケージマネージャで初期化</li>
-<li><strong>Git初期化</strong>: <code>git init</code> (まだの場合)</li>
-<li><strong>TDDサイクル</strong>: 継続的テストを回しながら実装</li>
-<li><strong>静的解析</strong>: リンターやフォーマッタでコード品質をチェック</li>
-<li><strong>コミット</strong>: <code>git add .</code> -&gt; <code>git commit -m '...'</code></li>
+<li><strong>環境の起動</strong>:</li>
 </ol>
+<p><code>nix develop .#&lt;language&gt;</code>
+2. <strong>プロジェクトの初期化</strong>:</p>
+<p>各言語のパッケージマネージャで初期化
+3. <strong>Git初期化</strong>:</p>
+<p><code>git init</code> (まだの場合)
+4. <strong>TDDサイクル</strong>:</p>
+<p>継続的テストを回しながら実装
+5. <strong>静的解析</strong>:</p>
+<p>リンターやフォーマッタでコード品質をチェック
+6. <strong>コミット</strong>:</p>
+<p><code>git add .</code> -&gt; <code>git commit -m '...'</code></p>
 <hr />
 <h2 id="_4">言語別ガイド<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
 <h3 id="1-nodejs-typescript">1. Node.js / TypeScript<a class="headerlink" href="#1-nodejs-typescript" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>起動コマンド</strong>: <code>nix develop .#node</code></li>
-<li><strong>主要ツール</strong>: Node.js (v22), npm, TypeScript, ESLint, Prettier</li>
-<li><strong>初期化</strong>:
-  <div class="highlight"><pre><span></span><code>npm<span class="w"> </span>init<span class="w"> </span>-y
-npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </span>typescript<span class="w"> </span>@types/node
-npx<span class="w"> </span>tsc<span class="w"> </span>--init
-</code></pre></div></li>
-<li><strong>TDDチュートリアル</strong>:</li>
-<li><strong>Red</strong>: <code>hello.test.js</code> を作成。
-     <div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">assert</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;node:assert&#39;</span><span class="p">);</span>
-<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;node:test&#39;</span><span class="p">);</span>
-<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">hello</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./hello&#39;</span><span class="p">);</span>
+<li><strong>起動コマンド</strong>:</li>
+</ul>
+<p><code>nix develop .#node</code>
+- <strong>主要ツール</strong>:</p>
+<p>Node.js (v22), npm, TypeScript, ESLint, Prettier
+- <strong>初期化</strong>:</p>
+<p><div class="highlight"><pre><span></span><code>npm<span class="w"> </span>init<span class="w"> </span>-y
+</code></pre></div>
+- <strong>TDDチュートリアル</strong>:
+  1. <strong>Red</strong>: <code>hello.test.js</code> を作成。
+     <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">assert</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;node:assert&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">test</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;node:test&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">hello</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./hello.js&#39;</span><span class="p">;</span>
+
 <span class="nx">test</span><span class="p">(</span><span class="s1">&#39;hello returns greeting&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">assert</span><span class="p">.</span><span class="nx">strictEqual</span><span class="p">(</span><span class="nx">hello</span><span class="p">(),</span><span class="w"> </span><span class="s2">&quot;Hello, World!&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">assert</span><span class="p">.</span><span class="nx">strictEqual</span><span class="p">(</span><span class="nx">hello</span><span class="p">(),</span><span class="w"> </span><span class="s1">&#39;Hello,World!&#39;</span><span class="p">);</span>
 <span class="p">});</span>
 </code></pre></div>
-     実行（失敗）: <code>node --test hello.test.js</code></li>
-<li><strong>Green</strong>: <code>hello.js</code> を実装。
-     <div class="highlight"><pre><span></span><code><span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">hello</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s2">&quot;Hello, World!&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
-</code></pre></div></li>
-<li><strong>Refactor</strong>: 必要に応じてコードを整理。</li>
-<li><strong>自動化</strong>:</li>
-<li><code>node --watch --test hello.test.js</code> で変更を監視。</li>
-</ul>
+     実行（失敗）: <code>node --test hello.test.js</code>
+  2. <strong>Green</strong>: <code>hello.js</code> を実装。
+     <div class="highlight"><pre><span></span><code><span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">hello</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="s2">&quot;Hello, World!&quot;</span><span class="p">;</span><span class="w"> </span>
+<span class="p">}</span>
+</code></pre></div>
+  3. <strong>Refactor</strong>: 必要に応じてコードを整理。
+- <strong>自動化</strong>:
+  - <code>node --watch --test hello.test.js</code> で変更を監視。</p>
 <h3 id="2-python">2. Python<a class="headerlink" href="#2-python" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>起動コマンド</strong>: <code>nix develop .#python</code></li>
