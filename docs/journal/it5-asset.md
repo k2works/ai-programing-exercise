@@ -50,21 +50,22 @@ python apps/aipe/src/main/resources/assets/aipe/textures/.gen_textures.py
 - [x] `assets/aipe/models/block/example_block.json` 作成
 - [x] `assets/aipe/models/item/example_block.json` 作成
 - [x] `assets/aipe/models/item/example_item.json` 作成
-- [x] `assets/aipe/textures/{block,item}/*.png` 作成（16×16 単色）
-- [x] `assets/aipe/lang/en_us.json` の display name（`block.aipe.example_block` / `item.aipe.example_item` / `itemGroup.aipe`）は **MDK テンプレート段階で既に存在**（追加作業不要）
-- [ ] **`runClient` クリエイティブインベントリで両者がテクスチャ表示される目視確認** — ユーザー実施待ち（手順は下記）
+- [x] `assets/aipe/textures/{block,item}/*.png` 作成（16×16 単色 → IT-5 内でフレーム + 中央ドット模様に強化）
+- [x] **`assets/aipe/items/{example_block,example_item}.json`（item definitions）追加** — 1.21.x 必須、当初欠落で missing texture 発生 → commit 26f9fb4b で解消
+- [x] `assets/aipe/lang/en_us.json` の display name は MDK テンプレート段階で既存
+- [x] **`runClient` クリエイティブインベントリで両者がテクスチャ表示される目視確認** ✅ ユーザー実施済み
 
 ## 実施記録
 
 | 項目 | 内容 |
 |------|------|
-| 実施日 |  |
-| 実施者 |  |
-| 環境 | OS: / Java: / NeoForge: |
-| `example_block` テクスチャ表示 | OK / NG |
-| `example_item` テクスチャ表示 | OK / NG |
-| display name 表示（ホバー） | OK / NG |
-| 備考 |  |
+| 実施日 | 2026-05-02 |
+| 実施者 | self（ユーザー） |
+| 環境 | Windows 11 / JDK 21 / NeoForge 21.11.42 |
+| `example_block` テクスチャ表示 | ✅ OK（フレーム + 中央ダーク模様のグレーブロック）|
+| `example_item` テクスチャ表示 | ✅ OK（中央イエローハイライトのオレンジアイテム）|
+| display name 表示（ホバー） | ✅ OK |
+| 備考 | 初回確認時 missing texture（紫×黒）発生 → `assets/aipe/items/*.json` 欠落と判明 → 追加（commit 26f9fb4b）で解消、再実行で正常表示 |
 
 ## ユーザー目視確認手順
 

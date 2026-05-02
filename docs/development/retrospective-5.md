@@ -2,7 +2,7 @@
 
 **期間**: 2026-05-02（IT-4 完了直後から ralph-loop で連続実施）
 **ゴール**: アセット整備 + 体験フロー手順整備で `runClient` 上の Mod 完成度を底上げする
-**結果**: 7/7 SP の **実装範囲は完了**（コミット 356bd284, CI green）。`runClient` 目視確認はユーザー実施待ち。`developing-review` 5 観点バッチ実施済み。
+**結果**: 7/7 SP **完了** ✅（コミット 356bd284 / 26f9fb4b、CI green、ユーザー runClient 検証済み 2026-05-02）。`developing-review` 5 観点バッチ実施済み。途中で 1.21.x の item definitions 欠落による missing texture が発生 → commit 26f9fb4b で解消。
 
 ## 数値指標
 
@@ -68,15 +68,18 @@
 
 ## Problem（IT-5 で発生した課題）
 
-- **コード変更ゼロ × アセットのみのストーリー特性で、自動テストに守られない領域が浮き彫り**: アセット参照整合性の検証は本プロジェクトでは未対応のまま IT-5 を closed 扱い。IT-6 で対処予定。
-- **runClient 検証がユーザー依存で IT 完走の自律性が下がる**: ralph-loop 自走中でもユーザー手動確認のステップが必要なため、IT 完了プロミス出力までユーザー応答を待つ構造になった。
-- **ralph-loop と「人手確認が必要な DoD」の摩擦**: ralph-loop の哲学「自動的に完了プロミスを真にする」と、IT-5/IT-6 が要求する「runClient 目視確認」が原理的に不整合。
+- **コード変更ゼロ × アセットのみのストーリー特性で、自動テストに守られない領域が浮き彫り**: アセット参照整合性の検証は当初未対応 → IT-5 内で `AssetIntegrityTest` 5 件追加で解消。
+- **1.21.x で必須化された item definitions の見落とし（runClient で missing texture 発生）**: `assets/<modid>/blockstates/`、`models/`、`textures/` だけでは足りず、`assets/<modid>/items/<name>.json` で「アイテムレンダリング定義」を別途宣言する必要があった。当初 5 観点レビューでも気づかれず、ユーザーの runClient 検証で初めて発覚。`AssetIntegrityTest` を実装していたにもかかわらず、items/ ディレクトリの存在チェックが含まれていなかったため検出できなかった。`commit 26f9fb4b` で `assets/aipe/items/example_block.json` / `example_item.json` を追加し、AssetIntegrityTest にも検証ケースを追記して再発防止。
+- **runClient 検証がユーザー依存で IT 完走の自律性が下がる**: ralph-loop 自走中でもユーザー手動確認のステップが必要なため、IT 完了プロミス出力までユーザー応答を待つ構造になった。今回は missing texture が発覚したため、ユーザー検証を入れたことが結果的に重要なバグ検出になった。
+- **ralph-loop と「人手確認が必要な DoD」の摩擦**: ralph-loop の哲学「自動的に完了プロミスを真にする」と、IT-5/IT-6 が要求する「runClient 目視確認」が原理的に不整合。`/cancel-ralph` で停止して通常会話に戻し、ユーザー検証を経てから完了確定する流れがプロジェクトに合っていた。
 
 ## Try（次に試すこと）
 
-- **アセット参照整合性 GameTest / lint を IT-6 Day 0 で追加**: ブロックステート → モデル → テクスチャの参照チェーンを CI でガードする。
-- **テクスチャ識別性の向上**: IT-6 着手前に `.gen_textures.py` を更新してドット / 枠線パターンを導入（5 分の小作業）。
+- **アセット参照整合性 GameTest / lint を IT-6 Day 0 で追加** → IT-5 内で先行消化 ✅（`AssetIntegrityTest` 5 件、items/ チェックも含む）
+- **テクスチャ識別性の向上** → IT-5 内で先行消化 ✅（block: フレーム+中央ダーク / item: 中央イエロー）
+- **1.21.x の item definitions の知見を memory に蓄積** ✅（`project_neoforge_gametest_pitfalls.md` 落とし穴 #11.5）
 - **IT-6 では runClient 検証を「最後のタスク」として明示**: ralph-loop で自走しても最後の人手確認ステップは「ユーザー確認待ちフラグ立て」で停止することを明文化。本プロジェクトでは pragmatically これがベスト。
+- **AssetIntegrityTest を「Mod 拡張時の必須前進テスト」として位置づけ**: 新ブロック / アイテムを追加するイテレーションでは、追加対象を AssetIntegrityTest にも追記する DoD を IT-6 以降で運用。
 - **journal の DRY 化**: 共通セットアップを切り出すか、IT-6 で `it6-mvp-experience.md` を統合チェックリストとして作る。
 
 ## アクション項目（責任者・期限・期待効果）
