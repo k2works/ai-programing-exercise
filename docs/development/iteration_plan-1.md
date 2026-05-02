@@ -109,17 +109,17 @@
 **小計**: 1h
 **実績**: BUILD SUCCESSFUL in 24s, 1 test passed (2026-05-02)
 
-#### 3. US-004: GitHub Actions CI（2 SP）
+#### 3. US-004: GitHub Actions CI（2 SP）✅ 完了
 
 | # | タスク | 見積もり | 状態 |
 |---|--------|---------|------|
 | 3.1 | ワークフローファイル（`.github/workflows/aipe-ci.yml`）作成 | 1h | [x] |
 | 3.2 | JDK 21 セットアップ + `gradle/actions/setup-gradle@v4` でキャッシュ | 0.5h | [x] |
 | 3.3 | テスト実行コマンドの調整（`--no-daemon build test`） | 0.5h | [x] |
-| 3.4 | リモート push → 初回 run の green 化（必要に応じて trial-and-error） | 1.5h | [ ] |
+| 3.4 | リモート push → 初回 run の green 化 | 1.5h | [x] |
 
 **小計**: 3.5h
-**進捗**: 3.1〜3.3 ローカル準備完了。3.4 の push & 動作確認はユーザー承認が必要
+**実績**: CI 緑化（2026-05-02）。途中で gradlew の Linux 実行ビット欠落により失敗したため、`git update-index --chmod=+x` と CI ワークフロー側の `chmod +x ./gradlew` ステップ追加で対処。
 
 #### タスク合計
 
@@ -127,11 +127,11 @@
 |---------|----|----|------|
 | US-001 起動確認 | 2 | 2h | [ ] |
 | US-003 JUnit 5 セットアップ | 1 | 1h | [x] |
-| US-004 CI 自動化 | 2 | 3.5h | [ ] |
+| US-004 CI 自動化 | 2 | 3.5h | [x] |
 | **合計** | **5** | **6.5h** | |
 
 **1 SP あたり**: 約 1.3h
-**進捗率**: 20%（1/5 SP）
+**進捗率**: 60%（3/5 SP）
 
 ---
 
