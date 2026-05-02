@@ -64,6 +64,20 @@ class AssetIntegrityTest {
     }
 
     @Test
+    @DisplayName("item definitions: items/example_block.json と items/example_item.json が存在しモデルを参照する")
+    void itemDefinitionsExist() throws IOException {
+        // 1.21.x で導入された assets/<ns>/items/<name>.json が必須。
+        // これが無いとアイテムは missing texture（紫×黒）になる。
+        String blockItemDef = readResource("/assets/" + MOD_ID + "/items/example_block.json");
+        assertContains(blockItemDef, "\"" + MOD_ID + ":block/example_block\"",
+                "items/example_block.json must reference aipe:block/example_block as model");
+
+        String itemItemDef = readResource("/assets/" + MOD_ID + "/items/example_item.json");
+        assertContains(itemItemDef, "\"" + MOD_ID + ":item/example_item\"",
+                "items/example_item.json must reference aipe:item/example_item as model");
+    }
+
+    @Test
     @DisplayName("lang/en_us.json に主要な display name キーが存在する")
     void enUsHasDisplayNameKeys() throws IOException {
         String lang = readResource("/assets/" + MOD_ID + "/lang/en_us.json");
