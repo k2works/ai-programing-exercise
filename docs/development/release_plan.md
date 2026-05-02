@@ -290,9 +290,18 @@ gantt
 
 ### イテレーション 3（Week 5-6）
 
-**ゴール**: カスタムアイテム + クラフトレシピが動作する。
+**ゴール**: カスタムアイテムをプレイヤーが所持でき、カスタムブロック → カスタムアイテムへのクラフトレシピが GameTest で自動保護される。
+
+**主なタスク**:
+
+- [ ] Day 0: `git check-ignore` でレシピ JSON / アイテムモデルパスを検証、`RecipeProvider` API spike
+- [ ] US-201: `helper.makeMockPlayer()` を使った `give_item` GameTest
+- [ ] US-202: `AipeRecipeProvider` + `RecipeManager` 経由のクラフト検証 GameTest
+- [ ] 各ストーリー完了時に `developing-review` 発動（IT-2 ふりかえり Try）
 
 **目標 SP**: 8
+
+詳細は [iteration_plan-3.md](./iteration_plan-3.md) を参照。
 
 ### イテレーション 4（Week 7-8）
 
