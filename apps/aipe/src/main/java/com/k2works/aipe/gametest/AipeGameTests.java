@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 
 import com.k2works.aipe.AiProgrammingExercise;
 import com.k2works.aipe.data.AipeRecipeProvider;
+import com.k2works.aipe.data.AipeWorldgenBootstrap;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -25,6 +26,7 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
@@ -72,6 +74,10 @@ public final class AipeGameTests {
     /** US-301: {@code aipe:tower} 構造をワールドに配置し、3 段の石柱が形成されることを検証するテスト関数。 */
     public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> PLACE_STRUCTURE_FN =
             TEST_FUNCTIONS.register("place_structure", () -> AipeGameTests::placeStructureTest);
+
+    /** US-302: {@code aipe:custom_biome} が registry に登録され属性が期待値であることを検証するテスト関数。 */
+    public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> CUSTOM_BIOME_REGISTERED_FN =
+            TEST_FUNCTIONS.register("custom_biome_registered", () -> AipeGameTests::customBiomeRegisteredTest);
 
     private AipeGameTests() {
     }
@@ -133,6 +139,14 @@ public final class AipeGameTests {
                 Identifier.fromNamespaceAndPath(MODID, "place_structure"),
                 new FunctionGameTestInstance(
                         PLACE_STRUCTURE_FN.getKey(),
+                        new TestData<>(defaultEnv, emptyStructure,
+                                100, 0, true, Rotation.NONE, false, 1, 1, false)));
+
+        // US-302: custom_biome_registered test — verify biome registered with expected attributes
+        event.registerTest(
+                Identifier.fromNamespaceAndPath(MODID, "custom_biome_registered"),
+                new FunctionGameTestInstance(
+                        CUSTOM_BIOME_REGISTERED_FN.getKey(),
                         new TestData<>(defaultEnv, emptyStructure,
                                 100, 0, true, Rotation.NONE, false, 1, 1, false)));
     }
@@ -239,6 +253,25 @@ public final class AipeGameTests {
         helper.assertBlockPresent(Blocks.STONE, new BlockPos(0, 0, 0));
         helper.assertBlockPresent(Blocks.STONE, new BlockPos(0, 1, 0));
         helper.assertBlockPresent(Blocks.STONE, new BlockPos(0, 2, 0));
+        helper.succeed();
+    }
+
+    /**
+     * US-302: {@code aipe:custom_biome} がレジストリに登録されており、
+     * {@code hasPrecipitation=true} / {@code baseTemperature=0.7} 等の属性が
+     * 期待値どおりであることを検証する。
+     */
+    private static void customBiomeRegisteredTest(GameTestHelper helper) {
+        var biomeRegistry = helper.getLevel().registryAccess().lookupOrThrow(Registries.BIOME);
+        java.util.Optional<Holder.Reference<Biome>> biomeRef = biomeRegistry.get(AipeWorldgenBootstrap.CUSTOM_BIOME);
+        helper.assertTrue(biomeRef.isPresent(),
+                "custom_biome should be registered in BIOME registry");
+
+        Biome biome = biomeRef.get().value();
+        helper.assertTrue(biome.hasPrecipitation(),
+                "custom_biome should have precipitation");
+        helper.assertTrue(Math.abs(biome.getBaseTemperature() - 0.7f) < 1e-4f,
+                "custom_biome base temperature should be 0.7 but was " + biome.getBaseTemperature());
         helper.succeed();
     }
 }

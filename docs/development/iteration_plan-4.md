@@ -111,32 +111,33 @@
 **小計**: 5.1h（実績 ~1.5h）
 **実績**: ローカル 7 件 green / 752ms。`EmptyStructureProvider` を廃止し `AipeStructureProvider`（`StructureSpec` record で `empty` と `tower` を一元管理）に汎用化。`StructureTemplate.placeInWorld` で UPDATE_ALL フラグ付きで配置成功。テスト構造は 1×1×1 だが GameTest framework は構造範囲外の (0,1,0)/(0,2,0) も正しく検出。
 
-#### 2. US-302: カスタムバイオーム GameTest（8 SP）
+#### 2. US-302: カスタムバイオーム GameTest（8 SP）✅ ローカル完了
 
 | # | タスク | 見積もり | 状態 |
 |---|--------|---------|------|
-| 2.1 | `AipeBiomeProvider`（`DatapackBuiltinEntriesProvider` ベース）作成 | 1.5h | [ ] |
-| 2.2 | カスタムバイオーム定義（`Biome.BiomeBuilder` で温度・降水・色等の基本属性）| 2h | [ ] |
-| 2.3 | `AipeDataGenerators` に `BootstrapContext<Biome>` 経由で登録 | 0.5h | [ ] |
-| 2.4 | `runData` で `data/aipe/worldgen/biome/custom_biome.json` 生成確認 | 0.5h | [ ] |
-| 2.5 | `aipe:custom_biome_registered` テスト関数を登録 | 0.5h | [ ] |
-| 2.6 | テスト実装: registry 検索 + 属性検証（温度等）| 2h | [ ] |
-| 2.7 | `runGameTestServer` 緑化確認（8 件 green）| 0.5h | [ ] |
-| 2.8 | バッファ（API 刷新による試行錯誤）| 0.5h | [ ] |
+| 2.1 | `AipeWorldgenBootstrap` 作成（`BootstrapContext<Biome>` 経由でバイオーム登録）| 1.5h | [x] |
+| 2.2 | カスタムバイオーム定義（`Biome.BiomeBuilder` + `BiomeSpecialEffects.Builder().waterColor()` + `EMPTY` mob/gen）| 2h | [x] |
+| 2.3 | `AipeDataGenerators` に `RegistrySetBuilder` + `DatapackBuiltinEntriesProvider` で登録 | 0.5h | [x] |
+| 2.4 | `runData` で `data/aipe/worldgen/biome/custom_biome.json` 生成確認 | 0.5h | [x] |
+| 2.5 | `aipe:custom_biome_registered` テスト関数を登録 | 0.5h | [x] |
+| 2.6 | テスト実装: `registryAccess().lookupOrThrow(Registries.BIOME).get(...)` + `hasPrecipitation()` / `getBaseTemperature()` 検証 | 2h | [x] |
+| 2.7 | `runGameTestServer` 緑化確認（8 件 green）| 0.5h | [x] |
+| 2.8 | バッファ | 0.5h | [-] 未消費 |
 
-**小計**: 8h
+**小計**: 8h（実績 ~1.5h、API 刷新の試行錯誤バッファは未消費）
+**実績**: ローカル 8 件 green / 595ms。`BiomeSpecialEffects` は 1.21 で簡素化されており `waterColor` のみ必須。`MobSpawnSettings.EMPTY` / `BiomeGenerationSettings.EMPTY` で最小化。`DatapackBuiltinEntriesProvider` + `RegistrySetBuilder.add(Registries.BIOME, ...)` で datapack 登録成功。
 
 #### タスク合計
 
 | カテゴリ | SP | 理想時間 | 状態 |
 |---------|----|----|------|
-| Day 0 準備 | 0 | 2h | [ ] |
-| US-301 構造物 GameTest | 5 | 5.1h | [ ] |
-| US-302 バイオーム GameTest | 8 | 8h | [ ] |
+| Day 0 準備 | 0 | 2h | [x] |
+| US-301 構造物 GameTest | 5 | 5.1h | [x] |
+| US-302 バイオーム GameTest | 8 | 8h | [x] |
 | **合計** | **13** | **15.1h** | |
 
 **1 SP あたり**: 約 1.2h
-**進捗率**: 0%（0/13 SP）
+**進捗率**: 100%（13/13 SP）✅
 
 ---
 
