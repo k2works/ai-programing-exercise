@@ -25,7 +25,13 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -62,6 +68,10 @@ public final class AipeGameTests {
      *  入力に対して期待の出力が得られることを検証するテスト関数。 */
     public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> CRAFT_BLOCK_TO_ITEM_FN =
             TEST_FUNCTIONS.register("craft_block_to_item", () -> AipeGameTests::craftBlockToItemTest);
+
+    /** US-301: {@code aipe:tower} 構造をワールドに配置し、3 段の石柱が形成されることを検証するテスト関数。 */
+    public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> PLACE_STRUCTURE_FN =
+            TEST_FUNCTIONS.register("place_structure", () -> AipeGameTests::placeStructureTest);
 
     private AipeGameTests() {
     }
@@ -115,6 +125,14 @@ public final class AipeGameTests {
                 Identifier.fromNamespaceAndPath(MODID, "craft_block_to_item"),
                 new FunctionGameTestInstance(
                         CRAFT_BLOCK_TO_ITEM_FN.getKey(),
+                        new TestData<>(defaultEnv, emptyStructure,
+                                100, 0, true, Rotation.NONE, false, 1, 1, false)));
+
+        // US-301: place_structure test — load aipe:tower and verify stone pillar
+        event.registerTest(
+                Identifier.fromNamespaceAndPath(MODID, "place_structure"),
+                new FunctionGameTestInstance(
+                        PLACE_STRUCTURE_FN.getKey(),
                         new TestData<>(defaultEnv, emptyStructure,
                                 100, 0, true, Rotation.NONE, false, 1, 1, false)));
     }
@@ -189,6 +207,38 @@ public final class AipeGameTests {
         helper.assertTrue(result.is(expected),
                 "crafted result should be " + expected + " but was " + result);
 
+        helper.succeed();
+    }
+
+    /**
+     * US-301: {@code aipe:tower} 構造をテストエリアに配置し、
+     * 3 段の石柱（0,0,0 / 0,1,0 / 0,2,0）が形成されることを検証する。
+     */
+    private static void placeStructureTest(GameTestHelper helper) {
+        StructureTemplateManager mgr = helper.getLevel().getStructureManager();
+        Identifier towerId = Identifier.fromNamespaceAndPath(MODID, "tower");
+        java.util.Optional<StructureTemplate> templateOpt = mgr.get(towerId);
+        helper.assertTrue(templateOpt.isPresent(),
+                "structure template " + towerId + " should be loadable");
+
+        BlockPos origin = new BlockPos(0, 0, 0);
+        StructurePlaceSettings settings = new StructurePlaceSettings()
+                .setMirror(Mirror.NONE)
+                .setRotation(Rotation.NONE)
+                .setIgnoreEntities(true);
+
+        boolean placed = templateOpt.get().placeInWorld(
+                helper.getLevel(),
+                helper.absolutePos(origin),
+                helper.absolutePos(origin),
+                settings,
+                helper.getLevel().random,
+                Block.UPDATE_ALL);
+        helper.assertTrue(placed, "tower structure should be placed");
+
+        helper.assertBlockPresent(Blocks.STONE, new BlockPos(0, 0, 0));
+        helper.assertBlockPresent(Blocks.STONE, new BlockPos(0, 1, 0));
+        helper.assertBlockPresent(Blocks.STONE, new BlockPos(0, 2, 0));
         helper.succeed();
     }
 }

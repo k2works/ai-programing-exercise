@@ -27,8 +27,8 @@ public final class AipeDataGenerators {
         DataGenerator generator = event.getGenerator();
         PackOutput output = generator.getPackOutput();
 
-        // GameTest 用構造（1×1×1 / air）
-        generator.addProvider(true, new EmptyStructureProvider(output));
+        // 構造 NBT（empty: GameTest 共通 + tower: US-301）
+        generator.addProvider(true, new AipeStructureProvider(output));
 
         // ブロック loot table（破壊時 drop）
         generator.addProvider(true, new LootTableProvider(

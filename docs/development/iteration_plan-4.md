@@ -97,18 +97,19 @@
 **小計**: 2h（残作業）
 **実績**: `cleanGameTestRun` Gradle タスク追加、5 パスとも追跡可能、`Biome.BiomeBuilder` / `BootstrapContext<Biome>` / `StructureTemplate.placeInWorld` の API シグネチャ確認、US-302 は **維持**（registry 登録 + 属性検証に絞る、biome source 統合は IT-5 以降）。詳細は `docs/journal/it4-day0-spike.md`。
 
-#### 1. US-301: カスタム構造物 GameTest（5 SP）
+#### 1. US-301: カスタム構造物 GameTest（5 SP）✅ ローカル完了
 
 | # | タスク | 見積もり | 状態 |
 |---|--------|---------|------|
-| 1.1 | `EmptyStructureProvider` を `AipeStructureProvider` に汎用化（複数構造を生成可能に）or 別プロバイダ追加 | 1h | [ ] |
-| 1.2 | `tower.nbt`（例: 高さ 3 の石柱）を生成する logic 追加 | 1h | [ ] |
-| 1.3 | `runData` で構造 NBT 生成確認 | 0.3h | [ ] |
-| 1.4 | `aipe:place_structure` テスト関数を登録 | 0.5h | [ ] |
-| 1.5 | テスト実装: `StructureTemplateManager` でテンプレートをロード → `helper.getLevel().getStructureManager().placeStructure(...)` または `template.placeInWorld(...)` → `assertBlockPresent` で検証 | 2h | [ ] |
-| 1.6 | `runGameTestServer` 緑化確認（7 件 green）| 0.3h | [ ] |
+| 1.1 | `AipeStructureProvider` 新規作成（`StructureSpec` record で複数構造を一元定義） | 1h | [x] |
+| 1.2 | `tower` 構造（高さ 3 の石柱）を `STRUCTURES` リストに追加 | 1h | [x] |
+| 1.3 | `runData` で `data/aipe/structure/{empty,tower}.nbt` 両方の生成確認 | 0.3h | [x] |
+| 1.4 | `aipe:place_structure` テスト関数を登録 | 0.5h | [x] |
+| 1.5 | テスト実装: `StructureTemplateManager.get(towerId)` → `template.placeInWorld(level, abs, abs, settings, random, UPDATE_ALL)` → `assertBlockPresent(STONE, 0/1/2)` | 2h | [x] |
+| 1.6 | `runGameTestServer` 緑化確認（7 件 green）| 0.3h | [x] |
 
-**小計**: 5.1h
+**小計**: 5.1h（実績 ~1.5h）
+**実績**: ローカル 7 件 green / 752ms。`EmptyStructureProvider` を廃止し `AipeStructureProvider`（`StructureSpec` record で `empty` と `tower` を一元管理）に汎用化。`StructureTemplate.placeInWorld` で UPDATE_ALL フラグ付きで配置成功。テスト構造は 1×1×1 だが GameTest framework は構造範囲外の (0,1,0)/(0,2,0) も正しく検出。
 
 #### 2. US-302: カスタムバイオーム GameTest（8 SP）
 
