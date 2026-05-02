@@ -1,0 +1,238 @@
+# イテレーション 6 計画 — ワールドジェン統合 = プレイ可能 MVP（v1.0.0 ★）
+
+## 概要
+
+| 項目 | 内容 |
+|------|------|
+| **イテレーション** | IT-6 |
+| **期間** | Week 11-12（2 週間, 2026-07-13 〜 2026-07-26） |
+| **ゴール** | `runClient` で生成したワールドを実際に体験できる状態にする。`aipe:custom_biome` への到達と `aipe:tower` 構造物の自然生成発見を可能にする。**プロジェクトの真の MVP（v1.0.0）達成** |
+| **目標 SP** | 8 SP |
+
+---
+
+## ゴール
+
+### イテレーション終了時の達成状態
+
+1. **バイオーム到達**: NeoForge `BiomeModifier` で `aipe:custom_biome` をオーバーワールドの biome source に追加し、`/locate biome aipe:custom_biome` で位置を取得できる。
+2. **構造物発見**: `aipe:tower` の自然生成設定（`structure` JSON + `structure_set` JSON + biome filter）を整備し、`/locate structure aipe:tower` で発見可能。
+3. **エンドツーエンド体験**: 新規ワールド生成 → ブロック設置 → アイテム入手 → クラフト → カスタムバイオーム到達 → カスタム構造物発見、の一連の流れを `runClient` で実体験できる。
+4. **既存テスト無傷**: 既存 GameTest が retrogression なく緑のまま。
+5. **v1.0.0 リリース**: タグ付けとリリースノート整備で、**プロジェクトの真の MVP** が到達点として明示される。
+
+### 成功基準
+
+- [ ] US-501 / US-502 のすべての受入条件を満たす
+- [ ] `./gradlew runGameTestServer` 緑（既存 8 件、retrogression なし）
+- [ ] `./gradlew test` 緑
+- [ ] `aipe-ci.yml` の最新 run が緑
+- [ ] `runClient` でエンドツーエンド体験 journal が作成される
+- [ ] `release_plan.md` の進捗欄が IT-6 実績で更新される
+- [ ] `retrospective-6.md` 作成
+- [ ] **v1.0.0 タグ作成**（プロジェクト最終目標達成）
+
+---
+
+## ユーザーストーリー
+
+### 対象ストーリー
+
+| ID | ユーザーストーリー | SP | 優先度 |
+|----|-------------------|----|----|
+| US-501 | 新規ワールド生成時に `aipe:custom_biome` に到達できる | 5 | 必須 |
+| US-502 | 新規ワールドで自然生成された `aipe:tower` 構造物を発見できる | 3 | 必須 |
+| **合計** | | **8** | |
+
+### ストーリー詳細
+
+#### US-501: バイオーム到達
+
+**受入条件**:
+
+1. NeoForge `BiomeModifier` 仕組み（`data/aipe/neoforge/biome_modifier/...json`）で `aipe:custom_biome` をオーバーワールドの `MultiNoiseBiomeSource` に追加。
+2. `runClient` で新規ワールド生成後、`/locate biome aipe:custom_biome` を実行すると座標が返る（タイムアウトしない範囲で）。
+3. 該当座標へ `/tp` で移動すると実際にカスタムバイオーム内に入れる（`F3` 画面で `Biome: aipe:custom_biome` 表示）。
+4. 手順を `docs/journal/it6-biome-explore.md` に記録。
+
+**設計指針**:
+
+- NeoForge 1.21.x の biome modifier 仕様を Day 0 spike で確認。`AddSpawnsBiomeModifier` のような既存パターンを参考に、`AddNoiseSettingsBiomeModifier` 的なものを定義（または独自タイプ）。
+- フォールバック: もし biome modifier が複雑すぎる場合は、独自 `BiomeSource` を定義したカスタムワールドプリセットを `runClient` 起動時に選択する方式に切り替える（受入条件 1 を緩和）。
+
+#### US-502: 構造物発見
+
+**受入条件**:
+
+1. `data/aipe/worldgen/structure/tower.json`（`Structure` 定義: 配置タイプ、biome filter 等）作成。
+2. `data/aipe/worldgen/structure_set/tower.json`（配置設定: 頻度・spread）作成。
+3. `runClient` で新規ワールド生成後、`/locate structure aipe:tower` を実行すると座標が返る。
+4. 該当座標へ `/tp` で移動すると実際に石柱構造が出現している。
+5. 手順を `docs/journal/it6-structure-explore.md` に記録。
+
+**設計指針**:
+
+- 既存の `tower.nbt`（IT-4 で生成済み）を再利用。
+- `Structure` の type は `minecraft:jigsaw` ではなく独自またはバニラの `minecraft:placement_type` 系で最も簡素なものを採用。Day 0 spike で確認。
+
+### タスク
+
+#### 0. IT-6 開始準備（0 SP）
+
+| # | タスク | 見積もり | 状態 |
+|---|--------|---------|------|
+| 0.1 | NeoForge `BiomeModifier` API の 60 分 spike — 最小例の実装可能性を確認 | 1h | [ ] |
+| 0.2 | `Structure` / `StructurePlacement` / `structure_set` JSON 仕様の 30 分 spike | 0.5h | [ ] |
+| 0.3 | `git check-ignore` で `data/aipe/neoforge/` / `data/aipe/worldgen/structure_set/` パスを確認 | 0.2h | [ ] |
+| 0.4 | spike 結果に応じて US-501 のフォールバック判定（biome modifier or 独自 world preset） | 0.2h | [ ] |
+
+**小計**: 1.9h
+
+#### 1. US-501: バイオーム到達（5 SP）
+
+| # | タスク | 見積もり | 状態 |
+|---|--------|---------|------|
+| 1.1 | `BiomeModifier` JSON 定義（または `AipeBiomeModifierProvider` データジェネレーター追加）| 2h | [ ] |
+| 1.2 | `AipeDataGenerators` への登録 + `runData` で生成確認 | 0.5h | [ ] |
+| 1.3 | `runClient` で新規ワールド生成 + `/locate biome` 動作確認 | 1h | [ ] |
+| 1.4 | journal `it6-biome-explore.md` に手順記録 | 0.5h | [ ] |
+| 1.5 | バッファ（API 試行錯誤） | 1h | [ ] |
+
+**小計**: 5h
+
+#### 2. US-502: 構造物発見（3 SP）
+
+| # | タスク | 見積もり | 状態 |
+|---|--------|---------|------|
+| 2.1 | `tower.json`（structure 定義）+ `structure_set.json`（配置設定）データジェネレーター追加 | 1.5h | [ ] |
+| 2.2 | `runData` で JSON 生成確認 | 0.3h | [ ] |
+| 2.3 | `runClient` で新規ワールド生成 + `/locate structure` 動作確認 | 0.7h | [ ] |
+| 2.4 | journal `it6-structure-explore.md` に手順記録 | 0.5h | [ ] |
+
+**小計**: 3h
+
+#### 3. v1.0.0 リリース仕上げ（0 SP）
+
+| # | タスク | 見積もり | 状態 |
+|---|--------|---------|------|
+| 3.1 | エンドツーエンド体験 journal `it6-mvp-experience.md` 作成（IT-1〜IT-6 全機能を 1 ワールドで体験する物語）| 1h | [ ] |
+| 3.2 | retrospective-6.md 作成 | 0.5h | [ ] |
+| 3.3 | release_plan.md の進捗 + バーンダウン更新 | 0.3h | [ ] |
+| 3.4 | v1.0.0 タグ作成・push | 0.2h | [ ] |
+
+**小計**: 2h（タスクは v1.0.0 リリースに必須だが SP には含めない）
+
+#### タスク合計
+
+| カテゴリ | SP | 理想時間 | 状態 |
+|---------|----|----|------|
+| Day 0 準備 | 0 | 1.9h | [ ] |
+| US-501 バイオーム到達 | 5 | 5h | [ ] |
+| US-502 構造物発見 | 3 | 3h | [ ] |
+| v1.0.0 リリース仕上げ | 0 | 2h | [ ] |
+| **合計** | **8** | **11.9h** | |
+
+**進捗率**: 0%（0/8 SP）
+
+---
+
+## スケジュール
+
+```mermaid
+gantt
+    title IT-6 — ワールドジェン統合 = プレイ可能 MVP
+    dateFormat  YYYY-MM-DD
+    section Day 0
+    spike + 検証      :d0, 2026-07-13, 1d
+    section US-501
+    BiomeModifier 実装 :d1, after d0, 2d
+    runClient 検証     :d2, after d1, 1d
+    section US-502
+    structure 定義     :a1, after d2, 1d
+    runClient 検証     :a2, after a1, 1d
+    section v1.0.0
+    MVP 体験 journal   :a3, after a2, 1d
+    ふりかえり / タグ  :a4, after a3, 1d
+```
+
+---
+
+## 設計
+
+> Mod プロジェクト前提、Web 向けセクション（DDD / DB / UI / API）は N/A。
+
+### データ構成（IT-6 完了時点）
+
+```
+apps/aipe/src/generated/resources/data/aipe/
+├── neoforge/
+│   └── biome_modifier/
+│       └── add_custom_biome.json        # US-501（または独自パスへ）
+└── worldgen/
+    ├── biome/
+    │   └── custom_biome.json            # 既存（IT-4 から）
+    ├── structure/
+    │   └── tower.json                   # US-502（NEW）
+    └── structure_set/
+        └── tower.json                   # US-502（NEW）
+```
+
+### ADR（IT-6 で記録すべき意思決定候補）
+
+| ADR | タイトル | ステータス |
+|-----|---------|-----------|
+| ADR-012 | バイオーム統合手法は `BiomeModifier` を採用、独自 world preset は不採用（spike 結果次第で見直し）| 提案 |
+| ADR-013 | 構造物配置タイプは最小簡素な `random_spread` を採用、`jigsaw` は不要 | 提案 |
+
+---
+
+## リスクと対策
+
+| リスク | 影響度 | 対策 |
+|--------|--------|------|
+| NeoForge 1.21.11 の `BiomeModifier` API 仕様が複雑で 5 SP に収まらない | 高 | Day 0 spike で評価、ダメなら US-501 を「独自 world preset 選択時に到達可能」に縮退 |
+| 構造物の自然生成設定で構造が出現しない（biome filter / placement 不一致） | 中 | バニラ `minecraft:village_plains` 等の structure_set を参考、最初は `biome` フィルタを `minecraft:plains` 等にして確認後、`aipe:custom_biome` 限定に絞る |
+| エンドツーエンド体験 journal で発見できないシナリオが残る | 低 | journal を最終ステップにし、不足を発見したら IT-7 を起こすかバッファ消化で対応 |
+
+---
+
+## 完了条件
+
+### Definition of Done（IT-6 全体）
+
+- [ ] US-501 / US-502 のすべての受入条件を満たす
+- [ ] `./gradlew test` 緑
+- [ ] `./gradlew runGameTestServer` 緑（既存 8 件、retrogression なし）
+- [ ] `aipe-ci.yml` の最新 run が緑
+- [ ] `docs/journal/it6-{biome-explore,structure-explore,mvp-experience}.md` 作成
+- [ ] `release_plan.md` の進捗欄を IT-6 実績で更新（バーンダウン残 0）
+- [ ] `docs/development/retrospective-6.md` 作成
+- [ ] **`v1.0.0` タグ作成・push（プレイ可能 MVP の到達証）**
+
+### デモ項目（最終形）
+
+`runClient` で新規ワールドを 1 つ生成し、以下のシナリオを連続実行できる:
+
+1. 起動 → 新規ワールド作成（クリエイティブモード）
+2. クリエイティブインベントリから `example_block` を取り出して設置
+3. ブロックを破壊して `example_block_item` をインベントリに戻す
+4. クラフトテーブルで `example_block` → `example_item` を作る
+5. `/locate biome aipe:custom_biome` で座標取得 → `/tp` で移動 → `F3` でバイオーム名確認
+6. `/locate structure aipe:tower` で座標取得 → `/tp` で移動 → 石柱構造を発見
+
+---
+
+## 更新履歴
+
+| 日付 | 更新内容 | 更新者 |
+|------|---------|--------|
+| 2026-05-02 | 初版作成（8 SP / 2 ストーリー / プレイ可能 MVP）| self |
+
+---
+
+## 関連ドキュメント
+
+- [リリース計画](./release_plan.md)
+- [イテレーション 5 計画](./iteration_plan-5.md)
+- [ユーザーストーリー](../requirements/user_stories.md)
+- [イテレーション 6 ふりかえり](./retrospective-6.md)（IT-6 終了時）
