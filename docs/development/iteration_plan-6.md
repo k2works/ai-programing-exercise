@@ -97,32 +97,31 @@
 **小計**: 2.6h
 **実績**: BiomeModifier は **既存バイオーム改変のみ可能で新規バイオームの biome source 注入は不可**と判明 → US-501 縮退決定（SP 5→2、registry 確認 + `/fillbiome` ワークフローのみ、本格統合は v1.1.0 へ）。差分 3 SP は US-502 に再配分（SP 3→6、jigsaw 構造 worldgen で自然生成実装）。詳細は `docs/journal/it6-day0-spike.md`。
 
-#### 1. US-501: バイオーム到達（2 SP / 縮退版）
-
-> **Day 0 spike 結果による縮退**: NeoForge `BiomeModifier` API では新規バイオームを overworld の biome source に注入できない。本格統合は **v1.1.0 計画** に持ち越し（TerraBlender 統合 or 独自 world preset）。IT-6 では registry 既存（IT-4 達成済）+ `/fillbiome` で任意領域変換が可能なことの確認に絞る。
+#### 1. US-501: バイオーム到達（2 SP / 縮退版）✅ 手順整備完了 / runClient 確認待ち
 
 | # | タスク | 見積もり | 状態 |
 |---|--------|---------|------|
-| 1.1 | `runClient` で `/fillbiome <coords> aipe:custom_biome` を実行し領域を変換できることを確認（ユーザー実機）| 0.5h | [ ] |
-| 1.2 | journal `it6-biome-explore.md` に手順記録 + v1.1.0 持ち越し事項を明記 | 0.5h | [ ] |
+| 1.1 | `runClient` で `/fillbiome <coords> aipe:custom_biome` を実行し領域を変換できることを確認（ユーザー実機）| 0.5h | [ ] ユーザー実施待ち |
+| 1.2 | journal `it6-biome-explore.md` に手順記録 + v1.1.0 持ち越し事項を明記 | 0.5h | [x] |
 
 **小計**: 1h
+**実績**: registry 登録（IT-4 達成済）+ `AssetIntegrityTest.customBiomeRegistered` 追加。`/fillbiome` 検証は journal に手順記録済。本格統合は v1.1.0 へ持ち越し。
 
-#### 2. US-502: 構造物発見（6 SP / 拡張版）
-
-> US-501 縮退分の差分 3 SP を再配分。jigsaw 経由の自然生成構造を実装。
+#### 2. US-502: 構造物発見（6 SP / 拡張版）✅ 実装完了 / runClient 確認待ち
 
 | # | タスク | 見積もり | 状態 |
 |---|--------|---------|------|
-| 2.1 | `AipeStructureWorldgenProvider` 作成（`data/aipe/worldgen/{structure,structure_set,template_pool}/tower.json` を生成）| 2h | [ ] |
-| 2.2 | `AipeWorldgenBootstrap` に `Structure` / `StructureSet` / `StructureTemplatePool` 登録を追加 | 1.5h | [ ] |
-| 2.3 | `AipeDataGenerators` の `RegistrySetBuilder` を拡張（既存 BIOME に追加）| 0.5h | [ ] |
-| 2.4 | `runData` で 3 件 JSON 生成確認 | 0.3h | [ ] |
-| 2.5 | `runClient` で新規ワールド生成 + `/locate structure aipe:tower` で発見可能を確認（ユーザー実機）| 1h | [ ] |
-| 2.6 | journal `it6-structure-explore.md` に手順 + 実施記録追加 | 0.5h | [ ] |
-| 2.7 | バッファ（jigsaw / structure_set 試行錯誤）| 0.5h | [ ] |
+| 2.1 | `data/aipe/worldgen/structure/tower.json` 作成（jigsaw structure）| 1h | [x] |
+| 2.2 | `data/aipe/worldgen/structure_set/tower.json` 作成（random_spread placement）| 0.5h | [x] |
+| 2.3 | `data/aipe/worldgen/template_pool/tower.json` 作成（single_pool_element）| 0.5h | [x] |
+| 2.4 | `AssetIntegrityTest` に worldgen 参照チェーン検証ケース追加（2 件）| 1h | [x] |
+| 2.5 | `runGameTestServer` で既存 8 件が緑のまま確認 | 0.3h | [x] |
+| 2.6 | `runClient` で新規ワールド生成 + `/locate structure aipe:tower` で発見可能を確認（ユーザー実機）| 1h | [ ] ユーザー実施待ち |
+| 2.7 | journal `it6-structure-explore.md` に手順 + 実施記録欄追加 | 0.5h | [x] |
+| 2.8 | バッファ（試行錯誤）| 0.5h | [-] 未消費 |
 
-**小計**: 6.3h
+**小計**: 6.3h（実績 ~1.5h、JSON 直接記述で datagen / BootstrapContext 経由を回避し簡素化）
+**実績**: 3 worldgen JSON + AssetIntegrityTest 拡張（合計 7 件 green）。jigsaw structure 構成は vanilla `trail_ruins` を参考に最小単一ピースに絞った。runClient 検証はユーザー実施待ち。
 
 #### 3. v1.0.0 リリース仕上げ（0 SP）
 
@@ -140,12 +139,12 @@
 | カテゴリ | SP | 理想時間 | 状態 |
 |---------|----|----|------|
 | Day 0 準備 | 0 | 2.6h | [x] |
-| US-501 バイオーム到達（縮退版）| 2 | 1h | [ ] |
-| US-502 構造物発見（拡張版）| 6 | 6.3h | [ ] |
+| US-501 バイオーム到達（縮退版）| 2 | 1h | [x]* |
+| US-502 構造物発見（拡張版）| 6 | 6.3h | [x]* |
 | v1.0.0 リリース仕上げ | 0 | 2h | [ ] |
 | **合計** | **8** | **9.3h** | |
 
-**進捗率**: 0%（0/8 SP / Day 0 完了）
+**進捗率**: 100%（8/8 SP）★ アスタリスク = 実装 + journal 整備完了 / `runClient` 目視確認のユーザー実施待ち
 
 ---
 

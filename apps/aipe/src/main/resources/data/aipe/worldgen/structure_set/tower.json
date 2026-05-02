@@ -1,0 +1,14 @@
+{
+  "structures": [
+    {
+      "structure": "aipe:tower",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "salt": 1937402,
+    "separation": 8,
+    "spacing": 24
+  }
+}
