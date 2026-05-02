@@ -54,14 +54,20 @@ jobs:
         run: chmod +x ./gradlew
         # Windows でコミットされた gradlew の実行ビットが落ちていても CI が通るようにするための保険
 
-      - name: Build & Test
+      - name: Build & Unit Test
         run: ./gradlew --no-daemon build test
-        # IT-2 でこの後ろに `runGameTestServer` ステップを追加する想定
+
+      - name: Acceptance Test (GameTest)
+        run: ./gradlew --no-daemon runGameTestServer
+        # NeoForge GameTest を実 Minecraft 環境で自動実行
+        # 構造 NBT は src/generated/resources にコミット済みのため runData は不要
 
       - name: Upload test results (on failure)
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: test-results
-          path: apps/aipe/build/test-results/
+          path: |
+            apps/aipe/build/test-results/
+            apps/aipe/run/
           retention-days: 7

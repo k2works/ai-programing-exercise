@@ -31,6 +31,9 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+import com.k2works.aipe.data.AipeDataGenerators;
+import com.k2works.aipe.gametest.AipeGameTests;
+
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(AiProgrammingExercise.MODID)
 public class AiProgrammingExercise {
@@ -86,6 +89,12 @@ public class AiProgrammingExercise {
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+
+        // Register GameTest entries (US-002)
+        AipeGameTests.register(modEventBus);
+
+        // Register data generators (NBT structures, loot tables, etc.)
+        AipeDataGenerators.register(modEventBus);
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {

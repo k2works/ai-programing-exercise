@@ -125,19 +125,20 @@
 **小計**: 1.5h（IT-2 着手前 Day 0 / SP には含まない）
 **実績**: ルート `.gitattributes` 拡張、`AipeGameTests.java` spike が `compileJava` 緑（9 秒）、NBT 生成は `StructureTemplate.save` + `NbtIo.writeCompressed` を `DataProvider` 経由で行う方針に決定。詳細は `docs/journal/it2-day0-spike.md`。
 
-#### 1. US-002: GameTest 最小サンプル（3 SP）
+#### 1. US-002: GameTest 最小サンプル（3 SP）✅ ローカル完了
 
 | # | タスク | 見積もり | 状態 |
 |---|--------|---------|------|
-| 1.1 | `AipeGameTests` クラスを作成し `RegisterGameTestsEvent` リスナーを Mod 主クラスから登録 | 1h | [ ] |
-| 1.2 | `TestEnvironmentDefinition` 最小登録（`AllOf` 空 or 既定環境） | 0.5h | [ ] |
-| 1.3 | `FunctionGameTestInstance`（`minecraft:always_pass` 流用）を 1 件登録 | 1h | [ ] |
-| 1.4 | NBT 構造（1×1×1 空気）を `runData` で生成 OR `StructureTemplate` API で実装 | 1.5h | [ ] |
-| 1.5 | `./gradlew runGameTestServer` 緑化確認 | 0.5h | [ ] |
-| 1.6 | `aipe-ci.yml` に `runGameTestServer` ステップ追加、CI 緑化 | 1h | [ ] |
-| 1.7 | `docs/journal/it2-gametest.md` に手順記録 | 0.5h | [ ] |
+| 1.1 | `AipeGameTests` クラスを作成し `RegisterGameTestsEvent` リスナーを Mod 主クラスから登録 | 1h | [x] |
+| 1.2 | `TestEnvironmentDefinition` 最小登録（`AllOf` 空 or 既定環境） | 0.5h | [x] |
+| 1.3 | `FunctionGameTestInstance`（`minecraft:always_pass` 流用）を 1 件登録 | 1h | [x] |
+| 1.4 | NBT 構造（1×1×1 air）を `EmptyStructureProvider` (`runData`) で生成 | 1.5h | [x] |
+| 1.5 | `./gradlew runGameTestServer` 緑化確認 | 0.5h | [x] |
+| 1.6 | `aipe-ci.yml` に `runGameTestServer` ステップ追加、CI 緑化 | 1h | [x]（ワークフロー更新済 / push 後 CI 緑化確認待ち） |
+| 1.7 | `docs/journal/it2-gametest.md` に手順記録 | 0.5h | [x] |
 
 **小計**: 6h
+**実績**: ローカル `runGameTestServer` で 2 件 green (870ms)。3 つの問題を解決（`serverData()` 不足、`CachedOutput` 経由書き込み必須、構造パスは `structure` 単数形）。詳細は `docs/journal/it2-gametest.md`。
 
 #### 2. US-101: ブロック設置 GameTest（3 SP）
 
@@ -175,15 +176,15 @@
 
 | カテゴリ | SP | 理想時間 | 状態 |
 |---------|----|----|------|
-| Day 0 準備（.gitattributes / spike） | 0 | 1.5h | [ ] |
-| US-002 GameTest ハーネス | 3 | 6h | [ ] |
+| Day 0 準備（.gitattributes / spike） | 0 | 1.5h | [x] |
+| US-002 GameTest ハーネス | 3 | 6h | [x] |
 | US-101 ブロック設置 | 3 | 4h | [ ] |
 | US-102 ブロック破壊・回収 | 3 | 4h | [ ] |
 | US-103 クリエイティブタブ | 2 | 2h | [ ] |
 | **合計** | **11** | **17.5h** | |
 
 **1 SP あたり**: 約 1.6h
-**進捗率**: 0%（0/11 SP）
+**進捗率**: 27%（3/11 SP）
 
 ---
 
