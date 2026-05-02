@@ -1081,3 +1081,18 @@ CLAUDE.local.md
 .claude
 .codex
 .gemini
+
+### Gradle ###
+.gradle/
+# Gradle Wrapper JAR は除外せず追跡対象とする（ビルド再現性のため）
+!gradle/wrapper/gradle-wrapper.jar
+!**/gradle/wrapper/gradle-wrapper.jar
+
+### NeoForge / Minecraft Mod ###
+# ModDevGradle / NeoGradle が生成するランタイム実行ディレクトリ（worldデータ等を含む）
+run/
+runs/
+# Datagen 出力（ビルド時に再生成される）
+src/generated/
+# repositories/ などローカル Maven 公開先
+repo/
