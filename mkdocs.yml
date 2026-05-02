@@ -63,3 +63,53 @@ exclude_docs: |
 
 nav:
   - Home: index.md
+  - 戦略:
+      - 概要: strategy/index.md
+      - インセプションデッキ: strategy/inception_deck.md
+  - 要件:
+      - 概要: requirements/index.md
+      - ユーザーストーリー: requirements/user_stories.md
+  - 開発:
+      - 概要: development/index.md
+      - リリース計画: development/release_plan.md
+      - イテレーション 1 計画: development/iteration_plan-1.md
+  - 運用:
+      - 概要: operation/index.md
+      - Mod 開発環境セットアップ: operation/mincraft_dev_setup.md
+  - リファレンス:
+      - 概要: reference/index.md
+      - よいソフトウェアとは: reference/よいソフトウェアとは.md
+      - ロジカルシンキング: reference/ロジカルシンキング.md
+      - エクストリームプログラミング: reference/エクストリームプログラミング.md
+      - 開発ガイド: reference/開発ガイド.md
+      - コーディングとテストガイド: reference/コーディングとテストガイド.md
+      - テスト戦略ガイド: reference/テスト戦略ガイド.md
+      - リリース・イテレーション計画ガイド: reference/リリース・イテレーション計画ガイド.md
+      - リリースガイド: reference/リリースガイド.md
+      - アジャイルな見積と計画づくり: reference/アジャイルな見積と計画づくり.md
+      - アーキテクチャ設計ガイド: reference/アーキテクチャ設計ガイド.md
+      - ドメインモデル設計ガイド: reference/ドメインモデル設計ガイド.md
+      - データモデル設計ガイド: reference/データモデル設計ガイド.md
+      - UI 設計ガイド: reference/UI設計ガイド.md
+      - 非機能要件定義ガイド: reference/非機能要件定義ガイド.md
+      - 運用要件定義ガイド: reference/運用要件定義ガイド.md
+      - インフラ設計ガイド: reference/インフラ設計ガイド.md
+      - 要件定義ガイド: reference/要件定義ガイド.md
+      - ユースケース作成ガイド: reference/ユースケース作成ガイド.md
+      - ビジネスアーキテクチャ分析ガイド: reference/ビジネスアーキテクチャ分析ガイド.md
+      - 経営戦略分析ガイド: reference/経営戦略分析ガイド.md
+      - 企業経営論: reference/企業経営論.md
+      - 運営管理: reference/運営管理.md
+      - Java 環境構築ガイド: reference/Javaアプリケーション環境構築ガイド.md
+      - TypeScript 環境構築ガイド: reference/TypeScriptアプリケーション環境構築ガイド.md
+      - SonarQube セットアップ: reference/SonarQubeローカル環境セットアップ手順書.md
+      - 環境変数管理ガイド: reference/環境変数管理ガイド.md
+      - 運用スクリプト作成ガイド: reference/運用スクリプト作成ガイド.md
+      - 言語別開発ガイド: reference/言語別開発ガイド.md
+      - Vim 操作マニュアル: reference/Vim操作マニュアル.md
+      - Codex CLI MCP 開発フロー: reference/CodexCLIMCPアプリケーション開発フロー.md
+      - Codex CLI MCP サーバー設定: reference/CodexCLIMCPサーバー設定手順.md
+  - テンプレート:
+      - 概要: template/index.md
+  - 学習記事:
+      - 概要: article/index.md
