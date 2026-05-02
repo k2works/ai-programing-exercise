@@ -1,0 +1,13 @@
+{
+  "itemGroup.aipe": "AiProgrammingExercise Tab",
+  "block.aipe.example_block": "Example Block",
+  "item.aipe.example_item": "Example Item",
+
+  "aipe.configuration.title": "AiProgrammingExercise Configs",
+  "aipe.configuration.section.aipe.common.toml": "AiProgrammingExercise Configs",
+  "aipe.configuration.section.aipe.common.toml.title": "AiProgrammingExercise Configs",
+  "aipe.configuration.items": "Item List",
+  "aipe.configuration.logDirtBlock": "Log Dirt Block",
+  "aipe.configuration.magicNumberIntroduction": "Magic Number Text",
+  "aipe.configuration.magicNumber": "Magic Number"
+}
