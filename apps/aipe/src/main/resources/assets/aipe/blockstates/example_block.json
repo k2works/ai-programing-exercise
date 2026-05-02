@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "aipe:block/example_block"
+    }
+  }
+}

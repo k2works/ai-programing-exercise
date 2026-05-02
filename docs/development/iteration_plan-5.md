@@ -86,42 +86,44 @@
 
 ### タスク
 
-#### 0. IT-5 開始準備（0 SP）
+#### 0. IT-5 開始準備（0 SP）✅ 完了
 
 | # | タスク | 見積もり | 状態 |
 |---|--------|---------|------|
-| 0.1 | `git check-ignore` で `assets/aipe/**` パスを確認 | 0.2h | [ ] |
-| 0.2 | `runClient` の事前動作確認（既存 v0.4.0 状態で起動） | 0.3h | [ ] |
+| 0.1 | `git check-ignore` で `assets/aipe/**` パスを確認 | 0.2h | [x] |
+| 0.2 | `runClient` の事前動作確認（既存 v0.4.0 状態で起動） | 0.3h | [-] スキップ（v0.4.0 起動は IT-1 で確認済、ralph-loop 内では割愛） |
 
 **小計**: 0.5h
+**実績**: 7 パスとも追跡可能。`lang/en_us.json` には MDK テンプレート段階で `block.aipe.example_block` / `item.aipe.example_item` / `itemGroup.aipe` が既に存在するため US-401 タスク 1.3 は既存活用で簡略化。
 
-#### 1. US-401: アセット整備（3 SP）
+#### 1. US-401: アセット整備（3 SP）✅ ローカル準備完了 / runClient 確認待ち
 
 | # | タスク | 見積もり | 状態 |
 |---|--------|---------|------|
-| 1.1 | blockstate / block model / item model JSON を 4 ファイル作成 | 1h | [ ] |
-| 1.2 | テクスチャ PNG を 2 ファイル作成（最小 16×16）| 0.5h | [ ] |
-| 1.3 | `assets/aipe/lang/en_us.json` に display name 追加 | 0.3h | [ ] |
-| 1.4 | `runClient` クリエイティブインベントリで目視確認 | 0.5h | [ ] |
-| 1.5 | journal `it5-asset.md` に手順記録 | 0.5h | [ ] |
+| 1.1 | blockstate / block model / item model JSON を 4 ファイル作成 | 1h | [x] |
+| 1.2 | テクスチャ PNG を 2 ファイル作成（16×16, Python stdlib で生成）| 0.5h | [x] |
+| 1.3 | `assets/aipe/lang/en_us.json` の display name 確認（テンプレート段階で既存）| 0.3h | [x] スキップ |
+| 1.4 | `runClient` クリエイティブインベントリで目視確認 | 0.5h | [ ] ユーザー実施待ち |
+| 1.5 | journal `it5-asset.md` に手順記録 | 0.5h | [x] |
 
 **小計**: 2.8h
+**実績**: 4 ファイル新規作成 + テクスチャ生成スクリプト（`textures/.gen_textures.py`）+ PNG 2 ファイル。既存 `runGameTestServer` 緑のまま（retrogression なし）。
 
-#### 2. US-402: ブロック体験（2 SP）
+#### 2. US-402: ブロック体験（2 SP）✅ 手順整備完了 / runClient 確認待ち
 
 | # | タスク | 見積もり | 状態 |
 |---|--------|---------|------|
-| 2.1 | `runClient` で設置・破壊・回収のフローを実行 | 0.5h | [ ] |
-| 2.2 | journal `it5-block-experience.md` に手順記録 | 0.5h | [ ] |
+| 2.1 | `runClient` で設置・破壊・回収のフローを実行 | 0.5h | [ ] ユーザー実施待ち |
+| 2.2 | journal `it5-block-experience.md` に手順記録 | 0.5h | [x] |
 
 **小計**: 1h
 
-#### 3. US-403: クラフト体験（2 SP）
+#### 3. US-403: クラフト体験（2 SP）✅ 手順整備完了 / runClient 確認待ち
 
 | # | タスク | 見積もり | 状態 |
 |---|--------|---------|------|
-| 3.1 | `runClient` でクラフトテーブル体験を実行 | 0.5h | [ ] |
-| 3.2 | journal `it5-craft-experience.md` に手順記録 | 0.5h | [ ] |
+| 3.1 | `runClient` でクラフトテーブル体験を実行 | 0.5h | [ ] ユーザー実施待ち |
+| 3.2 | journal `it5-craft-experience.md` に手順記録 | 0.5h | [x] |
 
 **小計**: 1h
 
@@ -129,13 +131,13 @@
 
 | カテゴリ | SP | 理想時間 | 状態 |
 |---------|----|----|------|
-| Day 0 準備 | 0 | 0.5h | [ ] |
-| US-401 アセット整備 | 3 | 2.8h | [ ] |
-| US-402 ブロック体験 | 2 | 1h | [ ] |
-| US-403 クラフト体験 | 2 | 1h | [ ] |
+| Day 0 準備 | 0 | 0.5h | [x] |
+| US-401 アセット整備 | 3 | 2.8h | [x]* |
+| US-402 ブロック体験 | 2 | 1h | [x]* |
+| US-403 クラフト体験 | 2 | 1h | [x]* |
 | **合計** | **7** | **5.3h** | |
 
-**進捗率**: 0%（0/7 SP）
+**進捗率**: 100%（7/7 SP）★ アスタリスク = ローカル準備 + journal 整備完了 / `runClient` 目視確認のユーザー実施待ち
 
 ---
 
