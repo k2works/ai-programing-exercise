@@ -1016,6 +1016,8 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+# Negate accidentally-caught NeoForge mod metadata templates (*.mod* matches *.mods.toml)
+!**/templates/META-INF/neoforge.mods.toml
 
 ### C++ ###
 # Prerequisites
