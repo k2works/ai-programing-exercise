@@ -84,17 +84,18 @@
 
 ### タスク
 
-#### 0. IT-4 開始準備（IT-3 ふりかえり Try 反映 / 0 SP）
+#### 0. IT-4 開始準備（IT-3 ふりかえり Try 反映 / 0 SP）✅ 完了
 
 | # | タスク | 見積もり | 状態 |
 |---|--------|---------|------|
-| 0.1 | `gametestserver` クリーンアップを Gradle タスク化（IT-3 Try）| 0.5h | [ ] |
-| 0.2 | `git check-ignore` でワールドジェン関連パスが gitignore で巻き込まれていないか確認 | 0.3h | [ ] |
-| 0.3 | 構造物 / バイオーム API の 60 分 spike — `Structure`, `BootstrapContext<Biome>`, `Biome.BiomeBuilder` 系の最小コード | 1h | [ ] |
-| 0.4 | Spike 結果に基づき US-302 のスコープ判定（維持 or 分割）| 0.2h | [ ] |
+| 0.1 | `gametestserver` クリーンアップを Gradle タスク化（IT-3 Try）| 0.5h | [x] |
+| 0.2 | `git check-ignore` でワールドジェン関連パスが gitignore で巻き込まれていないか確認 | 0.3h | [x] |
+| 0.3 | 構造物 / バイオーム API の 60 分 spike — `Structure`, `BootstrapContext<Biome>`, `Biome.BiomeBuilder` 系の最小コード | 1h | [x] |
+| 0.4 | Spike 結果に基づき US-302 のスコープ判定（維持 or 分割）| 0.2h | [x] |
 | 0.5 | `release_plan.md` ベロシティ実績反映（IT-3 完了時） | 完了済 | [x] |
 
 **小計**: 2h（残作業）
+**実績**: `cleanGameTestRun` Gradle タスク追加、5 パスとも追跡可能、`Biome.BiomeBuilder` / `BootstrapContext<Biome>` / `StructureTemplate.placeInWorld` の API シグネチャ確認、US-302 は **維持**（registry 登録 + 属性検証に絞る、biome source 統合は IT-5 以降）。詳細は `docs/journal/it4-day0-spike.md`。
 
 #### 1. US-301: カスタム構造物 GameTest（5 SP）
 

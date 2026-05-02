@@ -192,6 +192,16 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }
 
+// IT-4 Day 0 Try: Windows ローカルでの runGameTestServer 連続実行時に
+// `gametestserver` ディレクトリの一時ファイルがロックされる問題への対策。
+// runGameTestServer 実行前に該当ディレクトリを削除する。
+tasks.register('cleanGameTestRun', Delete) {
+    delete file('run/gametestserver')
+}
+tasks.matching { it.name == 'runGameTestServer' }.configureEach {
+    dependsOn 'cleanGameTestRun'
+}
+
 // IDEA no longer automatically downloads sources/javadoc jars for dependencies, so we need to explicitly enable the behavior.
 idea {
     module {
