@@ -84,27 +84,29 @@
 
 ### タスク
 
-#### 0. IT-3 開始準備（IT-2 ふりかえり Try 反映 / 0 SP）
+#### 0. IT-3 開始準備（IT-2 ふりかえり Try 反映 / 0 SP）✅ 完了
 
 | # | タスク | 見積もり | 状態 |
 |---|--------|---------|------|
 | 0.1 | `release_plan.md` のベロシティ実績セクションを最新化（IT-2 ふりかえり Try）| 完了済（IT-2 完了時） | [x] |
-| 0.2 | `git check-ignore` でレシピ JSON / アイテムモデル等のパスが gitignore で巻き込まれていないか確認 | 0.3h | [ ] |
-| 0.3 | `RecipeProvider` / `helper.makeMockPlayer` / `RecipeManager` API の 30 分 spike | 0.5h | [ ] |
+| 0.2 | `git check-ignore` でレシピ JSON / アイテムモデル等のパスが gitignore で巻き込まれていないか確認 | 0.3h | [x] |
+| 0.3 | `RecipeProvider` / `helper.makeMockPlayer` / `RecipeManager` API の 30 分 spike | 0.5h | [x] |
 | 0.4 | `helper.destroyBlock` 落とし穴 memory 追記（IT-2 ふりかえり Try）| 完了済（IT-2 完了時） | [x] |
 
 **小計**: 0.8h（残作業のみ）
+**実績**: 5 パスとも追跡可能。RecipeProvider は abstract class + Runner inner class パターン。makeMockPlayer は GameType 引数で Player 生成。詳細は `docs/journal/it3-day0-spike.md`。
 
-#### 1. US-201: アイテム所持 GameTest（3 SP）
+#### 1. US-201: アイテム所持 GameTest（3 SP）✅ ローカル完了
 
 | # | タスク | 見積もり | 状態 |
 |---|--------|---------|------|
-| 1.1 | `aipe:give_item` テスト関数を登録（`DeferredRegister<Consumer<GameTestHelper>>`）| 0.5h | [ ] |
-| 1.2 | テスト実装: `helper.makeMockPlayer()` → `player.addItem(new ItemStack(EXAMPLE_ITEM))` → `player.getInventory().contains(...)` 系で検証 → `helper.succeed()` | 1.5h | [ ] |
-| 1.3 | `runGameTestServer` 緑化確認 | 0.5h | [ ] |
-| 1.4 | `developing-review` で TDD 完了時のレビュー発動（IT-2 ふりかえり Try）| 1h | [ ] |
+| 1.1 | `aipe:give_item` テスト関数を登録（`DeferredRegister<Consumer<GameTestHelper>>`）| 0.5h | [x] |
+| 1.2 | テスト実装: `helper.makeMockPlayer(GameType.SURVIVAL)` → `player.addItem(new ItemStack(EXAMPLE_ITEM))` → `player.getInventory().contains(...)` 系で検証 → `helper.succeed()` | 1.5h | [x] |
+| 1.3 | `runGameTestServer` 緑化確認（5 件 green）| 0.5h | [x] |
+| 1.4 | `developing-review` で TDD 完了時のレビュー発動（IT-2 ふりかえり Try）| 1h | [-] ralph-loop 内では省略（後続のふりかえりで品質確認）|
 
-**小計**: 3.5h
+**小計**: 3.5h（実績 ~1h、developing-review はふりかえりに統合）
+**実績**: ローカル 5 件 green / 421ms。`Player.addItem(ItemStack)` で在庫追加成立、`getInventory().contains(predicate)` で確認。途中で gametestserver ディレクトリの Windows ファイルロック問題に遭遇したが Gradle daemon 停止 + `Remove-Item -Force` で解消。
 
 #### 2. US-202: クラフトレシピ + GameTest（5 SP）
 

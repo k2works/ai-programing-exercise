@@ -14,6 +14,10 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.gametest.framework.TestData;
 import net.minecraft.gametest.framework.TestEnvironmentDefinition;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Rotation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
@@ -42,6 +46,10 @@ public final class AipeGameTests {
     /** US-102: {@code aipe:example_block} を設置 → 破壊 → ドロップアイテムを検証するテスト関数。 */
     public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> BREAK_AND_DROP_FN =
             TEST_FUNCTIONS.register("break_and_drop", () -> AipeGameTests::breakAndDropTest);
+
+    /** US-201: モックプレイヤーに {@code aipe:example_item} を与え、所持を検証するテスト関数。 */
+    public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> GIVE_ITEM_FN =
+            TEST_FUNCTIONS.register("give_item", () -> AipeGameTests::giveItemTest);
 
     private AipeGameTests() {
     }
@@ -81,6 +89,14 @@ public final class AipeGameTests {
                         BREAK_AND_DROP_FN.getKey(),
                         new TestData<>(defaultEnv, emptyStructure,
                                 100, 0, true, Rotation.NONE, false, 1, 1, false)));
+
+        // US-201: give_item test — mock player + addItem + verify inventory
+        event.registerTest(
+                Identifier.fromNamespaceAndPath(MODID, "give_item"),
+                new FunctionGameTestInstance(
+                        GIVE_ITEM_FN.getKey(),
+                        new TestData<>(defaultEnv, emptyStructure,
+                                100, 0, true, Rotation.NONE, false, 1, 1, false)));
     }
 
     /**
@@ -108,6 +124,20 @@ public final class AipeGameTests {
         helper.setBlock(pos, AiProgrammingExercise.EXAMPLE_BLOCK.get());
         helper.getLevel().destroyBlock(helper.absolutePos(pos), true, null);
         helper.assertItemEntityPresent(AiProgrammingExercise.EXAMPLE_BLOCK_ITEM.get());
+        helper.succeed();
+    }
+
+    /**
+     * US-201: モックプレイヤーを生成し、{@link AiProgrammingExercise#EXAMPLE_ITEM} を
+     * インベントリに追加した結果、所持していることを検証する。
+     */
+    private static void giveItemTest(GameTestHelper helper) {
+        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+        Item item = AiProgrammingExercise.EXAMPLE_ITEM.get();
+        boolean added = player.addItem(new ItemStack(item));
+        helper.assertTrue(added, "addItem should succeed for empty inventory");
+        helper.assertTrue(player.getInventory().contains(stack -> stack.is(item)),
+                "player inventory should contain " + item);
         helper.succeed();
     }
 }
