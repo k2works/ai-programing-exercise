@@ -91,8 +91,8 @@
 | 0.2 | `Structure` / `StructurePlacement` / `structure_set` JSON 仕様の 30 分 spike | 0.5h | [ ] |
 | 0.3 | `git check-ignore` で `data/aipe/neoforge/` / `data/aipe/worldgen/structure_set/` パスを確認 | 0.2h | [ ] |
 | 0.4 | spike 結果に応じて US-501 のフォールバック判定（biome modifier or 独自 world preset） | 0.2h | [ ] |
-| 0.5 | **IT-5 ふりかえり Try 反映**: アセット参照整合性 lint または GameTest を追加（blockstate→model→texture チェーン、lang キー存在確認）| 0.5h | [ ] |
-| 0.6 | **IT-5 ふりかえり Try 反映**: `.gen_textures.py` でドット模様パターン追加（識別性向上）| 0.2h | [ ] |
+| 0.5 | **IT-5 ふりかえり Try 反映**: アセット参照整合性 lint または GameTest を追加（blockstate→model→texture チェーン、lang キー存在確認）| 0.5h | [x] **IT-5 内で先行消化**（`AssetIntegrityTest` 4 件 green / 25ms）|
+| 0.6 | **IT-5 ふりかえり Try 反映**: `.gen_textures.py` でドット模様パターン追加（識別性向上）| 0.2h | [x] **IT-5 内で先行消化**（block: フレーム+中央ダークドット / item: 中央イエローハイライト）|
 
 **小計**: 2.6h
 
