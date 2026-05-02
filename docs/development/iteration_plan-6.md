@@ -83,41 +83,46 @@
 
 ### タスク
 
-#### 0. IT-6 開始準備（0 SP）
+#### 0. IT-6 開始準備（0 SP）✅ 完了
 
 | # | タスク | 見積もり | 状態 |
 |---|--------|---------|------|
-| 0.1 | NeoForge `BiomeModifier` API の 60 分 spike — 最小例の実装可能性を確認 | 1h | [ ] |
-| 0.2 | `Structure` / `StructurePlacement` / `structure_set` JSON 仕様の 30 分 spike | 0.5h | [ ] |
-| 0.3 | `git check-ignore` で `data/aipe/neoforge/` / `data/aipe/worldgen/structure_set/` パスを確認 | 0.2h | [ ] |
-| 0.4 | spike 結果に応じて US-501 のフォールバック判定（biome modifier or 独自 world preset） | 0.2h | [ ] |
-| 0.5 | **IT-5 ふりかえり Try 反映**: アセット参照整合性 lint または GameTest を追加（blockstate→model→texture チェーン、lang キー存在確認）| 0.5h | [x] **IT-5 内で先行消化**（`AssetIntegrityTest` 4 件 green / 25ms）|
-| 0.6 | **IT-5 ふりかえり Try 反映**: `.gen_textures.py` でドット模様パターン追加（識別性向上）| 0.2h | [x] **IT-5 内で先行消化**（block: フレーム+中央ダークドット / item: 中央イエローハイライト）|
+| 0.1 | NeoForge `BiomeModifier` API の 60 分 spike — 最小例の実装可能性を確認 | 1h | [x] |
+| 0.2 | `Structure` / `StructurePlacement` / `structure_set` JSON 仕様の 30 分 spike | 0.5h | [x] |
+| 0.3 | `git check-ignore` で `data/aipe/neoforge/` / `data/aipe/worldgen/structure_set/` パスを確認 | 0.2h | [x] |
+| 0.4 | spike 結果に応じて US-501 のフォールバック判定（biome modifier or 独自 world preset） | 0.2h | [x] **US-501 縮退決定**（SP 5→2）|
+| 0.5 | **IT-5 ふりかえり Try 反映**: アセット参照整合性 lint または GameTest を追加 | 0.5h | [x] **IT-5 内で先行消化**（`AssetIntegrityTest` 5 件 / 26ms）|
+| 0.6 | **IT-5 ふりかえり Try 反映**: `.gen_textures.py` でドット模様パターン追加 | 0.2h | [x] **IT-5 内で先行消化**（block: フレーム+ダーク中央 / item: 中央イエロー）|
 
 **小計**: 2.6h
+**実績**: BiomeModifier は **既存バイオーム改変のみ可能で新規バイオームの biome source 注入は不可**と判明 → US-501 縮退決定（SP 5→2、registry 確認 + `/fillbiome` ワークフローのみ、本格統合は v1.1.0 へ）。差分 3 SP は US-502 に再配分（SP 3→6、jigsaw 構造 worldgen で自然生成実装）。詳細は `docs/journal/it6-day0-spike.md`。
 
-#### 1. US-501: バイオーム到達（5 SP）
+#### 1. US-501: バイオーム到達（2 SP / 縮退版）
 
-| # | タスク | 見積もり | 状態 |
-|---|--------|---------|------|
-| 1.1 | `BiomeModifier` JSON 定義（または `AipeBiomeModifierProvider` データジェネレーター追加）| 2h | [ ] |
-| 1.2 | `AipeDataGenerators` への登録 + `runData` で生成確認 | 0.5h | [ ] |
-| 1.3 | `runClient` で新規ワールド生成 + `/locate biome` 動作確認 | 1h | [ ] |
-| 1.4 | journal `it6-biome-explore.md` に手順記録 | 0.5h | [ ] |
-| 1.5 | バッファ（API 試行錯誤） | 1h | [ ] |
-
-**小計**: 5h
-
-#### 2. US-502: 構造物発見（3 SP）
+> **Day 0 spike 結果による縮退**: NeoForge `BiomeModifier` API では新規バイオームを overworld の biome source に注入できない。本格統合は **v1.1.0 計画** に持ち越し（TerraBlender 統合 or 独自 world preset）。IT-6 では registry 既存（IT-4 達成済）+ `/fillbiome` で任意領域変換が可能なことの確認に絞る。
 
 | # | タスク | 見積もり | 状態 |
 |---|--------|---------|------|
-| 2.1 | `tower.json`（structure 定義）+ `structure_set.json`（配置設定）データジェネレーター追加 | 1.5h | [ ] |
-| 2.2 | `runData` で JSON 生成確認 | 0.3h | [ ] |
-| 2.3 | `runClient` で新規ワールド生成 + `/locate structure` 動作確認 | 0.7h | [ ] |
-| 2.4 | journal `it6-structure-explore.md` に手順記録 | 0.5h | [ ] |
+| 1.1 | `runClient` で `/fillbiome <coords> aipe:custom_biome` を実行し領域を変換できることを確認（ユーザー実機）| 0.5h | [ ] |
+| 1.2 | journal `it6-biome-explore.md` に手順記録 + v1.1.0 持ち越し事項を明記 | 0.5h | [ ] |
 
-**小計**: 3h
+**小計**: 1h
+
+#### 2. US-502: 構造物発見（6 SP / 拡張版）
+
+> US-501 縮退分の差分 3 SP を再配分。jigsaw 経由の自然生成構造を実装。
+
+| # | タスク | 見積もり | 状態 |
+|---|--------|---------|------|
+| 2.1 | `AipeStructureWorldgenProvider` 作成（`data/aipe/worldgen/{structure,structure_set,template_pool}/tower.json` を生成）| 2h | [ ] |
+| 2.2 | `AipeWorldgenBootstrap` に `Structure` / `StructureSet` / `StructureTemplatePool` 登録を追加 | 1.5h | [ ] |
+| 2.3 | `AipeDataGenerators` の `RegistrySetBuilder` を拡張（既存 BIOME に追加）| 0.5h | [ ] |
+| 2.4 | `runData` で 3 件 JSON 生成確認 | 0.3h | [ ] |
+| 2.5 | `runClient` で新規ワールド生成 + `/locate structure aipe:tower` で発見可能を確認（ユーザー実機）| 1h | [ ] |
+| 2.6 | journal `it6-structure-explore.md` に手順 + 実施記録追加 | 0.5h | [ ] |
+| 2.7 | バッファ（jigsaw / structure_set 試行錯誤）| 0.5h | [ ] |
+
+**小計**: 6.3h
 
 #### 3. v1.0.0 リリース仕上げ（0 SP）
 
@@ -134,13 +139,13 @@
 
 | カテゴリ | SP | 理想時間 | 状態 |
 |---------|----|----|------|
-| Day 0 準備 | 0 | 1.9h | [ ] |
-| US-501 バイオーム到達 | 5 | 5h | [ ] |
-| US-502 構造物発見 | 3 | 3h | [ ] |
+| Day 0 準備 | 0 | 2.6h | [x] |
+| US-501 バイオーム到達（縮退版）| 2 | 1h | [ ] |
+| US-502 構造物発見（拡張版）| 6 | 6.3h | [ ] |
 | v1.0.0 リリース仕上げ | 0 | 2h | [ ] |
-| **合計** | **8** | **11.9h** | |
+| **合計** | **8** | **9.3h** | |
 
-**進捗率**: 0%（0/8 SP）
+**進捗率**: 0%（0/8 SP / Day 0 完了）
 
 ---
 
