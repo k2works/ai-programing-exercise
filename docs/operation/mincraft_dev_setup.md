@@ -91,28 +91,34 @@ Move-Item "apps/aipe/src/main/resources/assets/examplemod" "apps/aipe/src/main/r
 
 `apps/aipe/src/main/templates/META-INF/neoforge.mods.toml` は `${mod_id}` `${mod_name}` 等のテンプレート変数で記述されており、`gradle.properties` の値からビルド時に展開されます。直接の編集は不要です。
 
-### 6. `.gitignore` を追加
+### 6. Git 管理方針
 
-ビルド成果物・IDE 設定・実行ディレクトリを除外します。
+`apps/aipe/` は親リポジトリ（`ai-programing-exercise-take-1`）で一元管理します。サブディレクトリに独立した `.git` を持たせず、`.gitignore` も親リポジトリの `.gitignore` に統合します。
+
+clone 直後の `.git` ディレクトリを必ず削除してください（手順 1 で実施済み）。
+
+親リポジトリの `.gitignore` には次のセクションが追加されています（既存）。
 
 ```gitignore
-# Gradle
+### Gradle ###
 .gradle/
-build/
-build.log
-src/generated/
+# Gradle Wrapper JAR は除外せず追跡対象とする（ビルド再現性のため）
+!gradle/wrapper/gradle-wrapper.jar
+!**/gradle/wrapper/gradle-wrapper.jar
 
-# IDE
-.idea/
-*.iml
-.vscode/
-.project
-.classpath
-.settings/
-
-# Run dirs
+### NeoForge / Minecraft Mod ###
+# ModDevGradle / NeoGradle が生成するランタイム実行ディレクトリ（worldデータ等を含む）
+run/
 runs/
+# Datagen 出力（ビルド時に再生成される）
+src/generated/
+# repositories/ などローカル Maven 公開先
+repo/
 ```
+
+これにより `apps/aipe/{build,run,runs,.gradle,src/generated}/` などのビルド・実行成果物は除外され、ソース・設定・Gradle Wrapper のみが追跡対象になります。`*.jar` は親 `.gitignore` の Java/Kotlin セクションで除外されますが、Gradle Wrapper JAR は明示的に追跡対象として例外指定されています。
+
+新規に別の Mod プロジェクトを `apps/` 配下に追加する場合も、この方針に従ってください。プロジェクト固有の `.gitignore` を作る必要はありません。
 
 ## ビルドと実行
 
@@ -134,7 +140,7 @@ Set-Location apps/aipe
 .\gradlew.bat runClient
 ```
 
-実行ディレクトリは `apps/aipe/runs/client/` です。
+実行ディレクトリは `apps/aipe/run/`（または ModDevGradle の設定により `runs/client/`）です。いずれも親 `.gitignore` で除外されています。
 
 ### サーバ起動
 
@@ -143,7 +149,7 @@ Set-Location apps/aipe
 .\gradlew.bat runServer
 ```
 
-初回は `apps/aipe/runs/server/eula.txt` を `eula=true` に編集してから再実行する必要があります。LAN 接続でテストしたい場合は同ディレクトリの `server.properties` で `online-mode=false` に変更してください。
+初回は `apps/aipe/run/server/eula.txt`（または `runs/server/eula.txt`）を `eula=true` に編集してから再実行する必要があります。LAN 接続でテストしたい場合は同ディレクトリの `server.properties` で `online-mode=false` に変更してください。
 
 ### 依存関係のリフレッシュ
 
