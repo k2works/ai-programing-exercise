@@ -54,13 +54,12 @@ jobs:
         run: chmod +x ./gradlew
         # Windows でコミットされた gradlew の実行ビットが落ちていても CI が通るようにするための保険
 
-      - name: Build & Unit Test
-        run: ./gradlew --no-daemon build test
-
-      - name: Acceptance Test (GameTest)
-        run: ./gradlew --no-daemon runGameTestServer
-        # NeoForge GameTest を実 Minecraft 環境で自動実行
-        # 構造 NBT は src/generated/resources にコミット済みのため runData は不要
+      - name: Build, Unit Test & Acceptance Test
+        run: ./gradlew --no-daemon build test runGameTestServer
+        # 1 つの Gradle invocation にまとめる必要あり。
+        # 別呼び出しにするとリソース classpath（META-INF/neoforge.mods.toml）が
+        # 2 回目で正しく認識されず "not a valid mod file" で失敗する。
+        # NBT 構造ファイルは src/generated/resources にコミット済みのため runData は不要。
 
       - name: Upload test results (on failure)
         if: failure()
