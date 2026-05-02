@@ -50,6 +50,10 @@ jobs:
         with:
           cache-read-only: ${{ github.event_name == 'pull_request' && github.head_ref != 'main' }}
 
+      - name: Ensure gradlew is executable
+        run: chmod +x ./gradlew
+        # Windows でコミットされた gradlew の実行ビットが落ちていても CI が通るようにするための保険
+
       - name: Build & Test
         run: ./gradlew --no-daemon build test
         # IT-2 でこの後ろに `runGameTestServer` ステップを追加する想定
