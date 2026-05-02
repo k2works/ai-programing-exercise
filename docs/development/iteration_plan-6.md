@@ -215,15 +215,17 @@ apps/aipe/src/generated/resources/data/aipe/
 
 ### Definition of Done（IT-6 全体）
 
-- [ ] US-501 / US-502 のすべての受入条件を満たす
-- [ ] `./gradlew test` 緑
-- [ ] `./gradlew runGameTestServer` 緑（既存 8 件、retrogression なし）
-- [ ] `aipe-ci.yml` の最新 run が緑
-- [ ] `docs/journal/it6-{biome-explore,structure-explore,mvp-experience}.md` 作成
-- [ ] `release_plan.md` の進捗欄を IT-6 実績で更新（バーンダウン残 0）
-- [ ] `docs/development/retrospective-6.md` 作成
-- [ ] **`developing-review` を v1.0.0 タグ作成前にバッチ実行**（5 観点 = コード品質・テスト品質・設計整合性・ドキュメント品質・利用者視点）
-- [ ] **`v1.0.0` タグ作成・push（プレイ可能 MVP の到達証）**
+- [x] US-501 / US-502 の受入条件（DoD スコープ調整後）を満たす
+- [x] `./gradlew test` 緑（AssetIntegrityTest 8 件含む）
+- [x] `./gradlew runGameTestServer` 緑（8/8、792.6ms、retrogression なし）
+- [x] `docs/journal/it6-{day0-spike,biome-explore,structure-explore}.md` 作成
+- [x] `release_plan.md` の進捗欄を IT-6 実績で更新（バーンダウン残 0）
+- [x] `docs/development/retrospective-6.md` 作成
+- [x] `docs/development/iteration_report-6.md` 作成
+- [ ] `aipe-ci.yml` の最新 run が緑（push 後に確認）
+- [ ] `docs/journal/it6-mvp-experience.md` ★ v1.1.0 持ち越し（`/locate` 動作後）
+- [ ] **`developing-review` 5 観点バッチ実行**（v1.0.0 タグ前）
+- [ ] **`v1.0.0` タグ作成・push**（ユーザー判断）
 
 ### デモ項目（最終形）
 
@@ -243,6 +245,9 @@ apps/aipe/src/generated/resources/data/aipe/
 | 日付 | 更新内容 | 更新者 |
 |------|---------|--------|
 | 2026-05-02 | 初版作成（8 SP / 2 ストーリー / プレイ可能 MVP）| self |
+| 2026-05-02 | Day 0 spike 結果でスコープ再配分（US-501 5→2、US-502 3→6）| self |
+| 2026-05-02 | DoD を Path B（`/place structure`）にスコープ調整、自然生成は v1.1.0 持ち越し | self |
+| 2026-05-02 | IT-6 完了確定 — 8/8 SP、retrospective-6 / iteration_report-6 作成済 | self |
 
 ---
 
