@@ -98,15 +98,16 @@
 
 > US-002（GameTest 最小サンプル）は IT-2 へ移動済み。詳細は `iteration_plan-2.md` で記載予定。
 
-#### 2. US-003: JUnit 5 セットアップ（1 SP）
+#### 2. US-003: JUnit 5 セットアップ（1 SP）✅ 完了
 
 | # | タスク | 見積もり | 状態 |
 |---|--------|---------|------|
-| 3.1 | `build.gradle` に JUnit 5 依存追加 + `useJUnitPlatform()` 設定 | 0.5h | [ ] |
-| 3.2 | `SmokeUnitTest.java` 実装（`assertEquals(2, 1+1)` 程度） | 0.3h | [ ] |
-| 3.3 | `./gradlew test` を実行し緑化確認 | 0.2h | [ ] |
+| 3.1 | `build.gradle` に JUnit 5 依存追加 + `useJUnitPlatform()` 設定 | 0.5h | [x] |
+| 3.2 | `SmokeUnitTest.java` 実装（`assertEquals(2, 1+1)` 程度） | 0.3h | [x] |
+| 3.3 | `./gradlew test` を実行し緑化確認 | 0.2h | [x] |
 
 **小計**: 1h
+**実績**: BUILD SUCCESSFUL in 24s, 1 test passed (2026-05-02)
 
 #### 3. US-004: GitHub Actions CI（2 SP）
 
@@ -124,12 +125,12 @@
 | カテゴリ | SP | 理想時間 | 状態 |
 |---------|----|----|------|
 | US-001 起動確認 | 2 | 2h | [ ] |
-| US-003 JUnit 5 セットアップ | 1 | 1h | [ ] |
+| US-003 JUnit 5 セットアップ | 1 | 1h | [x] |
 | US-004 CI 自動化 | 2 | 3.5h | [ ] |
 | **合計** | **5** | **6.5h** | |
 
 **1 SP あたり**: 約 1.3h
-**進捗率**: 0%（0/5 SP）
+**進捗率**: 20%（1/5 SP）
 
 ---
 
