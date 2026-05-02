@@ -26,32 +26,56 @@ apps/aipe/src/main/resources/data/aipe/worldgen/
 | 設定 | 値 | 意図 |
 |------|----|----|
 | 構造タイプ | `minecraft:jigsaw` | 単一テンプレートでも汎用的に使える |
-| biome filter | `#minecraft:is_overworld` | バニラタグで全オーバーワールドバイオームに登場 |
+| biome filter | 明示リスト 20 種（plains, forest, taiga 等）| タグ参照（`#is_overworld`）だと structure_set がワールド生成サイクルから除外される問題を回避 |
 | step | `surface_structures` | 地表面に出現 |
 | start_height | `{"absolute": 0}` | VerticalAnchor 直書き（HeightProvider ではない）|
 | terrain_adaptation | `beard_thin` | 地形に薄く埋め込み |
-| placement | `random_spread{spacing: 12, separation: 4}` | 12 チャンクごとにスポーン候補、最低 4 チャンク間隔（密配置で発見容易）|
-| start_pool size | 1 | 単一ピース構造（拡張不要）|
-| use_expansion_hack | false | 不要 |
+| placement | `random_spread{spacing: 8, separation: 2}` | 8 チャンクごとにスポーン候補、最低 2 チャンク間隔（最密配置で確実に 100 チャンク圏内ヒット）|
+| start_pool size | 7 | vanilla pillager_outpost 準拠（jigsaw chain 上限、単一ピースでも動作）|
+| use_expansion_hack | true | vanilla pillager_outpost 準拠 |
 
-### 落とし穴: `start_height` は VerticalAnchor を直接書く
+### 落とし穴 1: `start_height` は HeightProvider 形式（VerticalAnchor 直書きが shorthand として通る）
 
-初版では `start_height` を以下のような **HeightProvider 形式** で書いていたが、これは feature 用フォーマット。Structure 用には誤り：
-
-```json
-"start_height": {
-  "type": "minecraft:constant",
-  "value": {"above_bottom": 80}
-}
-```
-
-これだと JSON パースは通って構造自体は registry に登録されるが、配置時にデコード失敗で **構造が一切配置されない**（`/locate structure aipe:tower` が常に「見つからない」を返す）。バニラの `pillager_outpost.json` / `trail_ruins.json` を参照すると以下の **VerticalAnchor 直書き** が正解：
+`start_height` の codec は `HeightProvider.CODEC`（`JigsawStructure.CODEC` 内）。VerticalAnchor 直書き `{"absolute": 0}` は ConstantHeightProvider の shorthand として受理される。`project_start_to_heightmap: WORLD_SURFACE_WG` 併用で y は地表面に projection される。
 
 ```json
 "start_height": {"absolute": 0}
 ```
 
-`project_start_to_heightmap: WORLD_SURFACE_WG` を併用するため `absolute: 0` でも自動的に地表面に投影される。AssetIntegrityTest は文字列 contains しか見ないため、このバグはユーザー検証で初めて発覚した。
+### 落とし穴 2: ★ biome filter は明示リスト推奨（タグ解決のタイミング問題）
+
+`/place structure aipe:tower ~ ~ ~` は動作するが `/locate structure aipe:tower` が空振りする現象の **真因**：
+
+`ChunkGeneratorStructureState.hasBiomesForStructureSet()` で **structure_set がワールド生成サイクルに含まれるかが決定される**。
+
+```java
+// minecraft 1.21.11 source
+private static boolean hasBiomesForStructureSet(StructureSet structureSet, BiomeSource biomeSource) {
+    Stream<Holder<Biome>> stream = structureSet.structures().stream()
+        .flatMap(p -> p.structure().value().biomes().stream());
+    return stream.anyMatch(biomeSource.possibleBiomes()::contains);
+}
+```
+
+このフィルタを通らないと `possibleStructureSets` から除外され、`/locate` の探索対象にならない（`/place` は registry 直引きで構造を配置するためフィルタを迂回する）。
+
+`biomes` を `#minecraft:is_overworld` などのタグで指定すると、データパック load 順や registry stale 状態によっては **`HolderSet` が空のまま evaluate され、フィルタが偽になる**。明示リスト `["minecraft:plains", "minecraft:forest", ...]` で書けば即座に Holder が解決されてフィルタを通過する。
+
+```json
+// ❌ 状況によっては structure_set がワールド生成から除外される
+"biomes": "#minecraft:is_overworld"
+
+// ✅ 確実に HolderSet が解決される
+"biomes": [
+  "minecraft:plains", "minecraft:forest", "minecraft:taiga",
+  "minecraft:savanna", "minecraft:desert", ...
+]
+```
+
+**症状切り分け**:
+
+- `/place structure <id>` 成功 + `/locate structure <id>` 失敗 = **biome filter 評価でフィルタ落ちしている**疑い大
+- `/place` も失敗 = 構造 / template_pool / NBT のいずれかで registry resolution 失敗
 
 ## 体験手順（ユーザー実施）
 
