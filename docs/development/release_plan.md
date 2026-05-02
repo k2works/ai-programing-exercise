@@ -260,7 +260,18 @@ gantt
 
 **ゴール**: GameTest 受入ハーネスを確立し、カスタムブロックを 1 つ実装してワールドへ設置・破壊・取得が GameTest で保護されている。
 
+**主なタスク**:
+
+- [ ] `.gitattributes` 追加（IT-1 ふりかえり Try）
+- [ ] `RegisterGameTestsEvent` 経由で `FunctionGameTestInstance` 登録（US-002）
+- [ ] NeoForge データジェネレーターで NBT 構造 + loot table を生成
+- [ ] `aipe:example_block` の設置・破壊・回収 GameTest（US-101 / US-102）
+- [ ] `EXAMPLE_TAB` に `example_block` を追加（US-103）
+- [ ] `aipe-ci.yml` に `runGameTestServer` ステップ追加
+
 **目標 SP**: 11
+
+詳細は [iteration_plan-2.md](./iteration_plan-2.md) を参照。
 
 詳細は IT-1 完了後に [iteration_plan-2.md](./iteration_plan-2.md) として作成する。
 

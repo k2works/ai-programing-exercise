@@ -73,6 +73,8 @@ nav:
       - 概要: development/index.md
       - リリース計画: development/release_plan.md
       - イテレーション 1 計画: development/iteration_plan-1.md
+      - イテレーション 1 ふりかえり: development/retrospective-1.md
+      - イテレーション 2 計画: development/iteration_plan-2.md
   - 運用:
       - 概要: operation/index.md
       - Mod 開発環境セットアップ: operation/mincraft_dev_setup.md

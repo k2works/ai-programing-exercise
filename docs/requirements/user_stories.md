@@ -53,7 +53,7 @@
 | **US-002** | **Modder として、GameTest の最小サンプルが自動実行されることを確認したい**。なぜなら受入テスト基盤が機能していなければ TDD が回らないからだ。 | `./gradlew runGameTestServer` が成功終了し、`RegisterGameTestsEvent` で登録した `FunctionGameTestInstance`（`minecraft:always_pass` を流用）が空 NBT 構造上で green になる。NBT は NeoForge データジェネレーター（`./gradlew runData`）で生成。CI に `runGameTestServer` ステップを追加。 | 3 |
 | **US-101** | **プレイヤーとして、新しいカスタムブロックをワールドに設置したい**。なぜなら Mod の存在を実感できる最初の要素だからだ。 | GameTest: US-002 で確立したハーネス上で、指定座標にカスタムブロックを `setBlock` し、`assertBlock` で検証する。 | 3 |
 | **US-102** | **プレイヤーとして、設置したカスタムブロックを破壊して回収したい**。なぜならブロックが普通のブロックとして振る舞うことを期待するからだ。 | GameTest: 設置 → 破壊 → ドロップアイテムがインベントリ相当（`spawnItem` ベース検証）に存在することを確認する。 | 3 |
-| **US-103** | **プレイヤーとして、クリエイティブインベントリからカスタムブロックを取得したい**。なぜなら手動確認時に毎回コマンドを打つのは面倒だからだ。 | クリエイティブタブにブロックが登録されている。GameTest: `CreativeModeTab` のエントリ確認 / もしくは `runClient` での手動確認手順をストーリーに添付。 | 2 |
+| **US-103** | **プレイヤーとして、クリエイティブインベントリからカスタムブロックを取得したい**。なぜなら手動確認時に毎回コマンドを打つのは面倒だからだ。 | `BUILDING_BLOCKS` タブ（既存 `addCreative` 経由）と独自 `aipe:example_tab` の両方に `example_block` が登録されている。`runClient` での目視確認手順を `docs/journal/it2-creative-tab.md` に記録。任意で `CreativeModeTab.getDisplayItems()` のユニットテスト追加。 | 2 |
 | 小計 |  |  | **11** |
 
 ---
