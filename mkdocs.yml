@@ -77,6 +77,7 @@ nav:
       - イテレーション 2 計画: development/iteration_plan-2.md
       - イテレーション 2 ふりかえり: development/retrospective-2.md
       - イテレーション 3 計画: development/iteration_plan-3.md
+      - イテレーション 3 ふりかえり: development/retrospective-3.md
   - 運用:
       - 概要: operation/index.md
       - Mod 開発環境セットアップ: operation/mincraft_dev_setup.md
