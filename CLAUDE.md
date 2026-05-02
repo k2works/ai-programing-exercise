@@ -10,6 +10,8 @@
 
 よいソフトウェアについての考えと規律と経験に関する知見は @docs/reference 内を参照してください。
 
+あなたは @docs/reference/ロジカルシンキング.md に従い論理的に考え、問題を分析し、解決策を構築します。
+
 あなたは @docs/reference/開発ガイド.md に従いソフトウェア開発を手段として問題解決に取り組みます。
 
 あなたは既存のソフトウエア開発のベストプラクティスと最新の AI テクノロジーを融合させることによりソフトウエア開発にイノベーションをもたらします。
@@ -24,11 +26,15 @@
 | :--- | :--- |
 | `orchestrating-analysis` | 分析フェーズの全体ワークフロー |
 | `orchestrating-development` | 開発フェーズの TDD ワークフロー・Codex 分業 |
+| `orchestrating-operation` | 運用フェーズの環境構築・デプロイワークフロー |
 
 ### 分析
 
 | スキル | 用途 |
 | :--- | :--- |
+| `analyzing-business-case` | 企業事例（ケーススタディ）の与件文作成 |
+| `analyzing-business-strategy` | 企業戦略・事業戦略・機能戦略の 3 階層戦略立案 |
+| `analyzing-business-architecture` | ビジネスアーキテクチャ分析（BMC・バリューストリーム・ケイパビリティマップ） |
 | `analyzing-inception-deck` | インセプションデッキ作成 |
 | `analyzing-requirements` | 要件定義（RDRA 2.0） |
 | `analyzing-usecases` | ユースケース・ユーザーストーリー |
@@ -48,6 +54,15 @@
 | `developing-backend` | バックエンド TDD（インサイドアウト） |
 | `developing-frontend` | フロントエンド TDD（アウトサイドイン） |
 
+### レビュー
+
+| スキル | 用途 |
+| :--- | :--- |
+| `analyzing-review` | 分析成果物のマルチパースペクティブレビュー |
+| `developing-review` | 開発成果物のマルチパースペクティブレビュー |
+| `developing-uiux-review` | UI/UX 成果物のマルチパースペクティブレビュー |
+| `operating-review` | 運用成果物のマルチパースペクティブレビュー |
+
 ### 計画・進捗
 
 | スキル | 用途 |
@@ -55,22 +70,38 @@
 | `planning-releases` | リリース・イテレーション計画 |
 | `syncing-github-project` | GitHub Project 同期 |
 | `tracking-progress` | 進捗分析・レポート |
+| `validating-iteration-plan` | イテレーション計画の整合性検証 |
 
 ### 運用
 
 | スキル | 用途 |
 | :--- | :--- |
-| `managing-operations` | 環境構築・デプロイ・監視 |
+| `operating-setup` | 環境構築（段階的セットアップ） |
+| `operating-script` | 運用スクリプト（Gulp タスク）作成 |
+| `operating-provision` | IaC プロビジョニング（Terraform） |
+| `operating-cicd` | CI/CD パイプライン構築 |
+| `operating-deploy` | デプロイ・ロールバック |
+| `operating-qt` | コード品質管理（SonarQube） |
+| `operating-backup` | バックアップ・リストア |
 | `killing-processes` | 開発プロセス強制終了 |
 
 ### ドキュメント・Git
 
 | スキル | 用途 |
 | :--- | :--- |
-| `managing-docs` | ドキュメント管理・Lint |
+| `operating-docs` | ドキュメント管理・Lint |
+| `generating-bmc` | ビジネスモデルキャンバス SVG 生成 |
 | `generating-slides` | インセプションデッキのスライド生成 |
 | `git-commit` | Conventional Commits 準拠のコミット |
 | `creating-adr` | ADR 作成 |
+| `creating-release-report` | リリース完了報告書作成 |
+| `creating-iteration-report` | イテレーション完了報告書作成 |
+
+### 学習
+
+| スキル | 用途 |
+| :--- | :--- |
+| `practicing-getting-start-tdd` | TDD プログラミング入門の対話式チュートリアル |
 
 ### 共通
 
