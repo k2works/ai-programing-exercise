@@ -152,16 +152,17 @@
 **小計**: 4h（実績 ~3h、3×3×3 拡張省略）
 **実績**: ローカルで 3 件 green / 652ms。`DeferredRegister` で `Registries.TEST_FUNCTION` に登録、`PLACE_BLOCK_FN.getKey()` を `FunctionGameTestInstance` から参照。
 
-#### 3. US-102: ブロック破壊・回収 GameTest（3 SP）
+#### 3. US-102: ブロック破壊・回収 GameTest（3 SP）✅ ローカル完了
 
 | # | タスク | 見積もり | 状態 |
 |---|--------|---------|------|
-| 3.1 | `data/aipe/loot_table/blocks/example_block.json`（drop self）作成 — データジェネレーター活用 | 1h | [ ] |
-| 3.2 | `aipe:break_and_drop` テスト関数登録 | 1h | [ ] |
-| 3.3 | GameTest メソッド: 設置 → `breakBlock` → ドロップ確認 | 1.5h | [ ] |
-| 3.4 | `runGameTestServer` 緑化確認 | 0.5h | [ ] |
+| 3.1 | `AipeBlockLootProvider` (`BlockLootSubProvider`) で `data/aipe/loot_table/blocks/example_block.json`（drop self）を生成 | 1h | [x] |
+| 3.2 | `aipe:break_and_drop` テスト関数登録（`DeferredRegister<Consumer<GameTestHelper>>`）| 1h | [x] |
+| 3.3 | GameTest メソッド: 設置 → `Level.destroyBlock(absPos, true, null)` → `assertItemEntityPresent` | 1.5h | [x] |
+| 3.4 | `runGameTestServer` 緑化確認（4 件 green）| 0.5h | [x] |
 
-**小計**: 4h
+**小計**: 4h（実績 ~3h）
+**実績**: ローカル 4 件 green / 800ms。`helper.destroyBlock(pos)` は内部で `dropBlock=false` を渡すため drops を発生させず、`helper.getLevel().destroyBlock(absolutePos(pos), true, null)` を使用して drops を発生させる必要があった。loot table は `LootTableProvider` + `BlockLootSubProvider.dropSelf()` で自動生成。
 
 #### 4. US-103: クリエイティブタブ確認（2 SP）
 
@@ -180,12 +181,12 @@
 | Day 0 準備（.gitattributes / spike） | 0 | 1.5h | [x] |
 | US-002 GameTest ハーネス | 3 | 6h | [x] |
 | US-101 ブロック設置 | 3 | 4h | [x] |
-| US-102 ブロック破壊・回収 | 3 | 4h | [ ] |
+| US-102 ブロック破壊・回収 | 3 | 4h | [x] |
 | US-103 クリエイティブタブ | 2 | 2h | [ ] |
 | **合計** | **11** | **17.5h** | |
 
 **1 SP あたり**: 約 1.6h
-**進捗率**: 55%（6/11 SP）
+**進捗率**: 82%（9/11 SP）
 
 ---
 

@@ -39,6 +39,10 @@ public final class AipeGameTests {
     public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> PLACE_BLOCK_FN =
             TEST_FUNCTIONS.register("place_block", () -> AipeGameTests::placeBlockTest);
 
+    /** US-102: {@code aipe:example_block} を設置 → 破壊 → ドロップアイテムを検証するテスト関数。 */
+    public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> BREAK_AND_DROP_FN =
+            TEST_FUNCTIONS.register("break_and_drop", () -> AipeGameTests::breakAndDropTest);
+
     private AipeGameTests() {
     }
 
@@ -69,6 +73,14 @@ public final class AipeGameTests {
                         PLACE_BLOCK_FN.getKey(),
                         new TestData<>(defaultEnv, emptyStructure,
                                 100, 0, true, Rotation.NONE, false, 1, 1, false)));
+
+        // US-102: break_and_drop test — place + destroy(drop=true) + assert ItemEntity
+        event.registerTest(
+                Identifier.fromNamespaceAndPath(MODID, "break_and_drop"),
+                new FunctionGameTestInstance(
+                        BREAK_AND_DROP_FN.getKey(),
+                        new TestData<>(defaultEnv, emptyStructure,
+                                100, 0, true, Rotation.NONE, false, 1, 1, false)));
     }
 
     /**
@@ -79,6 +91,23 @@ public final class AipeGameTests {
         BlockPos pos = new BlockPos(0, 0, 0);
         helper.setBlock(pos, AiProgrammingExercise.EXAMPLE_BLOCK.get());
         helper.assertBlockPresent(AiProgrammingExercise.EXAMPLE_BLOCK.get(), pos);
+        helper.succeed();
+    }
+
+    /**
+     * US-102: 指定座標に {@link AiProgrammingExercise#EXAMPLE_BLOCK} を設置し、
+     * loot table 経由で破壊した結果、対応する {@link AiProgrammingExercise#EXAMPLE_BLOCK_ITEM}
+     * が ItemEntity としてドロップされることを検証する。
+     *
+     * <p>{@link GameTestHelper#destroyBlock(BlockPos)} は内部で {@code dropBlock=false} を
+     * 渡すためドロップが発生しない。drops を発生させるため
+     * {@code Level.destroyBlock(pos, true, null)} を直接呼ぶ。
+     */
+    private static void breakAndDropTest(GameTestHelper helper) {
+        BlockPos pos = new BlockPos(0, 0, 0);
+        helper.setBlock(pos, AiProgrammingExercise.EXAMPLE_BLOCK.get());
+        helper.getLevel().destroyBlock(helper.absolutePos(pos), true, null);
+        helper.assertItemEntityPresent(AiProgrammingExercise.EXAMPLE_BLOCK_ITEM.get());
         helper.succeed();
     }
 }
