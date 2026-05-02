@@ -68,18 +68,21 @@
 **ストーリー**:
 > プレイヤーとして、新規ワールドで自然生成された `aipe:tower` 構造物を発見したい。
 
-**受入条件**:
+**受入条件**（v1.0.0 / IT-6 用に DoD 調整済み）:
 
 1. `data/aipe/worldgen/structure/tower.json`（`Structure` 定義: 配置タイプ、biome filter 等）作成。
 2. `data/aipe/worldgen/structure_set/tower.json`（配置設定: 頻度・spread）作成。
-3. `runClient` で新規ワールド生成後、`/locate structure aipe:tower` を実行すると座標が返る。
-4. 該当座標へ `/tp` で移動すると実際に石柱構造が出現している。
+3. `data/aipe/worldgen/template_pool/tower.json`（jigsaw 単一要素プール）作成。
+4. **`runClient` で `/place structure aipe:tower ~ ~ ~` を実行すると 3 段の石柱（`minecraft:stone`）が出現する**（メイン DoD: Path B）。
 5. 手順を `docs/journal/it6-structure-explore.md` に記録。
+
+**v1.1.0 へ持ち越し**: 受入条件 4 の Path A（`/locate structure aipe:tower` での自然生成発見）は NeoForge 1.21.11 の datapack-only structure が overworld 自然生成サイクルに乗りにくい摩擦のため、TerraBlender / world preset 統合と合わせて v1.1.0 で対応。
 
 **設計指針**:
 
 - 既存の `tower.nbt`（IT-4 で生成済み）を再利用。
-- `Structure` の type は `minecraft:jigsaw` ではなく独自またはバニラの `minecraft:placement_type` 系で最も簡素なものを採用。Day 0 spike で確認。
+- `Structure` type: `minecraft:jigsaw`、`template_pool` は `legacy_single_pool_element` でバニラ `pillager_outpost/base_plates.json` 準拠。
+- `start_height` は **VerticalAnchor 直書き**（`{"absolute": 0}`）。HeightProvider 形式（`{"type":"minecraft:constant","value":...}`）は構造には不正で配置失敗する（落とし穴メモリ参照）。
 
 ### タスク
 

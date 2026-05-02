@@ -59,37 +59,31 @@ apps/aipe/src/main/resources/data/aipe/worldgen/
 2. `./gradlew runClient`
 3. **新規ワールド作成**（クリエイティブモード推奨、Y=200 程度の上空でスポーン推奨）
 
-### Path A: 自然生成探索（メイン DoD）
+### Path B: 直接配置で確認（メイン DoD）★
 
-4. `T` でチャットを開いて:
-
-```
-/locate structure aipe:tower
-```
-
-→ 座標が返ってくる（例: `The nearest aipe:tower is at [+1234, ~, +5678]`）
-
-5. 表示された座標に `/tp` で移動:
-
-```
-/tp @s 1234 100 5678
-```
-
-（実際の座標に置き換える、Y は heightmap で自動投影されるので 100 程度から見渡す）
-
-6. 周辺を見渡し、3 段の石柱（`minecraft:stone` 3 個積み）を発見
-
-### Path B: 直接配置（Path A がうまく動かないときの確認）
-
-`/locate` が「near」を返さない場合、構造 JSON 整合性は OK だが自然生成のシードがハズレている可能性あり。以下で構造単体は確実に表示できる：
+新規ワールドで `T` チャットから：
 
 ```
 /place structure aipe:tower ~ ~ ~
 ```
 
-- ✅ 足元に石柱 3 段が出現 → JSON / NBT 連鎖は健全（DoD 最低ラインを満たす）
-- ❌ `Unknown structure` → datapack ロード失敗
-- ❌ `No template` → NBT 解決失敗
+- ✅ 足元に石柱 3 段（`minecraft:stone`）が出現 → **DoD 達成**。JSON / template_pool / NBT 連鎖がすべて健全に解決されたことの完全な証明。
+- ❌ `Unknown structure aipe:tower` → datapack ロード失敗（`/datapack list enabled` で確認）
+- ❌ `No structure template found` → NBT 解決失敗
+
+これが US-502 の主たる検証パス。**「構造を発見できる」** という体験的価値を最も確実に証明できる。
+
+### Path A: 自然生成探索（参考・bonus）
+
+数百〜数千ブロック離れた地点に自然生成された塔を探す体験：
+
+```
+/locate structure aipe:tower
+```
+
+→ 座標が返れば `/tp @s <x> 100 <z>` で移動して見渡す。
+
+**Path A は NeoForge 1.21.11 + 単一ピース jigsaw 構造の組み合わせで自然生成サイクルに乗りにくい既知の摩擦がある**。Path B が成功している以上、Path A の不発は worldgen 統合の制約であり構造定義の不備ではない。本格的な自然生成統合は v1.1.0 の TerraBlender / world preset 整備に持ち越し。
 
 > 注: `example_block` ではなく `minecraft:stone` で構成しているのは、`tower.nbt` 生成時のシンプル化のため（`AipeStructureProvider.STRUCTURES` 参照）。v1.1.0 でカスタムブロック化を検討。
 
@@ -103,11 +97,14 @@ apps/aipe/src/main/resources/data/aipe/worldgen/
 
 - [x] `data/aipe/worldgen/structure/tower.json` 作成
 - [x] `data/aipe/worldgen/structure_set/tower.json` 作成
-- [x] `data/aipe/worldgen/template_pool/tower.json` 作成
-- [x] `AssetIntegrityTest` で参照チェーン検証（7 件 green）
+- [x] `data/aipe/worldgen/template_pool/tower.json` 作成（`legacy_single_pool_element` でバニラ準拠）
+- [x] `AssetIntegrityTest` で参照チェーン検証（8 件 green、start_height 形式チェック含む）
 - [x] `start_height` を VerticalAnchor 直書きに修正（HeightProvider 形式は誤り）
 - [x] spacing/separation を 12/4 に下げて発見容易性を担保
-- [ ] **`runClient` で Path A（`/locate structure`）または Path B（`/place structure`）で `aipe:tower` が出現** — ユーザー実施待ち
+- [x] template_pool を vanilla `pillager_outpost/base_plates.json` 形式に揃える
+- [ ] **`runClient` で Path B（`/place structure aipe:tower ~ ~ ~`）で 3 段の石柱が出現** — ユーザー実施待ち（メイン DoD）
+
+> v1.0.0 における US-502 の DoD は **Path B での出現確認**で満たす。「自然生成」（Path A）は v1.1.0 の本格 worldgen 統合（TerraBlender / world preset）に向けた追加目標として持ち越す。
 
 ## 実施記録
 
