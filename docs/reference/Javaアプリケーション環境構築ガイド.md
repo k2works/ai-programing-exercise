@@ -483,6 +483,7 @@ start build/jacocoHtml/index.html # Windows
 4. `Run tests using` を `Gradle` に設定
 
 **自動テスト実行の設定：**
+
 - `Run` → `Edit Configurations`
 - `+` → `Gradle`
 - `Tasks` に `test --continuous` を設定
@@ -490,6 +491,8 @@ start build/jacocoHtml/index.html # Windows
 ### VS Code
 
 必要な拡張機能：
+
+
 - Extension Pack for Java
 - Gradle for Java
 - Test Runner for Java
@@ -543,36 +546,36 @@ public void method() { }
 
 1. **コミットは小さく頻繁に**
 
-   - 機能単位でコミット
-   - テストが通る状態でコミット
+     - 機能単位でコミット
+     - テストが通る状態でコミット
 
 2. **テストファースト**
 
-   - 実装前にテストを書く
-   - テストが失敗することを確認してから実装
+     - 実装前にテストを書く
+     - テストが失敗することを確認してから実装
 
 3. **継続的な品質チェック**
 
-   - コミット前に `./gradlew qualityCheck` を実行
-   - カバレッジ 80% 以上を目標
-   - 循環複雑度を 7 以下に維持
+     - コミット前に `./gradlew qualityCheck` を実行
+     - カバレッジ 80% 以上を目標
+     - 循環複雑度を 7 以下に維持
 
 4. **自動化の活用**
 
-   - `./gradlew test --continuous` を常に起動
-   - IDE の自動テスト機能を活用
+     - `./gradlew test --continuous` を常に起動
+     - IDE の自動テスト機能を活用
 
 5. **リファクタリングの習慣**
 
-   - テストが通ったらリファクタリング
-   - 重複コードの排除
-   - 意図が明確なコード
+     - テストが通ったらリファクタリング
+     - 重複コードの排除
+     - 意図が明確なコード
 
 6. **複雑度の管理**
 
-   - メソッドの循環複雑度は 7 以下を維持
-   - 複雑なロジックは小さなメソッドに分割
-   - 早期リターンやガード節を活用して複雑度を削減
+     - メソッドの循環複雑度は 7 以下を維持
+     - 複雑なロジックは小さなメソッドに分割
+     - 早期リターンやガード節を活用して複雑度を削減
 
 ## まとめ
 
