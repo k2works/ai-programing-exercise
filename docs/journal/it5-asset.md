@@ -54,6 +54,18 @@ python apps/aipe/src/main/resources/assets/aipe/textures/.gen_textures.py
 - [x] `assets/aipe/lang/en_us.json` の display name（`block.aipe.example_block` / `item.aipe.example_item` / `itemGroup.aipe`）は **MDK テンプレート段階で既に存在**（追加作業不要）
 - [ ] **`runClient` クリエイティブインベントリで両者がテクスチャ表示される目視確認** — ユーザー実施待ち（手順は下記）
 
+## 実施記録
+
+| 項目 | 内容 |
+|------|------|
+| 実施日 |  |
+| 実施者 |  |
+| 環境 | OS: / Java: / NeoForge: |
+| `example_block` テクスチャ表示 | OK / NG |
+| `example_item` テクスチャ表示 | OK / NG |
+| display name 表示（ホバー） | OK / NG |
+| 備考 |  |
+
 ## ユーザー目視確認手順
 
 1. プロジェクトルートで `cd apps/aipe`
