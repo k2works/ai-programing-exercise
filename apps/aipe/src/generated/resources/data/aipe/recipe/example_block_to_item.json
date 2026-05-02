@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "aipe:example_block"
+  ],
+  "result": {
+    "count": 1,
+    "id": "aipe:example_item"
+  }
+}

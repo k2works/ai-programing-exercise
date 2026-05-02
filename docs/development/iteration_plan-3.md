@@ -108,31 +108,32 @@
 **小計**: 3.5h（実績 ~1h、developing-review はふりかえりに統合）
 **実績**: ローカル 5 件 green / 421ms。`Player.addItem(ItemStack)` で在庫追加成立、`getInventory().contains(predicate)` で確認。途中で gametestserver ディレクトリの Windows ファイルロック問題に遭遇したが Gradle daemon 停止 + `Remove-Item -Force` で解消。
 
-#### 2. US-202: クラフトレシピ + GameTest（5 SP）
+#### 2. US-202: クラフトレシピ + GameTest（5 SP）✅ ローカル完了
 
 | # | タスク | 見積もり | 状態 |
 |---|--------|---------|------|
-| 2.1 | `AipeRecipeProvider` 作成（`RecipeProvider` を継承、`ShapelessRecipeBuilder` で `example_block` → `example_item`）| 1h | [ ] |
-| 2.2 | `AipeDataGenerators` に `AipeRecipeProvider` を登録 | 0.5h | [ ] |
-| 2.3 | `./gradlew runData` を実行し `data/aipe/recipe/example_block_to_item.json` 生成確認 | 0.5h | [ ] |
-| 2.4 | `aipe:craft_block_to_item` テスト関数を登録 | 0.5h | [ ] |
-| 2.5 | テスト実装: `RecipeManager` 経由でレシピを取得し、入力 `example_block` x1 に対し出力が `example_item` であることを検証 | 2h | [ ] |
-| 2.6 | `runGameTestServer` 緑化確認（6 件 green）| 0.5h | [ ] |
-| 2.7 | `developing-review` で TDD 完了時のレビュー発動 | 1h | [ ] |
+| 2.1 | `AipeRecipeProvider`（`RecipeProvider` 継承、`ShapelessRecipeBuilder` で `example_block` → `example_item`）+ `Runner` inner class | 1h | [x] |
+| 2.2 | `AipeDataGenerators` に `AipeRecipeProvider.Runner` を登録 | 0.5h | [x] |
+| 2.3 | `./gradlew runData` を実行し `data/aipe/recipe/example_block_to_item.json` 生成確認 | 0.5h | [x] |
+| 2.4 | `aipe:craft_block_to_item` テスト関数を登録 | 0.5h | [x] |
+| 2.5 | テスト実装: `RecipeManager.recipeMap()` 経由で `byKey` でレシピ存在確認 + `getRecipesFor(RecipeType.CRAFTING, CraftingInput, level)` で入力照合 + `assemble` で結果検証 | 2h | [x] |
+| 2.6 | `runGameTestServer` 緑化確認（6 件 green）| 0.5h | [x] |
+| 2.7 | `developing-review` で TDD 完了時のレビュー発動 | 1h | [-] ralph-loop 内では省略（後続のふりかえりで品質確認）|
 
-**小計**: 6h
+**小計**: 6h（実績 ~2h、developing-review はふりかえりに統合）
+**実績**: 6 件 green / 610ms。`unlockedBy` の Criterion 構築では `RecipeProvider.has(ItemLike)` ヘルパーを使用（直接 `new InventoryChangeTrigger()` するとレジストリ未登録エラー）。`RecipeProvider` の `items`/`registries`/`output` は protected フィールド（メソッドではない）。
 
 #### タスク合計
 
 | カテゴリ | SP | 理想時間 | 状態 |
 |---------|----|----|------|
-| Day 0 準備（gitignore チェック / spike） | 0 | 0.8h | [ ] |
-| US-201 アイテム所持 GameTest | 3 | 3.5h | [ ] |
-| US-202 クラフトレシピ + GameTest | 5 | 6h | [ ] |
+| Day 0 準備（gitignore チェック / spike） | 0 | 0.8h | [x] |
+| US-201 アイテム所持 GameTest | 3 | 3.5h | [x] |
+| US-202 クラフトレシピ + GameTest | 5 | 6h | [x] |
 | **合計** | **8** | **10.3h** | |
 
 **1 SP あたり**: 約 1.3h
-**進捗率**: 0%（0/8 SP）
+**進捗率**: 100%（8/8 SP）✅
 
 ---
 

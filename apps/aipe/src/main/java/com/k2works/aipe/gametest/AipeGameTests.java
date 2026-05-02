@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import com.k2works.aipe.AiProgrammingExercise;
+import com.k2works.aipe.data.AipeRecipeProvider;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -14,9 +15,15 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.gametest.framework.TestData;
 import net.minecraft.gametest.framework.TestEnvironmentDefinition;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Rotation;
 import net.neoforged.bus.api.IEventBus;
@@ -50,6 +57,11 @@ public final class AipeGameTests {
     /** US-201: モックプレイヤーに {@code aipe:example_item} を与え、所持を検証するテスト関数。 */
     public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> GIVE_ITEM_FN =
             TEST_FUNCTIONS.register("give_item", () -> AipeGameTests::giveItemTest);
+
+    /** US-202: {@code aipe:example_block} → {@code aipe:example_item} のクラフトレシピが登録され、
+     *  入力に対して期待の出力が得られることを検証するテスト関数。 */
+    public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> CRAFT_BLOCK_TO_ITEM_FN =
+            TEST_FUNCTIONS.register("craft_block_to_item", () -> AipeGameTests::craftBlockToItemTest);
 
     private AipeGameTests() {
     }
@@ -97,6 +109,14 @@ public final class AipeGameTests {
                         GIVE_ITEM_FN.getKey(),
                         new TestData<>(defaultEnv, emptyStructure,
                                 100, 0, true, Rotation.NONE, false, 1, 1, false)));
+
+        // US-202: craft_block_to_item test — verify recipe registration and result via RecipeManager
+        event.registerTest(
+                Identifier.fromNamespaceAndPath(MODID, "craft_block_to_item"),
+                new FunctionGameTestInstance(
+                        CRAFT_BLOCK_TO_ITEM_FN.getKey(),
+                        new TestData<>(defaultEnv, emptyStructure,
+                                100, 0, true, Rotation.NONE, false, 1, 1, false)));
     }
 
     /**
@@ -138,6 +158,37 @@ public final class AipeGameTests {
         helper.assertTrue(added, "addItem should succeed for empty inventory");
         helper.assertTrue(player.getInventory().contains(stack -> stack.is(item)),
                 "player inventory should contain " + item);
+        helper.succeed();
+    }
+
+    /**
+     * US-202: {@code aipe:example_block} 1 個を入力としたシェイプレスクラフトレシピが
+     * 登録されており、結果が {@link AiProgrammingExercise#EXAMPLE_ITEM} になることを検証する。
+     *
+     * <p>API レベル検証: {@link RecipeManager#recipeMap()} 経由でレシピをキー検索 + 入力照合。
+     */
+    private static void craftBlockToItemTest(GameTestHelper helper) {
+        RecipeManager recipes = helper.getLevel().getServer().getRecipeManager();
+
+        ResourceKey<Recipe<?>> key = AipeRecipeProvider.exampleBlockToItemKey();
+        RecipeHolder<?> registered = recipes.recipeMap().byKey(key);
+        helper.assertTrue(registered != null,
+                "recipe " + key.identifier() + " should be registered");
+
+        CraftingInput input = CraftingInput.of(1, 1,
+                java.util.List.of(new ItemStack(AiProgrammingExercise.EXAMPLE_BLOCK_ITEM.get())));
+
+        java.util.Optional<RecipeHolder<net.minecraft.world.item.crafting.CraftingRecipe>> match = recipes.recipeMap()
+                .getRecipesFor(RecipeType.CRAFTING, input, helper.getLevel())
+                .findFirst();
+        helper.assertTrue(match.isPresent(),
+                "RecipeType.CRAFTING should match for example_block input");
+
+        ItemStack result = match.get().value().assemble(input, helper.getLevel().registryAccess());
+        Item expected = AiProgrammingExercise.EXAMPLE_ITEM.get();
+        helper.assertTrue(result.is(expected),
+                "crafted result should be " + expected + " but was " + result);
+
         helper.succeed();
     }
 }

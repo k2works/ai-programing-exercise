@@ -38,5 +38,8 @@ public final class AipeDataGenerators {
                         AipeBlockLootProvider::new,
                         LootContextParamSets.BLOCK)),
                 event.getLookupProvider()));
+
+        // クラフトレシピ
+        generator.addProvider(true, new AipeRecipeProvider.Runner(output, event.getLookupProvider()));
     }
 }
