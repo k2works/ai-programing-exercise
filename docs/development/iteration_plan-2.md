@@ -140,16 +140,17 @@
 **小計**: 6h
 **実績**: ローカル `runGameTestServer` で 2 件 green (870ms)。3 つの問題を解決（`serverData()` 不足、`CachedOutput` 経由書き込み必須、構造パスは `structure` 単数形）。詳細は `docs/journal/it2-gametest.md`。
 
-#### 2. US-101: ブロック設置 GameTest（3 SP）
+#### 2. US-101: ブロック設置 GameTest（3 SP）✅ ローカル完了
 
 | # | タスク | 見積もり | 状態 |
 |---|--------|---------|------|
-| 2.1 | `aipe:place_block` テスト関数を `Consumer<GameTestHelper>` で登録 | 1h | [ ] |
-| 2.2 | テスト構造を 3×3×3 に拡張（`empty_3x3x3.nbt` 生成） | 1h | [ ] |
-| 2.3 | GameTest メソッド: `setBlock` → `assertBlock` → `helper.succeed()` | 1.5h | [ ] |
-| 2.4 | `runGameTestServer` 緑化確認 | 0.5h | [ ] |
+| 2.1 | `aipe:place_block` テスト関数を `DeferredRegister<Consumer<GameTestHelper>>` で `Registries.TEST_FUNCTION` に登録 | 1h | [x] |
+| 2.2 | テスト構造を 3×3×3 に拡張（`empty_3x3x3.nbt` 生成） | 1h | [-] スキップ（1×1×1 で十分。US-102 で破壊→ドロップ確認時に必要なら追加） |
+| 2.3 | GameTest メソッド: `setBlock(0,0,0)` → `assertBlockPresent` → `helper.succeed()` | 1.5h | [x] |
+| 2.4 | `runGameTestServer` 緑化確認（3 件 green: smoke / place_block / minecraft:default） | 0.5h | [x] |
 
-**小計**: 4h
+**小計**: 4h（実績 ~3h、3×3×3 拡張省略）
+**実績**: ローカルで 3 件 green / 652ms。`DeferredRegister` で `Registries.TEST_FUNCTION` に登録、`PLACE_BLOCK_FN.getKey()` を `FunctionGameTestInstance` から参照。
 
 #### 3. US-102: ブロック破壊・回収 GameTest（3 SP）
 
@@ -178,13 +179,13 @@
 |---------|----|----|------|
 | Day 0 準備（.gitattributes / spike） | 0 | 1.5h | [x] |
 | US-002 GameTest ハーネス | 3 | 6h | [x] |
-| US-101 ブロック設置 | 3 | 4h | [ ] |
+| US-101 ブロック設置 | 3 | 4h | [x] |
 | US-102 ブロック破壊・回収 | 3 | 4h | [ ] |
 | US-103 クリエイティブタブ | 2 | 2h | [ ] |
 | **合計** | **11** | **17.5h** | |
 
 **1 SP あたり**: 約 1.6h
-**進捗率**: 27%（3/11 SP）
+**進捗率**: 55%（6/11 SP）
 
 ---
 
