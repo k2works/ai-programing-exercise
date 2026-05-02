@@ -396,19 +396,28 @@ gantt
 
 詳細は [iteration_plan-5.md](./iteration_plan-5.md) を参照。
 
-### イテレーション 6（Week 11-12） — 新規 ★ プレイ可能 MVP
+### イテレーション 6（Week 11-12） — 新規 ★ プレイ可能 MVP（実装中）
 
 **ゴール**: `runClient` で生成したワールドを実際に体験できる。`aipe:custom_biome` への到達と `aipe:tower` 構造物の発見が可能になる。**プロジェクト最終目標達成**。
 
 **主なタスク**:
 
-- [ ] NeoForge `BiomeModifier` で `aipe:custom_biome` をオーバーワールドの biome source に追加
-- [ ] `data/aipe/worldgen/structure/tower.json` + `data/aipe/worldgen/structure_set/tower.json` で自然生成設定
-- [ ] `/locate biome aipe:custom_biome` / `/locate structure aipe:tower` で発見可能であることを目視確認
-- [ ] 一連のプレイ体験（ブロック設置 → アイテム入手 → クラフト → バイオーム到達 → 構造発見）の journal 作成
+- [x] **US-501（縮退版 SP 5→2）**: `aipe:custom_biome` registry 登録（IT-4 達成済）+ `/fillbiome` で領域変換可能（journal 整備済）
+- [x] **US-502（拡張版 SP 3→6）**: `data/aipe/worldgen/structure/tower.json` + `structure_set` + `template_pool` 整備、バニラ `pillager_outpost` 準拠
+- [x] AssetIntegrityTest を 8 件に拡張（start_height VerticalAnchor 形式チェック含む）
+- [x] runGameTestServer 8/8 緑、test 緑（回帰なし）
+- [ ] **`/place structure aipe:tower ~ ~ ~` 出現確認 + `/fillbiome aipe:custom_biome` 動作確認** — ユーザー実機検証待ち
+- [ ] retrospective-6.md 作成
+- [ ] release_plan / progress 反映
 - [ ] `v1.0.0` タグ付け
 
-**目標 SP**: 8
+**目標 SP**: 8 / **進捗**: 7/8 SP（87.5%、ユーザー検証で 100%）
+
+**スコープ調整**（Day 0 spike 結果反映）:
+
+- US-501 を縮退（biome source 統合は v1.1.0 で TerraBlender / world preset 対応へ持ち越し）
+- US-502 の DoD を Path B（`/place structure`）に切替（自然生成 = Path A は v1.1.0 へ持ち越し）
+- 差分は journal `it6-day0-spike.md` / `it6-structure-explore.md` に記録
 
 詳細は [iteration_plan-6.md](./iteration_plan-6.md) を参照。
 
@@ -457,9 +466,9 @@ gantt
 | IT-3 | 8 | 8 | 100% | 完了（2026-05-02） |
 | IT-4 | 13 | 13 | 100% | 完了（2026-05-02） |
 | IT-5 | 7 | 7 | 100% | 完了（2026-05-02）✅ |
-| **IT-6 ★ MVP** | **8** | - | - | **計画作成済** |
+| **IT-6 ★ MVP** | **8** | **7** | **87.5%** | **実装完 / ユーザー検証待ち** |
 | **小計（技術基盤）** | **37** | **37** | **100%** | 完了 ✅ |
-| **総計（プロジェクト）** | **52** | **44** | **85%** | 残 8 SP / IT-6 |
+| **総計（プロジェクト）** | **52** | **51** | **98%** | 残 1 SP / ユーザー検証で 100% |
 
 > IT-5 完了の経緯: 初回 runClient で missing texture が発生 → 1.21.x で必須化された item definitions（`assets/<modid>/items/*.json`）の欠落と判明 → `commit 26f9fb4b` で追加 → ユーザー目視確認で正常表示確認（2026-05-02）。v0.5.0 タグ付け準備完了。
 
@@ -471,7 +480,7 @@ xychart-beta
     x-axis ["開始", "IT-1", "IT-2", "IT-3", "IT-4", "IT-5", "IT-6"]
     y-axis "残 SP" 0 --> 60
     line "計画" [52, 47, 36, 28, 15, 8, 0]
-    line "実績(IT-5まで)" [52, 47, 36, 28, 15, 8, 8]
+    line "実績(IT-6 実装完)" [52, 47, 36, 28, 15, 8, 1]
 ```
 
 > 技術基盤フェーズ（IT-1〜IT-4）は計画と実績が完全一致して完了。体験フェーズ（IT-5〜IT-6）はまだ着手前のため flat 表示。**v1.0.0（IT-6 完了）でプレイ可能 MVP 達成**が最終目標。
