@@ -28,34 +28,68 @@ apps/aipe/src/main/resources/data/aipe/worldgen/
 | 構造タイプ | `minecraft:jigsaw` | 単一テンプレートでも汎用的に使える |
 | biome filter | `#minecraft:is_overworld` | バニラタグで全オーバーワールドバイオームに登場 |
 | step | `surface_structures` | 地表面に出現 |
-| start_height | `constant{above_bottom: 80}` | bottom（y=-64）+80 = y=16 が初期高度 |
+| start_height | `{"absolute": 0}` | VerticalAnchor 直書き（HeightProvider ではない）|
 | terrain_adaptation | `beard_thin` | 地形に薄く埋め込み |
-| placement | `random_spread{spacing: 24, separation: 8}` | 24 チャンクごとにスポーン候補、最低 8 チャンク間隔 |
+| placement | `random_spread{spacing: 12, separation: 4}` | 12 チャンクごとにスポーン候補、最低 4 チャンク間隔（密配置で発見容易）|
 | start_pool size | 1 | 単一ピース構造（拡張不要）|
 | use_expansion_hack | false | 不要 |
+
+### 落とし穴: `start_height` は VerticalAnchor を直接書く
+
+初版では `start_height` を以下のような **HeightProvider 形式** で書いていたが、これは feature 用フォーマット。Structure 用には誤り：
+
+```json
+"start_height": {
+  "type": "minecraft:constant",
+  "value": {"above_bottom": 80}
+}
+```
+
+これだと JSON パースは通って構造自体は registry に登録されるが、配置時にデコード失敗で **構造が一切配置されない**（`/locate structure aipe:tower` が常に「見つからない」を返す）。バニラの `pillager_outpost.json` / `trail_ruins.json` を参照すると以下の **VerticalAnchor 直書き** が正解：
+
+```json
+"start_height": {"absolute": 0}
+```
+
+`project_start_to_heightmap: WORLD_SURFACE_WG` を併用するため `absolute: 0` でも自動的に地表面に投影される。AssetIntegrityTest は文字列 contains しか見ないため、このバグはユーザー検証で初めて発覚した。
 
 ## 体験手順（ユーザー実施）
 
 1. プロジェクトルートで `cd apps/aipe`
 2. `./gradlew runClient`
-3. **新規ワールド作成**（クリエイティブモード推奨）
+3. **新規ワールド作成**（クリエイティブモード推奨、Y=200 程度の上空でスポーン推奨）
+
+### Path A: 自然生成探索（メイン DoD）
+
 4. `T` でチャットを開いて:
 
 ```
 /locate structure aipe:tower
 ```
 
-→ 座標が返ってくる（例: `[+1234, ~, +5678]`）
+→ 座標が返ってくる（例: `The nearest aipe:tower is at [+1234, ~, +5678]`）
 
 5. 表示された座標に `/tp` で移動:
 
 ```
-/tp ~ ~ ~ +1234 ~ +5678
+/tp @s 1234 100 5678
 ```
 
-（実際の座標に置き換える）
+（実際の座標に置き換える、Y は heightmap で自動投影されるので 100 程度から見渡す）
 
-6. 周辺を見渡し、3 段の石柱（`example_block` ではなく `minecraft:stone` 3 個積み）を発見
+6. 周辺を見渡し、3 段の石柱（`minecraft:stone` 3 個積み）を発見
+
+### Path B: 直接配置（Path A がうまく動かないときの確認）
+
+`/locate` が「near」を返さない場合、構造 JSON 整合性は OK だが自然生成のシードがハズレている可能性あり。以下で構造単体は確実に表示できる：
+
+```
+/place structure aipe:tower ~ ~ ~
+```
+
+- ✅ 足元に石柱 3 段が出現 → JSON / NBT 連鎖は健全（DoD 最低ラインを満たす）
+- ❌ `Unknown structure` → datapack ロード失敗
+- ❌ `No template` → NBT 解決失敗
 
 > 注: `example_block` ではなく `minecraft:stone` で構成しているのは、`tower.nbt` 生成時のシンプル化のため（`AipeStructureProvider.STRUCTURES` 参照）。v1.1.0 でカスタムブロック化を検討。
 
@@ -71,7 +105,9 @@ apps/aipe/src/main/resources/data/aipe/worldgen/
 - [x] `data/aipe/worldgen/structure_set/tower.json` 作成
 - [x] `data/aipe/worldgen/template_pool/tower.json` 作成
 - [x] `AssetIntegrityTest` で参照チェーン検証（7 件 green）
-- [ ] **`runClient` で `/locate structure aipe:tower` が成功し、座標で `aipe:tower` が確認できる** — ユーザー実施待ち
+- [x] `start_height` を VerticalAnchor 直書きに修正（HeightProvider 形式は誤り）
+- [x] spacing/separation を 12/4 に下げて発見容易性を担保
+- [ ] **`runClient` で Path A（`/locate structure`）または Path B（`/place structure`）で `aipe:tower` が出現** — ユーザー実施待ち
 
 ## 実施記録
 
