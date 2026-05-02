@@ -164,15 +164,16 @@
 **小計**: 4h（実績 ~3h）
 **実績**: ローカル 4 件 green / 800ms。`helper.destroyBlock(pos)` は内部で `dropBlock=false` を渡すため drops を発生させず、`helper.getLevel().destroyBlock(absolutePos(pos), true, null)` を使用して drops を発生させる必要があった。loot table は `LootTableProvider` + `BlockLootSubProvider.dropSelf()` で自動生成。
 
-#### 4. US-103: クリエイティブタブ確認（2 SP）
+#### 4. US-103: クリエイティブタブ確認（2 SP）✅ ローカル完了
 
 | # | タスク | 見積もり | 状態 |
 |---|--------|---------|------|
-| 4.1 | 独自 `EXAMPLE_TAB` の `displayItems` に `example_block` を追加 | 0.5h | [ ] |
-| 4.2 | `runClient` での目視確認手順を `docs/journal/it2-creative-tab.md` に記録 | 0.5h | [ ] |
-| 4.3 | （任意）`CreativeModeTab.getDisplayItems()` のユニットテスト | 1h | [ ] |
+| 4.1 | 独自 `EXAMPLE_TAB` の `displayItems` に `example_block` を追加 | 0.5h | [x] |
+| 4.2 | `runClient` での目視確認手順を `docs/journal/it2-creative-tab.md` に記録 | 0.5h | [x] |
+| 4.3 | （任意）`CreativeModeTab.getDisplayItems()` のユニットテスト | 1h | [-] スキップ（RegistryAccess 依存でセットアップ重く費用対効果薄い）|
 
-**小計**: 2h（任意タスク含めて）
+**小計**: 2h（実績 ~1h、任意 4.3 はスキップ）
+**実績**: BUILDING_BLOCKS タブ（既存 `addCreative()`）と独自 EXAMPLE_TAB の両方に `example_block` が登録される。`runClient` 目視確認は手順を journal に記録。
 
 #### タスク合計
 
@@ -182,11 +183,11 @@
 | US-002 GameTest ハーネス | 3 | 6h | [x] |
 | US-101 ブロック設置 | 3 | 4h | [x] |
 | US-102 ブロック破壊・回収 | 3 | 4h | [x] |
-| US-103 クリエイティブタブ | 2 | 2h | [ ] |
+| US-103 クリエイティブタブ | 2 | 2h | [x] |
 | **合計** | **11** | **17.5h** | |
 
 **1 SP あたり**: 約 1.6h
-**進捗率**: 82%（9/11 SP）
+**進捗率**: 100%（11/11 SP）✅
 
 ---
 
