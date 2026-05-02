@@ -113,12 +113,13 @@
 
 | # | タスク | 見積もり | 状態 |
 |---|--------|---------|------|
-| 3.1 | ワークフローファイル（`.github/workflows/ci.yml`）作成 | 1h | [ ] |
-| 3.2 | JDK 21 セットアップ + Gradle キャッシュ設定 | 0.5h | [ ] |
-| 3.3 | テスト実行コマンドの調整（`--no-daemon`, `build test`） | 0.5h | [ ] |
-| 3.4 | 初回 run の green 化（必要に応じて trial-and-error） | 1.5h | [ ] |
+| 3.1 | ワークフローファイル（`.github/workflows/aipe-ci.yml`）作成 | 1h | [x] |
+| 3.2 | JDK 21 セットアップ + `gradle/actions/setup-gradle@v4` でキャッシュ | 0.5h | [x] |
+| 3.3 | テスト実行コマンドの調整（`--no-daemon build test`） | 0.5h | [x] |
+| 3.4 | リモート push → 初回 run の green 化（必要に応じて trial-and-error） | 1.5h | [ ] |
 
 **小計**: 3.5h
+**進捗**: 3.1〜3.3 ローカル準備完了。3.4 の push & 動作確認はユーザー承認が必要
 
 #### タスク合計
 
