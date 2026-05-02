@@ -114,15 +114,16 @@
 
 ### タスク
 
-#### 0. IT-2 開始準備（ふりかえり Try 反映 / 0 SP）
+#### 0. IT-2 開始準備（ふりかえり Try 反映 / 0 SP）✅ 完了
 
 | # | タスク | 見積もり | 状態 |
 |---|--------|---------|------|
-| 0.1 | `.gitattributes` を追加（`gradlew text eol=lf`、`*.bat eol=crlf`、`*.md text eol=lf` 等） | 0.5h | [ ] |
-| 0.2 | GameTest 新 API の 30 分 spike — `RegisterGameTestsEvent` 登録例の最小コードを書いて疎通確認 | 0.5h | [ ] |
-| 0.3 | NBT 自動生成方法の確認 — NeoForge `runData` のドキュメント / 既存例調査 | 0.5h | [ ] |
+| 0.1 | `.gitattributes` を追加（`gradlew text eol=lf`、`*.bat eol=crlf`、`*.md text eol=lf` 等） | 0.5h | [x] |
+| 0.2 | GameTest 新 API の 30 分 spike — `RegisterGameTestsEvent` 登録例の最小コードを書いて疎通確認 | 0.5h | [x] |
+| 0.3 | NBT 自動生成方法の確認 — NeoForge `runData` のドキュメント / 既存例調査 | 0.5h | [x] |
 
 **小計**: 1.5h（IT-2 着手前 Day 0 / SP には含まない）
+**実績**: ルート `.gitattributes` 拡張、`AipeGameTests.java` spike が `compileJava` 緑（9 秒）、NBT 生成は `StructureTemplate.save` + `NbtIo.writeCompressed` を `DataProvider` 経由で行う方針に決定。詳細は `docs/journal/it2-day0-spike.md`。
 
 #### 1. US-002: GameTest 最小サンプル（3 SP）
 

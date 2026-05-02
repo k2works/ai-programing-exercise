@@ -2,3 +2,26 @@
 *.sh text eol=lf
 Dockerfile text eol=lf
 .vimrc text eol=lf
+
+# Gradle wrapper: shell script must always be LF (for Linux/macOS execute)
+gradlew text eol=lf
+
+# Windows batch / cmd must always be CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Markdown / source code: normalize to LF
+*.md text eol=lf
+*.java text eol=lf
+*.gradle text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.toml text eol=lf
+*.properties text eol=lf
+
+# Binaries (do not normalize)
+*.jar binary
+*.png binary
+*.nbt binary
+*.zip binary
