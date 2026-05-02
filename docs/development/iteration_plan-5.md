@@ -45,7 +45,10 @@
 
 ### ストーリー詳細
 
-#### US-401: アセット整備
+#### US-401: example_block / example_item が正しいテクスチャ・モデルで表示される
+
+**ストーリー**:
+> プレイヤーとして、`example_block` / `example_item` が正しいテクスチャ・モデルで表示されてほしい。なぜなら missing texture では Mod の存在を感じにくいからだ。
 
 **受入条件**:
 
@@ -57,7 +60,10 @@
 6. `assets/aipe/lang/en_us.json` に `block.aipe.example_block`、`item.aipe.example_item`、`itemGroup.aipe` の display name を追加。
 7. `runClient` クリエイティブインベントリで両者がテクスチャ表示される目視確認。
 
-#### US-402: ブロック体験
+#### US-402: ゲーム内で example_block を設置・破壊・回収する体験
+
+**ストーリー**:
+> プレイヤーとして、ゲーム内で `example_block` を設置・破壊・回収する一連のフローを体験したい。
 
 **受入条件**:
 
@@ -66,7 +72,10 @@
 3. インベントリにアイテムが戻ることを確認。
 4. 上記の手順を `docs/journal/it5-block-experience.md` に記録（スクショは任意）。
 
-#### US-403: クラフト体験
+#### US-403: クラフトテーブルで example_item を作る体験
+
+**ストーリー**:
+> プレイヤーとして、ゲーム内のクラフトテーブルで `example_block` から `example_item` を作る体験をしたい。
 
 **受入条件**:
 
@@ -203,6 +212,7 @@ apps/aipe/src/main/resources/assets/aipe/
 - [ ] `docs/journal/it5-{asset,block-experience,craft-experience}.md` 作成
 - [ ] `release_plan.md` の進捗欄を IT-5 実績で更新
 - [ ] `docs/development/retrospective-5.md` 作成
+- [ ] **`developing-review` を v0.5.0 タグ作成前にバッチ実行**（IT-4 ふりかえり Try 反映、5 観点 = コード品質・テスト品質・設計整合性・ドキュメント品質・利用者視点）
 - [ ] v0.5.0 タグ付け
 
 ### デモ項目

@@ -46,7 +46,10 @@
 
 ### ストーリー詳細
 
-#### US-501: バイオーム到達
+#### US-501: 新規ワールド生成時に aipe:custom_biome に到達できる
+
+**ストーリー**:
+> プレイヤーとして、新規ワールドを生成して `aipe:custom_biome` に到達したい。なぜなら登録されているだけでは体験できないからだ。
 
 **受入条件**:
 
@@ -60,7 +63,10 @@
 - NeoForge 1.21.x の biome modifier 仕様を Day 0 spike で確認。`AddSpawnsBiomeModifier` のような既存パターンを参考に、`AddNoiseSettingsBiomeModifier` 的なものを定義（または独自タイプ）。
 - フォールバック: もし biome modifier が複雑すぎる場合は、独自 `BiomeSource` を定義したカスタムワールドプリセットを `runClient` 起動時に選択する方式に切り替える（受入条件 1 を緩和）。
 
-#### US-502: 構造物発見
+#### US-502: 新規ワールドで自然生成された aipe:tower 構造物を発見できる
+
+**ストーリー**:
+> プレイヤーとして、新規ワールドで自然生成された `aipe:tower` 構造物を発見したい。
 
 **受入条件**:
 
@@ -207,6 +213,7 @@ apps/aipe/src/generated/resources/data/aipe/
 - [ ] `docs/journal/it6-{biome-explore,structure-explore,mvp-experience}.md` 作成
 - [ ] `release_plan.md` の進捗欄を IT-6 実績で更新（バーンダウン残 0）
 - [ ] `docs/development/retrospective-6.md` 作成
+- [ ] **`developing-review` を v1.0.0 タグ作成前にバッチ実行**（5 観点 = コード品質・テスト品質・設計整合性・ドキュメント品質・利用者視点）
 - [ ] **`v1.0.0` タグ作成・push（プレイ可能 MVP の到達証）**
 
 ### デモ項目（最終形）
